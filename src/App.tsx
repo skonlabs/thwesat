@@ -46,30 +46,28 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Main app with bottom nav */}
+          {/* All authenticated pages with bottom nav */}
           <Route element={<AppLayout />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/jobs/detail" element={<JobDetail />} />
+            <Route path="/jobs/saved" element={<SavedJobs />} />
+            <Route path="/applications" element={<Applications />} />
             <Route path="/mentors" element={<Mentors />} />
+            <Route path="/mentors/detail" element={<MentorDetail />} />
+            <Route path="/mentors/book" element={<MentorBooking />} />
             <Route path="/guides" element={<Guides />} />
+            <Route path="/guides/detail" element={<GuideDetail />} />
             <Route path="/community" element={<Community />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/chat" element={<ChatView />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/ai-tools" element={<AiProfileBuilder />} />
+            <Route path="/premium" element={<Premium />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
-
-          {/* Detail pages (no bottom nav) */}
-          <Route path="/jobs/detail" element={<JobDetail />} />
-          <Route path="/jobs/saved" element={<SavedJobs />} />
-          <Route path="/applications" element={<Applications />} />
-          <Route path="/mentors/detail" element={<MentorDetail />} />
-          <Route path="/mentors/book" element={<MentorBooking />} />
-          <Route path="/guides/detail" element={<GuideDetail />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/messages/chat" element={<ChatView />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/ai-tools" element={<AiProfileBuilder />} />
-          <Route path="/premium" element={<Premium />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/profile/edit" element={<EditProfile />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
