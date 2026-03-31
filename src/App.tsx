@@ -49,10 +49,12 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import DelegateAccess from "./pages/DelegateAccess";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
+import SiteGate from "./components/SiteGate";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <SiteGate>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -122,6 +124,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </SiteGate>
 );
 
 export default App;
