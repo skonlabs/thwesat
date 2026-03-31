@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
 import logo from "@/assets/logo.png";
 
 const Settings = () => {
