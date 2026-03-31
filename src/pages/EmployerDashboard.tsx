@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, Users, Eye, TrendingUp, Plus, BarChart3, Clock, CheckCircle, Pause, XCircle, ChevronRight, DollarSign, Building2, Search } from "lucide-react";
+import { Briefcase, Users, Eye, TrendingUp, Plus, BarChart3, Clock, CheckCircle, Pause, XCircle, ChevronRight, DollarSign, Building2, Search, Shield, MessageSquare, Sparkles, UserSearch } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -20,6 +20,15 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   paused: { label: { my: "ခေတ္တရပ်", en: "Paused" }, color: "text-muted-foreground bg-muted", icon: Pause },
   closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "text-destructive bg-destructive/10", icon: XCircle },
 };
+
+const quickActions = [
+  { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: UserSearch, label: "ဝန်ထမ်းရှာ", labelEn: "Find Talent", path: "/employer/search", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+];
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
@@ -50,6 +59,20 @@ const EmployerDashboard = () => {
           </div>
         </motion.div>
 
+        {/* Profile Completion */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-4 rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
+            <span className="text-xs font-bold text-primary">60%</span>
+          </div>
+          <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <motion.div initial={{ width: 0 }} animate={{ width: "60%" }} transition={{ delay: 0.3, duration: 0.6 }} className="h-full rounded-full bg-primary" />
+          </div>
+          <button onClick={() => navigate("/profile/edit")} className="text-xs font-semibold text-primary">
+            {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
+          </button>
+        </motion.div>
+
         {/* Stats Grid */}
         <div className="mb-5 grid grid-cols-2 gap-3">
           {stats.map((stat, i) => (
@@ -63,14 +86,24 @@ const EmployerDashboard = () => {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-5 flex gap-3">
-          <Button variant="gold" size="default" className="flex-1 rounded-xl" onClick={() => navigate("/employer/post-job")}>
-            <Plus className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အလုပ်တင်ရန်" : "Post Job"}
-          </Button>
-          <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => navigate("/employer/search")}>
-            <Search className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ကိုယ်စားလှယ်ရှာ" : "Search Talent"}
-          </Button>
+        {/* Quick Actions Grid */}
+        <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
+        <div className="mb-5 grid grid-cols-3 gap-3">
+          {quickActions.map((action, i) => (
+            <motion.button
+              key={action.path + action.labelEn}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              onClick={() => navigate(action.path)}
+              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3.5 transition-colors active:bg-muted"
+            >
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${action.bg}`}>
+                <action.icon className={`h-5 w-5 ${action.fg}`} strokeWidth={1.5} />
+              </div>
+              <span className="text-[11px] font-medium text-foreground">{lang === "my" ? action.label : action.labelEn}</span>
+            </motion.button>
+          ))}
         </div>
 
         {/* Listings */}
@@ -137,9 +170,28 @@ const EmployerDashboard = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Community Stats */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 mt-5 rounded-xl bg-primary p-5">
+          <h3 className="mb-4 text-sm font-bold text-primary-foreground">
+            {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
+          </h3>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { value: "5K+", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: "200+", label: lang === "my" ? "အလုပ်" : "Jobs" },
+              { value: "50+", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
+                <p className="text-lg font-bold text-primary-foreground">{stat.value}</p>
+                <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 };
 
-export default EmployerDashboard;
+export default HomePage;
