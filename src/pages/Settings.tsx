@@ -242,7 +242,7 @@ const Settings = () => {
               key={opt.code}
               onClick={() => handleLanguageChange(opt.code)}
               className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
-                lang === opt.code ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted"
+                lang === opt.code ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted/50"
               }`}
             >
               <span className="text-2xl">{opt.flag}</span>
