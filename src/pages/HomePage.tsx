@@ -143,13 +143,13 @@ const HomePage = () => {
           className="mb-6 mt-6 rounded-2xl bg-gradient-gold p-5"
         >
           <h3 className="mb-4 text-sm font-bold text-primary-foreground">
-            ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း · Our Community
+            {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
           </h3>
           <div className="grid grid-cols-3 gap-4">
             {[
-              { value: "5,000+", label: "အဖွဲ့ဝင်" },
-              { value: "200+", label: "အလုပ်" },
-              { value: "50+", label: "လမ်းညွှန်သူ" },
+              { value: "5,000+", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: "200+", label: lang === "my" ? "အလုပ်" : "Jobs" },
+              { value: "50+", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-lg font-bold text-primary-foreground">{stat.value}</p>
