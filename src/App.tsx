@@ -77,7 +77,7 @@ const App = () => (
               <Route path="/jobs/saved" element={<SavedJobs />} />
               <Route path="/applications" element={<Applications />} />
               <Route path="/mentors" element={<Mentors />} />
-              <Route path="/mentors/detail" element={<MentorDetail />} />
+              <Route path="/mentors/:id" element={<MentorDetail />} />
               <Route path="/mentors/book" element={<MentorBooking />} />
               <Route path="/mentors/dashboard" element={<MentorDashboard />} />
               <Route path="/mentors/mentees" element={<MentorMentees />} />
