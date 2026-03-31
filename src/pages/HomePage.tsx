@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bell, Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
+import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
