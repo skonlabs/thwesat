@@ -27,61 +27,64 @@ const HomePage = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
-      {/* ── Hero Section ── */}
-      <div className="relative overflow-hidden bg-gradient-gold pb-16 pt-5">
-        {/* Decorative circles */}
-        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary-foreground/10" />
-        <div className="absolute -left-4 bottom-4 h-20 w-20 rounded-full bg-primary-foreground/8" />
+      <div className="px-5 pb-2 pt-1">
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[32px] bg-card px-5 pb-6 pt-5 shadow-card"
+        >
+          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10" />
+          <div className="absolute -left-8 bottom-10 h-24 w-24 rounded-full bg-accent/10" />
 
-        <div className="relative px-5">
-          {/* Greeting row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-foreground/25 text-lg font-bold text-primary-foreground shadow-lg backdrop-blur-sm">
-                M
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-widest text-primary-foreground/60">
-                  {lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}
-                </p>
-                <h2 className="text-lg font-bold text-primary-foreground">
-                  {lang === "my" ? "မောင်မောင်" : "Maung Maung"}
-                </h2>
-              </div>
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
+                {lang === "my" ? "အလုပ်အကိုင် လမ်းကြောင်း" : "Career Journey"}
+              </p>
+              <h2 className="max-w-[12rem] text-[28px] font-bold leading-[1.05] text-foreground">
+                {lang === "my" ? "နောက်အလုပ်ကို ယုံကြည်စိတ်ချစွာ ရှာပါ" : "Find your next role with confidence"}
+              </h2>
             </div>
+
             <button
               onClick={() => navigate("/notifications")}
-              className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-foreground/20 backdrop-blur-sm transition-all active:scale-95"
+              className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-background shadow-card transition-all active:scale-95"
             >
-              <Bell className="h-5 w-5 text-primary-foreground" />
-              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-primary" />
+              <Bell className="h-5 w-5 text-foreground" />
+              <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
             </button>
           </div>
 
-          {/* Search floating card */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mt-5 flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 shadow-lg"
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
-              <Search className="h-4 w-4 text-primary" />
+          <p className="relative mt-3 max-w-[16rem] text-sm leading-relaxed text-muted-foreground">
+            {lang === "my"
+              ? "အလုပ်အကိုင်၊ လမ်းညွှန်သူများနှင့် အသိုင်းအဝိုင်းကို တစ်နေရာတည်းမှာ စနစ်တကျ ရှာဖွေပါ"
+              : "Explore jobs, mentors, and community support in one clear place."}
+          </p>
+
+          <div className="relative mt-5 rounded-[28px] bg-gradient-gold p-[1px] shadow-gold">
+            <div className="flex items-center gap-3 rounded-[27px] bg-card px-4 py-3.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
+                <Search className="h-4.5 w-4.5 text-primary" />
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                  {lang === "my" ? "စတင်ရှာဖွေပါ" : "Start searching"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု၊ ကုမ္ပဏီ..." : "Jobs, skills, companies..."}
+                </p>
+              </div>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}
-            </span>
-          </motion.div>
-        </div>
+          </div>
+        </motion.section>
       </div>
 
-      {/* ── Quick Actions (overlapping hero) ── */}
       <div className="px-5">
+        {/* Quick actions */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="-mt-8 grid grid-cols-3 gap-2.5"
+          className="grid grid-cols-3 gap-3"
         >
           {quickActions.map((action, i) => (
             <motion.button
