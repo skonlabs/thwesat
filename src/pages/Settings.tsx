@@ -96,7 +96,8 @@ const Settings = () => {
     }
   };
 
-  const handleEmergencyExit = () => {
+  const handleEmergencyExit = async () => {
+    await signOut();
     toast({
       title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
       description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
