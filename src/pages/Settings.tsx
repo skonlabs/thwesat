@@ -10,21 +10,52 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
+import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
+import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
+import SessionExpirySheet from "@/components/settings/SessionExpirySheet";
+import TelegramLinkSheet from "@/components/settings/TelegramLinkSheet";
+import DelegateTokenSheet from "@/components/settings/DelegateTokenSheet";
+import FontEncodingSheet from "@/components/settings/FontEncodingSheet";
+import PrivacyPolicySheet from "@/components/settings/PrivacyPolicySheet";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
+
+  // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
   const [rememberDevice, setRememberDevice] = useState(false);
+
+  // Values
   const [profileVisibility, setProfileVisibility] = useState("members");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteText, setDeleteText] = useState("");
+  const [sessionExpiry, setSessionExpiry] = useState("24h");
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [delegateToken, setDelegateToken] = useState<string | null>(null);
+
+  // Sheet states
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showVisibility, setShowVisibility] = useState(false);
+  const [showSessionExpiry, setShowSessionExpiry] = useState(false);
+  const [showTelegram, setShowTelegram] = useState(false);
+  const [showToken, setShowToken] = useState(false);
+  const [showFontEncoding, setShowFontEncoding] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+
+  // Password form
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [deleteText, setDeleteText] = useState("");
+
+  const sessionLabels: Record<string, { my: string; en: string }> = {
+    "1h": { my: "၁ နာရီ", en: "1 hour" },
+    "24h": { my: "၂၄ နာရီ", en: "24 hours" },
+    "7d": { my: "၇ ရက်", en: "7 days" },
+    "30d": { my: "၃၀ ရက်", en: "30 days" },
+  };
 
   const handleLanguageChange = (newLang: "my" | "en") => {
     setLang(newLang);
@@ -49,42 +80,64 @@ const Settings = () => {
   const handleDeleteAccount = () => {
     if (deleteText === "DELETE") {
       setShowDeleteConfirm(false);
-      toast({ title: lang === "my" ? "အကောင့် ဖျက်ရန် တောင်းဆိုပြီးပါပြီ" : "Account deletion requested", description: lang === "my" ? "၂၄ နာရီအတွင်း ပြန်ရယူနိုင်ပါသည်" : "You can recover within 24 hours" });
+      toast({
+        title: lang === "my" ? "အကောင့် ဖျက်ရန် တောင်းဆိုပြီးပါပြီ" : "Account deletion requested",
+        description: lang === "my" ? "၂၄ နာရီအတွင်း ပြန်ရယူနိုင်ပါသည်" : "You can recover within 24 hours",
+      });
       navigate("/");
     }
   };
 
   const handleEmergencyExit = () => {
-    toast({ title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out", description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared" });
+    toast({
+      title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
+      description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
+    });
     navigate("/");
+  };
+
+  const generateToken = () => {
+    const token = `ts_${crypto.randomUUID().replace(/-/g, "").slice(0, 24)}`;
+    setDelegateToken(token);
+    toast({ title: lang === "my" ? "Token ဖန်တီးပြီးပါပြီ" : "Token generated" });
+  };
+
+  const visibilityLabels: Record<string, { my: string; en: string }> = {
+    members: { my: "အဖွဲ့ဝင်များသာ", en: "Members only" },
+    public: { my: "အားလုံး", en: "Public" },
+    private: { my: "ကိုယ်တိုင်သာ", en: "Private" },
   };
 
   const settingsSections = [
     {
-      title: lang === "my" ? "ဘာသာစကားနှင့် ဖောင့်" : "Language & Font", items: [
-        { icon: Languages, label: lang === "my" ? "ဘာသာစကား" : "Language", value: lang === "my" ? "မြန်မာ (Burmese)" : "English", action: () => setShowLanguagePicker(true) },
-        { icon: Type, label: lang === "my" ? "ဖောင့် Encoding" : "Font Encoding", value: "Unicode", action: () => toast({ title: "Unicode", description: lang === "my" ? "Unicode encoding အသုံးပြုနေပါသည်" : "Currently using Unicode encoding" }) },
-      ]
+      title: lang === "my" ? "ဘာသာစကားနှင့် ဖောင့်" : "Language & Font",
+      items: [
+        { icon: Languages, label: lang === "my" ? "ဘာသာစကား" : "Language", value: lang === "my" ? "မြန်မာ" : "English", action: () => setShowLanguagePicker(true) },
+        { icon: Type, label: lang === "my" ? "ဖောင့် Encoding" : "Font Encoding", value: "Unicode", action: () => setShowFontEncoding(true) },
+      ],
     },
     {
-      title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications", items: [
-        { icon: Bell, label: "Push Notifications", value: pushNotifications ? (lang === "my" ? "ဖွင့်ထား" : "On") : (lang === "my" ? "ပိတ်ထား" : "Off"), toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
-        { icon: Smartphone, label: "Telegram Alerts", value: lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked", action: () => toast({ title: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon" }) },
-      ]
+      title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
+      items: [
+        { icon: Bell, label: "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
+        { icon: Smartphone, label: "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
+      ],
     },
     {
-      title: lang === "my" ? "လုံခြုံရေး" : "Security", items: [
+      title: lang === "my" ? "လုံခြုံရေး" : "Security",
+      items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
-        { icon: Clock, label: lang === "my" ? "Session သက်တမ်း" : "Session Expiry", value: lang === "my" ? "၂၄ နာရီ" : "24 hours", action: () => toast({ title: lang === "my" ? "Session သက်တမ်း" : "Session Expiry", description: "24 hours" }) },
-        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", value: "", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
-        { icon: Key, label: "Delegate Access Token", value: lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set", action: () => toast({ title: lang === "my" ? "Token ဖန်တီးပြီးပါပြီ" : "Token generated", description: "abc123-def456-ghi789" }) },
-      ]
+        { icon: Clock, label: lang === "my" ? "Session သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
+        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
+        { icon: Key, label: "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
+      ],
     },
     {
-      title: lang === "my" ? "ကိုယ်ရေးအချက်အလက်" : "Privacy", items: [
-        { icon: Eye, label: lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility", value: profileVisibility === "members" ? (lang === "my" ? "အဖွဲ့ဝင်များသာ" : "Members only") : (lang === "my" ? "အားလုံး" : "Public"), action: () => { setProfileVisibility(prev => prev === "members" ? "public" : "members"); } },
-        { icon: Shield, label: lang === "my" ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy Policy", value: "", action: () => toast({ title: "Privacy Policy", description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon" }) },
-      ]
+      title: lang === "my" ? "ကိုယ်ရေးအချက်အလက်" : "Privacy",
+      items: [
+        { icon: Eye, label: lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility", value: visibilityLabels[profileVisibility]?.[lang] || "Members only", action: () => setShowVisibility(true) },
+        { icon: Shield, label: lang === "my" ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy Policy", value: "", action: () => setShowPrivacyPolicy(true) },
+      ],
     },
   ];
 
@@ -93,6 +146,7 @@ const Settings = () => {
       <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} />
 
       <div className="px-5">
+        {/* Emergency Exit Banner */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" strokeWidth={1.5} />
           <div>
@@ -108,23 +162,31 @@ const Settings = () => {
           </div>
         </motion.div>
 
+        {/* Settings Sections */}
         {settingsSections.map((section, si) => (
           <motion.div key={si} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: si * 0.05 }} className="mb-4">
             <h2 className="mb-2 px-1 text-xs font-semibold text-muted-foreground">{section.title}</h2>
             <div className="overflow-hidden rounded-xl border border-border bg-card">
               {section.items.map((item, i) => (
-                <button key={i} onClick={'action' in item ? item.action : undefined} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30">
+                <button
+                  key={i}
+                  onClick={'action' in item ? item.action : undefined}
+                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30"
+                >
                   <item.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                   <div className="flex-1">
                     <p className="text-sm text-foreground">{item.label}</p>
                   </div>
                   {'toggle' in item && item.toggle ? (
-                    <button onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }} className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }}
+                      className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}
+                    >
                       <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
                     </button>
                   ) : (
                     <>
-                      {item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
+                      {'value' in item && item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
                       <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
                     </>
                   )}
@@ -134,6 +196,7 @@ const Settings = () => {
           </motion.div>
         ))}
 
+        {/* Danger Zone */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4">
           <h2 className="mb-2 px-1 text-xs font-semibold text-destructive">{lang === "my" ? "အန္တရာယ်ဇုန်" : "Danger Zone"}</h2>
           <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -157,74 +220,89 @@ const Settings = () => {
         <p className="mt-6 text-center text-[10px] text-muted-foreground">ThweSone v1.0.0 · Build 2026.03</p>
       </div>
 
-      {/* Language Picker Modal */}
-      <AnimatePresence>
-        {showLanguagePicker && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setShowLanguagePicker(false)}>
-            <motion.div initial={{ y: 200 }} animate={{ y: 0 }} exit={{ y: 200 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Select Language"}</h2>
-                <button onClick={() => setShowLanguagePicker(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
-              </div>
-              <div className="space-y-2">
-                <button onClick={() => handleLanguageChange("my")} className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${lang === "my" ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted"}`}>
-                  <span className="text-2xl">🇲🇲</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">မြန်မာ (Burmese)</p>
-                    <p className="text-xs text-muted-foreground">Myanmar Language</p>
-                  </div>
-                  {lang === "my" && <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />}
-                </button>
-                <button onClick={() => handleLanguageChange("en")} className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${lang === "en" ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted"}`}>
-                  <span className="text-2xl">🇺🇸</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">English</p>
-                    <p className="text-xs text-muted-foreground">English Language</p>
-                  </div>
-                  {lang === "en" && <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* === Bottom Sheet Modals === */}
 
-      {/* Change Password Modal */}
-      <AnimatePresence>
-        {showPasswordChange && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setShowPasswordChange(false)}>
-            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password"}</h2>
-                <button onClick={() => setShowPasswordChange(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
+      {/* Language Picker */}
+      <SettingsBottomSheet open={showLanguagePicker} onClose={() => setShowLanguagePicker(false)} title={lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Select Language"}>
+        <div className="space-y-2">
+          {[
+            { code: "my" as const, flag: "🇲🇲", name: "မြန်မာ (Burmese)", sub: "Myanmar Language" },
+            { code: "en" as const, flag: "🇺🇸", name: "English", sub: "English Language" },
+          ].map((opt) => (
+            <button
+              key={opt.code}
+              onClick={() => handleLanguageChange(opt.code)}
+              className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
+                lang === opt.code ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted"
+              }`}
+            >
+              <span className="text-2xl">{opt.flag}</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">{opt.name}</p>
+                <p className="text-xs text-muted-foreground">{opt.sub}</p>
               </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "လက်ရှိ စကားဝှက်" : "Current Password"}</label>
-                  <Input type="password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} className="h-11 rounded-xl" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "စကားဝှက်အသစ်" : "New Password"}</label>
-                  <Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} className="h-11 rounded-xl" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "အတည်ပြု စကားဝှက်" : "Confirm Password"}</label>
-                  <Input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} className="h-11 rounded-xl" />
-                </div>
-              </div>
-              <Button variant="gold" size="lg" className="mt-4 w-full rounded-xl" onClick={handlePasswordChange} disabled={!currentPw || !newPw || !confirmPw}>
-                {lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Update Password"}
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {lang === opt.code && <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />}
+            </button>
+          ))}
+        </div>
+      </SettingsBottomSheet>
+
+      {/* Change Password */}
+      <SettingsBottomSheet open={showPasswordChange} onClose={() => setShowPasswordChange(false)} title={lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password"}>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "လက်ရှိ စကားဝှက်" : "Current Password"}</label>
+            <Input type="password" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} className="h-11 rounded-xl" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "စကားဝှက်အသစ်" : "New Password"}</label>
+            <Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} className="h-11 rounded-xl" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">{lang === "my" ? "အတည်ပြု စကားဝှက်" : "Confirm Password"}</label>
+            <Input type="password" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} className="h-11 rounded-xl" />
+          </div>
+          {newPw && newPw.length < 6 && (
+            <p className="text-[11px] text-destructive">
+              {lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး ရှိရပါမည်" : "Password must be at least 6 characters"}
+            </p>
+          )}
+          {newPw && confirmPw && newPw !== confirmPw && (
+            <p className="text-[11px] text-destructive">
+              {lang === "my" ? "စကားဝှက် မတူပါ" : "Passwords don't match"}
+            </p>
+          )}
+        </div>
+        <Button variant="gold" size="lg" className="mt-4 w-full rounded-xl" onClick={handlePasswordChange} disabled={!currentPw || !newPw || !confirmPw}>
+          {lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Update Password"}
+        </Button>
+      </SettingsBottomSheet>
+
+      {/* Feature Sheets */}
+      <ProfileVisibilitySheet open={showVisibility} onClose={() => setShowVisibility(false)} value={profileVisibility} onChange={setProfileVisibility} />
+      <SessionExpirySheet open={showSessionExpiry} onClose={() => setShowSessionExpiry(false)} value={sessionExpiry} onChange={setSessionExpiry} />
+      <TelegramLinkSheet
+        open={showTelegram}
+        onClose={() => setShowTelegram(false)}
+        isLinked={telegramLinked}
+        onLink={() => { setTelegramLinked(true); toast({ title: lang === "my" ? "Telegram ချိတ်ဆက်ပြီးပါပြီ" : "Telegram linked!" }); }}
+        onUnlink={() => { setTelegramLinked(false); toast({ title: lang === "my" ? "Telegram ချိတ်ဆက်မှု ဖြုတ်ပြီးပါပြီ" : "Telegram unlinked" }); }}
+      />
+      <DelegateTokenSheet
+        open={showToken}
+        onClose={() => setShowToken(false)}
+        token={delegateToken}
+        onGenerate={generateToken}
+        onRevoke={() => { setDelegateToken(null); toast({ title: lang === "my" ? "Token ဖျက်သိမ်းပြီးပါပြီ" : "Token revoked" }); }}
+      />
+      <FontEncodingSheet open={showFontEncoding} onClose={() => setShowFontEncoding(false)} />
+      <PrivacyPolicySheet open={showPrivacyPolicy} onClose={() => setShowPrivacyPolicy(false)} />
 
       {/* Delete Account Modal */}
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowDeleteConfirm(false)}>
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10">
                 <AlertTriangle className="h-7 w-7 text-destructive" strokeWidth={1.5} />
               </div>
@@ -234,7 +312,7 @@ const Settings = () => {
                   ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ဖျက်၍ မရပါ။ ၂၄ နာရီအတွင်း ပြန်ရယူနိုင်ပါသည်။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
                   : "This action cannot be undone. You have 24 hours to recover. Type 'DELETE' to confirm"}
               </p>
-              <Input value={deleteText} onChange={e => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-4 h-11 rounded-xl text-center text-sm" />
+              <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-4 h-11 rounded-xl text-center text-sm" />
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setShowDeleteConfirm(false)}>
                   {lang === "my" ? "မလုပ်တော့" : "Cancel"}
