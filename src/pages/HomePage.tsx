@@ -5,6 +5,15 @@ import { useLanguage } from "@/hooks/use-language";
 import { useRole } from "@/hooks/use-role";
 import PageHeader from "@/components/PageHeader";
 
+const mentorActions = [
+  { icon: Users, label: "Booking များ", labelEn: "Bookings", path: "/mentors/book", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "My Profile", path: "/mentors/detail", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Search, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/10", fg: "text-accent" },
+];
+
 const jobseekerActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-primary/10", fg: "text-primary" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
