@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Globe, Type, Shield, Bell, Lock, UserX, Key, ChevronRight,
+  Globe, Type, Shield, Bell, Lock, Key, ChevronRight,
   Languages, Eye, Clock, Smartphone, AlertTriangle, Fingerprint, Trash2, LogOut, X, Check
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
