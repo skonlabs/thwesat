@@ -11,18 +11,39 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
-
-const skills = ["React", "TypeScript", "Node.js", "UI/UX Design", "Project Management", "English (Fluent)"];
 
 const Profile = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
   const { toast } = useToast();
+  const { profile, signOut } = useAuth();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
-  const referralCode = "TS-A1B2C3";
+
+  const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
+  const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? "Mentor" : "");
+  const location = profile?.location || "";
+  const skills = profile?.skills || [];
+  const referralCode = profile?.referral_code || "TS-XXXXXX";
+  const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+
+  const profileCompletionFields = [
+    profile?.display_name,
+    profile?.headline,
+    profile?.bio,
+    profile?.location,
+    profile?.email,
+    profile?.skills?.length,
+    profile?.languages?.length,
+    profile?.experience,
+    profile?.avatar_url,
+    profile?.phone,
+  ];
+  const filledCount = profileCompletionFields.filter(Boolean).length;
+  const completionPct = Math.round((filledCount / profileCompletionFields.length) * 100);
 
   const copyReferral = () => {
     navigator.clipboard.writeText(`https://thwesone.com/signup?ref=${referralCode}`);
@@ -46,6 +67,11 @@ const Profile = () => {
 
   const currentRoleLabel = roleOptions.find(o => o.value === role)!;
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
@@ -65,7 +91,7 @@ const Profile = () => {
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
-    { icon: Users, label: lang === "my" ? "Booking တောင်းဆိုမှုများ" : "Booking Requests", path: "/mentors/detail" },
+    { icon: Users, label: lang === "my" ? "Booking တောင်းဆိုမှုများ" : "Booking Requests", path: "/mentors/bookings" },
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
     { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
@@ -96,21 +122,11 @@ const Profile = () => {
             </span>
           </button>
 
-          {/* Role picker dropdown */}
           {showRolePicker && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-2 overflow-hidden rounded-xl border border-border bg-card"
-            >
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
               {roleOptions.map((r) => (
-                <button
-                  key={r.value}
-                  onClick={() => handleSelectRole(r.value)}
-                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${
-                    role === r.value ? "bg-primary/5" : "active:bg-muted"
-                  }`}
-                >
+                <button key={r.value} onClick={() => handleSelectRole(r.value)}
+                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${role === r.value ? "bg-primary/5" : "active:bg-muted"}`}>
                   <div className={`flex h-8 w-8 items-center justify-center rounded-full ${role === r.value ? "bg-primary/10" : "bg-muted"}`}>
                     <r.icon className={`h-4 w-4 ${role === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                   </div>
@@ -130,29 +146,27 @@ const Profile = () => {
         {/* Profile card */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-start gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">MM</div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-14 w-14 rounded-full object-cover" />
+              ) : avatarInitials}
+            </div>
             <div className="flex-1">
-              <h2 className="text-base font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h2>
-              <p className="text-xs text-muted-foreground">
-                {role === "employer"
-                  ? (lang === "my" ? "အလုပ်ရှင်" : "Employer")
-                  : role === "mentor"
-                  ? "Mentor"
-                  : "Full Stack Developer"}
-              </p>
+              <h2 className="text-base font-bold text-foreground">{displayName}</h2>
+              <p className="text-xs text-muted-foreground">{headline}</p>
               <div className="mt-1.5 flex items-center gap-2.5">
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> Bangkok, TH</span>
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> Remote</span>
+                {location && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {location}</span>}
+                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> Remote</span>}
               </div>
             </div>
           </div>
           <div className="mt-4 rounded-lg bg-muted p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</span>
-              <span className="text-xs font-bold text-primary">45%</span>
+              <span className="text-xs font-bold text-primary">{completionPct}%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-border">
-              <div className="h-full w-[45%] rounded-full bg-primary" />
+              <div className="h-full rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
             </div>
           </div>
         </motion.div>
@@ -163,10 +177,10 @@ const Profile = () => {
             <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Remote Work အသင့်အနေ" : "Remote Work Readiness"}</h3>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { icon: Laptop, label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", active: true },
-                { icon: Globe, label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", active: true },
-                { icon: CreditCard, label: "Payoneer", active: true },
-                { icon: CreditCard, label: "Wise", active: false },
+                { icon: Laptop, label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", active: profile?.has_laptop },
+                { icon: Globe, label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", active: profile?.internet_stable },
+                { icon: CreditCard, label: "Payoneer", active: profile?.has_payoneer },
+                { icon: CreditCard, label: "Wise", active: profile?.has_wise },
               ].map((item, i) => (
                 <div key={i} className={`flex items-center gap-2 rounded-lg p-2 ${item.active ? "bg-emerald/5" : "bg-muted"}`}>
                   <item.icon className={`h-3.5 w-3.5 ${item.active ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
@@ -179,7 +193,7 @@ const Profile = () => {
         )}
 
         {/* Skills - only for jobseekers */}
-        {role === "jobseeker" && (
+        {role === "jobseeker" && skills.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-border bg-card p-4">
             <div className="mb-2.5 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h3>
@@ -208,12 +222,6 @@ const Profile = () => {
               {referralCopied ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
             </Button>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border">
-              <div className="h-full w-[40%] rounded-full bg-primary" />
-            </div>
-            <span className="text-[10px] font-semibold text-muted-foreground">2/5</span>
-          </div>
         </motion.div>
 
         {/* Menu */}
@@ -230,7 +238,7 @@ const Profile = () => {
           ))}
         </motion.div>
 
-        <Button variant="ghost" className="mt-4 w-full text-destructive hover:bg-destructive/5" onClick={() => navigate("/")}>
+        <Button variant="ghost" className="mt-4 w-full text-destructive hover:bg-destructive/5" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" strokeWidth={1.5} />
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>

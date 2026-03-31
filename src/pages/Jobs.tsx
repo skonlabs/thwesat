@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
+import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use-jobs";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -31,18 +32,42 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
-const allJobs = [
-  { title: "Senior React Developer", company: "TechCorp Asia", location: "Remote", type: "remote_full", typeLabel: { my: "Remote အပြည့်", en: "Remote Full-time" }, salary: "$3,000–$5,000/mo", postedAgo: { my: "2 နာရီ", en: "2 hours" }, saved: false, tags: ["React", "TypeScript", "Node.js"], category: "Tech", diasporaSafe: true, verified: true, paymentMethods: ["Wise", "Payoneer"], requiresEmbassy: false, visaSponsorship: false, featured: true },
-  { title: "UI/UX Designer", company: "DesignStudio BKK", location: "Bangkok, TH", type: "hybrid", typeLabel: { my: "Hybrid", en: "Hybrid" }, salary: "$2,000–$3,500/mo", postedAgo: { my: "5 နာရီ", en: "5 hours" }, saved: true, tags: ["Figma", "UI Design", "Prototyping"], category: "Design", diasporaSafe: true, verified: true, paymentMethods: ["Bank Transfer"], requiresEmbassy: true, visaSponsorship: true, featured: false },
-  { title: "Project Coordinator", company: "NGO Partners", location: "Remote", type: "remote_contract", typeLabel: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" }, salary: "$1,800–$2,800/mo", postedAgo: { my: "1 ရက်", en: "1 day" }, saved: false, tags: ["Project Mgmt", "English", "Reporting"], category: "NGO", diasporaSafe: true, verified: true, paymentMethods: ["Wise"], requiresEmbassy: false, visaSponsorship: false, featured: false },
-  { title: "Full Stack Developer", company: "StartupHub SG", location: "Singapore", type: "remote_full", typeLabel: { my: "Remote အပြည့်", en: "Remote Full-time" }, salary: "$4,000–$6,000/mo", postedAgo: { my: "1 ရက်", en: "1 day" }, saved: false, tags: ["Python", "React", "AWS"], category: "Tech", diasporaSafe: false, verified: true, paymentMethods: ["Payoneer", "Bank Transfer"], requiresEmbassy: false, visaSponsorship: true, featured: true },
-  { title: "Myanmar-English Translator", company: "LangBridge", location: "Remote", type: "remote_contract", typeLabel: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" }, salary: "$1,200–$2,000/mo", postedAgo: { my: "2 ရက်", en: "2 days" }, saved: false, tags: ["Translation", "Burmese", "English"], category: "Translation", diasporaSafe: true, verified: false, paymentMethods: ["Wise"], requiresEmbassy: false, visaSponsorship: false, featured: false },
-];
+const roleTypeLabels: Record<string, { my: string; en: string }> = {
+  remote_full: { my: "Remote အပြည့်", en: "Remote Full-time" },
+  remote_contract: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" },
+  hybrid: { my: "Hybrid", en: "Hybrid" },
+  "full-time": { my: "အပြည့်အဝ", en: "Full-time" },
+  contract: { my: "ကန်ထရိုက်", en: "Contract" },
+};
+
+function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
+  if (!dateStr) return { my: "မကြာသေးမီ", en: "Recently" };
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (hours < 1) return { my: "ယခု", en: "Just now" };
+  if (hours < 24) return { my: `${hours} နာရီ`, en: `${hours} hours` };
+  return { my: `${days} ရက်`, en: `${days} days` };
+}
+
+function formatSalary(job: Job): string {
+  const min = job.salary_min;
+  const max = job.salary_max;
+  const cur = job.currency || "USD";
+  if (!min && !max) return "Negotiable";
+  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/mo`;
+  if (min) return `$${min.toLocaleString()}+/mo`;
+  return `Up to $${max?.toLocaleString()}/mo`;
+}
 
 const Jobs = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { data: jobs = [], isLoading } = useJobs();
+  const { data: savedJobIds = [] } = useSavedJobIds();
+  const toggleSaveMutation = useToggleSaveJob();
+
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -51,23 +76,20 @@ const Jobs = () => {
   const [filterDiasporaSafe, setFilterDiasporaSafe] = useState(false);
   const [filterVerified, setFilterVerified] = useState(false);
   const [filterVisa, setFilterVisa] = useState(false);
-  const [savedJobs, setSavedJobs] = useState<Record<number, boolean>>(
-    Object.fromEntries(allJobs.map((j, i) => [i, j.saved]))
-  );
 
   const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
 
-  const filteredJobs = allJobs.filter(job => {
+  const filteredJobs = jobs.filter(job => {
     const matchesSearch = search === "" ||
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.company.toLowerCase().includes(search.toLowerCase()) ||
-      job.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
+      (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = activeCategory === "All" || job.category === activeCategory;
-    const matchesType = filterType === "all" || job.type === filterType;
+    const matchesType = filterType === "all" || job.role_type === filterType;
     const matchesLocation = filterLocation === "all" || job.location === filterLocation;
-    const matchesDiaspora = !filterDiasporaSafe || job.diasporaSafe;
-    const matchesVerified = !filterVerified || job.verified;
-    const matchesVisa = !filterVisa || job.visaSponsorship;
+    const matchesDiaspora = !filterDiasporaSafe || job.is_diaspora_safe;
+    const matchesVerified = !filterVerified || job.is_verified;
+    const matchesVisa = !filterVisa || job.visa_sponsorship;
     return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
   });
 
@@ -79,14 +101,19 @@ const Jobs = () => {
     setFilterVisa(false);
   };
 
-  const toggleSave = (i: number, e: React.MouseEvent) => {
+  const handleToggleSave = (jobId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedJobs(prev => ({ ...prev, [i]: !prev[i] }));
+    const isSaved = savedJobIds.includes(jobId);
+    toggleSaveMutation.mutate({ jobId, isSaved });
     toast({
-      title: savedJobs[i]
+      title: isSaved
         ? (lang === "my" ? "သိမ်းဆည်းမှု ဖယ်ရှားပြီး" : "Removed from saved")
         : (lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved!"),
     });
+  };
+
+  const isFeatured = (job: Job) => {
+    return (job.salary_max || 0) >= 5000 || (job.applicant_count || 0) >= 20;
   };
 
   return (
@@ -181,7 +208,12 @@ const Jobs = () => {
       </AnimatePresence>
 
       <div className="space-y-2.5 px-5 pb-6">
-        {filteredJobs.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading jobs..."}</p>
+          </div>
+        ) : filteredJobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
@@ -189,11 +221,15 @@ const Jobs = () => {
           </div>
         ) : (
           filteredJobs.map((job, i) => {
-            const origIndex = allJobs.indexOf(job);
+            const featured = isFeatured(job);
+            const isSaved = savedJobIds.includes(job.id);
+            const typeLabel = roleTypeLabels[job.role_type || ""] || { my: job.job_type || "", en: job.job_type || "" };
+            const postedAgo = formatTimeAgo(job.created_at);
+
             return (
-              <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`rounded-xl border bg-card p-4 shadow-card ${job.featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate("/jobs/detail")}>
-                {job.featured && (
+              <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                className={`rounded-xl border bg-card p-4 shadow-card ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+                {featured && (
                   <div className="mb-2 flex items-center gap-1">
                     <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
                   </div>
@@ -204,48 +240,50 @@ const Jobs = () => {
                       <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
+                      <h3 className="text-sm font-semibold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h3>
                       <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
                     </div>
                   </div>
-                  <button className="text-muted-foreground" onClick={(e) => toggleSave(origIndex, e)}>
-                    <Bookmark className={`h-5 w-5 ${savedJobs[origIndex] ? "fill-accent text-accent" : ""}`} strokeWidth={1.5} />
+                  <button className="text-muted-foreground" onClick={(e) => handleToggleSave(job.id, e)}>
+                    <Bookmark className={`h-5 w-5 ${isSaved ? "fill-accent text-accent" : ""}`} strokeWidth={1.5} />
                   </button>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {job.verified && (
+                  {job.is_verified && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">✓ {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}</span>
                   )}
-                  {job.diasporaSafe && (
+                  {job.is_diaspora_safe && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
                       <Shield className="h-2.5 w-2.5" strokeWidth={2} /> Diaspora Safe
                     </span>
                   )}
-                  {job.requiresEmbassy && (
+                  {job.requires_embassy && (
                     <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-medium text-destructive">
                       <AlertTriangle className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "သံရုံးလိုအပ်" : "Embassy docs"}
                     </span>
                   )}
-                  {job.visaSponsorship && (
+                  {job.visa_sponsorship && (
                     <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {job.tags.map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
+                  {(job.skills || []).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? job.typeLabel.my : job.typeLabel.en}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? typeLabel.my : typeLabel.en}</span>
                   </div>
-                  <span className="text-xs font-semibold text-gold-dark">{job.salary}</span>
+                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job)}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">{lang === "my" ? `${job.postedAgo.my} အကြာက` : `${job.postedAgo.en} ago`}</span>
-                    <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                      <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {job.paymentMethods.join(", ")}
-                    </span>
+                    <span className="text-[10px] text-muted-foreground">{lang === "my" ? `${postedAgo.my} အကြာက` : `${postedAgo.en} ago`}</span>
+                    {(job.payment_methods || []).length > 0 && (
+                      <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                        <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {(job.payment_methods || []).join(", ")}
+                      </span>
+                    )}
                   </div>
                   <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
                 </div>

@@ -73,17 +73,17 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<HomePage />} />
               <Route path="/jobs" element={<Jobs />} />
-              <Route path="/jobs/detail" element={<JobDetail />} />
+              <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/jobs/saved" element={<SavedJobs />} />
               <Route path="/applications" element={<Applications />} />
               <Route path="/mentors" element={<Mentors />} />
-              <Route path="/mentors/detail" element={<MentorDetail />} />
+              <Route path="/mentors/:id" element={<MentorDetail />} />
               <Route path="/mentors/book" element={<MentorBooking />} />
               <Route path="/mentors/dashboard" element={<MentorDashboard />} />
               <Route path="/mentors/mentees" element={<MentorMentees />} />
               <Route path="/mentors/bookings" element={<MentorBookings />} />
               <Route path="/guides" element={<Guides />} />
-              <Route path="/guides/detail" element={<GuideDetail />} />
+              <Route path="/guides/:id" element={<GuideDetail />} />
               <Route path="/community" element={<Community />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/edit" element={<EditProfile />} />

@@ -31,6 +31,13 @@ interface Profile {
   visibility: string;
   is_premium: boolean;
   remote_ready: boolean;
+  has_laptop: boolean;
+  internet_stable: boolean;
+  has_wise: boolean;
+  has_payoneer: boolean;
+  has_upwork: boolean;
+  referral_code: string | null;
+  preferred_work_types: string[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
