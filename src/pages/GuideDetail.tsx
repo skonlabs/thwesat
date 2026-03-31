@@ -141,7 +141,7 @@ const GuideDetail = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleFeedback("yes")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "yes" ? "bg-emerald text-white" : "bg-emerald/10 text-emerald active:bg-emerald/20"}`}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "yes" ? "bg-emerald text-emerald-foreground" : "bg-emerald/10 text-emerald active:bg-emerald/20"}`}
               >
                 <ThumbsUp className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ဟုတ်ပါတယ်" : "Yes"}
               </button>
