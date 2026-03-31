@@ -22,6 +22,7 @@ const featuredJobs = [
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
