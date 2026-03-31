@@ -38,7 +38,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
           </div>
         </div>
       </header>
-      <h1 className="px-5 pb-2 pt-3 text-lg font-bold text-foreground">{title}</h1>
+      <h1 className="px-5 pb-1 pt-3 text-lg font-bold text-foreground">{title}</h1>
     </>
   );
 };
