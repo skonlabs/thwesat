@@ -13,6 +13,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   return (
     <>
     <header className="sticky top-0 z-40 border-b border-border bg-card">
+      <div className="flex items-center justify-between px-5 py-2.5">
         <button onClick={() => navigate("/home")} className="flex items-center gap-2">
           <img src={logo} alt="ThweSone" className="h-7 w-7 rounded-md" />
           <span className="text-sm font-bold text-gradient-gold">ThweSone</span>
