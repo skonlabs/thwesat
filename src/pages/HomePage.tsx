@@ -101,7 +101,7 @@ const HomePage = () => {
             {featuredJobs.map((job, i) => (
               <button
                 key={i}
-                onClick={() => navigate("/jobs")}
+                onClick={() => navigate("/jobs/detail")}
                 className="flex w-full items-start gap-3 rounded-2xl bg-card p-4 text-left shadow-card transition-all active:scale-[0.99]"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
