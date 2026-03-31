@@ -47,7 +47,7 @@ const Notifications = () => {
 
       <div className="divide-y divide-border">
         {filteredNotifs.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center px-6">
+          <div className="flex flex-col items-center py-12 text-center px-5">
             <Bell className="mb-3 h-12 w-12 text-muted-foreground/30" />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "မဖတ်ရသေးသော အကြောင်းကြားချက် မရှိပါ" : "No unread notifications"}</p>
           </div>
