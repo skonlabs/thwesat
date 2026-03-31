@@ -19,37 +19,52 @@ export type Database = {
           applicant_id: string
           cover_letter: string | null
           created_at: string | null
+          cv_document_id: string | null
+          forwarded_to_email: string | null
           id: string
           interview_date: string | null
           job_id: string
+          placement_fee: number | null
+          placement_salary: number | null
           rejection_reason: string | null
           rejection_reason_my: string | null
           status: string | null
           updated_at: string | null
+          withdrawn_at: string | null
         }
         Insert: {
           applicant_id: string
           cover_letter?: string | null
           created_at?: string | null
+          cv_document_id?: string | null
+          forwarded_to_email?: string | null
           id?: string
           interview_date?: string | null
           job_id: string
+          placement_fee?: number | null
+          placement_salary?: number | null
           rejection_reason?: string | null
           rejection_reason_my?: string | null
           status?: string | null
           updated_at?: string | null
+          withdrawn_at?: string | null
         }
         Update: {
           applicant_id?: string
           cover_letter?: string | null
           created_at?: string | null
+          cv_document_id?: string | null
+          forwarded_to_email?: string | null
           id?: string
           interview_date?: string | null
           job_id?: string
+          placement_fee?: number | null
+          placement_salary?: number | null
           rejection_reason?: string | null
           rejection_reason_my?: string | null
           status?: string | null
           updated_at?: string | null
+          withdrawn_at?: string | null
         }
         Relationships: [
           {
@@ -74,6 +89,7 @@ export type Database = {
           likes_count: number | null
           moderated_by: string | null
           moderation_reason: string | null
+          shares_count: number | null
           updated_at: string | null
         }
         Insert: {
@@ -88,6 +104,7 @@ export type Database = {
           likes_count?: number | null
           moderated_by?: string | null
           moderation_reason?: string | null
+          shares_count?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -102,6 +119,7 @@ export type Database = {
           likes_count?: number | null
           moderated_by?: string | null
           moderation_reason?: string | null
+          shares_count?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -150,6 +168,42 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      cv_documents: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_size_bytes: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_primary: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -466,6 +520,81 @@ export type Database = {
           status?: string | null
           topic?: string | null
           topic_my?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mentor_earnings: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string | null
+          currency: string
+          id: string
+          mentor_id: string
+          paid_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string
+          id?: string
+          mentor_id: string
+          paid_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string
+          id?: string
+          mentor_id?: string
+          paid_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mentor_mentees: {
+        Row: {
+          created_at: string | null
+          goals: string | null
+          id: string
+          mentee_id: string
+          mentor_id: string
+          notes: string | null
+          sessions_completed: number | null
+          started_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id: string
+          mentor_id: string
+          notes?: string | null
+          sessions_completed?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id?: string
+          mentor_id?: string
+          notes?: string | null
+          sessions_completed?: number | null
+          started_at?: string | null
+          status?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -982,6 +1111,57 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          font_encoding: string
+          id: string
+          language: string
+          profile_visibility: string
+          push_notifications: boolean
+          remember_device: boolean
+          session_expiry: string
+          telegram_chat_id: string | null
+          telegram_linked: boolean
+          telegram_linked_at: string | null
+          telegram_username: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          font_encoding?: string
+          id?: string
+          language?: string
+          profile_visibility?: string
+          push_notifications?: boolean
+          remember_device?: boolean
+          session_expiry?: string
+          telegram_chat_id?: string | null
+          telegram_linked?: boolean
+          telegram_linked_at?: string | null
+          telegram_username?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          font_encoding?: string
+          id?: string
+          language?: string
+          profile_visibility?: string
+          push_notifications?: boolean
+          remember_device?: boolean
+          session_expiry?: string
+          telegram_chat_id?: string | null
+          telegram_linked?: boolean
+          telegram_linked_at?: string | null
+          telegram_username?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
