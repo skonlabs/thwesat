@@ -66,13 +66,18 @@ const Settings = () => {
     toast({ title: newLang === "my" ? "ဘာသာစကား ပြောင်းပြီးပါပြီ" : "Language changed" });
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (newPw !== confirmPw) {
       toast({ title: lang === "my" ? "စကားဝှက် မတူပါ" : "Passwords don't match", variant: "destructive" });
       return;
     }
     if (newPw.length < 6) {
       toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    if (error) {
+      toast({ title: error.message, variant: "destructive" });
       return;
     }
     setShowPasswordChange(false);
