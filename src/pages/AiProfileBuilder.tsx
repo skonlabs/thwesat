@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
+
 import PageHeader from "@/components/PageHeader";
 
 const AiProfileBuilder = () => {
