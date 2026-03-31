@@ -22,7 +22,7 @@ const ForgotPassword = () => {
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
-            <CheckCircle className="h-10 w-10 text-emerald" />
+            <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
           </div>
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "အီးမေးလ် ပို့ပြီးပါပြီ" : "Email Sent!"}</h1>
           <p className="mb-2 text-sm text-muted-foreground">
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-          <Mail className="h-7 w-7 text-primary" />
+          <Mail className="h-7 w-7 text-primary" strokeWidth={1.5} />
         </div>
         <h1 className="mb-2 text-2xl font-bold text-foreground">{lang === "my" ? "စကားဝှက် ပြန်သတ်မှတ်ရန်" : "Reset Password"}</h1>
         <p className="mb-8 text-sm text-muted-foreground">

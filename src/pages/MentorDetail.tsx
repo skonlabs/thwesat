@@ -18,7 +18,7 @@ const MentorDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} />
-      <div className="px-6">
+      <div className="px-5">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">
@@ -110,7 +110,7 @@ const MentorDetail = () => {
       </div>
 
       {/* Bottom bar - positioned above BottomNav */}
-      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg gap-3">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages/chat")}>
             <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}

@@ -47,7 +47,7 @@ const JobDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
-      <div className="px-6">
+      <div className="px-5">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start gap-4">
@@ -180,7 +180,7 @@ const JobDetail = () => {
       </AnimatePresence>
 
       {/* Bottom bar - positioned above BottomNav */}
-      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <button onClick={handleSave} className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${saved ? "border-primary bg-primary/5" : "border-border active:bg-muted"}`}>
             <Bookmark className={`h-5 w-5 ${saved ? "fill-primary text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />

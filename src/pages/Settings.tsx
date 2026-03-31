@@ -92,7 +92,7 @@ const Settings = () => {
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} />
 
-      <div className="px-6">
+      <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" strokeWidth={1.5} />
           <div>
@@ -120,7 +120,7 @@ const Settings = () => {
                   </div>
                   {'toggle' in item && item.toggle ? (
                     <button onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }} className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}>
-                      <div className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
+                      <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
                     </button>
                   ) : (
                     <>

@@ -18,7 +18,7 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} />
-      <div className="px-6">
+      <div className="px-5">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] text-emerald">
           <Lock className="h-3 w-3" strokeWidth={1.5} />
           <span>{lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "End-to-end encrypted"}</span>
@@ -38,7 +38,7 @@ const Messages = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
             onClick={() => navigate("/messages/chat")}
-            className="flex w-full items-start gap-3 px-6 py-3.5 text-left transition-all active:bg-muted/30"
+            className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-all active:bg-muted/30"
           >
             <div className="relative">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{conv.avatar}</div>

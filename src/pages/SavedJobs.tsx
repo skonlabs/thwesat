@@ -33,7 +33,7 @@ const SavedJobs = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} />
 
-      <div className="space-y-3 px-6 pb-6">
+      <div className="space-y-3 px-5 pb-6">
         {jobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Bookmark className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />

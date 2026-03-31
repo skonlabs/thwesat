@@ -31,7 +31,7 @@ const GuideDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
-      <div className="px-6">
+      <div className="px-5">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="mb-2 inline-block rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
@@ -141,13 +141,13 @@ const GuideDetail = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleFeedback("yes")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "yes" ? "bg-emerald text-white" : "bg-emerald/10 text-emerald active:bg-emerald/20"}`}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "yes" ? "bg-emerald text-emerald-foreground" : "bg-emerald/10 text-emerald active:bg-emerald/20"}`}
               >
                 <ThumbsUp className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ဟုတ်ပါတယ်" : "Yes"}
               </button>
               <button
                 onClick={() => handleFeedback("no")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "no" ? "bg-muted-foreground text-white" : "bg-muted text-muted-foreground active:bg-muted/80"}`}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "no" ? "bg-muted-foreground text-card" : "bg-muted text-muted-foreground active:bg-muted/80"}`}
               >
                 <ThumbsDown className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မဟုတ်ပါ" : "No"}
               </button>

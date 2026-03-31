@@ -34,12 +34,12 @@ const Notifications = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
 
-      <div className="px-6">
+      <div className="px-5">
         <div className="mb-4 flex gap-2">
-          <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "all" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
+          <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
             {lang === "my" ? "အားလုံး" : "All"}
           </button>
-          <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "unread" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
+          <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "unread" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
             {lang === "my" ? `မဖတ်ရသေး (${notifications.filter(n => !n.read).length})` : `Unread (${notifications.filter(n => !n.read).length})`}
           </button>
         </div>
@@ -47,8 +47,8 @@ const Notifications = () => {
 
       <div className="divide-y divide-border">
         {filteredNotifs.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center px-6">
-            <Bell className="mb-3 h-12 w-12 text-muted-foreground/30" />
+          <div className="flex flex-col items-center py-12 text-center px-5">
+            <Bell className="mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "မဖတ်ရသေးသော အကြောင်းကြားချက် မရှိပါ" : "No unread notifications"}</p>
           </div>
         ) : (
@@ -59,10 +59,10 @@ const Notifications = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.04 }}
               onClick={() => navigate(notif.path)}
-              className={`flex w-full items-start gap-3 px-6 py-4 text-left transition-all active:bg-muted/30 ${!notif.read ? "bg-primary/[0.03]" : ""}`}
+              className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-all active:bg-muted/30 ${!notif.read ? "bg-primary/[0.03]" : ""}`}
             >
               <div className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${typeColors[notif.type]}`}>
-                <notif.icon className="h-5 w-5" />
+                <notif.icon className="h-5 w-5" strokeWidth={1.5} />
               </div>
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-2">
