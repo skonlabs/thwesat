@@ -23,6 +23,7 @@ const menuItems = [
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background pb-6">
