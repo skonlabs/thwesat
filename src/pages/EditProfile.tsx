@@ -65,7 +65,7 @@ const EditProfile = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} />
-      <div className="px-6">
+      <div className="px-5">
 
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">

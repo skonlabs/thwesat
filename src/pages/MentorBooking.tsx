@@ -143,7 +143,7 @@ const MentorBooking = () => {
       </div>
 
       {/* Bottom action - positioned above BottomNav */}
-      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
             <Button variant="gold" size="lg" className="w-full rounded-xl" disabled={!selectedDay || !selectedTime} onClick={() => setStep(2)}>

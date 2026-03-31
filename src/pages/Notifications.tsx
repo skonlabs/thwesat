@@ -62,7 +62,7 @@ const Notifications = () => {
               className={`flex w-full items-start gap-3 px-6 py-4 text-left transition-all active:bg-muted/30 ${!notif.read ? "bg-primary/[0.03]" : ""}`}
             >
               <div className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${typeColors[notif.type]}`}>
-                <notif.icon className="h-5 w-5" />
+                <notif.icon className="h-5 w-5" strokeWidth={1.5} />
               </div>
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-2">

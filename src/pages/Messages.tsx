@@ -38,7 +38,7 @@ const Messages = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
             onClick={() => navigate("/messages/chat")}
-            className="flex w-full items-start gap-3 px-6 py-3.5 text-left transition-all active:bg-muted/30"
+            className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-all active:bg-muted/30"
           >
             <div className="relative">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{conv.avatar}</div>

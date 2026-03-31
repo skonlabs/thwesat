@@ -46,7 +46,7 @@ const Applications = () => {
         </div>
       </div>
 
-      <div className="space-y-3 px-6 pb-6">
+      <div className="space-y-3 px-5 pb-6">
         {applications.map((app, i) => (
           <motion.button
             key={i}

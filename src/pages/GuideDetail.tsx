@@ -31,7 +31,7 @@ const GuideDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
-      <div className="px-6">
+      <div className="px-5">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="mb-2 inline-block rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
