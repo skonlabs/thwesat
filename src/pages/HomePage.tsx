@@ -1,0 +1,158 @@
+import { motion } from "framer-motion";
+import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+const quickActions = [
+  { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
+  { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", color: "bg-emerald/10 text-emerald" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Legal", path: "/guides", color: "bg-accent/10 text-accent" },
+  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", color: "bg-gold/10 text-gold-dark" },
+];
+
+const featuredJobs = [
+  { title: "React Developer", company: "TechCorp Asia", location: "Remote", salary: "$2,500 - $4,000/mo", isNew: true },
+  { title: "UI/UX Designer", company: "DesignStudio", location: "Bangkok, TH", salary: "$1,800 - $3,000/mo", isNew: true },
+  { title: "Project Manager", company: "NGO Partners", location: "Remote", salary: "$2,000 - $3,500/mo", isNew: false },
+];
+
+const HomePage = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-gradient-gold px-6 pb-8 pt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-primary-foreground/80">မင်္ဂလာပါ · Hello</p>
+            <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
+          </div>
+          <button className="relative rounded-full bg-primary-foreground/20 p-2.5">
+            <Bell className="h-5 w-5 text-primary-foreground" />
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
+          </button>
+        </div>
+
+        {/* Search bar */}
+        <div className="mt-5 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
+          <Search className="h-4 w-4 text-primary-foreground/70" />
+          <span className="text-sm text-primary-foreground/60">အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်...</span>
+        </div>
+      </div>
+
+      <div className="px-6">
+        {/* Quick actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="-mt-4 grid grid-cols-4 gap-3"
+        >
+          {quickActions.map((action) => (
+            <button
+              key={action.path}
+              onClick={() => navigate(action.path)}
+              className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-3 shadow-card"
+            >
+              <div className={`rounded-xl p-2.5 ${action.color}`}>
+                <action.icon className="h-5 w-5" />
+              </div>
+              <span className="text-[11px] font-medium text-foreground">{action.labelEn}</span>
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Profile completion */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mt-6 rounded-2xl bg-card p-4 shadow-card"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">ပရိုဖိုင် ပြည့်စုံမှု · Profile</p>
+            <span className="text-xs font-bold text-primary">45%</span>
+          </div>
+          <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-[45%] rounded-full bg-gradient-gold transition-all" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်စွက်ပြီး အလုပ်ရှာဖွေမှု အခွင့်အလမ်းများ တိုးမြှင့်ပါ
+          </p>
+        </motion.div>
+
+        {/* Featured jobs */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-6"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-bold text-foreground">အသစ်ထွက် အလုပ်များ</h2>
+            <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-medium text-primary">
+              အားလုံးကြည့်ရန် <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {featuredJobs.map((job, i) => (
+              <button
+                key={i}
+                onClick={() => navigate("/jobs")}
+                className="flex w-full items-start gap-3 rounded-2xl bg-card p-4 text-left shadow-card transition-all active:scale-[0.99]"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                  <Briefcase className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
+                    {job.isNew && (
+                      <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">
+                        NEW
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <MapPin className="h-3 w-3" /> {job.location}
+                    </span>
+                    <span className="text-[11px] font-medium text-primary">{job.salary}</span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Community stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6 mt-6 rounded-2xl bg-gradient-gold p-5"
+        >
+          <h3 className="mb-4 text-sm font-bold text-primary-foreground">
+            ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း · Our Community
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { value: "5,000+", label: "အဖွဲ့ဝင်" },
+              { value: "200+", label: "အလုပ်" },
+              { value: "50+", label: "လမ်းညွှန်သူ" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-lg font-bold text-primary-foreground">{stat.value}</p>
+                <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;
