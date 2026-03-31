@@ -3,6 +3,7 @@ import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, C
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const AiProfileBuilder = () => {
   const navigate = useNavigate();
