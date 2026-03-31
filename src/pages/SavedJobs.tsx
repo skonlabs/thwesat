@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
+import { Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const savedJobs = [
   { title: "Senior React Developer", company: "TechCorp Asia", location: "Remote", salary: "$3,000 - $5,000/mo", savedDate: "Mar 28", type: "Full-time" },
