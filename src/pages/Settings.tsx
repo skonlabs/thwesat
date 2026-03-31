@@ -250,7 +250,7 @@ const Settings = () => {
                 <p className="text-sm font-semibold text-foreground">{opt.name}</p>
                 <p className="text-xs text-muted-foreground">{opt.sub}</p>
               </div>
-              {lang === opt.code && <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />}
+              {lang === opt.code && <Check className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />}
             </button>
           ))}
         </div>
