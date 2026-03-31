@@ -48,9 +48,8 @@ const Jobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <h1 className="mb-1 text-xl font-bold text-foreground">{lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"}</h1>
-        <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အဝေးထိန်း အလုပ်များ ရှာဖွေပါ" : "Browse remote opportunities"}</p>
+      <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} subtitle={lang === "my" ? "အဝေးထိန်း အလုပ်များ ရှာဖွေပါ" : "Browse remote opportunities"} />
+      <div className="px-6">
         <div className="mb-4 flex gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">
             <Search className="h-4 w-4 text-muted-foreground" />
