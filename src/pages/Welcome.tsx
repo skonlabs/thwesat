@@ -17,7 +17,7 @@ const Welcome = () => {
       </div>
 
       <div className="relative z-10 mt-6 self-end px-6">
-        <LanguageToggle variant="icon" />
+        <LanguageToggle />
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 text-center">

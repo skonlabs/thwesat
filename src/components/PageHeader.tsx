@@ -10,16 +10,18 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between border-b border-border bg-card px-6 py-4">
-      <h1 className="text-lg font-bold text-foreground">{title}</h1>
-      <div className="flex items-center gap-2">
-        <LanguageToggle variant="icon" />
-        <button
-          onClick={() => navigate("/settings")}
-          className="rounded-full bg-muted p-2 text-muted-foreground active:scale-95"
-        >
-          <Settings className="h-4 w-4" />
-        </button>
+    <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/60">
+      <div className="flex items-center justify-between px-5 py-3.5">
+        <h1 className="text-lg font-bold text-foreground tracking-tight">{title}</h1>
+        <div className="flex items-center gap-2.5">
+          <LanguageToggle />
+          <button
+            onClick={() => navigate("/settings")}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary active:scale-95"
+          >
+            <Settings className="h-[18px] w-[18px]" />
+          </button>
+        </div>
       </div>
     </div>
   );

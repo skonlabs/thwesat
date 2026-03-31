@@ -21,7 +21,7 @@ const Signup = () => {
           <ArrowLeft className="h-5 w-5" />
           <span className="text-sm">{lang === "my" ? "နောက်သို့" : "Back"}</span>
         </button>
-        <LanguageToggle variant="icon" />
+        <LanguageToggle />
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex flex-col">
