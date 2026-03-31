@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 import heroPattern from "@/assets/hero-pattern.jpg";
 import { useLanguage } from "@/hooks/use-language";
 import LanguageToggle from "@/components/LanguageToggle";
