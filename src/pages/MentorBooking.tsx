@@ -70,7 +70,7 @@ const MentorBooking = () => {
     <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} />
 
-      <div className="px-6">
+      <div className="px-5">
         {/* Progress */}
         <div className="mb-6 flex gap-2">
           <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
