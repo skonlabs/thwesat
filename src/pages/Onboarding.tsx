@@ -63,7 +63,7 @@ const Onboarding = () => {
       </div>
 
       <div className="flex justify-between">
-        <LanguageToggle variant="icon" />
+        <LanguageToggle />
         <Button variant="ghost" size="sm" onClick={() => navigate("/signup")} className="text-muted-foreground">
           {lang === "my" ? "ကျော်ရန်" : "Skip"}
         </Button>
