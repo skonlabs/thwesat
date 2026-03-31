@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useLanguage } from "@/hooks/use-language";
 
 const quickActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
