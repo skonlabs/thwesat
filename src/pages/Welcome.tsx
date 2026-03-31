@@ -25,8 +25,8 @@ const Welcome = () => {
           <img src={logo} alt="ThweSone" width={120} height={120} className="mx-auto mb-6" />
         </motion.div>
 
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="text-gradient-gold mb-2 text-4xl font-bold">
-          ThweSone
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="mb-2 text-4xl font-bold">
+          <span className="text-primary">Thwe</span><span className="text-accent">Sone</span>
         </motion.h1>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="mb-2 text-lg font-medium text-foreground">
