@@ -35,6 +35,7 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
+import SearchTalent from "./pages/SearchTalent";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";

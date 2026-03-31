@@ -194,4 +194,4 @@ const EmployerDashboard = () => {
   );
 };
 
-export default HomePage;
+export default EmployerDashboard;
