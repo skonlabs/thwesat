@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const timeSlots = [
   { time: "7:00 PM", available: true },
