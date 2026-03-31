@@ -6,15 +6,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (email.trim()) setSent(true);
+  const handleSubmit = async () => {
+    if (!email.trim()) return;
+    setIsLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setIsLoading(false);
+    if (error) {
+      toast({ title: error.message, variant: "destructive" });
+      return;
+    }
+    setSent(true);
   };
 
   if (sent) {
@@ -66,8 +80,8 @@ const ForgotPassword = () => {
           </div>
         </div>
 
-        <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={!email.trim()}>
-          {lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link"}
+        <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
+          {isLoading ? (lang === "my" ? "ပို့နေသည်..." : "Sending...") : (lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link")}
         </Button>
       </motion.div>
     </div>

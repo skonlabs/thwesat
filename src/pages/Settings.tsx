@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
@@ -22,6 +24,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
+  const { signOut } = useAuth();
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -63,13 +66,18 @@ const Settings = () => {
     toast({ title: newLang === "my" ? "ဘာသာစကား ပြောင်းပြီးပါပြီ" : "Language changed" });
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (newPw !== confirmPw) {
       toast({ title: lang === "my" ? "စကားဝှက် မတူပါ" : "Passwords don't match", variant: "destructive" });
       return;
     }
     if (newPw.length < 6) {
       toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    if (error) {
+      toast({ title: error.message, variant: "destructive" });
       return;
     }
     setShowPasswordChange(false);
@@ -88,7 +96,8 @@ const Settings = () => {
     }
   };
 
-  const handleEmergencyExit = () => {
+  const handleEmergencyExit = async () => {
+    await signOut();
     toast({
       title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
       description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
@@ -208,7 +217,7 @@ const Settings = () => {
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
-            <button className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-muted/30" onClick={() => navigate("/")}>
+            <button className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-muted/30" onClick={async () => { await signOut(); navigate("/"); }}>
               <LogOut className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-sm text-foreground">{lang === "my" ? "ထွက်ရန်" : "Sign Out"}</p>
