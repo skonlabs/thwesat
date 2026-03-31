@@ -7,9 +7,9 @@ const notifications = [
   { icon: Briefcase, title: "အလုပ်အသစ် သင့်အတွက် ကိုက်ညီပါသည်", titleEn: "New job matches your profile", desc: { my: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo", en: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo" }, time: "10 min", type: "job", read: false },
   { icon: CheckCircle, title: "လျှောက်လွှာ အခြေအနေ ပြောင်းလဲမှု", titleEn: "Application status updated", desc: { my: "UI/UX Designer at DesignStudio - ရွေးချယ်ခံရ ✨", en: "UI/UX Designer at DesignStudio - Shortlisted ✨" }, time: "1 hr", type: "application", read: false },
   { icon: Users, title: "လမ်းညွှန်သူ တုံ့ပြန်ချက်", titleEn: "Mentor responded", desc: { my: "ဒေါ်ခင်မြတ်နိုး က သင့် mentorship တောင်းဆိုမှုကို လက်ခံပါပြီ", en: "Khin Myat Noe accepted your mentorship request" }, time: "2 hr", type: "mentor", read: false },
-  { icon: MessageCircle, title: "မက်ဆေ့ချ် အသစ်", titleEn: "New message", desc: "TechCorp Asia HR: Interview schedule confirmed", time: "3 hr", type: "message", read: true },
+  { icon: MessageCircle, title: "မက်ဆေ့ချ် အသစ်", titleEn: "New message", desc: { my: "TechCorp Asia HR: အင်တာဗျူး အချိန်ဇယား အတည်ပြုပြီး", en: "TechCorp Asia HR: Interview schedule confirmed" }, time: "3 hr", type: "message", read: true },
   { icon: Shield, title: "လမ်းညွှန်ချက် အသစ်", titleEn: "New legal guide published", desc: { my: "ထိုင်းတွင် Freelancer အဖြစ် အခွန်ဆောင်နည်း", en: "How to file taxes as a freelancer in Thailand" }, time: "1 day", type: "guide", read: true },
-  { icon: Star, title: "Premium အခွင့်အရေး", titleEn: "Premium offer", desc: "Founding member rate - $5/mo (limited time)", time: "2 days", type: "premium", read: true },
+  { icon: Star, title: "Premium အခွင့်အရေး", titleEn: "Premium offer", desc: { my: "Founding member rate - $5/mo (အချိန်ကန့်သတ်)", en: "Founding member rate - $5/mo (limited time)" }, time: "2 days", type: "premium", read: true },
 ];
 
 const typeColors: Record<string, string> = {
