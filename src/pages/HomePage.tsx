@@ -215,7 +215,7 @@ const HomePage = () => {
               ))}
             </div>
           </motion.div>
-        )
+        )}
 
         {/* Community Stats */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">
