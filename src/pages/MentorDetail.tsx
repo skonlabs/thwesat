@@ -16,23 +16,23 @@ const MentorDetail = () => {
   const { lang } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} />
       <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">
-            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-2xl font-bold text-primary-foreground">KM</div>
+            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">KM</div>
             <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ဒေါ်ခင်မြတ်နိုး" : "Khin Myat Noe"}</h1>
             <p className="text-sm text-muted-foreground">Senior Software Engineer</p>
             <p className="text-xs text-muted-foreground">Grab · Singapore</p>
             <div className="mt-3 flex items-center gap-4">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-primary text-primary" />
+                <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
                 <span className="text-sm font-bold text-foreground">4.9</span>
                 <span className="text-xs text-muted-foreground">(47)</span>
               </div>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> Singapore</span>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> Singapore</span>
               <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
               </span>
@@ -45,7 +45,7 @@ const MentorDetail = () => {
               { value: "32", label: lang === "my" ? "လူဦးရေ" : "Mentees" },
               { value: "2 yr", label: lang === "my" ? "အတွေ့အကြုံ" : "Mentoring" },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl bg-card p-3 text-center shadow-card">
+              <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
                 <p className="text-lg font-bold text-primary">{s.value}</p>
                 <p className="text-[10px] text-muted-foreground">{s.label}</p>
               </div>
@@ -79,7 +79,7 @@ const MentorDetail = () => {
                 { day: { my: "စနေ", en: "Saturday" }, time: "10AM - 12PM (SGT)" },
                 { day: { my: "တနင်္ဂနွေ", en: "Sunday" }, time: "2PM - 5PM (SGT)" },
               ].map((s) => (
-                <div key={s.day.en} className="rounded-xl bg-card p-2.5 shadow-card">
+                <div key={s.day.en} className="rounded-xl border border-border bg-card p-2.5">
                   <p className="text-[11px] font-medium text-foreground">{lang === "my" ? s.day.my : s.day.en}</p>
                   <p className="text-[10px] text-muted-foreground">{s.time}</p>
                 </div>
@@ -91,7 +91,7 @@ const MentorDetail = () => {
             <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "သုံးသပ်ချက်များ" : "Reviews"}</h2>
             <div className="space-y-3">
               {reviews.map((r, i) => (
-                <div key={i} className="rounded-xl bg-card p-3.5 shadow-card">
+                <div key={i} className="rounded-xl border border-border bg-card p-3.5">
                   <div className="mb-1 flex items-center justify-between">
                     <span className="text-xs font-semibold text-foreground">{lang === "my" ? r.author.my : r.author.en}</span>
                     <div className="flex gap-0.5">
@@ -109,13 +109,14 @@ const MentorDetail = () => {
         </motion.div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg pb-safe">
+      {/* Bottom bar - positioned above BottomNav */}
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg gap-3">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages/chat")}>
-            <MessageCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+            <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
           </Button>
           <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/mentors/book")}>
-            <Calendar className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book"}
+            <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book"}
           </Button>
         </div>
       </div>

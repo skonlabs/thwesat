@@ -70,6 +70,22 @@ const Community = () => {
     setPosts(prev => prev.map((p, idx) => idx === i ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p));
   };
 
+  const handleComment = () => {
+    toast({
+      title: lang === "my" ? "မှတ်ချက်" : "Comments",
+      description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
+    });
+  };
+
+  const handleShare = (postTitle: string) => {
+    if (navigator.share) {
+      navigator.share({ title: postTitle, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
+    }
+  };
+
   const handleNewPost = () => {
     if (!newPostText.trim()) return;
     const newPost = {
@@ -93,7 +109,6 @@ const Community = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "အသိုင်းအဝိုင်း" : "Community"} />
       <div className="px-5 pt-4">
-        {/* New post + categories */}
         <div className="mb-3 flex items-center justify-between">
           <div className="flex gap-2 overflow-x-auto scrollbar-none">
             {categories.map((cat) => (
@@ -126,7 +141,7 @@ const Community = () => {
             <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-safe" onClick={e => e.stopPropagation()}>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-base font-bold text-foreground">{lang === "my" ? "ပို့စ်အသစ်" : "New Post"}</h2>
-                <button onClick={() => setShowNewPost(false)}><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
+                <button onClick={() => setShowNewPost(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
               </div>
               <div className="mb-3 flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">MM</div>
@@ -140,14 +155,14 @@ const Community = () => {
                 <p className="mb-2 text-xs font-medium text-muted-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</p>
                 <div className="flex flex-wrap gap-2">
                   {categories.filter(c => c.en !== "All").map(cat => (
-                    <button key={cat.en} onClick={() => setNewPostCategory(cat.en)} className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${newPostCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground"}`}>
+                    <button key={cat.en} onClick={() => setNewPostCategory(cat.en)} className={`rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${newPostCategory === cat.en ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
                       {lang === "my" ? cat.my : cat.en}
                     </button>
                   ))}
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground">
+                <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground active:bg-muted">
                   <Image className="h-5 w-5" strokeWidth={1.5} />
                 </button>
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleNewPost} disabled={!newPostText.trim()}>
@@ -181,18 +196,18 @@ const Community = () => {
                   <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${post.category.en === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
                     {lang === "my" ? post.category.my : post.category.en}
                   </span>
-                  <button className="text-muted-foreground"><MoreHorizontal className="h-4 w-4" strokeWidth={1.5} /></button>
+                  <button className="rounded-lg p-1 text-muted-foreground active:bg-muted"><MoreHorizontal className="h-4 w-4" strokeWidth={1.5} /></button>
                 </div>
               </div>
               <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content : post.contentEn}</p>
               <div className="flex items-center justify-between border-t border-border pt-3">
-                <button onClick={() => toggleLike(posts.indexOf(post))} className={`flex items-center gap-1.5 text-xs ${post.liked ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
+                <button onClick={() => toggleLike(posts.indexOf(post))} className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs transition-colors ${post.liked ? "font-semibold text-destructive" : "text-muted-foreground active:bg-muted"}`}>
                   <Heart className={`h-4 w-4 ${post.liked ? "fill-destructive" : ""}`} strokeWidth={1.5} /> {post.likes}
                 </button>
-                <button className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <button onClick={handleComment} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground active:bg-muted">
                   <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> {post.comments}
                 </button>
-                <button className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <button onClick={() => handleShare(lang === "my" ? post.content : post.contentEn)} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground active:bg-muted">
                   <Share2 className="h-4 w-4" strokeWidth={1.5} /> {post.shares}
                 </button>
               </div>

@@ -1,12 +1,32 @@
+import { useState } from "react";
 import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 
 const GuideDetail = () => {
-  const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { toast } = useToast();
+  const [feedback, setFeedback] = useState<"yes" | "no" | null>(null);
+
+  const handleFeedback = (type: "yes" | "no") => {
+    setFeedback(type);
+    toast({
+      title: type === "yes"
+        ? (lang === "my" ? "ကျေးဇူးတင်ပါသည်!" : "Thank you!")
+        : (lang === "my" ? "တုံ့ပြန်ချက် မှတ်တမ်းတင်ပြီးပါပြီ" : "Feedback recorded"),
+    });
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({ title: "Thai Pink Card Application Guide", url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-6">
@@ -34,7 +54,7 @@ const GuideDetail = () => {
           </div>
 
           <div className="mb-5 flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3.5">
-            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
             <div>
               <p className="text-xs font-semibold text-destructive">⚠️ {lang === "my" ? "သတိပေးချက်" : "Warning"}</p>
               <p className="mt-0.5 text-[11px] text-foreground/80">
@@ -72,7 +92,7 @@ const GuideDetail = () => {
                   { mm: "အလုပ်ရှင်၏ လုပ်ငန်းမှတ်ပုံတင်", en: "Employer's business registration" },
                 ].map((doc) => (
                   <li key={doc.en} className="flex items-start gap-2.5">
-                    <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" />
+                    <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" strokeWidth={1.5} />
                     <p className="text-sm text-foreground/80">{lang === "my" ? doc.mm : doc.en}</p>
                   </li>
                 ))}
@@ -84,7 +104,7 @@ const GuideDetail = () => {
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span>
                 {lang === "my" ? "ကုန်ကျစရိတ်" : "Costs"}
               </h2>
-              <div className="rounded-xl bg-card p-3.5 shadow-card">
+              <div className="rounded-xl border border-border bg-card p-3.5">
                 <div className="space-y-2">
                   {[
                     { item: { my: "ကျန်းမာရေးစစ်ဆေးခ", en: "Health check fee" }, cost: "500-800 THB" },
@@ -116,17 +136,26 @@ const GuideDetail = () => {
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl bg-card p-4 shadow-card">
+          <div className="mt-6 rounded-xl border border-border bg-card p-4">
             <p className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဤလမ်းညွှန်ချက် အကူအညီဖြစ်ပါသလား?" : "Was this guide helpful?"}</p>
             <div className="flex gap-3">
-              <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald/10 py-2.5 text-xs font-medium text-emerald">
-                <ThumbsUp className="h-4 w-4" /> {lang === "my" ? "ဟုတ်ပါတယ်" : "Yes"}
+              <button
+                onClick={() => handleFeedback("yes")}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "yes" ? "bg-emerald text-white" : "bg-emerald/10 text-emerald active:bg-emerald/20"}`}
+              >
+                <ThumbsUp className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ဟုတ်ပါတယ်" : "Yes"}
               </button>
-              <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-muted py-2.5 text-xs font-medium text-muted-foreground">
-                <ThumbsDown className="h-4 w-4" /> {lang === "my" ? "မဟုတ်ပါ" : "No"}
+              <button
+                onClick={() => handleFeedback("no")}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "no" ? "bg-muted-foreground text-white" : "bg-muted text-muted-foreground active:bg-muted/80"}`}
+              >
+                <ThumbsDown className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မဟုတ်ပါ" : "No"}
               </button>
-              <button className="flex items-center justify-center rounded-xl bg-muted px-4 py-2.5 text-xs font-medium text-muted-foreground">
-                <Share2 className="h-4 w-4" />
+              <button
+                onClick={handleShare}
+                className="flex items-center justify-center rounded-xl bg-muted px-4 py-2.5 text-xs font-medium text-muted-foreground active:bg-muted/80"
+              >
+                <Share2 className="h-4 w-4" strokeWidth={1.5} />
               </button>
             </div>
           </div>

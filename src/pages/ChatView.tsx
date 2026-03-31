@@ -1,6 +1,7 @@
 import { ArrowLeft, Lock, Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 
 const messages = [
   { id: 1, sender: "them", text: { my: "မင်္ဂလာပါ! ပရိုဖိုင်ကို ကြည့်ပြီးပါပြီ", en: "Hello! I've reviewed your profile" }, time: "10:30 AM" },
@@ -14,18 +15,33 @@ const messages = [
 const ChatView = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { toast } = useToast();
+
+  const handleCall = (type: "audio" | "video") => {
+    toast({
+      title: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
+      description: lang === "my" ? `${type === "audio" ? "အသံ" : "ဗီဒီယို"} ခေါ်ဆိုမှု မကြာမီ ရရှိနိုင်ပါမည်` : `${type === "audio" ? "Voice" : "Video"} calling coming soon`,
+    });
+  };
+
+  const handleAttach = () => {
+    toast({
+      title: lang === "my" ? "ဖိုင်ပူးတွဲရန်" : "Attach file",
+      description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <div className="border-b border-border bg-card px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/messages")} className="text-foreground">
-              <ArrowLeft className="h-5 w-5" />
+            <button onClick={() => navigate("/messages")} className="rounded-lg p-1 text-foreground active:bg-muted">
+              <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
             </button>
             <div className="flex items-center gap-2.5">
               <div className="relative">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-gold text-xs font-bold text-primary-foreground">KM</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">KM</div>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald" />
               </div>
               <div>
@@ -37,10 +53,16 @@ const ChatView = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="text-muted-foreground"><Phone className="h-4.5 w-4.5" /></button>
-            <button className="text-muted-foreground"><Video className="h-4.5 w-4.5" /></button>
-            <button className="text-muted-foreground"><MoreVertical className="h-4.5 w-4.5" /></button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => handleCall("audio")} className="rounded-lg p-2 text-muted-foreground active:bg-muted">
+              <Phone className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+            <button onClick={() => handleCall("video")} className="rounded-lg p-2 text-muted-foreground active:bg-muted">
+              <Video className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+            <button className="rounded-lg p-2 text-muted-foreground active:bg-muted">
+              <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
+            </button>
           </div>
         </div>
       </div>
@@ -53,7 +75,7 @@ const ChatView = () => {
         </div>
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.sender === "me" ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-card text-foreground shadow-card"}`}>
+            <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.sender === "me" ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
               <p className="text-sm leading-relaxed">{lang === "my" ? msg.text.my : msg.text.en}</p>
               <p className={`mt-1 text-right text-[9px] ${msg.sender === "me" ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{msg.time}</p>
             </div>
@@ -63,12 +85,14 @@ const ChatView = () => {
 
       <div className="border-t border-border bg-card px-4 py-3 pb-safe">
         <div className="flex items-center gap-2">
-          <button className="text-muted-foreground"><Paperclip className="h-5 w-5" /></button>
-          <div className="flex flex-1 items-center rounded-full bg-muted px-4 py-2.5">
+          <button onClick={handleAttach} className="rounded-lg p-2 text-muted-foreground active:bg-muted">
+            <Paperclip className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+          <div className="flex flex-1 items-center rounded-full border border-border bg-background px-4 py-2.5">
             <input placeholder={lang === "my" ? "မက်ဆေ့ချ် ရေးရန်..." : "Type a message..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
           </div>
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Send className="h-4 w-4" />
+          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90">
+            <Send className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>
       </div>

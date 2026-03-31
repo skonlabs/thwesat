@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Shield, ChevronRight, FileText, AlertTriangle, Globe } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 
@@ -20,6 +21,7 @@ const featuredGuides = [
 
 const Guides = () => {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,7 +31,8 @@ const Guides = () => {
         <div className="mb-5 flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
           {countries.map((country, i) => (
             <motion.button key={country.nameEn} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-              className="flex flex-shrink-0 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-5 py-3">
+              onClick={() => navigate("/guides/detail")}
+              className="flex flex-shrink-0 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-5 py-3 active:bg-muted">
               <span className="text-2xl">{country.flag}</span>
               <span className="text-[11px] font-medium text-foreground">{lang === "my" ? country.name : country.nameEn}</span>
               <span className="text-[10px] text-muted-foreground">{country.guides} {lang === "my" ? "ခု" : "guides"}</span>
@@ -41,6 +44,7 @@ const Guides = () => {
         <div className="space-y-2.5 pb-6">
           {featuredGuides.map((guide, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              onClick={() => navigate("/guides/detail")}
               className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent/10">
                 <guide.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />

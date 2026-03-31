@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, AlertTriangle, Bookmark, Share2, CheckCircle, X, Send } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,25 +35,34 @@ const JobDetail = () => {
     }
   };
 
+  const handleSave = () => {
+    setSaved(!saved);
+    toast({
+      title: saved
+        ? (lang === "my" ? "သိမ်းဆည်းမှု ဖယ်ရှားပြီး" : "Removed from saved")
+        : (lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved!"),
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
       <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <Briefcase className="h-7 w-7 text-primary" />
+              <Briefcase className="h-7 w-7 text-primary" strokeWidth={1.5} />
             </div>
             <div className="flex-1">
               <h1 className="text-lg font-bold text-foreground">Senior React Developer</h1>
               <p className="text-sm text-muted-foreground">TechCorp Asia</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2.5 py-1 text-[11px] font-medium text-emerald">
-                  <CheckCircle className="h-3 w-3" /> {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
+                  <CheckCircle className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
                 </span>
                 <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" /> {lang === "my" ? "2 နာရီအကြာ" : "2 hours ago"}
+                  <Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "2 နာရီအကြာ" : "2 hours ago"}
                 </span>
               </div>
             </div>
@@ -66,8 +75,8 @@ const JobDetail = () => {
               { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: "Full-time" },
               { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: "Wise, Payoneer" },
             ].map((info) => (
-              <div key={info.label} className="rounded-xl bg-card p-3 shadow-card">
-                <info.icon className="mb-1 h-4 w-4 text-primary" />
+              <div key={info.label} className="rounded-xl border border-border bg-card p-3">
+                <info.icon className="mb-1 h-4 w-4 text-primary" strokeWidth={1.5} />
                 <p className="text-[10px] text-muted-foreground">{info.label}</p>
                 <p className="text-xs font-semibold text-foreground">{info.value}</p>
               </div>
@@ -75,7 +84,7 @@ const JobDetail = () => {
           </div>
 
           <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-emerald/5 p-3.5">
-            <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" />
+            <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" strokeWidth={1.5} />
             <div>
               <p className="text-xs font-semibold text-emerald">Diaspora Safe</p>
               <p className="text-[11px] text-muted-foreground">
@@ -104,7 +113,7 @@ const JobDetail = () => {
                 { my: "Remote work အတွေ့အကြုံ ဦးစားပေး", en: "Remote work experience preferred" },
               ].map((req) => (
                 <li key={req.en} className="flex items-start gap-2 text-sm text-foreground/80">
-                  <CheckCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                  <CheckCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" strokeWidth={1.5} />
                   {lang === "my" ? req.my : req.en}
                 </li>
               ))}
@@ -120,10 +129,10 @@ const JobDetail = () => {
             </div>
           </div>
 
-          <div className="mt-5 rounded-xl bg-card p-4 shadow-card">
+          <div className="mt-5 rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                <Building2 className="h-5 w-5 text-primary" />
+                <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">TechCorp Asia</h3>
@@ -141,20 +150,20 @@ const JobDetail = () => {
       {/* Apply Modal */}
       <AnimatePresence>
         {showApplyModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={() => setShowApplyModal(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
             <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
-                <button onClick={() => setShowApplyModal(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
+                <button onClick={() => setShowApplyModal(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
               </div>
               <p className="mb-4 text-xs text-muted-foreground">Senior React Developer · TechCorp Asia</p>
 
               <div className="mb-4 rounded-xl bg-emerald/5 p-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald" />
+                  <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={1.5} />
                   <p className="text-xs font-medium text-emerald">{lang === "my" ? "ThweSone ပရိုဖိုင်ဖြင့် လျှောက်ထားမည်" : "Applying with your ThweSone profile"}</p>
                 </div>
-                <p className="ml-6 mt-1 text-[11px] text-muted-foreground">{lang === "my" ? "Maung Maung · Full Stack Developer" : "Maung Maung · Full Stack Developer"}</p>
+                <p className="ml-6 mt-1 text-[11px] text-muted-foreground">Maung Maung · Full Stack Developer</p>
               </div>
 
               <div className="mb-4">
@@ -163,25 +172,25 @@ const JobDetail = () => {
               </div>
 
               <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={handleApply}>
-                <Send className="mr-1.5 h-4 w-4" /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
+                <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
               </Button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg pb-safe">
+      {/* Bottom bar - positioned above BottomNav */}
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <button onClick={() => setSaved(!saved)} className={`flex h-12 w-12 items-center justify-center rounded-xl border ${saved ? "border-primary bg-primary/5" : "border-border"}`}>
-            <Bookmark className={`h-5 w-5 ${saved ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+          <button onClick={handleSave} className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${saved ? "border-primary bg-primary/5" : "border-border active:bg-muted"}`}>
+            <Bookmark className={`h-5 w-5 ${saved ? "fill-primary text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
           </button>
-          <button onClick={handleShare} className="flex h-12 w-12 items-center justify-center rounded-xl border border-border">
-            <Share2 className="h-5 w-5 text-muted-foreground" />
+          <button onClick={handleShare} className="flex h-12 w-12 items-center justify-center rounded-xl border border-border active:bg-muted">
+            <Share2 className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
           </button>
           {applied ? (
             <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
-              <CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
+              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
             </Button>
           ) : (
             <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>

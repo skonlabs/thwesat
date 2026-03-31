@@ -59,7 +59,7 @@ const Profile = () => {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mt-3 rounded-xl border border-border bg-card p-4">
           <div className="mb-2.5 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h3>
-            <button className="text-xs font-medium text-primary">{lang === "my" ? "ပြင်ဆင်ရန်" : "Edit"}</button>
+            <button onClick={() => navigate("/profile/edit")} className="text-xs font-medium text-primary active:text-primary/70">{lang === "my" ? "ပြင်ဆင်ရန်" : "Edit"}</button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {skills.map((skill) => (

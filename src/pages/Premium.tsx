@@ -3,11 +3,20 @@ import { Check, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { toast } = useToast();
+
+  const handleSubscribe = () => {
+    toast({
+      title: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
+      description: lang === "my" ? "ငွေပေးချေမှု စနစ် မကြာမီ ရရှိနိုင်ပါမည်" : "Payment system coming soon",
+    });
+  };
 
   const plans = [
     {
@@ -44,8 +53,8 @@ const Premium = () => {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-gold">
-              <Crown className="h-7 w-7 text-primary-foreground" />
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
+              <Crown className="h-7 w-7 text-primary-foreground" strokeWidth={1.5} />
             </div>
             <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "Premium သို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium"}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{lang === "my" ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်" : "Unlock all features"}</p>
@@ -53,7 +62,7 @@ const Premium = () => {
 
           <div className="space-y-4">
             {plans.map((plan, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={`rounded-2xl p-5 ${plan.highlight ? "bg-gradient-gold shadow-gold" : "bg-card shadow-card"}`}>
+              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className={`rounded-2xl border p-5 ${plan.highlight ? "border-primary bg-primary" : "border-border bg-card"}`}>
                 {plan.badge && (
                   <span className="mb-2 inline-block rounded-full bg-primary-foreground/20 px-3 py-1 text-[10px] font-bold text-primary-foreground">⭐ {plan.badge}</span>
                 )}
@@ -65,12 +74,18 @@ const Premium = () => {
                 <ul className="mt-3 space-y-2.5">
                   {plan.features.map((f, j) => (
                     <li key={j} className="flex items-start gap-2">
-                      <Check className={`mt-0.5 h-4 w-4 flex-shrink-0 ${f.included ? plan.highlight ? "text-primary-foreground" : "text-emerald" : "text-muted-foreground/30"}`} />
+                      <Check className={`mt-0.5 h-4 w-4 flex-shrink-0 ${f.included ? plan.highlight ? "text-primary-foreground" : "text-emerald" : "text-muted-foreground/30"}`} strokeWidth={1.5} />
                       <p className={`text-xs ${f.included ? plan.highlight ? "text-primary-foreground" : "text-foreground" : "text-muted-foreground/50 line-through"}`}>{f.text}</p>
                     </li>
                   ))}
                 </ul>
-                <Button variant={plan.current ? "outline" : "default"} size="lg" className={`mt-4 w-full rounded-xl ${plan.highlight ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90" : ""}`} disabled={plan.current}>
+                <Button
+                  variant={plan.current ? "outline" : "default"}
+                  size="lg"
+                  className={`mt-4 w-full rounded-xl ${plan.highlight ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90" : ""}`}
+                  disabled={plan.current}
+                  onClick={plan.current ? undefined : handleSubscribe}
+                >
                   {plan.current ? (lang === "my" ? "လက်ရှိ Plan" : "Current Plan") : (lang === "my" ? "Premium ယူရန်" : "Subscribe")}
                 </Button>
               </motion.div>
