@@ -8,17 +8,24 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 const steps = [
   {
-    icon: Briefcase,
-    titleMm: "အလုပ်အကိုင် ရှာဖွေရန်", titleEn: "Find Remote Work",
-    descMm: "ကမ္ဘာတစ်ဝှမ်းမှ Diaspora Safe အလုပ်အကိုင်များကို ရှာဖွေပြီး လျှောက်ထားနိုင်ပါသည်",
-    descEn: "Discover verified, diaspora-safe remote jobs worldwide tailored for Myanmar professionals",
+    icon: Globe,
+    titleMm: "မြန်မာ့ Diaspora အတွက်", titleEn: "Built for Myanmar's Diaspora",
+    descMm: "အလုပ်ရှာဖွေသူ၊ အလုပ်ရှင်နှင့် လမ်းညွှန်သူများအားလုံးအတွက် တစ်နေရာတည်း ပလက်ဖောင်း",
+    descEn: "One platform for job seekers, employers, and mentors — connecting Myanmar talent worldwide",
     color: "bg-primary/10 text-primary",
   },
   {
+    icon: Briefcase,
+    titleMm: "အလုပ်ရှာဖွေ · တက်လန့်ရှာ", titleEn: "Find Jobs · Find Talent",
+    descMm: "အလုပ်ရှာဖွေသူများ — diaspora-safe အလုပ်များ ရှာပါ။ အလုပ်ရှင်များ — ကမ္ဘာတစ်ဝှမ်းမှ မြန်မာ talent ရှာဖွေပါ",
+    descEn: "Job seekers — discover verified remote jobs. Employers — find skilled Myanmar professionals globally",
+    color: "bg-gold/10 text-gold-dark",
+  },
+  {
     icon: Users,
-    titleMm: "လမ်းညွှန်သူများနှင့် ချိတ်ဆက်ပါ", titleEn: "Connect with Mentors",
-    descMm: "အတွေ့အကြုံရှိသော မြန်မာပညာရှင်များထံမှ ၁:၁ လမ်းညွှန်မှုရယူပါ",
-    descEn: "Get 1:1 guidance from experienced Myanmar professionals who've been in your shoes",
+    titleMm: "လမ်းညွှန်မှု ပေးပါ · ရယူပါ", titleEn: "Mentor & Be Mentored",
+    descMm: "လမ်းညွှန်သူအဖြစ် သင့်အတွေ့အကြုံမျှဝေပါ သို့မဟုတ် အတွေ့အကြုံရှိသူများထံမှ ၁:၁ လမ်းညွှန်မှုရယူပါ",
+    descEn: "Share your expertise as a mentor or get 1:1 guidance from experienced Myanmar professionals",
     color: "bg-emerald/10 text-emerald",
   },
   {
@@ -29,17 +36,10 @@ const steps = [
     color: "bg-accent/10 text-accent",
   },
   {
-    icon: BookOpen,
-    titleMm: "ဥပဒေရေးရာ လမ်းညွှန်ချက်", titleEn: "Legal Navigation",
-    descMm: "နိုင်ငံအလိုက် ဗီဇာ၊ အလုပ်ပါမစ်နှင့် အလိမ်အညာရှောင်ကြဉ်နည်း လမ်းညွှန်ချက်များ",
-    descEn: "Country-specific guides for visas, work permits, scam prevention — verified by NGOs",
-    color: "bg-gold/10 text-gold-dark",
-  },
-  {
     icon: Heart,
     titleMm: "အသိုင်းအဝိုင်းနှင့် Career Tools", titleEn: "Community & Career Tools",
-    descMm: "အတွေ့အကြုံမျှဝေပါ၊ Profile Builder ဖြင့် သင့်ပရိုဖိုင်ကို နိုင်ငံတကာအဆင့်မီ ပြုလုပ်ပါ",
-    descEn: "Share experiences, build your profile with AI tools — all bilingual in Burmese & English",
+    descMm: "အတွေ့အကြုံမျှဝေပါ၊ AI Profile Builder၊ ဥပဒေလမ်းညွှန်ချက်များ — အားလုံး နှစ်ဘာသာဖြင့်",
+    descEn: "Legal guides, AI profile builder, skill gap analysis — all bilingual in Burmese & English",
     color: "bg-emerald/10 text-emerald",
   },
 ];
