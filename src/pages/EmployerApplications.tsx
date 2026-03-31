@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Download, Star, MessageCircle, X, CheckCircle, Clock, Eye, XCircle } from "lucide-react";
+import { ChevronRight, Download, Star, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Mail, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +41,8 @@ const EmployerApplications = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPlacement, setShowPlacement] = useState(false);
+  const [showForward, setShowForward] = useState(false);
+  const [forwardEmail, setForwardEmail] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
   const [applicants, setApplicants] = useState(mockApplicants);
@@ -74,6 +77,17 @@ const EmployerApplications = () => {
       });
       setShowPlacement(false);
       setSelectedId(null);
+    }
+  };
+
+  const handleForward = () => {
+    if (forwardEmail && selected) {
+      toast({
+        title: lang === "my" ? "အီးမေးလ်သို့ ပို့ပြီးပါပြီ" : "Forwarded to email",
+        description: lang === "my" ? `${selected.name} ၏ CV နှင့် Cover Letter ကို ${forwardEmail} သို့ ပို့ပြီးပါပြီ` : `${selected.name}'s CV & Cover Letter sent to ${forwardEmail}`,
+      });
+      setShowForward(false);
+      setForwardEmail("");
     }
   };
 
@@ -131,9 +145,9 @@ const EmployerApplications = () => {
 
       {/* Applicant Detail Sheet */}
       <AnimatePresence>
-        {selected && !showReject && !showPlacement && (
+        {selected && !showReject && !showPlacement && !showForward && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-20" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <div className="mb-4 flex items-start gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{selected.avatar}</div>
@@ -156,6 +170,9 @@ const EmployerApplications = () => {
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" className="rounded-lg"><Download className="mr-1 h-3.5 w-3.5" /> CV</Button>
                 <Button variant="outline" size="sm" className="rounded-lg" onClick={() => { setSelectedId(null); navigate("/messages/chat"); }}><MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}</Button>
+                <Button variant="outline" size="sm" className="rounded-lg" onClick={() => setShowForward(true)}>
+                  <Mail className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "Email ပို့" : "Forward"}
+                </Button>
               </div>
 
               <div className="mt-4 border-t border-border pt-4">
@@ -185,10 +202,40 @@ const EmployerApplications = () => {
         )}
       </AnimatePresence>
 
+      {/* Forward to Email Modal */}
+      <AnimatePresence>
+        {showForward && selected && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowForward(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-1 text-base font-bold text-foreground">{lang === "my" ? "Email သို့ ပေးပို့ရန်" : "Forward to Email"}</h3>
+              <p className="mb-4 text-xs text-muted-foreground">
+                {lang === "my" ? `${selected.name} ၏ CV နှင့် Cover Letter ကို email သို့ ပို့ပါ` : `Send ${selected.name}'s CV & Cover Letter to your email`}
+              </p>
+              <div className="mb-4">
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "Email လိပ်စာ *" : "Email Address *"}</label>
+                <Input
+                  type="email"
+                  value={forwardEmail}
+                  onChange={e => setForwardEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowForward(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="gold" size="default" className="flex-1 rounded-xl" onClick={handleForward} disabled={!forwardEmail}>
+                  <Send className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ပို့ရန်" : "Send"}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Reject Modal */}
       <AnimatePresence>
         {showReject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowReject(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowReject(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
               <h3 className="mb-3 text-base font-bold text-foreground">{lang === "my" ? "ငြင်းပယ်ရသည့် အကြောင်းရင်း" : "Rejection Reason"}</h3>
               <div className="mb-3 space-y-2">
@@ -210,7 +257,7 @@ const EmployerApplications = () => {
       {/* Placement Confirm Modal */}
       <AnimatePresence>
         {showPlacement && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowPlacement(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowPlacement(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
               <h3 className="mb-1 text-base font-bold text-foreground">{lang === "my" ? "ခန့်အပ်မှု အတည်ပြုရန်" : "Confirm Placement"}</h3>
               <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ပထမလစာ၏ ၈% ခန့်အပ်ကြေး ပေးရပါမည်" : "8% placement fee on first month's salary"}</p>

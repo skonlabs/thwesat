@@ -35,6 +35,7 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
+import SearchTalent from "./pages/SearchTalent";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/employer/post-job" element={<EmployerPostJob />} />
             <Route path="/employer/applications" element={<EmployerApplications />} />
             <Route path="/employer/subscription" element={<EmployerSubscription />} />
+            <Route path="/employer/search" element={<SearchTalent />} />
 
             {/* Admin */}
             <Route path="/admin" element={<AdminDashboard />} />

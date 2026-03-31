@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Eye, AlertTriangle, BarChart3 } from "lucide-react";
+import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Eye, AlertTriangle, BarChart3, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
@@ -24,9 +25,17 @@ const pendingPosts = [
   { id: 4, title: "Mental Health Support", board: { my: "ပံ့ပိုးကူညီ", en: "Peer Support" }, author: "အမည်မဖော်", content: "ပြောင်းရွေ့နေထိုင်ရတာ...", contentEn: "Living as a displaced person...", submitted: "5 hours ago" },
 ];
 
+const quickActions = [
+  { icon: MessageCircle, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-primary/10", fg: "text-primary" },
+];
+
 const ModeratorDashboard = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState(pendingPosts);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showRemoval, setShowRemoval] = useState(false);
@@ -54,6 +63,20 @@ const ModeratorDashboard = () => {
     <div className="min-h-screen bg-background pb-10">
       <PageHeader title={lang === "my" ? "Moderator Dashboard" : "Moderator Dashboard"} />
       <div className="px-5">
+        {/* Profile Completion */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
+            <span className="text-xs font-bold text-primary">70%</span>
+          </div>
+          <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <motion.div initial={{ width: 0 }} animate={{ width: "70%" }} transition={{ delay: 0.3, duration: 0.6 }} className="h-full rounded-full bg-primary" />
+          </div>
+          <button onClick={() => navigate("/profile/edit")} className="text-xs font-semibold text-primary">
+            {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
+          </button>
+        </motion.div>
+
         {/* Stats */}
         <div className="mb-5 grid grid-cols-3 gap-3">
           {[
@@ -65,6 +88,26 @@ const ModeratorDashboard = () => {
               <p className="text-lg font-bold text-foreground">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? s.label.my : s.label.en}</p>
             </div>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
+        <div className="mb-5 grid grid-cols-4 gap-3">
+          {quickActions.map((action, i) => (
+            <motion.button
+              key={action.path + action.labelEn}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              onClick={() => navigate(action.path)}
+              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 transition-colors active:bg-muted"
+            >
+              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${action.bg}`}>
+                <action.icon className={`h-4 w-4 ${action.fg}`} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] font-medium text-foreground">{lang === "my" ? action.label : action.labelEn}</span>
+            </motion.button>
           ))}
         </div>
 
@@ -110,7 +153,7 @@ const ModeratorDashboard = () => {
       <AnimatePresence>
         {selected && !showRemoval && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-20" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <span className="mb-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{lang === "my" ? selected.board.my : selected.board.en}</span>
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>

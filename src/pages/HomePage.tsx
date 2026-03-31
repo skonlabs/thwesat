@@ -1,18 +1,9 @@
 import { motion } from "framer-motion";
-import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown, LayoutDashboard, PlusCircle, UserSearch } from "lucide-react";
+import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown, LayoutDashboard, PlusCircle, UserSearch, GraduationCap, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole } from "@/hooks/use-role";
 import PageHeader from "@/components/PageHeader";
-
-const mentorActions = [
-  { icon: Users, label: "Booking များ", labelEn: "Bookings", path: "/mentors/book", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "My Profile", path: "/mentors/detail", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Search, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/10", fg: "text-accent" },
-];
 
 const jobseekerActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-primary/10", fg: "text-primary" },
@@ -21,15 +12,6 @@ const jobseekerActions = [
   { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-primary/10", fg: "text-primary" },
   { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-accent/10", fg: "text-accent" },
-];
-
-const employerActions = [
-  { icon: LayoutDashboard, label: "Dashboard", labelEn: "Dashboard", path: "/employer/dashboard", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: PlusCircle, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: TrendingUp, label: "လျှောက်သူများ", labelEn: "Applicants", path: "/employer/applications", bg: "bg-accent/10", fg: "text-accent" },
-  { icon: UserSearch, label: "ဝန်ထမ်းရှာ", labelEn: "Find Talent", path: "/jobs", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-accent/10", fg: "text-accent" },
 ];
 
 const featuredJobs = [
@@ -43,7 +25,11 @@ const HomePage = () => {
   const { lang } = useLanguage();
   const { role } = useRole();
 
-  const quickActions = role === "employer" ? employerActions : role === "mentor" ? mentorActions : jobseekerActions;
+  // For non-jobseeker roles, redirect to their dashboard
+  // But we still render a home/dashboard hybrid for mentor role
+  if (role === "employer") {
+    // Employer uses EmployerDashboard directly via routing
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -59,7 +45,7 @@ const HomePage = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
+              {role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
             </span>
             <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1">
               <Crown className="h-3 w-3 text-primary" strokeWidth={2} />
@@ -72,9 +58,7 @@ const HomePage = () => {
         <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <span className="text-sm text-muted-foreground">
-            {role === "employer"
-              ? (lang === "my" ? "ဝန်ထမ်း၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search talent, skills...")
-              : (lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills...")}
+            {lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}
           </span>
         </button>
       </div>
@@ -95,7 +79,7 @@ const HomePage = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-3">
-          {quickActions.map((action, i) => (
+          {jobseekerActions.map((action, i) => (
             <motion.button
               key={action.path + action.labelEn}
               initial={{ opacity: 0, y: 8 }}
@@ -129,93 +113,53 @@ const HomePage = () => {
           </button>
         </motion.div>
 
-        {/* Featured Jobs - only for job seekers */}
-        {role === "jobseeker" && (
-          <div className="mt-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[15px] font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
-              <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-primary">
-                {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
-              </button>
-            </div>
-            <div className="space-y-2.5">
-              {featuredJobs.map((job, i) => (
-                <motion.button
-                  key={i}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 + i * 0.05 }}
-                  onClick={() => navigate("/jobs/detail")}
-                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted"
-                >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="truncate text-sm font-semibold text-foreground">{job.title}</h3>
-                      <div className="flex gap-1">
-                        {job.diasporaSafe && (
-                          <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
-                            <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />Safe
-                          </span>
-                        )}
-                        {job.isNew && (
-                          <span className="flex-shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">NEW</span>
-                        )}
-                      </div>
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}
-                      </span>
-                      <span className="text-[11px] font-semibold text-primary">{job.salary}</span>
-                    </div>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
+        {/* Featured Jobs */}
+        <div className="mt-6">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[15px] font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
+            <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-primary">
+              {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+            </button>
           </div>
-        )}
-
-        {/* Employer quick stats */}
-        {role === "employer" && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-6 rounded-xl border border-border bg-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အကျဉ်းချုပ်" : "Quick Stats"}</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "3", label: lang === "my" ? "ကြော်ငြာ" : "Listings" },
-                { value: "24", label: lang === "my" ? "လျှောက်သူ" : "Applicants" },
-                { value: "89%", label: lang === "my" ? "ကြည့်ရှု" : "View Rate" },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-lg bg-muted p-3 text-center">
-                  <p className="text-lg font-bold text-foreground">{stat.value}</p>
-                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+          <div className="space-y-2.5">
+            {featuredJobs.map((job, i) => (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 + i * 0.05 }}
+                onClick={() => navigate("/jobs/detail")}
+                className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted"
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Mentor quick stats */}
-        {role === "mentor" && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-6 rounded-xl border border-border bg-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Mentor အကျဉ်းချုပ်" : "Mentor Stats"}</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "12", label: lang === "my" ? "Booking" : "Bookings" },
-                { value: "4.8", label: lang === "my" ? "အမှတ်" : "Rating" },
-                { value: "$240", label: lang === "my" ? "ဝင်ငွေ" : "Earnings" },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-lg bg-muted p-3 text-center">
-                  <p className="text-lg font-bold text-foreground">{stat.value}</p>
-                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="truncate text-sm font-semibold text-foreground">{job.title}</h3>
+                    <div className="flex gap-1">
+                      {job.diasporaSafe && (
+                        <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
+                          <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />Safe
+                        </span>
+                      )}
+                      {job.isNew && (
+                        <span className="flex-shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">NEW</span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}
+                    </span>
+                    <span className="text-[11px] font-semibold text-primary">{job.salary}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+              </motion.button>
+            ))}
+          </div>
+        </div>
 
         {/* Community Stats */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">

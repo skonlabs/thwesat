@@ -19,15 +19,15 @@ const BottomNav = () => {
   ];
 
   const employerNav = [
-    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
     { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/employer/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job" },
     { icon: Users, labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
+    { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
   ];
 
   const mentorNav = [
-    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
+    { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/home" },
     { icon: GraduationCap, labelMy: "Mentor", labelEn: "Mentor", path: "/mentors/detail" },
     { icon: Calendar, labelMy: "Booking", labelEn: "Bookings", path: "/mentors/book" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },

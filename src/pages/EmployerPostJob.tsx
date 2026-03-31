@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, CheckCircle } from "lucide-react";
+import { ArrowRight, AlertTriangle, CheckCircle, Languages, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
+
+// Simple mock translation (in production, this would call a translation API)
+const mockTranslateToMyanmar = (text: string): string => {
+  const translations: Record<string, string> = {
+    "Senior React Developer": "React Developer (အတွေ့အကြုံရှိ)",
+    "Junior React Developer": "React Developer (အသစ်)",
+    "UI/UX Designer": "UI/UX ဒီဇိုင်နာ",
+    "Project Manager": "ပရောဂျက် မန်နေဂျာ",
+    "Full Stack Developer": "Full Stack Developer",
+    "Content Writer": "အကြောင်းအရာ ရေးသူ",
+  };
+  return translations[text] || `[မြန်မာဘာသာပြန်] ${text}`;
+};
+
+const mockTranslateToEnglish = (text: string): string => {
+  return `[EN Translation] ${text}`;
+};
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -29,12 +46,14 @@ const EmployerPostJob = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [translating, setTranslating] = useState(false);
 
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
   const [descEn, setDescEn] = useState("");
   const [descMy, setDescMy] = useState("");
   const [requirementsEn, setRequirementsEn] = useState("");
+  const [requirementsMy, setRequirementsMy] = useState("");
   const [roleType, setRoleType] = useState("");
   const [category, setCategory] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
@@ -49,6 +68,21 @@ const EmployerPostJob = () => {
   const [externalUrl, setExternalUrl] = useState("");
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+
+  const autoTranslate = useCallback(() => {
+    setTranslating(true);
+    // Simulate translation delay
+    setTimeout(() => {
+      if (titleEn && !titleMy) setTitleMy(mockTranslateToMyanmar(titleEn));
+      if (descEn && !descMy) setDescMy(mockTranslateToMyanmar(descEn));
+      if (requirementsEn && !requirementsMy) setRequirementsMy(mockTranslateToMyanmar(requirementsEn));
+      setTranslating(false);
+      toast({
+        title: lang === "my" ? "ဘာသာပြန်ပြီးပါပြီ" : "Auto-translated",
+        description: lang === "my" ? "ဘာသာပြန်ချက်များကို ပြင်ဆင်နိုင်ပါသည်" : "You can edit the translations",
+      });
+    }, 800);
+  }, [titleEn, titleMy, descEn, descMy, requirementsEn, requirementsMy, lang, toast]);
 
   const handleSubmit = () => {
     toast({
@@ -78,7 +112,7 @@ const EmployerPostJob = () => {
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (မြန်မာ)" : "Title (Burmese)"}</label>
               <Input value={titleMy} onChange={e => setTitleMy(e.target.value)} className="h-11 rounded-xl" />
-              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "၄၈ နာရီအတွင်း ထည့်သွင်းရပါမည်" : "Required within 48 hours"}</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်၊ ပြင်ဆင်နိုင်ပါသည်" : "Auto-translated, you can edit"}</p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (English) *" : "Description (English) *"}</label>
@@ -87,11 +121,33 @@ const EmployerPostJob = () => {
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (မြန်မာ)" : "Description (Burmese)"}</label>
               <Textarea value={descMy} onChange={e => setDescMy(e.target.value)} className="min-h-[80px] rounded-xl" />
+              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်" : "Auto-translated, editable"}</p>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက်" : "Requirements"}</label>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (English)" : "Requirements (English)"}</label>
               <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} placeholder={lang === "my" ? "လိုအပ်သော အတွေ့အကြုံ" : "Required experience and skills"} className="min-h-[80px] rounded-xl" />
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (မြန်မာ)" : "Requirements (Burmese)"}</label>
+              <Textarea value={requirementsMy} onChange={e => setRequirementsMy(e.target.value)} className="min-h-[60px] rounded-xl" />
+              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်" : "Auto-translated, editable"}</p>
+            </div>
+
+            {/* Auto-translate button */}
+            <Button
+              variant="outline"
+              size="default"
+              className="w-full rounded-xl"
+              onClick={autoTranslate}
+              disabled={translating || (!titleEn && !descEn && !requirementsEn)}
+            >
+              {translating ? (
+                <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> {lang === "my" ? "ဘာသာပြန်နေသည်..." : "Translating..."}</>
+              ) : (
+                <><Languages className="mr-1.5 h-4 w-4" /> {lang === "my" ? "မြန်မာဘာသာ အလိုအလျောက်ပြန်ရန်" : "Auto-translate to Burmese"}</>
+              )}
+            </Button>
+
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား *" : "Role Type *"}</label>
               <div className="flex flex-wrap gap-2">
