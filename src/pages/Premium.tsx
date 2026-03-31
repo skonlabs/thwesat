@@ -39,10 +39,8 @@ const Premium = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="px-6 pt-6">
-        <button onClick={() => navigate(-1)} className="mb-4 text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader title={lang === "my" ? "Premium" : "Premium"} showBack />
+      <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="mb-6 text-center">
