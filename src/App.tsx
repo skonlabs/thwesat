@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/hooks/use-auth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
@@ -56,65 +58,67 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* Auth flow */}
-          <Route path="/" element={<Welcome />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+        <AuthProvider>
+          <Routes>
+            {/* Auth flow (public) */}
+            <Route path="/" element={<Welcome />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* All authenticated pages with bottom nav */}
-          <Route element={<AppLayout />}>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/jobs/detail" element={<JobDetail />} />
-            <Route path="/jobs/saved" element={<SavedJobs />} />
-            <Route path="/applications" element={<Applications />} />
-            <Route path="/mentors" element={<Mentors />} />
-            <Route path="/mentors/detail" element={<MentorDetail />} />
-            <Route path="/mentors/book" element={<MentorBooking />} />
-            <Route path="/mentors/dashboard" element={<MentorDashboard />} />
-            <Route path="/mentors/mentees" element={<MentorMentees />} />
-            <Route path="/mentors/bookings" element={<MentorBookings />} />
-            <Route path="/guides" element={<Guides />} />
-            <Route path="/guides/detail" element={<GuideDetail />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/edit" element={<EditProfile />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/messages/chat" element={<ChatView />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/ai-tools" element={<AiProfileBuilder />} />
-            <Route path="/ai-tools/profile-builder" element={<ProfileBuilder />} />
-            <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
-            <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
-            <Route path="/premium" element={<Premium />} />
-            <Route path="/settings" element={<Settings />} />
+            {/* All authenticated pages with bottom nav */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/jobs/detail" element={<JobDetail />} />
+              <Route path="/jobs/saved" element={<SavedJobs />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/mentors" element={<Mentors />} />
+              <Route path="/mentors/detail" element={<MentorDetail />} />
+              <Route path="/mentors/book" element={<MentorBooking />} />
+              <Route path="/mentors/dashboard" element={<MentorDashboard />} />
+              <Route path="/mentors/mentees" element={<MentorMentees />} />
+              <Route path="/mentors/bookings" element={<MentorBookings />} />
+              <Route path="/guides" element={<Guides />} />
+              <Route path="/guides/detail" element={<GuideDetail />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/edit" element={<EditProfile />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/messages/chat" element={<ChatView />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/ai-tools" element={<AiProfileBuilder />} />
+              <Route path="/ai-tools/profile-builder" element={<ProfileBuilder />} />
+              <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
+              <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
+              <Route path="/premium" element={<Premium />} />
+              <Route path="/settings" element={<Settings />} />
 
-            {/* Employer Portal */}
-            <Route path="/employer/onboarding" element={<EmployerOnboarding />} />
-            <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-            <Route path="/employer/post-job" element={<EmployerPostJob />} />
-            <Route path="/employer/applications" element={<EmployerApplications />} />
-            <Route path="/employer/subscription" element={<EmployerSubscription />} />
-            <Route path="/employer/search" element={<SearchTalent />} />
+              {/* Employer Portal */}
+              <Route path="/employer/onboarding" element={<EmployerOnboarding />} />
+              <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+              <Route path="/employer/post-job" element={<EmployerPostJob />} />
+              <Route path="/employer/applications" element={<EmployerApplications />} />
+              <Route path="/employer/subscription" element={<EmployerSubscription />} />
+              <Route path="/employer/search" element={<SearchTalent />} />
 
-            {/* Admin */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/jobs" element={<AdminJobQueue />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              {/* Admin */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/jobs" element={<AdminJobQueue />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
 
-            {/* Moderator */}
-            <Route path="/moderator" element={<ModeratorDashboard />} />
-          </Route>
+              {/* Moderator */}
+              <Route path="/moderator" element={<ModeratorDashboard />} />
+            </Route>
 
-          {/* Delegate Access (no nav) */}
-          <Route path="/access/:token" element={<DelegateAccess />} />
+            {/* Delegate Access (no nav) */}
+            <Route path="/access/:token" element={<DelegateAccess />} />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
