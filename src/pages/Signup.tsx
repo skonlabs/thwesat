@@ -4,15 +4,39 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 import LanguageToggle from "@/components/LanguageToggle";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [showReferral, setShowReferral] = useState(false);
+
+  const handleSignup = () => {
+    if (!name.trim()) {
+      toast({ title: lang === "my" ? "အမည် ထည့်ပါ" : "Enter your name", variant: "destructive" });
+      return;
+    }
+    if (!email.trim() || !email.includes("@")) {
+      toast({ title: lang === "my" ? "အီးမေးလ် မှန်ကန်စွာ ထည့်ပါ" : "Enter a valid email", variant: "destructive" });
+      return;
+    }
+    if (password.length < 6) {
+      toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
+    toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
+    navigate("/home");
+  };
 
   return (
     <div className="min-h-screen bg-background px-6 pt-6">
@@ -48,36 +72,62 @@ const Signup = () => {
 
         <div className="space-y-4">
           <div>
-            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အမည်" : "Name"}</Label>
+            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အမည် (Display Name)" : "Display Name"}</Label>
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder={lang === "my" ? "သင့်အမည်ကို ထည့်ပါ" : "Enter your name"} className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင် (ဖန်နာမည်လည်း ရ)" : "e.g. Maung Maung (pseudonyms OK)"} className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
             </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အမှန်တကယ် နာမည် မဟုတ်လည်း ရပါသည်" : "Can be a pseudonym for your safety"}</p>
           </div>
           <div>
             <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
             </div>
           </div>
           <div>
             <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-card pl-10 pr-10 text-sm" />
+              <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-card pl-10 pr-10 text-sm" />
               <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {password && password.length < 6 && (
+              <p className="mt-1 text-[10px] text-destructive">{lang === "my" ? "အနည်းဆုံး ၆ လုံး လိုအပ်ပါသည်" : "Minimum 6 characters required"}</p>
+            )}
           </div>
+
+          {/* Referral Code */}
+          {!showReferral ? (
+            <button onClick={() => setShowReferral(true)} className="flex items-center gap-2 text-xs font-medium text-primary">
+              <Gift className="h-3.5 w-3.5" strokeWidth={1.5} />
+              {lang === "my" ? "ညွှန်းဆိုကုဒ် ရှိပါသလား?" : "Have a referral code?"}
+            </button>
+          ) : (
+            <div>
+              <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "ညွှန်းဆိုကုဒ် (ရွေးချယ်ပိုင်ခွင့်)" : "Referral Code (Optional)"}</Label>
+              <div className="relative">
+                <Gift className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} placeholder="TS-XXXXXX" className="h-12 rounded-xl border-border bg-card pl-10 text-sm uppercase" />
+              </div>
+            </div>
+          )}
         </div>
 
-        <Button variant="gold" size="lg" className="mt-8 w-full rounded-xl" onClick={() => navigate("/home")}>
+        <Button variant="gold" size="lg" className="mt-8 w-full rounded-xl" onClick={handleSignup}>
           {lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up"}
         </Button>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <p className="mt-4 text-center text-[10px] text-muted-foreground">
+          {lang === "my"
+            ? "အကောင့်ဖွင့်ခြင်းဖြင့် ကိုယ်ရေးကာကွယ်မှု မူဝါဒကို သဘောတူပါသည်"
+            : "By signing up, you agree to our Privacy Policy"}
+        </p>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
           <button onClick={() => navigate("/login")} className="font-medium text-primary">
             {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}

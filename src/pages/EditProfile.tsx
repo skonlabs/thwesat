@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, X, Plus, MapPin, Globe, Mail, Phone, Save } from "lucide-react";
+import { Camera, X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,15 +27,23 @@ const EditProfile = () => {
   const [languages, setLanguages] = useState(["Myanmar (Native)", "English (Fluent)", "Thai (Basic)"]);
   const [newLanguage, setNewLanguage] = useState("");
   const [experience, setExperience] = useState("3");
-  const [remoteReady, setRemoteReady] = useState(true);
+  const [primaryRole, setPrimaryRole] = useState("Full Stack Developer");
+  const [visibility, setVisibility] = useState("community");
+  const [preferredWorkTypes, setPreferredWorkTypes] = useState(["remote_full", "remote_contract"]);
+
+  // Remote work readiness
+  const [hasPayoneer, setHasPayoneer] = useState(true);
+  const [hasWise, setHasWise] = useState(false);
+  const [hasUpwork, setHasUpwork] = useState(false);
+  const [hasLaptop, setHasLaptop] = useState(true);
+  const [internetStable, setInternetStable] = useState(true);
 
   const addSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+    if (newSkill.trim() && !skills.includes(newSkill.trim()) && skills.length < 30) {
       setSkills([...skills, newSkill.trim()]);
       setNewSkill("");
     }
   };
-
   const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
 
   const addLanguage = () => {
@@ -44,8 +52,11 @@ const EditProfile = () => {
       setNewLanguage("");
     }
   };
-
   const removeLanguage = (l: string) => setLanguages(languages.filter(x => x !== l));
+
+  const toggleWorkType = (type: string) => {
+    setPreferredWorkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  };
 
   const handleSave = () => {
     toast({
@@ -66,7 +77,6 @@ const EditProfile = () => {
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} />
       <div className="px-5">
-
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">
           <div className="relative">
@@ -82,16 +92,21 @@ const EditProfile = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြေခံ အချက်အလက်" : "Basic Information"}</h2>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "အမည်" : "Full Name"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "Display Name" : "Display Name"}</Label>
             <Input value={name} onChange={e => setName(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ဖန်နာမည် သုံးနိုင်ပါသည်" : "Pseudonyms are OK"}</p>
           </div>
           <div>
             <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ရာထူး" : "Headline"}</Label>
-            <Input value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g. Full Stack Developer" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+          </div>
+          <div>
+            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "အဓိက ရာထူး" : "Primary Role"}</Label>
+            <Input value={primaryRole} onChange={e => setPrimaryRole(e.target.value)} placeholder="e.g. Software Developer" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
             <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "Bio"}</Label>
-            <Textarea value={bio} onChange={e => setBio(e.target.value)} placeholder={lang === "my" ? "သင့်အကြောင်း ရေးပါ..." : "Tell us about yourself..."} className="min-h-[80px] rounded-xl border-border bg-muted/50 text-sm" />
+            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[80px] rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
             <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
@@ -99,11 +114,44 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
+        {/* Profile Visibility */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="mt-4 rounded-xl border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility"}</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: "public", label: lang === "my" ? "အားလုံး" : "Public" },
+              { value: "community", label: lang === "my" ? "အဖွဲ့ဝင်များ" : "Community" },
+              { value: "employers", label: lang === "my" ? "အလုပ်ရှင်များ" : "Employers" },
+              { value: "private", label: lang === "my" ? "ကိုယ်တိုင်" : "Private" },
+            ].map(opt => (
+              <button key={opt.value} onClick={() => setVisibility(opt.value)} className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${visibility === opt.value ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground"}`}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Preferred Work Type */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mt-4 rounded-xl border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး အလုပ်အမျိုးအစား" : "Preferred Work Type"}</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: "remote_full", label: "Remote Full-time" },
+              { value: "remote_contract", label: "Remote Contract" },
+              { value: "hybrid", label: "Hybrid" },
+            ].map(opt => (
+              <button key={opt.value} onClick={() => toggleWorkType(opt.value)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${preferredWorkTypes.includes(opt.value) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Location & Contact */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 space-y-4 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "တည်နေရာနှင့် ဆက်သွယ်ရန်" : "Location & Contact"}</h2>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><MapPin className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "တည်နေရာ" : "Location"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><MapPin className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "တည်နေရာ" : "Country of Residence"}</Label>
             <Input value={location} onChange={e => setLocation(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
@@ -115,23 +163,41 @@ const EditProfile = () => {
             <Input value={phone} onChange={e => setPhone(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Globe className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဝဘ်ဆိုက်" : "Website / Portfolio"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><Globe className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဝဘ်ဆိုက် / Portfolio" : "Website / Portfolio"}</Label>
             <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
-          <div className="flex items-center justify-between rounded-xl bg-muted/50 p-3">
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-primary" strokeWidth={1.5} />
-              <span className="text-sm text-foreground">{lang === "my" ? "Remote Ready" : "Remote Ready"}</span>
-            </div>
-            <button onClick={() => setRemoteReady(!remoteReady)} className={`h-6 w-11 rounded-full transition-colors ${remoteReady ? "bg-primary" : "bg-muted-foreground/30"}`}>
-              <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${remoteReady ? "translate-x-5" : "translate-x-0.5"}`} />
-            </button>
+        </motion.div>
+
+        {/* Remote Work Readiness */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="mt-4 rounded-xl border border-border bg-card p-4">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Remote Work အသင့်အနေ" : "Remote Work Readiness"}</h2>
+          <div className="space-y-2">
+            {[
+              { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => setHasLaptop(!hasLaptop) },
+              { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => setInternetStable(!internetStable) },
+              { label: "Payoneer", icon: CreditCard, value: hasPayoneer, toggle: () => setHasPayoneer(!hasPayoneer) },
+              { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => setHasWise(!hasWise) },
+              { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => setHasUpwork(!hasUpwork) },
+            ].map((item, i) => (
+              <button key={i} onClick={item.toggle} className="flex w-full items-center justify-between rounded-lg bg-muted/50 p-3">
+                <div className="flex items-center gap-2">
+                  <item.icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                  <span className="text-sm text-foreground">{item.label}</span>
+                </div>
+                <div className={`h-6 w-11 rounded-full transition-colors ${item.value ? "bg-primary" : "bg-muted-foreground/30"}`}>
+                  <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.value ? "translate-x-5" : "translate-x-0.5"} mt-0.5`} />
+                </div>
+              </button>
+            ))}
           </div>
         </motion.div>
 
         {/* Skills */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+            <span className="text-[10px] text-muted-foreground">{skills.length}/30</span>
+          </div>
           <div className="mb-3 flex flex-wrap gap-2">
             {skills.map(skill => (
               <span key={skill} className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
@@ -163,7 +229,6 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
-        {/* Save button */}
         <Button variant="gold" size="xl" className="mt-6 w-full rounded-2xl" onClick={handleSave}>
           <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
           {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes"}

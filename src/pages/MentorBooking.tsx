@@ -38,21 +38,48 @@ const MentorBooking = () => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [goals, setGoals] = useState("");
+  const [rating, setRating] = useState(0);
 
   const handleConfirm = () => setStep(3);
 
+  // Confirmation + Rating screen
   if (step === 3) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex w-full max-w-sm flex-col items-center text-center">
           <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
           </div>
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}</h1>
           <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? "ဒေါ်ခင်မြတ်နိုး နှင့် ချိန်းဆိုမှု" : "Session with Khin Myat Noe"}</p>
           <p className="mb-1 text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT)</p>
-          <p className="mb-6 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
-          <p className="mb-8 text-xs text-muted-foreground">
+          <p className="mb-2 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
+          {goals && (
+            <div className="mb-4 w-full rounded-lg bg-muted p-3">
+              <p className="text-[10px] font-medium text-muted-foreground">{lang === "my" ? "ပန်းတိုင်" : "Your Goals"}</p>
+              <p className="mt-1 text-xs text-foreground">{goals}</p>
+            </div>
+          )}
+
+          {/* Session rating (post-session mock) */}
+          <div className="mb-4 w-full rounded-xl border border-border bg-card p-4">
+            <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "Session ကို အမှတ်ပေးပါ" : "Rate this session"}</p>
+            <div className="flex justify-center gap-1">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} onClick={() => setRating(star)}>
+                  <Star className={`h-8 w-8 ${star <= rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} strokeWidth={1.5} />
+                </button>
+              ))}
+            </div>
+            {rating > 0 && (
+              <p className="mt-2 text-[10px] text-muted-foreground">
+                {rating >= 4 ? (lang === "my" ? "ကျေးဇူးတင်ပါသည်!" : "Thank you!") : (lang === "my" ? "တုံ့ပြန်ချက် မှတ်တမ်းတင်ပြီးပါပြီ" : "Feedback recorded")}
+              </p>
+            )}
+          </div>
+
+          <p className="mb-6 text-xs text-muted-foreground">
             {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
           </p>
           <Button variant="gold" size="lg" className="mb-3 w-full rounded-xl" onClick={() => navigate("/messages/chat")}>
@@ -71,13 +98,11 @@ const MentorBooking = () => {
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} />
 
       <div className="px-5">
-        {/* Progress */}
         <div className="mb-6 flex gap-2">
           <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
           <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
         </div>
 
-        {/* Mentor card mini */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-card p-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">KM</div>
           <div>
@@ -136,13 +161,15 @@ const MentorBooking = () => {
               ))}
             </div>
 
+            <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ပန်းတိုင် / ရည်ရွယ်ချက်" : "Your Goals"}</h2>
+            <Textarea value={goals} onChange={e => setGoals(e.target.value)} placeholder={lang === "my" ? "ဤ Session မှ ဘာရယူချင်ပါသလဲ?" : "What do you want to achieve from this session?"} className="mb-4 min-h-[60px] rounded-xl border-border bg-card text-sm" />
+
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "မက်ဆေ့ချ် (ရွေးချယ်ပိုင်ခွင့်)" : "Message (Optional)"}</h2>
-            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={lang === "my" ? "Mentor ကို ကြိုတင် ပြောလိုသည့် အကြောင်းအရာ..." : "Anything you'd like to discuss in advance..."} className="min-h-[80px] rounded-xl border-border bg-card text-sm" />
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={lang === "my" ? "Mentor ကို ကြိုတင် ပြောလိုသည့် အကြောင်းအရာ..." : "Anything you'd like to discuss in advance..."} className="min-h-[60px] rounded-xl border-border bg-card text-sm" />
           </motion.div>
         )}
       </div>
 
-      {/* Bottom action - positioned above BottomNav */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
