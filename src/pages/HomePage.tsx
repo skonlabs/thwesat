@@ -48,7 +48,7 @@ const HomePage = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="-mt-4 grid grid-cols-4 gap-3"
+          className="-mt-4 grid grid-cols-3 gap-3"
         >
           {quickActions.map((action) => (
             <button
