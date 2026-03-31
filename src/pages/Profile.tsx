@@ -30,10 +30,13 @@ const Profile = () => {
       {/* Header with gradient */}
       <div className="relative bg-gradient-gold px-6 pb-16 pt-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-primary-foreground">ကျွန်ုပ်၏ ပရိုဖိုင်</h1>
-          <button className="rounded-full bg-primary-foreground/20 p-2">
-            <Settings className="h-5 w-5 text-primary-foreground" />
-          </button>
+          <h1 className="text-lg font-bold text-primary-foreground">{lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"}</h1>
+          <div className="flex items-center gap-2">
+            <LanguageToggle variant="flag" />
+            <button onClick={() => navigate("/settings")} className="rounded-full bg-primary-foreground/20 p-2">
+              <Settings className="h-5 w-5 text-primary-foreground" />
+            </button>
+          </div>
         </div>
       </div>
 
