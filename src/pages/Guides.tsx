@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
-import { Shield, ChevronRight, MapPin, FileText, AlertTriangle, BookOpen, Globe } from "lucide-react";
+import { Shield, ChevronRight, FileText, AlertTriangle, Globe } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 
 const countries = [
-  { name: "ထိုင်း", nameEn: "Thailand", flag: "🇹🇭", guides: 12, popular: true },
-  { name: "ဂျပန်", nameEn: "Japan", flag: "🇯🇵", guides: 8, popular: true },
-  { name: "စင်ကာပူ", nameEn: "Singapore", flag: "🇸🇬", guides: 6, popular: true },
-  { name: "မလေးရှား", nameEn: "Malaysia", flag: "🇲🇾", guides: 5, popular: false },
-  { name: "တောင်ကိုရီးယား", nameEn: "South Korea", flag: "🇰🇷", guides: 4, popular: false },
+  { name: "ထိုင်း", nameEn: "Thailand", flag: "🇹🇭", guides: 12 },
+  { name: "ဂျပန်", nameEn: "Japan", flag: "🇯🇵", guides: 8 },
+  { name: "စင်ကာပူ", nameEn: "Singapore", flag: "🇸🇬", guides: 6 },
+  { name: "မလေးရှား", nameEn: "Malaysia", flag: "🇲🇾", guides: 5 },
+  { name: "တောင်ကိုရီးယား", nameEn: "South Korea", flag: "🇰🇷", guides: 4 },
 ];
 
 const featuredGuides = [
@@ -24,12 +24,12 @@ const Guides = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
-      <div className="px-6">
-
+      <div className="px-5 pt-4">
         <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "နိုင်ငံအလိုက် ရွေးချယ်ပါ" : "Select by Country"}</h2>
-        <div className="mb-6 flex gap-3 overflow-x-auto pb-1 scrollbar-none">
+        <div className="mb-5 flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
           {countries.map((country, i) => (
-            <motion.button key={country.nameEn} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="flex flex-shrink-0 flex-col items-center gap-1.5 rounded-2xl bg-card p-3 px-5 shadow-card">
+            <motion.button key={country.nameEn} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              className="flex flex-shrink-0 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-5 py-3">
               <span className="text-2xl">{country.flag}</span>
               <span className="text-[11px] font-medium text-foreground">{lang === "my" ? country.name : country.nameEn}</span>
               <span className="text-[10px] text-muted-foreground">{country.guides} {lang === "my" ? "ခု" : "guides"}</span>
@@ -37,30 +37,27 @@ const Guides = () => {
           ))}
         </div>
 
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "လူကြိုက်များသော လမ်းညွှန်ချက်များ" : "Featured Guides"}</h2>
-        </div>
-
-        <div className="space-y-3 pb-6">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "လူကြိုက်များသော လမ်းညွှန်ချက်များ" : "Featured Guides"}</h2>
+        <div className="space-y-2.5 pb-6">
           {featuredGuides.map((guide, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="flex w-full items-start gap-3 rounded-2xl bg-card p-4 text-left shadow-card transition-all active:scale-[0.99]">
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent/10">
-                <guide.icon className="h-5 w-5 text-accent" />
+            <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent/10">
+                <guide.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-sm font-semibold text-foreground leading-snug">{lang === "my" ? guide.title : guide.titleEn}</h3>
+                  <h3 className="text-sm font-semibold leading-snug text-foreground">{lang === "my" ? guide.title : guide.titleEn}</h3>
                   {guide.isNew && (
-                    <span className="flex-shrink-0 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">NEW</span>
+                    <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald">NEW</span>
                   )}
                 </div>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{lang === "my" ? guide.category.en : guide.category.en} · {lang === "my" ? guide.readTime.my : guide.readTime.en}</p>
-                <div className="mt-2 flex items-center gap-3">
-                  <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{lang === "my" ? guide.category.my : guide.category.en}</span>
-                  <span className="text-[10px] text-muted-foreground">📖 {lang === "my" ? guide.readTime.my : guide.readTime.en}</span>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{lang === "my" ? guide.category.my : guide.category.en}</span>
+                  <span className="text-[10px] text-muted-foreground">{lang === "my" ? guide.readTime.my : guide.readTime.en}</span>
                 </div>
               </div>
-              <ChevronRight className="mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
             </motion.button>
           ))}
         </div>
