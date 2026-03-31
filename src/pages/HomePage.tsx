@@ -30,7 +30,7 @@ const HomePage = () => {
             <p className="text-sm text-primary-foreground/80">မင်္ဂလာပါ · Hello</p>
             <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
           </div>
-          <button className="relative rounded-full bg-primary-foreground/20 p-2.5">
+          <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
             <Bell className="h-5 w-5 text-primary-foreground" />
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
           </button>
