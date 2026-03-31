@@ -34,7 +34,7 @@ const Notifications = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
 
-      <div className="px-6">
+      <div className="px-5">
         <div className="mb-4 flex gap-2">
           <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "all" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
             {lang === "my" ? "အားလုံး" : "All"}
