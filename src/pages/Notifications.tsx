@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
+import { Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const notifications = [
   { icon: Briefcase, title: "အလုပ်အသစ် သင့်အတွက် ကိုက်ညီပါသည်", titleEn: "New job matches your profile", desc: { my: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo", en: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo" }, time: "10 min", type: "job", read: false, path: "/jobs/detail" },
