@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
