@@ -37,6 +37,8 @@ import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
 import SearchTalent from "./pages/SearchTalent";
 import MentorDashboard from "./pages/MentorDashboard";
+import MentorMentees from "./pages/MentorMentees";
+import MentorBookings from "./pages/MentorBookings";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
