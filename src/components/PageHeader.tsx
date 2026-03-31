@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import LanguageToggle from "@/components/LanguageToggle";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 
 interface PageHeaderProps {
   title: string;
