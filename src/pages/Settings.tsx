@@ -120,7 +120,7 @@ const Settings = () => {
                   </div>
                   {'toggle' in item && item.toggle ? (
                     <button onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }} className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}>
-                      <div className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
+                      <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
                     </button>
                   ) : (
                     <>
