@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
 
 const initialPosts = [
   {
