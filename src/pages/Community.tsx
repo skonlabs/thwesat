@@ -354,15 +354,15 @@ const Community = () => {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
                     <div className="flex items-center gap-2 px-4 py-3">
                       {[
-                        { platform: "whatsapp", label: "WhatsApp", color: "bg-[#25D366]", icon: "💬" },
-                        { platform: "telegram", label: "Telegram", color: "bg-[#0088cc]", icon: "✈️" },
-                        { platform: "facebook", label: "Facebook", color: "bg-[#1877F2]", icon: "📘" },
-                        { platform: "twitter", label: "X", color: "bg-foreground", icon: "𝕏" },
-                        { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", color: "bg-muted", icon: "" },
+                        { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> },
+                        { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
+                        { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
+                        { platform: "twitter", label: "X", icon: <Share2 className="h-4 w-4" strokeWidth={1.5} /> },
+                        { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
                       ].map((opt) => (
                         <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
-                          <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm ${opt.platform === "copy" ? "bg-muted text-muted-foreground" : opt.color + " text-white"}`}>
-                            {opt.platform === "copy" ? <Copy className="h-4 w-4" strokeWidth={1.5} /> : opt.icon}
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
+                            {opt.icon}
                           </span>
                           <span className="text-[10px] text-muted-foreground">{opt.label}</span>
                         </button>
