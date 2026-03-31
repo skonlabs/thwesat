@@ -4,12 +4,12 @@ import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
   Gift, Copy, Shield, Laptop, CreditCard, Check,
-  Users, ArrowLeftRight, GraduationCap
+  Users, ArrowLeftRight, GraduationCap, Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useRole } from "@/hooks/use-role";
+import { useRole, type UserRole } from "@/hooks/use-role";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 
@@ -18,9 +18,10 @@ const skills = ["React", "TypeScript", "Node.js", "UI/UX Design", "Project Manag
 const Profile = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { role, setRole, isMentor, toggleMentor } = useRole();
+  const { role, setRole } = useRole();
   const { toast } = useToast();
   const [referralCopied, setReferralCopied] = useState(false);
+  const [showRolePicker, setShowRolePicker] = useState(false);
   const referralCode = "TS-A1B2C3";
 
   const copyReferral = () => {
@@ -30,24 +31,20 @@ const Profile = () => {
     setTimeout(() => setReferralCopied(false), 2000);
   };
 
-  const handleSwitchRole = () => {
-    const next = role === "jobseeker" ? "employer" : "jobseeker";
-    setRole(next);
-    toast({
-      title: lang === "my"
-        ? (next === "employer" ? "အလုပ်ရှင် အနေဖြင့် ပြောင်းပြီးပါပြီ" : "အလုပ်ရှာသူ အနေဖြင့် ပြောင်းပြီးပါပြီ")
-        : (next === "employer" ? "Switched to Employer" : "Switched to Job Seeker"),
-    });
+  const roleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
+    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
+    { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
+    { value: "mentor", icon: GraduationCap, label: { my: "Mentor", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
+  ];
+
+  const handleSelectRole = (r: UserRole) => {
+    setRole(r);
+    setShowRolePicker(false);
+    const selected = roleOptions.find(o => o.value === r)!;
+    toast({ title: lang === "my" ? `${selected.label.my} အနေဖြင့် ပြောင်းပြီးပါပြီ` : `Switched to ${selected.label.en}` });
   };
 
-  const handleToggleMentor = () => {
-    toggleMentor();
-    toast({
-      title: !isMentor
-        ? (lang === "my" ? "Mentor အဖြစ် စာရင်းသွင်းပြီးပါပြီ ✓" : "Registered as Mentor ✓")
-        : (lang === "my" ? "Mentor အဖြစ် ဖယ်ရှားပြီးပါပြီ" : "Mentor status removed"),
-    });
-  };
+  const currentRoleLabel = roleOptions.find(o => o.value === role)!;
 
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
@@ -66,7 +63,15 @@ const Profile = () => {
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
-  const menuItems = role === "employer" ? employerMenu : jobseekerMenu;
+  const mentorMenu = [
+    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Users, label: lang === "my" ? "Booking တောင်းဆိုမှုများ" : "Booking Requests", path: "/mentors/detail" },
+    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
+    { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
+  ];
+
+  const menuItems = role === "employer" ? employerMenu : role === "mentor" ? mentorMenu : jobseekerMenu;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -74,49 +79,52 @@ const Profile = () => {
 
       <div className="px-5 pt-4">
         {/* Role Switcher */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3 flex items-center gap-2">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
           <button
-            onClick={handleSwitchRole}
-            className="flex flex-1 items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-left transition-colors active:bg-primary/10"
+            onClick={() => setShowRolePicker(!showRolePicker)}
+            className="flex w-full items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-left transition-colors active:bg-primary/10"
           >
             <ArrowLeftRight className="h-4 w-4 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "လက်ရှိ အခန်းကဏ္ဍ" : "Current Role"}</p>
               <p className="text-sm font-semibold text-primary">
-                {role === "employer"
-                  ? (lang === "my" ? "အလုပ်ရှင်" : "Employer")
-                  : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
+                {lang === "my" ? currentRoleLabel.label.my : currentRoleLabel.label.en}
               </p>
             </div>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
               {lang === "my" ? "ပြောင်းရန်" : "Switch"}
             </span>
           </button>
-        </motion.div>
 
-        {/* Become Mentor Toggle */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 }} className="mb-3">
-          <button
-            onClick={handleToggleMentor}
-            className={`flex w-full items-center gap-2.5 rounded-xl border px-4 py-3 text-left transition-colors ${
-              isMentor ? "border-emerald/30 bg-emerald/5" : "border-border bg-card active:bg-muted"
-            }`}
-          >
-            <GraduationCap className={`h-4 w-4 ${isMentor ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">
-                {isMentor
-                  ? (lang === "my" ? "Mentor အဖြစ် စာရင်းဝင်ပြီး" : "You are a Mentor")
-                  : (lang === "my" ? "Mentor ဖြစ်လိုပါသလား?" : "Become a Mentor")}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {isMentor
-                  ? (lang === "my" ? "နှိပ်ပြီး ဖယ်ရှားနိုင်ပါသည်" : "Tap to remove mentor status")
-                  : (lang === "my" ? "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ" : "Share experience & earn")}
-              </p>
-            </div>
-            {isMentor && <Check className="h-4 w-4 text-emerald" strokeWidth={2} />}
-          </button>
+          {/* Role picker dropdown */}
+          {showRolePicker && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-2 overflow-hidden rounded-xl border border-border bg-card"
+            >
+              {roleOptions.map((r) => (
+                <button
+                  key={r.value}
+                  onClick={() => handleSelectRole(r.value)}
+                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${
+                    role === r.value ? "bg-primary/5" : "active:bg-muted"
+                  }`}
+                >
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${role === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                    <r.icon className={`h-4 w-4 ${role === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium ${role === r.value ? "text-primary" : "text-foreground"}`}>
+                      {lang === "my" ? r.label.my : r.label.en}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{lang === "my" ? r.desc.my : r.desc.en}</p>
+                  </div>
+                  {role === r.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
+                </button>
+              ))}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Profile card */}
@@ -126,8 +134,11 @@ const Profile = () => {
             <div className="flex-1">
               <h2 className="text-base font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h2>
               <p className="text-xs text-muted-foreground">
-                {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : "Full Stack Developer"}
-                {isMentor && <span className="ml-1.5 text-emerald">• Mentor</span>}
+                {role === "employer"
+                  ? (lang === "my" ? "အလုပ်ရှင်" : "Employer")
+                  : role === "mentor"
+                  ? "Mentor"
+                  : "Full Stack Developer"}
               </p>
               <div className="mt-1.5 flex items-center gap-2.5">
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> Bangkok, TH</span>

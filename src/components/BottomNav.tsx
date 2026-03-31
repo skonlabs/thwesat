@@ -1,4 +1,4 @@
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, GraduationCap, Calendar } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -26,7 +26,15 @@ const BottomNav = () => {
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
   ];
 
-  const navItems = role === "employer" ? employerNav : jobseekerNav;
+  const mentorNav = [
+    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
+    { icon: GraduationCap, labelMy: "Mentor", labelEn: "Mentor", path: "/mentors/detail" },
+    { icon: Calendar, labelMy: "Booking", labelEn: "Bookings", path: "/mentors/book" },
+    { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
+  ];
+
+  const navItems = role === "employer" ? employerNav : role === "mentor" ? mentorNav : jobseekerNav;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">

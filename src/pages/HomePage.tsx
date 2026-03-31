@@ -5,6 +5,15 @@ import { useLanguage } from "@/hooks/use-language";
 import { useRole } from "@/hooks/use-role";
 import PageHeader from "@/components/PageHeader";
 
+const mentorActions = [
+  { icon: Users, label: "Booking များ", labelEn: "Bookings", path: "/mentors/book", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "My Profile", path: "/mentors/detail", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Search, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/10", fg: "text-accent" },
+];
+
 const jobseekerActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-primary/10", fg: "text-primary" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
@@ -34,7 +43,7 @@ const HomePage = () => {
   const { lang } = useLanguage();
   const { role } = useRole();
 
-  const quickActions = role === "employer" ? employerActions : jobseekerActions;
+  const quickActions = role === "employer" ? employerActions : role === "mentor" ? mentorActions : jobseekerActions;
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,7 +59,7 @@ const HomePage = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
+              {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
             </span>
             <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1">
               <Crown className="h-3 w-3 text-primary" strokeWidth={2} />
@@ -179,6 +188,25 @@ const HomePage = () => {
                 { value: "3", label: lang === "my" ? "ကြော်ငြာ" : "Listings" },
                 { value: "24", label: lang === "my" ? "လျှောက်သူ" : "Applicants" },
                 { value: "89%", label: lang === "my" ? "ကြည့်ရှု" : "View Rate" },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-lg bg-muted p-3 text-center">
+                  <p className="text-lg font-bold text-foreground">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Mentor quick stats */}
+        {role === "mentor" && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-6 rounded-xl border border-border bg-card p-4">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Mentor အကျဉ်းချုပ်" : "Mentor Stats"}</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "12", label: lang === "my" ? "Booking" : "Bookings" },
+                { value: "4.8", label: lang === "my" ? "အမှတ်" : "Rating" },
+                { value: "$240", label: lang === "my" ? "ဝင်ငွေ" : "Earnings" },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-lg bg-muted p-3 text-center">
                   <p className="text-lg font-bold text-foreground">{stat.value}</p>
