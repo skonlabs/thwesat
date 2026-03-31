@@ -97,9 +97,9 @@ const HomePage = () => {
           className="mt-6"
         >
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground">အသစ်ထွက် အလုပ်များ</h2>
+            <h2 className="text-base font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
             <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-medium text-primary">
-              အားလုံးကြည့်ရန် <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
+              {lang === "my" ? "အားလုံးကြည့်ရန်" : "View all"} <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
             </button>
           </div>
 
