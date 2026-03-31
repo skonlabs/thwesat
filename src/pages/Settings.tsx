@@ -93,6 +93,7 @@ const Settings = () => {
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} showBack />
 
+      <div className="px-6">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-start gap-3 rounded-2xl bg-destructive/5 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
           <div>
