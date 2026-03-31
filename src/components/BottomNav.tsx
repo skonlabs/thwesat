@@ -1,12 +1,12 @@
-import { Home, Briefcase, Users, BookOpen, User } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "ပင်မ", labelEn: "Home", path: "/home" },
   { icon: Briefcase, label: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
-  { icon: BookOpen, label: "လမ်းညွှန်", labelEn: "Guides", path: "/guides" },
   { icon: User, label: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
 ];
 

@@ -1,0 +1,139 @@
+import { motion } from "framer-motion";
+import { ArrowLeft, Star, MapPin, Calendar, MessageCircle, Clock, CheckCircle, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+const reviews = [
+  { author: "ကိုမင်းထက်", rating: 5, text: "Resume ပြင်ဆင်ပေးတာ အရမ်းကောင်းပါတယ်။ Upwork မှာ ပထမ client ရခဲ့ပါတယ်!", time: "2 weeks ago" },
+  { author: "မသီရိ", rating: 5, text: "Career path planning အတွက် အကြံဉာဏ်ကောင်းတွေ ပေးပါတယ်", time: "1 month ago" },
+  { author: "ကိုဇော်ဇော်", rating: 4, text: "Technical interview preparation အတွက် အရမ်းအကူအညီ ဖြစ်ပါတယ်", time: "1 month ago" },
+];
+
+const MentorDetail = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <div className="px-6 pt-6">
+        <button onClick={() => navigate(-1)} className="mb-4 text-muted-foreground">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Profile header */}
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-2xl font-bold text-primary-foreground">
+              KM
+            </div>
+            <h1 className="text-xl font-bold text-foreground">ဒေါ်ခင်မြတ်နိုး</h1>
+            <p className="text-sm text-muted-foreground">Khin Myat Noe</p>
+            <p className="mt-1 text-sm font-medium text-foreground/80">Senior Software Engineer</p>
+            <p className="text-xs text-muted-foreground">Grab · Singapore</p>
+
+            <div className="mt-3 flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-primary text-primary" />
+                <span className="text-sm font-bold text-foreground">4.9</span>
+                <span className="text-xs text-muted-foreground">(47)</span>
+              </div>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="h-3 w-3" /> Singapore
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> Available
+              </span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="mt-5 grid grid-cols-3 gap-3">
+            {[
+              { value: "47", label: "Sessions" },
+              { value: "32", label: "Mentees" },
+              { value: "2 yr", label: "Mentoring" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl bg-card p-3 text-center shadow-card">
+                <p className="text-lg font-bold text-primary">{s.value}</p>
+                <p className="text-[10px] text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* About */}
+          <div className="mt-5">
+            <h2 className="mb-2 text-sm font-semibold text-foreground">ကိုယ်ရေးအကျဉ်း · About</h2>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              Grab Singapore တွင် Senior Software Engineer အဖြစ် ၄ နှစ်ကျော် အတွေ့အကြုံ ရှိပါသည်။ မြန်မာနိုင်ငံမှ ထွက်ခွာလာပြီး Singapore တွင် Remote Work မှ On-site Work သို့ ကူးပြောင်းခဲ့ပါသည်။
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              4+ years at Grab Singapore. Transitioned from remote work to on-site after relocating from Myanmar.
+            </p>
+          </div>
+
+          {/* Expertise */}
+          <div className="mt-5">
+            <h2 className="mb-2 text-sm font-semibold text-foreground">ကျွမ်းကျင်မှုများ · Expertise</h2>
+            <div className="flex flex-wrap gap-2">
+              {["React", "System Design", "Career Coaching", "Resume Review", "Interview Prep", "Singapore Work Visa"].map((s) => (
+                <span key={s} className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Availability */}
+          <div className="mt-5">
+            <h2 className="mb-2 text-sm font-semibold text-foreground">ရရှိနိုင်ချိန် · Availability</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { day: "တနင်္လာ · Mon", time: "7PM - 9PM (SGT)" },
+                { day: "ဗုဒ္ဓဟူး · Wed", time: "7PM - 9PM (SGT)" },
+                { day: "စနေ · Sat", time: "10AM - 12PM (SGT)" },
+                { day: "တနင်္ဂနွေ · Sun", time: "2PM - 5PM (SGT)" },
+              ].map((s) => (
+                <div key={s.day} className="rounded-xl bg-card p-2.5 shadow-card">
+                  <p className="text-[11px] font-medium text-foreground">{s.day}</p>
+                  <p className="text-[10px] text-muted-foreground">{s.time}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div className="mt-5">
+            <h2 className="mb-3 text-sm font-semibold text-foreground">သုံးသပ်ချက်များ · Reviews</h2>
+            <div className="space-y-3">
+              {reviews.map((r, i) => (
+                <div key={i} className="rounded-xl bg-card p-3.5 shadow-card">
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground">{r.author}</span>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: r.rating }).map((_, j) => (
+                        <Star key={j} className="h-3 w-3 fill-primary text-primary" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-xs leading-relaxed text-foreground/80">{r.text}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground">{r.time}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg pb-safe">
+        <div className="mx-auto flex max-w-lg gap-3">
+          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages/chat")}>
+            <MessageCircle className="mr-1.5 h-4 w-4" /> မက်ဆေ့ချ်
+          </Button>
+          <Button variant="gold" size="lg" className="flex-1 rounded-xl">
+            <Calendar className="mr-1.5 h-4 w-4" /> ချိန်းဆိုရန် · Book
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MentorDetail;

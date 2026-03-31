@@ -1,13 +1,15 @@
 import { motion } from "framer-motion";
-import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight } from "lucide-react";
+import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const quickActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", color: "bg-emerald/10 text-emerald" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Legal", path: "/guides", color: "bg-accent/10 text-accent" },
-  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", color: "bg-gold/10 text-gold-dark" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", color: "bg-accent/10 text-accent" },
+  { icon: Sparkles, label: "AI Tools", labelEn: "AI Tools", path: "/ai-tools", color: "bg-gold/10 text-gold-dark" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", color: "bg-secondary text-secondary-foreground" },
+  { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", color: "bg-primary/10 text-primary" },
 ];
 
 const featuredJobs = [
@@ -28,7 +30,7 @@ const HomePage = () => {
             <p className="text-sm text-primary-foreground/80">မင်္ဂလာပါ · Hello</p>
             <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
           </div>
-          <button className="relative rounded-full bg-primary-foreground/20 p-2.5">
+          <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
             <Bell className="h-5 w-5 text-primary-foreground" />
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
           </button>
@@ -46,7 +48,7 @@ const HomePage = () => {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="-mt-4 grid grid-cols-4 gap-3"
+          className="-mt-4 grid grid-cols-3 gap-3"
         >
           {quickActions.map((action) => (
             <button
@@ -99,7 +101,7 @@ const HomePage = () => {
             {featuredJobs.map((job, i) => (
               <button
                 key={i}
-                onClick={() => navigate("/jobs")}
+                onClick={() => navigate("/jobs/detail")}
                 className="flex w-full items-start gap-3 rounded-2xl bg-card p-4 text-left shadow-card transition-all active:scale-[0.99]"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">

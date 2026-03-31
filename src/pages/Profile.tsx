@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import {
-  Settings, ChevronRight, Briefcase, GraduationCap, Award,
+  Settings, ChevronRight, Briefcase, GraduationCap, Award, Sparkles, TrendingUp, MessageCircle,
   Globe, MapPin, Mail, Phone, Edit3, Star, Shield, BookOpen, LogOut, Bell, HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,14 @@ import { useNavigate } from "react-router-dom";
 const skills = ["React", "TypeScript", "Node.js", "UI/UX Design", "Project Management", "English (Fluent)"];
 
 const menuItems = [
-  { icon: Edit3, label: "ပရိုဖိုင် ပြင်ဆင်ရန်", labelEn: "Edit Profile" },
-  { icon: Briefcase, label: "သိမ်းထားသော အလုပ်များ", labelEn: "Saved Jobs" },
-  { icon: BookOpen, label: "ကျွန်ုပ်၏ လမ်းညွှန်ချက်များ", labelEn: "My Guides" },
-  { icon: Star, label: "Premium အဆင့်မြှင့်ရန်", labelEn: "Upgrade to Premium", highlight: true },
-  { icon: Bell, label: "အကြောင်းကြားချက်များ", labelEn: "Notifications" },
-  { icon: Shield, label: "ကိုယ်ရေးကိုယ်တာ", labelEn: "Privacy & Security" },
-  { icon: HelpCircle, label: "အကူအညီ", labelEn: "Help & Support" },
-  { icon: Settings, label: "ဆက်တင်များ", labelEn: "Settings" },
+  { icon: Edit3, label: "ပရိုဖိုင် ပြင်ဆင်ရန်", labelEn: "Edit Profile", path: "/profile" },
+  { icon: Briefcase, label: "သိမ်းထားသော အလုပ်များ", labelEn: "Saved Jobs", path: "/jobs/saved" },
+  { icon: Sparkles, label: "AI Profile Builder", labelEn: "AI Career Tools", path: "/ai-tools" },
+  { icon: TrendingUp, label: "လျှောက်လွှာများ", labelEn: "My Applications", path: "/applications" },
+  { icon: MessageCircle, label: "မက်ဆေ့ချ်များ", labelEn: "Messages", path: "/messages" },
+  { icon: Star, label: "Premium အဆင့်မြှင့်ရန်", labelEn: "Upgrade to Premium", highlight: true, path: "/premium" },
+  { icon: Bell, label: "အကြောင်းကြားချက်များ", labelEn: "Notifications", path: "/notifications" },
+  { icon: Settings, label: "ဆက်တင်များ", labelEn: "Settings", path: "/settings" },
 ];
 
 const Profile = () => {
@@ -105,6 +105,7 @@ const Profile = () => {
           {menuItems.map((item, i) => (
             <button
               key={i}
+              onClick={() => item.path && navigate(item.path)}
               className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/50"
             >
               <item.icon className={`h-4.5 w-4.5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} />
