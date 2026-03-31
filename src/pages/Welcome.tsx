@@ -12,7 +12,7 @@ const Welcome = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background">
-      <div className="absolute inset-0 opacity-[0.06]">
+      <div className="absolute inset-0 opacity-[0.04]">
         <img src={heroPattern} alt="" className="h-full w-full object-cover" />
       </div>
 
