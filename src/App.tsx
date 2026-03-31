@@ -54,6 +54,7 @@ import SiteGate from "./components/SiteGate";
 const queryClient = new QueryClient();
 
 const App = () => (
+  <SiteGate>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
