@@ -45,7 +45,7 @@ const Profile = () => {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-gold text-xl font-bold text-primary-foreground">MM</div>
             <div className="flex-1">
               <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h2>
-              <p className="text-xs text-muted-foreground">{lang === "my" ? "Maung Maung" : "မောင်မောင်"}</p>
+              <p className="text-xs text-muted-foreground">{lang === "my" ? "Maung Maung" : "Full Stack Developer"}</p>
               <p className="mt-1 text-sm text-foreground/80">Full Stack Developer</p>
               <div className="mt-2 flex items-center gap-3">
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" /> Bangkok, Thailand</span>

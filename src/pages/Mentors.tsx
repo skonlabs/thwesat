@@ -51,7 +51,7 @@ const Mentors = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? mentor.name : mentor.nameEn}</h3>
-                    <p className="text-[11px] text-muted-foreground">{lang === "my" ? mentor.nameEn : mentor.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{lang === "my" ? mentor.nameEn : mentor.role}</p>
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Star className="h-3.5 w-3.5 fill-primary text-primary" />
