@@ -78,13 +78,13 @@ const Signup = () => {
                     : "border-border bg-card active:bg-muted"
                 }`}
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
-                  <r.icon className={`h-5 w-5 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                  <r.icon className={`h-4 w-4 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
-                <span className={`text-sm font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
+                <span className={`text-xs font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
                   {lang === "my" ? r.label.my : r.label.en}
                 </span>
-                <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                <span className="text-[9px] text-muted-foreground text-center leading-tight">
                   {lang === "my" ? r.desc.my : r.desc.en}
                 </span>
               </button>
