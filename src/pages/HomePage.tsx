@@ -26,13 +26,26 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-gold pb-8">
-        <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
+      <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
+
+      {/* Hero greeting */}
+      <div className="bg-gradient-gold px-5 pb-10 pt-5">
+        <div className="mb-1 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-primary-foreground/70">{lang === "my" ? "မင်္ဂလာပါ 👋" : "Hello 👋"}</p>
+            <h2 className="text-xl font-bold text-primary-foreground">
+              {lang === "my" ? "မောင်မောင်" : "Maung Maung"}
+            </h2>
+          </div>
+          <button onClick={() => navigate("/notifications")} className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20 backdrop-blur-sm transition-all active:scale-95">
+            <Bell className="h-5 w-5 text-primary-foreground" />
+            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 border-primary bg-destructive" />
+          </button>
+        </div>
 
         {/* Search bar */}
-        <div className="mx-6 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
-          <Search className="h-4 w-4 text-primary-foreground/70" />
+        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-primary-foreground/20 px-4 py-3.5 backdrop-blur-sm">
+          <Search className="h-4.5 w-4.5 text-primary-foreground/60" />
           <span className="text-sm text-primary-foreground/60">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </div>
       </div>
