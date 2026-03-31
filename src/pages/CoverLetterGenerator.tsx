@@ -87,7 +87,7 @@ ${name}`;
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "Cover Letter" : "Cover Letter"} />
+      <PageHeader title={lang === "my" ? "Cover Letter ဖန်တီးရေး" : "Cover Letter"} />
       <div className="px-5 pt-4">
         {/* Progress */}
         <div className="mb-5 flex gap-2">

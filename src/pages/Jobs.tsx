@@ -11,7 +11,7 @@ const categories = [
   { my: "အားလုံး", en: "All" },
   { my: "Tech", en: "Tech" },
   { my: "Design", en: "Design" },
-  { my: "PM", en: "Management" },
+  { my: "စီမံခန့်ခွဲမှု", en: "Management" },
   { my: "NGO", en: "NGO" },
   { my: "ဘာသာပြန်", en: "Translation" },
   { my: "ငွေကြေး", en: "Finance" },

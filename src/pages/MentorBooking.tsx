@@ -16,10 +16,10 @@ const timeSlots = [
 ];
 
 const topics = [
-  { my: "Career Coaching", en: "Career Coaching" },
-  { my: "Resume Review", en: "Resume Review" },
-  { my: "Interview Prep", en: "Interview Prep" },
-  { my: "Technical Guidance", en: "Technical Guidance" },
+  { my: "အသက်မွေးမှု လမ်းညွှန်", en: "Career Coaching" },
+  { my: "CV စစ်ဆေး", en: "Resume Review" },
+  { my: "အင်တာဗျူး ပြင်ဆင်", en: "Interview Prep" },
+  { my: "နည်းပညာ လမ်းညွှန်", en: "Technical Guidance" },
   { my: "အခြား", en: "Other" },
 ];
 

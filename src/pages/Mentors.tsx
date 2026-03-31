@@ -8,11 +8,11 @@ import PageHeader from "@/components/PageHeader";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
-  { my: "Tech", en: "Tech" },
-  { my: "Design", en: "Design" },
-  { my: "Business", en: "Business" },
-  { my: "Legal", en: "Legal" },
-  { my: "Career", en: "Career" },
+  { my: "နည်းပညာ", en: "Tech" },
+  { my: "ဒီဇိုင်း", en: "Design" },
+  { my: "စီးပွားရေး", en: "Business" },
+  { my: "ဥပဒေ", en: "Legal" },
+  { my: "အသက်မွေးမှု", en: "Career" },
 ];
 
 const mentors = [
