@@ -32,16 +32,9 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"}</h1>
-          </div>
-        </div>
+      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} showBack />
 
+      <div className="px-6">
         <div className="mb-4 flex gap-2">
           <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "all" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
             {lang === "my" ? "အားလုံး" : "All"}
