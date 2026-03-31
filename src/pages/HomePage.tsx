@@ -85,7 +85,7 @@ const HomePage = () => {
             <div className="h-full w-[45%] rounded-full bg-gradient-gold transition-all" />
           </div>
           <p className="text-xs text-muted-foreground">
-            ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်စွက်ပြီး အလုပ်ရှာဖွေမှု အခွင့်အလမ်းများ တိုးမြှင့်ပါ
+            {lang === "my" ? "ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်စွက်ပြီး အလုပ်ရှာဖွေမှု အခွင့်အလမ်းများ တိုးမြှင့်ပါ" : "Complete your profile to get better job recommendations"}
           </p>
         </motion.div>
 
