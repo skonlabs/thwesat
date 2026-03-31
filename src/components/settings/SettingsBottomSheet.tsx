@@ -16,7 +16,7 @@ const SettingsBottomSheet = ({ open, onClose, title, children }: SettingsBottomS
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40"
+          className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40"
           onClick={onClose}
         >
           <motion.div
