@@ -92,7 +92,7 @@ const EditProfile = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြေခံ အချက်အလက်" : "Basic Information"}</h2>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "Display Name" : "Display Name"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
             <Input value={name} onChange={e => setName(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
             <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ဖန်နာမည် သုံးနိုင်ပါသည်" : "Pseudonyms are OK"}</p>
           </div>
