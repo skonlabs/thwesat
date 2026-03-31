@@ -91,13 +91,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ဆက်တင်များ" : "Settings"}</h1>
-        </div>
+      <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} showBack />
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-start gap-3 rounded-2xl bg-destructive/5 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
