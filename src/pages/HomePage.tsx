@@ -30,13 +30,16 @@ const HomePage = () => {
       <div className="bg-gradient-gold px-6 pb-8 pt-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-primary-foreground/80">မင်္ဂလာပါ · Hello</p>
+            <p className="text-sm text-primary-foreground/80">{lang === "my" ? "မင်္ဂလာပါ" : "Hello"}</p>
             <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
           </div>
-          <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
-            <Bell className="h-5 w-5 text-primary-foreground" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageToggle variant="flag" />
+            <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
+              <Bell className="h-5 w-5 text-primary-foreground" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
+            </button>
+          </div>
         </div>
 
         {/* Search bar */}
