@@ -51,8 +51,8 @@ const JobDetail = () => {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15">
-              <Briefcase className="h-7 w-7 text-gold-dark" strokeWidth={1.5} />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15">
+              <Briefcase className="h-7 w-7 text-accent" strokeWidth={1.5} />
             </div>
             <div className="flex-1">
               <h1 className="text-lg font-bold text-foreground">Senior React Developer</h1>
@@ -76,7 +76,7 @@ const JobDetail = () => {
               { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: "Wise, Payoneer" },
             ].map((info) => (
               <div key={info.label} className="rounded-xl border border-border bg-card p-3 shadow-card">
-                <info.icon className="mb-1 h-4 w-4 text-gold-dark" strokeWidth={1.5} />
+                <info.icon className="mb-1 h-4 w-4 text-accent" strokeWidth={1.5} />
                 <p className="text-[10px] text-muted-foreground">{info.label}</p>
                 <p className="text-xs font-semibold text-foreground">{info.value}</p>
               </div>
@@ -124,15 +124,15 @@ const JobDetail = () => {
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
             <div className="flex flex-wrap gap-2">
               {["React", "TypeScript", "Node.js", "GraphQL", "Tailwind CSS", "Git"].map((s) => (
-                <span key={s} className="rounded-lg bg-primary/15 px-3 py-1.5 text-xs font-medium text-gold-dark">{s}</span>
+                <span key={s} className="rounded-lg bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
               ))}
             </div>
           </div>
 
           <div className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy/8">
-                <Building2 className="h-5 w-5 text-navy" strokeWidth={1.5} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8">
+                <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">TechCorp Asia</h3>
@@ -182,8 +182,8 @@ const JobDetail = () => {
       {/* Bottom bar */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <button onClick={handleSave} className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${saved ? "border-primary bg-primary/10" : "border-border active:bg-muted"}`}>
-            <Bookmark className={`h-5 w-5 ${saved ? "fill-primary text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+          <button onClick={handleSave} className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${saved ? "border-accent bg-accent/10" : "border-border active:bg-muted"}`}>
+            <Bookmark className={`h-5 w-5 ${saved ? "fill-accent text-accent" : "text-muted-foreground"}`} strokeWidth={1.5} />
           </button>
           <button onClick={handleShare} className="flex h-12 w-12 items-center justify-center rounded-xl border border-border active:bg-muted">
             <Share2 className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
