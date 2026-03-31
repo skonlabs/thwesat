@@ -56,8 +56,8 @@ export type Database = {
         Row: {
           author_id: string
           category: string | null
-          content: string
           content_en: string | null
+          content_my: string
           created_at: string | null
           id: string
           image_url: string | null
@@ -67,8 +67,8 @@ export type Database = {
         Insert: {
           author_id: string
           category?: string | null
-          content: string
           content_en?: string | null
+          content_my: string
           created_at?: string | null
           id?: string
           image_url?: string | null
@@ -78,8 +78,8 @@ export type Database = {
         Update: {
           author_id?: string
           category?: string | null
-          content?: string
           content_en?: string | null
+          content_my?: string
           created_at?: string | null
           id?: string
           image_url?: string | null
@@ -118,22 +118,26 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          last_message_at: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
+          last_message_at?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          last_message_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
       jobs: {
         Row: {
+          application_method: string | null
           category: string | null
           company: string
           created_at: string | null
@@ -141,22 +145,28 @@ export type Database = {
           description: string | null
           description_my: string | null
           employer_id: string
+          external_url: string | null
           id: string
           is_diaspora_safe: boolean | null
           is_verified: boolean | null
+          job_type: string | null
           location: string | null
           payment_methods: string[] | null
           requirements: string | null
+          requirements_my: string | null
+          requires_embassy: boolean | null
+          requires_work_permit: boolean | null
+          role_type: string | null
           salary_max: number | null
           salary_min: number | null
           status: string | null
           title: string
           title_my: string | null
-          type: string | null
           updated_at: string | null
           visa_sponsorship: boolean | null
         }
         Insert: {
+          application_method?: string | null
           category?: string | null
           company?: string
           created_at?: string | null
@@ -164,22 +174,28 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id: string
+          external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
           is_verified?: boolean | null
+          job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
           requirements?: string | null
+          requirements_my?: string | null
+          requires_embassy?: boolean | null
+          requires_work_permit?: boolean | null
+          role_type?: string | null
           salary_max?: number | null
           salary_min?: number | null
           status?: string | null
           title: string
           title_my?: string | null
-          type?: string | null
           updated_at?: string | null
           visa_sponsorship?: boolean | null
         }
         Update: {
+          application_method?: string | null
           category?: string | null
           company?: string
           created_at?: string | null
@@ -187,18 +203,23 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id?: string
+          external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
           is_verified?: boolean | null
+          job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
           requirements?: string | null
+          requirements_my?: string | null
+          requires_embassy?: boolean | null
+          requires_work_permit?: boolean | null
+          role_type?: string | null
           salary_max?: number | null
           salary_min?: number | null
           status?: string | null
           title?: string
           title_my?: string | null
-          type?: string | null
           updated_at?: string | null
           visa_sponsorship?: boolean | null
         }
@@ -210,6 +231,7 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           id: string
+          is_read: boolean | null
           sender_id: string
         }
         Insert: {
@@ -217,6 +239,7 @@ export type Database = {
           conversation_id: string
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           sender_id: string
         }
         Update: {
@@ -224,6 +247,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           sender_id?: string
         }
         Relationships: [
@@ -305,14 +329,21 @@ export type Database = {
           display_name: string
           email: string | null
           experience: string | null
+          has_laptop: boolean | null
+          has_payoneer: boolean | null
+          has_upwork: boolean | null
+          has_wise: boolean | null
           headline: string | null
           id: string
+          internet_stable: boolean | null
           is_premium: boolean | null
           languages: string[] | null
           location: string | null
           phone: string | null
+          preferred_work_types: string[] | null
           primary_role: string
           remote_ready: boolean | null
+          role_title: string | null
           skills: string[] | null
           updated_at: string | null
           visibility: string | null
@@ -325,14 +356,21 @@ export type Database = {
           display_name?: string
           email?: string | null
           experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
           headline?: string | null
           id: string
+          internet_stable?: boolean | null
           is_premium?: boolean | null
           languages?: string[] | null
           location?: string | null
           phone?: string | null
+          preferred_work_types?: string[] | null
           primary_role?: string
           remote_ready?: boolean | null
+          role_title?: string | null
           skills?: string[] | null
           updated_at?: string | null
           visibility?: string | null
@@ -345,14 +383,21 @@ export type Database = {
           display_name?: string
           email?: string | null
           experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
           headline?: string | null
           id?: string
+          internet_stable?: boolean | null
           is_premium?: boolean | null
           languages?: string[] | null
           location?: string | null
           phone?: string | null
+          preferred_work_types?: string[] | null
           primary_role?: string
           remote_ready?: boolean | null
+          role_title?: string | null
           skills?: string[] | null
           updated_at?: string | null
           visibility?: string | null
