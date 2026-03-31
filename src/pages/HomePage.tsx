@@ -78,7 +78,7 @@ const HomePage = () => {
           className="mt-6 rounded-2xl bg-card p-4 shadow-card"
         >
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">ပရိုဖိုင် ပြည့်စုံမှု · Profile</p>
+            <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
             <span className="text-xs font-bold text-primary">45%</span>
           </div>
           <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
