@@ -147,7 +147,7 @@ const GuideDetail = () => {
               </button>
               <button
                 onClick={() => handleFeedback("no")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "no" ? "bg-muted-foreground text-white" : "bg-muted text-muted-foreground active:bg-muted/80"}`}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-medium transition-colors ${feedback === "no" ? "bg-muted-foreground text-card" : "bg-muted text-muted-foreground active:bg-muted/80"}`}
               >
                 <ThumbsDown className="h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မဟုတ်ပါ" : "No"}
               </button>
