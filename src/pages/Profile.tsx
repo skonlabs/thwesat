@@ -117,9 +117,8 @@ const Profile = () => {
               <item.icon className={`h-4.5 w-4.5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} />
               <div className="flex-1">
                 <p className={`text-sm ${item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>
-                  {item.label}
+                  {lang === "my" ? item.label : item.labelEn}
                 </p>
-                <p className="text-[10px] text-muted-foreground">{item.labelEn}</p>
               </div>
               {item.highlight && (
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
