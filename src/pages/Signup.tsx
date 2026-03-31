@@ -39,7 +39,7 @@ const Signup = () => {
     }
     setRole(selectedRole);
     toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
-    navigate(selectedRole === "employer" ? "/employer/onboarding" : "/home");
+    navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/detail" : "/home");
   };
 
   const roles: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
