@@ -84,7 +84,26 @@ const App = () => (
             <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/settings" element={<Settings />} />
+
+            {/* Employer Portal */}
+            <Route path="/employer/onboarding" element={<EmployerOnboarding />} />
+            <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+            <Route path="/employer/post-job" element={<EmployerPostJob />} />
+            <Route path="/employer/applications" element={<EmployerApplications />} />
+            <Route path="/employer/subscription" element={<EmployerSubscription />} />
+
+            {/* Admin */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/jobs" element={<AdminJobQueue />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+
+            {/* Moderator */}
+            <Route path="/moderator" element={<ModeratorDashboard />} />
           </Route>
+
+          {/* Delegate Access (no nav) */}
+          <Route path="/access/:token" element={<DelegateAccess />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
