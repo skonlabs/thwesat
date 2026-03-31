@@ -7,6 +7,7 @@ import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import HomePage from "./pages/HomePage";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
@@ -14,9 +15,11 @@ import SavedJobs from "./pages/SavedJobs";
 import Applications from "./pages/Applications";
 import Mentors from "./pages/Mentors";
 import MentorDetail from "./pages/MentorDetail";
+import MentorBooking from "./pages/MentorBooking";
 import Guides from "./pages/Guides";
 import GuideDetail from "./pages/GuideDetail";
 import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import Community from "./pages/Community";
 import Messages from "./pages/Messages";
 import ChatView from "./pages/ChatView";
@@ -41,6 +44,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Main app with bottom nav */}
           <Route element={<AppLayout />}>
@@ -57,6 +61,7 @@ const App = () => (
           <Route path="/jobs/saved" element={<SavedJobs />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/mentors/detail" element={<MentorDetail />} />
+          <Route path="/mentors/book" element={<MentorBooking />} />
           <Route path="/guides/detail" element={<GuideDetail />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/chat" element={<ChatView />} />
@@ -64,6 +69,7 @@ const App = () => (
           <Route path="/ai-tools" element={<AiProfileBuilder />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile/edit" element={<EditProfile />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

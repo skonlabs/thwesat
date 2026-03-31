@@ -25,8 +25,7 @@ const MentorDetail = () => {
           <div className="flex flex-col items-center text-center">
             <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-2xl font-bold text-primary-foreground">KM</div>
             <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ဒေါ်ခင်မြတ်နိုး" : "Khin Myat Noe"}</h1>
-            <p className="text-sm text-muted-foreground">{lang === "my" ? "Khin Myat Noe" : "Senior Software Engineer"}</p>
-            <p className="mt-1 text-sm font-medium text-foreground/80">Senior Software Engineer</p>
+            <p className="text-sm text-muted-foreground">Senior Software Engineer</p>
             <p className="text-xs text-muted-foreground">Grab · Singapore</p>
             <div className="mt-3 flex items-center gap-4">
               <div className="flex items-center gap-1">
@@ -116,7 +115,7 @@ const MentorDetail = () => {
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages/chat")}>
             <MessageCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
           </Button>
-          <Button variant="gold" size="lg" className="flex-1 rounded-xl">
+          <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/mentors/book")}>
             <Calendar className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book"}
           </Button>
         </div>
