@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -17,6 +17,20 @@ const categories = [
   { my: "ငွေကြေး", en: "Finance" },
 ];
 
+const jobTypes = [
+  { value: "all", labelEn: "All Types", labelMy: "အားလုံး" },
+  { value: "remote_full", labelEn: "Remote Full-time", labelMy: "Remote အပြည့်" },
+  { value: "remote_contract", labelEn: "Remote Contract", labelMy: "Remote ကန်ထရိုက်" },
+  { value: "hybrid", labelEn: "Hybrid", labelMy: "Hybrid" },
+];
+
+const locationOptions = [
+  { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
+  { value: "Remote", labelEn: "Remote", labelMy: "Remote" },
+  { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
+  { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
+];
+
 const allJobs = [
   { title: "Senior React Developer", company: "TechCorp Asia", location: "Remote", type: "remote_full", typeLabel: { my: "Remote အပြည့်", en: "Remote Full-time" }, salary: "$3,000–$5,000/mo", postedAgo: { my: "2 နာရီ", en: "2 hours" }, saved: false, tags: ["React", "TypeScript", "Node.js"], category: "Tech", diasporaSafe: true, verified: true, paymentMethods: ["Wise", "Payoneer"], requiresEmbassy: false, visaSponsorship: false, featured: true },
   { title: "UI/UX Designer", company: "DesignStudio BKK", location: "Bangkok, TH", type: "hybrid", typeLabel: { my: "Hybrid", en: "Hybrid" }, salary: "$2,000–$3,500/mo", postedAgo: { my: "5 နာရီ", en: "5 hours" }, saved: true, tags: ["Figma", "UI Design", "Prototyping"], category: "Design", diasporaSafe: true, verified: true, paymentMethods: ["Bank Transfer"], requiresEmbassy: true, visaSponsorship: true, featured: false },
@@ -31,9 +45,17 @@ const Jobs = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterType, setFilterType] = useState("all");
+  const [filterLocation, setFilterLocation] = useState("all");
+  const [filterDiasporaSafe, setFilterDiasporaSafe] = useState(false);
+  const [filterVerified, setFilterVerified] = useState(false);
+  const [filterVisa, setFilterVisa] = useState(false);
   const [savedJobs, setSavedJobs] = useState<Record<number, boolean>>(
     Object.fromEntries(allJobs.map((j, i) => [i, j.saved]))
   );
+
+  const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
 
   const filteredJobs = allJobs.filter(job => {
     const matchesSearch = search === "" ||
@@ -41,8 +63,21 @@ const Jobs = () => {
       job.company.toLowerCase().includes(search.toLowerCase()) ||
       job.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = activeCategory === "All" || job.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    const matchesType = filterType === "all" || job.type === filterType;
+    const matchesLocation = filterLocation === "all" || job.location === filterLocation;
+    const matchesDiaspora = !filterDiasporaSafe || job.diasporaSafe;
+    const matchesVerified = !filterVerified || job.verified;
+    const matchesVisa = !filterVisa || job.visaSponsorship;
+    return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
   });
+
+  const clearFilters = () => {
+    setFilterType("all");
+    setFilterLocation("all");
+    setFilterDiasporaSafe(false);
+    setFilterVerified(false);
+    setFilterVisa(false);
+  };
 
   const toggleSave = (i: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -63,8 +98,11 @@ const Jobs = () => {
             <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
           </div>
-          <button className="flex items-center justify-center rounded-xl border border-border bg-card px-3">
+          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">{activeFilterCount}</span>
+            )}
           </button>
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -75,6 +113,76 @@ const Jobs = () => {
           ))}
         </div>
       </div>
+
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40" onClick={() => setShowFilters(false)} />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl bg-card">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <h2 className="text-base font-semibold text-foreground">{lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"}</h2>
+                <div className="flex items-center gap-3">
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearFilters} className="text-xs text-primary">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>
+                  )}
+                  <button onClick={() => setShowFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
+                {/* Job Type */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Job Type"}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {jobTypes.map(jt => (
+                      <button key={jt.value} onClick={() => setFilterType(jt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterType === jt.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                        {lang === "my" ? jt.labelMy : jt.labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Location */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "တည်နေရာ" : "Location"}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {locationOptions.map(loc => (
+                      <button key={loc.value} onClick={() => setFilterLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterLocation === loc.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                        {lang === "my" ? loc.labelMy : loc.labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Toggle Filters */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
+                  <div className="space-y-2">
+                    {[
+                      { label: lang === "my" ? "Diaspora Safe သာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
+                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: filterVerified, set: setFilterVerified },
+                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: filterVisa, set: setFilterVisa },
+                    ].map(toggle => (
+                      <button key={toggle.label} onClick={() => toggle.set(!toggle.value)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
+                        <span className="text-sm text-foreground">{toggle.label}</span>
+                        <div className={`flex h-5 w-5 items-center justify-center rounded-md transition-colors ${toggle.value ? "bg-primary" : "border border-border"}`}>
+                          {toggle.value && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-border px-5 py-4">
+                <Button onClick={() => setShowFilters(false)} className="w-full rounded-xl">
+                  {lang === "my" ? `ရလဒ် ${filteredJobs.length} ခု ပြရန်` : `Show ${filteredJobs.length} results`}
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className="space-y-2.5 px-5 pb-6">
         {filteredJobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
@@ -88,7 +196,6 @@ const Jobs = () => {
             return (
               <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                 className={`rounded-xl border bg-card p-4 ${job.featured ? "border-primary/30" : "border-border"}`} onClick={() => navigate("/jobs/detail")}>
-                {/* Featured badge */}
                 {job.featured && (
                   <div className="mb-2 flex items-center gap-1">
                     <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
@@ -108,8 +215,6 @@ const Jobs = () => {
                     <Bookmark className={`h-5 w-5 ${savedJobs[origIndex] ? "fill-primary text-primary" : ""}`} strokeWidth={1.5} />
                   </button>
                 </div>
-
-                {/* Safety & verification badges */}
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {job.verified && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">✓ {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}</span>
@@ -128,7 +233,6 @@ const Jobs = () => {
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
                   )}
                 </div>
-
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {job.tags.map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
                 </div>

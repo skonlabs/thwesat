@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, Star, MapPin, MessageCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,19 @@ const categories = [
   { my: "အသက်မွေးမှု", en: "Career" },
 ];
 
+const locationOptions = [
+  { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
+  { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
+  { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
+  { value: "Tokyo, JP", labelEn: "Tokyo", labelMy: "တိုကျို" },
+];
+
+const ratingOptions = [
+  { value: "all", labelEn: "Any Rating", labelMy: "အားလုံး" },
+  { value: "4.5", labelEn: "4.5+", labelMy: "၄.၅+" },
+  { value: "4.8", labelEn: "4.8+", labelMy: "၄.၈+" },
+];
+
 const mentors = [
   { name: "ဒေါ်ခင်မြတ်နိုး", nameEn: "Khin Myat Noe", role: "Senior Software Engineer", company: "Grab, Singapore", location: "Singapore", rating: 4.9, reviews: 47, expertise: ["React", "System Design", "Career Coaching"], avatar: "KM", available: true, category: "Tech" },
   { name: "ဦးဇော်မင်း", nameEn: "Zaw Min", role: "Product Designer", company: "Agoda, Bangkok", location: "Bangkok, TH", rating: 4.8, reviews: 32, expertise: ["UI/UX", "Design Systems", "Portfolio Review"], avatar: "ZM", available: true, category: "Design" },
@@ -27,6 +40,12 @@ const Mentors = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterLocation, setFilterLocation] = useState("all");
+  const [filterRating, setFilterRating] = useState("all");
+  const [filterAvailable, setFilterAvailable] = useState(false);
+
+  const activeFilterCount = [filterLocation !== "all", filterRating !== "all", filterAvailable].filter(Boolean).length;
 
   const filteredMentors = mentors.filter(m => {
     const matchesSearch = search === "" ||
@@ -34,19 +53,34 @@ const Mentors = () => {
       m.role.toLowerCase().includes(search.toLowerCase()) ||
       m.expertise.some(e => e.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = activeCategory === "All" || m.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    const matchesLoc = filterLocation === "all" || m.location === filterLocation;
+    const matchesRating = filterRating === "all" || m.rating >= parseFloat(filterRating);
+    const matchesAvail = !filterAvailable || m.available;
+    return matchesSearch && matchesCategory && matchesLoc && matchesRating && matchesAvail;
   });
+
+  const clearFilters = () => {
+    setFilterLocation("all");
+    setFilterRating("all");
+    setFilterAvailable(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} />
       <div className="px-5 pt-4">
-        {/* Search */}
-        <div className="mb-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
-          <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "လမ်းညွှန်သူ ရှာဖွေရန်..." : "Search mentors..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+        <div className="mb-3 flex gap-2">
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
+            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "လမ်းညွှန်သူ ရှာဖွေရန်..." : "Search mentors..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+          </div>
+          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
+            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            {activeFilterCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">{activeFilterCount}</span>
+            )}
+          </button>
         </div>
-        {/* Categories */}
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
             <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
@@ -55,7 +89,67 @@ const Mentors = () => {
           ))}
         </div>
       </div>
-      {/* Mentor list */}
+
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40" onClick={() => setShowFilters(false)} />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 300 }} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl bg-card">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <h2 className="text-base font-semibold text-foreground">{lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"}</h2>
+                <div className="flex items-center gap-3">
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearFilters} className="text-xs text-primary">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>
+                  )}
+                  <button onClick={() => setShowFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
+                {/* Location */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "တည်နေရာ" : "Location"}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {locationOptions.map(loc => (
+                      <button key={loc.value} onClick={() => setFilterLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterLocation === loc.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                        {lang === "my" ? loc.labelMy : loc.labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Rating */}
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အဆင့်သတ်မှတ်ချက်" : "Minimum Rating"}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {ratingOptions.map(opt => (
+                      <button key={opt.value} onClick={() => setFilterRating(opt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterRating === opt.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                        {lang === "my" ? opt.labelMy : opt.labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Availability */}
+                <div>
+                  <button onClick={() => setFilterAvailable(!filterAvailable)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
+                    <span className="text-sm text-foreground">{lang === "my" ? "ရနိုင်သူများသာ" : "Available only"}</span>
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-md transition-colors ${filterAvailable ? "bg-primary" : "border border-border"}`}>
+                      {filterAvailable && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div className="border-t border-border px-5 py-4">
+                <Button onClick={() => setShowFilters(false)} className="w-full rounded-xl">
+                  {lang === "my" ? `ရလဒ် ${filteredMentors.length} ခု ပြရန်` : `Show ${filteredMentors.length} results`}
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className="space-y-2.5 px-5 pb-6">
         {filteredMentors.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
