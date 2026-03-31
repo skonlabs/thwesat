@@ -1,5 +1,10 @@
 import { motion } from "framer-motion";
 import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Star, Bookmark } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+const Jobs = () => {
+  const navigate = useNavigate();
 import { Button } from "@/components/ui/button";
 
 const categories = ["အားလုံး", "Tech", "Design", "Management", "Finance", "Teaching"];
