@@ -38,7 +38,7 @@ const Applications = () => {
       <div className="px-6">
         <div className="mb-5 grid grid-cols-4 gap-2">
           {stats.map((s) => (
-            <div key={s.label} className="rounded-xl bg-card p-2.5 text-center shadow-card">
+            <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 text-center">
               <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
               <p className="text-[9px] text-muted-foreground">{s.label}</p>
             </div>
@@ -53,10 +53,11 @@ const Applications = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="flex w-full items-center gap-3 rounded-2xl bg-card p-4 text-left shadow-card active:scale-[0.99]"
+            onClick={() => navigate("/jobs/detail")}
+            className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left active:bg-muted"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-              <Briefcase className="h-5 w-5 text-primary" />
+              <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-foreground">{app.title}</h3>
@@ -71,7 +72,7 @@ const Applications = () => {
                 </span>
               </div>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           </motion.button>
         ))}
       </div>

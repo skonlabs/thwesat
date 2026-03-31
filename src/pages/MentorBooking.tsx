@@ -46,7 +46,7 @@ const MentorBooking = () => {
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
-            <CheckCircle className="h-10 w-10 text-emerald" />
+            <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
           </div>
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}</h1>
           <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? "ဒေါ်ခင်မြတ်နိုး နှင့် ချိန်းဆိုမှု" : "Session with Khin Myat Noe"}</p>
@@ -56,7 +56,7 @@ const MentorBooking = () => {
             {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
           </p>
           <Button variant="gold" size="lg" className="mb-3 w-full rounded-xl" onClick={() => navigate("/messages/chat")}>
-            <MessageCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
+            <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
           </Button>
           <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors")}>
             {lang === "my" ? "Mentors သို့ ပြန်သွားရန်" : "Back to Mentors"}
@@ -67,23 +67,23 @@ const MentorBooking = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} />
 
       <div className="px-6">
         {/* Progress */}
         <div className="mb-6 flex gap-2">
-          <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-gradient-gold" : "bg-muted"}`} />
-          <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-gradient-gold" : "bg-muted"}`} />
+          <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
+          <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
         </div>
 
         {/* Mentor card mini */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center gap-3 rounded-2xl bg-card p-3 shadow-card">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-gold text-sm font-bold text-primary-foreground">KM</div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">KM</div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ဒေါ်ခင်မြတ်နိုး" : "Khin Myat Noe"}</h3>
             <p className="text-xs text-muted-foreground">Senior Software Engineer · Grab</p>
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="mt-0.5 flex items-center gap-1">
               <Star className="h-3 w-3 fill-primary text-primary" />
               <span className="text-[11px] font-medium text-foreground">4.9</span>
               <span className="text-[10px] text-muted-foreground">(47)</span>
@@ -93,28 +93,26 @@ const MentorBooking = () => {
 
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            {/* Day selection */}
             <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <Calendar className="mr-1.5 inline h-4 w-4 text-primary" />
+              <Calendar className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
               {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Day"}
             </h2>
             <div className="mb-5 grid grid-cols-4 gap-2">
               {days.map(d => (
-                <button key={d.date} onClick={() => setSelectedDay(d.date)} className={`rounded-xl p-3 text-center transition-all ${selectedDay === d.date ? "bg-primary text-primary-foreground shadow-gold" : "bg-card shadow-card text-foreground"}`}>
-                  <p className="text-[10px] text-inherit opacity-70">{lang === "my" ? d.day.my : d.day.en}</p>
+                <button key={d.date} onClick={() => setSelectedDay(d.date)} className={`rounded-xl border p-3 text-center transition-all ${selectedDay === d.date ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
+                  <p className="text-[10px] opacity-70">{lang === "my" ? d.day.my : d.day.en}</p>
                   <p className="text-sm font-semibold">{d.date.split(" ")[1]}</p>
                 </button>
               ))}
             </div>
 
-            {/* Time selection */}
             <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <Clock className="mr-1.5 inline h-4 w-4 text-primary" />
+              <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
               {lang === "my" ? "အချိန် ရွေးချယ်ပါ" : "Select Time"} <span className="text-xs text-muted-foreground">(SGT)</span>
             </h2>
             <div className="mb-5 grid grid-cols-3 gap-2">
               {timeSlots.map(slot => (
-                <button key={slot.time} disabled={!slot.available} onClick={() => setSelectedTime(slot.time)} className={`rounded-xl p-3 text-center text-sm font-medium transition-all ${!slot.available ? "bg-muted text-muted-foreground/40 cursor-not-allowed" : selectedTime === slot.time ? "bg-primary text-primary-foreground shadow-gold" : "bg-card shadow-card text-foreground"}`}>
+                <button key={slot.time} disabled={!slot.available} onClick={() => setSelectedTime(slot.time)} className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${!slot.available ? "border-border bg-muted text-muted-foreground/40 cursor-not-allowed" : selectedTime === slot.time ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
                   {slot.time}
                 </button>
               ))}
@@ -124,31 +122,28 @@ const MentorBooking = () => {
 
         {step === 2 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            {/* Selected date/time summary */}
-            <div className="mb-5 rounded-xl bg-muted p-3 text-center">
+            <div className="mb-5 rounded-xl border border-border bg-muted p-3 text-center">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော အချိန်" : "Selected"}</p>
               <p className="text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT)</p>
             </div>
 
-            {/* Topic */}
             <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အကြောင်းအရာ ရွေးချယ်ပါ" : "Select Topic"}</h2>
             <div className="mb-5 flex flex-wrap gap-2">
               {topics.map(t => (
-                <button key={t.en} onClick={() => setSelectedTopic(lang === "my" ? t.my : t.en)} className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${selectedTopic === (lang === "my" ? t.my : t.en) ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground shadow-card"}`}>
+                <button key={t.en} onClick={() => setSelectedTopic(lang === "my" ? t.my : t.en)} className={`rounded-full border px-4 py-2 text-xs font-medium transition-all ${selectedTopic === (lang === "my" ? t.my : t.en) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground active:bg-muted"}`}>
                   {lang === "my" ? t.my : t.en}
                 </button>
               ))}
             </div>
 
-            {/* Message */}
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "မက်ဆေ့ချ် (ရွေးချယ်ပိုင်ခွင့်)" : "Message (Optional)"}</h2>
             <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={lang === "my" ? "Mentor ကို ကြိုတင် ပြောလိုသည့် အကြောင်းအရာ..." : "Anything you'd like to discuss in advance..."} className="min-h-[80px] rounded-xl border-border bg-card text-sm" />
           </motion.div>
         )}
       </div>
 
-      {/* Bottom action */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg pb-safe">
+      {/* Bottom action - positioned above BottomNav */}
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-6 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
             <Button variant="gold" size="lg" className="w-full rounded-xl" disabled={!selectedDay || !selectedTime} onClick={() => setStep(2)}>

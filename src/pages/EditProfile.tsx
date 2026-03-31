@@ -55,6 +55,13 @@ const EditProfile = () => {
     navigate("/profile");
   };
 
+  const handleChangePhoto = () => {
+    toast({
+      title: lang === "my" ? "ဓာတ်ပုံ ပြောင်းရန်" : "Change photo",
+      description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} />
@@ -63,16 +70,16 @@ const EditProfile = () => {
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">
           <div className="relative">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-gold text-2xl font-bold text-primary-foreground">MM</div>
-            <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
-              <Camera className="h-4 w-4" />
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">MM</div>
+            <button onClick={handleChangePhoto} className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:bg-primary/90">
+              <Camera className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{lang === "my" ? "ဓာတ်ပုံ ပြောင်းရန်" : "Change photo"}</p>
         </motion.div>
 
         {/* Basic Info */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-2xl bg-card p-4 shadow-card">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြေခံ အချက်အလက်" : "Basic Information"}</h2>
           <div>
             <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "အမည်" : "Full Name"}</Label>
@@ -93,27 +100,27 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Location & Contact */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 space-y-4 rounded-2xl bg-card p-4 shadow-card">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 space-y-4 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "တည်နေရာနှင့် ဆက်သွယ်ရန်" : "Location & Contact"}</h2>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><MapPin className="mr-1 inline h-3 w-3" />{lang === "my" ? "တည်နေရာ" : "Location"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><MapPin className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "တည်နေရာ" : "Location"}</Label>
             <Input value={location} onChange={e => setLocation(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Mail className="mr-1 inline h-3 w-3" />{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><Mail className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Phone className="mr-1 inline h-3 w-3" />{lang === "my" ? "ဖုန်းနံပါတ်" : "Phone"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><Phone className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဖုန်းနံပါတ်" : "Phone"}</Label>
             <Input value={phone} onChange={e => setPhone(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Globe className="mr-1 inline h-3 w-3" />{lang === "my" ? "ဝဘ်ဆိုက်" : "Website / Portfolio"}</Label>
+            <Label className="mb-1.5 text-xs text-muted-foreground"><Globe className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဝဘ်ဆိုက်" : "Website / Portfolio"}</Label>
             <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
           </div>
           <div className="flex items-center justify-between rounded-xl bg-muted/50 p-3">
             <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-primary" />
+              <Globe className="h-4 w-4 text-primary" strokeWidth={1.5} />
               <span className="text-sm text-foreground">{lang === "my" ? "Remote Ready" : "Remote Ready"}</span>
             </div>
             <button onClick={() => setRemoteReady(!remoteReady)} className={`h-6 w-11 rounded-full transition-colors ${remoteReady ? "bg-primary" : "bg-muted-foreground/30"}`}>
@@ -123,41 +130,42 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Skills */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4 rounded-2xl bg-card p-4 shadow-card">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4 rounded-xl border border-border bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
           <div className="mb-3 flex flex-wrap gap-2">
             {skills.map(skill => (
               <span key={skill} className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
                 {skill}
-                <button onClick={() => removeSkill(skill)}><X className="h-3 w-3" /></button>
+                <button onClick={() => removeSkill(skill)} className="rounded-full p-0.5 active:bg-primary/20"><X className="h-3 w-3" strokeWidth={1.5} /></button>
               </span>
             ))}
           </div>
           <div className="flex gap-2">
             <Input value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => e.key === "Enter" && addSkill()} placeholder={lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ရန်..." : "Add a skill..."} className="h-10 rounded-xl border-border bg-muted/50 text-sm" />
-            <Button variant="outline" size="sm" className="rounded-xl" onClick={addSkill}><Plus className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={addSkill}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
           </div>
         </motion.div>
 
         {/* Languages */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 rounded-2xl bg-card p-4 shadow-card">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 rounded-xl border border-border bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဘာသာစကားများ" : "Languages"}</h2>
           <div className="mb-3 flex flex-wrap gap-2">
             {languages.map(l => (
               <span key={l} className="flex items-center gap-1 rounded-lg bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-foreground">
                 {l}
-                <button onClick={() => removeLanguage(l)}><X className="h-3 w-3" /></button>
+                <button onClick={() => removeLanguage(l)} className="rounded-full p-0.5 active:bg-accent/20"><X className="h-3 w-3" strokeWidth={1.5} /></button>
               </span>
             ))}
           </div>
           <div className="flex gap-2">
             <Input value={newLanguage} onChange={e => setNewLanguage(e.target.value)} onKeyDown={e => e.key === "Enter" && addLanguage()} placeholder={lang === "my" ? "ဘာသာစကား ထည့်ရန်..." : "Add a language..."} className="h-10 rounded-xl border-border bg-muted/50 text-sm" />
-            <Button variant="outline" size="sm" className="rounded-xl" onClick={addLanguage}><Plus className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={addLanguage}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
           </div>
         </motion.div>
 
-        {/* Save button bottom */}
+        {/* Save button */}
         <Button variant="gold" size="xl" className="mt-6 w-full rounded-2xl" onClick={handleSave}>
+          <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
           {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes"}
         </Button>
       </div>
