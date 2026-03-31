@@ -10,18 +10,12 @@ const AiProfileBuilder = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
 
-  const handleToolClick = (toolName: string, status: string) => {
+  const handleToolClick = (path: string, status: string) => {
     if (status === "Premium") {
-      toast({
-        title: lang === "my" ? "Premium လိုအပ်ပါသည်" : "Premium Required",
-        description: lang === "my" ? "ဤအင်္ဂါရပ်ကို Premium အဆင့်မြှင့်ပြီး အသုံးပြုပါ" : "Upgrade to Premium to use this feature",
-      });
+      navigate("/premium");
       return;
     }
-    toast({
-      title: toolName,
-      description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
-    });
+    navigate(path);
   };
 
   const aiFeatures = [

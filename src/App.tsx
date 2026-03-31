@@ -68,6 +68,9 @@ const App = () => (
             <Route path="/messages/chat" element={<ChatView />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/ai-tools" element={<AiProfileBuilder />} />
+            <Route path="/ai-tools/profile-builder" element={<ProfileBuilder />} />
+            <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
+            <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
