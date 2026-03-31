@@ -162,7 +162,7 @@ const MentorBookings = () => {
 
         {/* New Booking Button */}
         <Button
-          variant="gold" size="sm"
+          variant="default" size="sm"
           className="mb-4 w-full rounded-xl text-xs"
           onClick={() => { setShowNewBooking(true); resetBookingForm(); }}
         >
@@ -224,7 +224,7 @@ const MentorBookings = () => {
                         <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>
                           {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                         </Button>
-                        <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>
+                        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>
                           {lang === "my" ? "အတည်ပြု" : "Confirm"}
                         </Button>
                       </div>
@@ -338,7 +338,7 @@ const MentorBookings = () => {
                 <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setBookingStep(1)}>
                   {lang === "my" ? "နောက်သို့" : "Back"}
                 </Button>
-                <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs" disabled={!selectedDay || !selectedTime} onClick={() => setBookingStep(3)}>
+                <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" disabled={!selectedDay || !selectedTime} onClick={() => setBookingStep(3)}>
                   {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
                 </Button>
               </div>
@@ -374,7 +374,7 @@ const MentorBookings = () => {
                 <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setBookingStep(2)}>
                   {lang === "my" ? "နောက်သို့" : "Back"}
                 </Button>
-                <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs" disabled={!selectedTopic} onClick={handleCreateBooking}>
+                <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" disabled={!selectedTopic} onClick={handleCreateBooking}>
                   {lang === "my" ? "ချိန်းဆိုမှု ဖန်တီးရန်" : "Create Booking"}
                 </Button>
               </div>

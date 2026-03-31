@@ -166,7 +166,7 @@ const EmployerPostJob = () => {
                 ))}
               </div>
             </div>
-            <Button variant="gold" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
+            <Button variant="default" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
           </motion.div>
@@ -249,7 +249,7 @@ const EmployerPostJob = () => {
 
             <div className="flex gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit}>{lang === "my" ? "တင်ရန်" : "Submit"}</Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit}>{lang === "my" ? "တင်ရန်" : "Submit"}</Button>
             </div>
           </motion.div>
         )}

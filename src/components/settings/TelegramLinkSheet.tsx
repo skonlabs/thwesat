@@ -90,7 +90,7 @@ const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: Telegr
           </div>
 
           <Button
-            variant="gold"
+            variant="default"
             size="lg"
             className="w-full rounded-xl"
             disabled={!username.trim()}

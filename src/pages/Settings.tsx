@@ -282,7 +282,7 @@ const Settings = () => {
             </p>
           )}
         </div>
-        <Button variant="gold" size="lg" className="mt-4 w-full rounded-xl" onClick={handlePasswordChange} disabled={!currentPw || !newPw || !confirmPw}>
+        <Button variant="default" size="lg" className="mt-4 w-full rounded-xl" onClick={handlePasswordChange} disabled={!currentPw || !newPw || !confirmPw}>
           {lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Update Password"}
         </Button>
       </SettingsBottomSheet>

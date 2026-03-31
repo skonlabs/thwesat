@@ -128,7 +128,7 @@ const EmployerSubscription = () => {
           </p>
         </div>
 
-        <Button variant="gold" size="lg" className="mt-5 w-full rounded-xl" onClick={handleSubscribe}>
+        <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={handleSubscribe}>
           {lang === "my" ? `${tiers.find(t => t.id === selected)?.name} Plan ဖြင့် စတင်ရန်` : `Start ${tiers.find(t => t.id === selected)?.name} Plan`}
         </Button>
       </div>

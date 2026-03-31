@@ -57,7 +57,7 @@ const EmployerOnboarding = () => {
           <div className="mx-auto mb-6 max-w-xs rounded-xl border border-primary/20 bg-primary/5 p-4">
             <p className="text-xs text-foreground/80">{lang === "my" ? "စစ်ဆေးနေစဉ် အလုပ်ခေါ်စာများ ပြင်ဆင်ထားနိုင်ပါသည်။ စစ်ဆေးပြီးပါက တိုက်ရိုက် ဖော်ပြပါမည်။" : "You can prepare job listings while we verify your company. They'll go live once verified."}</p>
           </div>
-          <Button variant="gold" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit}>
+          <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit}>
             {lang === "my" ? "Dashboard သို့ သွားရန်" : "Go to Dashboard"} <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
         </div>
@@ -119,7 +119,7 @@ const EmployerOnboarding = () => {
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရုံးချုပ်တိုင်းပြည်" : "HQ Country"}</label>
               <Input value={hqCountry} onChange={e => setHqCountry(e.target.value)} placeholder="e.g. Singapore" className="h-11 rounded-xl" />
             </div>
-            <Button variant="gold" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!companyName || !website}>
+            <Button variant="default" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!companyName || !website}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
           </motion.div>
@@ -152,7 +152,7 @@ const EmployerOnboarding = () => {
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>
                 {lang === "my" ? "နောက်သို့" : "Back"}
               </Button>
-              <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={!contactName || !contactEmail}>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={!contactName || !contactEmail}>
                 {lang === "my" ? "စာရင်းသွင်းရန်" : "Register"}
               </Button>
             </div>

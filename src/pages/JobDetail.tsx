@@ -171,7 +171,7 @@ const JobDetail = () => {
                 <Textarea value={coverLetter} onChange={e => setCoverLetter(e.target.value)} placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit for this role..."} className="min-h-[100px] rounded-xl border-border text-sm" />
               </div>
 
-              <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={handleApply}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleApply}>
                 <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
               </Button>
             </motion.div>
@@ -193,7 +193,7 @@ const JobDetail = () => {
               <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
             </Button>
           ) : (
-            <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
+            <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
               {lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}
             </Button>
           )}

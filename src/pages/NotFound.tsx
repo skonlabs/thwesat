@@ -27,7 +27,7 @@ const NotFound = () => {
             ? "သင်ရှာဖွေနေသော စာမျက်နှာသည် ရှိမနေတော့ပါ သို့မဟုတ် ဖယ်ရှားထားပါသည်"
             : "The page you're looking for doesn't exist or has been moved"}
         </p>
-        <Button variant="gold" size="lg" className="w-full max-w-xs rounded-xl" onClick={() => navigate("/home")}>
+        <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={() => navigate("/home")}>
           <Home className="mr-2 h-4 w-4" strokeWidth={1.5} />
           {lang === "my" ? "ပင်မစာမျက်နှာသို့" : "Back to Home"}
         </Button>

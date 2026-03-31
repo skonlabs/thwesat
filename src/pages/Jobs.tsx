@@ -247,7 +247,7 @@ const Jobs = () => {
                       <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {job.paymentMethods.join(", ")}
                     </span>
                   </div>
-                  <Button variant="gold" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
                 </div>
               </motion.div>
             );

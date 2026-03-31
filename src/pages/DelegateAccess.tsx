@@ -45,7 +45,7 @@ const DelegateAccess = () => {
             <p className="text-xs text-foreground/80">{lang === "my" ? "ဆက်တင်များ + Delegate စီမံခန့်ခွဲမှု ကန့်သတ်ထားပါသည်" : "Settings & Delegate management restricted"}</p>
           </div>
         </div>
-        <Button variant="gold" size="lg" className="w-full max-w-xs rounded-xl" onClick={() => navigate("/home")}>
+        <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={() => navigate("/home")}>
           {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
         </Button>
       </div>
@@ -95,7 +95,7 @@ const DelegateAccess = () => {
           </div>
         </div>
 
-        <Button variant="gold" size="xl" className="w-full rounded-xl" onClick={handleEnter}>
+        <Button variant="default" size="xl" className="w-full rounded-xl" onClick={handleEnter}>
           {lang === "my" ? "ဝင်ရောက်ရန်" : "Enter"} <ArrowRight className="ml-1.5 h-5 w-5" />
         </Button>
       </motion.div>

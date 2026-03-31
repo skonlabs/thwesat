@@ -47,7 +47,7 @@ const Welcome = () => {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.5 }} className="relative z-10 w-full px-6 pb-12">
-        <Button variant="gold" size="xl" className="mb-4 w-full rounded-2xl" onClick={() => navigate("/onboarding")}>
+        <Button variant="default" size="xl" className="mb-4 w-full rounded-2xl" onClick={() => navigate("/onboarding")}>
           {lang === "my" ? "စတင်ရန်" : "Get Started"}
         </Button>
         <Button variant="ghost" size="default" className="w-full text-muted-foreground" onClick={() => navigate("/login")}>

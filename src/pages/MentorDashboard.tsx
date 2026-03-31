@@ -247,7 +247,7 @@ const MentorDashboard = () => {
                         <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>
                           {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                         </Button>
-                        <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>
+                        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>
                           {lang === "my" ? "အတည်ပြု" : "Confirm"}
                         </Button>
                       </div>
