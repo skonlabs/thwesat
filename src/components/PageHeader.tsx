@@ -10,20 +10,32 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-xl border-b border-border/60">
-      <div className="flex items-center justify-between px-5 py-3.5">
-        <h1 className="text-lg font-bold text-foreground tracking-tight">{title}</h1>
-        <div className="flex items-center gap-2.5">
-          <LanguageToggle />
-          <button
-            onClick={() => navigate("/settings")}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary active:scale-95"
-          >
-            <Settings className="h-[18px] w-[18px]" />
-          </button>
+    <header className="sticky top-0 z-40">
+      {/* Thin golden accent stripe */}
+      <div className="h-[3px] bg-gradient-gold" />
+
+      <div className="bg-card shadow-sm">
+        <div className="flex items-center justify-between px-5 py-3">
+          {/* Title with golden dot accent */}
+          <div className="flex items-center gap-2.5">
+            <div className="h-2 w-2 rounded-full bg-gradient-gold shadow-gold" />
+            <h1 className="text-[17px] font-bold tracking-tight text-foreground">{title}</h1>
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <button
+              onClick={() => navigate("/settings")}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/80 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary active:scale-95"
+              aria-label="Settings"
+            >
+              <Settings className="h-[17px] w-[17px]" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
