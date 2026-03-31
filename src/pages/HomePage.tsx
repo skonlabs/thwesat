@@ -6,12 +6,12 @@ import { useRole } from "@/hooks/use-role";
 import PageHeader from "@/components/PageHeader";
 
 const jobseekerActions = [
-  { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-primary/15", fg: "text-gold-dark" },
+  { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/15", fg: "text-gold-dark" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-navy/8", fg: "text-navy" },
-  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-primary/15", fg: "text-gold-dark" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/8", fg: "text-primary" },
+  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
   { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-navy/8", fg: "text-navy" },
+  { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-primary/8", fg: "text-primary" },
 ];
 
 const featuredJobs = [
@@ -36,7 +36,7 @@ const HomePage = () => {
       {/* Greeting */}
       <div className="border-b border-border bg-card px-5 pb-5 pt-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-navy text-sm font-bold text-white">M</div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">M</div>
           <div className="flex-1">
             <p className="text-xs text-muted-foreground">{lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}</p>
             <p className="text-[15px] font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</p>
@@ -45,7 +45,7 @@ const HomePage = () => {
             <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
               {role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
             </span>
-            <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-primary/20 px-2.5 py-1">
+            <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-accent/20 px-2.5 py-1">
               <Crown className="h-3 w-3 text-gold-dark" strokeWidth={2} />
               <span className="text-[10px] font-bold text-gold-dark">Free</span>
             </button>
@@ -106,7 +106,7 @@ const HomePage = () => {
           <p className="text-xs text-muted-foreground">
             {lang === "my" ? "ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်ပြီး အလုပ် အကြံပြုချက်များ တိုးမြှင့်ပါ" : "Complete your profile to unlock better job matches"}
           </p>
-          <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-gold-dark">
+          <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
             {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
           </button>
         </motion.div>
@@ -115,7 +115,7 @@ const HomePage = () => {
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
-            <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-gold-dark">
+            <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-accent">
               {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>
@@ -129,7 +129,7 @@ const HomePage = () => {
                 onClick={() => navigate("/jobs/detail")}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors active:bg-muted"
               >
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/15">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent/15">
                   <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -142,7 +142,7 @@ const HomePage = () => {
                         </span>
                       )}
                       {job.isNew && (
-                        <span className="flex-shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-gold-dark">NEW</span>
+                        <span className="flex-shrink-0 rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-gold-dark">NEW</span>
                       )}
                     </div>
                   </div>
@@ -160,8 +160,8 @@ const HomePage = () => {
         </div>
 
         {/* Community Stats */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-gradient-navy p-5">
-          <h3 className="mb-4 text-sm font-bold text-white">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">
+          <h3 className="mb-4 text-sm font-bold text-primary-foreground">
             {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -170,9 +170,9 @@ const HomePage = () => {
               { value: "200+", label: lang === "my" ? "အလုပ်" : "Jobs" },
               { value: "50+", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg bg-white/10 p-3 text-center backdrop-blur-sm">
-                <p className="text-lg font-bold text-primary">{stat.value}</p>
-                <p className="text-[10px] text-white/70">{stat.label}</p>
+              <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
+                <p className="text-lg font-bold text-accent">{stat.value}</p>
+                <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
               </div>
             ))}
           </div>

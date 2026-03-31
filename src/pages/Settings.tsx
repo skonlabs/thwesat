@@ -189,7 +189,7 @@ const Settings = () => {
                   {'toggle' in item && item.toggle ? (
                     <button
                       onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }}
-                      className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-accent" : "bg-muted-foreground/30"}`}
+                      className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}
                     >
                       <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
                     </button>
@@ -250,7 +250,7 @@ const Settings = () => {
                 <p className="text-sm font-semibold text-foreground">{opt.name}</p>
                 <p className="text-xs text-muted-foreground">{opt.sub}</p>
               </div>
-              {lang === opt.code && <Check className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />}
+              {lang === opt.code && <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />}
             </button>
           ))}
         </div>
