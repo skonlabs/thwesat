@@ -20,7 +20,6 @@ const Profile = () => {
     { icon: Sparkles, label: lang === "my" ? "Career Tools" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
     { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
-    { icon: Bell, label: lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications", path: "/notifications" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 

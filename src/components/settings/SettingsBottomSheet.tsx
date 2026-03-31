@@ -24,7 +24,7 @@ const SettingsBottomSheet = ({ open, onClose, title, children }: SettingsBottomS
             animate={{ y: 0 }}
             exit={{ y: 300 }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe"
+            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-20"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />

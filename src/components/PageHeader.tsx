@@ -21,6 +21,14 @@ const PageHeader = ({ title }: PageHeaderProps) => {
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <button
+              onClick={() => navigate("/notifications")}
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
+              aria-label="Notifications"
+            >
+              <Bell className="h-5 w-5" strokeWidth={1.5} />
+              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
+            </button>
+            <button
               onClick={() => navigate("/messages")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
               aria-label="Messages"
