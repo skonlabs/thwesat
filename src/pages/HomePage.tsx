@@ -65,7 +65,7 @@ const HomePage = () => {
               <div className={`rounded-xl p-2.5 ${action.color}`}>
                 <action.icon className="h-5 w-5" />
               </div>
-              <span className="text-[11px] font-medium text-foreground">{action.labelEn}</span>
+              <span className="text-[11px] font-medium text-foreground">{lang === "my" ? action.label : action.labelEn}</span>
             </button>
           ))}
         </motion.div>
