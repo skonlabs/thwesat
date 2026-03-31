@@ -4,6 +4,7 @@ import { Search, Star, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "@/components/PageHeader";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
