@@ -3,6 +3,7 @@ import { Check, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const Premium = () => {
   const navigate = useNavigate();
