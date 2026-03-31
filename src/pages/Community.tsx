@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2 } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
@@ -68,6 +68,7 @@ const Community = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState("All");
+  const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [posts, setPosts] = useState<Post[]>(initialPosts as Post[]);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostText, setNewPostText] = useState("");
@@ -111,14 +112,23 @@ const Community = () => {
     setOpenMenuId(null);
   };
 
-  const handleShare = (post: Post) => {
-    const text = lang === "my" ? post.content : post.contentEn;
-    if (navigator.share) {
-      navigator.share({ title: "ThweSone Community", text, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(text);
-      toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied to clipboard!" });
+  const handleShareOption = (post: Post, platform: string) => {
+    const text = encodeURIComponent(lang === "my" ? post.content : post.contentEn);
+    const url = encodeURIComponent(window.location.href);
+    let shareUrl = "";
+    switch (platform) {
+      case "whatsapp": shareUrl = `https://wa.me/?text=${text}%20${url}`; break;
+      case "telegram": shareUrl = `https://t.me/share/url?url=${url}&text=${text}`; break;
+      case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
+      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`; break;
+      case "copy":
+        navigator.clipboard.writeText(decodeURIComponent(text));
+        toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied to clipboard!" });
+        setSharePostId(null);
+        return;
     }
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+    setSharePostId(null);
   };
 
   const handleAddComment = (postId: number) => {
@@ -333,10 +343,34 @@ const Community = () => {
                   <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.comments.length}
                 </button>
                 <div className="h-5 w-px bg-border" />
-                <button onClick={() => handleShare(post)} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs text-muted-foreground active:bg-muted">
-                  <Share2 className="h-4 w-4" strokeWidth={1.5} /> {post.shares}
+                <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                  <Share2 className={`h-4 w-4 ${sharePostId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.shares}
                 </button>
               </div>
+
+              {/* Share options */}
+              <AnimatePresence>
+                {sharePostId === post.id && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
+                    <div className="flex items-center gap-2 px-4 py-3">
+                      {[
+                        { platform: "whatsapp", label: "WhatsApp", color: "bg-[#25D366]", icon: "💬" },
+                        { platform: "telegram", label: "Telegram", color: "bg-[#0088cc]", icon: "✈️" },
+                        { platform: "facebook", label: "Facebook", color: "bg-[#1877F2]", icon: "📘" },
+                        { platform: "twitter", label: "X", color: "bg-foreground", icon: "𝕏" },
+                        { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", color: "bg-muted", icon: "" },
+                      ].map((opt) => (
+                        <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
+                          <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm ${opt.platform === "copy" ? "bg-muted text-muted-foreground" : opt.color + " text-white"}`}>
+                            {opt.platform === "copy" ? <Copy className="h-4 w-4" strokeWidth={1.5} /> : opt.icon}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Comments section */}
               <AnimatePresence>
