@@ -57,15 +57,7 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <PageHeader
-        title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"}
-        showBack
-        rightContent={
-          <Button variant="default" size="sm" className="rounded-lg" onClick={handleSave}>
-            <Save className="mr-1 h-4 w-4" /> {lang === "my" ? "သိမ်းမည်" : "Save"}
-          </Button>
-        }
-      />
+      <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} />
       <div className="px-6">
 
         {/* Avatar */}

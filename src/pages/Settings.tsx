@@ -91,7 +91,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} showBack />
+      <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} />
 
       <div className="px-6">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-start gap-3 rounded-2xl bg-destructive/5 p-4">

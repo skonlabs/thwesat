@@ -68,7 +68,7 @@ const MentorBooking = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} showBack onBack={() => step === 1 ? navigate(-1) : setStep(1)} />
+      <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} />
 
       <div className="px-6">
         {/* Progress */}

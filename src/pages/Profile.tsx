@@ -29,7 +29,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <div className="relative bg-gradient-gold pb-16">
-        <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} variant="gradient" />
+        <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
       </div>
 
       <div className="px-6">

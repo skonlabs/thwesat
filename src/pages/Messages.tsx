@@ -17,7 +17,7 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} showBack />
+      <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} />
       <div className="px-6">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] text-emerald">
           <Lock className="h-3 w-3" />

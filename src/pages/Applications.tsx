@@ -33,7 +33,7 @@ const Applications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} subtitle={`${applications.length} ${lang === "my" ? "ခု စုစုပေါင်း" : "total"}`} showBack />
+      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} />
 
       <div className="px-6">
         <div className="mb-5 grid grid-cols-4 gap-2">

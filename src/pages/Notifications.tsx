@@ -32,7 +32,7 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} showBack />
+      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
 
       <div className="px-6">
         <div className="mb-4 flex gap-2">
