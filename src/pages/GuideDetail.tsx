@@ -1,4 +1,4 @@
-import { ArrowLeft, Shield, AlertTriangle, Clock, CheckCircle, BookOpen, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
