@@ -3,10 +3,6 @@ import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Star, Bookmark } f
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const Jobs = () => {
-  const navigate = useNavigate();
-import { Button } from "@/components/ui/button";
-
 const categories = ["အားလုံး", "Tech", "Design", "Management", "Finance", "Teaching"];
 
 const jobs = [
@@ -18,14 +14,13 @@ const jobs = [
 ];
 
 const Jobs = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="px-6 pt-6">
         <h1 className="mb-1 text-xl font-bold text-foreground">အလုပ်အကိုင်များ</h1>
         <p className="mb-4 text-xs text-muted-foreground">Browse remote opportunities · အဝေးထိန်း အလုပ်များ ရှာဖွေပါ</p>
-
-        {/* Search */}
         <div className="mb-4 flex gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -35,75 +30,40 @@ const Jobs = () => {
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
-
-        {/* Categories */}
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat, i) => (
-            <button
-              key={cat}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all ${
-                i === 0
-                  ? "bg-primary text-primary-foreground shadow-gold"
-                  : "bg-card text-muted-foreground"
-              }`}
-            >
-              {cat}
-            </button>
+            <button key={cat} className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all ${i === 0 ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>{cat}</button>
           ))}
         </div>
       </div>
-
-      {/* Job list */}
       <div className="space-y-3 px-6 pb-6">
         {jobs.map((job, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="cursor-pointer rounded-2xl bg-card p-4 shadow-card"
-            onClick={() => navigate("/jobs/detail")}
-          >
+          <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="cursor-pointer rounded-2xl bg-card p-4 shadow-card" onClick={() => navigate("/jobs/detail")}>
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-                  <Briefcase className="h-5 w-5 text-primary" />
-                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10"><Briefcase className="h-5 w-5 text-primary" /></div>
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
                   <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
                 </div>
               </div>
-              <button className="text-muted-foreground">
-                <Bookmark className={`h-4.5 w-4.5 ${job.saved ? "fill-primary text-primary" : ""}`} />
+              <button className="text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+                <Bookmark className={`h-4 w-4 ${job.saved ? "fill-primary text-primary" : ""}`} />
               </button>
             </div>
-
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {job.tags.map((tag) => (
-                <span key={tag} className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  {tag}
-                </span>
-              ))}
+              {job.tags.map((tag) => (<span key={tag} className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
             </div>
-
             <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {job.location}
-                </span>
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" /> {job.type}
-                </span>
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" /> {job.location}</span>
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" /> {job.type}</span>
               </div>
               <span className="text-xs font-semibold text-primary">{job.salary}</span>
             </div>
-
             <div className="mt-3 flex items-center justify-between">
               <span className="text-[10px] text-muted-foreground">{job.postedAgo} အကြာက</span>
-              <Button variant="default" size="sm" className="rounded-lg text-xs">
-                လျှောက်ထားရန် · Apply
-              </Button>
+              <Button variant="default" size="sm" className="rounded-lg text-xs">လျှောက်ထားရန် · Apply</Button>
             </div>
           </motion.div>
         ))}
