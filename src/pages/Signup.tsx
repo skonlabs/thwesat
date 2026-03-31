@@ -67,7 +67,7 @@ const Signup = () => {
         {/* Role Selection */}
         <div className="mb-6">
           <Label className="mb-2 block text-sm font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
