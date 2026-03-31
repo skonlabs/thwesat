@@ -28,12 +28,10 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="relative bg-gradient-gold pb-16">
-        <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
-      </div>
+      <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
 
-      <div className="px-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="-mt-12 rounded-2xl bg-card p-5 shadow-card">
+      <div className="px-6 pt-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-card p-5 shadow-card">
           <div className="flex items-start gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-gold text-xl font-bold text-primary-foreground">MM</div>
             <div className="flex-1">
