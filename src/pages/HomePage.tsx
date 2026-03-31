@@ -198,6 +198,25 @@ const HomePage = () => {
           </motion.div>
         )}
 
+        {/* Mentor quick stats */}
+        {role === "mentor" && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-6 rounded-xl border border-border bg-card p-4">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Mentor အကျဉ်းချုပ်" : "Mentor Stats"}</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "12", label: lang === "my" ? "Booking" : "Bookings" },
+                { value: "4.8", label: lang === "my" ? "အမှတ်" : "Rating" },
+                { value: "$240", label: lang === "my" ? "ဝင်ငွေ" : "Earnings" },
+              ].map((stat) => (
+                <div key={stat.label} className="rounded-lg bg-muted p-3 text-center">
+                  <p className="text-lg font-bold text-foreground">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )
+
         {/* Community Stats */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">
           <h3 className="mb-4 text-sm font-bold text-primary-foreground">
