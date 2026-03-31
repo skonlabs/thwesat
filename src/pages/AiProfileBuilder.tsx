@@ -8,7 +8,7 @@ import PageHeader from "@/components/PageHeader";
 const AiProfileBuilder = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
+  
 
   const handleToolClick = (path: string, status: string) => {
     if (status === "Premium") {
