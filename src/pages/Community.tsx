@@ -91,15 +91,7 @@ const Community = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader
-        title={lang === "my" ? "အသိုင်းအဝိုင်း" : "Community"}
-        subtitle={lang === "my" ? "မြန်မာ့ပညာရှင်များ" : "Myanmar Professionals Forum"}
-        rightContent={
-          <Button variant="default" size="sm" className="rounded-xl" onClick={() => setShowNewPost(true)}>
-            <Plus className="mr-1 h-4 w-4" /> {lang === "my" ? "ပို့စ်" : "Post"}
-          </Button>
-        }
-      />
+      <PageHeader title={lang === "my" ? "အသိုင်းအဝိုင်း" : "Community"} />
       <div className="px-6">
 
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">

@@ -39,7 +39,7 @@ const Mentors = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} subtitle={lang === "my" ? "အတွေ့အကြုံရှင်များနှင့် ချိတ်ဆက်ပါ" : "Connect with experienced mentors"} />
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} />
       <div className="px-6">
 
         <div className="mb-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">

@@ -23,7 +23,7 @@ const Guides = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} subtitle={lang === "my" ? "ဥပဒေရေးရာနှင့် လက်တွေ့ လမ်းညွှန်ချက်များ" : "Legal & practical guides"} />
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
       <div className="px-6">
 
         <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "နိုင်ငံအလိုက် ရွေးချယ်ပါ" : "Select by Country"}</h2>

@@ -17,7 +17,7 @@ const SavedJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} subtitle={`${savedJobs.length} ${lang === "my" ? "ခု" : "jobs"}`} showBack />
+      <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} />
 
       <div className="space-y-3 px-6 pb-6">
         {savedJobs.map((job, i) => (
