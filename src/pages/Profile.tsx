@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import {
   ChevronRight, Briefcase, Sparkles, TrendingUp, MessageCircle,
-  Globe, MapPin, Edit3, Star, LogOut, Bell
+  Globe, MapPin, Edit3, Star, LogOut, Bell, Settings
 } from "lucide-react";
-import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -30,66 +29,61 @@ const Profile = () => {
     <div className="min-h-screen bg-background pb-6">
       <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
 
-      <div className="px-6 pt-2">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-card p-5 shadow-card">
-          <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-gold text-xl font-bold text-primary-foreground">MM</div>
+      <div className="px-5 pt-4">
+        {/* Profile card */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">MM</div>
             <div className="flex-1">
-              <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h2>
-              <p className="text-xs text-muted-foreground">{lang === "my" ? "Maung Maung" : "Full Stack Developer"}</p>
-              <p className="mt-1 text-sm text-foreground/80">Full Stack Developer</p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" /> Bangkok, Thailand</span>
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" /> Remote Ready</span>
+              <h2 className="text-base font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h2>
+              <p className="text-xs text-muted-foreground">Full Stack Developer</p>
+              <div className="mt-1.5 flex items-center gap-2.5">
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> Bangkok, TH</span>
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> Remote</span>
               </div>
             </div>
           </div>
-
-          <div className="mt-4 rounded-xl bg-muted p-3">
-            <div className="mb-2 flex items-center justify-between">
+          {/* Progress */}
+          <div className="mt-4 rounded-lg bg-muted p-3">
+            <div className="mb-1.5 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</span>
               <span className="text-xs font-bold text-primary">45%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-border">
-              <div className="h-full w-[45%] rounded-full bg-gradient-gold" />
+              <div className="h-full w-[45%] rounded-full bg-primary" />
             </div>
-            <p className="mt-2 text-[10px] text-muted-foreground">
-              {lang === "my"
-                ? "ပရိုဖိုင်ကို 80% ပြည့်အောင် ဖြည့်ပြီး ပိုမိုကောင်းမွန်သော အလုပ်အကိုင် အကြံပြုချက်များ ရယူပါ"
-                : "Complete your profile to 80% for better job recommendations"}
-            </p>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 rounded-2xl bg-card p-4 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
+        {/* Skills */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mt-3 rounded-xl border border-border bg-card p-4">
+          <div className="mb-2.5 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h3>
             <button className="text-xs font-medium text-primary">{lang === "my" ? "ပြင်ဆင်ရန်" : "Edit"}</button>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {skills.map((skill) => (
-              <span key={skill} className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">{skill}</span>
+              <span key={skill} className="rounded bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">{skill}</span>
             ))}
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 overflow-hidden rounded-2xl bg-card shadow-card">
+        {/* Menu */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
           {menuItems.map((item, i) => (
-            <button key={i} onClick={() => item.path && navigate(item.path)} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/50">
-              <item.icon className={`h-4.5 w-4.5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} />
-              <div className="flex-1">
-                <p className={`text-sm ${item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>{item.label}</p>
-              </div>
+            <button key={i} onClick={() => item.path && navigate(item.path)} className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 active:bg-muted">
+              <item.icon className={`h-5 w-5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+              <p className={`flex-1 text-sm ${item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>{item.label}</p>
               {item.highlight && (
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">PRO</span>
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">PRO</span>
               )}
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
           ))}
         </motion.div>
 
-        <Button variant="ghost" className="mt-4 w-full text-destructive hover:bg-destructive/5 hover:text-destructive" onClick={() => navigate("/")}>
-          <LogOut className="mr-2 h-4 w-4" />
+        <Button variant="ghost" className="mt-4 w-full text-destructive hover:bg-destructive/5" onClick={() => navigate("/")}>
+          <LogOut className="mr-2 h-4 w-4" strokeWidth={1.5} />
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>
       </div>
