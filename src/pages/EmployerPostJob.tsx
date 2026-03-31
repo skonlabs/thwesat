@@ -1,0 +1,205 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, AlertTriangle, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
+
+const roleTypes = [
+  { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
+  { value: "remote_contract", label: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" } },
+  { value: "hybrid", label: { my: "Hybrid", en: "Hybrid" } },
+  { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
+];
+const categories = ["tech", "design", "pm", "ngo", "translation", "finance", "education", "healthcare"];
+const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
+const applicationMethods = [
+  { value: "platform", label: { my: "ThweSone မှ", en: "Via Platform" } },
+  { value: "external", label: { my: "ပြင်ပလင့်ခ်", en: "External URL" } },
+  { value: "email", label: { my: "အီးမေးလ်", en: "Via Email" } },
+];
+
+const EmployerPostJob = () => {
+  const navigate = useNavigate();
+  const { lang } = useLanguage();
+  const { toast } = useToast();
+  const [step, setStep] = useState(1);
+
+  const [titleEn, setTitleEn] = useState("");
+  const [titleMy, setTitleMy] = useState("");
+  const [descEn, setDescEn] = useState("");
+  const [descMy, setDescMy] = useState("");
+  const [requirementsEn, setRequirementsEn] = useState("");
+  const [roleType, setRoleType] = useState("");
+  const [category, setCategory] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [locationCountry, setLocationCountry] = useState("");
+  const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  const [requiresEmbassy, setRequiresEmbassy] = useState(false);
+  const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
+  const [visaSponsorship, setVisaSponsorship] = useState(false);
+  const [diasporaSafeNote, setDiasporaSafeNote] = useState("");
+  const [applicationMethod, setApplicationMethod] = useState("platform");
+  const [externalUrl, setExternalUrl] = useState("");
+
+  const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+
+  const handleSubmit = () => {
+    toast({
+      title: lang === "my" ? "အလုပ်ခေါ်စာ တင်ပြီးပါပြီ" : "Job listing submitted",
+      description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your listing will appear after verification",
+    });
+    navigate("/employer/dashboard");
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-10">
+      <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ တင်ရန်" : "Post a Job"} />
+      <div className="px-5">
+        <div className="mb-5 flex items-center gap-2">
+          {[1, 2].map(s => (
+            <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`} />
+          ))}
+        </div>
+
+        {step === 1 && (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+            <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "အလုပ် အချက်အလက်" : "Job Details"}</h2>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (English) *" : "Title (English) *"}</label>
+              <Input value={titleEn} onChange={e => setTitleEn(e.target.value)} placeholder="e.g. Senior React Developer" className="h-11 rounded-xl" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (မြန်မာ)" : "Title (Burmese)"}</label>
+              <Input value={titleMy} onChange={e => setTitleMy(e.target.value)} className="h-11 rounded-xl" />
+              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "၄၈ နာရီအတွင်း ထည့်သွင်းရပါမည်" : "Required within 48 hours"}</p>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (English) *" : "Description (English) *"}</label>
+              <Textarea value={descEn} onChange={e => setDescEn(e.target.value)} className="min-h-[100px] rounded-xl" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (မြန်မာ)" : "Description (Burmese)"}</label>
+              <Textarea value={descMy} onChange={e => setDescMy(e.target.value)} className="min-h-[80px] rounded-xl" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက်" : "Requirements"}</label>
+              <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} placeholder={lang === "my" ? "လိုအပ်သော အတွေ့အကြုံ" : "Required experience and skills"} className="min-h-[80px] rounded-xl" />
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား *" : "Role Type *"}</label>
+              <div className="flex flex-wrap gap-2">
+                {roleTypes.map(r => (
+                  <button key={r.value} onClick={() => setRoleType(r.value)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${roleType === r.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                    {lang === "my" ? r.label.my : r.label.en}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား *" : "Category *"}</label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(c => (
+                  <button key={c} onClick={() => setCategory(c)} className={`rounded-full border px-3 py-1.5 text-xs capitalize transition-colors ${category === c ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{c}</button>
+                ))}
+              </div>
+            </div>
+            <Button variant="gold" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
+              {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          </motion.div>
+        )}
+
+        {step === 2 && (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+            <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လစာ၊ ငွေပေးချေ + လုံခြုံရေး" : "Salary, Payment & Safety"}</h2>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD)" : "Min Salary (USD)"}</label>
+                <Input type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="1000" className="h-11 rounded-xl" />
+              </div>
+              <div className="flex-1">
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD)" : "Max Salary (USD)"}</label>
+                <Input type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="5000" className="h-11 rounded-xl" />
+              </div>
+            </div>
+            {(roleType === "hybrid" || roleType === "onsite") && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Country"}</label>
+                <Input value={locationCountry} onChange={e => setLocationCountry(e.target.value)} className="h-11 rounded-xl" />
+              </div>
+            )}
+            <div>
+              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
+              <div className="flex flex-wrap gap-2">
+                {paymentOptions.map(p => (
+                  <button key={p} onClick={() => togglePayment(p)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(p) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{p}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+              <h3 className="text-xs font-semibold text-foreground">{lang === "my" ? "ဒိုင်ယာစပိုရာ လုံခြုံရေး" : "Diaspora Safety Flags"}</h3>
+              <label className="flex items-start gap-3">
+                <Checkbox checked={requiresEmbassy} onCheckedChange={v => setRequiresEmbassy(!!v)} className="mt-0.5" />
+                <div>
+                  <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
+                  <p className="text-[10px] text-muted-foreground">{lang === "my" ? "မြန်မာသံရုံးနှင့် ဆက်သွယ်ရန် လိုအပ်" : "Requires contact with Myanmar embassy"}</p>
+                </div>
+              </label>
+              <label className="flex items-start gap-3">
+                <Checkbox checked={requiresWorkPermit} onCheckedChange={v => setRequiresWorkPermit(!!v)} className="mt-0.5" />
+                <p className="text-xs text-foreground">{lang === "my" ? "Work Permit လိုအပ်" : "Requires Work Permit"}</p>
+              </label>
+              <label className="flex items-start gap-3">
+                <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
+                <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
+              </label>
+              <div>
+                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "Diaspora Safe မှတ်ချက်" : "Diaspora Safety Note"}</label>
+                <Textarea value={diasporaSafeNote} onChange={e => setDiasporaSafeNote(e.target.value)} placeholder={lang === "my" ? "ဤအလုပ်သည် ဘာကြောင့် လုံခြုံသနည်း..." : "Why is this safe for Myanmar diaspora..."} className="min-h-[60px] rounded-xl text-xs" />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "လျှောက်ထားနည်း" : "Application Method"}</label>
+              <div className="space-y-2">
+                {applicationMethods.map(m => (
+                  <button key={m.value} onClick={() => setApplicationMethod(m.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${applicationMethod === m.value ? "border-primary bg-primary/5" : "border-border"}`}>
+                    <div className={`h-4 w-4 rounded-full border-2 ${applicationMethod === m.value ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+                      {applicationMethod === m.value && <div className="m-0.5 h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                    </div>
+                    <span className="text-xs text-foreground">{lang === "my" ? m.label.my : m.label.en}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {applicationMethod === "external" && (
+              <Input value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." className="h-11 rounded-xl" />
+            )}
+
+            {requiresEmbassy && (
+              <div className="flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3">
+                <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" strokeWidth={1.5} />
+                <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed on this listing"}</p>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
+              <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit}>{lang === "my" ? "တင်ရန်" : "Submit"}</Button>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default EmployerPostJob;
