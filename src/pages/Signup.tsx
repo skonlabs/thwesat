@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useRole, type UserRole } from "@/hooks/use-role";
 import LanguageToggle from "@/components/LanguageToggle";
 
 const Signup = () => {
@@ -15,11 +16,13 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { setRole } = useRole();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [showReferral, setShowReferral] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
 
   const handleSignup = () => {
     if (!name.trim()) {
@@ -34,9 +37,15 @@ const Signup = () => {
       toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
+    setRole(selectedRole);
     toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
-    navigate("/home");
+    navigate(selectedRole === "employer" ? "/employer/onboarding" : "/home");
   };
+
+  const roles: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
+    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
+    { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
+  ];
 
   return (
     <div className="min-h-screen bg-background px-6 pt-6">
@@ -52,7 +61,35 @@ const Signup = () => {
         <img src={logo} alt="ThweSone" width={56} height={56} className="mb-6" />
 
         <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Create Account"}</h1>
-        <p className="mb-8 text-sm text-muted-foreground">{lang === "my" ? "အခမဲ့ဖြစ်ပါသည်" : "It's free"}</p>
+        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "အခမဲ့ဖြစ်ပါသည်" : "It's free"}</p>
+
+        {/* Role Selection */}
+        <div className="mb-6">
+          <Label className="mb-2 block text-sm font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {roles.map((r) => (
+              <button
+                key={r.value}
+                onClick={() => setSelectedRole(r.value)}
+                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${
+                  selectedRole === r.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card active:bg-muted"
+                }`}
+              >
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                  <r.icon className={`h-5 w-5 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                </div>
+                <span className={`text-sm font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
+                  {lang === "my" ? r.label.my : r.label.en}
+                </span>
+                <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                  {lang === "my" ? r.desc.my : r.desc.en}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         <Button variant="outline" size="lg" className="mb-3 w-full rounded-xl">
           <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -127,7 +164,7 @@ const Signup = () => {
             : "By signing up, you agree to our Privacy Policy"}
         </p>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
+        <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
           <button onClick={() => navigate("/login")} className="font-medium text-primary">
             {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
