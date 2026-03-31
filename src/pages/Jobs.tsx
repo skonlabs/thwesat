@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Star, Bookmark } f
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
