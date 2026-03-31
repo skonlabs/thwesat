@@ -10,28 +10,27 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40">
-      {/* Thin golden accent stripe */}
-      <div className="h-[3px] bg-gradient-gold" />
+    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md">
+      <div className="px-5 pb-3 pt-4">
+        <div className="rounded-[28px] border border-border bg-card px-4 py-3 shadow-card">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+                ThweSone
+              </p>
+              <h1 className="truncate text-[20px] font-bold leading-none text-foreground">{title}</h1>
+            </div>
 
-      <div className="bg-card shadow-sm">
-        <div className="flex items-center justify-between px-5 py-3">
-          {/* Title with golden dot accent */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-2 w-2 rounded-full bg-gradient-gold shadow-gold" />
-            <h1 className="text-[17px] font-bold tracking-tight text-foreground">{title}</h1>
-          </div>
-
-          {/* Right controls */}
-          <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <button
-              onClick={() => navigate("/settings")}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/80 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary active:scale-95"
-              aria-label="Settings"
-            >
-              <Settings className="h-[17px] w-[17px]" />
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageToggle />
+              <button
+                onClick={() => navigate("/settings")}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-all active:scale-95"
+                aria-label="Settings"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
