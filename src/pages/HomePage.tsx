@@ -41,7 +41,7 @@ const HomePage = () => {
         />
 
         {/* Search bar */}
-        <div className="mt-5 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
+        <div className="mx-6 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
           <Search className="h-4 w-4 text-primary-foreground/70" />
           <span className="text-sm text-primary-foreground/60">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </div>

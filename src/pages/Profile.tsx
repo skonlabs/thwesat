@@ -28,16 +28,8 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="relative bg-gradient-gold px-6 pb-16 pt-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-primary-foreground">{lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageToggle variant="flag" />
-            <button onClick={() => navigate("/settings")} className="rounded-full bg-primary-foreground/20 p-2">
-              <Settings className="h-5 w-5 text-primary-foreground" />
-            </button>
-          </div>
-        </div>
+      <div className="relative bg-gradient-gold pb-16">
+        <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} variant="gradient" />
       </div>
 
       <div className="px-6">
