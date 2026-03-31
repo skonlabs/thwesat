@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Star, Briefcase, Users, Sparkles, Shield, MessageCircle, Zap, Crown } from "lucide-react";
+import { Check, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
