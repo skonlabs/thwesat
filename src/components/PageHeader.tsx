@@ -1,4 +1,4 @@
-import { Settings, MessageSquare } from "lucide-react";
+import { Settings, MessageSquare, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.png";
