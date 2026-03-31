@@ -31,7 +31,7 @@ const HomePage = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-primary-foreground/80">{lang === "my" ? "မင်္ဂလာပါ" : "Hello"}</p>
-            <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
+            <h1 className="text-xl font-bold text-primary-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h1>
           </div>
           <div className="flex items-center gap-2">
             <LanguageToggle variant="flag" />
