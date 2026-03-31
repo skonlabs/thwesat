@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, CheckCircle } from "lucide-react";
+import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
