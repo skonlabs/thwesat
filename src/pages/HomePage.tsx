@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown, LayoutDashboard, PlusCircle, UserSearch, GraduationCap, Calendar } from "lucide-react";
+import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useRole } from "@/hooks/use-role";
+import { useAuth } from "@/hooks/use-auth";
+import { useJobs } from "@/hooks/use-jobs";
 import PageHeader from "@/components/PageHeader";
 
 const jobseekerActions = [
@@ -14,78 +15,64 @@ const jobseekerActions = [
   { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-primary/8", fg: "text-primary" },
 ];
 
-const featuredJobs = [
-  { title: "React Developer", company: "TechCorp Asia", location: "Remote", salary: "$2,500–$4,000/mo", isNew: true, diasporaSafe: true },
-  { title: "UI/UX Designer", company: "DesignStudio", location: "Bangkok, TH", salary: "$1,800–$3,000/mo", isNew: true, diasporaSafe: true },
-  { title: "Project Manager", company: "NGO Partners", location: "Remote", salary: "$2,000–$3,500/mo", isNew: false, diasporaSafe: true },
-];
-
 const HomePage = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { role } = useRole();
+  const { profile } = useAuth();
+  const { data: jobs } = useJobs();
 
-  if (role === "employer") {
-    // Employer uses EmployerDashboard directly via routing
-  }
+  const featuredJobs = (jobs || []).slice(0, 3);
+  const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
+  const initial = displayName.charAt(0).toUpperCase();
+
+  // Calculate profile completion
+  const completionFields = [profile?.display_name, profile?.headline, profile?.bio, profile?.location, profile?.skills?.length, profile?.languages?.length];
+  const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
-
-      {/* Greeting */}
       <div className="border-b border-border bg-card px-5 pb-5 pt-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">M</div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+            {profile?.avatar_url ? <img src={profile.avatar_url} className="h-11 w-11 rounded-full object-cover" /> : initial}
+          </div>
           <div className="flex-1">
             <p className="text-xs text-muted-foreground">{lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}</p>
-            <p className="text-[15px] font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</p>
+            <p className="text-[15px] font-bold text-foreground">{displayName}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
+              {profile?.primary_role === "mentor" ? "Mentor" : profile?.primary_role === "employer" ? "Employer" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
             </span>
             <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-accent/20 px-2.5 py-1">
               <Crown className="h-3 w-3 text-gold-dark" strokeWidth={2} />
-              <span className="text-[10px] font-bold text-gold-dark">Free</span>
+              <span className="text-[10px] font-bold text-gold-dark">{profile?.is_premium ? "Pro" : "Free"}</span>
             </button>
           </div>
         </div>
-
-        {/* Search */}
         <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-          <span className="text-sm text-muted-foreground">
-            {lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}
-          </span>
+          <span className="text-sm text-muted-foreground">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </button>
       </div>
 
       <div className="px-5 pt-5">
-        {/* Scam Alert Banner */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
           <div>
             <p className="text-[11px] font-bold text-destructive">{lang === "my" ? "⚠️ အလိမ်အညာ သတိပေးချက်" : "⚠️ Scam Alert"}</p>
             <p className="mt-0.5 text-[10px] text-foreground/70">
-              {lang === "my"
-                ? "Processing Fee တောင်းသော Remote Job ကမ်းလှမ်းချက်များကို သတိထားပါ"
-                : "Beware of remote job offers asking for processing fees"}
+              {lang === "my" ? "Processing Fee တောင်းသော Remote Job ကမ်းလှမ်းချက်များကို သတိထားပါ" : "Beware of remote job offers asking for processing fees"}
             </p>
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-3">
           {jobseekerActions.map((action, i) => (
-            <motion.button
-              key={action.path + action.labelEn}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
+            <motion.button key={action.path + action.labelEn} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               onClick={() => navigate(action.path)}
-              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3.5 shadow-card transition-colors active:bg-muted"
-            >
+              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3.5 shadow-card transition-colors active:bg-muted">
               <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${action.bg}`}>
                 <action.icon className={`h-5 w-5 ${action.fg}`} strokeWidth={1.5} />
               </div>
@@ -94,24 +81,19 @@ const HomePage = () => {
           ))}
         </div>
 
-        {/* Profile Completion */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
-            <span className="text-xs font-bold text-gold-dark">45%</span>
+            <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
           </div>
           <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
-            <motion.div initial={{ width: 0 }} animate={{ width: "45%" }} transition={{ delay: 0.5, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
+            <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.5, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
           </div>
-          <p className="text-xs text-muted-foreground">
-            {lang === "my" ? "ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်ပြီး အလုပ် အကြံပြုချက်များ တိုးမြှင့်ပါ" : "Complete your profile to unlock better job matches"}
-          </p>
           <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
             {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
           </button>
         </motion.div>
 
-        {/* Featured Jobs */}
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
@@ -120,55 +102,51 @@ const HomePage = () => {
             </button>
           </div>
           <div className="space-y-2.5">
-            {featuredJobs.map((job, i) => (
-              <motion.button
-                key={i}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 + i * 0.05 }}
-                onClick={() => navigate("/jobs/detail")}
-                className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors active:bg-muted"
-              >
+            {featuredJobs.map((job: any, i: number) => (
+              <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
+                onClick={() => navigate(`/jobs/${job.id}`)}
+                className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors active:bg-muted">
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent/15">
                   <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate text-sm font-semibold text-foreground">{job.title}</h3>
+                    <h3 className="truncate text-sm font-semibold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h3>
                     <div className="flex gap-1">
-                      {job.diasporaSafe && (
+                      {job.is_diaspora_safe && (
                         <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
                           <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />Safe
                         </span>
-                      )}
-                      {job.isNew && (
-                        <span className="flex-shrink-0 rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-gold-dark">NEW</span>
                       )}
                     </div>
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}
+                      <MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location || "Remote"}
                     </span>
-                    <span className="text-[11px] font-semibold text-gold-dark">{job.salary}</span>
+                    {job.salary_min && job.salary_max && (
+                      <span className="text-[11px] font-semibold text-gold-dark">${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}/mo</span>
+                    )}
                   </div>
                 </div>
               </motion.button>
             ))}
+            {featuredJobs.length === 0 && (
+              <p className="py-6 text-center text-xs text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
+            )}
           </div>
         </div>
 
-        {/* Community Stats */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">
           <h3 className="mb-4 text-sm font-bold text-primary-foreground">
             {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { value: "5K+", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
-              { value: "200+", label: lang === "my" ? "အလုပ်" : "Jobs" },
-              { value: "50+", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
+              { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs" },
+              { value: "—", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: "—", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
                 <p className="text-lg font-bold text-accent">{stat.value}</p>
