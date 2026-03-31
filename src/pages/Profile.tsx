@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
-  Globe, MapPin, Edit3, Star, LogOut, Bell, Settings
+  Globe, MapPin, Edit3, Star, LogOut, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
