@@ -11,8 +11,8 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="flex items-center justify-between px-5 py-2.5">
+    <header className="sticky top-0 z-40 bg-card">
+      <div className="flex items-center justify-between border-b border-border px-5 py-2.5">
         <button onClick={() => navigate("/home")} className="flex items-center gap-2">
           <img src={logo} alt="ThweSone" className="h-7 w-7 rounded-md" />
           <span className="text-sm font-bold text-gradient-gold">ThweSone</span>
@@ -35,6 +35,9 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             <Settings className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </div>
+      </div>
+      <div className="border-b border-border bg-card px-5 py-2.5">
+        <h1 className="text-[15px] font-bold text-foreground">{title}</h1>
       </div>
     </header>
   );
