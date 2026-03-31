@@ -152,8 +152,8 @@ const ModeratorDashboard = () => {
       {/* Review Sheet */}
       <AnimatePresence>
         {selected && !showRemoval && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-20" onClick={e => e.stopPropagation()}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-24" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <span className="mb-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{lang === "my" ? selected.board.my : selected.board.en}</span>
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>

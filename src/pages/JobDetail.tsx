@@ -150,8 +150,8 @@ const JobDetail = () => {
       {/* Apply Modal */}
       <AnimatePresence>
         {showApplyModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
-            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-safe" onClick={e => e.stopPropagation()}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
+            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-24" onClick={e => e.stopPropagation()}>
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
                 <button onClick={() => setShowApplyModal(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
