@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useLanguage } from "@/hooks/use-language";
 
 const skills = ["React", "TypeScript", "Node.js", "UI/UX Design", "Project Management", "English (Fluent)"];
 
@@ -21,16 +23,20 @@ const menuItems = [
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background pb-6">
       {/* Header with gradient */}
       <div className="relative bg-gradient-gold px-6 pb-16 pt-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-primary-foreground">ကျွန်ုပ်၏ ပရိုဖိုင်</h1>
-          <button className="rounded-full bg-primary-foreground/20 p-2">
-            <Settings className="h-5 w-5 text-primary-foreground" />
-          </button>
+          <h1 className="text-lg font-bold text-primary-foreground">{lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"}</h1>
+          <div className="flex items-center gap-2">
+            <LanguageToggle variant="flag" />
+            <button onClick={() => navigate("/settings")} className="rounded-full bg-primary-foreground/20 p-2">
+              <Settings className="h-5 w-5 text-primary-foreground" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -111,9 +117,8 @@ const Profile = () => {
               <item.icon className={`h-4.5 w-4.5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} />
               <div className="flex-1">
                 <p className={`text-sm ${item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>
-                  {item.label}
+                  {lang === "my" ? item.label : item.labelEn}
                 </p>
-                <p className="text-[10px] text-muted-foreground">{item.labelEn}</p>
               </div>
               {item.highlight && (
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">

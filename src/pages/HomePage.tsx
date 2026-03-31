@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useLanguage } from "@/hooks/use-language";
 
 const quickActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
@@ -20,6 +22,7 @@ const featuredJobs = [
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,19 +30,22 @@ const HomePage = () => {
       <div className="bg-gradient-gold px-6 pb-8 pt-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-primary-foreground/80">မင်္ဂလာပါ · Hello</p>
+            <p className="text-sm text-primary-foreground/80">{lang === "my" ? "မင်္ဂလာပါ" : "Hello"}</p>
             <h1 className="text-xl font-bold text-primary-foreground">မောင်မောင်</h1>
           </div>
-          <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
-            <Bell className="h-5 w-5 text-primary-foreground" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageToggle variant="flag" />
+            <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
+              <Bell className="h-5 w-5 text-primary-foreground" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
+            </button>
+          </div>
         </div>
 
         {/* Search bar */}
         <div className="mt-5 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
           <Search className="h-4 w-4 text-primary-foreground/70" />
-          <span className="text-sm text-primary-foreground/60">အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်...</span>
+          <span className="text-sm text-primary-foreground/60">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </div>
       </div>
 
@@ -59,7 +65,7 @@ const HomePage = () => {
               <div className={`rounded-xl p-2.5 ${action.color}`}>
                 <action.icon className="h-5 w-5" />
               </div>
-              <span className="text-[11px] font-medium text-foreground">{action.labelEn}</span>
+              <span className="text-[11px] font-medium text-foreground">{lang === "my" ? action.label : action.labelEn}</span>
             </button>
           ))}
         </motion.div>
@@ -72,14 +78,14 @@ const HomePage = () => {
           className="mt-6 rounded-2xl bg-card p-4 shadow-card"
         >
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">ပရိုဖိုင် ပြည့်စုံမှု · Profile</p>
+            <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
             <span className="text-xs font-bold text-primary">45%</span>
           </div>
           <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
             <div className="h-full w-[45%] rounded-full bg-gradient-gold transition-all" />
           </div>
           <p className="text-xs text-muted-foreground">
-            ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်စွက်ပြီး အလုပ်ရှာဖွေမှု အခွင့်အလမ်းများ တိုးမြှင့်ပါ
+            {lang === "my" ? "ပရိုဖိုင်ကို ပြည့်စုံအောင် ဖြည့်စွက်ပြီး အလုပ်ရှာဖွေမှု အခွင့်အလမ်းများ တိုးမြှင့်ပါ" : "Complete your profile to get better job recommendations"}
           </p>
         </motion.div>
 
@@ -91,9 +97,9 @@ const HomePage = () => {
           className="mt-6"
         >
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground">အသစ်ထွက် အလုပ်များ</h2>
+            <h2 className="text-base font-bold text-foreground">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
             <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-medium text-primary">
-              အားလုံးကြည့်ရန် <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
+              {lang === "my" ? "အားလုံးကြည့်ရန်" : "View all"} <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -137,13 +143,13 @@ const HomePage = () => {
           className="mb-6 mt-6 rounded-2xl bg-gradient-gold p-5"
         >
           <h3 className="mb-4 text-sm font-bold text-primary-foreground">
-            ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း · Our Community
+            {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
           </h3>
           <div className="grid grid-cols-3 gap-4">
             {[
-              { value: "5,000+", label: "အဖွဲ့ဝင်" },
-              { value: "200+", label: "အလုပ်" },
-              { value: "50+", label: "လမ်းညွှန်သူ" },
+              { value: "5,000+", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: "200+", label: lang === "my" ? "အလုပ်" : "Jobs" },
+              { value: "50+", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-lg font-bold text-primary-foreground">{stat.value}</p>
