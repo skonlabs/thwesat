@@ -21,8 +21,8 @@ const initialPosts = [
     author: "ဦးမင်းထက်", authorEn: "Min Htet", avatar: "MH",
     role: "UX Designer · Bangkok",
     time: { my: "5 နာရီအကြာ", en: "5 hours ago" },
-    content: "Upwork မှာ ပထမဆုံး Client ရပြီးပါပြီ! Profile Builder AI ကို သုံးပြီး ပရိုဖိုင် ပြင်ဆင်ခဲ့တာ အရမ်းအကူအညီ ဖြစ်ပါတယ်။ ကျေးဇူးတင်ပါတယ် ThweSone! 🙏",
-    contentEn: "Got my first Upwork client! The AI Profile Builder helped me rewrite my profile perfectly. Thanks ThweSone! 🙏",
+    content: "Upwork မှာ ပထမဆုံး Client ရပြီးပါပြီ! Profile Builder ကို သုံးပြီး ပရိုဖိုင် ပြင်ဆင်ခဲ့တာ အရမ်းအကူအညီ ဖြစ်ပါတယ်။ ကျေးဇူးတင်ပါတယ် ThweSone! 🙏",
+    contentEn: "Got my first Upwork client! The Profile Builder helped me rewrite my profile perfectly. Thanks ThweSone! 🙏",
     likes: 89, comments: 23, shares: 15, liked: false, category: { my: "အလုပ်အကိုင်", en: "Career" }
   },
   {
@@ -120,10 +120,14 @@ const Community = () => {
         </div>
         <button
           onClick={() => setShowNewPost(true)}
-          className="mb-4 flex w-full items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors active:bg-muted"
+          className="mb-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-colors active:bg-muted"
         >
-          <Plus className="h-4 w-4 text-primary" strokeWidth={1.5} />
-          <span className="text-sm text-muted-foreground">{lang === "my" ? "သင့်အတွေ့အကြုံကို မျှဝေပါ..." : "Share your experience..."}</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+            <Plus className="h-4 w-4 text-primary" strokeWidth={2} />
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {lang === "my" ? "မေးခွန်းမေးပါ သို့မဟုတ် အတွေ့အကြုံ မျှဝေပါ..." : "Ask a question or share your experience..."}
+          </span>
         </button>
 
         <div className="mb-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
@@ -150,7 +154,7 @@ const Community = () => {
                   <p className="text-[10px] text-muted-foreground">Full Stack Developer</p>
                 </div>
               </div>
-              <Textarea value={newPostText} onChange={e => setNewPostText(e.target.value)} placeholder={lang === "my" ? "သင့်အတွေ့အကြုံကို မျှဝေပါ..." : "Share your experience..."} className="mb-3 min-h-[100px] rounded-xl border-border text-sm" />
+              <Textarea value={newPostText} onChange={e => setNewPostText(e.target.value)} placeholder={lang === "my" ? "မေးခွန်းမေးပါ သို့မဟုတ် အတွေ့အကြုံ မျှဝေပါ..." : "Ask a question or share your experience..."} className="mb-3 min-h-[100px] rounded-xl border-border text-sm" />
               <div className="mb-4">
                 <p className="mb-2 text-xs font-medium text-muted-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</p>
                 <div className="flex flex-wrap gap-2">
@@ -175,7 +179,7 @@ const Community = () => {
       </AnimatePresence>
 
       {/* Posts */}
-      <div className="space-y-2.5 px-5 pb-6">
+      <div className="space-y-2.5 px-5 pb-24">
         {filteredPosts.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
@@ -193,21 +197,21 @@ const Community = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${post.category.en === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${post.category.en === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
                     {lang === "my" ? post.category.my : post.category.en}
                   </span>
                   <button className="rounded-lg p-1 text-muted-foreground active:bg-muted"><MoreHorizontal className="h-4 w-4" strokeWidth={1.5} /></button>
                 </div>
               </div>
               <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content : post.contentEn}</p>
-              <div className="flex items-center justify-between border-t border-border pt-3">
-                <button onClick={() => toggleLike(posts.indexOf(post))} className={`flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs transition-colors ${post.liked ? "font-semibold text-destructive" : "text-muted-foreground active:bg-muted"}`}>
+              <div className="flex items-center border-t border-border pt-3">
+                <button onClick={() => toggleLike(posts.indexOf(post))} className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs transition-colors active:bg-muted ${post.liked ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
                   <Heart className={`h-4 w-4 ${post.liked ? "fill-destructive" : ""}`} strokeWidth={1.5} /> {post.likes}
                 </button>
-                <button onClick={handleComment} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground active:bg-muted">
+                <button onClick={handleComment} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground active:bg-muted">
                   <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> {post.comments}
                 </button>
-                <button onClick={() => handleShare(lang === "my" ? post.content : post.contentEn)} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground active:bg-muted">
+                <button onClick={() => handleShare(lang === "my" ? post.content : post.contentEn)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-muted-foreground active:bg-muted">
                   <Share2 className="h-4 w-4" strokeWidth={1.5} /> {post.shares}
                 </button>
               </div>
