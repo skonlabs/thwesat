@@ -2,6 +2,7 @@ import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const GuideDetail = () => {
   const navigate = useNavigate();
