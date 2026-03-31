@@ -33,16 +33,7 @@ const Applications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "လျှောက်လွှာများ" : "My Applications"}</h1>
-            <p className="text-xs text-muted-foreground">{applications.length} {lang === "my" ? "ခု စုစုပေါင်း" : "total"}</p>
-          </div>
-        </div>
+      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} subtitle={`${applications.length} ${lang === "my" ? "ခု စုစုပေါင်း" : "total"}`} showBack />
 
         <div className="mb-5 grid grid-cols-4 gap-2">
           {stats.map((s) => (
