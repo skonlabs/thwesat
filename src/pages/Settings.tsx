@@ -119,8 +119,8 @@ const Settings = () => {
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        { icon: Bell, label: "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
-        { icon: Smartphone, label: "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
+        { icon: Bell, label: lang === "my" ? "Push အကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
+        { icon: Smartphone, label: lang === "my" ? "Telegram သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
     {
