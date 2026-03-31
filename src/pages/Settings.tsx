@@ -129,7 +129,7 @@ const Settings = () => {
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
         { icon: Clock, label: lang === "my" ? "Session သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
         { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
-        { icon: Key, label: "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
+        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် Token" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
     {

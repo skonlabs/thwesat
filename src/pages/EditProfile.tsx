@@ -136,9 +136,9 @@ const EditProfile = () => {
           <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး အလုပ်အမျိုးအစား" : "Preferred Work Type"}</h2>
           <div className="flex flex-wrap gap-2">
             {[
-              { value: "remote_full", label: "Remote Full-time" },
-              { value: "remote_contract", label: "Remote Contract" },
-              { value: "hybrid", label: "Hybrid" },
+              { value: "remote_full", label: lang === "my" ? "Remote အပြည့်" : "Remote Full-time" },
+              { value: "remote_contract", label: lang === "my" ? "Remote ကန်ထရိုက်" : "Remote Contract" },
+              { value: "hybrid", label: lang === "my" ? "Hybrid" : "Hybrid" },
             ].map(opt => (
               <button key={opt.value} onClick={() => toggleWorkType(opt.value)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${preferredWorkTypes.includes(opt.value) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
                 {opt.label}
