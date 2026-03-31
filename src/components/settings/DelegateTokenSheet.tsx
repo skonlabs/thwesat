@@ -60,7 +60,7 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
                 : "Anyone with this token can act on your behalf. Only share with people you trust."}
             </p>
           </div>
-          <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={onGenerate}>
+          <Button variant="default" size="lg" className="w-full rounded-xl" onClick={onGenerate}>
             {lang === "my" ? "Token ဖန်တီးမည်" : "Generate Token"}
           </Button>
         </div>

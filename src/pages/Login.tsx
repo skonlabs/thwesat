@@ -97,7 +97,7 @@ const Login = () => {
           </button>
         </div>
 
-        <Button variant="gold" size="lg" className="mt-6 w-full rounded-xl" onClick={handleLogin} disabled={isLoading}>
+        <Button variant="default" size="lg" className="mt-6 w-full rounded-xl" onClick={handleLogin} disabled={isLoading}>
           {isLoading ? (lang === "my" ? "ဝင်ရောက်နေသည်..." : "Signing in...") : (lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In")}
         </Button>
 

@@ -229,7 +229,7 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
-        <Button variant="gold" size="xl" className="mt-6 w-full rounded-2xl" onClick={handleSave}>
+        <Button variant="default" size="xl" className="mt-6 w-full rounded-2xl" onClick={handleSave}>
           <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
           {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes"}
         </Button>

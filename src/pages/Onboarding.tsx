@@ -87,7 +87,7 @@ const Onboarding = () => {
       </div>
 
       <div className="pb-12">
-        <Button variant="gold" size="xl" className="w-full rounded-2xl" onClick={handleNext}>
+        <Button variant="default" size="xl" className="w-full rounded-2xl" onClick={handleNext}>
           {currentStep < steps.length - 1 ? (
             <>{lang === "my" ? "ဆက်လက်ရန်" : "Next"} <ChevronRight className="ml-1" /></>
           ) : (

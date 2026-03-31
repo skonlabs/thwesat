@@ -45,7 +45,7 @@ const ForgotPassword = () => {
           <p className="mb-8 text-xs text-muted-foreground">
             {lang === "my" ? "အီးမေးလ်ကို စစ်ဆေးပြီး လင့်ခ်ကို နှိပ်ပါ" : "Check your email and click the reset link"}
           </p>
-          <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={() => navigate("/login")}>
+          <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => navigate("/login")}>
             {lang === "my" ? "Login သို့ ပြန်သွားရန်" : "Back to Sign In"}
           </Button>
           <button onClick={() => setSent(false)} className="mt-4 text-xs font-medium text-primary">
@@ -80,7 +80,7 @@ const ForgotPassword = () => {
           </div>
         </div>
 
-        <Button variant="gold" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
+        <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
           {isLoading ? (lang === "my" ? "ပို့နေသည်..." : "Sending...") : (lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link")}
         </Button>
       </motion.div>

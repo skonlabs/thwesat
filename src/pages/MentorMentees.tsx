@@ -297,7 +297,7 @@ const MentorMentees = () => {
 
                   {/* Actions */}
                   <div className="flex gap-2">
-                    <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => navigate("/messages/chat")}>
+                    <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => navigate("/messages/chat")}>
                       <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => navigate("/mentors/bookings?mentee=" + selectedMentee.id)}>
@@ -310,7 +310,7 @@ const MentorMentees = () => {
                       <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs">
                         {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                       </Button>
-                      <Button variant="gold" size="sm" className="flex-1 rounded-lg text-xs">
+                      <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs">
                         {lang === "my" ? "လက်ခံရန်" : "Accept Mentee"}
                       </Button>
                     </div>

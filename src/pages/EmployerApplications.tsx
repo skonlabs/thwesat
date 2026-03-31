@@ -223,7 +223,7 @@ const EmployerApplications = () => {
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowForward(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="gold" size="default" className="flex-1 rounded-xl" onClick={handleForward} disabled={!forwardEmail}>
+                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handleForward} disabled={!forwardEmail}>
                   <Send className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ပို့ရန်" : "Send"}
                 </Button>
               </div>
@@ -270,7 +270,7 @@ const EmployerApplications = () => {
               )}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowPlacement(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="gold" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary}>{lang === "my" ? "အတည်ပြုရန်" : "Confirm"}</Button>
+                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary}>{lang === "my" ? "အတည်ပြုရန်" : "Confirm"}</Button>
               </div>
             </motion.div>
           </motion.div>

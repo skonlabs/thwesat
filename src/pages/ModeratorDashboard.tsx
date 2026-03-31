@@ -165,7 +165,7 @@ const ModeratorDashboard = () => {
                 <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}>
                   <XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
                 </Button>
-                <Button variant="gold" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}>
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}>
                   <CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}
                 </Button>
               </div>

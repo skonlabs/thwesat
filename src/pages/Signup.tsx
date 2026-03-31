@@ -153,7 +153,7 @@ const Signup = () => {
           )}
         </div>
 
-        <Button variant="gold" size="lg" className="mt-8 w-full rounded-xl" onClick={handleSignup} disabled={isLoading}>
+        <Button variant="default" size="lg" className="mt-8 w-full rounded-xl" onClick={handleSignup} disabled={isLoading}>
           {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating...") : (lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up")}
         </Button>
 

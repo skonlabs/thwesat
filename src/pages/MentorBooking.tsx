@@ -82,7 +82,7 @@ const MentorBooking = () => {
           <p className="mb-6 text-xs text-muted-foreground">
             {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
           </p>
-          <Button variant="gold" size="lg" className="mb-3 w-full rounded-xl" onClick={() => navigate("/messages/chat")}>
+          <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => navigate("/messages/chat")}>
             <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
           </Button>
           <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors")}>
@@ -173,11 +173,11 @@ const MentorBooking = () => {
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
-            <Button variant="gold" size="lg" className="w-full rounded-xl" disabled={!selectedDay || !selectedTime} onClick={() => setStep(2)}>
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDay || !selectedTime} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
-            <Button variant="gold" size="lg" className="w-full rounded-xl" disabled={!selectedTopic} onClick={handleConfirm}>
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic} onClick={handleConfirm}>
               {lang === "my" ? "ချိန်းဆိုမှု အတည်ပြုရန်" : "Confirm Booking"}
             </Button>
           )}
