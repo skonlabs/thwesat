@@ -30,6 +30,17 @@ import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import SkillGapAnalysis from "./pages/SkillGapAnalysis";
 import Premium from "./pages/Premium";
 import Settings from "./pages/Settings";
+import EmployerOnboarding from "./pages/EmployerOnboarding";
+import EmployerDashboard from "./pages/EmployerDashboard";
+import EmployerPostJob from "./pages/EmployerPostJob";
+import EmployerApplications from "./pages/EmployerApplications";
+import EmployerSubscription from "./pages/EmployerSubscription";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminJobQueue from "./pages/AdminJobQueue";
+import AdminUsers from "./pages/AdminUsers";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import ModeratorDashboard from "./pages/ModeratorDashboard";
+import DelegateAccess from "./pages/DelegateAccess";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 
