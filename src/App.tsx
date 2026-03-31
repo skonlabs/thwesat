@@ -49,6 +49,7 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import DelegateAccess from "./pages/DelegateAccess";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
+import SiteGate from "./components/SiteGate";
 
 const queryClient = new QueryClient();
 
