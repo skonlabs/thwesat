@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, X, Plus, MapPin, Globe, Mail, Phone, Briefcase, Save } from "lucide-react";
+import { Camera, X, Plus, MapPin, Globe, Mail, Phone, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -56,18 +57,16 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="px-6 pt-6">
-        <div className="mb-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-muted-foreground">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"}</h1>
-          </div>
+      <PageHeader
+        title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"}
+        showBack
+        rightContent={
           <Button variant="default" size="sm" className="rounded-lg" onClick={handleSave}>
             <Save className="mr-1 h-4 w-4" /> {lang === "my" ? "သိမ်းမည်" : "Save"}
           </Button>
-        </div>
+        }
+      />
+      <div className="px-6">
 
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">

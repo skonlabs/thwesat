@@ -4,6 +4,7 @@ import { Search, Star, MapPin, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "@/components/PageHeader";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -38,9 +39,8 @@ const Mentors = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <h1 className="mb-1 text-xl font-bold text-foreground">{lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"}</h1>
-        <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံရှင်များနှင့် ချိတ်ဆက်ပါ" : "Connect with experienced mentors"}</p>
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} subtitle={lang === "my" ? "အတွေ့အကြုံရှင်များနှင့် ချိတ်ဆက်ပါ" : "Connect with experienced mentors"} />
+      <div className="px-6">
 
         <div className="mb-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">
           <Search className="h-4 w-4 text-muted-foreground" />

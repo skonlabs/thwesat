@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
 
 const initialPosts = [
   {
@@ -90,16 +91,16 @@ const Community = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "အသိုင်းအဝိုင်း" : "Community"}</h1>
-            <p className="text-xs text-muted-foreground">{lang === "my" ? "မြန်မာ့ပညာရှင်များ" : "Myanmar Professionals Forum"}</p>
-          </div>
+      <PageHeader
+        title={lang === "my" ? "အသိုင်းအဝိုင်း" : "Community"}
+        subtitle={lang === "my" ? "မြန်မာ့ပညာရှင်များ" : "Myanmar Professionals Forum"}
+        rightContent={
           <Button variant="default" size="sm" className="rounded-xl" onClick={() => setShowNewPost(true)}>
-            <Plus className="mr-1 h-4 w-4" /> {lang === "my" ? "ပို့စ်တင်ရန်" : "New Post"}
+            <Plus className="mr-1 h-4 w-4" /> {lang === "my" ? "ပို့စ်" : "Post"}
           </Button>
-        </div>
+        }
+      />
+      <div className="px-6">
 
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (

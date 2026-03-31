@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, AlertTriangle, Bookmark, Share2, CheckCircle, X, Send } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, AlertTriangle, Bookmark, Share2, CheckCircle, X, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/PageHeader";
 
 const JobDetail = () => {
   const navigate = useNavigate();
@@ -36,10 +37,8 @@ const JobDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-6 pt-6">
-        <button onClick={() => navigate(-1)} className="mb-4 text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} showBack />
+      <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-start gap-4">

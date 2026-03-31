@@ -1,7 +1,8 @@
-import { ArrowLeft, Shield, AlertTriangle, Clock, CheckCircle, BookOpen, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const GuideDetail = () => {
   const navigate = useNavigate();
@@ -9,10 +10,8 @@ const GuideDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <div className="px-6 pt-6">
-        <button onClick={() => navigate(-1)} className="mb-4 text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} showBack />
+      <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="mb-2 inline-block rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">

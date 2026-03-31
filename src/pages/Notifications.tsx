@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
+import { Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const notifications = [
   { icon: Briefcase, title: "အလုပ်အသစ် သင့်အတွက် ကိုက်ညီပါသည်", titleEn: "New job matches your profile", desc: { my: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo", en: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo" }, time: "10 min", type: "job", read: false, path: "/jobs/detail" },
@@ -31,16 +32,9 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"}</h1>
-          </div>
-        </div>
+      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} showBack />
 
+      <div className="px-6">
         <div className="mb-4 flex gap-2">
           <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "all" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
             {lang === "my" ? "အားလုံး" : "All"}

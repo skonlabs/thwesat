@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MapPin, Calendar, MessageCircle, Clock, CheckCircle, Award } from "lucide-react";
+import { Star, MapPin, Calendar, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const reviews = [
   { author: { my: "ကိုမင်းထက်", en: "Min Htet" }, rating: 5, text: { my: "Resume ပြင်ဆင်ပေးတာ အရမ်းကောင်းပါတယ်။ Upwork မှာ ပထမ client ရခဲ့ပါတယ်!", en: "The resume help was amazing. Got my first Upwork client!" }, time: "2 weeks ago" },
@@ -16,10 +17,8 @@ const MentorDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-6 pt-6">
-        <button onClick={() => navigate(-1)} className="mb-4 text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} showBack />
+      <div className="px-6">
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">

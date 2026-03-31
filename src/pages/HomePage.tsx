@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { Bell, Search, Briefcase, Users, Shield, TrendingUp, Star, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import LanguageToggle from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const quickActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
@@ -27,23 +27,21 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-gold px-6 pb-8 pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-primary-foreground/80">{lang === "my" ? "မင်္ဂလာပါ" : "Hello"}</p>
-            <h1 className="text-xl font-bold text-primary-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageToggle variant="flag" />
+      <div className="bg-gradient-gold pb-8">
+        <PageHeader
+          title={lang === "my" ? "မောင်မောင်" : "Maung Maung"}
+          subtitle={lang === "my" ? "မင်္ဂလာပါ" : "Hello"}
+          variant="gradient"
+          rightContent={
             <button onClick={() => navigate("/notifications")} className="relative rounded-full bg-primary-foreground/20 p-2.5">
               <Bell className="h-5 w-5 text-primary-foreground" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
             </button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Search bar */}
-        <div className="mt-5 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
+        <div className="mx-6 flex items-center gap-2 rounded-xl bg-primary-foreground/20 px-4 py-3 backdrop-blur-sm">
           <Search className="h-4 w-4 text-primary-foreground/70" />
           <span className="text-sm text-primary-foreground/60">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </div>

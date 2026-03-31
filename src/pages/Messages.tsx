@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Search, ArrowLeft, Send, Lock, Phone, Video } from "lucide-react";
+import { Search, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const conversations = [
   { name: "ဒေါ်ခင်မြတ်နိုး", nameEn: "Khin Myat Noe", avatar: "KM", role: "Mentor · Software Engineer", lastMsg: { my: "ပရိုဖိုင်ကို ကြည့်ပြီးပါပြီ။ ကောင်းပါတယ်!", en: "Reviewed your profile. Looks good!" }, time: "10 min", unread: 2, online: true },
@@ -16,13 +17,8 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-2 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"}</h1>
-        </div>
+      <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} showBack />
+      <div className="px-6">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] text-emerald">
           <Lock className="h-3 w-3" />
           <span>{lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "End-to-end encrypted"}</span>

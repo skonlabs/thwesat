@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, CheckCircle, MessageCircle, Star } from "lucide-react";
+import { Calendar, Clock, CheckCircle, MessageCircle, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const timeSlots = [
   { time: "7:00 PM", available: true },
@@ -67,14 +68,9 @@ const MentorBooking = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-6 pt-6">
-        <div className="mb-5 flex items-center gap-3">
-          <button onClick={() => step === 1 ? navigate(-1) : setStep(1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"}</h1>
-        </div>
+      <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} showBack onBack={() => step === 1 ? navigate(-1) : setStep(1)} />
 
+      <div className="px-6">
         {/* Progress */}
         <div className="mb-6 flex gap-2">
           <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-gradient-gold" : "bg-muted"}`} />

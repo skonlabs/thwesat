@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Shield, ChevronRight, MapPin, FileText, AlertTriangle, BookOpen, Globe } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const countries = [
   { name: "ထိုင်း", nameEn: "Thailand", flag: "🇹🇭", guides: 12, popular: true },
@@ -22,11 +23,8 @@ const Guides = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <h1 className="mb-1 text-xl font-bold text-foreground">{lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"}</h1>
-        <p className="mb-6 text-xs text-muted-foreground">
-          {lang === "my" ? "ဥပဒေရေးရာနှင့် လက်တွေ့ လမ်းညွှန်ချက်များ" : "Legal & practical guides"}
-        </p>
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} subtitle={lang === "my" ? "ဥပဒေရေးရာနှင့် လက်တွေ့ လမ်းညွှန်ချက်များ" : "Legal & practical guides"} />
+      <div className="px-6">
 
         <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "နိုင်ငံအလိုက် ရွေးချယ်ပါ" : "Select by Country"}</h2>
         <div className="mb-6 flex gap-3 overflow-x-auto pb-1 scrollbar-none">

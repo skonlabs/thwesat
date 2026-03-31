@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
+import { Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const savedJobs = [
   { title: "Senior React Developer", company: "TechCorp Asia", location: "Remote", salary: "$3,000 - $5,000/mo", savedDate: "Mar 28", type: "Full-time" },
@@ -16,17 +17,7 @@ const SavedJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"}</h1>
-            <p className="text-xs text-muted-foreground">{savedJobs.length} {lang === "my" ? "ခု" : "jobs"}</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} subtitle={`${savedJobs.length} ${lang === "my" ? "ခု" : "jobs"}`} showBack />
 
       <div className="space-y-3 px-6 pb-6">
         {savedJobs.map((job, i) => (

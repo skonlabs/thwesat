@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X } from "lucide-react";
+import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const applications = [
   { title: "Senior React Developer", company: "TechCorp Asia", date: "Mar 28", status: "shortlisted", statusMm: "ရွေးချယ်ခံရ", statusEn: "Shortlisted", statusColor: "bg-emerald/10 text-emerald" },
@@ -32,17 +33,9 @@ const Applications = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 pt-6">
-        <div className="mb-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "လျှောက်လွှာများ" : "My Applications"}</h1>
-            <p className="text-xs text-muted-foreground">{applications.length} {lang === "my" ? "ခု စုစုပေါင်း" : "total"}</p>
-          </div>
-        </div>
+      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} subtitle={`${applications.length} ${lang === "my" ? "ခု စုစုပေါင်း" : "total"}`} showBack />
 
+      <div className="px-6">
         <div className="mb-5 grid grid-cols-4 gap-2">
           {stats.map((s) => (
             <div key={s.label} className="rounded-xl bg-card p-2.5 text-center shadow-card">
