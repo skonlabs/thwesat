@@ -2,26 +2,20 @@ import { motion } from "framer-motion";
 import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
+
 import PageHeader from "@/components/PageHeader";
 
 const AiProfileBuilder = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
+  
 
-  const handleToolClick = (toolName: string, status: string) => {
+  const handleToolClick = (path: string, status: string) => {
     if (status === "Premium") {
-      toast({
-        title: lang === "my" ? "Premium လိုအပ်ပါသည်" : "Premium Required",
-        description: lang === "my" ? "ဤအင်္ဂါရပ်ကို Premium အဆင့်မြှင့်ပြီး အသုံးပြုပါ" : "Upgrade to Premium to use this feature",
-      });
+      navigate("/premium");
       return;
     }
-    toast({
-      title: toolName,
-      description: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
-    });
+    navigate(path);
   };
 
   const aiFeatures = [
@@ -30,6 +24,7 @@ const AiProfileBuilder = () => {
       title: lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder",
       desc: lang === "my" ? "သင့်မြန်မာဘာသာ CV ကို နိုင်ငံတကာ အဆင့်မီ English Profile အဖြစ် ပြောင်းလဲပေးပါမည်" : "Transform your Myanmar CV into a globally competitive English profile",
       status: "Ready",
+      path: "/ai-tools/profile-builder",
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
       statusBg: "bg-emerald/10",
@@ -40,6 +35,7 @@ const AiProfileBuilder = () => {
       title: lang === "my" ? "Cover Letter ရေးသားရန်" : "Cover Letter Generator",
       desc: lang === "my" ? "အလုပ်တစ်ခုချင်းစီအတွက် စိတ်ကြိုက် cover letter ရေးသားပေးပါမည်" : "Generate tailored cover letters for each job application",
       status: "Ready",
+      path: "/ai-tools/cover-letter",
       iconBg: "bg-emerald/10",
       iconColor: "text-emerald",
       statusBg: "bg-emerald/10",
@@ -50,6 +46,7 @@ const AiProfileBuilder = () => {
       title: lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis",
       desc: lang === "my" ? "သင်လိုချင်သော အလုပ်အတွက် မည်သည့် ကျွမ်းကျင်မှုများ လိုအပ်သေးသည်ကို ခွဲခြမ်းစိတ်ဖြာပေးပါမည်" : "Identify skill gaps between your profile and target roles",
       status: "Premium",
+      path: "/ai-tools/skill-gap",
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
       statusBg: "bg-primary/10",
@@ -102,7 +99,7 @@ const AiProfileBuilder = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => handleToolClick(f.title, f.status)}
+                onClick={() => handleToolClick(f.path, f.status)}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted"
               >
                 <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${f.iconBg}`}>
