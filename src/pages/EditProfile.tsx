@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, X, Plus, MapPin, Globe, Mail, Phone, Briefcase, Save } from "lucide-react";
+import { Camera, X, Plus, MapPin, Globe, Mail, Phone, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
