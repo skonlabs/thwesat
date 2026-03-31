@@ -35,7 +35,7 @@ const Applications = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} />
 
-      <div className="px-6">
+      <div className="px-5">
         <div className="mb-5 grid grid-cols-4 gap-2">
           {stats.map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 text-center">
