@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import {
-  Settings, ChevronRight, Briefcase, GraduationCap, Award,
+  Settings, ChevronRight, Briefcase, GraduationCap, Award, Sparkles, TrendingUp, MessageCircle,
   Globe, MapPin, Mail, Phone, Edit3, Star, Shield, BookOpen, LogOut, Bell, HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
