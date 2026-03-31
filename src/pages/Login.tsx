@@ -66,7 +66,7 @@ const Login = () => {
           </div>
         </div>
 
-        <button className="mt-3 self-end text-xs font-medium text-primary">
+        <button onClick={() => navigate("/forgot-password")} className="mt-3 self-end text-xs font-medium text-primary">
           {lang === "my" ? "စကားဝှက် မေ့နေပါသလား?" : "Forgot password?"}
         </button>
 
