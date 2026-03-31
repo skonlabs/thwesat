@@ -68,13 +68,7 @@ const MentorBooking = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="px-6 pt-6">
-        <div className="mb-5 flex items-center gap-3">
-          <button onClick={() => step === 1 ? navigate(-1) : setStep(1)} className="text-muted-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"}</h1>
-        </div>
+      <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} showBack onBack={() => step === 1 ? navigate(-1) : setStep(1)} />
 
         {/* Progress */}
         <div className="mb-6 flex gap-2">
