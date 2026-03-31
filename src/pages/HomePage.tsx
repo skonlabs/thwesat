@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bell, Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
+import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
@@ -27,25 +27,16 @@ const HomePage = () => {
     <div className="min-h-screen bg-background">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
-      {/* Greeting + Notification */}
+      {/* Greeting */}
       <div className="border-b border-border bg-card px-5 pb-5 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-              M
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">{lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}</p>
-              <p className="text-[15px] font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+            M
           </div>
-          <button
-            onClick={() => navigate("/notifications")}
-            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-foreground active:bg-muted"
-          >
-            <Bell className="h-5 w-5" strokeWidth={1.5} />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
-          </button>
+          <div>
+            <p className="text-xs text-muted-foreground">{lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}</p>
+            <p className="text-[15px] font-bold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</p>
+          </div>
         </div>
 
         {/* Search */}
