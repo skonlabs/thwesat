@@ -3,6 +3,7 @@ import { Star, MapPin, Calendar, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const reviews = [
   { author: { my: "ကိုမင်းထက်", en: "Min Htet" }, rating: 5, text: { my: "Resume ပြင်ဆင်ပေးတာ အရမ်းကောင်းပါတယ်။ Upwork မှာ ပထမ client ရခဲ့ပါတယ်!", en: "The resume help was amazing. Got my first Upwork client!" }, time: "2 weeks ago" },
