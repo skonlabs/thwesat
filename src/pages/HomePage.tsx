@@ -59,7 +59,7 @@ const HomePage = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
+              {role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? "Mentor" : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker")}
             </span>
             <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1">
               <Crown className="h-3 w-3 text-primary" strokeWidth={2} />
