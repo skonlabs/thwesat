@@ -27,7 +27,7 @@ const BottomNav = () => {
   ];
 
   const mentorNav = [
-    { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/home" },
+    { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/mentors/dashboard" },
     { icon: GraduationCap, labelMy: "Mentor", labelEn: "Mentor", path: "/mentors/detail" },
     { icon: Calendar, labelMy: "Booking", labelEn: "Bookings", path: "/mentors/book" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },

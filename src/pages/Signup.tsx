@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -39,12 +39,13 @@ const Signup = () => {
     }
     setRole(selectedRole);
     toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
-    navigate(selectedRole === "employer" ? "/employer/onboarding" : "/home");
+    navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/detail" : "/home");
   };
 
   const roles: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
     { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
+    { value: "mentor", icon: GraduationCap, label: { my: "Mentor", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
 
   return (
@@ -66,24 +67,24 @@ const Signup = () => {
         {/* Role Selection */}
         <div className="mb-6">
           <Label className="mb-2 block text-sm font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
                 onClick={() => setSelectedRole(r.value)}
-                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${
+                className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
                   selectedRole === r.value
                     ? "border-primary bg-primary/5"
                     : "border-border bg-card active:bg-muted"
                 }`}
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
-                  <r.icon className={`h-5 w-5 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                  <r.icon className={`h-4 w-4 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
-                <span className={`text-sm font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
+                <span className={`text-xs font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
                   {lang === "my" ? r.label.my : r.label.en}
                 </span>
-                <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                <span className="text-[9px] text-muted-foreground text-center leading-tight">
                   {lang === "my" ? r.desc.my : r.desc.en}
                 </span>
               </button>

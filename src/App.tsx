@@ -36,6 +36,7 @@ import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
 import SearchTalent from "./pages/SearchTalent";
+import MentorDashboard from "./pages/MentorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/mentors" element={<Mentors />} />
             <Route path="/mentors/detail" element={<MentorDetail />} />
             <Route path="/mentors/book" element={<MentorBooking />} />
+            <Route path="/mentors/dashboard" element={<MentorDashboard />} />
             <Route path="/guides" element={<Guides />} />
             <Route path="/guides/detail" element={<GuideDetail />} />
             <Route path="/community" element={<Community />} />
