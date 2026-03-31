@@ -45,7 +45,7 @@ export function useCreateJob() {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
         .from("jobs")
-        .insert({ employer_id: user.id, ...job });
+        .insert({ employer_id: user.id, ...job } as any);
       if (error) throw error;
     },
     onSuccess: () => {
