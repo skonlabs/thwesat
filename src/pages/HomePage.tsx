@@ -43,7 +43,7 @@ const HomePage = () => {
   const { lang } = useLanguage();
   const { role } = useRole();
 
-  const quickActions = role === "employer" ? employerActions : jobseekerActions;
+  const quickActions = role === "employer" ? employerActions : role === "mentor" ? mentorActions : jobseekerActions;
 
   return (
     <div className="min-h-screen bg-background">
