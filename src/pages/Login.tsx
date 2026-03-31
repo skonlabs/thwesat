@@ -7,12 +7,30 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
 import LanguageToggle from "@/components/LanguageToggle";
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberDevice, setRememberDevice] = useState(false);
+
+  const handleLogin = () => {
+    if (!email.trim() || !email.includes("@")) {
+      toast({ title: lang === "my" ? "အီးမေးလ် ထည့်ပါ" : "Enter your email", variant: "destructive" });
+      return;
+    }
+    if (!password) {
+      toast({ title: lang === "my" ? "စကားဝှက် ထည့်ပါ" : "Enter your password", variant: "destructive" });
+      return;
+    }
+    toast({ title: lang === "my" ? "ဝင်ရောက်ပြီးပါပြီ ✓" : "Signed in ✓" });
+    navigate("/home");
+  };
 
   return (
     <div className="min-h-screen bg-background px-6 pt-6">
@@ -51,14 +69,14 @@ const Login = () => {
             <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
             </div>
           </div>
           <div>
             <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-card pl-10 pr-10 text-sm" />
+              <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-card pl-10 pr-10 text-sm" />
               <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -66,11 +84,22 @@ const Login = () => {
           </div>
         </div>
 
-        <button onClick={() => navigate("/forgot-password")} className="mt-3 self-end text-xs font-medium text-primary">
-          {lang === "my" ? "စကားဝှက် မေ့နေပါသလား?" : "Forgot password?"}
-        </button>
+        <div className="mt-3 flex items-center justify-between">
+          <button
+            onClick={() => setRememberDevice(!rememberDevice)}
+            className="flex items-center gap-2"
+          >
+            <div className={`h-5 w-9 rounded-full transition-colors ${rememberDevice ? "bg-primary" : "bg-muted-foreground/30"}`}>
+              <div className={`h-4 w-4 rounded-full bg-card shadow transition-transform mt-0.5 ${rememberDevice ? "translate-x-4" : "translate-x-0.5"}`} />
+            </div>
+            <span className="text-xs text-muted-foreground">{lang === "my" ? "ဤစက်ကို မှတ်ထားရန်" : "Remember this device"}</span>
+          </button>
+          <button onClick={() => navigate("/forgot-password")} className="text-xs font-medium text-primary">
+            {lang === "my" ? "စကားဝှက် မေ့နေပါသလား?" : "Forgot password?"}
+          </button>
+        </div>
 
-        <Button variant="gold" size="lg" className="mt-6 w-full rounded-xl" onClick={() => navigate("/home")}>
+        <Button variant="gold" size="lg" className="mt-6 w-full rounded-xl" onClick={handleLogin}>
           {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
         </Button>
 
