@@ -30,7 +30,7 @@ const Profile = () => {
   const menuItems = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Sparkles, label: lang === "my" ? "Career Tools" : "Career Tools", path: "/ai-tools" },
+    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
     { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },

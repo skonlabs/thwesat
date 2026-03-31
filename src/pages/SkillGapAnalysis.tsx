@@ -285,7 +285,7 @@ const SkillGapAnalysis = () => {
                   </Button>
                   <Button onClick={() => navigate("/ai-tools")} className="flex-1">
                     <ChevronLeft className="h-4 w-4" />
-                    {lang === "my" ? "Career Tools" : "Career Tools"}
+                    {lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"}
                   </Button>
                 </div>
               </motion.div>

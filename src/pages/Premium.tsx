@@ -30,9 +30,9 @@ const Premium = () => {
         { text: lang === "my" ? "ဥပဒေ လမ်းညွှန်ချက်များ ဖတ်ရှုရန်" : "Read legal guides", included: true },
         { text: lang === "my" ? "Community ပါဝင်ရန်" : "Join community", included: true },
         { text: lang === "my" ? "Profile Builder (၁ ကြိမ်)" : "Profile Builder (1 use)", included: true },
-        { text: "AI Cover Letter", included: false },
+        { text: lang === "my" ? "AI Cover Letter" : "AI Cover Letter", included: false },
         { text: lang === "my" ? "Mentor ၁:၁ ချိတ်ဆက်" : "1:1 Mentor matching", included: false },
-        { text: "E2E Encrypted Chat", included: false },
+        { text: lang === "my" ? "ကုဒ်ဝှက် Chat" : "E2E Encrypted Chat", included: false },
       ],
       current: true, highlight: false
     },
@@ -45,12 +45,12 @@ const Premium = () => {
       features: [
         { text: lang === "my" ? "Free ပါဝင်သမျှ" : "Everything in Free", included: true },
         { text: lang === "my" ? "Profile Builder (အကန့်အသတ်မဲ့)" : "Unlimited Profile Builder", included: true },
-        { text: "AI Cover Letter Generator", included: true },
-        { text: "AI Skill Gap Analysis", included: true },
+        { text: lang === "my" ? "AI Cover Letter ဖန်တီးရေး" : "AI Cover Letter Generator", included: true },
+        { text: lang === "my" ? "AI ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "AI Skill Gap Analysis", included: true },
         { text: lang === "my" ? "Mentor ၁:၁ ချိတ်ဆက် (အကန့်အသတ်မဲ့)" : "Unlimited 1:1 mentor connections", included: true },
-        { text: "E2E Encrypted Chat", included: true },
-        { text: lang === "my" ? "Job Alert (Telegram + Email)" : "Job alerts via Telegram & Email", included: true },
-        { text: lang === "my" ? "Document Vault" : "Document Vault", included: true },
+        { text: lang === "my" ? "ကုဒ်ဝှက် Chat" : "E2E Encrypted Chat", included: true },
+        { text: lang === "my" ? "အလုပ်သတိပေး (Telegram + Email)" : "Job alerts via Telegram & Email", included: true },
+        { text: lang === "my" ? "စာရွက်စာတမ်း သိုလှောင်ခန်း" : "Document Vault", included: true },
       ],
       current: false, highlight: true
     },
@@ -58,7 +58,7 @@ const Premium = () => {
 
   return (
     <div className="min-h-screen bg-background pb-6">
-      <PageHeader title={lang === "my" ? "Premium" : "Premium"} />
+      <PageHeader title={lang === "my" ? "ပရီမီယံ" : "Premium"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="mb-5 text-center">

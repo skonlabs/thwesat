@@ -72,7 +72,7 @@ const Signup = () => {
 
         <div className="space-y-4">
           <div>
-            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အမည် (Display Name)" : "Display Name"}</Label>
+            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input value={name} onChange={e => setName(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင် (ဖန်နာမည်လည်း ရ)" : "e.g. Maung Maung (pseudonyms OK)"} className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
