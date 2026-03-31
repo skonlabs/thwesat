@@ -49,7 +49,20 @@ const mockMentees = [
   { id: 4, name: "May Lwin", nameMy: "မေလွင်", avatar: "ML", role: "UI/UX Designer" },
 ];
 
-const mockBookings = [
+interface Booking {
+  id: number;
+  mentee: string;
+  menteeMy: string;
+  avatar: string;
+  topic: string;
+  topicMy: string;
+  date: string;
+  time: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  bookedBy: "mentee" | "mentor";
+}
+
+const mockBookings: Booking[] = [
   { id: 1, mentee: "Thiri Win", menteeMy: "သီရိဝင်း", avatar: "TW", topic: "Interview Prep", topicMy: "အင်တာဗျူး ပြင်ဆင်", date: "Apr 5", time: "2:00 PM", status: "confirmed" as const, bookedBy: "mentee" as const },
   { id: 2, mentee: "Aung Kyaw", menteeMy: "အောင်ကျော်", avatar: "AK", topic: "CV Review", topicMy: "CV ပြန်ကြည့်", date: "Apr 3", time: "10:00 AM", status: "pending" as const, bookedBy: "mentee" as const },
   { id: 3, mentee: "Zaw Min", menteeMy: "ဇော်မင်း", avatar: "ZM", topic: "Technical Guidance", topicMy: "နည်းပညာ လမ်းညွှန်", date: "Apr 2", time: "3:00 PM", status: "pending" as const, bookedBy: "mentor" as const },
