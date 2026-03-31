@@ -59,7 +59,7 @@ const Notifications = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.04 }}
               onClick={() => navigate(notif.path)}
-              className={`flex w-full items-start gap-3 px-6 py-4 text-left transition-all active:bg-muted/30 ${!notif.read ? "bg-primary/[0.03]" : ""}`}
+              className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-all active:bg-muted/30 ${!notif.read ? "bg-primary/[0.03]" : ""}`}
             >
               <div className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${typeColors[notif.type]}`}>
                 <notif.icon className="h-5 w-5" strokeWidth={1.5} />
