@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import {
-  Settings, ChevronRight, Briefcase, GraduationCap, Award, Sparkles, TrendingUp, MessageCircle,
-  Globe, MapPin, Mail, Phone, Edit3, Star, Shield, BookOpen, LogOut, Bell, HelpCircle
+  ChevronRight, Briefcase, Sparkles, TrendingUp, MessageCircle,
+  Globe, MapPin, Edit3, Star, LogOut, Bell
 } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import LanguageToggle from "@/components/LanguageToggle";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const skills = ["React", "TypeScript", "Node.js", "UI/UX Design", "Project Management", "English (Fluent)"];
 
