@@ -72,7 +72,7 @@ const Signup = () => {
               <button
                 key={r.value}
                 onClick={() => setSelectedRole(r.value)}
-                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${
+                className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
                   selectedRole === r.value
                     ? "border-primary bg-primary/5"
                     : "border-border bg-card active:bg-muted"
