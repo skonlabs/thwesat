@@ -107,7 +107,7 @@ const Jobs = () => {
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
-            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-accent text-accent-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {lang === "my" ? cat.my : cat.en}
             </button>
           ))}
@@ -124,7 +124,7 @@ const Jobs = () => {
                 <h2 className="text-base font-semibold text-foreground">{lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"}</h2>
                 <div className="flex items-center gap-3">
                   {activeFilterCount > 0 && (
-                    <button onClick={clearFilters} className="text-xs text-primary">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>
+                    <button onClick={clearFilters} className="text-xs text-gold-dark font-medium">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>
                   )}
                   <button onClick={() => setShowFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
                     <X className="h-4 w-4 text-muted-foreground" />
@@ -132,29 +132,26 @@ const Jobs = () => {
                 </div>
               </div>
               <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
-                {/* Job Type */}
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Job Type"}</p>
                   <div className="flex flex-wrap gap-2">
                     {jobTypes.map(jt => (
-                      <button key={jt.value} onClick={() => setFilterType(jt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterType === jt.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                      <button key={jt.value} onClick={() => setFilterType(jt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterType === jt.value ? "bg-accent text-accent-foreground" : "border border-border bg-background text-muted-foreground"}`}>
                         {lang === "my" ? jt.labelMy : jt.labelEn}
                       </button>
                     ))}
                   </div>
                 </div>
-                {/* Location */}
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "တည်နေရာ" : "Location"}</p>
                   <div className="flex flex-wrap gap-2">
                     {locationOptions.map(loc => (
-                      <button key={loc.value} onClick={() => setFilterLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterLocation === loc.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                      <button key={loc.value} onClick={() => setFilterLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterLocation === loc.value ? "bg-accent text-accent-foreground" : "border border-border bg-background text-muted-foreground"}`}>
                         {lang === "my" ? loc.labelMy : loc.labelEn}
                       </button>
                     ))}
                   </div>
                 </div>
-                {/* Toggle Filters */}
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
                   <div className="space-y-2">
@@ -165,8 +162,8 @@ const Jobs = () => {
                     ].map(toggle => (
                       <button key={toggle.label} onClick={() => toggle.set(!toggle.value)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
                         <span className="text-sm text-foreground">{toggle.label}</span>
-                        <div className={`flex h-5 w-5 items-center justify-center rounded-md transition-colors ${toggle.value ? "bg-primary" : "border border-border"}`}>
-                          {toggle.value && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
+                        <div className={`flex h-5 w-5 items-center justify-center rounded-md transition-colors ${toggle.value ? "bg-accent" : "border border-border"}`}>
+                          {toggle.value && <Check className="h-3 w-3 text-accent-foreground" strokeWidth={3} />}
                         </div>
                       </button>
                     ))}
@@ -195,16 +192,16 @@ const Jobs = () => {
             const origIndex = allJobs.indexOf(job);
             return (
               <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`rounded-xl border bg-card p-4 ${job.featured ? "border-primary/30" : "border-border"}`} onClick={() => navigate("/jobs/detail")}>
+                className={`rounded-xl border bg-card p-4 shadow-card ${job.featured ? "border-primary/40" : "border-border"}`} onClick={() => navigate("/jobs/detail")}>
                 {job.featured && (
                   <div className="mb-2 flex items-center gap-1">
-                    <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
+                    <span className="rounded bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
                   </div>
                 )}
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15">
+                      <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
@@ -230,7 +227,7 @@ const Jobs = () => {
                     </span>
                   )}
                   {job.visaSponsorship && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
+                    <span className="rounded-full bg-navy/8 px-2 py-0.5 text-[9px] font-medium text-navy">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -241,7 +238,7 @@ const Jobs = () => {
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}</span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? job.typeLabel.my : job.typeLabel.en}</span>
                   </div>
-                  <span className="text-xs font-semibold text-primary">{job.salary}</span>
+                  <span className="text-xs font-semibold text-gold-dark">{job.salary}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -250,7 +247,7 @@ const Jobs = () => {
                       <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {job.paymentMethods.join(", ")}
                     </span>
                   </div>
-                  <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  <Button variant="gold" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
                 </div>
               </motion.div>
             );

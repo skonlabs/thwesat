@@ -15,8 +15,8 @@ const NotFound = () => {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center text-center"
       >
-        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-          <SearchX className="h-10 w-10 text-primary" strokeWidth={1.5} />
+        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-primary/15">
+          <SearchX className="h-10 w-10 text-gold-dark" strokeWidth={1.5} />
         </div>
         <h1 className="mb-2 text-4xl font-bold text-foreground">404</h1>
         <p className="mb-2 text-base font-semibold text-foreground">

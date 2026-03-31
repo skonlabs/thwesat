@@ -47,7 +47,7 @@ const BottomNav = () => {
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground"
+                isActive ? "text-gold-dark" : "text-muted-foreground"
               )}
             >
               <item.icon className="h-5 w-5" strokeWidth={isActive ? 2 : 1.5} />

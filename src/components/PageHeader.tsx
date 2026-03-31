@@ -31,7 +31,6 @@ const PageHeader = ({ title }: PageHeaderProps) => {
     };
     animFrame.current = requestAnimationFrame(animate);
     holdTimer.current = setTimeout(() => {
-      // Emergency exit: clear all local data
       localStorage.clear();
       sessionStorage.clear();
       toast({
@@ -71,7 +70,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             />
             <span className="text-sm font-bold text-gradient-gold">ThweSone</span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <LanguageToggle />
             <button
               onClick={() => navigate("/notifications")}

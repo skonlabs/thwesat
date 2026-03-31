@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 240 20% 97%;
+    --background: 240 18% 96%;
     --foreground: 252 46% 17%;
 
     --card: 0 0% 100%;
@@ -15,72 +15,74 @@
     --popover: 0 0% 100%;
     --popover-foreground: 252 46% 17%;
 
-    --primary: 252 46% 17%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 36 100% 68%;
+    --primary-foreground: 252 46% 17%;
 
-    --secondary: 240 15% 93%;
+    --secondary: 248 20% 93%;
     --secondary-foreground: 252 30% 30%;
 
-    --muted: 240 12% 93%;
-    --muted-foreground: 252 15% 50%;
+    --muted: 248 15% 93%;
+    --muted-foreground: 252 12% 50%;
 
-    --accent: 36 100% 68%;
-    --accent-foreground: 252 46% 17%;
+    --accent: 252 46% 17%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 14% 90%;
-    --input: 240 14% 90%;
-    --ring: 252 46% 17%;
+    --border: 248 12% 90%;
+    --input: 248 12% 90%;
+    --ring: 36 100% 68%;
 
     --radius: 0.75rem;
 
-    --gold-light: 40 100% 75%;
+    --gold-light: 42 100% 76%;
     --gold: 36 100% 68%;
-    --gold-dark: 30 80% 45%;
+    --gold-dark: 28 85% 48%;
+    --navy: 252 46% 17%;
+    --navy-light: 252 35% 28%;
     --emerald: 152 60% 38%;
     --emerald-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 252 30% 30%;
-    --sidebar-primary: 252 46% 17%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 15% 93%;
+    --sidebar-primary: 36 100% 68%;
+    --sidebar-primary-foreground: 252 46% 17%;
+    --sidebar-accent: 248 20% 93%;
     --sidebar-accent-foreground: 252 30% 30%;
-    --sidebar-border: 240 14% 90%;
-    --sidebar-ring: 252 46% 17%;
+    --sidebar-border: 248 12% 90%;
+    --sidebar-ring: 36 100% 68%;
 
     --font-burmese: 'Noto Sans Myanmar', sans-serif;
   }
 
   .dark {
-    --background: 252 46% 10%;
-    --foreground: 36 60% 92%;
-    --card: 252 40% 13%;
-    --card-foreground: 36 60% 92%;
-    --popover: 252 40% 13%;
-    --popover-foreground: 36 60% 92%;
+    --background: 252 46% 8%;
+    --foreground: 40 30% 94%;
+    --card: 252 40% 11%;
+    --card-foreground: 40 30% 94%;
+    --popover: 252 40% 11%;
+    --popover-foreground: 40 30% 94%;
     --primary: 36 100% 68%;
-    --primary-foreground: 252 46% 10%;
-    --secondary: 252 30% 18%;
-    --secondary-foreground: 36 40% 85%;
-    --muted: 252 25% 18%;
-    --muted-foreground: 252 15% 55%;
-    --accent: 36 100% 68%;
-    --accent-foreground: 252 46% 10%;
+    --primary-foreground: 252 46% 8%;
+    --secondary: 252 30% 16%;
+    --secondary-foreground: 40 20% 85%;
+    --muted: 252 25% 16%;
+    --muted-foreground: 252 12% 55%;
+    --accent: 40 30% 94%;
+    --accent-foreground: 252 46% 8%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 252 25% 20%;
-    --input: 252 25% 20%;
+    --border: 252 25% 18%;
+    --input: 252 25% 18%;
     --ring: 36 100% 68%;
-    --sidebar-background: 252 46% 10%;
-    --sidebar-foreground: 36 40% 85%;
+    --sidebar-background: 252 46% 8%;
+    --sidebar-foreground: 40 20% 85%;
     --sidebar-primary: 36 100% 68%;
-    --sidebar-primary-foreground: 252 46% 10%;
-    --sidebar-accent: 252 30% 16%;
-    --sidebar-accent-foreground: 36 40% 85%;
-    --sidebar-border: 252 25% 20%;
+    --sidebar-primary-foreground: 252 46% 8%;
+    --sidebar-accent: 252 30% 14%;
+    --sidebar-accent-foreground: 40 20% 85%;
+    --sidebar-border: 252 25% 18%;
     --sidebar-ring: 36 100% 68%;
   }
 }
@@ -112,11 +114,19 @@
     background-image: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-dark)));
   }
 
+  .bg-gradient-navy {
+    background-image: linear-gradient(135deg, hsl(var(--navy-light)), hsl(var(--navy)));
+  }
+
   .shadow-gold {
-    box-shadow: 0 4px 20px -4px hsl(var(--gold) / 0.35);
+    box-shadow: 0 4px 20px -4px hsl(var(--gold) / 0.4);
   }
 
   .shadow-card {
-    box-shadow: 0 2px 12px -2px hsl(var(--foreground) / 0.08);
+    box-shadow: 0 2px 12px -2px hsl(var(--navy) / 0.06);
+  }
+
+  .shadow-navy {
+    box-shadow: 0 4px 20px -4px hsl(var(--navy) / 0.25);
   }
 }
