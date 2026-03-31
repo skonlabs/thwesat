@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import {
-  ChevronRight, Briefcase, Sparkles, TrendingUp, MessageCircle,
+  ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Bell, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,15 @@ const Profile = () => {
   const menuItems = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Sparkles, label: lang === "my" ? "AI Profile Builder" : "AI Career Tools", path: "/ai-tools" },
+    { icon: Sparkles, label: lang === "my" ? "Career Tools" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
-    { icon: MessageCircle, label: lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages", path: "/messages" },
     { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Bell, label: lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications", path: "/notifications" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
 
       <div className="px-5 pt-4">
@@ -43,7 +42,6 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          {/* Progress */}
           <div className="mt-4 rounded-lg bg-muted p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</span>

@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Settings, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LanguageToggle from "@/components/LanguageToggle";
 
@@ -15,6 +15,14 @@ const PageHeader = ({ title }: PageHeaderProps) => {
         <h1 className="text-lg font-bold text-foreground">{title}</h1>
         <div className="flex items-center gap-3">
           <LanguageToggle />
+          <button
+            onClick={() => navigate("/messages")}
+            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
+            aria-label="Messages"
+          >
+            <MessageSquare className="h-5 w-5" strokeWidth={1.5} />
+            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
+          </button>
           <button
             onClick={() => navigate("/settings")}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
