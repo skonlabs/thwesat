@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, CheckCircle, Languages, Loader2 } from "lucide-react";
+import { ArrowRight, AlertTriangle, Languages, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,24 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateJob } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
-
-// Simple mock translation (in production, this would call a translation API)
-const mockTranslateToMyanmar = (text: string): string => {
-  const translations: Record<string, string> = {
-    "Senior React Developer": "React Developer (အတွေ့အကြုံရှိ)",
-    "Junior React Developer": "React Developer (အသစ်)",
-    "UI/UX Designer": "UI/UX ဒီဇိုင်နာ",
-    "Project Manager": "ပရောဂျက် မန်နေဂျာ",
-    "Full Stack Developer": "Full Stack Developer",
-    "Content Writer": "အကြောင်းအရာ ရေးသူ",
-  };
-  return translations[text] || `[မြန်မာဘာသာပြန်] ${text}`;
-};
-
-const mockTranslateToEnglish = (text: string): string => {
-  return `[EN Translation] ${text}`;
-};
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -45,9 +29,8 @@ const EmployerPostJob = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const createJob = useCreateJob();
   const [step, setStep] = useState(1);
-  const [translating, setTranslating] = useState(false);
-
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
   const [descEn, setDescEn] = useState("");
@@ -63,33 +46,43 @@ const EmployerPostJob = () => {
   const [requiresEmbassy, setRequiresEmbassy] = useState(false);
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
-  const [diasporaSafeNote, setDiasporaSafeNote] = useState("");
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
-  const autoTranslate = useCallback(() => {
-    setTranslating(true);
-    // Simulate translation delay
-    setTimeout(() => {
-      if (titleEn && !titleMy) setTitleMy(mockTranslateToMyanmar(titleEn));
-      if (descEn && !descMy) setDescMy(mockTranslateToMyanmar(descEn));
-      if (requirementsEn && !requirementsMy) setRequirementsMy(mockTranslateToMyanmar(requirementsEn));
-      setTranslating(false);
-      toast({
-        title: lang === "my" ? "ဘာသာပြန်ပြီးပါပြီ" : "Auto-translated",
-        description: lang === "my" ? "ဘာသာပြန်ချက်များကို ပြင်ဆင်နိုင်ပါသည်" : "You can edit the translations",
+  const handleSubmit = async () => {
+    try {
+      await createJob.mutateAsync({
+        title: titleEn,
+        title_my: titleMy || null,
+        description: descEn,
+        description_my: descMy || null,
+        requirements: requirementsEn,
+        requirements_my: requirementsMy || null,
+        role_type: roleType,
+        category,
+        salary_min: salaryMin ? parseInt(salaryMin) : null,
+        salary_max: salaryMax ? parseInt(salaryMax) : null,
+        location: locationCountry || "Remote",
+        payment_methods: selectedPayments,
+        requires_embassy: requiresEmbassy,
+        requires_work_permit: requiresWorkPermit,
+        visa_sponsorship: visaSponsorship,
+        application_method: applicationMethod,
+        external_url: applicationMethod === "external" ? externalUrl : null,
+        job_type: roleType.includes("contract") ? "contract" : "full-time",
+        company: "", // Will be filled from employer profile
+        status: "pending",
       });
-    }, 800);
-  }, [titleEn, titleMy, descEn, descMy, requirementsEn, requirementsMy, lang, toast]);
-
-  const handleSubmit = () => {
-    toast({
-      title: lang === "my" ? "အလုပ်ခေါ်စာ တင်ပြီးပါပြီ" : "Job listing submitted",
-      description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your listing will appear after verification",
-    });
-    navigate("/employer/dashboard");
+      toast({
+        title: lang === "my" ? "အလုပ်ခေါ်စာ တင်ပြီးပါပြီ" : "Job listing submitted",
+        description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your listing will appear after verification",
+      });
+      navigate("/employer/dashboard");
+    } catch {
+      toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", variant: "destructive" });
+    }
   };
 
   return (
@@ -112,7 +105,6 @@ const EmployerPostJob = () => {
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (မြန်မာ)" : "Title (Burmese)"}</label>
               <Input value={titleMy} onChange={e => setTitleMy(e.target.value)} className="h-11 rounded-xl" />
-              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်၊ ပြင်ဆင်နိုင်ပါသည်" : "Auto-translated, you can edit"}</p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (English) *" : "Description (English) *"}</label>
@@ -121,33 +113,15 @@ const EmployerPostJob = () => {
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (မြန်မာ)" : "Description (Burmese)"}</label>
               <Textarea value={descMy} onChange={e => setDescMy(e.target.value)} className="min-h-[80px] rounded-xl" />
-              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်" : "Auto-translated, editable"}</p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (English)" : "Requirements (English)"}</label>
-              <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} placeholder={lang === "my" ? "လိုအပ်သော အတွေ့အကြုံ" : "Required experience and skills"} className="min-h-[80px] rounded-xl" />
+              <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} className="min-h-[80px] rounded-xl" />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (မြန်မာ)" : "Requirements (Burmese)"}</label>
               <Textarea value={requirementsMy} onChange={e => setRequirementsMy(e.target.value)} className="min-h-[60px] rounded-xl" />
-              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အလိုအလျောက် ဘာသာပြန်ပါမည်" : "Auto-translated, editable"}</p>
             </div>
-
-            {/* Auto-translate button */}
-            <Button
-              variant="outline"
-              size="default"
-              className="w-full rounded-xl"
-              onClick={autoTranslate}
-              disabled={translating || (!titleEn && !descEn && !requirementsEn)}
-            >
-              {translating ? (
-                <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> {lang === "my" ? "ဘာသာပြန်နေသည်..." : "Translating..."}</>
-              ) : (
-                <><Languages className="mr-1.5 h-4 w-4" /> {lang === "my" ? "မြန်မာဘာသာ အလိုအလျောက်ပြန်ရန်" : "Auto-translate to Burmese"}</>
-              )}
-            </Button>
-
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား *" : "Role Type *"}</label>
               <div className="flex flex-wrap gap-2">
@@ -199,15 +173,11 @@ const EmployerPostJob = () => {
                 ))}
               </div>
             </div>
-
             <div className="space-y-3 rounded-xl border border-border bg-card p-4">
               <h3 className="text-xs font-semibold text-foreground">{lang === "my" ? "ဒိုင်ယာစပိုရာ လုံခြုံရေး" : "Diaspora Safety Flags"}</h3>
               <label className="flex items-start gap-3">
                 <Checkbox checked={requiresEmbassy} onCheckedChange={v => setRequiresEmbassy(!!v)} className="mt-0.5" />
-                <div>
-                  <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
-                  <p className="text-[10px] text-muted-foreground">{lang === "my" ? "မြန်မာသံရုံးနှင့် ဆက်သွယ်ရန် လိုအပ်" : "Requires contact with Myanmar embassy"}</p>
-                </div>
+                <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
               </label>
               <label className="flex items-start gap-3">
                 <Checkbox checked={requiresWorkPermit} onCheckedChange={v => setRequiresWorkPermit(!!v)} className="mt-0.5" />
@@ -217,12 +187,7 @@ const EmployerPostJob = () => {
                 <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
                 <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
               </label>
-              <div>
-                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "Diaspora Safe မှတ်ချက်" : "Diaspora Safety Note"}</label>
-                <Textarea value={diasporaSafeNote} onChange={e => setDiasporaSafeNote(e.target.value)} placeholder={lang === "my" ? "ဤအလုပ်သည် ဘာကြောင့် လုံခြုံသနည်း..." : "Why is this safe for Myanmar diaspora..."} className="min-h-[60px] rounded-xl text-xs" />
-              </div>
             </div>
-
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "လျှောက်ထားနည်း" : "Application Method"}</label>
               <div className="space-y-2">
@@ -239,17 +204,17 @@ const EmployerPostJob = () => {
             {applicationMethod === "external" && (
               <Input value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." className="h-11 rounded-xl" />
             )}
-
             {requiresEmbassy && (
               <div className="flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3">
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" strokeWidth={1.5} />
-                <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed on this listing"}</p>
+                <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed"}</p>
               </div>
             )}
-
             <div className="flex gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit}>{lang === "my" ? "တင်ရန်" : "Submit"}</Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit} disabled={createJob.isPending}>
+                {createJob.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်ရန်" : "Submit")}
+              </Button>
             </div>
           </motion.div>
         )}
