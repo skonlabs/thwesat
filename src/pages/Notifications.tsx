@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/hooks/use-language";
 
 const notifications = [
   { icon: Briefcase, title: "အလုပ်အသစ် သင့်အတွက် ကိုက်ညီပါသည်", titleEn: "New job matches your profile", desc: "Senior React Developer - TechCorp Asia · $3,000-5,000/mo", time: "10 min", type: "job", read: false },
   { icon: CheckCircle, title: "လျှောက်လွှာ အခြေအနေ ပြောင်းလဲမှု", titleEn: "Application status updated", desc: "UI/UX Designer at DesignStudio - Shortlisted ✨", time: "1 hr", type: "application", read: false },
   { icon: Users, title: "လမ်းညွှန်သူ တုံ့ပြန်ချက်", titleEn: "Mentor responded", desc: "ဒေါ်ခင်မြတ်နိုး accepted your mentorship request", time: "2 hr", type: "mentor", read: false },
   { icon: MessageCircle, title: "မက်ဆေ့ချ် အသစ်", titleEn: "New message", desc: "TechCorp Asia HR: Interview schedule confirmed", time: "3 hr", type: "message", read: true },
-  { icon: Shield, title: "လမ်းညွှန်ချက် အသစ်", titleEn: "New legal guide published", desc: "ထိုင်းတွင် Freelancer အဖြစ် အခွန်ဆောင်နည်း", time: "1 day", type: "guide", read: true },
+  { icon: Shield, title: "လမ်းညွှန်ချက် အသစ်", titleEn: "New legal guide published", desc: { my: "ထိုင်းတွင် Freelancer အဖြစ် အခွန်ဆောင်နည်း", en: "How to file taxes as a freelancer in Thailand" }, time: "1 day", type: "guide", read: true },
   { icon: Star, title: "Premium အခွင့်အရေး", titleEn: "Premium offer", desc: "Founding member rate - $5/mo (limited time)", time: "2 days", type: "premium", read: true },
 ];
 
@@ -22,6 +23,7 @@ const typeColors: Record<string, string> = {
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,17 +33,16 @@ const Notifications = () => {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">အကြောင်းကြားချက်</h1>
-            <p className="text-xs text-muted-foreground">Notifications</p>
+            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"}</h1>
           </div>
         </div>
 
         <div className="mb-4 flex gap-2">
           <button className="rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground shadow-gold">
-            အားလုံး
+            {lang === "my" ? "အားလုံး" : "All"}
           </button>
           <button className="rounded-full bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground">
-            မဖတ်ရသေး (3)
+            {lang === "my" ? "မဖတ်ရသေး (3)" : "Unread (3)"}
           </button>
         </div>
       </div>
@@ -61,12 +62,14 @@ const Notifications = () => {
             <div className="flex-1">
               <div className="flex items-start justify-between gap-2">
                 <h3 className={`text-sm leading-snug ${!notif.read ? "font-semibold text-foreground" : "text-foreground/80"}`}>
-                  {notif.title}
+                  {lang === "my" ? notif.title : notif.titleEn}
                 </h3>
                 {!notif.read && <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />}
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">{notif.desc}</p>
-              <p className="mt-1 text-[10px] text-muted-foreground/60">{notif.time} ago</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {typeof notif.desc === "object" ? (lang === "my" ? notif.desc.my : notif.desc.en) : notif.desc}
+              </p>
+              <p className="mt-1 text-[10px] text-muted-foreground/60">{notif.time} {lang === "my" ? "အကြာ" : "ago"}</p>
             </div>
           </motion.button>
         ))}

@@ -1,9 +1,11 @@
 import { ArrowLeft, Shield, AlertTriangle, Clock, CheckCircle, BookOpen, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 const GuideDetail = () => {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background pb-6">
@@ -13,61 +15,54 @@ const GuideDetail = () => {
         </button>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          {/* Header */}
           <span className="mb-2 inline-block rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
-            ဗီဇာ · Visa · 🇹🇭 Thailand
+            {lang === "my" ? "ဗီဇာ" : "Visa"} · 🇹🇭 Thailand
           </span>
           <h1 className="mb-2 text-xl font-bold leading-tight text-foreground">
-            ထိုင်း Pink Card လျှောက်ထားနည်း
+            {lang === "my" ? "ထိုင်း Pink Card လျှောက်ထားနည်း" : "Thai Pink Card Application Guide"}
           </h1>
-          <p className="mb-3 text-sm text-muted-foreground">Thai Pink Card Application Guide</p>
 
-          {/* Meta */}
           <div className="mb-4 flex flex-wrap gap-2">
             <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2.5 py-1 text-[10px] font-medium text-emerald">
-              <CheckCircle className="h-3 w-3" /> Verified by MAP Foundation, Chiang Mai
+              <CheckCircle className="h-3 w-3" /> {lang === "my" ? "MAP Foundation မှ အတည်ပြု" : "Verified by MAP Foundation"}
             </span>
             <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[10px] text-muted-foreground">
-              <Clock className="h-3 w-3" /> 10 min read
+              <Clock className="h-3 w-3" /> {lang === "my" ? "10 မိနစ် ဖတ်ရန်" : "10 min read"}
             </span>
             <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[10px] text-muted-foreground">
-              📅 Updated Mar 2026
+              📅 {lang === "my" ? "မတ် ၂၀၂၆ ပြင်ဆင်ပြီး" : "Updated Mar 2026"}
             </span>
           </div>
 
-          {/* Warning banner */}
           <div className="mb-5 flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
             <div>
-              <p className="text-xs font-semibold text-destructive">⚠️ သတိပေးချက်</p>
+              <p className="text-xs font-semibold text-destructive">⚠️ {lang === "my" ? "သတိပေးချက်" : "Warning"}</p>
               <p className="mt-0.5 text-[11px] text-foreground/80">
-                ဤလုပ်ငန်းစဉ်တွင် မြန်မာသံရုံးနှင့် ဆက်သွယ်ရန် လိုအပ်ပါသည်။ စစ်မှုထမ်းရွေးနိုင်သော အသက်အရွယ်ရှိသူများ သတိထားပါ။
-              </p>
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                This process requires Myanmar embassy contact. Be cautious if you are within conscription age range.
+                {lang === "my"
+                  ? "ဤလုပ်ငန်းစဉ်တွင် မြန်မာသံရုံးနှင့် ဆက်သွယ်ရန် လိုအပ်ပါသည်။ စစ်မှုထမ်းရွေးနိုင်သော အသက်အရွယ်ရှိသူများ သတိထားပါ။"
+                  : "This process requires Myanmar embassy contact. Be cautious if you are within conscription age range."}
               </p>
             </div>
           </div>
 
-          {/* Guide content */}
           <div className="space-y-5">
             <section>
               <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">1</span>
-                Pink Card ဆိုတာ ဘာလဲ?
+                {lang === "my" ? "Pink Card ဆိုတာ ဘာလဲ?" : "What is a Pink Card?"}
               </h2>
               <p className="text-sm leading-relaxed text-foreground/80">
-                Pink Card (บัตรชมพู) သည် ထိုင်းနိုင်ငံတွင် တရားဝင်အလုပ်လုပ်ခွင့်ပြုသော ကတ်ဖြစ်ပါသည်။ ၂ နှစ်သက်တမ်းရှိပြီး သက်တမ်းတိုးနိုင်ပါသည်။
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                The Pink Card (บัตรชมพู) is a Thai work authorization card valid for 2 years and renewable.
+                {lang === "my"
+                  ? "Pink Card (บัตรชมพู) သည် ထိုင်းနိုင်ငံတွင် တရားဝင်အလုပ်လုပ်ခွင့်ပြုသော ကတ်ဖြစ်ပါသည်။ ၂ နှစ်သက်တမ်းရှိပြီး သက်တမ်းတိုးနိုင်ပါသည်။"
+                  : "The Pink Card (บัตรชมพู) is a Thai work authorization card valid for 2 years and renewable."}
               </p>
             </section>
 
             <section>
               <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">2</span>
-                လိုအပ်သော စာရွက်စာတမ်းများ
+                {lang === "my" ? "လိုအပ်သော စာရွက်စာတမ်းများ" : "Required Documents"}
               </h2>
               <ul className="space-y-2">
                 {[
@@ -79,10 +74,7 @@ const GuideDetail = () => {
                 ].map((doc) => (
                   <li key={doc.en} className="flex items-start gap-2.5">
                     <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" />
-                    <div>
-                      <p className="text-sm text-foreground/80">{doc.mm}</p>
-                      <p className="text-[11px] text-muted-foreground">{doc.en}</p>
-                    </div>
+                    <p className="text-sm text-foreground/80">{lang === "my" ? doc.mm : doc.en}</p>
                   </li>
                 ))}
               </ul>
@@ -91,23 +83,23 @@ const GuideDetail = () => {
             <section>
               <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-foreground">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span>
-                ကုန်ကျစရိတ်
+                {lang === "my" ? "ကုန်ကျစရိတ်" : "Costs"}
               </h2>
               <div className="rounded-xl bg-card p-3.5 shadow-card">
                 <div className="space-y-2">
                   {[
-                    { item: "ကျန်းမာရေးစစ်ဆေးခ", cost: "500-800 THB" },
-                    { item: "Pink Card လျှောက်ထားခ", cost: "1,900 THB" },
-                    { item: "Work Permit ကြေး", cost: "3,000 THB" },
+                    { item: { my: "ကျန်းမာရေးစစ်ဆေးခ", en: "Health check fee" }, cost: "500-800 THB" },
+                    { item: { my: "Pink Card လျှောက်ထားခ", en: "Pink Card application fee" }, cost: "1,900 THB" },
+                    { item: { my: "Work Permit ကြေး", en: "Work Permit fee" }, cost: "3,000 THB" },
                   ].map((c) => (
-                    <div key={c.item} className="flex items-center justify-between">
-                      <span className="text-xs text-foreground/80">{c.item}</span>
+                    <div key={c.item.en} className="flex items-center justify-between">
+                      <span className="text-xs text-foreground/80">{lang === "my" ? c.item.my : c.item.en}</span>
                       <span className="text-xs font-semibold text-foreground">{c.cost}</span>
                     </div>
                   ))}
                   <div className="border-t border-border pt-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">စုစုပေါင်း · Total</span>
+                      <span className="text-xs font-semibold text-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</span>
                       <span className="text-sm font-bold text-primary">~5,400-5,700 THB</span>
                     </div>
                   </div>
@@ -115,24 +107,24 @@ const GuideDetail = () => {
               </div>
             </section>
 
-            {/* Scam warning */}
             <div className="rounded-xl bg-destructive/5 p-3.5">
-              <h3 className="mb-1 text-xs font-bold text-destructive">🚨 အလိမ်အညာ သတိပေးချက် · Scam Alert</h3>
+              <h3 className="mb-1 text-xs font-bold text-destructive">🚨 {lang === "my" ? "အလိမ်အညာ သတိပေးချက်" : "Scam Alert"}</h3>
               <p className="text-[11px] text-foreground/80">
-                Broker များက 10,000-15,000 THB တောင်းခံနိုင်ပါတယ်။ တရားဝင်ကုန်ကျစရိတ်သည် 6,000 THB အောက်ဖြစ်ပါသည်။ အလိမ်ခံရပါက ThweSone Community တွင် သတင်းပို့ပါ။
+                {lang === "my"
+                  ? "Broker များက 10,000-15,000 THB တောင်းခံနိုင်ပါတယ်။ တရားဝင်ကုန်ကျစရိတ်သည် 6,000 THB အောက်ဖြစ်ပါသည်။ အလိမ်ခံရပါက ThweSone Community တွင် သတင်းပို့ပါ။"
+                  : "Brokers may charge 10,000-15,000 THB. Official costs are under 6,000 THB. Report scams in the ThweSone Community."}
               </p>
             </div>
           </div>
 
-          {/* Feedback */}
           <div className="mt-6 rounded-xl bg-card p-4 shadow-card">
-            <p className="mb-3 text-sm font-semibold text-foreground">ဤလမ်းညွှန်ချက် အကူအညီဖြစ်ပါသလား?</p>
+            <p className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဤလမ်းညွှန်ချက် အကူအညီဖြစ်ပါသလား?" : "Was this guide helpful?"}</p>
             <div className="flex gap-3">
               <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald/10 py-2.5 text-xs font-medium text-emerald">
-                <ThumbsUp className="h-4 w-4" /> ဟုတ်ပါတယ်
+                <ThumbsUp className="h-4 w-4" /> {lang === "my" ? "ဟုတ်ပါတယ်" : "Yes"}
               </button>
               <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-muted py-2.5 text-xs font-medium text-muted-foreground">
-                <ThumbsDown className="h-4 w-4" /> မဟုတ်ပါ
+                <ThumbsDown className="h-4 w-4" /> {lang === "my" ? "မဟုတ်ပါ" : "No"}
               </button>
               <button className="flex items-center justify-center rounded-xl bg-muted px-4 py-2.5 text-xs font-medium text-muted-foreground">
                 <Share2 className="h-4 w-4" />
