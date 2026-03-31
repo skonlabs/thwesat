@@ -45,12 +45,12 @@ const Premium = () => {
       features: [
         { text: lang === "my" ? "Free ပါဝင်သမျှ" : "Everything in Free", included: true },
         { text: lang === "my" ? "Profile Builder (အကန့်အသတ်မဲ့)" : "Unlimited Profile Builder", included: true },
-        { text: "AI Cover Letter Generator", included: true },
-        { text: "AI Skill Gap Analysis", included: true },
+        { text: lang === "my" ? "AI Cover Letter ဖန်တီးရေး" : "AI Cover Letter Generator", included: true },
+        { text: lang === "my" ? "AI ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "AI Skill Gap Analysis", included: true },
         { text: lang === "my" ? "Mentor ၁:၁ ချိတ်ဆက် (အကန့်အသတ်မဲ့)" : "Unlimited 1:1 mentor connections", included: true },
-        { text: "E2E Encrypted Chat", included: true },
-        { text: lang === "my" ? "Job Alert (Telegram + Email)" : "Job alerts via Telegram & Email", included: true },
-        { text: lang === "my" ? "Document Vault" : "Document Vault", included: true },
+        { text: lang === "my" ? "ကုဒ်ဝှက် Chat" : "E2E Encrypted Chat", included: true },
+        { text: lang === "my" ? "အလုပ်သတိပေး (Telegram + Email)" : "Job alerts via Telegram & Email", included: true },
+        { text: lang === "my" ? "စာရွက်စာတမ်း သိုလှောင်ခန်း" : "Document Vault", included: true },
       ],
       current: false, highlight: true
     },
