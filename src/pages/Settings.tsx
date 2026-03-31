@@ -25,7 +25,6 @@ const Settings = () => {
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
   const { signOut } = useAuth();
-  const { toast } = useToast();
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
