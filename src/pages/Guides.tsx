@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Shield, ChevronRight, MapPin, FileText, AlertTriangle, BookOpen, Globe } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import PageHeader from "@/components/PageHeader";
 
 const countries = [
   { name: "ထိုင်း", nameEn: "Thailand", flag: "🇹🇭", guides: 12, popular: true },
