@@ -87,7 +87,7 @@ const EmployerSubscription = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
               onClick={() => setSelected(tier.id)}
-              className={`relative w-full rounded-2xl border-2 p-5 text-left transition-all ${selected === tier.id ? "border-primary bg-primary/5 shadow-gold" : "border-border bg-card"}`}
+              className={`relative w-full rounded-2xl border p-5 text-left transition-all ${selected === tier.id ? "border-primary bg-primary/5 shadow-gold" : "border-border bg-card"}`}
             >
               {tier.popular && (
                 <span className="absolute -top-3 left-4 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold text-primary-foreground">
