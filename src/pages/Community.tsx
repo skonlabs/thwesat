@@ -215,8 +215,8 @@ const Community = () => {
       {/* New Post Modal */}
       <AnimatePresence>
         {showNewPost && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={() => setShowNewPost(false)}>
-            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-safe" onClick={e => e.stopPropagation()}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setShowNewPost(false)}>
+            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-2xl bg-card p-5 pb-24" onClick={e => e.stopPropagation()}>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-base font-bold text-foreground">{lang === "my" ? "ပို့စ်အသစ်" : "New Post"}</h2>
                 <button onClick={() => setShowNewPost(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>

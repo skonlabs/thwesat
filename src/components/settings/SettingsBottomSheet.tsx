@@ -16,7 +16,7 @@ const SettingsBottomSheet = ({ open, onClose, title, children }: SettingsBottomS
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/40"
           onClick={onClose}
         >
           <motion.div
@@ -24,7 +24,7 @@ const SettingsBottomSheet = ({ open, onClose, title, children }: SettingsBottomS
             animate={{ y: 0 }}
             exit={{ y: 300 }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-20"
+            className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-24"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
