@@ -36,10 +36,10 @@ const Notifications = () => {
 
       <div className="px-5">
         <div className="mb-4 flex gap-2">
-          <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "all" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
+          <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
             {lang === "my" ? "အားလုံး" : "All"}
           </button>
-          <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium ${filter === "unread" ? "bg-primary text-primary-foreground shadow-gold" : "bg-card text-muted-foreground"}`}>
+          <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "unread" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
             {lang === "my" ? `မဖတ်ရသေး (${notifications.filter(n => !n.read).length})` : `Unread (${notifications.filter(n => !n.read).length})`}
           </button>
         </div>
