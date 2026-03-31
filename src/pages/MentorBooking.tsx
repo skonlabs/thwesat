@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, CheckCircle, MessageCircle, Star } from "lucide-react";
+import { Calendar, Clock, CheckCircle, MessageCircle, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
