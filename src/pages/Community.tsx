@@ -68,6 +68,7 @@ const Community = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState("All");
+  const [sharePostId, setSharePostId] = useState<number | null>(null);
   const [posts, setPosts] = useState<Post[]>(initialPosts as Post[]);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostText, setNewPostText] = useState("");
