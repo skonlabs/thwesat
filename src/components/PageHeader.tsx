@@ -36,9 +36,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
           </button>
         </div>
       </div>
-      <div className="border-b border-border bg-card px-5 py-2.5">
-        <h1 className="text-[15px] font-bold text-foreground">{title}</h1>
-      </div>
+      <h1 className="px-5 pb-2 pt-3 text-lg font-bold text-foreground">{title}</h1>
     </header>
   );
 };
