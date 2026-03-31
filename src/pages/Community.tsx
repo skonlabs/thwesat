@@ -343,8 +343,8 @@ const Community = () => {
                   <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.comments.length}
                 </button>
                 <div className="h-5 w-px bg-border" />
-                <button onClick={() => handleShare(post)} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs text-muted-foreground active:bg-muted">
-                  <Share2 className="h-4 w-4" strokeWidth={1.5} /> {post.shares}
+                <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                  <Share2 className={`h-4 w-4 ${sharePostId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.shares}
                 </button>
               </div>
 
