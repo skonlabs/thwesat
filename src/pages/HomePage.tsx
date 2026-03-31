@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 const quickActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", color: "bg-primary/10 text-primary" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", color: "bg-emerald/10 text-emerald" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Legal", path: "/guides", color: "bg-accent/10 text-accent" },
-  { icon: TrendingUp, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", color: "bg-gold/10 text-gold-dark" },
+  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", color: "bg-accent/10 text-accent" },
+  { icon: Sparkles, label: "AI Tools", labelEn: "AI Tools", path: "/ai-tools", color: "bg-gold/10 text-gold-dark" },
+  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", color: "bg-secondary text-secondary-foreground" },
+  { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", color: "bg-primary/10 text-primary" },
 ];
 
 const featuredJobs = [
