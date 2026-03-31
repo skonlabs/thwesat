@@ -105,6 +105,7 @@ const Profile = () => {
           {menuItems.map((item, i) => (
             <button
               key={i}
+              onClick={() => item.path && navigate(item.path)}
               className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/50"
             >
               <item.icon className={`h-4.5 w-4.5 ${item.highlight ? "text-primary" : "text-muted-foreground"}`} />
