@@ -79,7 +79,7 @@ const Community = () => {
       likes: 0, comments: 0, shares: 0, liked: false,
       category: { my: categories.find(c => c.en === newPostCategory)?.my || newPostCategory, en: newPostCategory }
     };
-    setPosts([newPost, ...prev => prev]);
+    setPosts(prev => [newPost, ...prev]);
     setShowNewPost(false);
     setNewPostText("");
     toast({
