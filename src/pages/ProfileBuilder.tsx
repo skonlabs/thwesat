@@ -47,6 +47,7 @@ const ProfileBuilder = () => {
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([{ company: "", role: "", duration: "", description: "" }]);
   const [otherInfo, setOtherInfo] = useState("");
   const [educations, setEducations] = useState<EducationEntry[]>([{ degree: "", institution: "", year: "" }]);
