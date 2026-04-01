@@ -30,7 +30,6 @@ const JobDetail = () => {
   const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
   const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
   // Fetch user's CV documents
@@ -331,13 +330,8 @@ const JobDetail = () => {
                                 const storagePath = doc.file_url.split('/cv-documents/').pop();
                                 if (!storagePath) return;
                                 const { data } = await supabase.storage.from('cv-documents').createSignedUrl(storagePath, 300);
-                                if (data?.signedUrl) {
-                                  setPreviewUrl(data.signedUrl);
-                                  setPreviewContent(null);
-                                  setPreviewTitle(doc.file_name);
-                                } else {
-                                  toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
-                                }
+                                if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                                else toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
                               }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
@@ -547,23 +541,19 @@ const JobDetail = () => {
 
       {/* Content Preview Modal */}
       <AnimatePresence>
-        {(previewContent || previewUrl) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/50 p-5" onClick={() => { setPreviewContent(null); setPreviewUrl(null); }}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-lg overflow-hidden rounded-2xl bg-card p-5 flex flex-col" onClick={e => e.stopPropagation()}>
+        {previewContent && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/50 p-5" onClick={() => setPreviewContent(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-5" onClick={e => e.stopPropagation()}>
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground truncate">{previewTitle}</h3>
-                <button onClick={() => { setPreviewContent(null); setPreviewUrl(null); }} className="rounded-lg p-1 active:bg-muted">
+                <button onClick={() => setPreviewContent(null)} className="rounded-lg p-1 active:bg-muted">
                   <X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 </button>
               </div>
-              {previewUrl ? (
-                <iframe src={previewUrl} className="w-full flex-1 min-h-[60vh] rounded-xl border border-border bg-background" title={previewTitle} />
-              ) : (
-                <div className="rounded-xl bg-background p-4 overflow-y-auto flex-1">
-                  <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">{previewContent}</p>
-                </div>
-              )}
-              <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => { setPreviewContent(null); setPreviewUrl(null); }}>
+              <div className="rounded-xl bg-background p-4">
+                <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">{previewContent}</p>
+              </div>
+              <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => setPreviewContent(null)}>
                 {lang === "my" ? "ပိတ်ရန်" : "Close"}
               </Button>
             </motion.div>
