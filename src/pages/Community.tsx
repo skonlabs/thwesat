@@ -163,6 +163,7 @@ const Community = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments"] });
+      queryClient.invalidateQueries({ queryKey: ["post-comment-counts"] });
       setCommentText("");
       setReplyToId(null);
       setReplyToName(null);
