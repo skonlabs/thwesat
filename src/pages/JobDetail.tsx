@@ -329,19 +329,41 @@ const JobDetail = () => {
                                 e.stopPropagation();
                                 const storagePath = doc.file_url.split('/cv-documents/').pop();
                                 if (!storagePath) return;
-                                const { data } = await supabase.storage.from('cv-documents').createSignedUrl(storagePath, 300);
-                                if (!data?.signedUrl) {
-                                  toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
-                                  return;
-                                }
+
+                                setPreviewTitle(doc.file_name);
+                                setPreviewContent(lang === "my" ? "CV ကို ဖတ်နေသည်..." : "Loading CV...");
+
                                 try {
-                                  const response = await fetch(data.signedUrl);
-                                  const blob = await response.blob();
-                                  const blobUrl = URL.createObjectURL(blob);
-                                  window.open(blobUrl, "_blank", "noopener,noreferrer");
-                                  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+                                  const { data, error } = await supabase.functions.invoke("parse-cv", {
+                                    body: { file_path: storagePath },
+                                  });
+                                  if (error) throw error;
+
+                                  const parsed = data?.data;
+                                  const formatted = [
+                                    parsed?.name ? `Name: ${parsed.name}` : "",
+                                    parsed?.title ? `Title: ${parsed.title}` : "",
+                                    parsed?.summary ? `Summary:\n${parsed.summary}` : "",
+                                    parsed?.skills?.length ? `Skills: ${parsed.skills.join(", ")}` : "",
+                                    parsed?.experiences?.length
+                                      ? `Experience:\n${parsed.experiences
+                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(" at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
+                                          .join("\n\n")}`
+                                      : "",
+                                    parsed?.education?.length
+                                      ? `Education:\n${parsed.education
+                                          .map((ed: any) => `• ${[ed.degree, ed.institution].filter(Boolean).join(" — ")} ${ed.year ? `(${ed.year})` : ""}`)
+                                          .join("\n")}`
+                                      : "",
+                                    parsed?.other ? `Other:\n${parsed.other}` : "",
+                                  ]
+                                    .filter(Boolean)
+                                    .join("\n\n");
+
+                                  setPreviewContent(formatted || (lang === "my" ? "ဤ CV ကို ကြည့်ရှုရန် အချက်အလက် မရရှိပါ" : "No preview available for this CV."));
                                 } catch {
-                                  toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
+                                  setPreviewContent(null);
+                                  toast({ title: lang === "my" ? "CV ကို မကြည့်ရှုနိုင်ပါ" : "Could not preview CV", variant: "destructive" });
                                 }
                               }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
