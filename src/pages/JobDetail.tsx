@@ -165,6 +165,7 @@ const JobDetail = () => {
     .filter(r => r.trim());
 
   const selectedCv = cvDocuments.find((d: any) => d.id === selectedCvId);
+  const selectedGeneratedResume = generatedResumes.find((d: any) => d.id === selectedGeneratedResumeId);
 
   return (
     <div className="min-h-screen bg-background pb-40">
