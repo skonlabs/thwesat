@@ -12,7 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 const formatPrice = (price: number, currency: string, lang: string) => {
   if (price === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
   if (currency === "MMK") {
-    return `${Math.round(price).toLocaleString()} ကျပ်`;
+    const rounded = Math.round(price / 100) * 100;
+    return `${rounded.toLocaleString()} ကျပ်`;
   }
   return `$${price.toFixed(2)}`;
 };
