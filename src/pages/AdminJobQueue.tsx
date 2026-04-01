@@ -4,7 +4,6 @@ import { CheckCircle, XCircle, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
@@ -18,7 +17,6 @@ const checklist = [
 
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");

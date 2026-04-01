@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
@@ -32,7 +31,6 @@ const rejectionReasons = [
 const EmployerApplications = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { data: applications, isLoading } = useEmployerApplications();
   const updateStatus = useUpdateApplicationStatus();
   const [selectedId, setSelectedId] = useState<string | null>(null);

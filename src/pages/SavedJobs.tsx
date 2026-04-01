@@ -3,14 +3,12 @@ import { Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs, useToggleSaveJob } from "@/hooks/use-jobs";
 
 const SavedJobs = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { data: savedJobs, isLoading } = useSavedJobs();
   const toggleSave = useToggleSaveJob();
 

@@ -4,7 +4,6 @@ import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock,
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,7 +93,6 @@ function usePostComments(postId: string | null) {
 
 const Community = () => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("All");

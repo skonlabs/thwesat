@@ -4,13 +4,11 @@ import { Check, Crown, Users, Sparkles, Shield, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   const handleSubscribe = () => {

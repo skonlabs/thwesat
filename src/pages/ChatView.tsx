@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Lock, Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useMessages, useSendMessage } from "@/hooks/use-messages-data";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +12,6 @@ const ChatView = () => {
   const [searchParams] = useSearchParams();
   const conversationId = searchParams.get("id") || undefined;
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { user } = useAuth();
   const [messageText, setMessageText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);

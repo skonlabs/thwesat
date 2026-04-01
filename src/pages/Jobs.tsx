@@ -4,7 +4,6 @@ import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use-jobs";
 
@@ -63,7 +62,6 @@ function formatSalary(job: Job): string {
 const Jobs = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { data: jobs = [], isLoading } = useJobs();
   const { data: savedJobIds = [] } = useSavedJobIds();
   const toggleSaveMutation = useToggleSaveJob();

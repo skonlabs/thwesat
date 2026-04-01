@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
@@ -79,7 +78,6 @@ const roleRequirements: Record<string, { required: string[]; nice: string[]; res
 const SkillGapAnalysis = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);

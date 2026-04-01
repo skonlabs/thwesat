@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Send, Copy, Check, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SettingsBottomSheet from "./SettingsBottomSheet";
@@ -16,7 +15,6 @@ interface TelegramLinkSheetProps {
 
 const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: TelegramLinkSheetProps) => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [username, setUsername] = useState("");
   const [copied, setCopied] = useState(false);
 

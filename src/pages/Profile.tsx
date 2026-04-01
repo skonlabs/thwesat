@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole, type UserRole } from "@/hooks/use-role";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 
@@ -18,7 +17,6 @@ const Profile = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { toast } = useToast();
   const { profile, signOut } = useAuth();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);

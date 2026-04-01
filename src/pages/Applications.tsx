@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
@@ -28,7 +27,6 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
 const Applications = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
