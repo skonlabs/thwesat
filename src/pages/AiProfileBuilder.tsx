@@ -64,7 +64,7 @@ const AiProfileBuilder = () => {
         is_primary: true,
       });
 
-      setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl });
+      setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
       toast({ title: lang === "my" ? "CV တင်ပြီးပါပြီ ✓" : "CV uploaded successfully ✓" });
     } catch (err: any) {
       toast({ title: lang === "my" ? "တင်၍ မရပါ" : "Upload failed", description: err.message, variant: "destructive" });
