@@ -124,7 +124,15 @@ const Jobs = () => {
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
             <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+            {search && (
+              <button onClick={() => setSearch("")} className="text-muted-foreground">
+                <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </button>
+            )}
           </div>
+          <Button onClick={() => {}} variant="default" size="sm" className="rounded-xl px-4">
+            <Search className="h-4 w-4" strokeWidth={1.5} />
+          </Button>
           <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
