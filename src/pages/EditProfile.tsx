@@ -243,8 +243,39 @@ const EditProfile = () => {
       setHasUpwork(profile.has_upwork || false);
       setHasLaptop(profile.has_laptop || false);
       setInternetStable(profile.internet_stable || false);
+      setAvatarUrl(profile.avatar_url || null);
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: lang === "my" ? "ဓာတ်ပုံဖိုင်သာ ရွေးပါ" : "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: lang === "my" ? "ဖိုင်အရွယ်အစား 5MB ထက်မကျော်ရ" : "File must be under 5MB", variant: "destructive" });
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${profile.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const url = `${publicUrl}?t=${Date.now()}`;
+      await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
+      setAvatarUrl(url);
+      await refreshProfile();
+      toast({ title: lang === "my" ? "ပရိုဖိုင်ဓာတ်ပုံ တင်ပြီးပါပြီ ✓" : "Profile photo updated ✓" });
+    } catch (err: any) {
+      toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
