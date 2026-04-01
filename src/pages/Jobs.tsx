@@ -262,7 +262,7 @@ const Jobs = () => {
                   )}
                   {job.is_diaspora_safe && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
-                      <Shield className="h-2.5 w-2.5" strokeWidth={2} /> Diaspora Safe
+                      <Shield className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}
                     </span>
                   )}
                   {job.requires_embassy && (
