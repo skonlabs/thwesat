@@ -169,12 +169,20 @@ const Jobs = () => {
               <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Job Type"}</p>
+                  <p className="mb-2 text-[10px] text-muted-foreground">{lang === "my" ? "တစ်ခုထက်ပို ရွေးချယ်နိုင်သည်" : "Select multiple types"}</p>
                   <div className="flex flex-wrap gap-2">
-                    {jobTypes.map(jt => (
-                      <button key={jt.value} onClick={() => setFilterType(jt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterType === jt.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
-                        {lang === "my" ? jt.labelMy : jt.labelEn}
-                      </button>
-                    ))}
+                    {jobTypes.filter(jt => jt.value !== "all").map(jt => {
+                      const selected = filterType.split(",").filter(Boolean).includes(jt.value);
+                      return (
+                        <button key={jt.value} onClick={() => {
+                          const current = filterType === "all" ? [] : filterType.split(",").filter(Boolean);
+                          const next = selected ? current.filter(v => v !== jt.value) : [...current, jt.value];
+                          setFilterType(next.length === 0 ? "all" : next.join(","));
+                        }} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${selected ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                          {lang === "my" ? jt.labelMy : jt.labelEn}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div>

@@ -85,18 +85,20 @@ const HomePage = () => {
           ))}
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
-            <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
-          </div>
-          <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
-            <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.5, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
-          </div>
-          <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
-            {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
-          </button>
-        </motion.div>
+        {completionPct < 100 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
+              <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
+            </div>
+            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
+              <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.5, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
+            </div>
+            <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
+              {lang === "my" ? "ပြင်ဆင်ရန်" : "Complete now"} →
+            </button>
+          </motion.div>
+        )}
 
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
