@@ -15,18 +15,61 @@ import PageHeader from "@/components/PageHeader";
 // --- Data ---
 
 const LOCATIONS = [
-  "Yangon, Myanmar", "Mandalay, Myanmar", "Naypyidaw, Myanmar", "Mawlamyine, Myanmar", "Bago, Myanmar", "Pathein, Myanmar", "Taunggyi, Myanmar", "Monywa, Myanmar", "Meiktila, Myanmar", "Myitkyina, Myanmar", "Sagaing, Myanmar",
-  "Bangkok, Thailand", "Chiang Mai, Thailand", "Mae Sot, Thailand",
-  "Kuala Lumpur, Malaysia", "Penang, Malaysia", "Johor Bahru, Malaysia",
+  // Myanmar
+  "Yangon, Myanmar", "Mandalay, Myanmar", "Naypyidaw, Myanmar", "Mawlamyine, Myanmar", "Bago, Myanmar", "Pathein, Myanmar", "Taunggyi, Myanmar", "Monywa, Myanmar", "Meiktila, Myanmar", "Myitkyina, Myanmar", "Sagaing, Myanmar", "Sittwe, Myanmar", "Hpa-An, Myanmar", "Lashio, Myanmar", "Dawei, Myanmar", "Myeik, Myanmar", "Pakokku, Myanmar", "Magway, Myanmar", "Pyay, Myanmar", "Loikaw, Myanmar", "Hakha, Myanmar", "Kengtung, Myanmar",
+  // Thailand
+  "Bangkok, Thailand", "Chiang Mai, Thailand", "Chiang Rai, Thailand", "Phuket, Thailand", "Pattaya, Thailand", "Nonthaburi, Thailand", "Hat Yai, Thailand", "Khon Kaen, Thailand", "Nakhon Ratchasima, Thailand", "Udon Thani, Thailand", "Mae Sot, Thailand", "Tak, Thailand",
+  // Malaysia
+  "Kuala Lumpur, Malaysia", "Penang, Malaysia", "Johor Bahru, Malaysia", "Ipoh, Malaysia", "Kuching, Malaysia", "Kota Kinabalu, Malaysia", "Malacca, Malaysia", "Shah Alam, Malaysia", "Petaling Jaya, Malaysia", "Cyberjaya, Malaysia",
+  // Singapore
   "Singapore, Singapore",
-  "Tokyo, Japan", "Osaka, Japan",
-  "Seoul, South Korea",
-  "Dubai, UAE", "Abu Dhabi, UAE",
-  "London, UK", "Manchester, UK",
-  "New York, USA", "San Francisco, USA", "Los Angeles, USA",
-  "Sydney, Australia", "Melbourne, Australia",
-  "Berlin, Germany", "Munich, Germany",
-  "Toronto, Canada", "Vancouver, Canada",
+  // Indonesia
+  "Jakarta, Indonesia", "Surabaya, Indonesia", "Bandung, Indonesia", "Medan, Indonesia", "Semarang, Indonesia", "Makassar, Indonesia", "Denpasar (Bali), Indonesia", "Yogyakarta, Indonesia", "Palembang, Indonesia", "Batam, Indonesia",
+  // Philippines
+  "Manila, Philippines", "Cebu City, Philippines", "Davao City, Philippines", "Quezon City, Philippines", "Makati, Philippines", "Taguig (BGC), Philippines", "Clark, Philippines", "Iloilo City, Philippines",
+  // Vietnam
+  "Ho Chi Minh City, Vietnam", "Hanoi, Vietnam", "Da Nang, Vietnam", "Hai Phong, Vietnam", "Can Tho, Vietnam", "Nha Trang, Vietnam", "Hue, Vietnam",
+  // Cambodia
+  "Phnom Penh, Cambodia", "Siem Reap, Cambodia", "Battambang, Cambodia", "Sihanoukville, Cambodia",
+  // Laos
+  "Vientiane, Laos", "Luang Prabang, Laos", "Pakse, Laos",
+  // Japan
+  "Tokyo, Japan", "Osaka, Japan", "Yokohama, Japan", "Nagoya, Japan", "Fukuoka, Japan", "Sapporo, Japan", "Kyoto, Japan", "Kobe, Japan", "Sendai, Japan",
+  // South Korea
+  "Seoul, South Korea", "Busan, South Korea", "Incheon, South Korea", "Daegu, South Korea", "Daejeon, South Korea", "Jeju, South Korea",
+  // China
+  "Beijing, China", "Shanghai, China", "Shenzhen, China", "Guangzhou, China", "Chengdu, China", "Hangzhou, China", "Nanjing, China", "Wuhan, China", "Xi'an, China", "Suzhou, China",
+  // Taiwan
+  "Taipei, Taiwan", "Kaohsiung, Taiwan", "Taichung, Taiwan", "Tainan, Taiwan", "Hsinchu, Taiwan",
+  // Hong Kong & Macau
+  "Hong Kong, Hong Kong", "Macau, Macau",
+  // India
+  "Mumbai, India", "Bangalore, India", "New Delhi, India", "Hyderabad, India", "Chennai, India", "Pune, India", "Kolkata, India", "Ahmedabad, India", "Gurgaon, India", "Noida, India",
+  // Bangladesh
+  "Dhaka, Bangladesh", "Chittagong, Bangladesh", "Sylhet, Bangladesh",
+  // Sri Lanka
+  "Colombo, Sri Lanka", "Kandy, Sri Lanka", "Galle, Sri Lanka",
+  // Nepal
+  "Kathmandu, Nepal", "Pokhara, Nepal", "Lalitpur, Nepal",
+  // Pakistan
+  "Karachi, Pakistan", "Lahore, Pakistan", "Islamabad, Pakistan", "Rawalpindi, Pakistan", "Faisalabad, Pakistan",
+  // Australia
+  "Sydney, Australia", "Melbourne, Australia", "Brisbane, Australia", "Perth, Australia", "Adelaide, Australia", "Canberra, Australia", "Gold Coast, Australia",
+  // New Zealand
+  "Auckland, New Zealand", "Wellington, New Zealand", "Christchurch, New Zealand",
+  // Mongolia
+  "Ulaanbaatar, Mongolia",
+  // Brunei
+  "Bandar Seri Begawan, Brunei",
+  // Timor-Leste
+  "Dili, Timor-Leste",
+  // Maldives
+  "Malé, Maldives",
+  // Fiji & Pacific
+  "Suva, Fiji", "Port Moresby, Papua New Guinea",
+  // UAE & Middle East (popular for APAC diaspora)
+  "Dubai, UAE", "Abu Dhabi, UAE", "Doha, Qatar",
+  // Remote
   "Remote / Anywhere",
 ];
 
