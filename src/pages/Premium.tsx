@@ -5,72 +5,23 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
 import PageHeader from "@/components/PageHeader";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const MMK_RATE = 2100;
-
-const plans = [
-  {
-    id: "free",
-    duration: null,
-    priceUsd: 0,
-    totalUsd: 0,
-    perMonthUsd: 0,
-    period: { my: "ထာဝရ", en: "forever" },
-    name: { my: "အခမဲ့", en: "Free" },
-    badge: null,
-    save: null,
-  },
-  {
-    id: "3mo",
-    duration: 3,
-    priceUsd: 5,
-    totalUsd: 15,
-    perMonthUsd: 5,
-    period: { my: "/လ", en: "/mo" },
-    name: { my: "၃ လ", en: "3 Months" },
-    badge: null,
-    save: null,
-  },
-  {
-    id: "6mo",
-    duration: 6,
-    priceUsd: 4.17,
-    totalUsd: 25,
-    perMonthUsd: 4.17,
-    period: { my: "/လ", en: "/mo" },
-    name: { my: "၆ လ", en: "6 Months" },
-    badge: { my: "လူကြိုက်များ", en: "Popular" },
-    save: { my: "17% သက်သာ", en: "Save 17%" },
-  },
-  {
-    id: "12mo",
-    duration: 12,
-    priceUsd: 3.75,
-    totalUsd: 45,
-    perMonthUsd: 3.75,
-    period: { my: "/လ", en: "/mo" },
-    name: { my: "၁၂ လ", en: "12 Months" },
-    badge: { my: "တန်ဖိုးအရှိဆုံး", en: "Best Value" },
-    save: { my: "25% သက်သာ", en: "Save 25%" },
-  },
-];
-
-const formatPrice = (usd: number, lang: string) => {
-  if (usd === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
-  if (lang === "my") {
-    const mmk = Math.round(usd * MMK_RATE);
-    return `${mmk.toLocaleString()} ကျပ်`;
+const formatPrice = (price: number, currency: string, lang: string, perMonth?: boolean) => {
+  if (price === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
+  if (currency === "MMK") {
+    return `${price.toLocaleString()} ကျပ်`;
   }
-  return `$${usd % 1 === 0 ? usd : usd.toFixed(2)}`;
+  return `$${price % 1 === 0 ? price : price.toFixed(2)}`;
 };
 
-const formatTotal = (usd: number, lang: string) => {
-  if (lang === "my") {
-    const mmk = Math.round(usd * MMK_RATE);
-    return `စုစုပေါင်း ${mmk.toLocaleString()} ကျပ်`;
+const formatTotal = (price: number, currency: string, lang: string) => {
+  if (currency === "MMK") {
+    return `စုစုပေါင်း ${price.toLocaleString()} ကျပ်`;
   }
-  return `$${usd} total`;
+  return `$${price} total`;
 };
 
 const freeFeatures = [
@@ -91,16 +42,130 @@ const premiumFeatures = [
   { my: "စာရွက်စာတမ်း သိုလှောင်ခန်း", en: "Document Vault" },
 ];
 
+const PlanCard = ({
+  plan,
+  isSelected,
+  onSelect,
+  isPremium,
+  lang,
+  index,
+}: {
+  plan: SubscriptionPlan;
+  isSelected: boolean;
+  onSelect: () => void;
+  isPremium: boolean | null | undefined;
+  lang: string;
+  index: number;
+}) => {
+  const isFree = plan.plan_id === "free";
+  const isCurrent = isFree && !isPremium;
+  const isPopular = plan.plan_id === "6mo";
+  const badge = lang === "my" ? plan.badge_my : plan.badge_en;
+  const save = lang === "my" ? plan.save_label_my : plan.save_label_en;
+  const name = lang === "my" ? plan.name_my : plan.name_en;
+  const period = lang === "my" ? "/လ" : "/mo";
+
+  const perMonth = plan.duration_months
+    ? plan.price / plan.duration_months
+    : 0;
+
+  return (
+    <motion.button
+      key={plan.plan_id}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.2 + index * 0.06 }}
+      onClick={onSelect}
+      className={`relative w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
+        isSelected
+          ? isPopular
+            ? "border-accent bg-accent/5 ring-1 ring-accent/30"
+            : "border-primary bg-primary/5 ring-1 ring-primary/20"
+          : "border-border bg-card hover:border-muted-foreground/20"
+      }`}
+    >
+      {badge && (
+        <span
+          className={`absolute -top-2.5 left-4 rounded-full px-3 py-0.5 text-[10px] font-bold ${
+            isPopular
+              ? "bg-accent text-accent-foreground"
+              : "bg-primary text-primary-foreground"
+          }`}
+        >
+          {badge}
+        </span>
+      )}
+
+      <div className="flex items-center gap-3">
+        <div
+          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+            isSelected
+              ? isPopular
+                ? "border-accent bg-accent"
+                : "border-primary bg-primary"
+              : "border-muted-foreground/25"
+          }`}
+        >
+          {isSelected && (
+            <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+          )}
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground">{name}</h3>
+            {isCurrent && (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
+                {lang === "my" ? "လက်ရှိ" : "Current"}
+              </span>
+            )}
+          </div>
+          {save && (
+            <span className="mt-0.5 inline-block rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-semibold text-emerald">
+              {save}
+            </span>
+          )}
+        </div>
+
+        <div className="text-right">
+          {isFree ? (
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-xl font-bold text-foreground">
+                {formatPrice(0, plan.currency, lang)}
+              </span>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-xl font-bold text-foreground">
+                  {formatPrice(Math.round(perMonth), plan.currency, lang, true)}
+                </span>
+                <span className="text-[10px] text-muted-foreground">{period}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                {formatTotal(plan.price, plan.currency, lang)}
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    </motion.button>
+  );
+};
+
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const [selected, setSelected] = useState("6mo");
   const isPremium = profile?.is_premium;
+  const { data: plans, isLoading } = useSubscriptionPlans();
 
   const handleSubscribe = () => {
     // TODO: integrate with payment
   };
+
+  const selectedPlan = plans?.find((p) => p.plan_id === selected);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -123,7 +188,9 @@ const Premium = () => {
               {lang === "my" ? "Premium သို့ အဆင့်မြှင့်ပါ" : "Upgrade to Premium"}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {lang === "my" ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်" : "Unlock all features & accelerate your career"}
+              {lang === "my"
+                ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်"
+                : "Unlock all features & accelerate your career"}
             </p>
           </div>
 
@@ -142,97 +209,32 @@ const Premium = () => {
                 className="flex items-center gap-1.5"
               >
                 <item.icon className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
-                <span className="text-[10px] font-semibold text-muted-foreground">{item.label}</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">
+                  {item.label}
+                </span>
               </motion.div>
             ))}
           </div>
 
           {/* Plan cards */}
           <div className="space-y-2.5">
-            {plans.map((plan, i) => {
-              const isFree = plan.id === "free";
-              const isSelected = selected === plan.id;
-              const isCurrent = isFree && !isPremium;
-              const isPopular = plan.id === "6mo";
-
-              return (
-                <motion.button
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-[72px] w-full rounded-2xl" />
+              ))
+            ) : (
+              plans?.map((plan, i) => (
+                <PlanCard
                   key={plan.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + i * 0.06 }}
-                  onClick={() => setSelected(plan.id)}
-                  className={`relative w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
-                    isSelected
-                      ? isPopular
-                        ? "border-accent bg-accent/5 ring-1 ring-accent/30"
-                        : "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border bg-card hover:border-muted-foreground/20"
-                  }`}
-                >
-                  {plan.badge && (
-                    <span className={`absolute -top-2.5 left-4 rounded-full px-3 py-0.5 text-[10px] font-bold ${
-                      isPopular
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-primary text-primary-foreground"
-                    }`}>
-                      {lang === "my" ? plan.badge.my : plan.badge.en}
-                    </span>
-                  )}
-
-                  <div className="flex items-center gap-3">
-                    {/* Radio */}
-                    <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                      isSelected
-                        ? isPopular ? "border-accent bg-accent" : "border-primary bg-primary"
-                        : "border-muted-foreground/25"
-                    }`}>
-                      {isSelected && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
-                    </div>
-
-                    {/* Name + save badge */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-foreground">
-                          {lang === "my" ? plan.name.my : plan.name.en}
-                        </h3>
-                        {isCurrent && (
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
-                            {lang === "my" ? "လက်ရှိ" : "Current"}
-                          </span>
-                        )}
-                      </div>
-                      {plan.save && (
-                        <span className="mt-0.5 inline-block rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-semibold text-emerald">
-                          {lang === "my" ? plan.save.my : plan.save.en}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Price */}
-                    <div className="text-right">
-                      {isFree ? (
-                        <div className="flex items-baseline gap-0.5">
-                          <span className="text-xl font-bold text-foreground">{formatPrice(0, lang)}</span>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-baseline gap-0.5">
-                            <span className="text-xl font-bold text-foreground">{formatPrice(plan.perMonthUsd, lang)}</span>
-                            <span className="text-[10px] text-muted-foreground">
-                              {lang === "my" ? plan.period.my : plan.period.en}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-muted-foreground">
-                            {formatTotal(plan.totalUsd, lang)}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </motion.button>
-              );
-            })}
+                  plan={plan}
+                  isSelected={selected === plan.plan_id}
+                  onSelect={() => setSelected(plan.plan_id)}
+                  isPremium={isPremium}
+                  lang={lang}
+                  index={i}
+                />
+              ))
+            )}
           </div>
 
           {/* Subscribe button */}
@@ -250,13 +252,14 @@ const Premium = () => {
               onClick={handleSubscribe}
             >
               {selected === "free"
-                ? (lang === "my" ? "လက်ရှိ Plan" : "Current Plan")
-                : (lang === "my"
-                  ? `${plans.find(p => p.id === selected)?.name.my} Plan ဖြင့် စတင်ရန်`
-                  : `Start ${plans.find(p => p.id === selected)?.name.en} Plan`)}
+                ? lang === "my"
+                  ? "လက်ရှိ Plan"
+                  : "Current Plan"
+                : lang === "my"
+                  ? `${selectedPlan?.name_my} Plan ဖြင့် စတင်ရန်`
+                  : `Start ${selectedPlan?.name_en} Plan`}
             </Button>
 
-            {/* Founding rate */}
             <p className="mt-2 text-center text-[10px] font-medium text-accent">
               {lang === "my"
                 ? "⭐ ကနဦး နှုန်း — ပထမ ၂၀၀ ဦးသာ"
@@ -266,7 +269,6 @@ const Premium = () => {
 
           {/* Features comparison */}
           <div className="mt-6 space-y-3">
-            {/* Free features */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -282,13 +284,14 @@ const Premium = () => {
                     <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
                       <Check className="h-3 w-3 text-emerald" strokeWidth={2} />
                     </div>
-                    <span className="text-xs text-foreground">{lang === "my" ? f.my : f.en}</span>
+                    <span className="text-xs text-foreground">
+                      {lang === "my" ? f.my : f.en}
+                    </span>
                   </li>
                 ))}
               </ul>
             </motion.div>
 
-            {/* Premium features */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -307,7 +310,9 @@ const Premium = () => {
                     <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
                       <Check className="h-3 w-3 text-primary" strokeWidth={2} />
                     </div>
-                    <span className="text-xs text-foreground">{lang === "my" ? f.my : f.en}</span>
+                    <span className="text-xs text-foreground">
+                      {lang === "my" ? f.my : f.en}
+                    </span>
                   </li>
                 ))}
               </ul>
