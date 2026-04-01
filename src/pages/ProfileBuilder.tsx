@@ -181,19 +181,14 @@ const ProfileBuilder = () => {
     .map(ex => [ex.role, ex.company, ex.duration].filter(Boolean).join(" at "))
     .join("; ");
 
-  const generatedProfile = {
-    headline: title || "Full Stack Developer",
-    summary: summary || `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
-    skills,
-    sections: [
-      { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
-      { title: "Work Experience", content: experiences.filter(ex => ex.role || ex.company).map(ex => `• ${[ex.role, ex.company, ex.duration].filter(Boolean).join(" — ")}${ex.description ? `\n  ${ex.description}` : ""}`).join("\n") || "• Multiple projects delivered successfully" },
-      ...(educationText ? [{ title: "Education", content: educations.filter(ed => ed.degree || ed.institution).map(ed => `• ${[ed.degree, ed.institution, ed.year].filter(Boolean).join(" — ")}`).join("\n") }] : []),
-      ...(otherInfo ? [{ title: "Additional Information", content: otherInfo }] : []),
-    ],
-  };
+  const [generatedProfile, setGeneratedProfile] = useState<{
+    headline: string;
+    summary: string;
+    skills: string[];
+    sections: { title: string; content: string }[];
+  } | null>(null);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!name && !title) {
       toast({
         title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
@@ -202,10 +197,33 @@ const ProfileBuilder = () => {
       return;
     }
     setGenerating(true);
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-profile", {
+        body: { name, title, summary, experiences, educations, skills, otherInfo, platform },
+      });
+      if (error) throw error;
+      const result = data?.data;
+      if (result) {
+        setGeneratedProfile({
+          headline: result.headline || title || "",
+          summary: result.summary || "",
+          skills: result.skills || skills,
+          sections: result.sections || [],
+        });
+        setStep(3);
+      } else {
+        throw new Error("No data returned");
+      }
+    } catch (err: any) {
+      console.error("Profile generation error:", err);
+      toast({
+        title: lang === "my" ? "ပရိုဖိုင် ဖန်တီး၍ မရပါ" : "Profile generation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
       setGenerating(false);
-      setStep(3);
-    }, 2000);
+    }
   };
 
   const handleCopy = () => {
