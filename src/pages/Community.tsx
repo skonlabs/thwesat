@@ -387,7 +387,7 @@ const Community = () => {
                   <div className="h-5 w-px bg-border" />
                   <button onClick={() => setOpenCommentId(openCommentId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${openCommentId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
                     <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} />
-                    {lang === "my" ? "မှတ်ချက်" : "Comment"}
+                    {(commentCounts?.[post.id] || 0) > 0 ? commentCounts![post.id] : ""} {lang === "my" ? "မှတ်ချက်" : "Comment"}
                   </button>
                   <div className="h-5 w-px bg-border" />
                   <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
