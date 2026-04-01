@@ -9,12 +9,12 @@ import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const formatPrice = (price: number, currency: string, lang: string, perMonth?: boolean) => {
+const formatPrice = (price: number, currency: string, lang: string) => {
   if (price === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
   if (currency === "MMK") {
-    return `${price.toLocaleString()} ကျပ်`;
+    return `${Math.round(price).toLocaleString()} ကျပ်`;
   }
-  return `$${price % 1 === 0 ? price : price.toFixed(2)}`;
+  return `$${price.toFixed(2)}`;
 };
 
 const formatTotal = (price: number, currency: string, lang: string) => {
@@ -138,7 +138,7 @@ const PlanCard = ({
             <>
               <div className="flex items-baseline gap-0.5">
                 <span className="text-xl font-bold text-foreground">
-                  {formatPrice(Math.round(perMonth), plan.currency, lang, true)}
+                  {formatPrice(perMonth, plan.currency, lang)}
                 </span>
                 <span className="text-[10px] text-muted-foreground">{period}</span>
               </div>
