@@ -42,10 +42,6 @@ const EmployerOnboarding = () => {
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: selectedPayments,
       });
-      toast({
-        title: lang === "my" ? "အလုပ်ရှင် အကောင့် ဖန်တီးပြီးပါပြီ" : "Employer account created",
-        description: lang === "my" ? "စစ်ဆေးအတည်ပြုဆဲ ဖြစ်ပါသည်" : "Pending verification",
-      });
       navigate("/employer/dashboard");
     } catch {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error", variant: "destructive" });

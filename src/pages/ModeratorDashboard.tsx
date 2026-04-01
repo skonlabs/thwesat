@@ -4,7 +4,6 @@ import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Users, Sparkles } f
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -28,7 +27,6 @@ const quickActions = [
 
 const ModeratorDashboard = () => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -60,7 +58,6 @@ const ModeratorDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] });
       setSelectedId(null);
-      toast({ title: lang === "my" ? "ပို့စ် အတည်ပြုပြီး ✓" : "Post approved ✓" });
     },
   });
 
@@ -75,7 +72,6 @@ const ModeratorDashboard = () => {
       setSelectedId(null);
       setShowRemoval(false);
       setRemovalReason("");
-      toast({ title: lang === "my" ? "ပို့စ် ဖယ်ရှားပြီး" : "Post removed" });
     },
   });
 

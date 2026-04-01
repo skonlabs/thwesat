@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
@@ -79,7 +78,6 @@ const roleRequirements: Record<string, { required: string[]; nice: string[]; res
 const SkillGapAnalysis = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -91,7 +89,6 @@ const SkillGapAnalysis = () => {
 
   const handleAnalyze = () => {
     if (!selectedRole) {
-      toast({ title: lang === "my" ? "ရာထူး ရွေးချယ်ပါ" : "Select a role", description: lang === "my" ? "ပန်းတိုင် ရာထူးကို ရွေးချယ်ပါ" : "Please select a target role" });
       return;
     }
     setAnalyzing(true);
@@ -151,7 +148,7 @@ const SkillGapAnalysis = () => {
                   ))}
                 </div>
               </div>
-              <Button onClick={() => { if (!selectedRole) { toast({ title: lang === "my" ? "ရာထူး ရွေးချယ်ပါ" : "Select a role" }); return; } setStep(2); }} className="w-full">
+              <Button onClick={() => { if (!selectedRole) { return; } setStep(2); }} className="w-full">
                 {lang === "my" ? "ရှေ့ဆက်ရန်" : "Continue"} <ChevronRight className="h-4 w-4" />
               </Button>
             </motion.div>

@@ -103,7 +103,6 @@ const GuideDetail = () => {
 
   const handleFeedback = async (type: "yes" | "no") => {
     if (!user || !id) {
-      toast({ title: lang === "my" ? "ကျေးဇူးပြု၍ အကောင့်ဝင်ပါ" : "Please sign in first" });
       return;
     }
     await supabase.from("guide_feedback").upsert({
@@ -111,11 +110,6 @@ const GuideDetail = () => {
     }, { onConflict: "guide_id,user_id" });
     queryClient.invalidateQueries({ queryKey: ["guide-feedback-counts", id] });
     queryClient.invalidateQueries({ queryKey: ["guide-feedback-user", id, user.id] });
-    toast({
-      title: type === "yes"
-        ? (lang === "my" ? "ကျေးဇူးတင်ပါသည်!" : "Thank you!")
-        : (lang === "my" ? "တုံ့ပြန်ချက် မှတ်တမ်းတင်ပြီးပါပြီ" : "Feedback recorded"),
-    });
   };
 
   const handleShare = async () => {
@@ -125,7 +119,6 @@ const GuideDetail = () => {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
       }
     } catch {
       // user cancelled
@@ -146,7 +139,6 @@ const GuideDetail = () => {
       if (error) throw error;
       setTranslatedContent(data.translatedContent);
       setShowTranslation(true);
-      toast({ title: "မြန်မာဘာသာသို့ ဘာသာပြန်ပြီးပါပြီ" });
     } catch {
       toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed. Please try again.", variant: "destructive" });
     } finally {

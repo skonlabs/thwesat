@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Key, Copy, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import SettingsBottomSheet from "./SettingsBottomSheet";
 
@@ -15,7 +14,6 @@ interface DelegateTokenSheetProps {
 
 const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: DelegateTokenSheetProps) => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showRevoke, setShowRevoke] = useState(false);
 
@@ -24,7 +22,6 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
       navigator.clipboard.writeText(token);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast({ title: lang === "my" ? "Token ကူးယူပြီးပါပြီ" : "Token copied!" });
     }
   };
 

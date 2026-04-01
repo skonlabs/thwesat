@@ -4,7 +4,6 @@ import { CheckCircle, XCircle, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
@@ -18,7 +17,6 @@ const checklist = [
 
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -46,14 +44,14 @@ const AdminJobQueue = () => {
 
   const handleApprove = (id: string) => {
     updateJob.mutate({ id, status: "active" }, {
-      onSuccess: () => { setSelectedId(null); toast({ title: lang === "my" ? "အတည်ပြုပြီးပါပြီ ✓" : "Listing approved ✓" }); },
+      onSuccess: () => { setSelectedId(null); },
     });
   };
 
   const handleReject = () => {
     if (!selectedId) return;
     updateJob.mutate({ id: selectedId, status: "rejected" }, {
-      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); toast({ title: lang === "my" ? "ငြင်းပယ်ပြီးပါပြီ" : "Listing rejected" }); },
+      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); },
     });
   };
 

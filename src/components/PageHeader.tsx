@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -15,7 +14,6 @@ interface PageHeaderProps {
 
 const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const [logoOpacity, setLogoOpacity] = useState(1);
@@ -40,10 +38,6 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
     holdTimer.current = setTimeout(() => {
       localStorage.clear();
       sessionStorage.clear();
-      toast({
-        title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
-        description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
-      });
       navigate("/");
     }, 3000);
   }, [navigate, toast, lang]);

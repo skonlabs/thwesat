@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole, type UserRole } from "@/hooks/use-role";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 
@@ -18,7 +17,6 @@ const Profile = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { toast } = useToast();
   const { profile, signOut } = useAuth();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
@@ -48,7 +46,6 @@ const Profile = () => {
   const copyReferral = () => {
     navigator.clipboard.writeText(`https://thwesone.com/signup?ref=${referralCode}`);
     setReferralCopied(true);
-    toast({ title: lang === "my" ? "ညွှန်းဆိုလင့်ခ် ကူးပြီးပါပြီ" : "Referral link copied!" });
     setTimeout(() => setReferralCopied(false), 2000);
   };
 
@@ -69,7 +66,6 @@ const Profile = () => {
     setRole(r);
     setShowRolePicker(false);
     const selected = roleOptions.find(o => o.value === r)!;
-    toast({ title: lang === "my" ? `${selected.label.my} အနေဖြင့် ပြောင်းပြီးပါပြီ` : `Switched to ${selected.label.en}` });
   };
 
   const currentRoleLabel = allRoleOptions.find(o => o.value === role)!;

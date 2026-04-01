@@ -4,7 +4,6 @@ import { Check, Building2, Briefcase, Users, Search, Star, Crown } from "lucide-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 
 const tiers = [
@@ -60,14 +59,9 @@ const tiers = [
 const EmployerSubscription = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [selected, setSelected] = useState("standard");
 
   const handleSubscribe = () => {
-    toast({
-      title: lang === "my" ? "စာရင်းသွင်းပြီးပါပြီ" : "Subscription activated",
-      description: lang === "my" ? "Stripe Checkout သို့ ပြောင်းပါမည်" : "Redirecting to Stripe Checkout...",
-    });
     navigate("/employer/dashboard");
   };
 

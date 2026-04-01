@@ -4,7 +4,6 @@ import { Search, Users, Shield, Crown, Ban, CheckCircle, Key, Trash2 } from "luc
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
@@ -17,7 +16,6 @@ const roleColors: Record<string, string> = {
 
 const AdminUsers = () => {
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 

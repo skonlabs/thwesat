@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/hooks/use-mentor-bookings";
@@ -36,7 +35,6 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const MentorDashboard = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { user } = useAuth();
   const { data: mentorProfile } = useMentorProfile(user?.id);
   const { data: bookings = [] } = useMentorBookings();
@@ -72,20 +70,19 @@ const MentorDashboard = () => {
 
   const handleConfirm = (id: string) => {
     updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
+      onSuccess: () => {},
     });
   };
 
   const handleDecline = (id: string) => {
     updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking ပယ်ဖျက်ပြီး" : "Booking declined" }),
+      onSuccess: () => {},
     });
   };
 
   const handleSaveRate = async () => {
     if (!user) return;
     await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
-    toast({ title: lang === "my" ? "နှုန်းထား သိမ်းပြီး ✓" : "Settings saved ✓" });
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);

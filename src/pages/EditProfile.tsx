@@ -269,7 +269,6 @@ const EditProfile = () => {
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
       setAvatarUrl(url);
       await refreshProfile();
-      toast({ title: lang === "my" ? "ပရိုဖိုင်ဓာတ်ပုံ တင်ပြီးပါပြီ ✓" : "Profile photo updated ✓" });
     } catch (err: any) {
       toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
     } finally {
@@ -345,7 +344,6 @@ const EditProfile = () => {
       return;
     }
     await refreshProfile();
-    toast({ title: lang === "my" ? "ပရိုဖိုင် သိမ်းဆည်းပြီး ✓" : "Profile saved ✓" });
     navigate("/profile");
   };
 

@@ -38,7 +38,6 @@ const Login = () => {
       toast({ title: lang === "my" ? "ဝင်ရောက်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
       return;
     }
-    toast({ title: lang === "my" ? "ဝင်ရောက်ပြီးပါပြီ ✓" : "Signed in ✓" });
     navigate("/home");
   };
 

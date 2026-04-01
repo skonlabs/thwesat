@@ -102,13 +102,8 @@ const JobDetail = () => {
           setCoverLetterMode("none");
           setSelectedCvId(null);
           setSelectedGeneratedResumeId(null);
-          toast({
-            title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",
-            description: lang === "my" ? `${job?.company} မှ ပြန်ကြားပါမည်` : `${job?.company} will review your application`,
-          });
         },
         onError: (error: any) => {
-          toast({ title: lang === "my" ? "အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်" : "Something went wrong", description: error.message });
         },
       }
     );
@@ -119,18 +114,12 @@ const JobDetail = () => {
       navigator.share({ title: `${job?.title} - ${job?.company}`, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
     }
   };
 
   const handleSave = () => {
     if (!id) return;
     toggleSaveMutation.mutate({ jobId: id, isSaved: saved });
-    toast({
-      title: saved
-        ? (lang === "my" ? "သိမ်းဆည်းမှု ဖယ်ရှားပြီး" : "Removed from saved")
-        : (lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved!"),
-    });
   };
 
   if (isLoading) {

@@ -95,10 +95,6 @@ const CoverLetterGenerator = () => {
           ].join("\n") || prev.yourExperience,
         }));
         setCvParsed(true);
-        toast({
-          title: lang === "my" ? "CV မှ အချက်အလက်များ ဖတ်ပြီးပါပြီ ✓" : "CV parsed successfully ✓",
-          description: lang === "my" ? "အချက်အလက်များကို စစ်ဆေးပြင်ဆင်ပါ" : "Review and edit the extracted data",
-        });
       }
     } catch (err: any) {
       console.error("CV parse error:", err);
@@ -114,10 +110,6 @@ const CoverLetterGenerator = () => {
 
   const handleGenerate = async () => {
     if (!form.jobTitle && !form.company) {
-      toast({
-        title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
-        description: lang === "my" ? "အနည်းဆုံး ရာထူးနှင့် ကုမ္ပဏီနာမည်ကို ဖြည့်ပါ" : "Please fill in at least job title and company name",
-      });
       return;
     }
     setGenerating(true);
@@ -149,10 +141,6 @@ const CoverLetterGenerator = () => {
     if (!generatedLetter) return;
     navigator.clipboard.writeText(generatedLetter);
     setCopied(true);
-    toast({
-      title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!",
-      description: lang === "my" ? "Cover letter ကို clipboard သို့ ကူးယူပြီးပါပြီ" : "Cover letter copied to clipboard",
-    });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -173,7 +161,6 @@ const CoverLetterGenerator = () => {
       y += 5;
     }
     doc.save(`cover-letter-${form.company || "draft"}.pdf`);
-    toast({ title: lang === "my" ? "PDF ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "PDF downloaded" });
   };
 
   const handleDownloadDocx = async () => {
@@ -192,7 +179,6 @@ const CoverLetterGenerator = () => {
     a.download = `cover-letter-${form.company || "draft"}.docx`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: lang === "my" ? "DOCX ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "DOCX downloaded" });
   };
 
   return (
@@ -461,7 +447,6 @@ const CoverLetterGenerator = () => {
                     metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
                   });
                   setSaved(true);
-                  toast({ title: lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved for future use" });
                 }}
                 className="w-full"
                 disabled={saved}

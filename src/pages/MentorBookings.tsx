@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorBookings, useUpdateBookingStatus, useCreateBooking } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +31,6 @@ type FilterType = "all" | "pending" | "confirmed" | "completed";
 const MentorBookings = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { toast } = useToast();
   const { user } = useAuth();
   const { data: bookings = [], isLoading } = useMentorBookings();
   const updateStatus = useUpdateBookingStatus();
@@ -62,13 +60,13 @@ const MentorBookings = () => {
 
   const handleConfirm = (id: string) => {
     updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
+      onSuccess: () => {},
     });
   };
 
   const handleDecline = (id: string) => {
     updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking ပယ်ဖျက်ပြီး" : "Booking declined" }),
+      onSuccess: () => {},
     });
   };
 
