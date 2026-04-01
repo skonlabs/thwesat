@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, X, File, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
