@@ -49,13 +49,20 @@ export function useStartConversation() {
       return;
     }
 
-    // Add both participants
+    // Add current user first (RLS requires auth.uid() = user_id for first insert)
+    const { error: partErr1 } = await supabase
+      .from("conversation_participants")
+      .insert({ conversation_id: conv.id, user_id: user.id });
+
+    if (partErr1) {
+      toast({ title: "Failed to create conversation", variant: "destructive" });
+      return;
+    }
+
+    // Now add other user (RLS allows because current user is already a participant)
     const { error: partErr } = await supabase
       .from("conversation_participants")
-      .insert([
-        { conversation_id: conv.id, user_id: user.id },
-        { conversation_id: conv.id, user_id: otherUserId },
-      ]);
+      .insert({ conversation_id: conv.id, user_id: otherUserId });
 
     if (partErr) {
       toast({ title: "Failed to create conversation", variant: "destructive" });
