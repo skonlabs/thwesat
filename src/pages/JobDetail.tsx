@@ -442,35 +442,38 @@ const JobDetail = () => {
                   </motion.div>
                 )}
 
-                {/* Previously Generated Cover Letters */}
+                {/* Generated Cover Letters */}
                 {coverLetterMode === "generated" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                    {pastCoverLetters.length > 0 ? (
+                    {generatedCoverLetters.length > 0 ? (
                       <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {pastCoverLetters.map((app: any) => {
-                          const isSelected = coverLetter === app.cover_letter;
-                          const jobInfo = app.jobs;
+                        {generatedCoverLetters.map((doc: any) => {
+                          const isSelected = coverLetter === doc.content;
+                          const meta = doc.metadata as any;
                           return (
                             <div
-                              key={app.id}
+                              key={doc.id}
                               className={`cursor-pointer rounded-xl border p-3 transition-colors ${
                                 isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
                               }`}
-                              onClick={() => setCoverLetter(isSelected ? "" : app.cover_letter)}
+                              onClick={() => setCoverLetter(isSelected ? "" : doc.content)}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
                                   <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
-                                    {jobInfo?.title || (lang === "my" ? "Cover Letter" : "Cover Letter")} — {jobInfo?.company || ""}
+                                    {doc.title}
                                   </p>
-                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{app.cover_letter}</p>
+                                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                    {meta?.tone ? `${meta.tone}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                                  </p>
+                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{doc.content}</p>
                                 </div>
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setPreviewContent(app.cover_letter);
-                                      setPreviewTitle(`Cover Letter — ${jobInfo?.title || ""}`);
+                                      setPreviewContent(doc.content);
+                                      setPreviewTitle(doc.title);
                                     }}
                                     className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
                                     title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
@@ -488,7 +491,7 @@ const JobDetail = () => {
                       <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
                         <PenLine className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
                         <p className="text-xs text-muted-foreground">
-                          {lang === "my" ? "ယခင် cover letter များ မရှိသေးပါ" : "No previous cover letters found"}
+                          {lang === "my" ? "ဖန်တီးထားသော cover letter များ မရှိသေးပါ" : "No generated cover letters yet"}
                         </p>
                         <Button
                           variant="outline"
