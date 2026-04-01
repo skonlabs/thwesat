@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useJobs } from "@/hooks/use-jobs";
+import { useMentorProfiles } from "@/hooks/use-mentor-data";
+import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
 
 const jobseekerActions = [
