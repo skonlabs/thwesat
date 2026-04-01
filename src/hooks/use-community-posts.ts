@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 
 export interface CommunityPost {
   id: string;
@@ -22,8 +23,10 @@ export interface CommunityPost {
 }
 
 export function useCommunityPosts(category?: string) {
+  const { lang } = useLanguage();
+
   return useQuery({
-    queryKey: ["community-posts", category],
+    queryKey: ["community-posts", category, lang],
     queryFn: async () => {
       let query = supabase
         .from("community_posts")
@@ -36,18 +39,22 @@ export function useCommunityPosts(category?: string) {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Fetch author profiles
-      const authorIds = [...new Set((data || []).map(p => p.author_id))];
+      const authorIds = [...new Set((data || []).map((p) => p.author_id))];
       if (authorIds.length === 0) return [];
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location")
         .in("id", authorIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
 
-      return (data || []).map(post => ({
+      return (data || []).map((post) => ({
         ...post,
-        author: profileMap.get(post.author_id) || { display_name: "Unknown", headline: null, avatar_url: null, location: null },
+        author: profileMap.get(post.author_id) || {
+          display_name: lang === "my" ? "အမည်မသိ" : "Unknown",
+          headline: null,
+          avatar_url: null,
+          location: null,
+        },
       })) as CommunityPost[];
     },
   });
@@ -55,11 +62,12 @@ export function useCommunityPosts(category?: string) {
 
 export function useCreatePost() {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ contentMy, contentEn, category, imageUrl }: { contentMy: string; contentEn?: string; category: string; imageUrl?: string }) => {
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error(lang === "my" ? "အကောင့်ဝင်ထားခြင်း မရှိပါ" : "Not authenticated");
       const { error } = await supabase
         .from("community_posts")
         .insert({
@@ -83,10 +91,7 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: async (postId: string) => {
-      const { error } = await supabase
-        .from("community_posts")
-        .delete()
-        .eq("id", postId);
+      const { error } = await supabase.from("community_posts").delete().eq("id", postId);
       if (error) throw error;
     },
     onSuccess: () => {

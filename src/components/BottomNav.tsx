@@ -19,19 +19,19 @@ const BottomNav = () => {
   ];
 
   const employerNav = [
-    { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/employer/dashboard" },
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/employer/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job" },
     { icon: Users, labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
-    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
+    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
   const mentorNav = [
-    { icon: LayoutDashboard, labelMy: "Dashboard", labelEn: "Dashboard", path: "/mentors/dashboard" },
-    { icon: Users, labelMy: "Mentee", labelEn: "Mentees", path: "/mentors/mentees" },
-    { icon: Calendar, labelMy: "Booking", labelEn: "Bookings", path: "/mentors/bookings" },
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/mentors/dashboard" },
+    { icon: Users, labelMy: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees" },
+    { icon: Calendar, labelMy: "ချိန်းဆိုမှု", labelEn: "Bookings", path: "/mentors/bookings" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
-    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
+    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
   const navItems = role === "employer" ? employerNav : role === "mentor" ? mentorNav : jobseekerNav;
