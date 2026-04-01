@@ -43,9 +43,17 @@ const MentorDashboard = () => {
   const { data: earnings } = useMentorEarnings();
   const updateStatus = useUpdateBookingStatus();
   const [bookingFilter, setBookingFilter] = useState("all");
-  const [hourlyRate, setHourlyRate] = useState(mentorProfile?.hourly_rate?.toString() || "30");
-  const [isAvailable, setIsAvailable] = useState(mentorProfile?.is_available ?? true);
-  const [activeDays, setActiveDays] = useState<string[]>(mentorProfile?.available_days || []);
+  const [hourlyRate, setHourlyRate] = useState("30");
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [activeDays, setActiveDays] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (mentorProfile) {
+      setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
+      setIsAvailable(mentorProfile.is_available ?? true);
+      setActiveDays(mentorProfile.available_days || []);
+    }
+  }, [mentorProfile]);
 
   // Fetch mentee profiles for bookings
   const menteeIds = [...new Set(bookings.map((b: any) => b.mentee_id))];

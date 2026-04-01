@@ -31,7 +31,6 @@ const JobDetail = () => {
     if (!id) return;
     applyMutation.mutate({ jobId: id, coverLetter }, {
       onSuccess: () => {
-        setApplied(true);
         setShowApplyModal(false);
         toast({
           title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",

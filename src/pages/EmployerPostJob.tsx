@@ -73,7 +73,7 @@ const EmployerPostJob = () => {
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
-        company: "", // Will be filled from employer profile
+        company: employerProfile?.company_name || "",
         status: "pending",
       });
       toast({
