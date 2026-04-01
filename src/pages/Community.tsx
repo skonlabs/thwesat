@@ -155,10 +155,8 @@ const Community = () => {
     const url = encodeURIComponent(window.location.href);
     let shareUrl = "";
     switch (platform) {
-      case "whatsapp": shareUrl = `https://wa.me/?text=${text}%20${url}`; break;
       case "telegram": shareUrl = `https://t.me/share/url?url=${url}&text=${text}`; break;
       case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
-      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`; break;
       case "copy":
         navigator.clipboard.writeText(decodeURIComponent(text));
         toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied to clipboard!" });
