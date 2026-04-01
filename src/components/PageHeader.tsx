@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Settings, MessageSquare, Bell } from "lucide-react";
+import { Settings, MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
@@ -8,9 +8,10 @@ import logo from "@/assets/logo.svg";
 
 interface PageHeaderProps {
   title: string;
+  backPath?: string;
 }
 
-const PageHeader = ({ title }: PageHeaderProps) => {
+const PageHeader = ({ title, backPath }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { lang } = useLanguage();
@@ -98,7 +99,14 @@ const PageHeader = ({ title }: PageHeaderProps) => {
           </div>
         </div>
       </header>
-      <h1 className="px-5 pb-1 pt-3 text-lg font-bold text-foreground">{title}</h1>
+      <div className="flex items-center px-5 pb-1 pt-3">
+        {backPath && (
+          <button onClick={() => navigate(backPath)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
+            <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+        )}
+        <h1 className="text-lg font-bold text-foreground">{title}</h1>
+      </div>
     </>
   );
 };

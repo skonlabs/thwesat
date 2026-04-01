@@ -195,7 +195,7 @@ const ProfileBuilder = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder"} />
+      <PageHeader title={lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder"} backPath="/ai-tools" />
       <div className="px-5 pt-4">
         {/* Progress */}
         <div className="mb-5 flex items-center gap-2">
