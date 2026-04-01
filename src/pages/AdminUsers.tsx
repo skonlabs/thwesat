@@ -36,7 +36,7 @@ const AdminUsers = () => {
   const selected = users.find((u: any) => u.id === selectedId);
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
       <div className="px-5">
         <div className="relative mb-4">

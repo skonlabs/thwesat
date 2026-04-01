@@ -67,7 +67,7 @@ const AdminJobQueue = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ စစ်ဆေးရေး" : "Job Verification Queue"} />
       <div className="px-5">
         <p className="mb-4 text-xs text-muted-foreground">{jobs.length} {lang === "my" ? "ခု စစ်ဆေးရန်ရှိ" : "pending review"}</p>

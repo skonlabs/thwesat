@@ -72,7 +72,7 @@ const EmployerSubscription = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် Plan" : "Employer Plans"} />
       <div className="px-5">
         <p className="mb-5 text-center text-sm text-muted-foreground">

@@ -90,7 +90,7 @@ const ModeratorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title="Moderator Dashboard" />
       <div className="px-5">
         {/* Stats */}

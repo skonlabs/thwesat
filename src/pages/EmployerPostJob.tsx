@@ -87,7 +87,7 @@ const EmployerPostJob = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ တင်ရန်" : "Post a Job"} />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">
