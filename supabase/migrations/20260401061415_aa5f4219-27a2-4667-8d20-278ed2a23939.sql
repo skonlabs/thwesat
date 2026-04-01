@@ -1,0 +1,1 @@
+ALTER TABLE public.guide_feedback ADD CONSTRAINT guide_feedback_guide_user_unique UNIQUE (guide_id, user_id);
