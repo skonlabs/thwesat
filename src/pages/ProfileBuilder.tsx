@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles } from "lucide-react";
+import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,13 @@ interface EducationEntry {
   year: string;
 }
 
+interface ExperienceEntry {
+  company: string;
+  role: string;
+  duration: string;
+  description: string;
+}
+
 const ProfileBuilder = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +47,8 @@ const ProfileBuilder = () => {
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
-  const [experience, setExperience] = useState("");
+  const [experiences, setExperiences] = useState<ExperienceEntry[]>([{ company: "", role: "", duration: "", description: "" }]);
+  const [otherInfo, setOtherInfo] = useState("");
   const [educations, setEducations] = useState<EducationEntry[]>([{ degree: "", institution: "", year: "" }]);
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
@@ -56,7 +64,7 @@ const ProfileBuilder = () => {
         setSkills(profile.skills);
       }
       if (profile.experience) {
-        setExperience(profile.experience);
+        setExperiences([{ company: "", role: "", duration: "", description: profile.experience }]);
       }
     }
   }, [profile]);
@@ -83,7 +91,20 @@ const ProfileBuilder = () => {
       if (parsed) {
         if (parsed.name) setName(parsed.name);
         if (parsed.title) setTitle(parsed.title);
-        if (parsed.experience) setExperience(parsed.experience);
+        if (parsed.experiences?.length) {
+          setExperiences(
+            parsed.experiences.map((ex: any) => ({
+              company: ex.company || "",
+              role: ex.role || "",
+              duration: ex.duration || "",
+              description: ex.description || "",
+            }))
+          );
+        } else if (parsed.experience) {
+          // Fallback for old format
+          setExperiences([{ company: "", role: "", duration: "", description: parsed.experience }]);
+        }
+        if (parsed.other) setOtherInfo(parsed.other);
         if (parsed.skills?.length) setSkills(parsed.skills);
         if (parsed.education?.length) {
           setEducations(
@@ -153,14 +174,20 @@ const ProfileBuilder = () => {
 
   const skillsText = skills.join(", ");
 
+  const experienceText = experiences
+    .filter(ex => ex.role || ex.company || ex.description)
+    .map(ex => [ex.role, ex.company, ex.duration].filter(Boolean).join(" at "))
+    .join("; ");
+
   const generatedProfile = {
     headline: title || "Full Stack Developer",
-    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experience ? `Experienced in ${experience.substring(0, 80)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
+    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
     skills,
     sections: [
       { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
-      { title: "Key Achievements", content: "• Delivered 15+ projects on time and within budget\n• Maintained 98% client satisfaction rating\n• Reduced application load times by 40% through optimization\n• Collaborated with cross-functional teams across 5+ time zones" },
+      { title: "Work Experience", content: experiences.filter(ex => ex.role || ex.company).map(ex => `• ${[ex.role, ex.company, ex.duration].filter(Boolean).join(" — ")}${ex.description ? `\n  ${ex.description}` : ""}`).join("\n") || "• Multiple projects delivered successfully" },
       ...(educationText ? [{ title: "Education", content: educations.filter(ed => ed.degree || ed.institution).map(ed => `• ${[ed.degree, ed.institution, ed.year].filter(Boolean).join(" — ")}`).join("\n") }] : []),
+      ...(otherInfo ? [{ title: "Additional Information", content: otherInfo }] : []),
     ],
   };
 
@@ -261,15 +288,83 @@ const ProfileBuilder = () => {
                 </div>
               </div>
 
-              {/* Experience */}
+              {/* Experience - Multiple entries */}
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald/10">
+                      <Briefcase className="h-5 w-5 text-emerald" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အတွေ့အကြုံ" : "Work Experience"}</h2>
+                      <p className="text-[10px] text-muted-foreground">{experiences.length}/10</p>
+                    </div>
+                  </div>
+                  {experiences.length < 10 && (
+                    <Button variant="outline" size="sm" onClick={() => setExperiences([...experiences, { company: "", role: "", duration: "", description: "" }])} className="rounded-lg text-xs">
+                      <Plus className="mr-1 h-3 w-3" strokeWidth={1.5} />
+                      {lang === "my" ? "ထပ်ထည့်" : "Add"}
+                    </Button>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {experiences.map((ex, i) => (
+                    <div key={i} className="relative rounded-lg border border-border bg-muted/30 p-3">
+                      {experiences.length > 1 && (
+                        <button onClick={() => setExperiences(experiences.filter((_, idx) => idx !== i))} className="absolute right-2 top-2 rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        </button>
+                      )}
+                      <div className="space-y-2">
+                        <Input
+                          value={ex.role}
+                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, role: e.target.value } : x))}
+                          placeholder={lang === "my" ? "ရာထူး (ဥပမာ - Web Developer)" : "Role (e.g. Web Developer)"}
+                          className="h-9 rounded-lg text-sm"
+                        />
+                        <Input
+                          value={ex.company}
+                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, company: e.target.value } : x))}
+                          placeholder={lang === "my" ? "ကုမ္ပဏီ/အဖွဲ့အစည်း" : "Company / Organization"}
+                          className="h-9 rounded-lg text-sm"
+                        />
+                        <Input
+                          value={ex.duration}
+                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, duration: e.target.value } : x))}
+                          placeholder={lang === "my" ? "ကာလ (ဥပမာ - Jan 2020 - Dec 2022)" : "Duration (e.g. Jan 2020 - Dec 2022)"}
+                          className="h-9 rounded-lg text-sm"
+                        />
+                        <textarea
+                          value={ex.description}
+                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, description: e.target.value } : x))}
+                          rows={2}
+                          placeholder={lang === "my" ? "တာဝန်များနှင့် အောင်မြင်ချက်များ..." : "Responsibilities & achievements..."}
+                          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Other Information */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald/10">
-                    <Briefcase className="h-5 w-5 text-emerald" strokeWidth={1.5} />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                    <MoreHorizontal className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အတွေ့အကြုံ" : "Experience"}</h2>
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြား အချက်အလက်များ" : "Other Information"}</h2>
+                    <p className="text-[11px] text-muted-foreground">{lang === "my" ? "လက်မှတ်များ၊ ဆုများ၊ ဘာသာစကားများ စသည်" : "Certifications, awards, languages, etc."}</p>
+                  </div>
                 </div>
-                <textarea value={experience} onChange={e => setExperience(e.target.value)} rows={3} placeholder={lang === "my" ? "သင့်အလုပ်အတွေ့အကြုံကို ဖော်ပြပါ..." : "Describe your work experience..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                <textarea
+                  value={otherInfo}
+                  onChange={e => setOtherInfo(e.target.value)}
+                  rows={3}
+                  placeholder={lang === "my" ? "အခြားအချက်အလက်များ — လက်မှတ်များ၊ ဆုများ၊ ဘာသာစကားများ၊ volunteer အလုပ်များ..." : "Other info — certifications, awards, languages, volunteer work, projects, links..."}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                />
               </div>
 
               {/* Education - Multiple */}
@@ -484,7 +579,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setExperience(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
