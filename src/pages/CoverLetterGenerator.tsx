@@ -34,6 +34,16 @@ const CoverLetterGenerator = () => {
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
 
+  const { data: savedCoverLetters = [] } = useQuery({
+    queryKey: ["saved-cover-letters", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      const { data } = await supabase.from("generated_documents").select("*").eq("user_id", session.user.id).eq("doc_type", "cover_letter").order("created_at", { ascending: false }).limit(10);
+      return data || [];
+    },
+    enabled: !!session?.user?.id,
+  });
+
   const [form, setForm] = useState({
     jobTitle: "",
     company: "",
