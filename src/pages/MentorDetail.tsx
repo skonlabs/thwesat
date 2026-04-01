@@ -13,6 +13,7 @@ const MentorDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
+  const { startConversation } = useStartConversation();
   const { data: mentor, isLoading } = useMentorProfile(id);
 
   const { data: reviews = [] } = useQuery({
