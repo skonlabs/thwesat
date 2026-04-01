@@ -1,43 +1,116 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Download, Globe } from "lucide-react";
+import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
+
+const SUGGESTED_SKILLS = [
+  "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java", "PHP", "HTML/CSS", "SQL", "WordPress",
+  "Figma", "UI/UX Design", "Graphic Design", "Adobe Photoshop", "Video Editing",
+  "SEO", "Digital Marketing", "Social Media Marketing", "Content Writing", "Copywriting",
+  "Data Entry", "Virtual Assistant", "Customer Service", "Project Management",
+  "Excel", "Google Sheets", "Data Analysis", "Accounting", "Bookkeeping",
+  "Translation", "Teaching / Tutoring", "Nursing", "Caregiving",
+  "Cooking / Chef", "Sewing / Garment", "Driving", "Sales", "Leadership",
+];
+
+interface EducationEntry {
+  degree: string;
+  institution: string;
+  year: string;
+}
 
 const ProfileBuilder = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    title: "",
-    experience: "",
-    education: "",
-    skills: "",
-    platform: "Upwork",
-  });
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [experience, setExperience] = useState("");
+  const [educations, setEducations] = useState<EducationEntry[]>([{ degree: "", institution: "", year: "" }]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  const [platform, setPlatform] = useState("Upwork");
+
+  // Pre-populate from profile
+  useEffect(() => {
+    if (profile) {
+      setName(profile.display_name || "");
+      setTitle(profile.headline || "");
+      if (profile.skills && profile.skills.length > 0) {
+        setSkills(profile.skills);
+      }
+      if (profile.experience) {
+        setExperience(profile.experience);
+      }
+    }
+  }, [profile]);
 
   const platforms = ["Upwork", "Fiverr", "LinkedIn", "Toptal"];
 
+  const addEducation = () => {
+    if (educations.length < 5) {
+      setEducations([...educations, { degree: "", institution: "", year: "" }]);
+    }
+  };
+
+  const removeEducation = (index: number) => {
+    if (educations.length > 1) {
+      setEducations(educations.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateEducation = (index: number, field: keyof EducationEntry, value: string) => {
+    setEducations(educations.map((ed, i) => i === index ? { ...ed, [field]: value } : ed));
+  };
+
+  const addSkill = (skill?: string) => {
+    const s = (skill || newSkill).trim();
+    if (s && !skills.includes(s) && skills.length < 30) {
+      setSkills([...skills, s]);
+      setNewSkill("");
+      setShowSkillSuggestions(false);
+    }
+  };
+
+  const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
+
+  const filteredSuggestions = useMemo(() => {
+    const q = newSkill.toLowerCase();
+    return SUGGESTED_SKILLS.filter(s => !skills.includes(s) && (!q || s.toLowerCase().includes(q)));
+  }, [newSkill, skills]);
+
+  const educationText = educations
+    .filter(ed => ed.degree || ed.institution)
+    .map(ed => [ed.degree, ed.institution, ed.year].filter(Boolean).join(", "))
+    .join("; ");
+
+  const skillsText = skills.join(", ");
+
   const generatedProfile = {
-    headline: form.title || "Full Stack Developer",
-    summary: `Results-driven ${form.title || "professional"} with a proven track record of delivering high-quality solutions. ${form.experience ? `Experienced in ${form.experience.substring(0, 80)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${form.skills || "modern technologies"} with a strong foundation in ${form.education || "computer science"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
-    skills: (form.skills || "React, JavaScript, TypeScript, Node.js, CSS").split(",").map(s => s.trim()).filter(Boolean),
+    headline: title || "Full Stack Developer",
+    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experience ? `Experienced in ${experience.substring(0, 80)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
+    skills,
     sections: [
-      { title: "Professional Summary", content: `Dedicated ${form.title || "developer"} seeking remote opportunities to leverage expertise in ${form.skills || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable code.` },
+      { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
       { title: "Key Achievements", content: "• Delivered 15+ projects on time and within budget\n• Maintained 98% client satisfaction rating\n• Reduced application load times by 40% through optimization\n• Collaborated with cross-functional teams across 5+ time zones" },
+      ...(educationText ? [{ title: "Education", content: educations.filter(ed => ed.degree || ed.institution).map(ed => `• ${[ed.degree, ed.institution, ed.year].filter(Boolean).join(" — ")}`).join("\n") }] : []),
     ],
   };
 
   const handleGenerate = () => {
-    if (!form.name && !form.title) {
+    if (!name && !title) {
       toast({
         title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
         description: lang === "my" ? "အနည်းဆုံး နာမည်နှင့် ရာထူးကို ဖြည့်ပါ" : "Please fill in at least your name and title",
@@ -55,10 +128,7 @@ const ProfileBuilder = () => {
     const text = `${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n")}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({
-      title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!",
-      description: lang === "my" ? "ပရိုဖိုင်ကို clipboard သို့ ကူးယူပြီးပါပြီ" : "Profile copied to clipboard",
-    });
+    toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!", description: lang === "my" ? "ပရိုဖိုင်ကို clipboard သို့ ကူးယူပြီးပါပြီ" : "Profile copied to clipboard" });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -86,6 +156,17 @@ const ProfileBuilder = () => {
           {/* Step 1: Input details */}
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {/* Pre-populated notice */}
+              {profile && (profile.display_name || (profile.skills && profile.skills.length > 0)) && (
+                <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5">
+                  <Check className="h-4 w-4 text-primary" strokeWidth={2} />
+                  <p className="text-xs text-primary font-medium">
+                    {lang === "my" ? "သင့်ပရိုဖိုင်မှ အချက်အလက်များ ထည့်သွင်းထားပါသည်" : "Pre-filled from your profile & CV"}
+                  </p>
+                </div>
+              )}
+
+              {/* Personal Info */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -99,15 +180,16 @@ const ProfileBuilder = () => {
                 <div className="space-y-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "နာမည်" : "Full Name"}</label>
-                    <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင်" : "e.g. Maung Maung"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                    <Input value={name} onChange={e => setName(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင်" : "e.g. Maung Maung"} className="h-10 rounded-lg" />
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရာထူး / အထူးပြု" : "Job Title / Specialty"}</label>
-                    <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - Web Developer" : "e.g. Web Developer"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                    <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - Web Developer" : "e.g. Web Developer"} className="h-10 rounded-lg" />
                   </div>
                 </div>
               </div>
 
+              {/* Experience */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald/10">
@@ -115,28 +197,112 @@ const ProfileBuilder = () => {
                   </div>
                   <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အတွေ့အကြုံ" : "Experience"}</h2>
                 </div>
-                <textarea value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })} rows={3} placeholder={lang === "my" ? "သင့်အလုပ်အတွေ့အကြုံကို ဖော်ပြပါ..." : "Describe your work experience..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                <textarea value={experience} onChange={e => setExperience(e.target.value)} rows={3} placeholder={lang === "my" ? "သင့်အလုပ်အတွေ့အကြုံကို ဖော်ပြပါ..." : "Describe your work experience..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
               </div>
 
+              {/* Education - Multiple */}
               <div className="rounded-xl border border-border bg-card p-4">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-                    <GraduationCap className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+                      <GraduationCap className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပညာရေး" : "Education"}</h2>
+                      <p className="text-[10px] text-muted-foreground">{educations.length}/5</p>
+                    </div>
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပညာရေး" : "Education"}</h2>
+                  {educations.length < 5 && (
+                    <Button variant="outline" size="sm" onClick={addEducation} className="rounded-lg text-xs">
+                      <Plus className="mr-1 h-3 w-3" strokeWidth={1.5} />
+                      {lang === "my" ? "ထပ်ထည့်" : "Add"}
+                    </Button>
+                  )}
                 </div>
-                <input value={form.education} onChange={e => setForm({ ...form, education: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - ကွန်ပျူတာသိပ္ပံ ဘွဲ့" : "e.g. BSc Computer Science"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                <div className="space-y-3">
+                  {educations.map((ed, i) => (
+                    <div key={i} className="relative rounded-lg border border-border bg-muted/30 p-3">
+                      {educations.length > 1 && (
+                        <button onClick={() => removeEducation(i)} className="absolute right-2 top-2 rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        </button>
+                      )}
+                      <div className="space-y-2">
+                        <Input
+                          value={ed.degree}
+                          onChange={e => updateEducation(i, "degree", e.target.value)}
+                          placeholder={lang === "my" ? "ဘွဲ့/ဒီဂရီ (ဥပမာ - BSc Computer Science)" : "Degree (e.g. BSc Computer Science)"}
+                          className="h-9 rounded-lg text-sm"
+                        />
+                        <Input
+                          value={ed.institution}
+                          onChange={e => updateEducation(i, "institution", e.target.value)}
+                          placeholder={lang === "my" ? "တက္ကသိုလ်/ကျောင်း" : "Institution / University"}
+                          className="h-9 rounded-lg text-sm"
+                        />
+                        <Input
+                          value={ed.year}
+                          onChange={e => updateEducation(i, "year", e.target.value)}
+                          placeholder={lang === "my" ? "ခုနှစ် (ဥပမာ - 2020)" : "Year (e.g. 2020)"}
+                          className="h-9 w-32 rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
+              {/* Skills - Multiple chips */}
               <div className="rounded-xl border border-border bg-card p-4">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Award className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                      <Award className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                    </div>
+                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
                   </div>
-                  <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+                  <span className="text-[10px] text-muted-foreground">{skills.length}/30</span>
                 </div>
-                <input value={form.skills} onChange={e => setForm({ ...form, skills: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - React, Node.js, Figma" : "e.g. React, Node.js, Figma"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
-                <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ကော်မာ (,) ဖြင့် ခွဲပါ" : "Separate with commas"}</p>
+
+                {skills.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-1.5">
+                    {skills.map(skill => (
+                      <span key={skill} className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                        {skill}
+                        <button onClick={() => removeSkill(skill)} className="rounded-full p-0.5 active:bg-primary/20">
+                          <X className="h-3 w-3" strokeWidth={1.5} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="relative">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSkill}
+                      onChange={e => { setNewSkill(e.target.value); setShowSkillSuggestions(true); }}
+                      onFocus={() => setShowSkillSuggestions(true)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                      placeholder={lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ရန်..." : "Add a skill..."}
+                      className="h-10 rounded-lg text-sm"
+                    />
+                    <Button variant="outline" size="sm" className="rounded-lg" onClick={() => addSkill()}>
+                      <Plus className="h-4 w-4" strokeWidth={1.5} />
+                    </Button>
+                  </div>
+                  {showSkillSuggestions && filteredSuggestions.length > 0 && (
+                    <div className="absolute z-50 mt-1 max-h-40 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
+                      {filteredSuggestions.slice(0, 12).map(s => (
+                        <button key={s} onClick={() => addSkill(s)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-muted">
+                          <Plus className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="mt-1.5 text-[10px] text-muted-foreground">{lang === "my" ? "ရိုက်ထည့်ပြီး Enter နှိပ်ပါ သို့မဟုတ် အကြံပြုချက်မှ ရွေးပါ" : "Type and press Enter, or pick from suggestions"}</p>
               </div>
 
               <Button onClick={() => setStep(2)} className="w-full">
@@ -153,9 +319,9 @@ const ProfileBuilder = () => {
                 <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို မည်သည့် platform အတွက် ပြင်ဆင်ချင်ပါသလဲ?" : "Which platform is this profile for?"}</p>
                 <div className="grid grid-cols-2 gap-3">
                   {platforms.map(p => (
-                    <button key={p} onClick={() => setForm({ ...form, platform: p })} className={`flex items-center gap-2 rounded-xl border p-3.5 text-left transition-colors ${form.platform === p ? "border-primary bg-primary/5" : "border-border bg-background active:bg-muted"}`}>
-                      <Globe className={`h-4 w-4 ${form.platform === p ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                      <span className={`text-sm font-medium ${form.platform === p ? "text-primary" : "text-foreground"}`}>{p}</span>
+                    <button key={p} onClick={() => setPlatform(p)} className={`flex items-center gap-2 rounded-xl border p-3.5 text-left transition-colors ${platform === p ? "border-primary bg-primary/5" : "border-border bg-background active:bg-muted"}`}>
+                      <Globe className={`h-4 w-4 ${platform === p ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                      <span className={`text-sm font-medium ${platform === p ? "text-primary" : "text-foreground"}`}>{p}</span>
                     </button>
                   ))}
                 </div>
@@ -206,25 +372,22 @@ const ProfileBuilder = () => {
                     </div>
                     <div>
                       <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "Profile Ready!"}</h2>
-                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${form.platform} အတွက် ပြင်ဆင်ထားပါသည်` : `Optimized for ${form.platform}`}</p>
+                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် ပြင်ဆင်ထားပါသည်` : `Optimized for ${platform}`}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">{form.platform}</span>
+                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">{platform}</span>
                 </div>
 
-                {/* Generated headline */}
                 <div className="mb-3 rounded-lg bg-primary/5 p-3">
                   <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Headline</p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{form.name ? `${form.name} — ` : ""}{generatedProfile.headline}</p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">{name ? `${name} — ` : ""}{generatedProfile.headline}</p>
                 </div>
 
-                {/* Summary */}
                 <div className="mb-3">
                   <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Summary</p>
                   <p className="text-xs leading-relaxed text-foreground/80">{generatedProfile.summary}</p>
                 </div>
 
-                {/* Sections */}
                 {generatedProfile.sections.map((section, i) => (
                   <div key={i} className="mb-3">
                     <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{section.title}</p>
@@ -232,15 +395,16 @@ const ProfileBuilder = () => {
                   </div>
                 ))}
 
-                {/* Skills */}
-                <div>
-                  <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {generatedProfile.skills.map((skill, i) => (
-                      <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
-                    ))}
+                {skills.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {skills.map((skill, i) => (
+                        <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -248,7 +412,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setForm({ name: "", title: "", experience: "", education: "", skills: "", platform: "Upwork" }); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setExperience(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
