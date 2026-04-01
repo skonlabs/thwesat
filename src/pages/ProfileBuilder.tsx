@@ -174,14 +174,20 @@ const ProfileBuilder = () => {
 
   const skillsText = skills.join(", ");
 
+  const experienceText = experiences
+    .filter(ex => ex.role || ex.company || ex.description)
+    .map(ex => [ex.role, ex.company, ex.duration].filter(Boolean).join(" at "))
+    .join("; ");
+
   const generatedProfile = {
     headline: title || "Full Stack Developer",
-    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experience ? `Experienced in ${experience.substring(0, 80)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
+    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
     skills,
     sections: [
       { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
-      { title: "Key Achievements", content: "• Delivered 15+ projects on time and within budget\n• Maintained 98% client satisfaction rating\n• Reduced application load times by 40% through optimization\n• Collaborated with cross-functional teams across 5+ time zones" },
+      { title: "Work Experience", content: experiences.filter(ex => ex.role || ex.company).map(ex => `• ${[ex.role, ex.company, ex.duration].filter(Boolean).join(" — ")}${ex.description ? `\n  ${ex.description}` : ""}`).join("\n") || "• Multiple projects delivered successfully" },
       ...(educationText ? [{ title: "Education", content: educations.filter(ed => ed.degree || ed.institution).map(ed => `• ${[ed.degree, ed.institution, ed.year].filter(Boolean).join(" — ")}`).join("\n") }] : []),
+      ...(otherInfo ? [{ title: "Additional Information", content: otherInfo }] : []),
     ],
   };
 
