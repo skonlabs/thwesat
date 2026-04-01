@@ -62,7 +62,7 @@ const AdminAnalytics = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ခွဲခြမ်းစိတ်ဖြာ" : "Analytics"} />
       <div className="px-5 space-y-5">
         {sections.map((section, si) => (

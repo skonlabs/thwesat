@@ -57,10 +57,10 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background px-6 pt-6">
-      <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1 text-muted-foreground">
-        <ArrowLeft className="h-5 w-5" />
-        <span className="text-sm">{lang === "my" ? "နောက်သို့" : "Back"}</span>
+    <div className="min-h-screen bg-background px-6 pt-6 pb-8">
+      <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
+        <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+        <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>
       </button>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -73,14 +73,14 @@ const ForgotPassword = () => {
         </p>
 
         <div className="mb-6">
-          <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
+          <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
           <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+            <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+            <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
           </div>
         </div>
 
-        <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
+        <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
           {isLoading ? (lang === "my" ? "ပို့နေသည်..." : "Sending...") : (lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link")}
         </Button>
       </motion.div>

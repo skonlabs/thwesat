@@ -65,7 +65,7 @@ const GuideDetail = () => {
   const content = lang === "my" && guide.content_my ? guide.content_my : guide.content;
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

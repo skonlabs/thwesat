@@ -34,7 +34,7 @@ const HomePage = () => {
   const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
       <div className="border-b border-border bg-card px-5 pb-5 pt-4">
         <div className="flex items-center gap-3">
@@ -55,7 +55,7 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-        <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left">
+        <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3 text-left transition-colors active:bg-muted/50">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <span className="text-sm text-muted-foreground">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </button>

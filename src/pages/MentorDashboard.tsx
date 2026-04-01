@@ -101,7 +101,7 @@ const MentorDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title="Mentor Dashboard" />
       <div className="px-5">
         <div className="mb-5 grid grid-cols-2 gap-3">

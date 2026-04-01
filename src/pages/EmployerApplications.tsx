@@ -69,7 +69,7 @@ const EmployerApplications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} />
       <div className="px-5">
         <div className="mb-3 rounded-xl border border-border bg-card p-3">

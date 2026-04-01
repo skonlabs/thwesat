@@ -71,7 +71,7 @@ const EmployerOnboarding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် စာရင်းသွင်းခြင်း" : "Employer Setup"} />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">

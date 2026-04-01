@@ -57,7 +57,7 @@ const Premium = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရီမီယံ" : "Premium"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

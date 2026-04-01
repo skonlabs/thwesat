@@ -76,16 +76,16 @@ const Signup = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background px-6 pt-6">
+    <div className="min-h-screen bg-background px-6 pt-6 pb-8">
       <div className="flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-muted-foreground">
-          <ArrowLeft className="h-5 w-5" />
-          <span className="text-sm">{lang === "my" ? "နောက်သို့" : "Back"}</span>
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
+          <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+          <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>
         </button>
         <LanguageToggle />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-4 flex flex-col">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col">
         <img src={logo} alt="ThweSone" width={56} height={56} className="mb-6" />
 
         <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Create Account"}</h1>
@@ -93,19 +93,19 @@ const Signup = () => {
 
         {/* Role Selection */}
         <div className="mb-6">
-          <Label className="mb-2 block text-sm font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
+          <Label className="mb-2.5 block text-xs font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
           <div className="grid grid-cols-3 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
                 onClick={() => setSelectedRole(r.value)}
-                className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
+                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-3.5 transition-all ${
                   selectedRole === r.value
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary/40 bg-primary/5 shadow-sm"
                     : "border-border bg-card active:bg-muted"
                 }`}
               >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/15" : "bg-muted"}`}>
                   <r.icon className={`h-4 w-4 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
                 <span className={`text-xs font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
@@ -119,33 +119,29 @@ const Signup = () => {
           </div>
         </div>
 
-        <div className="mb-6 mt-3 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
         <div className="space-y-4">
           <div>
-            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={name} onChange={e => setName(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင် (ဖန်နာမည်လည်း ရ)" : "e.g. Maung Maung (pseudonyms OK)"} className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+              <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင် (ဖန်နာမည်လည်း ရ)" : "e.g. Maung Maung (pseudonyms OK)"} className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
             </div>
             <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အမှန်တကယ် နာမည် မဟုတ်လည်း ရပါသည်" : "Can be a pseudonym for your safety"}</p>
           </div>
           <div>
-            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-card pl-10 text-sm" />
+              <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
             </div>
           </div>
           <div>
-            <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-card pl-10 pr-10 text-sm" />
+              <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+              <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-muted/30 pl-10 pr-10 text-sm focus-visible:ring-primary/30" />
               <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
             {password && password.length < 6 && (
@@ -155,22 +151,22 @@ const Signup = () => {
 
           {/* Referral Code */}
           {!showReferral ? (
-            <button onClick={() => setShowReferral(true)} className="flex items-center gap-2 text-xs font-medium text-primary">
+            <button onClick={() => setShowReferral(true)} className="flex items-center gap-2 text-xs font-semibold text-primary">
               <Gift className="h-3.5 w-3.5" strokeWidth={1.5} />
               {lang === "my" ? "ညွှန်းဆိုကုဒ် ရှိပါသလား?" : "Have a referral code?"}
             </button>
           ) : (
             <div>
-              <Label className="mb-1.5 text-sm text-foreground">{lang === "my" ? "ညွှန်းဆိုကုဒ် (ရွေးချယ်ပိုင်ခွင့်)" : "Referral Code (Optional)"}</Label>
+              <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ညွှန်းဆိုကုဒ် (ရွေးချယ်ပိုင်ခွင့်)" : "Referral Code (Optional)"}</Label>
               <div className="relative">
-                <Gift className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} placeholder="TS-XXXXXX" className="h-12 rounded-xl border-border bg-card pl-10 text-sm uppercase" />
+                <Gift className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+                <Input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} placeholder="TS-XXXXXX" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm uppercase focus-visible:ring-primary/30" />
               </div>
             </div>
           )}
         </div>
 
-        <Button variant="default" size="lg" className="mt-8 w-full rounded-xl" onClick={handleSignup} disabled={isLoading}>
+        <Button variant="default" size="lg" className="mt-8 w-full rounded-2xl shadow-navy" onClick={handleSignup} disabled={isLoading}>
           {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating...") : (lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up")}
         </Button>
 
@@ -182,7 +178,7 @@ const Signup = () => {
 
         <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
-          <button onClick={() => navigate("/login")} className="font-medium text-primary">
+          <button onClick={() => navigate("/login")} className="font-semibold text-primary">
             {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
           </button>
         </p>

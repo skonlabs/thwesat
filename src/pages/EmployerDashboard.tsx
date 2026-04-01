@@ -38,7 +38,7 @@ const EmployerDashboard = () => {
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် Dashboard" : "Employer Dashboard"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">

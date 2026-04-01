@@ -76,11 +76,11 @@ const Mentors = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} />
       <div className="px-5 pt-4">
         <div className="mb-3 flex gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
             <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "လမ်းညွှန်သူ ရှာဖွေရန်..." : "Search mentors..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
           </div>
