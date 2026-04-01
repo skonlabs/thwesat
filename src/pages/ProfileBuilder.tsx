@@ -26,6 +26,13 @@ interface EducationEntry {
   year: string;
 }
 
+interface ExperienceEntry {
+  company: string;
+  role: string;
+  duration: string;
+  description: string;
+}
+
 const ProfileBuilder = () => {
   const navigate = useNavigate();
   const location = useLocation();
