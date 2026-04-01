@@ -25,7 +25,6 @@ const MentorMentees = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { data: mentees = [], isLoading } = useMentorMentees();
-  const updateStatus = useUpdateMenteeStatus();
   const [filter, setFilter] = useState<FilterType>("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
