@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2 } from "lucide-react";
+import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2, RotateCcw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs } from "@/hooks/use-jobs";
+import { useQuery } from "@tanstack/react-query";
 
 const toneOptions = [
   { value: "professional", labelMy: "Professional", labelEn: "Professional" },

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal, Download, Bookmark } from "lucide-react";
+import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal, Download, Bookmark, RotateCcw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
