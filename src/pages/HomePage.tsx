@@ -22,6 +22,8 @@ const HomePage = () => {
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const { data: jobs } = useJobs();
+  const { data: mentors } = useMentorProfiles();
+  const { data: allProfiles } = useAllProfiles();
 
   const featuredJobs = (jobs || []).slice(0, 3);
   const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
