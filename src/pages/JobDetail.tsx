@@ -325,7 +325,14 @@ const JobDetail = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             {doc.file_url && (
-                              <button onClick={(e) => { e.stopPropagation(); window.open(doc.file_url, "_blank"); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
+                              <button onClick={async (e) => {
+                                e.stopPropagation();
+                                const storagePath = doc.file_url.split('/cv-documents/').pop();
+                                if (!storagePath) { window.open(doc.file_url, "_blank"); return; }
+                                const { data } = await supabase.storage.from('cv-documents').createSignedUrl(storagePath, 300);
+                                if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                                else toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
+                              }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
                             )}
