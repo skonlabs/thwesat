@@ -137,14 +137,18 @@ const Community = () => {
   });
 
   const addComment = useMutation({
-    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+    mutationFn: async ({ postId, content, parentId }: { postId: string; content: string; parentId?: string | null }) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("post_comments").insert({ post_id: postId, author_id: user.id, content });
+      const insertData: any = { post_id: postId, author_id: user.id, content };
+      if (parentId) insertData.parent_id = parentId;
+      const { error } = await supabase.from("post_comments").insert(insertData);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments"] });
       setCommentText("");
+      setReplyToId(null);
+      setReplyToName(null);
     },
   });
 
