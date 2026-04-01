@@ -146,9 +146,9 @@ const JobDetail = () => {
   }
 
   const salaryText = job.salary_min && job.salary_max
-    ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}/mo`
-    : job.salary_min ? `$${job.salary_min.toLocaleString()}+/mo`
-    : "Negotiable";
+    ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`
+    : job.salary_min ? `$${job.salary_min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`
+    : lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
 
   const requirementsList = (lang === "my" && job.requirements_my ? job.requirements_my : job.requirements || "")
     .split("\n")
