@@ -612,12 +612,6 @@ const JobDetail = () => {
       {/* Bottom bar */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg items-center gap-3">
-          <button onClick={handleSave} className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${saved ? "border-accent bg-accent/10" : "border-border active:bg-muted"}`}>
-            <Bookmark className={`h-5 w-5 ${saved ? "fill-accent text-accent" : "text-muted-foreground"}`} strokeWidth={1.5} />
-          </button>
-          <button onClick={handleShare} className="flex h-12 w-12 items-center justify-center rounded-xl border border-border active:bg-muted">
-            <Share2 className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-          </button>
           {applied ? (
             <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
               <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
