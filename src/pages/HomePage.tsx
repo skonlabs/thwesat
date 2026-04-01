@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useJobs } from "@/hooks/use-jobs";
+import { useMentorProfiles } from "@/hooks/use-mentor-data";
+import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
 
 const jobseekerActions = [
@@ -20,6 +22,8 @@ const HomePage = () => {
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const { data: jobs } = useJobs();
+  const { data: mentors } = useMentorProfiles();
+  const { data: allProfiles } = useAllProfiles();
 
   const featuredJobs = (jobs || []).slice(0, 3);
   const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
@@ -145,8 +149,8 @@ const HomePage = () => {
           <div className="grid grid-cols-3 gap-3">
             {[
               { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs" },
-              { value: "—", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
-              { value: "—", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
+              { value: `${(allProfiles || []).length}+`, label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
                 <p className="text-lg font-bold text-accent">{stat.value}</p>

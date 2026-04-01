@@ -132,7 +132,7 @@ const MentorDetail = () => {
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages")}>
             <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
           </Button>
-          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/mentors/book")}>
+          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>
             <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book"}
           </Button>
         </div>
