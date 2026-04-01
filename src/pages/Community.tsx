@@ -52,7 +52,20 @@ function usePostSaves(postIds: string[]) {
   });
 }
 
-function usePostComments(postId: string | null) {
+function usePostCommentCounts(postIds: string[]) {
+  return useQuery({
+    queryKey: ["post-comment-counts", postIds],
+    queryFn: async () => {
+      if (!postIds.length) return {};
+      const { data } = await supabase.from("post_comments").select("post_id").in("post_id", postIds);
+      const counts: Record<string, number> = {};
+      (data || []).forEach(c => { counts[c.post_id] = (counts[c.post_id] || 0) + 1; });
+      return counts;
+    },
+    enabled: postIds.length > 0,
+  });
+}
+
   return useQuery({
     queryKey: ["post-comments", postId],
     queryFn: async () => {
