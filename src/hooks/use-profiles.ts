@@ -55,7 +55,7 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("*")
+        .select(PUBLIC_PROFILE_FIELDS)
         .in("primary_role", ["jobseeker", "mentor"])
         .order("created_at", { ascending: false })
         .limit(50);
