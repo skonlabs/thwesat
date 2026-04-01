@@ -722,6 +722,28 @@ const ProfileBuilder = () => {
                 </Button>
               </div>
 
+              <Button
+                variant={saved ? "outline" : "default"}
+                onClick={async () => {
+                  if (saved || !session?.user?.id || !generatedProfile) return;
+                  const fullText = `${name ? `${name} — ` : ""}${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map((s: any) => `${s.title}\n${s.content}`).join("\n\n")}${generatedProfile.skills.length ? `\n\nSkills: ${generatedProfile.skills.join(", ")}` : ""}`;
+                  await supabase.from("generated_documents").insert({
+                    user_id: session.user.id,
+                    doc_type: "resume",
+                    title: `${platform} Profile — ${name || title || "Untitled"}`,
+                    content: fullText,
+                    metadata: { platform, name, headline: generatedProfile.headline },
+                  });
+                  setSaved(true);
+                  toast({ title: lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved for future use" });
+                }}
+                className="w-full"
+                disabled={saved}
+              >
+                {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+              </Button>
+
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
                 {lang === "my" ? "Career Tools သို့ ပြန်သွားရန်" : "Back to Career Tools"}
