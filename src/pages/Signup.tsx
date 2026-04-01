@@ -48,6 +48,13 @@ const Signup = () => {
       toast({ title: lang === "my" ? "အကောင့်ဖွင့်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
       return;
     }
+    // Save referral code if provided
+    if (referralCode.trim()) {
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
+      }
+    }
     setRole(selectedRole);
     toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
     navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/dashboard" : "/home");
