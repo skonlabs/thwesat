@@ -63,7 +63,16 @@ function usePostComments(postId: string | null) {
       if (!authorIds.length) return [];
       const { data: profiles } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
+      const enriched = (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
+      // Build tree: top-level comments + nested replies
+      const topLevel = enriched.filter(c => !c.parent_id);
+      const repliesMap = new Map<string, typeof enriched>();
+      enriched.filter(c => c.parent_id).forEach(c => {
+        const arr = repliesMap.get(c.parent_id!) || [];
+        arr.push(c);
+        repliesMap.set(c.parent_id!, arr);
+      });
+      return { topLevel, repliesMap };
     },
     enabled: !!postId,
   });
