@@ -82,8 +82,8 @@ const MentorDashboard = () => {
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
-  const totalEarnings = earnings?.reduce((a: number, e: any) => a + Number(e.amount), 0) || 0;
-  const thisMonthEarnings = earnings?.filter((e: any) => new Date(e.created_at).getMonth() === new Date().getMonth()).reduce((a: number, e: any) => a + Number(e.amount), 0) || 0;
+  const totalEarnings = earnings?.allTime || 0;
+  const thisMonthEarnings = earnings?.thisMonth || 0;
 
   const stats = [
     { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10" },

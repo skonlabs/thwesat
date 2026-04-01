@@ -67,7 +67,7 @@ const MentorBookings = () => {
   };
 
   const handleDecline = (id: string) => {
-    updateStatus.mutate({ bookingId: id, status: "cancelled" }, {
+    updateStatus.mutate({ id, status: "cancelled" }, {
       onSuccess: () => toast({ title: lang === "my" ? "Booking ပယ်ဖျက်ပြီး" : "Booking declined" }),
     });
   };

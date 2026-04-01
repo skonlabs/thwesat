@@ -173,10 +173,10 @@ const MentorMentees = () => {
                 </div>
                 {selectedMentee.status === "pending" && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => { updateStatus.mutate({ menteeId: selectedMentee.id, status: "completed" }); setSelectedId(null); }}>
+                    <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setSelectedId(null)}>
                       {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                     </Button>
-                    <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => { updateStatus.mutate({ menteeId: selectedMentee.id, status: "active" }); setSelectedId(null); }}>
+                    <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setSelectedId(null)}>
                       {lang === "my" ? "လက်ခံရန်" : "Accept Mentee"}
                     </Button>
                   </div>
