@@ -519,7 +519,7 @@ const JobDetail = () => {
                     {coverLetterMode !== "none" && coverLetter ? (
                       <>
                         <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                        <span className="text-foreground">{lang === "my" ? "Cover Letter ပါဝင်သည်" : "Cover letter included"}</span>
+                        <span className="text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ ပါဝင်သည်" : "Cover letter included"}</span>
                       </>
                     ) : (
                       <>
