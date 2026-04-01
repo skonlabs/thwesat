@@ -1,19 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, ChevronDown, Upload, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
+import { useQuery } from "@tanstack/react-query";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { data: job, isLoading } = useJob(id);
   const { data: savedJobIds = [] } = useSavedJobIds();
   const toggleSaveMutation = useToggleSaveJob();
@@ -22,25 +26,72 @@ const JobDetail = () => {
   const { data: applications = [] } = useApplications();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+  const [coverLetterMode, setCoverLetterMode] = useState<"none" | "manual" | "generated">("none");
+  const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
+  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState("");
+
+  // Fetch user's CV documents
+  const { data: cvDocuments = [] } = useQuery({
+    queryKey: ["cv-documents", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("cv_documents")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user && showApplyModal,
+  });
+
+  // Fetch user's past generated cover letters from applications
+  const { data: pastCoverLetters = [] } = useQuery({
+    queryKey: ["past-cover-letters", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("applications")
+        .select("id, cover_letter, job_id, jobs(title, company)")
+        .eq("applicant_id", user.id)
+        .neq("cover_letter", "")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return (data || []).filter((a: any) => a.cover_letter && a.cover_letter.trim().length > 20);
+    },
+    enabled: !!user && showApplyModal,
+  });
 
   const applied = id ? applications.some((a: any) => a.job_id === id) : false;
-
   const saved = id ? savedJobIds.includes(id) : false;
 
   const handleApply = () => {
     if (!id) return;
-    applyMutation.mutate({ jobId: id, coverLetter }, {
-      onSuccess: () => {
-        setShowApplyModal(false);
-        toast({
-          title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",
-          description: lang === "my" ? `${job?.company} မှ ပြန်ကြားပါမည်` : `${job?.company} will review your application`,
-        });
+    applyMutation.mutate(
+      {
+        jobId: id,
+        coverLetter: coverLetterMode !== "none" ? coverLetter : undefined,
+        cvDocumentId: selectedCvId || undefined,
       },
-      onError: (error: any) => {
-        toast({ title: lang === "my" ? "အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်" : "Something went wrong", description: error.message });
-      },
-    });
+      {
+        onSuccess: () => {
+          setShowApplyModal(false);
+          setCoverLetter("");
+          setCoverLetterMode("none");
+          setSelectedCvId(null);
+          toast({
+            title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",
+            description: lang === "my" ? `${job?.company} မှ ပြန်ကြားပါမည်` : `${job?.company} will review your application`,
+          });
+        },
+        onError: (error: any) => {
+          toast({ title: lang === "my" ? "အမှားတစ်ခု ဖြစ်ပေါ်ခဲ့သည်" : "Something went wrong", description: error.message });
+        },
+      }
+    );
   };
 
   const handleShare = () => {
@@ -94,11 +145,14 @@ const JobDetail = () => {
     .split("\n")
     .filter(r => r.trim());
 
+  const selectedCv = cvDocuments.find((d: any) => d.id === selectedCvId);
+
   return (
     <div className="min-h-screen bg-background pb-40">
       <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Job header */}
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15">
               <Briefcase className="h-7 w-7 text-accent" strokeWidth={1.5} />
@@ -119,6 +173,7 @@ const JobDetail = () => {
             </div>
           </div>
 
+          {/* Info grid */}
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
               { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
@@ -196,28 +251,299 @@ const JobDetail = () => {
         </motion.div>
       </div>
 
-      {/* Apply Modal */}
+      {/* Enhanced Apply Modal */}
       <AnimatePresence>
         {showApplyModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
-            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+              {/* Header */}
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
                 <button onClick={() => setShowApplyModal(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
               </div>
-              <p className="mb-4 text-xs text-muted-foreground">{job.title} · {job.company}</p>
-              <div className="mb-4 rounded-xl bg-emerald/5 p-3">
+              <p className="mb-5 text-xs text-muted-foreground">{job.title} · {job.company}</p>
+
+              {/* Profile badge */}
+              <div className="mb-5 rounded-xl bg-emerald/5 p-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={1.5} />
                   <p className="text-xs font-medium text-emerald">{lang === "my" ? "ThweSone ပရိုဖိုင်ဖြင့် လျှောက်ထားမည်" : "Applying with your ThweSone profile"}</p>
                 </div>
               </div>
-              <div className="mb-4">
-                <label className="mb-1.5 block text-sm font-medium text-foreground">{lang === "my" ? "Cover Letter (ရွေးချယ်ပိုင်ခွင့်)" : "Cover Letter (Optional)"}</label>
-                <Textarea value={coverLetter} onChange={e => setCoverLetter(e.target.value)} placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit..."} className="min-h-[100px] rounded-xl border-border text-sm" />
+
+              {/* Resume/CV Selection */}
+              <div className="mb-5">
+                <div className="mb-2 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "CV/Resume ရွေးချယ်ပါ" : "Select Resume"}</label>
+                </div>
+
+                {cvDocuments.length > 0 ? (
+                  <div className="space-y-2">
+                    {cvDocuments.map((doc: any) => {
+                      const isSelected = selectedCvId === doc.id;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          }`}
+                          onClick={() => setSelectedCvId(isSelected ? null : doc.id)}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-muted"}`}>
+                              <FileText className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {doc.file_url && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(doc.file_url, "_blank");
+                                }}
+                                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted"
+                                title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
+                              >
+                                <Eye className="h-4 w-4" strokeWidth={1.5} />
+                              </button>
+                            )}
+                            {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
+                    <FileText className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
+                    <p className="text-xs text-muted-foreground">
+                      {lang === "my" ? "CV မတင်ရသေးပါ — Career Tools မှ CV တင်ပါ" : "No CV uploaded yet — upload via Career Tools"}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate("/ai-tools");
+                      }}
+                    >
+                      <Upload className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                      {lang === "my" ? "CV တင်ရန်" : "Upload CV"}
+                    </Button>
+                  </div>
+                )}
               </div>
+
+              {/* Cover Letter Section */}
+              <div className="mb-5">
+                <div className="mb-2 flex items-center gap-2">
+                  <PenLine className="h-4 w-4 text-emerald" strokeWidth={1.5} />
+                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter" : "Cover Letter"}</label>
+                  <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်ပိုင်ခွင့်" : "Optional"})</span>
+                </div>
+
+                {/* Cover Letter Mode Selector */}
+                <div className="mb-3 flex gap-2">
+                  {[
+                    { mode: "none" as const, label: lang === "my" ? "မထည့်ပါ" : "Skip" },
+                    { mode: "manual" as const, label: lang === "my" ? "ကိုယ်တိုင်ရေးရန်" : "Write" },
+                    { mode: "generated" as const, label: lang === "my" ? "ယခင်ရေးထားသည်" : "Previous" },
+                  ].map(({ mode, label }) => (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCoverLetterMode(mode);
+                        if (mode === "none") setCoverLetter("");
+                      }}
+                      className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                        coverLetterMode === mode
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-border text-muted-foreground active:bg-muted"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Manual Cover Letter */}
+                {coverLetterMode === "manual" && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <Textarea
+                      value={coverLetter}
+                      onChange={e => setCoverLetter(e.target.value)}
+                      placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit..."}
+                      className="min-h-[120px] rounded-xl border-border text-sm"
+                    />
+                    <div className="mt-2 flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate("/ai-tools/cover-letter", { state: { jobId: id, jobTitle: job.title, company: job.company } })}
+                      >
+                        <PenLine className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} />
+                        {lang === "my" ? "Cover Letter Generator သုံးရန်" : "Use Cover Letter Generator"}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Previously Generated Cover Letters */}
+                {coverLetterMode === "generated" && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    {pastCoverLetters.length > 0 ? (
+                      <div className="max-h-48 space-y-2 overflow-y-auto">
+                        {pastCoverLetters.map((app: any) => {
+                          const isSelected = coverLetter === app.cover_letter;
+                          const jobInfo = app.jobs;
+                          return (
+                            <div
+                              key={app.id}
+                              className={`cursor-pointer rounded-xl border p-3 transition-colors ${
+                                isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                              }`}
+                              onClick={() => setCoverLetter(isSelected ? "" : app.cover_letter)}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0 flex-1">
+                                  <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                    {jobInfo?.title || (lang === "my" ? "Cover Letter" : "Cover Letter")} — {jobInfo?.company || ""}
+                                  </p>
+                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{app.cover_letter}</p>
+                                </div>
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPreviewContent(app.cover_letter);
+                                      setPreviewTitle(`Cover Letter — ${jobInfo?.title || ""}`);
+                                    }}
+                                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
+                                    title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
+                                  >
+                                    <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                  </button>
+                                  {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
+                        <PenLine className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
+                        <p className="text-xs text-muted-foreground">
+                          {lang === "my" ? "ယခင် cover letter များ မရှိသေးပါ" : "No previous cover letters found"}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate("/ai-tools/cover-letter", { state: { jobId: id, jobTitle: job.title, company: job.company } });
+                          }}
+                        >
+                          <PenLine className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} />
+                          {lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"}
+                        </Button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Summary */}
+              <div className="mb-5 rounded-xl border border-border bg-muted/30 p-3">
+                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {lang === "my" ? "လျှောက်လွှာ အကျဉ်းချုပ်" : "Application Summary"}
+                </p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
+                    <span className="text-foreground">{lang === "my" ? "ThweSone ပရိုဖိုင်" : "ThweSone Profile"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    {selectedCv ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
+                        <span className="text-foreground truncate">{selectedCv.file_name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
+                        <span className="text-muted-foreground">{lang === "my" ? "CV မပါဝင်ပါ" : "No resume attached"}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    {coverLetterMode !== "none" && coverLetter ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
+                        <span className="text-foreground">{lang === "my" ? "Cover Letter ပါဝင်သည်" : "Cover letter included"}</span>
+                        <button
+                          onClick={() => {
+                            setPreviewContent(coverLetter);
+                            setPreviewTitle(lang === "my" ? "Cover Letter" : "Cover Letter");
+                          }}
+                          className="ml-auto text-[10px] font-medium text-primary"
+                        >
+                          {lang === "my" ? "ကြည့်ရန်" : "Preview"}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
+                        <span className="text-muted-foreground">{lang === "my" ? "Cover Letter မပါဝင်ပါ" : "No cover letter"}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit */}
               <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleApply} disabled={applyMutation.isPending}>
-                <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
+                {applyMutation.isPending ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {lang === "my" ? "တင်နေသည်..." : "Submitting..."}
+                  </span>
+                ) : (
+                  <>
+                    <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
+                  </>
+                )}
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Content Preview Modal */}
+      <AnimatePresence>
+        {previewContent && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/50 p-5" onClick={() => setPreviewContent(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-5" onClick={e => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">{previewTitle}</h3>
+                <button onClick={() => setPreviewContent(null)} className="rounded-lg p-1 active:bg-muted">
+                  <X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                </button>
+              </div>
+              <div className="rounded-xl bg-background p-4">
+                <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">{previewContent}</p>
+              </div>
+              <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => setPreviewContent(null)}>
+                {lang === "my" ? "ပိတ်ရန်" : "Close"}
               </Button>
             </motion.div>
           </motion.div>
