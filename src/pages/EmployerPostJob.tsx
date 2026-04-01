@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateJob } from "@/hooks/use-employer-data";
+import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 
 const roleTypes = [
