@@ -227,6 +227,7 @@ const ProfileBuilder = () => {
   };
 
   const handleCopy = () => {
+    if (!generatedProfile) return;
     const text = `${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n")}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
