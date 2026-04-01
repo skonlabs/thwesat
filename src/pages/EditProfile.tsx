@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2 } from "lucide-react";
+import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
