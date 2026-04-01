@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, ChevronDown, Upload, Loader2 } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +28,7 @@ const JobDetail = () => {
   const [coverLetter, setCoverLetter] = useState("");
   const [coverLetterMode, setCoverLetterMode] = useState<"none" | "manual" | "generated">("none");
   const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
+  const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
@@ -47,20 +48,38 @@ const JobDetail = () => {
     enabled: !!user && showApplyModal,
   });
 
-  // Fetch user's past generated cover letters from applications
-  const { data: pastCoverLetters = [] } = useQuery({
-    queryKey: ["past-cover-letters", user?.id],
+  // Fetch generated resumes from generated_documents
+  const { data: generatedResumes = [] } = useQuery({
+    queryKey: ["generated-resumes", user?.id],
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("applications")
-        .select("id, cover_letter, job_id, jobs(title, company)")
-        .eq("applicant_id", user.id)
-        .neq("cover_letter", "")
+        .from("generated_documents")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("doc_type", "resume")
         .order("created_at", { ascending: false })
         .limit(10);
       if (error) throw error;
-      return (data || []).filter((a: any) => a.cover_letter && a.cover_letter.trim().length > 20);
+      return data || [];
+    },
+    enabled: !!user && showApplyModal,
+  });
+
+  // Fetch generated cover letters from generated_documents
+  const { data: generatedCoverLetters = [] } = useQuery({
+    queryKey: ["generated-cover-letters", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("generated_documents")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("doc_type", "cover_letter")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return data || [];
     },
     enabled: !!user && showApplyModal,
   });
@@ -82,6 +101,7 @@ const JobDetail = () => {
           setCoverLetter("");
           setCoverLetterMode("none");
           setSelectedCvId(null);
+          setSelectedGeneratedResumeId(null);
           toast({
             title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",
             description: lang === "my" ? `${job?.company} မှ ပြန်ကြားပါမည်` : `${job?.company} will review your application`,
@@ -146,6 +166,7 @@ const JobDetail = () => {
     .filter(r => r.trim());
 
   const selectedCv = cvDocuments.find((d: any) => d.id === selectedCvId);
+  const selectedGeneratedResume = generatedResumes.find((d: any) => d.id === selectedGeneratedResumeId);
 
   return (
     <div className="min-h-screen bg-background pb-40">
@@ -278,43 +299,70 @@ const JobDetail = () => {
                   <label className="text-sm font-semibold text-foreground">{lang === "my" ? "CV/Resume ရွေးချယ်ပါ" : "Select Resume"}</label>
                 </div>
 
-                {cvDocuments.length > 0 ? (
-                  <div className="space-y-2">
+                {(cvDocuments.length > 0 || generatedResumes.length > 0) ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {/* Uploaded CVs */}
                     {cvDocuments.map((doc: any) => {
-                      const isSelected = selectedCvId === doc.id;
+                      const isSelected = selectedCvId === doc.id && !selectedGeneratedResumeId;
                       return (
                         <div
                           key={doc.id}
                           className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
                             isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
                           }`}
-                          onClick={() => setSelectedCvId(isSelected ? null : doc.id)}
+                          onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-muted"}`}>
-                              <FileText className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                              <Upload className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0">
                               <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
                               <p className="text-[10px] text-muted-foreground">
-                                {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                                {lang === "my" ? "တင်ထားသော CV" : "Uploaded CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {doc.file_url && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(doc.file_url, "_blank");
-                                }}
-                                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted"
-                                title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
-                              >
+                              <button onClick={(e) => { e.stopPropagation(); window.open(doc.file_url, "_blank"); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
                             )}
                             {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Generated Resumes */}
+                    {generatedResumes.map((doc: any) => {
+                      const isSelected = selectedGeneratedResumeId === doc.id;
+                      const meta = doc.metadata as any;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          }`}
+                          onClick={() => { setSelectedGeneratedResumeId(isSelected ? null : doc.id); setSelectedCvId(null); }}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
+                              <Sparkles className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {lang === "my" ? "ဖန်တီးထားသော ပရိုဖိုင်" : "Generated Profile"}{meta?.platform ? ` · ${meta.platform}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
+                              <Eye className="h-4 w-4" strokeWidth={1.5} />
+                            </button>
+                            {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
                           </div>
                         </div>
                       );
@@ -396,35 +444,38 @@ const JobDetail = () => {
                   </motion.div>
                 )}
 
-                {/* Previously Generated Cover Letters */}
+                {/* Generated Cover Letters */}
                 {coverLetterMode === "generated" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                    {pastCoverLetters.length > 0 ? (
+                    {generatedCoverLetters.length > 0 ? (
                       <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {pastCoverLetters.map((app: any) => {
-                          const isSelected = coverLetter === app.cover_letter;
-                          const jobInfo = app.jobs;
+                        {generatedCoverLetters.map((doc: any) => {
+                          const isSelected = coverLetter === doc.content;
+                          const meta = doc.metadata as any;
                           return (
                             <div
-                              key={app.id}
+                              key={doc.id}
                               className={`cursor-pointer rounded-xl border p-3 transition-colors ${
                                 isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
                               }`}
-                              onClick={() => setCoverLetter(isSelected ? "" : app.cover_letter)}
+                              onClick={() => setCoverLetter(isSelected ? "" : doc.content)}
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
                                   <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
-                                    {jobInfo?.title || (lang === "my" ? "Cover Letter" : "Cover Letter")} — {jobInfo?.company || ""}
+                                    {doc.title}
                                   </p>
-                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{app.cover_letter}</p>
+                                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                    {meta?.tone ? `${meta.tone}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                                  </p>
+                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{doc.content}</p>
                                 </div>
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setPreviewContent(app.cover_letter);
-                                      setPreviewTitle(`Cover Letter — ${jobInfo?.title || ""}`);
+                                      setPreviewContent(doc.content);
+                                      setPreviewTitle(doc.title);
                                     }}
                                     className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
                                     title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
@@ -442,7 +493,7 @@ const JobDetail = () => {
                       <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
                         <PenLine className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
                         <p className="text-xs text-muted-foreground">
-                          {lang === "my" ? "ယခင် cover letter များ မရှိသေးပါ" : "No previous cover letters found"}
+                          {lang === "my" ? "ဖန်တီးထားသော cover letter များ မရှိသေးပါ" : "No generated cover letters yet"}
                         </p>
                         <Button
                           variant="outline"
@@ -478,10 +529,18 @@ const JobDetail = () => {
                         <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
                         <span className="text-foreground truncate">{selectedCv.file_name}</span>
                       </>
+                    ) : selectedGeneratedResume ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
+                        <span className="text-foreground truncate">{selectedGeneratedResume.title}</span>
+                        <button onClick={() => { setPreviewContent(selectedGeneratedResume.content); setPreviewTitle(selectedGeneratedResume.title); }} className="ml-auto text-[10px] font-medium text-primary">
+                          {lang === "my" ? "ကြည့်ရန်" : "Preview"}
+                        </button>
+                      </>
                     ) : (
                       <>
                         <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "CV မပါဝင်ပါ" : "No resume attached"}</span>
+                        <span className="text-muted-foreground">{lang === "my" ? "Resume မပါဝင်ပါ" : "No resume attached"}</span>
                       </>
                     )}
                   </div>

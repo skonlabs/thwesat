@@ -192,13 +192,26 @@ const ProfileBuilder = () => {
       if (error) throw error;
       const result = data?.data;
       if (result) {
-        setGeneratedProfile({
+        const profileData = {
           headline: result.headline || title || "",
           summary: result.summary || "",
           skills: result.skills || skills,
           sections: result.sections || [],
-        });
+        };
+        setGeneratedProfile(profileData);
         setStep(3);
+
+        // Save to generated_documents for reuse
+        if (session?.user?.id) {
+          const fullText = `${name ? `${name} — ` : ""}${profileData.headline}\n\n${profileData.summary}\n\n${profileData.sections.map((s: any) => `${s.title}\n${s.content}`).join("\n\n")}${profileData.skills.length ? `\n\nSkills: ${profileData.skills.join(", ")}` : ""}`;
+          await supabase.from("generated_documents").insert({
+            user_id: session.user.id,
+            doc_type: "resume",
+            title: `${platform} Profile — ${name || title || "Untitled"}`,
+            content: fullText,
+            metadata: { platform, name, headline: profileData.headline },
+          });
+        }
       } else {
         throw new Error("No data returned");
       }

@@ -294,6 +294,39 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_documents: {
+        Row: {
+          content: string
+          created_at: string | null
+          doc_type: string
+          id: string
+          metadata: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string | null
+          doc_type: string
+          id?: string
+          metadata?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          doc_type?: string
+          id?: string
+          metadata?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       guide_feedback: {
         Row: {
           created_at: string | null
