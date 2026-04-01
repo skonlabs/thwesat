@@ -795,7 +795,7 @@ const ProfileBuilder = () => {
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
-                {lang === "my" ? "Career Tools သို့ ပြန်သွားရန်" : "Back to Career Tools"}
+                {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
               </Button>
             </motion.div>
           )}

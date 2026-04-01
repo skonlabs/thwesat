@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
 const targetRoles = [
-  { value: "frontend", labelMy: "Frontend Developer", labelEn: "Frontend Developer" },
-  { value: "fullstack", labelMy: "Full Stack Developer", labelEn: "Full Stack Developer" },
-  { value: "mobile", labelMy: "Mobile Developer", labelEn: "Mobile Developer" },
-  { value: "uiux", labelMy: "UI/UX Designer", labelEn: "UI/UX Designer" },
-  { value: "data", labelMy: "Data Analyst", labelEn: "Data Analyst" },
-  { value: "pm", labelMy: "Project Manager", labelEn: "Project Manager" },
+  { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
+  { value: "fullstack", labelMy: "အပြည့်အစုံ ဒီဗလပ်ပါ", labelEn: "Full Stack Developer" },
+  { value: "mobile", labelMy: "မိုဘိုင်း ဒီဗလပ်ပါ", labelEn: "Mobile Developer" },
+  { value: "uiux", labelMy: "UI/UX ဒီဇိုင်နာ", labelEn: "UI/UX Designer" },
+  { value: "data", labelMy: "ဒေတာ ခွဲခြမ်းစိတ်ဖြာသူ", labelEn: "Data Analyst" },
+  { value: "pm", labelMy: "စီမံကိန်း မန်နေဂျာ", labelEn: "Project Manager" },
 ];
 
 const allSkills = [
