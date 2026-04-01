@@ -28,7 +28,7 @@ const locationOptions = [
 const SearchTalent = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { data: profiles = [], isLoading } = useProfiles();
+  const { data: profiles = [], isLoading } = useAllProfiles();
   const [search, setSearch] = useState("");
   const [activeSkill, setActiveSkill] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
