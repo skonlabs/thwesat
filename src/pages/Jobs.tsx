@@ -282,7 +282,7 @@ const Jobs = () => {
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}</span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? typeLabel.my : typeLabel.en}</span>
                   </div>
-                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job)}</span>
+                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job, lang)}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
