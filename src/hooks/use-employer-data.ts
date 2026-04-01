@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 
 export function useEmployerProfile() {
   const { user } = useAuth();
@@ -22,13 +23,12 @@ export function useEmployerProfile() {
 
 export function useUpsertEmployerProfile() {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (profile: Record<string, unknown>) => {
-      if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
-        .from("employer_profiles")
-        .upsert({ id: user.id, ...profile });
+      if (!user) throw new Error(lang === "my" ? "အကောင့်ဝင်ထားခြင်း မရှိပါ" : "Not authenticated");
+      const { error } = await supabase.from("employer_profiles").upsert({ id: user.id, ...profile });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -39,13 +39,12 @@ export function useUpsertEmployerProfile() {
 
 export function useCreateJob() {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (job: Record<string, unknown>) => {
-      if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
-        .from("jobs")
-        .insert({ employer_id: user.id, ...job } as any);
+      if (!user) throw new Error(lang === "my" ? "အကောင့်ဝင်ထားခြင်း မရှိပါ" : "Not authenticated");
+      const { error } = await supabase.from("jobs").insert({ employer_id: user.id, ...job } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -66,10 +65,7 @@ export function useUpdateApplicationStatus() {
       if (placementSalary) update.placement_salary = placementSalary;
       if (placementFee) update.placement_fee = placementFee;
       if (forwardedToEmail) update.forwarded_to_email = forwardedToEmail;
-      const { error } = await supabase
-        .from("applications")
-        .update(update)
-        .eq("id", id);
+      const { error } = await supabase.from("applications").update(update).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -113,15 +109,14 @@ export function usePendingPosts() {
         .eq("is_approved", false)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      // Fetch author profiles
-      const authorIds = [...new Set((data || []).map(p => p.author_id))];
+      const authorIds = [...new Set((data || []).map((p) => p.author_id))];
       if (authorIds.length === 0) return [];
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, display_name, headline, avatar_url")
         .in("id", authorIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(post => ({
+      const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
+      return (data || []).map((post) => ({
         ...post,
         author: profileMap.get(post.author_id),
       }));
@@ -133,10 +128,7 @@ export function useApprovePost() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (postId: string) => {
-      const { error } = await supabase
-        .from("community_posts")
-        .update({ is_approved: true })
-        .eq("id", postId);
+      const { error } = await supabase.from("community_posts").update({ is_approved: true }).eq("id", postId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -150,31 +142,12 @@ export function useApproveJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const { error } = await supabase
-        .from("jobs")
-        .update({ status: "active", is_verified: true })
-        .eq("id", jobId);
+      const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", jobId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-    },
-  });
-}
-
-export function useRejectJob() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (jobId: string) => {
-      const { error } = await supabase
-        .from("jobs")
-        .update({ status: "rejected" })
-        .eq("id", jobId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-jobs"] });
     },
   });
 }

@@ -76,7 +76,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
             <button
               onClick={() => navigate("/notifications")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
-              aria-label="Notifications"
+              aria-label={lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications"}
             >
               <Bell className="h-5 w-5" strokeWidth={1.5} />
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
@@ -84,7 +84,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
             <button
               onClick={() => navigate("/messages")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
-              aria-label="Messages"
+              aria-label={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"}
             >
               <MessageSquare className="h-5 w-5" strokeWidth={1.5} />
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
@@ -92,7 +92,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
             <button
               onClick={() => navigate("/profile")}
               className="flex h-8 w-8 items-center justify-center rounded-full transition-colors active:opacity-80"
-              aria-label="Profile"
+              aria-label={lang === "my" ? "ပရိုဖိုင်" : "Profile"}
             >
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover ring-1.5 ring-border" />
