@@ -1,58 +1,15 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy, ExternalLink, Globe } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
+import { supabase } from "@/integrations/supabase/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
-
-const initialPosts = [
-  {
-    id: 1,
-    author: "ဒေါ်ခင်မြတ်နိုး", authorEn: "Khin Myat Noe", avatar: "KM",
-    role: "Software Engineer · Singapore",
-    time: { my: "2 နာရီအကြာ", en: "2 hours ago" },
-    content: "ထိုင်းမှာ Remote Work လုပ်ဖို့ Pink Card ရပြီးပါပြီ! 🎉 လိုအပ်တဲ့ စာရွက်စာတမ်းတွေနဲ့ အဆင့်ဆင့် လမ်းညွှန်ချက်ကို Legal Guides မှာ ဝေမျှထားပါတယ်။",
-    contentEn: "Got my Thai Pink Card for remote work! 🎉 Shared step-by-step guide in Legal Guides section.",
-    likes: 47, comments: [], shares: 8, liked: true, saved: false, isOwn: false,
-    category: { my: "အောင်မြင်မှု", en: "Success" }
-  },
-  {
-    id: 2,
-    author: "ဦးမင်းထက်", authorEn: "Min Htet", avatar: "MH",
-    role: "UX Designer · Bangkok",
-    time: { my: "5 နာရီအကြာ", en: "5 hours ago" },
-    content: "Upwork မှာ ပထမဆုံး Client ရပြီးပါပြီ! Profile Builder ကို သုံးပြီး ပရိုဖိုင် ပြင်ဆင်ခဲ့တာ အရမ်းအကူအညီ ဖြစ်ပါတယ်။ ကျေးဇူးတင်ပါတယ် ThweSone! 🙏",
-    contentEn: "Got my first Upwork client! The Profile Builder helped me rewrite my profile perfectly. Thanks ThweSone! 🙏",
-    likes: 89, comments: [], shares: 15, liked: false, saved: false, isOwn: false,
-    category: { my: "အလုပ်အကိုင်", en: "Career" }
-  },
-  {
-    id: 3,
-    author: "ဒေါ်သီရိ", authorEn: "Thiri", avatar: "TH",
-    role: "Project Manager · Remote",
-    time: { my: "1 ရက်အကြာ", en: "1 day ago" },
-    content: "⚠️ သတိပေးချက်: LINE App ကနေ ဆက်သွယ်လာတဲ့ \"Remote Job\" ကမ်းလှမ်းချက်တွေ သတိထားပါ။ Processing Fee တောင်းရင် အလိမ်ပါ။",
-    contentEn: "⚠️ Warning: Be cautious of 'Remote Job' offers via LINE App. If they ask for processing fees, it's a scam.",
-    likes: 156, comments: [], shares: 67, liked: true, saved: true, isOwn: false,
-    category: { my: "သတိပေး", en: "Alert" }
-  },
-  {
-    id: 4,
-    author: "ဦးအောင်ကျော်", authorEn: "Aung Kyaw", avatar: "AK",
-    role: "Engineering Manager · Tokyo",
-    time: { my: "2 ရက်အကြာ", en: "2 days ago" },
-    content: "ဂျပန်မှာ Technical Intern Training Program (TITP) အကြောင်း သိချင်သူများ ရှိရင် မေးနိုင်ပါတယ်။ ကျွန်တော် ၃ နှစ် အတွေ့အကြုံ ရှိပါတယ်။",
-    contentEn: "Happy to answer questions about Japan's TITP program. I have 3 years of experience here.",
-    likes: 34, comments: [], shares: 5, liked: false, saved: false, isOwn: false,
-    category: { my: "မေးခွန်း", en: "Q&A" }
-  },
-];
-
-type Comment = { id: number; author: string; avatar: string; text: string; time: string };
-type Post = typeof initialPosts[0] & { comments: Comment[] };
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -63,57 +20,138 @@ const categories = [
   { my: "ဥပဒေ", en: "Legal" },
 ];
 
+function usePostLikes(postIds: string[]) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["post-likes", postIds, user?.id],
+    queryFn: async () => {
+      if (!postIds.length) return { counts: {}, userLikes: new Set<string>() };
+      const { data: likes } = await supabase.from("post_likes").select("post_id, user_id").in("post_id", postIds);
+      const counts: Record<string, number> = {};
+      const userLikes = new Set<string>();
+      (likes || []).forEach(l => {
+        counts[l.post_id] = (counts[l.post_id] || 0) + 1;
+        if (l.user_id === user?.id) userLikes.add(l.post_id);
+      });
+      return { counts, userLikes };
+    },
+    enabled: postIds.length > 0,
+  });
+}
+
+function usePostSaves(postIds: string[]) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["post-saves", postIds, user?.id],
+    queryFn: async () => {
+      if (!user || !postIds.length) return new Set<string>();
+      const { data } = await supabase.from("post_saves").select("post_id").eq("user_id", user.id).in("post_id", postIds);
+      return new Set((data || []).map(d => d.post_id));
+    },
+    enabled: !!user && postIds.length > 0,
+  });
+}
+
+function usePostComments(postId: string | null) {
+  return useQuery({
+    queryKey: ["post-comments", postId],
+    queryFn: async () => {
+      if (!postId) return [];
+      const { data, error } = await supabase.from("post_comments").select("*").eq("post_id", postId).order("created_at", { ascending: true });
+      if (error) throw error;
+      const authorIds = [...new Set((data || []).map(c => c.author_id))];
+      if (!authorIds.length) return [];
+      const { data: profiles } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
+      const pMap = new Map((profiles || []).map(p => [p.id, p]));
+      return (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
+    },
+    enabled: !!postId,
+  });
+}
+
 const Community = () => {
-  const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("All");
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
-  const [posts, setPosts] = useState<Post[]>(initialPosts as Post[]);
+  const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostText, setNewPostText] = useState("");
   const [newPostCategory, setNewPostCategory] = useState("Career");
-  const [openCommentId, setOpenCommentId] = useState<number | null>(null);
+  const [openCommentId, setOpenCommentId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredPosts = posts.filter(p =>
-    activeCategory === "All" || p.category.en === activeCategory
-  );
+  const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
+  const createPost = useCreatePost();
+  const deletePost = useDeletePost();
+  const postIds = posts.map(p => p.id);
+  const { data: likesData } = usePostLikes(postIds);
+  const { data: savesData } = usePostSaves(postIds);
+  const { data: comments = [] } = usePostComments(openCommentId);
 
-  const toggleLike = (postId: number) => {
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p));
-  };
+  const toggleLike = useMutation({
+    mutationFn: async (postId: string) => {
+      if (!user) return;
+      const isLiked = likesData?.userLikes.has(postId);
+      if (isLiked) {
+        await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", user.id);
+      } else {
+        await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-likes"] });
+    },
+  });
 
-  const toggleSave = (postId: number) => {
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, saved: !p.saved } : p));
-    const post = posts.find(p => p.id === postId);
-    toast({
-      title: post?.saved
-        ? (lang === "my" ? "သိမ်းဆည်းမှု ဖြုတ်ပြီး" : "Unsaved")
-        : (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved"),
-    });
+  const toggleSave = useMutation({
+    mutationFn: async (postId: string) => {
+      if (!user) return;
+      const isSaved = savesData?.has(postId);
+      if (isSaved) {
+        await supabase.from("post_saves").delete().eq("post_id", postId).eq("user_id", user.id);
+      } else {
+        await supabase.from("post_saves").insert({ post_id: postId, user_id: user.id });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-saves"] });
+      toast({ title: lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved" });
+      setOpenMenuId(null);
+    },
+  });
+
+  const addComment = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      if (!user) throw new Error("Not authenticated");
+      const { error } = await supabase.from("post_comments").insert({ post_id: postId, author_id: user.id, content });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-comments"] });
+      setCommentText("");
+    },
+  });
+
+  const handleReport = (postId: string) => {
+    if (!user) return;
+    supabase.from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
+    toast({ title: lang === "my" ? "တိုင်ကြားပြီးပါပြီ" : "Reported", description: lang === "my" ? "စစ်ဆေးပြီး အရေးယူပါမည်" : "We'll review this post" });
     setOpenMenuId(null);
   };
 
-  const handleReport = (postId: number) => {
-    toast({
-      title: lang === "my" ? "တိုင်ကြားပြီးပါပြီ" : "Reported",
-      description: lang === "my" ? "စစ်ဆေးပြီး အရေးယူပါမည်" : "We'll review this post",
-    });
-    setOpenMenuId(null);
-  };
-
-  const handleCopyLink = (postId: number) => {
+  const handleCopyLink = (postId: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/community/post/${postId}`);
     toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
     setOpenMenuId(null);
   };
 
-  const handleShareOption = (post: Post, platform: string) => {
-    const text = encodeURIComponent(lang === "my" ? post.content : post.contentEn);
+  const handleShareOption = (post: typeof posts[0], platform: string) => {
+    const text = encodeURIComponent(lang === "my" ? post.content_my : (post.content_en || post.content_my));
     const url = encodeURIComponent(window.location.href);
     let shareUrl = "";
     switch (platform) {
@@ -131,19 +169,6 @@ const Community = () => {
     setSharePostId(null);
   };
 
-  const handleAddComment = (postId: number) => {
-    if (!commentText.trim()) return;
-    const newComment: Comment = {
-      id: Date.now(),
-      author: lang === "my" ? "မောင်မောင်" : "Maung Maung",
-      avatar: "MM",
-      text: commentText,
-      time: lang === "my" ? "ယခု" : "Just now",
-    };
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p));
-    setCommentText("");
-  };
-
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -154,29 +179,34 @@ const Community = () => {
 
   const handleNewPost = () => {
     if (!newPostText.trim()) return;
-    const newPost: Post = {
-      id: Date.now(),
-      author: "မောင်မောင်", authorEn: "Maung Maung", avatar: "MM",
-      role: "Full Stack Developer · Bangkok",
-      time: { my: "ယခု", en: "Just now" },
-      content: newPostText, contentEn: newPostText,
-      likes: 0, comments: [], shares: 0, liked: false, saved: false, isOwn: true,
-      category: { my: categories.find(c => c.en === newPostCategory)?.my || newPostCategory, en: newPostCategory }
-    };
-    setPosts(prev => [newPost, ...prev]);
-    setShowNewPost(false);
-    setNewPostText("");
-    setSelectedImage(null);
-    toast({
-      title: lang === "my" ? "ပို့စ် တင်ပြီးပါပြီ" : "Post submitted",
-      description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your post will appear after review",
+    createPost.mutate({ contentMy: newPostText, contentEn: newPostText, category: newPostCategory }, {
+      onSuccess: () => {
+        setShowNewPost(false);
+        setNewPostText("");
+        setSelectedImage(null);
+        toast({ title: lang === "my" ? "ပို့စ် တင်ပြီးပါပြီ" : "Post submitted", description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your post will appear after review" });
+      },
     });
   };
 
-  const handleDeletePost = (postId: number) => {
-    setPosts(prev => prev.filter(p => p.id !== postId));
-    toast({ title: lang === "my" ? "ပို့စ် ဖျက်ပြီးပါပြီ" : "Post deleted" });
-    setOpenMenuId(null);
+  const handleDeletePost = (postId: string) => {
+    deletePost.mutate(postId, {
+      onSuccess: () => {
+        toast({ title: lang === "my" ? "ပို့စ် ဖျက်ပြီးပါပြီ" : "Post deleted" });
+        setOpenMenuId(null);
+      },
+    });
+  };
+
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return lang === "my" ? `${mins} မိနစ်အကြာ` : `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return lang === "my" ? `${hrs} နာရီအကြာ` : `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return lang === "my" ? `${days} ရက်အကြာ` : `${days}d ago`;
   };
 
   return (
@@ -192,23 +222,15 @@ const Community = () => {
             ))}
           </div>
         </div>
-        <button
-          onClick={() => setShowNewPost(true)}
-          className="mb-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-colors active:bg-muted"
-        >
+        <button onClick={() => setShowNewPost(true)} className="mb-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-colors active:bg-muted">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
             <Plus className="h-4 w-4 text-primary" strokeWidth={2} />
           </div>
-          <span className="text-sm text-muted-foreground">
-            {lang === "my" ? "မေးခွန်းမေးပါ သို့မဟုတ် အတွေ့အကြုံ မျှဝေပါ..." : "Ask a question or share your experience..."}
-          </span>
+          <span className="text-sm text-muted-foreground">{lang === "my" ? "မေးခွန်းမေးပါ သို့မဟုတ် အတွေ့အကြုံ မျှဝေပါ..." : "Ask a question or share your experience..."}</span>
         </button>
-
         <div className="mb-3 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
           <Clock className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-          <p className="text-[11px] text-muted-foreground">
-            {lang === "my" ? "သင့်ပို့စ်များကို စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Posts are reviewed before publishing"}
-          </p>
+          <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သင့်ပို့စ်များကို စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Posts are reviewed before publishing"}</p>
         </div>
       </div>
 
@@ -222,24 +244,21 @@ const Community = () => {
                 <button onClick={() => setShowNewPost(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
               </div>
               <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">MM</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {profile?.display_name?.slice(0, 2).toUpperCase() || "U"}
+                </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{lang === "my" ? "မောင်မောင်" : "Maung Maung"}</p>
-                  <p className="text-[10px] text-muted-foreground">Full Stack Developer</p>
+                  <p className="text-sm font-semibold text-foreground">{profile?.display_name || "User"}</p>
+                  <p className="text-[10px] text-muted-foreground">{profile?.headline || ""}</p>
                 </div>
               </div>
               <Textarea value={newPostText} onChange={e => setNewPostText(e.target.value)} placeholder={lang === "my" ? "မေးခွန်းမေးပါ သို့မဟုတ် အတွေ့အကြုံ မျှဝေပါ..." : "Ask a question or share your experience..."} className="mb-3 min-h-[100px] rounded-xl border-border text-sm" />
-
-              {/* Selected image preview */}
               {selectedImage && (
                 <div className="relative mb-3">
                   <img src={selectedImage} alt="Attached" className="h-32 w-full rounded-lg object-cover" />
-                  <button onClick={() => setSelectedImage(null)} className="absolute right-2 top-2 rounded-full bg-foreground/60 p-1">
-                    <X className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} />
-                  </button>
+                  <button onClick={() => setSelectedImage(null)} className="absolute right-2 top-2 rounded-full bg-foreground/60 p-1"><X className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} /></button>
                 </div>
               )}
-
               <div className="mb-4">
                 <p className="mb-2 text-xs font-medium text-muted-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</p>
                 <div className="flex flex-wrap gap-2">
@@ -255,7 +274,7 @@ const Community = () => {
                 <button onClick={() => fileInputRef.current?.click()} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground active:bg-muted">
                   <Image className="h-5 w-5" strokeWidth={1.5} />
                 </button>
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleNewPost} disabled={!newPostText.trim()}>
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleNewPost} disabled={!newPostText.trim() || createPost.isPending}>
                   <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ပို့စ်တင်ရန်" : "Post"}
                 </Button>
               </div>
@@ -266,170 +285,157 @@ const Community = () => {
 
       {/* Posts */}
       <div className="space-y-2.5 px-5 pb-24">
-        {filteredPosts.length === 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+        ) : posts.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ပို့စ် မရှိသေးပါ" : "No posts yet"}</p>
           </div>
         ) : (
-          filteredPosts.map((post, i) => (
-            <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card">
-              <div className="p-4 pb-0">
-                <div className="mb-3 flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{post.avatar}</div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? post.author : post.authorEn}</h3>
-                      <p className="text-[10px] text-muted-foreground">{post.role} · {lang === "my" ? post.time.my : post.time.en}</p>
-                    </div>
-                  </div>
-                  <div className="relative flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${post.category.en === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
-                      {lang === "my" ? post.category.my : post.category.en}
-                    </span>
-                    <button onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)} className="rounded-lg p-1 text-muted-foreground active:bg-muted">
-                      <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
-                    </button>
+          posts.map((post, i) => {
+            const isOwn = post.author_id === user?.id;
+            const likeCount = likesData?.counts[post.id] || 0;
+            const isLiked = likesData?.userLikes.has(post.id) || false;
+            const isSaved = savesData?.has(post.id) || false;
+            const categoryLabel = post.category || "general";
 
-                    {/* More options dropdown */}
-                    <AnimatePresence>
-                      {openMenuId === post.id && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="absolute right-0 top-8 z-20 w-48 rounded-xl border border-border bg-card py-1 shadow-lg"
-                        >
-                          <button onClick={() => toggleSave(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
-                            {post.saved ? <BookmarkCheck className="h-4 w-4 text-primary" strokeWidth={1.5} /> : <Bookmark className="h-4 w-4" strokeWidth={1.5} />}
-                            {post.saved ? (lang === "my" ? "သိမ်းဆည်းမှု ဖြုတ်ရန်" : "Unsave Post") : (lang === "my" ? "ပို့စ် သိမ်းဆည်းရန်" : "Save Post")}
-                          </button>
-                          <button onClick={() => handleCopyLink(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
-                            <Link2 className="h-4 w-4" strokeWidth={1.5} />
-                            {lang === "my" ? "လင့်ခ် ကူးယူရန်" : "Copy Link"}
-                          </button>
-                          {post.isOwn ? (
-                            <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
-                              <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                              {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
+            return (
+              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card">
+                <div className="p-4 pb-0">
+                  <div className="mb-3 flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                        {post.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">{post.author?.display_name || "Unknown"}</h3>
+                        <p className="text-[10px] text-muted-foreground">{post.author?.headline || ""} · {formatTime(post.created_at)}</p>
+                      </div>
+                    </div>
+                    <div className="relative flex items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryLabel === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                        {categoryLabel}
+                      </span>
+                      <button onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)} className="rounded-lg p-1 text-muted-foreground active:bg-muted">
+                        <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
+                      </button>
+                      <AnimatePresence>
+                        {openMenuId === post.id && (
+                          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute right-0 top-8 z-20 w-48 rounded-xl border border-border bg-card py-1 shadow-lg">
+                            <button onClick={() => toggleSave.mutate(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
+                              {isSaved ? <BookmarkCheck className="h-4 w-4 text-primary" strokeWidth={1.5} /> : <Bookmark className="h-4 w-4" strokeWidth={1.5} />}
+                              {isSaved ? (lang === "my" ? "သိမ်းဆည်းမှု ဖြုတ်ရန်" : "Unsave Post") : (lang === "my" ? "ပို့စ် သိမ်းဆည်းရန်" : "Save Post")}
                             </button>
-                          ) : (
-                            <>
-                              <button onClick={() => { toast({ title: lang === "my" ? "ဖျောက်ထားပြီး" : "Hidden" }); setOpenMenuId(null); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
-                                <UserMinus className="h-4 w-4" strokeWidth={1.5} />
-                                {lang === "my" ? "ဤသူ၏ ပို့စ်များ ဖျောက်ရန်" : "Hide posts from this user"}
+                            <button onClick={() => handleCopyLink(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
+                              <Link2 className="h-4 w-4" strokeWidth={1.5} />
+                              {lang === "my" ? "လင့်ခ် ကူးယူရန်" : "Copy Link"}
+                            </button>
+                            {isOwn ? (
+                              <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
+                                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                                {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
                               </button>
+                            ) : (
                               <button onClick={() => handleReport(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
                                 <Flag className="h-4 w-4" strokeWidth={1.5} />
                                 {lang === "my" ? "တိုင်ကြားရန်" : "Report Post"}
                               </button>
-                            </>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
+                  <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
                 </div>
-                <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content : post.contentEn}</p>
-              </div>
 
-              {/* Action bar */}
-              <div className="flex items-center border-t border-border">
-                <button onClick={() => toggleLike(post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${post.liked ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
-                  <Heart className={`h-4 w-4 ${post.liked ? "fill-destructive" : ""}`} strokeWidth={1.5} /> {post.likes}
-                </button>
-                <div className="h-5 w-px bg-border" />
-                <button onClick={() => setOpenCommentId(openCommentId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${openCommentId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                  <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.comments.length}
-                </button>
-                <div className="h-5 w-px bg-border" />
-                <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
-                  <Share2 className={`h-4 w-4 ${sharePostId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} /> {post.shares}
-                </button>
-              </div>
+                {/* Action bar */}
+                <div className="flex items-center border-t border-border">
+                  <button onClick={() => toggleLike.mutate(post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${isLiked ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
+                    <Heart className={`h-4 w-4 ${isLiked ? "fill-destructive" : ""}`} strokeWidth={1.5} /> {likeCount}
+                  </button>
+                  <div className="h-5 w-px bg-border" />
+                  <button onClick={() => setOpenCommentId(openCommentId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${openCommentId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                    <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} />
+                    {lang === "my" ? "မှတ်ချက်" : "Comment"}
+                  </button>
+                  <div className="h-5 w-px bg-border" />
+                  <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
+                    <Share2 className={`h-4 w-4 ${sharePostId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} />
+                    {lang === "my" ? "မျှဝေ" : "Share"}
+                  </button>
+                </div>
 
-              {/* Share options */}
-              <AnimatePresence>
-                {sharePostId === post.id && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
-                    <div className="flex items-center gap-2 px-4 py-3">
-                      {[
-                        { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> },
-                        { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
-                        { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
-                        { platform: "twitter", label: "X", icon: <Share2 className="h-4 w-4" strokeWidth={1.5} /> },
-                        { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
-                      ].map((opt) => (
-                        <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
-                            {opt.icon}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">{opt.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Comments section */}
-              <AnimatePresence>
-                {openCommentId === post.id && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
-                    <div className="p-4">
-                      {/* Existing comments */}
-                      {post.comments.length > 0 && (
-                        <div className="mb-3 space-y-3">
-                          {post.comments.map(c => (
-                            <div key={c.id} className="flex gap-2.5">
-                              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">{c.avatar}</div>
-                              <div className="min-w-0 flex-1">
-                                <div className="rounded-lg bg-muted px-3 py-2">
-                                  <p className="text-[11px] font-semibold text-foreground">{c.author}</p>
-                                  <p className="text-xs text-foreground/80">{c.text}</p>
-                                </div>
-                                <p className="mt-0.5 px-1 text-[10px] text-muted-foreground">{c.time}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {post.comments.length === 0 && (
-                        <p className="mb-3 text-center text-xs text-muted-foreground">
-                          {lang === "my" ? "ပထမဆုံး မှတ်ချက် ရေးပါ" : "Be the first to comment"}
-                        </p>
-                      )}
-
-                      {/* Comment input */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">MM</div>
-                        <div className="flex flex-1 items-center rounded-full border border-border bg-background px-3 py-2">
-                          <input
-                            value={commentText}
-                            onChange={e => setCommentText(e.target.value)}
-                            onKeyDown={e => { if (e.key === "Enter") handleAddComment(post.id); }}
-                            placeholder={lang === "my" ? "မှတ်ချက် ရေးပါ..." : "Write a comment..."}
-                            className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-                          />
-                        </div>
-                        <button onClick={() => handleAddComment(post.id)} disabled={!commentText.trim()} className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40">
-                          <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
-                        </button>
+                {/* Share options */}
+                <AnimatePresence>
+                  {sharePostId === post.id && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
+                      <div className="flex items-center gap-2 px-4 py-3">
+                        {[
+                          { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> },
+                          { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
+                          { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
+                          { platform: "twitter", label: "X", icon: <Share2 className="h-4 w-4" strokeWidth={1.5} /> },
+                          { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
+                        ].map((opt) => (
+                          <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
+                            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">{opt.icon}</span>
+                            <span className="text-[10px] text-muted-foreground">{opt.label}</span>
+                          </button>
+                        ))}
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Comments section */}
+                <AnimatePresence>
+                  {openCommentId === post.id && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
+                      <div className="p-4">
+                        {comments.length > 0 ? (
+                          <div className="mb-3 space-y-3">
+                            {comments.map((c: any) => (
+                              <div key={c.id} className="flex gap-2.5">
+                                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+                                  {c.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="rounded-lg bg-muted px-3 py-2">
+                                    <p className="text-[11px] font-semibold text-foreground">{c.author?.display_name || "User"}</p>
+                                    <p className="text-xs text-foreground/80">{c.content}</p>
+                                  </div>
+                                  <p className="mt-0.5 px-1 text-[10px] text-muted-foreground">{formatTime(c.created_at)}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mb-3 text-center text-xs text-muted-foreground">{lang === "my" ? "ပထမဆုံး မှတ်ချက် ရေးပါ" : "Be the first to comment"}</p>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                            {profile?.display_name?.slice(0, 2).toUpperCase() || "U"}
+                          </div>
+                          <div className="flex flex-1 items-center rounded-full border border-border bg-background px-3 py-2">
+                            <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && commentText.trim()) addComment.mutate({ postId: post.id, content: commentText }); }} placeholder={lang === "my" ? "မှတ်ချက် ရေးပါ..." : "Write a comment..."} className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground" />
+                          </div>
+                          <button onClick={() => { if (commentText.trim()) addComment.mutate({ postId: post.id, content: commentText }); }} disabled={!commentText.trim()} className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40">
+                            <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })
         )}
       </div>
 
-      {/* Close menu overlay */}
-      {openMenuId && (
-        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-      )}
+      {openMenuId && <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />}
     </div>
   );
 };
