@@ -248,7 +248,7 @@ const AiProfileBuilder = () => {
           </div>
 
           {/* Tool Cards */}
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်သော Tools များ" : "Available Tools"}</h2>
+          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်သော ကိရိယာများ" : "Available Tools"}</h2>
           <div className="space-y-3">
             {aiFeatures.map((f, i) => (
               <motion.button
