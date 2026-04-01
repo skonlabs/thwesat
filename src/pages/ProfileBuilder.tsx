@@ -211,12 +211,29 @@ const ProfileBuilder = () => {
           {/* Step 1: Input details */}
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {/* CV Parsing indicator */}
+              {parsing && (
+                <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} />
+                  <div>
+                    <p className="text-sm font-medium text-primary">
+                      {lang === "my" ? "CV ဖတ်နေသည်..." : "Parsing your CV with AI..."}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lang === "my" ? "အချက်အလက်များကို ထုတ်ယူနေပါသည်" : "Extracting name, education, skills & experience"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Pre-populated notice */}
-              {profile && (profile.display_name || (profile.skills && profile.skills.length > 0)) && (
+              {!parsing && (cvParsed || (profile && (profile.display_name || (profile.skills && profile.skills.length > 0)))) && (
                 <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5">
-                  <Check className="h-4 w-4 text-primary" strokeWidth={2} />
+                  <Sparkles className="h-4 w-4 text-primary" strokeWidth={2} />
                   <p className="text-xs text-primary font-medium">
-                    {lang === "my" ? "သင့်ပရိုဖိုင်မှ အချက်အလက်များ ထည့်သွင်းထားပါသည်" : "Pre-filled from your profile & CV"}
+                    {cvParsed
+                      ? (lang === "my" ? "CV မှ အချက်အလက်များ ဖြည့်သွင်းထားပါသည် — စစ်ဆေးပြင်ဆင်ပါ" : "Pre-filled from your CV — review & edit below")
+                      : (lang === "my" ? "သင့်ပရိုဖိုင်မှ အချက်အလက်များ ထည့်သွင်းထားပါသည်" : "Pre-filled from your profile")}
                   </p>
                 </div>
               )}
