@@ -85,7 +85,7 @@ const Jobs = () => {
       job.company.toLowerCase().includes(search.toLowerCase()) ||
       (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = activeCategory === "All" || job.category === activeCategory;
-    const matchesType = filterType === "all" || job.role_type === filterType;
+    const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
     const matchesLocation = filterLocation === "all" || job.location === filterLocation;
     const matchesDiaspora = !filterDiasporaSafe || job.is_diaspora_safe;
     const matchesVerified = !filterVerified || job.is_verified;
@@ -124,7 +124,15 @@ const Jobs = () => {
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
             <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+            {search && (
+              <button onClick={() => setSearch("")} className="text-muted-foreground">
+                <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </button>
+            )}
           </div>
+          <Button onClick={() => {}} variant="default" size="sm" className="rounded-xl px-4">
+            <Search className="h-4 w-4" strokeWidth={1.5} />
+          </Button>
           <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
@@ -161,12 +169,20 @@ const Jobs = () => {
               <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Job Type"}</p>
+                  <p className="mb-2 text-[10px] text-muted-foreground">{lang === "my" ? "တစ်ခုထက်ပို ရွေးချယ်နိုင်သည်" : "Select multiple types"}</p>
                   <div className="flex flex-wrap gap-2">
-                    {jobTypes.map(jt => (
-                      <button key={jt.value} onClick={() => setFilterType(jt.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterType === jt.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
-                        {lang === "my" ? jt.labelMy : jt.labelEn}
-                      </button>
-                    ))}
+                    {jobTypes.filter(jt => jt.value !== "all").map(jt => {
+                      const selected = filterType.split(",").filter(Boolean).includes(jt.value);
+                      return (
+                        <button key={jt.value} onClick={() => {
+                          const current = filterType === "all" ? [] : filterType.split(",").filter(Boolean);
+                          const next = selected ? current.filter(v => v !== jt.value) : [...current, jt.value];
+                          setFilterType(next.length === 0 ? "all" : next.join(","));
+                        }} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${selected ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                          {lang === "my" ? jt.labelMy : jt.labelEn}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div>

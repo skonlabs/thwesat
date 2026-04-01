@@ -216,8 +216,13 @@ const EditProfile = () => {
   };
   const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
   const addLanguage = (l: string) => {
-    if (!languages.includes(l)) {
+    if (!languages.includes(l) && languages.length < 5) {
       setLanguages([...languages, l]);
+      setLanguageSearch("");
+      setShowLanguageDropdown(false);
+    }
+    if (languages.length >= 5) {
+      // Already at limit - just close
       setLanguageSearch("");
       setShowLanguageDropdown(false);
     }
@@ -454,7 +459,10 @@ const EditProfile = () => {
 
         {/* Languages dropdown */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဘာသာစကားများ" : "Languages"}</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ဘာသာစကားများ" : "Languages"}</h2>
+            <span className="text-[10px] text-muted-foreground">{languages.length}/5</span>
+          </div>
           <div className="mb-3 flex flex-wrap gap-2">
             {languages.map(l => (
               <span key={l} className="flex items-center gap-1 rounded-lg bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-foreground">
