@@ -151,7 +151,7 @@ const Settings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ဆက်တင်များ" : "Settings"} />
 
       <div className="px-5">
