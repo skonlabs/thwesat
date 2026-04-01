@@ -36,6 +36,7 @@ const AiProfileBuilder = () => {
     }
   }, [uploadedFile]);
 
+  const handleToolClick = (path: string, status: string) => {
     if (status === "Premium") {
       navigate("/premium");
       return;
