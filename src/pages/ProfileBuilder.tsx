@@ -106,6 +106,7 @@ const ProfileBuilder = () => {
           setExperiences([{ company: "", role: "", duration: "", description: parsed.experience }]);
         }
         if (parsed.other) setOtherInfo(parsed.other);
+        if (parsed.summary) setSummary(parsed.summary);
         if (parsed.skills?.length) setSkills(parsed.skills);
         if (parsed.education?.length) {
           setEducations(
