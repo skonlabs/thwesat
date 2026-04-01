@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useMentorMentees, useUpdateMenteeStatus } from "@/hooks/use-mentor-bookings";
+import { useMentorMentees } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
