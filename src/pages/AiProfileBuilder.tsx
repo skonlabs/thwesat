@@ -15,7 +15,7 @@ const ALLOWED_TYPES = ["application/pdf", "application/vnd.openxmlformats-office
 const AiProfileBuilder = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
