@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, X, File, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -19,9 +19,22 @@ const AiProfileBuilder = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string; filePath?: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string; filePath?: string } | null>(() => {
+    try {
+      const saved = sessionStorage.getItem("cv-uploaded-file");
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  useEffect(() => {
+    if (uploadedFile) {
+      sessionStorage.setItem("cv-uploaded-file", JSON.stringify(uploadedFile));
+    } else {
+      sessionStorage.removeItem("cv-uploaded-file");
+    }
+  }, [uploadedFile]);
 
   const handleToolClick = (path: string, status: string) => {
     if (status === "Premium") {
