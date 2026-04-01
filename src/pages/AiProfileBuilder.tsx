@@ -146,17 +146,14 @@ const AiProfileBuilder = () => {
       <PageHeader title={lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"} />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          {/* Header */}
+          {/* Subtitle */}
           <div className="mb-5 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <Sparkles className="h-6 w-6 text-primary" strokeWidth={1.5} />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"}</h1>
-              <p className="text-xs text-muted-foreground">
-                {lang === "my" ? "သင့်အသက်မွေးဝမ်းကြောင်းအတွက် အကူအညီများ" : "Tools to boost your career"}
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              {lang === "my" ? "သင့်အသက်မွေးဝမ်းကြောင်းအတွက် အကူအညီများ" : "Tools to boost your career"}
+            </p>
           </div>
 
           {/* How it works - includes CV upload step */}
