@@ -111,7 +111,7 @@ const Settings = () => {
       title: lang === "my" ? "ဘာသာစကားနှင့် ဖောင့်" : "Language & Font",
       items: [
         { icon: Languages, label: lang === "my" ? "ဘာသာစကား" : "Language", value: lang === "my" ? "မြန်မာ" : "English", action: () => setShowLanguagePicker(true) },
-        { icon: Type, label: lang === "my" ? "ဖောင့် Encoding" : "Font Encoding", value: "Unicode", action: () => setShowFontEncoding(true) },
+        { icon: Type, label: lang === "my" ? "ဖောင့် ကုဒ်စနစ်" : "Font Encoding", value: "Unicode", action: () => setShowFontEncoding(true) },
       ],
     },
     {
