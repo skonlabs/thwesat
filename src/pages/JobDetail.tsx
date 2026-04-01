@@ -524,7 +524,7 @@ const JobDetail = () => {
                     ) : (
                       <>
                         <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "Cover Letter မပါဝင်ပါ" : "No cover letter"}</span>
+                        <span className="text-muted-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ မပါဝင်ပါ" : "No cover letter"}</span>
                       </>
                     )}
                   </div>

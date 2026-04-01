@@ -276,7 +276,7 @@ const AiProfileBuilder = () => {
 
           {/* Supported Platforms */}
           <div className="mt-5 rounded-xl border border-border bg-card p-3">
-            <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "ပံ့ပိုးသော Platform များ" : "Supported Platforms"}</p>
+            <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "ပံ့ပိုးသော ပလက်ဖောင်းများ" : "Supported Platforms"}</p>
             <div className="flex flex-wrap gap-2">
               {["Upwork", "Fiverr", "LinkedIn", "Toptal", "Remote.co"].map((p) => (
                 <span key={p} className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] text-muted-foreground">
