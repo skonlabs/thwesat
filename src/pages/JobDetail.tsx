@@ -19,9 +19,11 @@ const JobDetail = () => {
   const toggleSaveMutation = useToggleSaveJob();
   const applyMutation = useApplyToJob();
 
+  const { data: applications = [] } = useApplications();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
-  const [applied, setApplied] = useState(false);
+
+  const applied = id ? applications.some((a: any) => a.job_id === id) : false;
 
   const saved = id ? savedJobIds.includes(id) : false;
 
