@@ -40,7 +40,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
       sessionStorage.clear();
       navigate("/");
     }, 3000);
-  }, [navigate, toast, lang]);
+  }, [navigate, lang]);
 
   const cancelHold = useCallback(() => {
     if (holdTimer.current) clearTimeout(holdTimer.current);
