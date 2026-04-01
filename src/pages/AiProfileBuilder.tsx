@@ -28,7 +28,14 @@ const AiProfileBuilder = () => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
-  const handleToolClick = (path: string, status: string) => {
+  useEffect(() => {
+    if (uploadedFile) {
+      sessionStorage.setItem("cv-uploaded-file", JSON.stringify(uploadedFile));
+    } else {
+      sessionStorage.removeItem("cv-uploaded-file");
+    }
+  }, [uploadedFile]);
+
     if (status === "Premium") {
       navigate("/premium");
       return;
