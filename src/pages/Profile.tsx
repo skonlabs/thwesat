@@ -171,43 +171,6 @@ const Profile = () => {
           </div>
         </motion.div>
 
-        {/* Remote Work Readiness - only for jobseekers */}
-        {role === "jobseeker" && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mt-3 rounded-xl border border-border bg-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Remote Work အသင့်အနေ" : "Remote Work Readiness"}</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { icon: Laptop, label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", active: profile?.has_laptop },
-                { icon: Globe, label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", active: profile?.internet_stable },
-                { icon: CreditCard, label: "Payoneer", active: profile?.has_payoneer },
-                { icon: CreditCard, label: "Wise", active: profile?.has_wise },
-                { icon: Briefcase, label: "Upwork", active: profile?.has_upwork },
-              ].map((item, i) => (
-                <div key={i} className={`flex items-center gap-2 rounded-lg p-2 ${item.active ? "bg-emerald/5" : "bg-muted"}`}>
-                  <item.icon className={`h-3.5 w-3.5 ${item.active ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                  <span className={`text-[11px] font-medium ${item.active ? "text-emerald" : "text-muted-foreground"}`}>{item.label}</span>
-                  {item.active && <Check className="ml-auto h-3 w-3 text-emerald" strokeWidth={2} />}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Skills - only for jobseekers */}
-        {role === "jobseeker" && skills.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-border bg-card p-4">
-            <div className="mb-2.5 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h3>
-              <button onClick={() => navigate("/profile/edit")} className="text-xs font-medium text-primary active:text-primary/70">{lang === "my" ? "ပြင်ဆင်ရန်" : "Edit"}</button>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {skills.map((skill) => (
-                <span key={skill} className="rounded bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">{skill}</span>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
         {/* Referral Programme */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div className="mb-2 flex items-center gap-2">
