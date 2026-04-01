@@ -405,7 +405,7 @@ const ProfileBuilder = () => {
                   </div>
                   {userCvs.length > 0 ? (
                     <div className="mt-3 space-y-2">
-                      {userCvs.map((cv: any) => (
+                      {userCvs.slice(0, 1).map((cv: any) => (
                         <button
                           key={cv.id}
                           onClick={() => parseCv(cv.file_url)}
