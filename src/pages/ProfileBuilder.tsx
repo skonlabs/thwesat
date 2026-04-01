@@ -28,12 +28,15 @@ interface EducationEntry {
 
 const ProfileBuilder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang } = useLanguage();
   const { toast } = useToast();
-  const { profile } = useAuth();
+  const { profile, session } = useAuth();
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [cvParsed, setCvParsed] = useState(false);
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
@@ -57,6 +60,57 @@ const ProfileBuilder = () => {
       }
     }
   }, [profile]);
+
+  // Parse CV if file path was passed from Career Tools
+  const cvFilePath = (location.state as any)?.cvFilePath;
+  
+  useEffect(() => {
+    if (cvFilePath && session?.access_token && !cvParsed) {
+      parseCv(cvFilePath);
+    }
+  }, [cvFilePath, session?.access_token]);
+
+  const parseCv = async (filePath: string) => {
+    setParsing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("parse-cv", {
+        body: { file_path: filePath },
+      });
+
+      if (error) throw error;
+      
+      const parsed = data?.data;
+      if (parsed) {
+        if (parsed.name) setName(parsed.name);
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.experience) setExperience(parsed.experience);
+        if (parsed.skills?.length) setSkills(parsed.skills);
+        if (parsed.education?.length) {
+          setEducations(
+            parsed.education.map((ed: any) => ({
+              degree: ed.degree || "",
+              institution: ed.institution || "",
+              year: ed.year || "",
+            }))
+          );
+        }
+        setCvParsed(true);
+        toast({
+          title: lang === "my" ? "CV မှ အချက်အလက်များ ဖတ်ပြီးပါပြီ ✓" : "CV parsed successfully ✓",
+          description: lang === "my" ? "အချက်အလက်များကို စစ်ဆေးပြင်ဆင်ပါ" : "Review and edit the extracted data",
+        });
+      }
+    } catch (err: any) {
+      console.error("CV parse error:", err);
+      toast({
+        title: lang === "my" ? "CV ဖတ်၍ မရပါ" : "Could not parse CV",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setParsing(false);
+    }
+  };
 
   const platforms = ["Upwork", "Fiverr", "LinkedIn", "Toptal"];
 
