@@ -131,7 +131,7 @@ export function useApplyToJob() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ jobId, coverLetter }: { jobId: string; coverLetter?: string }) => {
+    mutationFn: async ({ jobId, coverLetter, cvDocumentId }: { jobId: string; coverLetter?: string; cvDocumentId?: string }) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
         .from("applications")
@@ -139,6 +139,7 @@ export function useApplyToJob() {
           applicant_id: user.id,
           job_id: jobId,
           cover_letter: coverLetter || "",
+          cv_document_id: cvDocumentId || null,
           status: "applied",
         });
       if (error) throw error;
