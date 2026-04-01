@@ -169,31 +169,14 @@ const ProfileBuilder = () => {
     return SUGGESTED_SKILLS.filter(s => !skills.includes(s) && (!q || s.toLowerCase().includes(q)));
   }, [newSkill, skills]);
 
-  const educationText = educations
-    .filter(ed => ed.degree || ed.institution)
-    .map(ed => [ed.degree, ed.institution, ed.year].filter(Boolean).join(", "))
-    .join("; ");
+  const [generatedProfile, setGeneratedProfile] = useState<{
+    headline: string;
+    summary: string;
+    skills: string[];
+    sections: { title: string; content: string }[];
+  } | null>(null);
 
-  const skillsText = skills.join(", ");
-
-  const experienceText = experiences
-    .filter(ex => ex.role || ex.company || ex.description)
-    .map(ex => [ex.role, ex.company, ex.duration].filter(Boolean).join(" at "))
-    .join("; ");
-
-  const generatedProfile = {
-    headline: title || "Full Stack Developer",
-    summary: summary || `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
-    skills,
-    sections: [
-      { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
-      { title: "Work Experience", content: experiences.filter(ex => ex.role || ex.company).map(ex => `• ${[ex.role, ex.company, ex.duration].filter(Boolean).join(" — ")}${ex.description ? `\n  ${ex.description}` : ""}`).join("\n") || "• Multiple projects delivered successfully" },
-      ...(educationText ? [{ title: "Education", content: educations.filter(ed => ed.degree || ed.institution).map(ed => `• ${[ed.degree, ed.institution, ed.year].filter(Boolean).join(" — ")}`).join("\n") }] : []),
-      ...(otherInfo ? [{ title: "Additional Information", content: otherInfo }] : []),
-    ],
-  };
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!name && !title) {
       toast({
         title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
@@ -202,13 +185,37 @@ const ProfileBuilder = () => {
       return;
     }
     setGenerating(true);
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-profile", {
+        body: { name, title, summary, experiences, educations, skills, otherInfo, platform },
+      });
+      if (error) throw error;
+      const result = data?.data;
+      if (result) {
+        setGeneratedProfile({
+          headline: result.headline || title || "",
+          summary: result.summary || "",
+          skills: result.skills || skills,
+          sections: result.sections || [],
+        });
+        setStep(3);
+      } else {
+        throw new Error("No data returned");
+      }
+    } catch (err: any) {
+      console.error("Profile generation error:", err);
+      toast({
+        title: lang === "my" ? "ပရိုဖိုင် ဖန်တီး၍ မရပါ" : "Profile generation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
       setGenerating(false);
-      setStep(3);
-    }, 2000);
+    }
   };
 
   const handleCopy = () => {
+    if (!generatedProfile) return;
     const text = `${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n")}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -217,14 +224,16 @@ const ProfileBuilder = () => {
   };
 
   const getProfileText = () => {
+    if (!generatedProfile) return { headline: "", summaryText: "", sectionsText: "", skillsLine: "" };
     const headline = `${name ? `${name} — ` : ""}${generatedProfile.headline}`;
     const summaryText = generatedProfile.summary;
     const sectionsText = generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n");
-    const skillsLine = skills.length > 0 ? `\nSkills\n${skills.join(", ")}` : "";
+    const skillsLine = generatedProfile.skills.length > 0 ? `\nSkills\n${generatedProfile.skills.join(", ")}` : "";
     return { headline, summaryText, sectionsText, skillsLine };
   };
 
   const handleDownloadPdf = async () => {
+    if (!generatedProfile) return;
     const { jsPDF } = await import("jspdf");
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -250,7 +259,7 @@ const ProfileBuilder = () => {
     addText("Summary", 11, true);
     addText(summaryText, 10);
 
-    for (const section of generatedProfile.sections) {
+    for (const section of generatedProfile!.sections) {
       addText(section.title, 11, true);
       const contentLines = section.content.split("\n");
       for (const line of contentLines) {
@@ -258,9 +267,9 @@ const ProfileBuilder = () => {
       }
     }
 
-    if (skills.length > 0) {
+    if (generatedProfile!.skills.length > 0) {
       addText("Skills", 11, true);
-      addText(skills.join("  •  "), 10);
+      addText(generatedProfile!.skills.join("  •  "), 10);
     }
 
     doc.save(`${name || "profile"}-${platform}.pdf`);
@@ -268,6 +277,7 @@ const ProfileBuilder = () => {
   };
 
   const handleDownloadDocx = async () => {
+    if (!generatedProfile) return;
     const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
 
     const { headline, summaryText } = getProfileText();
@@ -280,7 +290,7 @@ const ProfileBuilder = () => {
       new Paragraph({ children: [] }),
     ];
 
-    for (const section of generatedProfile.sections) {
+    for (const section of generatedProfile!.sections) {
       children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: section.title, bold: true })] }));
       const contentLines = section.content.split("\n");
       for (const line of contentLines) {
@@ -289,9 +299,9 @@ const ProfileBuilder = () => {
       children.push(new Paragraph({ children: [] }));
     }
 
-    if (skills.length > 0) {
+    if (generatedProfile!.skills.length > 0) {
       children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: "Skills", bold: true })] }));
-      children.push(new Paragraph({ children: [new TextRun({ text: skills.join("  •  "), size: 22 })] }));
+      children.push(new Paragraph({ children: [new TextRun({ text: generatedProfile!.skills.join("  •  "), size: 22 })] }));
     }
 
     const doc = new Document({ sections: [{ children }] });
@@ -642,7 +652,7 @@ const ProfileBuilder = () => {
           )}
 
           {/* Step 3: Generated result */}
-          {step === 3 && (
+          {step === 3 && generatedProfile && (
             <motion.div key="step3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
@@ -651,8 +661,8 @@ const ProfileBuilder = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "Profile Ready!"}</h2>
-                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် ပြင်ဆင်ထားပါသည်` : `Optimized for ${platform}`}</p>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "AI ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "AI Profile Ready!"}</h2>
+                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် AI ဖြင့် ဖန်တီးထားပါသည်` : `AI-generated for ${platform}`}</p>
                     </div>
                   </div>
                   <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">{platform}</span>
@@ -675,11 +685,11 @@ const ProfileBuilder = () => {
                   </div>
                 ))}
 
-                {skills.length > 0 && (
+                {generatedProfile.skills.length > 0 && (
                   <div>
                     <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {skills.map((skill, i) => (
+                      {generatedProfile.skills.map((skill, i) => (
                         <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
                       ))}
                     </div>
@@ -704,7 +714,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedProfile(null); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
