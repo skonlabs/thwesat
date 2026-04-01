@@ -36,8 +36,8 @@ const AiProfileBuilder = () => {
     }
   }, [uploadedFile]);
 
-  const handleToolClick = (path: string, status: string) => {
-    if (status === "Premium" && !profile?.is_premium) {
+  const handleToolClick = (path: string, rawStatus: string) => {
+    if (rawStatus === "Premium" && !profile?.is_premium) {
       navigate("/premium");
       return;
     }
