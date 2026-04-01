@@ -721,7 +721,7 @@ const ProfileBuilder = () => {
                 </div>
 
                 <div className="mb-3 rounded-lg bg-primary/5 p-3">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Headline</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}</p>
                   <p className="mt-1 text-sm font-semibold text-foreground">{name ? `${name} — ` : ""}{generatedProfile.headline}</p>
                 </div>
 
