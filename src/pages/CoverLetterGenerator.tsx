@@ -215,17 +215,74 @@ const CoverLetterGenerator = () => {
                 </div>
               )}
 
-              {/* Job Info */}
+              {/* Job Selection */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်အချက်အလက်" : "Job Details"}</h2>
-                    <p className="text-[11px] text-muted-foreground">{lang === "my" ? "လျှောက်ထားလိုသော အလုပ်" : "The job you're applying for"}</p>
+                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်ရွေးချယ်ပါ" : "Select a Job"}</h2>
+                    <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သိမ်းထားသော အလုပ်များမှ ရွေးပါ သို့မဟုတ် ကိုယ်တိုင်ဖြည့်ပါ" : "Pick from saved jobs or enter manually"}</p>
                   </div>
                 </div>
+
+                {/* Saved Jobs List */}
+                {loadingSavedJobs ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : savedJobs && savedJobs.length > 0 ? (
+                  <div className="mb-3 max-h-48 space-y-2 overflow-y-auto">
+                    {savedJobs.map((saved: any) => {
+                      const job = saved.jobs;
+                      if (!job) return null;
+                      const isSelected = selectedJobId === job.id;
+                      return (
+                        <button
+                          key={saved.id}
+                          onClick={() => {
+                            setSelectedJobId(isSelected ? null : job.id);
+                            if (!isSelected) {
+                              setForm(prev => ({
+                                ...prev,
+                                jobTitle: job.title || "",
+                                company: job.company || "",
+                                jobDescription: [
+                                  job.description || "",
+                                  job.requirements ? `Requirements: ${job.requirements}` : "",
+                                ].filter(Boolean).join("\n").substring(0, 500),
+                              }));
+                            }
+                          }}
+                          className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
+                            isSelected
+                              ? "border-primary bg-primary/5"
+                              : "border-border bg-background active:bg-muted"
+                          }`}
+                        >
+                          <Bookmark className={`mt-0.5 h-4 w-4 flex-shrink-0 ${isSelected ? "fill-primary text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-sm font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{job.title}</p>
+                            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <span className="flex items-center gap-0.5 truncate"><Building2 className="h-3 w-3" strokeWidth={1.5} />{job.company}</span>
+                              {job.location && <span className="flex items-center gap-0.5 truncate"><MapPin className="h-3 w-3" strokeWidth={1.5} />{job.location}</span>}
+                            </div>
+                          </div>
+                          {isSelected && <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" strokeWidth={2} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="mb-3 rounded-lg bg-muted/50 px-3 py-2.5 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      {lang === "my" ? "သိမ်းထားသော အလုပ်များ မရှိသေးပါ — အောက်တွင် ကိုယ်တိုင်ဖြည့်ပါ" : "No saved jobs yet — enter details manually below"}
+                    </p>
+                  </div>
+                )}
+
+                {/* Manual fields (always visible, pre-filled when job selected) */}
                 <div className="space-y-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရာထူး" : "Job Title"}</label>
