@@ -183,7 +183,7 @@ const CoverLetterGenerator = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "Cover Letter ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
+      <PageHeader title={lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
         {/* Progress */}
         <div className="mb-5 flex gap-2">
