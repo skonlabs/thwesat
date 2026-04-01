@@ -98,6 +98,34 @@ const Mentors = () => {
             </button>
           ))}
         </div>
+
+        {role !== "mentor" && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/20">
+              <GraduationCap className="h-4.5 w-4.5 text-accent-foreground" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-foreground">
+                {lang === "my" ? "လမ်းညွှန်သူ ဖြစ်လိုပါသလား?" : "Want to become a mentor?"}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {lang === "my" ? "သင့်အတွေ့အကြုံကို မျှဝေပါ" : "Share your experience & earn"}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-lg border-accent text-xs font-semibold text-accent-foreground"
+              onClick={() => navigate("/mentors/dashboard")}
+            >
+              {lang === "my" ? "စတင်ရန်" : "Get Started"}
+            </Button>
+          </motion.div>
+        )}
       </div>
 
       {/* Filter Panel */}
