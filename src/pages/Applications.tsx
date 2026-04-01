@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
