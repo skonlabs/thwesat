@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback } from "react";
-import { Settings, MessageSquare, Bell, ChevronLeft } from "lucide-react";
+import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
