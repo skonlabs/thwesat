@@ -371,10 +371,8 @@ const Community = () => {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
                       <div className="flex items-center gap-2 px-4 py-3">
                         {[
-                          { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
-                          { platform: "twitter", label: "X", icon: <Share2 className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
                         ].map((opt) => (
                           <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
