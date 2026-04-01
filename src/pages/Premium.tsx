@@ -65,8 +65,7 @@ const Premium = () => {
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
               <Crown className="h-7 w-7 text-primary-foreground" strokeWidth={1.5} />
             </div>
-            <h1 className="text-xl font-bold text-foreground">{lang === "my" ? "Premium သို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium"}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{lang === "my" ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်" : "Unlock all features"}</p>
+            <p className="text-sm text-muted-foreground">{lang === "my" ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်" : "Unlock all features"}</p>
           </div>
 
           {/* Billing toggle */}
