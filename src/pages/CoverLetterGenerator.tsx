@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
@@ -16,51 +18,25 @@ const toneOptions = [
 
 const CoverLetterGenerator = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     jobTitle: "",
     company: "",
     jobDescription: "",
-    yourName: "",
-    yourExperience: "",
+    yourName: profile?.display_name || "",
+    yourExperience: profile?.experience || "",
     tone: "professional",
   });
 
-  const generateLetter = () => {
-    const name = form.yourName || "Maung Maung";
-    const title = form.jobTitle || "the position";
-    const company = form.company || "your company";
-    const tone = form.tone;
-
-    const greeting = tone === "friendly" ? "Hello" : "Dear Hiring Manager";
-    const opener = tone === "enthusiastic"
-      ? `I am thrilled to apply for the ${title} position at ${company}!`
-      : tone === "confident"
-        ? `I am writing to express my strong interest in the ${title} role at ${company}.`
-        : `I am writing to apply for the ${title} position at ${company}.`;
-
-    return `${greeting},
-
-${opener}
-
-${form.yourExperience ? `With my background in ${form.yourExperience.substring(0, 100)}, I am confident that I can make a meaningful contribution to your team.` : `With my professional experience and dedication to excellence, I am confident that I can make a meaningful contribution to your team.`}
-
-${form.jobDescription ? `I was particularly drawn to this role because of ${form.jobDescription.substring(0, 80)}. My skills and experience align well with these requirements.` : "I am excited about the opportunity to bring my skills and passion to this role."}
-
-I am experienced in collaborating with remote teams across different time zones, and I pride myself on clear communication, timely delivery, and producing high-quality work. I am eager to discuss how my background and skills would be a great fit for ${company}.
-
-Thank you for considering my application. I look forward to the opportunity to discuss my qualifications further.
-
-Best regards,
-${name}`;
-  };
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!form.jobTitle && !form.company) {
       toast({
         title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
@@ -69,20 +45,78 @@ ${name}`;
       return;
     }
     setGenerating(true);
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
+        body: form,
+      });
+      if (error) throw error;
+      const letter = data?.data?.letter;
+      if (letter) {
+        setGeneratedLetter(letter);
+        setStep(2);
+      } else {
+        throw new Error("No data returned");
+      }
+    } catch (err: any) {
+      console.error("Cover letter generation error:", err);
+      toast({
+        title: lang === "my" ? "ဖန်တီး၍ မရပါ" : "Generation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
       setGenerating(false);
-      setStep(2);
-    }, 1800);
+    }
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generateLetter());
+    if (!generatedLetter) return;
+    navigator.clipboard.writeText(generatedLetter);
     setCopied(true);
     toast({
       title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!",
       description: lang === "my" ? "Cover letter ကို clipboard သို့ ကူးယူပြီးပါပြီ" : "Cover letter copied to clipboard",
     });
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!generatedLetter) return;
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const margin = 20;
+    const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    let y = 25;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(generatedLetter, maxWidth);
+    for (const line of lines) {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += 5;
+    }
+    doc.save(`cover-letter-${form.company || "draft"}.pdf`);
+    toast({ title: lang === "my" ? "PDF ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "PDF downloaded" });
+  };
+
+  const handleDownloadDocx = async () => {
+    if (!generatedLetter) return;
+    const { Document, Packer, Paragraph, TextRun } = await import("docx");
+
+    const paragraphs = generatedLetter.split("\n").map(
+      (line) => new Paragraph({ children: [new TextRun({ text: line, size: 22 })] })
+    );
+
+    const doc = new Document({ sections: [{ children: paragraphs }] });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cover-letter-${form.company || "draft"}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: lang === "my" ? "DOCX ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "DOCX downloaded" });
   };
 
   return (
@@ -164,8 +198,8 @@ ${name}`;
               <Button onClick={handleGenerate} disabled={generating} className="w-full">
                 {generating ? (
                   <span className="flex items-center gap-2">
-                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="inline-block h-4 w-4 rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {lang === "my" ? "AI ဖြင့် ဖန်တီးနေသည်..." : "AI is generating..."}
                   </span>
                 ) : (
                   <>{lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
@@ -174,7 +208,7 @@ ${name}`;
             </motion.div>
           )}
 
-          {step === 2 && (
+          {step === 2 && generatedLetter && (
             <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
@@ -183,7 +217,7 @@ ${name}`;
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "AI Cover Letter အသင့်ဖြစ်ပါပြီ" : "AI Cover Letter Ready!"}</h2>
                       <p className="text-[10px] text-muted-foreground">{form.jobTitle} · {form.company}</p>
                     </div>
                   </div>
@@ -191,8 +225,20 @@ ${name}`;
                 </div>
 
                 <div className="rounded-lg bg-background p-3">
-                  <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">{generateLetter()}</p>
+                  <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">{generatedLetter}</p>
                 </div>
+              </div>
+
+              {/* Download buttons */}
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleDownloadPdf} className="flex-1">
+                  <Download className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button variant="outline" onClick={handleDownloadDocx} className="flex-1">
+                  <Download className="h-4 w-4" />
+                  DOCX
+                </Button>
               </div>
 
               <div className="flex gap-3">
@@ -200,7 +246,7 @@ ${name}`;
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: "", yourExperience: "", tone: "professional" }); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedLetter(null); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: profile?.display_name || "", yourExperience: profile?.experience || "", tone: "professional" }); }} className="flex-1">
                   <PenLine className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
