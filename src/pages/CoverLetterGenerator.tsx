@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2 } from "lucide-react";
+import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2, RotateCcw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs } from "@/hooks/use-jobs";
+import { useQuery } from "@tanstack/react-query";
 
 const toneOptions = [
   { value: "professional", labelMy: "Professional", labelEn: "Professional" },
@@ -32,6 +33,16 @@ const CoverLetterGenerator = () => {
   const { data: savedJobs, isLoading: loadingSavedJobs } = useSavedJobs();
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
+
+  const { data: savedCoverLetters = [] } = useQuery({
+    queryKey: ["saved-cover-letters", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      const { data } = await supabase.from("generated_documents").select("*").eq("user_id", session.user.id).eq("doc_type", "cover_letter").order("created_at", { ascending: false }).limit(10);
+      return data || [];
+    },
+    enabled: !!session?.user?.id,
+  });
 
   const [form, setForm] = useState({
     jobTitle: "",
@@ -216,7 +227,48 @@ const CoverLetterGenerator = () => {
                 </div>
               )}
 
-              {/* Job Selection */}
+              {/* Pre-fill from saved cover letters */}
+              {savedCoverLetters.length > 0 && (
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+                      <RotateCcw className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ယခင် Cover Letter မှ ဖြည့်ရန်" : "Pre-fill from Saved"}</h2>
+                      <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သိမ်းထားသော cover letter ကို အခြေခံပြီး ပြင်ဆင်ပါ" : "Load a saved cover letter as a starting point"}</p>
+                    </div>
+                  </div>
+                  <div className="max-h-36 space-y-2 overflow-y-auto">
+                    {savedCoverLetters.map((doc: any) => {
+                      const meta = doc.metadata as any;
+                      return (
+                        <button
+                          key={doc.id}
+                          onClick={() => {
+                            setForm(prev => ({
+                              ...prev,
+                              jobTitle: meta?.jobTitle || prev.jobTitle,
+                              company: meta?.company || prev.company,
+                              tone: meta?.tone || prev.tone,
+                            }));
+                            toast({ title: lang === "my" ? "အချက်အလက်များ ဖြည့်သွင်းပြီး" : "Form pre-filled" });
+                          }}
+                          className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors active:bg-muted"
+                        >
+                          <Bookmark className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-foreground truncate">{doc.title}</p>
+                            <p className="text-[10px] text-muted-foreground">{new Date(doc.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
