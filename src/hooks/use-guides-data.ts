@@ -47,3 +47,39 @@ export function useGuide(id: string | undefined) {
     enabled: !!id,
   });
 }
+
+export function useGuideFeedbackCounts(guideId: string | undefined) {
+  return useQuery({
+    queryKey: ["guide-feedback-counts", guideId],
+    queryFn: async () => {
+      if (!guideId) return { yes: 0, no: 0 };
+      const { data, error } = await supabase
+        .from("guide_feedback")
+        .select("is_helpful")
+        .eq("guide_id", guideId);
+      if (error) throw error;
+      const yes = (data || []).filter((r) => r.is_helpful).length;
+      const no = (data || []).filter((r) => !r.is_helpful).length;
+      return { yes, no };
+    },
+    enabled: !!guideId,
+  });
+}
+
+export function useUserGuideFeedback(guideId: string | undefined, userId: string | undefined) {
+  return useQuery({
+    queryKey: ["guide-feedback-user", guideId, userId],
+    queryFn: async () => {
+      if (!guideId || !userId) return null;
+      const { data, error } = await supabase
+        .from("guide_feedback")
+        .select("is_helpful")
+        .eq("guide_id", guideId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!guideId && !!userId,
+  });
+}
