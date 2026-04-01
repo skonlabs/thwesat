@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
@@ -28,6 +29,7 @@ const Applications = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
@@ -46,6 +48,7 @@ const Applications = () => {
   const handleWithdraw = async () => {
     if (!selectedApp) return;
     await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
+    queryClient.invalidateQueries({ queryKey: ["applications"] });
     toast({ title: lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn" });
     setSelectedApp(null);
   };
