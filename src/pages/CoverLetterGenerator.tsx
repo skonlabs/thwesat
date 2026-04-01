@@ -26,6 +26,7 @@ const CoverLetterGenerator = () => {
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const { data: savedJobs, isLoading: loadingSavedJobs } = useSavedJobs();

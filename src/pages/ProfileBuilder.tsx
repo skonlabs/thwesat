@@ -42,6 +42,7 @@ const ProfileBuilder = () => {
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
 
