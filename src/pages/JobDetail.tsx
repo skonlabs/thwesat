@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
-import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob } from "@/hooks/use-jobs";
+import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
