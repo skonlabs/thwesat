@@ -385,7 +385,7 @@ const CoverLetterGenerator = () => {
                     {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
                   </span>
                 ) : (
-                  <>{lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
+                  <>{lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
                 )}
               </Button>
             </motion.div>
