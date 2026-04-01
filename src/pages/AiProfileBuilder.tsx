@@ -19,7 +19,7 @@ const AiProfileBuilder = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string; filePath?: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
