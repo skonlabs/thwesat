@@ -27,17 +27,20 @@ export interface ProfileData {
   preferred_work_types: string[] | null;
 }
 
+// Public-safe fields (excludes PII like email, phone)
+const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, is_premium, remote_ready, has_laptop, internet_stable, has_wise, has_payoneer, has_upwork, referral_code, preferred_work_types, created_at";
+
 export function useAllProfiles(search?: string) {
   return useQuery({
     queryKey: ["all-profiles", search],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("*")
+        .select(PUBLIC_PROFILE_FIELDS)
         .order("created_at", { ascending: false })
         .limit(50);
       if (search) {
-        query = query.or(`display_name.ilike.%${search}%,email.ilike.%${search}%,headline.ilike.%${search}%`);
+        query = query.or(`display_name.ilike.%${search}%,headline.ilike.%${search}%`);
       }
       const { data, error } = await query;
       if (error) throw error;
