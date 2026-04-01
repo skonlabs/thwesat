@@ -66,6 +66,7 @@ function usePostCommentCounts(postIds: string[]) {
   });
 }
 
+function usePostComments(postId: string | null) {
   return useQuery({
     queryKey: ["post-comments", postId],
     queryFn: async () => {
