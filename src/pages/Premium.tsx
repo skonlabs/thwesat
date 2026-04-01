@@ -138,7 +138,7 @@ const PlanCard = ({
             <>
               <div className="flex items-baseline gap-0.5">
                 <span className="text-xl font-bold text-foreground">
-                  {formatPrice(Math.round(perMonth), plan.currency, lang, true)}
+                  {formatPrice(perMonth, plan.currency, lang)}
                 </span>
                 <span className="text-[10px] text-muted-foreground">{period}</span>
               </div>
