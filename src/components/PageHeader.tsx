@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback } from "react";
-import { Settings, MessageSquare, Bell, ChevronLeft } from "lucide-react";
+import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
@@ -16,10 +17,14 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { lang } = useLanguage();
+  const { profile } = useAuth();
   const [logoOpacity, setLogoOpacity] = useState(1);
   const holdTimer = useRef<NodeJS.Timeout | null>(null);
   const holdStart = useRef<number>(0);
   const animFrame = useRef<number>(0);
+
+  const displayName = profile?.display_name || "U";
+  const initial = displayName.charAt(0).toUpperCase();
 
   const startHold = useCallback(() => {
     holdStart.current = Date.now();
@@ -91,11 +96,17 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
             </button>
             <button
-              onClick={() => navigate("/settings")}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
-              aria-label="Settings"
+              onClick={() => navigate("/profile")}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors active:opacity-80"
+              aria-label="Profile"
             >
-              <Settings className="h-5 w-5" strokeWidth={1.5} />
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover ring-1.5 ring-border" />
+              ) : (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground ring-1.5 ring-border">
+                  {initial}
+                </div>
+              )}
             </button>
           </div>
         </div>
