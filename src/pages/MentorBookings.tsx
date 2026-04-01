@@ -61,7 +61,7 @@ const MentorBookings = () => {
   const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
 
   const handleConfirm = (id: string) => {
-    updateStatus.mutate({ bookingId: id, status: "confirmed" }, {
+    updateStatus.mutate({ id, status: "confirmed" }, {
       onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
     });
   };
