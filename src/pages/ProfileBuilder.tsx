@@ -169,18 +169,6 @@ const ProfileBuilder = () => {
     return SUGGESTED_SKILLS.filter(s => !skills.includes(s) && (!q || s.toLowerCase().includes(q)));
   }, [newSkill, skills]);
 
-  const educationText = educations
-    .filter(ed => ed.degree || ed.institution)
-    .map(ed => [ed.degree, ed.institution, ed.year].filter(Boolean).join(", "))
-    .join("; ");
-
-  const skillsText = skills.join(", ");
-
-  const experienceText = experiences
-    .filter(ex => ex.role || ex.company || ex.description)
-    .map(ex => [ex.role, ex.company, ex.duration].filter(Boolean).join(" at "))
-    .join("; ");
-
   const [generatedProfile, setGeneratedProfile] = useState<{
     headline: string;
     summary: string;
