@@ -664,7 +664,7 @@ const ProfileBuilder = () => {
           )}
 
           {/* Step 3: Generated result */}
-          {step === 3 && (
+          {step === 3 && generatedProfile && (
             <motion.div key="step3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
@@ -673,8 +673,8 @@ const ProfileBuilder = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "Profile Ready!"}</h2>
-                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် ပြင်ဆင်ထားပါသည်` : `Optimized for ${platform}`}</p>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "AI ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "AI Profile Ready!"}</h2>
+                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် AI ဖြင့် ဖန်တီးထားပါသည်` : `AI-generated for ${platform}`}</p>
                     </div>
                   </div>
                   <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">{platform}</span>
@@ -697,11 +697,11 @@ const ProfileBuilder = () => {
                   </div>
                 ))}
 
-                {skills.length > 0 && (
+                {generatedProfile.skills.length > 0 && (
                   <div>
                     <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {skills.map((skill, i) => (
+                      {generatedProfile.skills.map((skill, i) => (
                         <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
                       ))}
                     </div>
@@ -726,7 +726,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedProfile(null); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
