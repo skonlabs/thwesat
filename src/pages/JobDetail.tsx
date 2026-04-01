@@ -531,15 +531,6 @@ const JobDetail = () => {
                       <>
                         <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
                         <span className="text-foreground">{lang === "my" ? "Cover Letter ပါဝင်သည်" : "Cover letter included"}</span>
-                        <button
-                          onClick={() => {
-                            setPreviewContent(coverLetter);
-                            setPreviewTitle(lang === "my" ? "Cover Letter" : "Cover Letter");
-                          }}
-                          className="ml-auto text-[10px] font-medium text-primary"
-                        >
-                          {lang === "my" ? "ကြည့်ရန်" : "Preview"}
-                        </button>
                       </>
                     ) : (
                       <>
