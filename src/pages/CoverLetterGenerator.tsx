@@ -442,7 +442,7 @@ const CoverLetterGenerator = () => {
                   await supabase.from("generated_documents").insert({
                     user_id: session.user.id,
                     doc_type: "cover_letter",
-                    title: `Cover Letter — ${form.jobTitle || ""} at ${form.company || ""}`,
+                    content: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${form.jobTitle || ""} at ${form.company || ""}`,
                     content: generatedLetter,
                     metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
                   });
