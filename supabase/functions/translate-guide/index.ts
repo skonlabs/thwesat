@@ -19,51 +19,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: "Translation service not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Split content into chunks to avoid URL length limits
+    const chunks = splitIntoChunks(content, 4000);
+    const translatedChunks: string[] = [];
+
+    for (const chunk of chunks) {
+      const translated = await translateText(chunk);
+      translatedChunks.push(translated);
     }
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 4096,
-        messages: [
-          {
-            role: "user",
-            content: `Translate the following guide content from English to Myanmar (Burmese) language. Keep all markdown formatting (##, -, **, numbers) exactly the same. Keep proper nouns, phone numbers, prices, and technical terms in English. Only translate the descriptive text.
-
-Title: ${title}
-
-Content:
-${content}
-
-Provide ONLY the translated content, no explanations.`,
-          },
-        ],
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Anthropic API error:", data);
-      return new Response(
-        JSON.stringify({ error: "Translation failed" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const translatedContent = data.content?.[0]?.text || "";
+    const translatedContent = translatedChunks.join("\n");
 
     return new Response(
       JSON.stringify({ translatedContent }),
@@ -77,3 +42,41 @@ Provide ONLY the translated content, no explanations.`,
     );
   }
 });
+
+function splitIntoChunks(text: string, maxLength: number): string[] {
+  const lines = text.split("\n");
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const line of lines) {
+    if ((current + "\n" + line).length > maxLength && current) {
+      chunks.push(current);
+      current = line;
+    } else {
+      current = current ? current + "\n" + line : line;
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
+
+async function translateText(text: string): Promise<string> {
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=my&dt=t&q=${encodeURIComponent(text)}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Google Translate error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  // Google Translate returns nested arrays: [[["translated","original",...],...],...]
+  let translated = "";
+  if (Array.isArray(data) && Array.isArray(data[0])) {
+    for (const segment of data[0]) {
+      if (segment && segment[0]) {
+        translated += segment[0];
+      }
+    }
+  }
+  return translated;
+}
