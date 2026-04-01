@@ -72,7 +72,7 @@ const Profile = () => {
     toast({ title: lang === "my" ? `${selected.label.my} အနေဖြင့် ပြောင်းပြီးပါပြီ` : `Switched to ${selected.label.en}` });
   };
 
-  const currentRoleLabel = roleOptions.find(o => o.value === role)!;
+  const currentRoleLabel = allRoleOptions.find(o => o.value === role)!;
 
   const handleSignOut = async () => {
     await signOut();
