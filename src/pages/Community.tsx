@@ -181,17 +181,17 @@ const Community = () => {
   const handleShareOption = (post: typeof posts[0], platform: string) => {
     const text = lang === "my" ? post.content_my : (post.content_en || post.content_my);
     const postUrl = `${window.location.origin}/community/post/${post.id}`;
+    const openExternal = (url: string) => {
+      const w = window.top || window;
+      w.open(url, "_blank", "noopener,noreferrer");
+    };
     switch (platform) {
-      case "telegram": {
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`;
-        window.location.href = shareUrl;
+      case "telegram":
+        openExternal(`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`);
         break;
-      }
-      case "facebook": {
-        const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
-        window.location.href = shareUrl;
+      case "facebook":
+        openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`);
         break;
-      }
       case "copy":
         navigator.clipboard.writeText(postUrl).catch(() => {});
         break;
