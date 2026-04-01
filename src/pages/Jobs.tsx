@@ -9,10 +9,10 @@ import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use
 
 const categories = [
   { my: "အားလုံး", en: "All" },
-  { my: "Tech", en: "Tech" },
-  { my: "Design", en: "Design" },
+  { my: "နည်းပညာ", en: "Tech" },
+  { my: "ဒီဇိုင်း", en: "Design" },
   { my: "စီမံခန့်ခွဲမှု", en: "Management" },
-  { my: "NGO", en: "NGO" },
+  { my: "အကျိုးပြု အဖွဲ့အစည်း", en: "NGO" },
   { my: "ဘာသာပြန်", en: "Translation" },
   { my: "ငွေကြေး", en: "Finance" },
 ];
