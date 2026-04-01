@@ -9,6 +9,7 @@ import logo from "@/assets/logo.svg";
 interface PageHeaderProps {
   title: string;
   backPath?: string;
+  onBack?: () => void;
 }
 
 const PageHeader = ({ title, backPath }: PageHeaderProps) => {
