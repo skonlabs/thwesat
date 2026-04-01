@@ -30,6 +30,7 @@ const EmployerPostJob = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const createJob = useCreateJob();
+  const { data: employerProfile } = useEmployerProfile();
   const [step, setStep] = useState(1);
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
