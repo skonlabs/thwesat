@@ -30,7 +30,7 @@ const Premium = () => {
         { text: lang === "my" ? "ဥပဒေ လမ်းညွှန်ချက်များ ဖတ်ရှုရန်" : "Read legal guides", included: true },
         { text: lang === "my" ? "Community ပါဝင်ရန်" : "Join community", included: true },
         { text: lang === "my" ? "Profile Builder (၁ ကြိမ်)" : "Profile Builder (1 use)", included: true },
-        { text: lang === "my" ? "AI Cover Letter" : "AI Cover Letter", included: false },
+        { text: lang === "my" ? "Cover Letter ဖန်တီးရေး" : "Cover Letter Generator", included: false },
         { text: lang === "my" ? "Mentor ၁:၁ ချိတ်ဆက်" : "1:1 Mentor matching", included: false },
         { text: lang === "my" ? "ကုဒ်ဝှက် Chat" : "E2E Encrypted Chat", included: false },
       ],
