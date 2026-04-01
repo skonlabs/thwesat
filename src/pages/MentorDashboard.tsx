@@ -63,7 +63,7 @@ const MentorDashboard = () => {
   const filteredBookings = bookingFilter === "all" ? bookings : bookings.filter((b: any) => b.status === bookingFilter);
 
   const handleConfirm = (id: string) => {
-    updateStatus.mutate({ bookingId: id, status: "confirmed" }, {
+    updateStatus.mutate({ id, status: "confirmed" }, {
       onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
     });
   };
