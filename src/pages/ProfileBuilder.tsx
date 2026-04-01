@@ -216,6 +216,95 @@ const ProfileBuilder = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const getProfileText = () => {
+    const headline = `${name ? `${name} — ` : ""}${generatedProfile.headline}`;
+    const summaryText = generatedProfile.summary;
+    const sectionsText = generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n");
+    const skillsLine = skills.length > 0 ? `\nSkills\n${skills.join(", ")}` : "";
+    return { headline, summaryText, sectionsText, skillsLine };
+  };
+
+  const handleDownloadPdf = async () => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 25;
+
+    const addText = (text: string, fontSize: number, bold: boolean = false) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      const lines = doc.splitTextToSize(text, maxWidth);
+      for (const line of lines) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(line, margin, y);
+        y += fontSize * 0.5;
+      }
+      y += 3;
+    };
+
+    const { headline, summaryText } = getProfileText();
+    addText(headline, 16, true);
+    y += 2;
+    addText("Summary", 11, true);
+    addText(summaryText, 10);
+
+    for (const section of generatedProfile.sections) {
+      addText(section.title, 11, true);
+      const contentLines = section.content.split("\n");
+      for (const line of contentLines) {
+        addText(line, 10);
+      }
+    }
+
+    if (skills.length > 0) {
+      addText("Skills", 11, true);
+      addText(skills.join("  •  "), 10);
+    }
+
+    doc.save(`${name || "profile"}-${platform}.pdf`);
+    toast({ title: lang === "my" ? "PDF ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "PDF downloaded" });
+  };
+
+  const handleDownloadDocx = async () => {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
+
+    const { headline, summaryText } = getProfileText();
+
+    const children: any[] = [
+      new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: headline, bold: true })] }),
+      new Paragraph({ children: [] }),
+      new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: "Summary", bold: true })] }),
+      new Paragraph({ children: [new TextRun({ text: summaryText, size: 22 })] }),
+      new Paragraph({ children: [] }),
+    ];
+
+    for (const section of generatedProfile.sections) {
+      children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: section.title, bold: true })] }));
+      const contentLines = section.content.split("\n");
+      for (const line of contentLines) {
+        children.push(new Paragraph({ children: [new TextRun({ text: line.trim(), size: 22 })] }));
+      }
+      children.push(new Paragraph({ children: [] }));
+    }
+
+    if (skills.length > 0) {
+      children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: "Skills", bold: true })] }));
+      children.push(new Paragraph({ children: [new TextRun({ text: skills.join("  •  "), size: 22 })] }));
+    }
+
+    const doc = new Document({ sections: [{ children }] });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name || "profile"}-${platform}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: lang === "my" ? "DOCX ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "DOCX downloaded" });
+  };
+
   const stepLabels = [
     lang === "my" ? "အချက်အလက်" : "Details",
     lang === "my" ? "Platform" : "Platform",
