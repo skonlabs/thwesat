@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
-  Gift, Copy, Shield, Laptop, CreditCard, Check,
+  Gift, Copy, Shield, Check,
   Users, ArrowLeftRight, GraduationCap, Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
