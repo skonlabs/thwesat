@@ -7,13 +7,15 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 
+const MMK_RATE = 2100;
+
 const plans = [
   {
     id: "free",
     duration: null,
-    price: 0,
-    totalPrice: 0,
-    perMonth: "$0",
+    priceUsd: 0,
+    totalUsd: 0,
+    perMonthUsd: 0,
     period: { my: "ထာဝရ", en: "forever" },
     name: { my: "အခမဲ့", en: "Free" },
     badge: null,
@@ -22,9 +24,9 @@ const plans = [
   {
     id: "3mo",
     duration: 3,
-    price: 5,
-    totalPrice: 15,
-    perMonth: "$5",
+    priceUsd: 5,
+    totalUsd: 15,
+    perMonthUsd: 5,
     period: { my: "/လ", en: "/mo" },
     name: { my: "၃ လ", en: "3 Months" },
     badge: null,
@@ -33,9 +35,9 @@ const plans = [
   {
     id: "6mo",
     duration: 6,
-    price: 4.17,
-    totalPrice: 25,
-    perMonth: "$4.17",
+    priceUsd: 4.17,
+    totalUsd: 25,
+    perMonthUsd: 4.17,
     period: { my: "/လ", en: "/mo" },
     name: { my: "၆ လ", en: "6 Months" },
     badge: { my: "လူကြိုက်များ", en: "Popular" },
@@ -44,15 +46,32 @@ const plans = [
   {
     id: "12mo",
     duration: 12,
-    price: 3.75,
-    totalPrice: 45,
-    perMonth: "$3.75",
+    priceUsd: 3.75,
+    totalUsd: 45,
+    perMonthUsd: 3.75,
     period: { my: "/လ", en: "/mo" },
     name: { my: "၁၂ လ", en: "12 Months" },
     badge: { my: "တန်ဖိုးအရှိဆုံး", en: "Best Value" },
     save: { my: "25% သက်သာ", en: "Save 25%" },
   },
 ];
+
+const formatPrice = (usd: number, lang: string) => {
+  if (usd === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
+  if (lang === "my") {
+    const mmk = Math.round(usd * MMK_RATE);
+    return `${mmk.toLocaleString()} ကျပ်`;
+  }
+  return `$${usd % 1 === 0 ? usd : usd.toFixed(2)}`;
+};
+
+const formatTotal = (usd: number, lang: string) => {
+  if (lang === "my") {
+    const mmk = Math.round(usd * MMK_RATE);
+    return `စုစုပေါင်း ${mmk.toLocaleString()} ကျပ်`;
+  }
+  return `$${usd} total`;
+};
 
 const freeFeatures = [
   { my: "အလုပ် ကြည့်ရှုရန်နှင့် လျှောက်ထားရန်", en: "Browse & apply for jobs" },
