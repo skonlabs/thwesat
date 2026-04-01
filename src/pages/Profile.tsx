@@ -101,7 +101,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ ပရိုဖိုင်" : "My Profile"} />
+      <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ အကောင့်" : "My Account"} />
 
       <div className="px-5 pt-4">
         {/* Role Switcher */}
