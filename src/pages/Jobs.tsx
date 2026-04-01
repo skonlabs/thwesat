@@ -191,7 +191,7 @@ const Jobs = () => {
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
                   <div className="space-y-2">
                     {[
-                      { label: lang === "my" ? "Diaspora Safe သာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
+                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
                       { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: filterVerified, set: setFilterVerified },
                       { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: filterVisa, set: setFilterVisa },
                     ].map(toggle => (
