@@ -113,7 +113,8 @@ Rules:
 - Include internships, freelance work, part-time jobs — every position mentioned
 - Extract ALL education entries, including certifications and training programs
 - Extract ALL skills — technical, soft skills, tools, frameworks, languages, methodologies
-- The "other" field is a catch-all: put EVERYTHING else here — certifications, awards, languages, volunteer work, projects, publications, portfolio links, references, hobbies, interests, etc. Do NOT leave anything out.
+- Extract the CV's professional summary / profile / objective into the "summary" field when present
+- The "other" field is a catch-all: put everything else here — certifications, awards, languages, volunteer work, projects, publications, portfolio links, references, hobbies, interests, etc. Do NOT duplicate the summary in "other" if it already belongs in "summary".
 - If text is in Myanmar/Burmese, translate everything to English
 - If a field is not found, use empty string or empty array
 - Return ONLY the JSON, no markdown, no code fences, no explanation`;
