@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock } from "lucide-react";
+import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,6 +213,9 @@ const EditProfile = () => {
   const [hasLaptop, setHasLaptop] = useState(false);
   const [internetStable, setInternetStable] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
@@ -240,8 +243,39 @@ const EditProfile = () => {
       setHasUpwork(profile.has_upwork || false);
       setHasLaptop(profile.has_laptop || false);
       setInternetStable(profile.internet_stable || false);
+      setAvatarUrl(profile.avatar_url || null);
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: lang === "my" ? "ဓာတ်ပုံဖိုင်သာ ရွေးပါ" : "Please select an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: lang === "my" ? "ဖိုင်အရွယ်အစား 5MB ထက်မကျော်ရ" : "File must be under 5MB", variant: "destructive" });
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${profile.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const url = `${publicUrl}?t=${Date.now()}`;
+      await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
+      setAvatarUrl(url);
+      await refreshProfile();
+      toast({ title: lang === "my" ? "ပရိုဖိုင်ဓာတ်ပုံ တင်ပြီးပါပြီ ✓" : "Profile photo updated ✓" });
+    } catch (err: any) {
+      toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -323,10 +357,20 @@ const EditProfile = () => {
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">
           <div className="relative">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-              {profile?.avatar_url ? <img src={profile.avatar_url} className="h-24 w-24 rounded-full object-cover" /> : initial}
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground overflow-hidden">
+              {avatarUrl ? <img src={avatarUrl} className="h-24 w-24 rounded-full object-cover" /> : initial}
             </div>
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition-transform active:scale-95"
+            >
+              {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" strokeWidth={1.5} />}
+            </button>
+            <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">{lang === "my" ? "ဓာတ်ပုံ ပြောင်းရန် နှိပ်ပါ" : "Tap to change photo"}</p>
         </motion.div>
 
         {/* Basic Information */}
