@@ -21,7 +21,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} />
       <div className="px-5">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] text-emerald">
