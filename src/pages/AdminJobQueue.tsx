@@ -1,55 +1,69 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, AlertTriangle, Clock, Building2, Globe, Shield, ChevronRight, X } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 
-const pendingJobs = [
-  { id: 1, title: "Senior React Developer", company: "TechCorp Asia", employer: "John Doe", submitted: "3 hours ago", scamFlags: [], salary: "$3,000-5,000", type: "Remote Full-Time", embassy: false, verified: true },
-  { id: 2, title: "Customer Support Agent", company: "QuickHelp Co", employer: "Jane Smith", submitted: "5 hours ago", scamFlags: ["telegram only"], salary: "$500-800", type: "Remote Contract", embassy: false, verified: false },
-  { id: 3, title: "Factory Worker", company: "MFG Thailand", employer: "Somchai P.", submitted: "8 hours ago", scamFlags: [], salary: "$400-600", type: "On-site", embassy: true, verified: true },
-  { id: 4, title: "Data Entry Clerk", company: "Unknown LLC", employer: "Anon User", submitted: "12 hours ago", scamFlags: ["prepay", "processing fee"], salary: "$2,000-3,000", type: "Remote", embassy: false, verified: false },
-];
-
 const checklist = [
-  { my: "အလုပ်ရှင် subscription တက်ကြွ", en: "Employer has active subscription" },
   { my: "ကုမ္ပဏီ ဝဘ်ဆိုဒ် ရှိ၍ တရားဝင်", en: "Company website exists & legitimate" },
-  { my: "LinkedIn ကိုက်ညီ", en: "LinkedIn page matches" },
   { my: "ငွေပေးချေနည်း တကယ်ရှိ", en: "Payment methods accessible to diaspora" },
-  { my: "သံရုံးစာရွက် flag မှန်ကန်", en: "Embassy doc flag correctly set" },
   { my: "လစာနှုန်း သဘာဝကျ", en: "Salary range realistic" },
   { my: "Scam အညွှန်းကိန်း မရှိ", en: "No scam indicators" },
-  { my: "လျှောက်ထားနည်း သင့်တော်", en: "Application method appropriate" },
 ];
 
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
-  const [jobs, setJobs] = useState(pendingJobs);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
 
-  const selected = jobs.find(j => j.id === selectedId);
+  const { data: jobs = [], isLoading } = useQuery({
+    queryKey: ["admin-pending-jobs"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("jobs").select("*").eq("status", "pending").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
-  const handleApprove = (id: number) => {
-    setJobs(prev => prev.filter(j => j.id !== id));
-    setSelectedId(null);
-    toast({ title: lang === "my" ? "အတည်ပြုပြီးပါပြီ ✓" : "Listing approved ✓" });
+  const selected = jobs.find((j: any) => j.id === selectedId);
+
+  const updateJob = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("jobs").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-pending-jobs"] }),
+  });
+
+  const handleApprove = (id: string) => {
+    updateJob.mutate({ id, status: "active" }, {
+      onSuccess: () => { setSelectedId(null); toast({ title: lang === "my" ? "အတည်ပြုပြီးပါပြီ ✓" : "Listing approved ✓" }); },
+    });
   };
 
   const handleReject = () => {
-    if (selectedId) {
-      setJobs(prev => prev.filter(j => j.id !== selectedId));
-      setSelectedId(null);
-      setShowReject(false);
-      setRejectionReason("");
-      toast({ title: lang === "my" ? "ငြင်းပယ်ပြီးပါပြီ" : "Listing rejected" });
-    }
+    if (!selectedId) return;
+    updateJob.mutate({ id: selectedId, status: "rejected" }, {
+      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); toast({ title: lang === "my" ? "ငြင်းပယ်ပြီးပါပြီ" : "Listing rejected" }); },
+    });
+  };
+
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const hrs = Math.floor(diff / 3600000);
+    if (hrs < 1) return `${Math.floor(diff / 60000)}m ago`;
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
   };
 
   return (
@@ -57,46 +71,34 @@ const AdminJobQueue = () => {
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ စစ်ဆေးရေး" : "Job Verification Queue"} />
       <div className="px-5">
         <p className="mb-4 text-xs text-muted-foreground">{jobs.length} {lang === "my" ? "ခု စစ်ဆေးရန်ရှိ" : "pending review"}</p>
-
-        <div className="space-y-3">
-          {jobs.map((job, i) => (
-            <motion.button
-              key={job.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              onClick={() => setSelectedId(job.id)}
-              className={`w-full rounded-xl border bg-card p-4 text-left active:bg-muted/30 ${job.scamFlags.length > 0 ? "border-destructive/30" : "border-border"}`}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
-                  <p className="text-[11px] text-muted-foreground">{job.company} · {job.employer}</p>
+        {isLoading ? (
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+        ) : (
+          <div className="space-y-3">
+            {jobs.map((job: any, i: number) => (
+              <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
+                    <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                  </div>
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="h-3 w-3" /> {formatTime(job.created_at)}</span>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="h-3 w-3" /> {job.submitted}</span>
-                  {job.scamFlags.length > 0 && (
-                    <span className="flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-                      <AlertTriangle className="h-3 w-3" /> {lang === "my" ? "Scam သံသယ" : "Flagged"}
-                    </span>
-                  )}
+                <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                  {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
+                  {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
                 </div>
+              </motion.button>
+            ))}
+            {jobs.length === 0 && (
+              <div className="flex flex-col items-center py-16 text-center">
+                <CheckCircle className="mb-3 h-10 w-10 text-emerald" strokeWidth={1.5} />
+                <p className="text-sm font-medium text-foreground">{lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!"}</p>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.salary}</span>
-                <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.type}</span>
-                {job.embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
-                {!job.verified && <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">Unverified Employer</span>}
-              </div>
-            </motion.button>
-          ))}
-          {jobs.length === 0 && (
-            <div className="flex flex-col items-center py-16 text-center">
-              <CheckCircle className="mb-3 h-10 w-10 text-emerald" strokeWidth={1.5} />
-              <p className="text-sm font-medium text-foreground">{lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!"}</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Review Sheet */}
@@ -106,17 +108,7 @@ const AdminJobQueue = () => {
             <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>
-              <p className="mb-4 text-sm text-muted-foreground">{selected.company} · {selected.salary}</p>
-
-              {selected.scamFlags.length > 0 && (
-                <div className="mb-4 rounded-xl bg-destructive/5 p-3">
-                  <p className="text-xs font-bold text-destructive">⚠️ {lang === "my" ? "Scam အညွှန်းကိန်းများ" : "Scam Flags"}</p>
-                  {selected.scamFlags.map((f, i) => (
-                    <p key={i} className="mt-1 text-[11px] text-foreground/80">• {f}</p>
-                  ))}
-                </div>
-              )}
-
+              <p className="mb-4 text-sm text-muted-foreground">{selected.company} · ${selected.salary_min || 0}-${selected.salary_max || 0}</p>
               <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "စစ်ဆေးရန် အခြေခံ" : "Review Checklist"}</h3>
               <div className="mb-4 space-y-2">
                 {checklist.map((item, i) => (
@@ -126,14 +118,9 @@ const AdminJobQueue = () => {
                   </label>
                 ))}
               </div>
-
               <div className="flex gap-3">
-                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}>
-                  <XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ငြင်းပယ်" : "Reject"}
-                </Button>
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}>
-                  <CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}
-                </Button>
+                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ငြင်းပယ်" : "Reject"}</Button>
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
               </div>
             </motion.div>
           </motion.div>

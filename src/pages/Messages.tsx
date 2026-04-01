@@ -2,18 +2,23 @@ import { motion } from "framer-motion";
 import { Search, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import { useConversations } from "@/hooks/use-messages-data";
 import PageHeader from "@/components/PageHeader";
-
-const conversations = [
-  { name: "ဒေါ်ခင်မြတ်နိုး", nameEn: "Khin Myat Noe", avatar: "KM", role: "Mentor · Software Engineer", lastMsg: { my: "ပရိုဖိုင်ကို ကြည့်ပြီးပါပြီ။ ကောင်းပါတယ်!", en: "Reviewed your profile. Looks good!" }, time: "10 min", unread: 2, online: true },
-  { name: "ဦးဇော်မင်း", nameEn: "Zaw Min", avatar: "ZM", role: "Mentor · Product Designer", lastMsg: { my: "Portfolio ကို ပြင်ဆင်ပြီးရင် ပို့ပေးပါ", en: "Send your portfolio when it's ready" }, time: "1 hr", unread: 0, online: false },
-  { name: "ဒေါ်သီတာ", nameEn: "Thida", avatar: "TH", role: "Mentor · Immigration Lawyer", lastMsg: { my: "Pink Card documents list ကို ပို့ပေးလိုက်ပါတယ်", en: "Sent you the Pink Card documents list" }, time: "3 hr", unread: 1, online: true },
-  { name: "TechCorp Asia HR", nameEn: "TechCorp HR", avatar: "TC", role: "Employer", lastMsg: { my: "Interview schedule ကို အတည်ပြုပေးပါ", en: "Please confirm the interview schedule" }, time: "1 day", unread: 0, online: false },
-];
 
 const Messages = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { data: conversations = [], isLoading } = useConversations();
+
+  const formatTime = (dateStr: string | null) => {
+    if (!dateStr) return "";
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h`;
+    return `${Math.floor(hrs / 24)}d`;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,41 +28,50 @@ const Messages = () => {
           <Lock className="h-3 w-3" strokeWidth={1.5} />
           <span>{lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "End-to-end encrypted"}</span>
         </div>
-
         <div className="mb-4 mt-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <input placeholder={lang === "my" ? "မက်ဆေ့ချ် ရှာဖွေရန်..." : "Search messages..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
         </div>
       </div>
 
-      <div className="divide-y divide-border">
-        {conversations.map((conv, i) => (
-          <motion.button
-            key={i}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            onClick={() => navigate("/messages/chat")}
-            className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-all active:bg-muted/30"
-          >
-            <div className="relative">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{conv.avatar}</div>
-              {conv.online && (<span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-emerald" />)}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? conv.name : conv.nameEn}</h3>
-                <span className="text-[10px] text-muted-foreground">{conv.time}</span>
+      {isLoading ? (
+        <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+      ) : conversations.length === 0 ? (
+        <div className="flex flex-col items-center py-16 text-center px-5">
+          <Lock className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+          <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "မက်ဆေ့ချ် မရှိသေးပါ" : "No messages yet"}</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-border">
+          {conversations.map((conv: any, i: number) => (
+            <motion.button
+              key={conv.id}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              onClick={() => navigate(`/messages/chat?id=${conv.id}`)}
+              className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition-all active:bg-muted/30"
+            >
+              <div className="relative">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                  {conv.otherProfile?.display_name?.slice(0, 2).toUpperCase() || "?"}
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground">{conv.role}</p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">{lang === "my" ? conv.lastMsg.my : conv.lastMsg.en}</p>
-            </div>
-            {conv.unread > 0 && (
-              <span className="mt-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{conv.unread}</span>
-            )}
-          </motion.button>
-        ))}
-      </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-foreground">{conv.otherProfile?.display_name || "User"}</h3>
+                  <span className="text-[10px] text-muted-foreground">{formatTime(conv.lastMessage?.created_at)}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{conv.otherProfile?.headline || ""}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{conv.lastMessage?.content || ""}</p>
+              </div>
+              {conv.unreadCount > 0 && (
+                <span className="mt-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{conv.unreadCount}</span>
+              )}
+            </motion.button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
