@@ -34,7 +34,7 @@ const HomePage = () => {
   const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
       <div className="border-b border-border bg-card px-5 pb-5 pt-4">
         <div className="flex items-center gap-3">
