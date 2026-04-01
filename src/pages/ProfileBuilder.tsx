@@ -302,7 +302,7 @@ const ProfileBuilder = () => {
       new Paragraph({ children: [] }),
     ];
 
-    for (const section of generatedProfile.sections) {
+    for (const section of generatedProfile!.sections) {
       children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: section.title, bold: true })] }));
       const contentLines = section.content.split("\n");
       for (const line of contentLines) {
@@ -311,9 +311,9 @@ const ProfileBuilder = () => {
       children.push(new Paragraph({ children: [] }));
     }
 
-    if (skills.length > 0) {
+    if (generatedProfile!.skills.length > 0) {
       children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: "Skills", bold: true })] }));
-      children.push(new Paragraph({ children: [new TextRun({ text: skills.join("  •  "), size: 22 })] }));
+      children.push(new Paragraph({ children: [new TextRun({ text: generatedProfile!.skills.join("  •  "), size: 22 })] }));
     }
 
     const doc = new Document({ sections: [{ children }] });
