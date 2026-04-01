@@ -108,17 +108,6 @@ const CoverLetterGenerator = () => {
       if (letter) {
         setGeneratedLetter(letter);
         setStep(2);
-
-        // Save to generated_documents for reuse
-        if (session?.user?.id) {
-          await supabase.from("generated_documents").insert({
-            user_id: session.user.id,
-            doc_type: "cover_letter",
-            title: `Cover Letter — ${form.jobTitle || ""} at ${form.company || ""}`,
-            content: letter,
-            metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
-          });
-        }
       } else {
         throw new Error("No data returned");
       }
