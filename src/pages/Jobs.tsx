@@ -32,9 +32,9 @@ const locationOptions = [
 ];
 
 const roleTypeLabels: Record<string, { my: string; en: string }> = {
-  remote_full: { my: "Remote အပြည့်", en: "Remote Full-time" },
-  remote_contract: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" },
-  hybrid: { my: "Hybrid", en: "Hybrid" },
+  remote_full: { my: "အဝေးထိန်း အပြည့်အဝ", en: "Remote Full-time" },
+  remote_contract: { my: "အဝေးထိန်း ကန်ထရိုက်", en: "Remote Contract" },
+  hybrid: { my: "ရောစပ်", en: "Hybrid" },
   "full-time": { my: "အပြည့်အဝ", en: "Full-time" },
   contract: { my: "ကန်ထရိုက်", en: "Contract" },
 };
