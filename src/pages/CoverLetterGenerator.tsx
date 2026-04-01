@@ -400,7 +400,7 @@ const CoverLetterGenerator = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
                       <p className="text-[10px] text-muted-foreground">{form.jobTitle} · {form.company}</p>
                     </div>
                   </div>
