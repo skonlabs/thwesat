@@ -90,7 +90,8 @@ const Community = () => {
   const [newPostCategory, setNewPostCategory] = useState("Career");
   const [openCommentId, setOpenCommentId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [replyToId, setReplyToId] = useState<string | null>(null);
+  const [replyToName, setReplyToName] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
