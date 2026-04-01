@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2 } from "lucide-react";
+import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -21,20 +21,71 @@ const CoverLetterGenerator = () => {
   const location = useLocation();
   const { lang } = useLanguage();
   const { toast } = useToast();
-  const { profile } = useAuth();
+  const { profile, session } = useAuth();
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [cvParsed, setCvParsed] = useState(false);
 
   const [form, setForm] = useState({
     jobTitle: "",
     company: "",
     jobDescription: "",
     yourName: profile?.display_name || "",
-    yourExperience: profile?.experience || "",
+    yourExperience: "",
     tone: "professional",
   });
+
+  // Parse CV if file path was passed from Career Tools
+  const cvFilePath = (location.state as any)?.cvFilePath;
+
+  useEffect(() => {
+    if (cvFilePath && session?.access_token && !cvParsed) {
+      parseCv(cvFilePath);
+    }
+  }, [cvFilePath, session?.access_token]);
+
+  const parseCv = async (filePath: string) => {
+    setParsing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("parse-cv", {
+        body: { file_path: filePath },
+      });
+      if (error) throw error;
+
+      const parsed = data?.data;
+      if (parsed) {
+        setForm(prev => ({
+          ...prev,
+          yourName: parsed.name || prev.yourName,
+          yourExperience: [
+            ...(parsed.experiences || []).map((ex: any) =>
+              [ex.role, ex.company, ex.duration].filter(Boolean).join(" at ")
+              + (ex.description ? ` — ${ex.description}` : "")
+            ),
+            ...(parsed.skills?.length ? [`Skills: ${parsed.skills.join(", ")}`] : []),
+            ...(parsed.summary ? [parsed.summary] : []),
+          ].join("\n") || prev.yourExperience,
+        }));
+        setCvParsed(true);
+        toast({
+          title: lang === "my" ? "CV မှ အချက်အလက်များ ဖတ်ပြီးပါပြီ ✓" : "CV parsed successfully ✓",
+          description: lang === "my" ? "အချက်အလက်များကို စစ်ဆေးပြင်ဆင်ပါ" : "Review and edit the extracted data",
+        });
+      }
+    } catch (err: any) {
+      console.error("CV parse error:", err);
+      toast({
+        title: lang === "my" ? "CV ဖတ်၍ မရပါ" : "Could not parse CV",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setParsing(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!form.jobTitle && !form.company) {
