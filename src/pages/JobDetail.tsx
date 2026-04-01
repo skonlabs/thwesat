@@ -438,17 +438,20 @@ const JobDetail = () => {
                   </div>
                 )}
 
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 w-full"
                   onClick={() => {
                     if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
                     else { setCoverLetterMode("manual"); }
                   }}
-                  className="text-xs font-medium text-primary"
                 >
+                  <PenLine className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
                   {coverLetterMode === "manual"
                     ? (lang === "my" ? "ပိတ်ရန်" : "Cancel")
                     : (lang === "my" ? "ကိုယ်တိုင်ရေးရန်" : "Write your own")}
-                </button>
+                </Button>
 
                 {coverLetterMode === "manual" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2">
