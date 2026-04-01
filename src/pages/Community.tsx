@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Globe } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -179,22 +179,9 @@ const Community = () => {
   };
 
   const handleShareOption = (post: typeof posts[0], platform: string) => {
-    const text = lang === "my" ? post.content_my : (post.content_en || post.content_my);
     const postUrl = `${window.location.origin}/community/post/${post.id}`;
-    const openExternal = (url: string) => {
-      const w = window.top || window;
-      w.open(url, "_blank", "noopener,noreferrer");
-    };
-    switch (platform) {
-      case "telegram":
-        openExternal(`https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`);
-        break;
-      case "facebook":
-        openExternal(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`);
-        break;
-      case "copy":
-        navigator.clipboard.writeText(postUrl).catch(() => {});
-        break;
+    if (platform === "copy") {
+      navigator.clipboard.writeText(postUrl).catch(() => {});
     }
     setSharePostId(null);
   };
@@ -401,8 +388,6 @@ const Community = () => {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
                       <div className="flex items-center gap-2 px-4 py-3">
                         {[
-                          { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
-                          { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
                         ].map((opt) => (
                           <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
