@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Settings, MessageSquare, Bell } from "lucide-react";
+import { Settings, MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
@@ -8,6 +8,7 @@ import logo from "@/assets/logo.svg";
 
 interface PageHeaderProps {
   title: string;
+  backPath?: string;
 }
 
 const PageHeader = ({ title }: PageHeaderProps) => {
