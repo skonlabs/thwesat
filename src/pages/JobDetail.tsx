@@ -101,6 +101,7 @@ const JobDetail = () => {
           setCoverLetter("");
           setCoverLetterMode("none");
           setSelectedCvId(null);
+          setSelectedGeneratedResumeId(null);
           toast({
             title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",
             description: lang === "my" ? `${job?.company} မှ ပြန်ကြားပါမည်` : `${job?.company} will review your application`,
