@@ -42,6 +42,7 @@ function expertiseToCategory(expertise: string[]): string {
 const Mentors = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const { role } = useRole();
   const { data: mentors = [], isLoading } = useMentorProfiles();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
