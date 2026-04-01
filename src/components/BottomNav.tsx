@@ -15,7 +15,7 @@ const BottomNav = () => {
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
     { icon: Users, labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
-    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
   const employerNav = [
