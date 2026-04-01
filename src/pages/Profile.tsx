@@ -181,6 +181,7 @@ const Profile = () => {
                 { icon: Globe, label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", active: profile?.internet_stable },
                 { icon: CreditCard, label: "Payoneer", active: profile?.has_payoneer },
                 { icon: CreditCard, label: "Wise", active: profile?.has_wise },
+                { icon: Briefcase, label: "Upwork", active: profile?.has_upwork },
               ].map((item, i) => (
                 <div key={i} className={`flex items-center gap-2 rounded-lg p-2 ${item.active ? "bg-emerald/5" : "bg-muted"}`}>
                   <item.icon className={`h-3.5 w-3.5 ${item.active ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
