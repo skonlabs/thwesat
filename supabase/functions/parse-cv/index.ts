@@ -88,24 +88,27 @@ Deno.serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a CV/resume parser. Extract structured information from the uploaded document and return ONLY valid JSON with this exact structure:
+    const systemPrompt = `You are an expert CV/resume parser. Extract ALL structured information from the uploaded document thoroughly. Return ONLY valid JSON with this exact structure:
 {
-  "name": "Full name",
-  "title": "Job title or professional headline",
-  "experience": "Work experience summary (2-3 sentences)",
+  "name": "Full name of the candidate",
+  "title": "Current or most recent job title / professional headline",
+  "experience": "Detailed work experience summary covering ALL positions, responsibilities, achievements, and years of experience. Include company names, roles, durations, and key accomplishments. Be thorough — do not skip any work history.",
   "education": [
-    { "degree": "Degree name", "institution": "School name", "year": "Graduation year" }
+    { "degree": "Degree or certification name", "institution": "School/university name", "year": "Graduation year or date range" }
   ],
   "skills": ["skill1", "skill2"],
-  "summary": "Brief professional summary"
+  "summary": "Professional summary or objective statement from the CV"
 }
 
 Rules:
-- Extract ALL education entries found
-- Extract ALL skills mentioned (technical and soft skills)
-- If text is in Myanmar/Burmese, translate to English
+- Extract ALL work experience — every position, company, duration, and responsibility. Combine into the "experience" field as a comprehensive paragraph or structured text.
+- Extract ALL education entries found, including certifications and training
+- Extract ALL skills mentioned — technical skills, soft skills, tools, frameworks, languages, methodologies
+- Include volunteer work, freelance projects, and internships in experience
+- If the CV has a summary/objective section, put it in "summary"
+- If text is in Myanmar/Burmese, translate everything to English
 - If a field is not found, use empty string or empty array
-- Return ONLY the JSON, no markdown, no explanation`;
+- Return ONLY the JSON, no markdown, no code fences, no explanation`;
 
     // Build content array based on file type
     const contentParts: any[] = [
