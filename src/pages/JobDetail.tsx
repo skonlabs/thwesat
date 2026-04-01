@@ -301,8 +301,8 @@ const JobDetail = () => {
 
                 {(cvDocuments.length > 0 || generatedResumes.length > 0) ? (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {/* Uploaded CVs */}
-                    {cvDocuments.map((doc: any) => {
+                    {/* Only latest uploaded CV */}
+                    {cvDocuments.slice(0, 1).map((doc: any) => {
                       const isSelected = selectedCvId === doc.id && !selectedGeneratedResumeId;
                       return (
                         <div
@@ -319,7 +319,7 @@ const JobDetail = () => {
                             <div className="min-w-0">
                               <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
                               <p className="text-[10px] text-muted-foreground">
-                                {lang === "my" ? "တင်ထားသော CV" : "Uploaded CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                                {lang === "my" ? "တင်ထားသော CV" : "Original CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
@@ -374,15 +374,7 @@ const JobDetail = () => {
                     <p className="text-xs text-muted-foreground">
                       {lang === "my" ? "CV မတင်ရသေးပါ — Career Tools မှ CV တင်ပါ" : "No CV uploaded yet — upload via Career Tools"}
                     </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/ai-tools");
-                      }}
-                    >
+                    <Button variant="outline" size="sm" className="mt-2" onClick={(e) => { e.stopPropagation(); navigate("/ai-tools"); }}>
                       <Upload className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
                       {lang === "my" ? "CV တင်ရန်" : "Upload CV"}
                     </Button>
@@ -398,117 +390,67 @@ const JobDetail = () => {
                   <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်ပိုင်ခွင့်" : "Optional"})</span>
                 </div>
 
-                {/* Cover Letter Mode Selector */}
-                <div className="mb-3 flex gap-2">
-                  {[
-                    { mode: "none" as const, label: lang === "my" ? "မထည့်ပါ" : "Skip" },
-                    { mode: "manual" as const, label: lang === "my" ? "ကိုယ်တိုင်ရေးရန်" : "Write" },
-                    { mode: "generated" as const, label: lang === "my" ? "ယခင်ရေးထားသည်" : "Previous" },
-                  ].map(({ mode, label }) => (
-                    <button
-                      key={mode}
-                      onClick={() => {
-                        setCoverLetterMode(mode);
-                        if (mode === "none") setCoverLetter("");
-                      }}
-                      className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                        coverLetterMode === mode
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border text-muted-foreground active:bg-muted"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                {generatedCoverLetters.length > 0 && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto mb-2">
+                    {generatedCoverLetters.map((doc: any) => {
+                      const isSelected = coverLetter === doc.content && coverLetterMode === "generated";
+                      const meta = doc.metadata as any;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`cursor-pointer rounded-xl border p-3 transition-colors ${
+                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          }`}
+                          onClick={() => {
+                            if (isSelected) { setCoverLetter(""); setCoverLetterMode("none"); }
+                            else { setCoverLetter(doc.content); setCoverLetterMode("generated"); }
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
+                                <PenLine className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {meta?.tone ? `${meta.tone} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
+                                <Eye className="h-4 w-4" strokeWidth={1.5} />
+                              </button>
+                              {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-                {/* Manual Cover Letter */}
+                <button
+                  onClick={() => {
+                    if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
+                    else { setCoverLetterMode("manual"); }
+                  }}
+                  className="text-xs font-medium text-primary"
+                >
+                  {coverLetterMode === "manual"
+                    ? (lang === "my" ? "ပိတ်ရန်" : "Cancel")
+                    : (lang === "my" ? "ကိုယ်တိုင်ရေးရန်" : "Write your own")}
+                </button>
+
                 {coverLetterMode === "manual" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2">
                     <Textarea
                       value={coverLetter}
                       onChange={e => setCoverLetter(e.target.value)}
                       placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit..."}
                       className="min-h-[120px] rounded-xl border-border text-sm"
                     />
-                    <div className="mt-2 flex justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate("/ai-tools/cover-letter", { state: { jobId: id, jobTitle: job.title, company: job.company } })}
-                      >
-                        <PenLine className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} />
-                        {lang === "my" ? "Cover Letter Generator သုံးရန်" : "Use Cover Letter Generator"}
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Generated Cover Letters */}
-                {coverLetterMode === "generated" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                    {generatedCoverLetters.length > 0 ? (
-                      <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {generatedCoverLetters.map((doc: any) => {
-                          const isSelected = coverLetter === doc.content;
-                          const meta = doc.metadata as any;
-                          return (
-                            <div
-                              key={doc.id}
-                              className={`cursor-pointer rounded-xl border p-3 transition-colors ${
-                                isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
-                              }`}
-                              onClick={() => setCoverLetter(isSelected ? "" : doc.content)}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="min-w-0 flex-1">
-                                  <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
-                                    {doc.title}
-                                  </p>
-                                  <p className="mt-0.5 text-[10px] text-muted-foreground">
-                                    {meta?.tone ? `${meta.tone}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
-                                  </p>
-                                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{doc.content}</p>
-                                </div>
-                                <div className="flex items-center gap-1.5 flex-shrink-0">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setPreviewContent(doc.content);
-                                      setPreviewTitle(doc.title);
-                                    }}
-                                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
-                                    title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
-                                  >
-                                    <Eye className="h-4 w-4" strokeWidth={1.5} />
-                                  </button>
-                                  {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
-                        <PenLine className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
-                        <p className="text-xs text-muted-foreground">
-                          {lang === "my" ? "ဖန်တီးထားသော cover letter များ မရှိသေးပါ" : "No generated cover letters yet"}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate("/ai-tools/cover-letter", { state: { jobId: id, jobTitle: job.title, company: job.company } });
-                          }}
-                        >
-                          <PenLine className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} />
-                          {lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"}
-                        </Button>
-                      </div>
-                    )}
                   </motion.div>
                 )}
               </div>
