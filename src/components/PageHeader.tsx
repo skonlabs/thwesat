@@ -17,6 +17,9 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { lang } = useLanguage();
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const { lang } = useLanguage();
   const [logoOpacity, setLogoOpacity] = useState(1);
   const holdTimer = useRef<NodeJS.Timeout | null>(null);
   const holdStart = useRef<number>(0);
