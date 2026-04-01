@@ -227,45 +227,40 @@ const CoverLetterGenerator = () => {
                 </div>
               )}
 
-              {/* Pre-fill from saved cover letters */}
-              {savedCoverLetters.length > 0 && (
+              {/* Pre-fill from CV */}
+              {!parsing && !cvParsed && (
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-                      <RotateCcw className="h-5 w-5 text-accent" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ယခင် Cover Letter မှ ဖြည့်ရန်" : "Pre-fill from Saved"}</h2>
-                      <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သိမ်းထားသော cover letter ကို အခြေခံပြီး ပြင်ဆင်ပါ" : "Load a saved cover letter as a starting point"}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
+                        <FileText className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "CV မှ ဖြည့်သွင်းရန်" : "Pre-fill from CV"}</h2>
+                        <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သင့် CV မှ အချက်အလက်များ ထုတ်ယူပါ" : "Extract your info from an uploaded CV"}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="max-h-36 space-y-2 overflow-y-auto">
-                    {savedCoverLetters.map((doc: any) => {
-                      const meta = doc.metadata as any;
-                      return (
+                  {userCvs.length > 0 ? (
+                    <div className="mt-3 space-y-2">
+                      {userCvs.map((cv: any) => (
                         <button
-                          key={doc.id}
-                          onClick={() => {
-                            setForm(prev => ({
-                              ...prev,
-                              jobTitle: meta?.jobTitle || prev.jobTitle,
-                              company: meta?.company || prev.company,
-                              tone: meta?.tone || prev.tone,
-                            }));
-                            toast({ title: lang === "my" ? "အချက်အလက်များ ဖြည့်သွင်းပြီး" : "Form pre-filled" });
-                          }}
+                          key={cv.id}
+                          onClick={() => parseCv(cv.file_url)}
                           className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors active:bg-muted"
                         >
-                          <Bookmark className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                          <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-foreground truncate">{doc.title}</p>
-                            <p className="text-[10px] text-muted-foreground">{new Date(doc.created_at).toLocaleDateString()}</p>
+                            <p className="text-xs font-medium text-foreground truncate">{cv.file_name}</p>
+                            <p className="text-[10px] text-muted-foreground">{cv.file_size_bytes ? `${(cv.file_size_bytes / 1024).toFixed(0)} KB · ` : ""}{new Date(cv.created_at).toLocaleDateString()}</p>
                           </div>
-                          <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                          <RotateCcw className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                         </button>
-                      );
-                    })}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-xs text-muted-foreground">{lang === "my" ? "CV တင်ထားခြင်း မရှိသေးပါ" : "No uploaded CVs found"}</p>
+                  )}
                 </div>
               )}
 
