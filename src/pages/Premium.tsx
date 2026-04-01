@@ -213,21 +213,18 @@ const Premium = () => {
                     <div className="text-right">
                       {isFree ? (
                         <div className="flex items-baseline gap-0.5">
-                          <span className="text-xl font-bold text-foreground">$0</span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {lang === "my" ? plan.period.my : plan.period.en}
-                          </span>
+                          <span className="text-xl font-bold text-foreground">{formatPrice(0, lang)}</span>
                         </div>
                       ) : (
                         <>
                           <div className="flex items-baseline gap-0.5">
-                            <span className="text-xl font-bold text-foreground">{plan.perMonth}</span>
+                            <span className="text-xl font-bold text-foreground">{formatPrice(plan.perMonthUsd, lang)}</span>
                             <span className="text-[10px] text-muted-foreground">
                               {lang === "my" ? plan.period.my : plan.period.en}
                             </span>
                           </div>
                           <p className="text-[10px] text-muted-foreground">
-                            {lang === "my" ? `စုစုပေါင်း $${plan.totalPrice}` : `$${plan.totalPrice} total`}
+                            {formatTotal(plan.totalUsd, lang)}
                           </p>
                         </>
                       )}
