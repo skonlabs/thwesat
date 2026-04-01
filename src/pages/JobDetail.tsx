@@ -30,7 +30,6 @@ const JobDetail = () => {
   const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
   const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
   // Fetch user's CV documents
