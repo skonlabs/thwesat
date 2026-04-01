@@ -330,8 +330,19 @@ const JobDetail = () => {
                                 const storagePath = doc.file_url.split('/cv-documents/').pop();
                                 if (!storagePath) return;
                                 const { data } = await supabase.storage.from('cv-documents').createSignedUrl(storagePath, 300);
-                                if (data?.signedUrl) window.open(data.signedUrl, "_blank");
-                                else toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
+                                if (!data?.signedUrl) {
+                                  toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
+                                  return;
+                                }
+                                try {
+                                  const response = await fetch(data.signedUrl);
+                                  const blob = await response.blob();
+                                  const blobUrl = URL.createObjectURL(blob);
+                                  window.open(blobUrl, "_blank", "noopener,noreferrer");
+                                  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+                                } catch {
+                                  toast({ title: lang === "my" ? "ဖိုင်ဖွင့်၍မရပါ" : "Could not open file", variant: "destructive" });
+                                }
                               }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
