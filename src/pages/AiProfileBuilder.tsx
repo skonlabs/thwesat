@@ -28,7 +28,8 @@ const AiProfileBuilder = () => {
       navigate("/premium");
       return;
     }
-    navigate(path);
+    // Pass uploaded CV file path to tools so they can parse it
+    navigate(path, { state: { cvFilePath: uploadedFile?.filePath } });
   };
 
   const processFile = useCallback(async (file: File) => {
