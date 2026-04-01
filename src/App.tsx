@@ -39,6 +39,7 @@ import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
 import SearchTalent from "./pages/SearchTalent";
+import BecomeMentor from "./pages/BecomeMentor";
 import MentorDashboard from "./pages/MentorDashboard";
 import MentorMentees from "./pages/MentorMentees";
 import MentorBookings from "./pages/MentorBookings";
