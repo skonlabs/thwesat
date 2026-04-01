@@ -1,0 +1,2 @@
+ALTER TABLE public.guides DROP CONSTRAINT guides_category_check;
+ALTER TABLE public.guides ADD CONSTRAINT guides_category_check CHECK (category = ANY (ARRAY['visa', 'finance', 'legal', 'safety', 'employment', 'general', 'essentials']));
