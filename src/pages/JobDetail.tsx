@@ -28,6 +28,7 @@ const JobDetail = () => {
   const [coverLetter, setCoverLetter] = useState("");
   const [coverLetterMode, setCoverLetterMode] = useState<"none" | "manual" | "generated">("none");
   const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
+  const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
 
