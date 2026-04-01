@@ -49,14 +49,13 @@ function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   return { my: `${days} ရက်`, en: `${days} days` };
 }
 
-function formatSalary(job: Job): string {
+function formatSalary(job: Job, lang: string): string {
   const min = job.salary_min;
   const max = job.salary_max;
-  const cur = job.currency || "USD";
-  if (!min && !max) return "Negotiable";
-  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/mo`;
-  if (min) return `$${min.toLocaleString()}+/mo`;
-  return `Up to $${max?.toLocaleString()}/mo`;
+  if (!min && !max) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
+  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
+  if (min) return `$${min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`;
+  return `${lang === "my" ? "အများဆုံး" : "Up to"} $${max?.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
 }
 
 const Jobs = () => {
