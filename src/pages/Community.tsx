@@ -63,7 +63,16 @@ function usePostComments(postId: string | null) {
       if (!authorIds.length) return [];
       const { data: profiles } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
+      const enriched = (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
+      // Build tree: top-level comments + nested replies
+      const topLevel = enriched.filter(c => !c.parent_id);
+      const repliesMap = new Map<string, typeof enriched>();
+      enriched.filter(c => c.parent_id).forEach(c => {
+        const arr = repliesMap.get(c.parent_id!) || [];
+        arr.push(c);
+        repliesMap.set(c.parent_id!, arr);
+      });
+      return { topLevel, repliesMap };
     },
     enabled: !!postId,
   });
@@ -81,6 +90,8 @@ const Community = () => {
   const [newPostCategory, setNewPostCategory] = useState("Career");
   const [openCommentId, setOpenCommentId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
+  const [replyToId, setReplyToId] = useState<string | null>(null);
+  const [replyToName, setReplyToName] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +102,9 @@ const Community = () => {
   const postIds = posts.map(p => p.id);
   const { data: likesData } = usePostLikes(postIds);
   const { data: savesData } = usePostSaves(postIds);
-  const { data: comments = [] } = usePostComments(openCommentId);
+  const { data: commentsData } = usePostComments(openCommentId);
+  const topLevelComments = (commentsData && !Array.isArray(commentsData)) ? commentsData.topLevel : [];
+  const repliesMap = (commentsData && !Array.isArray(commentsData)) ? commentsData.repliesMap : new Map();
 
   const toggleLike = useMutation({
     mutationFn: async (postId: string) => {
@@ -126,14 +139,18 @@ const Community = () => {
   });
 
   const addComment = useMutation({
-    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+    mutationFn: async ({ postId, content, parentId }: { postId: string; content: string; parentId?: string | null }) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("post_comments").insert({ post_id: postId, author_id: user.id, content });
+      const insertData: any = { post_id: postId, author_id: user.id, content };
+      if (parentId) insertData.parent_id = parentId;
+      const { error } = await supabase.from("post_comments").insert(insertData);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments"] });
       setCommentText("");
+      setReplyToId(null);
+      setReplyToName(null);
     },
   });
 
@@ -390,34 +407,63 @@ const Community = () => {
                   {openCommentId === post.id && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
                       <div className="p-4">
-                        {comments.length > 0 ? (
+                        {topLevelComments.length > 0 ? (
                           <div className="mb-3 space-y-3">
-                            {comments.map((c: any) => (
-                              <div key={c.id} className="flex gap-2.5">
-                                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
-                                  {c.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="rounded-lg bg-muted px-3 py-2">
-                                    <p className="text-[11px] font-semibold text-foreground">{c.author?.display_name || "User"}</p>
-                                    <p className="text-xs text-foreground/80">{c.content}</p>
+                            {topLevelComments.map((c: any) => (
+                              <div key={c.id}>
+                                {/* Top-level comment */}
+                                <div className="flex gap-2.5">
+                                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+                                    {c.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
                                   </div>
-                                  <p className="mt-0.5 px-1 text-[10px] text-muted-foreground">{formatTime(c.created_at)}</p>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="rounded-lg bg-muted px-3 py-2">
+                                      <p className="text-[11px] font-semibold text-foreground">{c.author?.display_name || "User"}</p>
+                                      <p className="text-xs text-foreground/80">{c.content}</p>
+                                    </div>
+                                    <div className="mt-0.5 flex items-center gap-3 px-1">
+                                      <p className="text-[10px] text-muted-foreground">{formatTime(c.created_at)}</p>
+                                      <button onClick={() => { setReplyToId(c.id); setReplyToName(c.author?.display_name || "User"); }} className="text-[10px] font-medium text-primary">
+                                        {lang === "my" ? "ပြန်ဖြေ" : "Reply"}
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
+                                {/* Replies (indented) */}
+                                {(repliesMap.get(c.id) || []).map((r: any) => (
+                                  <div key={r.id} className="ml-9 mt-2 flex gap-2.5 border-l-2 border-border pl-3">
+                                    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground">
+                                      {r.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="rounded-lg bg-muted/60 px-3 py-1.5">
+                                        <p className="text-[10px] font-semibold text-foreground">{r.author?.display_name || "User"}</p>
+                                        <p className="text-[11px] text-foreground/80">{r.content}</p>
+                                      </div>
+                                      <p className="mt-0.5 px-1 text-[10px] text-muted-foreground">{formatTime(r.created_at)}</p>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             ))}
                           </div>
                         ) : (
                           <p className="mb-3 text-center text-xs text-muted-foreground">{lang === "my" ? "ပထမဆုံး မှတ်ချက် ရေးပါ" : "Be the first to comment"}</p>
                         )}
+                        {replyToId && (
+                          <div className="mb-2 flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-1.5">
+                            <p className="flex-1 text-[11px] text-primary">{lang === "my" ? `${replyToName} ကို ပြန်ဖြေနေသည်` : `Replying to ${replyToName}`}</p>
+                            <button onClick={() => { setReplyToId(null); setReplyToName(null); }} className="text-muted-foreground"><X className="h-3.5 w-3.5" /></button>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                             {profile?.display_name?.slice(0, 2).toUpperCase() || "U"}
                           </div>
                           <div className="flex flex-1 items-center rounded-full border border-border bg-background px-3 py-2">
-                            <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && commentText.trim()) addComment.mutate({ postId: post.id, content: commentText }); }} placeholder={lang === "my" ? "မှတ်ချက် ရေးပါ..." : "Write a comment..."} className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground" />
+                            <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && commentText.trim()) addComment.mutate({ postId: post.id, content: commentText, parentId: replyToId }); }} placeholder={replyToId ? (lang === "my" ? "ပြန်ဖြေရန်..." : "Write a reply...") : (lang === "my" ? "မှတ်ချက် ရေးပါ..." : "Write a comment...")} className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground" />
                           </div>
-                          <button onClick={() => { if (commentText.trim()) addComment.mutate({ postId: post.id, content: commentText }); }} disabled={!commentText.trim()} className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40">
+                          <button onClick={() => { if (commentText.trim()) addComment.mutate({ postId: post.id, content: commentText, parentId: replyToId }); }} disabled={!commentText.trim()} className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-40">
                             <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
                           </button>
                         </div>
