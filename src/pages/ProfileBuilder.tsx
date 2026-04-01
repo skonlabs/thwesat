@@ -726,7 +726,7 @@ const ProfileBuilder = () => {
                 </div>
 
                 <div className="mb-3">
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Summary</p>
+                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "အကျဉ်းချုပ်" : "Summary"}</p>
                   <p className="text-xs leading-relaxed text-foreground/80">{generatedProfile.summary}</p>
                 </div>
 
