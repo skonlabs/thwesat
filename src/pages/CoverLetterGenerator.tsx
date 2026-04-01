@@ -404,7 +404,7 @@ const CoverLetterGenerator = () => {
                       <p className="text-[10px] text-muted-foreground">{form.jobTitle} · {form.company}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-emerald">{form.tone}</span>
+                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-emerald">{lang === "my" ? toneOptions.find(t => t.value === form.tone)?.labelMy : form.tone}</span>
                 </div>
 
                 <div className="rounded-lg bg-background p-3">
