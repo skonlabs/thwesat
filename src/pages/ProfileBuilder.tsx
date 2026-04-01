@@ -236,10 +236,11 @@ const ProfileBuilder = () => {
   };
 
   const getProfileText = () => {
+    if (!generatedProfile) return { headline: "", summaryText: "", sectionsText: "", skillsLine: "" };
     const headline = `${name ? `${name} — ` : ""}${generatedProfile.headline}`;
     const summaryText = generatedProfile.summary;
     const sectionsText = generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n");
-    const skillsLine = skills.length > 0 ? `\nSkills\n${skills.join(", ")}` : "";
+    const skillsLine = generatedProfile.skills.length > 0 ? `\nSkills\n${generatedProfile.skills.join(", ")}` : "";
     return { headline, summaryText, sectionsText, skillsLine };
   };
 
