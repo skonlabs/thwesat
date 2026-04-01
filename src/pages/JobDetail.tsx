@@ -47,20 +47,38 @@ const JobDetail = () => {
     enabled: !!user && showApplyModal,
   });
 
-  // Fetch user's past generated cover letters from applications
-  const { data: pastCoverLetters = [] } = useQuery({
-    queryKey: ["past-cover-letters", user?.id],
+  // Fetch generated resumes from generated_documents
+  const { data: generatedResumes = [] } = useQuery({
+    queryKey: ["generated-resumes", user?.id],
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("applications")
-        .select("id, cover_letter, job_id, jobs(title, company)")
-        .eq("applicant_id", user.id)
-        .neq("cover_letter", "")
+        .from("generated_documents")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("doc_type", "resume")
         .order("created_at", { ascending: false })
         .limit(10);
       if (error) throw error;
-      return (data || []).filter((a: any) => a.cover_letter && a.cover_letter.trim().length > 20);
+      return data || [];
+    },
+    enabled: !!user && showApplyModal,
+  });
+
+  // Fetch generated cover letters from generated_documents
+  const { data: generatedCoverLetters = [] } = useQuery({
+    queryKey: ["generated-cover-letters", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("generated_documents")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("doc_type", "cover_letter")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return data || [];
     },
     enabled: !!user && showApplyModal,
   });
