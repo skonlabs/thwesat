@@ -15,7 +15,7 @@ const ALLOWED_TYPES = ["application/pdf", "application/vnd.openxmlformats-office
 const AiProfileBuilder = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,7 +37,7 @@ const AiProfileBuilder = () => {
   }, [uploadedFile]);
 
   const handleToolClick = (path: string, status: string) => {
-    if (status === "Premium") {
+    if (status === "Premium" && !profile?.is_premium) {
       navigate("/premium");
       return;
     }
@@ -119,12 +119,12 @@ const AiProfileBuilder = () => {
       icon: PenLine,
       title: lang === "my" ? "Cover Letter ရေးသားရန်" : "Cover Letter Generator",
       desc: lang === "my" ? "အလုပ်တစ်ခုချင်းစီအတွက် စိတ်ကြိုက် cover letter ရေးသားပေးပါမည်" : "Generate tailored cover letters for each job application",
-      status: "Ready",
+      status: "Premium",
       path: "/ai-tools/cover-letter",
       iconBg: "bg-emerald/10",
       iconColor: "text-emerald",
-      statusBg: "bg-emerald/10",
-      statusColor: "text-emerald",
+      statusBg: "bg-primary/10",
+      statusColor: "text-primary",
     },
     {
       icon: TrendingUp,
