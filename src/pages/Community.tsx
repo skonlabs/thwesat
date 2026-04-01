@@ -115,6 +115,7 @@ const Community = () => {
   const postIds = posts.map(p => p.id);
   const { data: likesData } = usePostLikes(postIds);
   const { data: savesData } = usePostSaves(postIds);
+  const { data: commentCounts } = usePostCommentCounts(postIds);
   const { data: commentsData } = usePostComments(openCommentId);
   const topLevelComments = (commentsData && !Array.isArray(commentsData)) ? commentsData.topLevel : [];
   const repliesMap = (commentsData && !Array.isArray(commentsData)) ? commentsData.repliesMap : new Map();
