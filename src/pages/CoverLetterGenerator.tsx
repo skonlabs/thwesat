@@ -26,6 +26,7 @@ const CoverLetterGenerator = () => {
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const { data: savedJobs, isLoading: loadingSavedJobs } = useSavedJobs();
@@ -108,17 +109,6 @@ const CoverLetterGenerator = () => {
       if (letter) {
         setGeneratedLetter(letter);
         setStep(2);
-
-        // Save to generated_documents for reuse
-        if (session?.user?.id) {
-          await supabase.from("generated_documents").insert({
-            user_id: session.user.id,
-            doc_type: "cover_letter",
-            title: `Cover Letter — ${form.jobTitle || ""} at ${form.company || ""}`,
-            content: letter,
-            metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
-          });
-        }
       } else {
         throw new Error("No data returned");
       }
@@ -393,11 +383,32 @@ const CoverLetterGenerator = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setGeneratedLetter(null); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: profile?.display_name || "", yourExperience: profile?.experience || "", tone: "professional" }); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedLetter(null); setSaved(false); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: profile?.display_name || "", yourExperience: profile?.experience || "", tone: "professional" }); }} className="flex-1">
                   <PenLine className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
               </div>
+
+              <Button
+                variant={saved ? "outline" : "default"}
+                onClick={async () => {
+                  if (saved || !session?.user?.id || !generatedLetter) return;
+                  await supabase.from("generated_documents").insert({
+                    user_id: session.user.id,
+                    doc_type: "cover_letter",
+                    title: `Cover Letter — ${form.jobTitle || ""} at ${form.company || ""}`,
+                    content: generatedLetter,
+                    metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
+                  });
+                  setSaved(true);
+                  toast({ title: lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved for future use" });
+                }}
+                className="w-full"
+                disabled={saved}
+              >
+                {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+              </Button>
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />

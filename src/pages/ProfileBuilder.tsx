@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal, Download } from "lucide-react";
+import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal, Download, Bookmark } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +42,7 @@ const ProfileBuilder = () => {
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
 
@@ -200,18 +201,6 @@ const ProfileBuilder = () => {
         };
         setGeneratedProfile(profileData);
         setStep(3);
-
-        // Save to generated_documents for reuse
-        if (session?.user?.id) {
-          const fullText = `${name ? `${name} — ` : ""}${profileData.headline}\n\n${profileData.summary}\n\n${profileData.sections.map((s: any) => `${s.title}\n${s.content}`).join("\n\n")}${profileData.skills.length ? `\n\nSkills: ${profileData.skills.join(", ")}` : ""}`;
-          await supabase.from("generated_documents").insert({
-            user_id: session.user.id,
-            doc_type: "resume",
-            title: `${platform} Profile — ${name || title || "Untitled"}`,
-            content: fullText,
-            metadata: { platform, name, headline: profileData.headline },
-          });
-        }
       } else {
         throw new Error("No data returned");
       }
@@ -727,11 +716,33 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setGeneratedProfile(null); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedProfile(null); setSaved(false); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
               </div>
+
+              <Button
+                variant={saved ? "outline" : "default"}
+                onClick={async () => {
+                  if (saved || !session?.user?.id || !generatedProfile) return;
+                  const fullText = `${name ? `${name} — ` : ""}${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map((s: any) => `${s.title}\n${s.content}`).join("\n\n")}${generatedProfile.skills.length ? `\n\nSkills: ${generatedProfile.skills.join(", ")}` : ""}`;
+                  await supabase.from("generated_documents").insert({
+                    user_id: session.user.id,
+                    doc_type: "resume",
+                    title: `${platform} Profile — ${name || title || "Untitled"}`,
+                    content: fullText,
+                    metadata: { platform, name, headline: generatedProfile.headline },
+                  });
+                  setSaved(true);
+                  toast({ title: lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved for future use" });
+                }}
+                className="w-full"
+                disabled={saved}
+              >
+                {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+              </Button>
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
