@@ -203,7 +203,7 @@ const JobDetail = () => {
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-emerald/5 p-3.5">
               <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" strokeWidth={1.5} />
               <div>
-                <p className="text-xs font-semibold text-emerald">Diaspora Safe</p>
+                <p className="text-xs font-semibold text-emerald">{lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}</p>
                 <p className="text-[11px] text-muted-foreground">
                   {lang === "my" ? "သံရုံးစာရွက်စာတမ်း မလိုအပ်ပါ" : "No embassy documentation required"}
                 </p>
