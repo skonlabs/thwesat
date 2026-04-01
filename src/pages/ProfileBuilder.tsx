@@ -271,7 +271,7 @@ const ProfileBuilder = () => {
     addText("Summary", 11, true);
     addText(summaryText, 10);
 
-    for (const section of generatedProfile.sections) {
+    for (const section of generatedProfile!.sections) {
       addText(section.title, 11, true);
       const contentLines = section.content.split("\n");
       for (const line of contentLines) {
@@ -279,9 +279,9 @@ const ProfileBuilder = () => {
       }
     }
 
-    if (skills.length > 0) {
+    if (generatedProfile!.skills.length > 0) {
       addText("Skills", 11, true);
-      addText(skills.join("  •  "), 10);
+      addText(generatedProfile!.skills.join("  •  "), 10);
     }
 
     doc.save(`${name || "profile"}-${platform}.pdf`);
