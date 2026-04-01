@@ -48,11 +48,20 @@ const Signup = () => {
       toast({ title: lang === "my" ? "အကောင့်ဖွင့်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
       return;
     }
-    // Save referral code if provided
-    if (referralCode.trim()) {
-      const { data: { user: newUser } } = await supabase.auth.getUser();
-      if (newUser) {
+    // Get the new user and persist role + referral
+    const { data: { user: newUser } } = await supabase.auth.getUser();
+    if (newUser) {
+      // Save referral code if provided
+      if (referralCode.trim()) {
         await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
+      }
+      // Persist role to user_roles table via SECURITY DEFINER function
+      if (selectedRole === "employer") {
+        await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
+        // Employer role is tracked via employer_profiles table, not user_roles enum
+      } else if (selectedRole === "mentor") {
+        await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
+        // Mentor role is tracked via mentor_profiles table
       }
     }
     setRole(selectedRole);
