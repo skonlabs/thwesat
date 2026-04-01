@@ -92,20 +92,27 @@ Deno.serve(async (req) => {
 {
   "name": "Full name of the candidate",
   "title": "Current or most recent job title / professional headline",
-  "experience": "Detailed work experience summary covering ALL positions, responsibilities, achievements, and years of experience. Include company names, roles, durations, and key accomplishments. Be thorough — do not skip any work history.",
+  "experiences": [
+    {
+      "company": "Company or organization name",
+      "role": "Job title / position",
+      "duration": "Date range, e.g. Jan 2020 - Dec 2022",
+      "description": "Key responsibilities and achievements"
+    }
+  ],
   "education": [
     { "degree": "Degree or certification name", "institution": "School/university name", "year": "Graduation year or date range" }
   ],
   "skills": ["skill1", "skill2"],
-  "summary": "Professional summary or objective statement from the CV"
+  "other": "Any other information from the CV not captured above — certifications, awards, volunteer work, languages spoken, references, hobbies, projects, publications, links, etc. Include everything so nothing is lost."
 }
 
 Rules:
-- Extract ALL work experience — every position, company, duration, and responsibility. Combine into the "experience" field as a comprehensive paragraph or structured text.
-- Extract ALL education entries found, including certifications and training
-- Extract ALL skills mentioned — technical skills, soft skills, tools, frameworks, languages, methodologies
-- Include volunteer work, freelance projects, and internships in experience
-- If the CV has a summary/objective section, put it in "summary"
+- Extract EVERY work experience entry as a separate object in "experiences" array — include company, role, duration, and description for each
+- Include internships, freelance work, part-time jobs — every position mentioned
+- Extract ALL education entries, including certifications and training programs
+- Extract ALL skills — technical, soft skills, tools, frameworks, languages, methodologies
+- The "other" field is a catch-all: put EVERYTHING else here — certifications, awards, languages, volunteer work, projects, publications, portfolio links, references, hobbies, interests, etc. Do NOT leave anything out.
 - If text is in Myanmar/Burmese, translate everything to English
 - If a field is not found, use empty string or empty array
 - Return ONLY the JSON, no markdown, no code fences, no explanation`;
