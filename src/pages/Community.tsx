@@ -155,10 +155,8 @@ const Community = () => {
     const url = encodeURIComponent(window.location.href);
     let shareUrl = "";
     switch (platform) {
-      case "whatsapp": shareUrl = `https://wa.me/?text=${text}%20${url}`; break;
       case "telegram": shareUrl = `https://t.me/share/url?url=${url}&text=${text}`; break;
       case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
-      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`; break;
       case "copy":
         navigator.clipboard.writeText(decodeURIComponent(text));
         toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied to clipboard!" });
@@ -373,10 +371,8 @@ const Community = () => {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
                       <div className="flex items-center gap-2 px-4 py-3">
                         {[
-                          { platform: "whatsapp", label: "WhatsApp", icon: <MessageCircle className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "telegram", label: "Telegram", icon: <Send className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "facebook", label: "Facebook", icon: <Globe className="h-4 w-4" strokeWidth={1.5} /> },
-                          { platform: "twitter", label: "X", icon: <Share2 className="h-4 w-4" strokeWidth={1.5} /> },
                           { platform: "copy", label: lang === "my" ? "ကူးယူ" : "Copy", icon: <Copy className="h-4 w-4" strokeWidth={1.5} /> },
                         ].map((opt) => (
                           <button key={opt.platform} onClick={() => handleShareOption(post, opt.platform)} className="flex flex-1 flex-col items-center gap-1.5">
