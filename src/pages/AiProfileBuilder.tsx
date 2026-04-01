@@ -163,7 +163,7 @@ const AiProfileBuilder = () => {
               {[
                 { step: "1", text: lang === "my" ? "သင့် CV ဖိုင်ကို PDF သို့မဟုတ် DOCX ဖြင့် တင်ပါ" : "Upload your CV as PDF or DOCX" },
                 { step: "2", text: lang === "my" ? "သင့် CV သို့မဟုတ် အတွေ့အကြုံကို မြန်မာဘာသာဖြင့် ထည့်သွင်းပါ" : "Enter your experience in Burmese or English" },
-                { step: "3", text: lang === "my" ? "AI က နိုင်ငံတကာ အဆင့်မီ ပရိုဖိုင်အဖြစ် ပြောင်းလဲပေးမည်" : "We transform it into a global-standard profile" },
+                { step: "3", text: lang === "my" ? "နိုင်ငံတကာ အဆင့်မီ ပရိုဖိုင်အဖြစ် ပြောင်းလဲပေးမည်" : "We transform it into a global-standard profile" },
                 { step: "4", text: lang === "my" ? "ပြင်ဆင်ပြီး Upwork, LinkedIn စသည်တို့တွင် အသုံးပြုပါ" : "Edit and use on Upwork, LinkedIn, etc." },
               ].map((s) => (
                 <div key={s.step} className="flex items-start gap-3">

@@ -335,7 +335,7 @@ const CoverLetterGenerator = () => {
                 {generating ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {lang === "my" ? "AI ဖြင့် ဖန်တီးနေသည်..." : "AI is generating..."}
+                    {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
                   </span>
                 ) : (
                   <>{lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
@@ -353,7 +353,7 @@ const CoverLetterGenerator = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "AI Cover Letter အသင့်ဖြစ်ပါပြီ" : "AI Cover Letter Ready!"}</h2>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
                       <p className="text-[10px] text-muted-foreground">{form.jobTitle} · {form.company}</p>
                     </div>
                   </div>
