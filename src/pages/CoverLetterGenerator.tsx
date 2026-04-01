@@ -335,7 +335,7 @@ const CoverLetterGenerator = () => {
                 {generating ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {lang === "my" ? "AI ဖြင့် ဖန်တီးနေသည်..." : "AI is generating..."}
+                    {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
                   </span>
                 ) : (
                   <>{lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
