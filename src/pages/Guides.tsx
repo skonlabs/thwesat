@@ -37,7 +37,7 @@ const Guides = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
       <div className="px-5 pt-4">
         {isLoading ? (

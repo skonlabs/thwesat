@@ -28,7 +28,7 @@ const Messages = () => {
           <Lock className="h-3 w-3" strokeWidth={1.5} />
           <span>{lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "End-to-end encrypted"}</span>
         </div>
-        <div className="mb-4 mt-3 flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-3">
+        <div className="mb-4 mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3.5 py-3">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <input placeholder={lang === "my" ? "မက်ဆေ့ချ် ရှာဖွေရန်..." : "Search messages..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
         </div>

@@ -53,7 +53,7 @@ const Notifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
 
       <div className="px-5">

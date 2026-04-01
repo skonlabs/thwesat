@@ -55,7 +55,7 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-        <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-left">
+        <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3 text-left transition-colors active:bg-muted/50">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <span className="text-sm text-muted-foreground">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
         </button>
