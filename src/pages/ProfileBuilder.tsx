@@ -183,7 +183,7 @@ const ProfileBuilder = () => {
 
   const generatedProfile = {
     headline: title || "Full Stack Developer",
-    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
+    summary: summary || `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
     skills,
     sections: [
       { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
