@@ -99,7 +99,14 @@ const PageHeader = ({ title, backPath }: PageHeaderProps) => {
           </div>
         </div>
       </header>
-      <h1 className="px-5 pb-1 pt-3 text-lg font-bold text-foreground">{title}</h1>
+      <div className="flex items-center px-5 pb-1 pt-3">
+        {backPath && (
+          <button onClick={() => navigate(backPath)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
+            <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+        )}
+        <h1 className="text-lg font-bold text-foreground">{title}</h1>
+      </div>
     </>
   );
 };
