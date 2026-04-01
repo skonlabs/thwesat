@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check } from "lucide-react";
+import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
+import { useRole } from "@/hooks/use-role";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
