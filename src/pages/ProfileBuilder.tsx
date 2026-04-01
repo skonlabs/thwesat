@@ -64,7 +64,7 @@ const ProfileBuilder = () => {
         setSkills(profile.skills);
       }
       if (profile.experience) {
-        setExperience(profile.experience);
+        setExperiences([{ company: "", role: "", duration: "", description: profile.experience }]);
       }
     }
   }, [profile]);
