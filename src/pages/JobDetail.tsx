@@ -415,7 +415,7 @@ const JobDetail = () => {
               <div className="mb-5">
                 <div className="mb-2 flex items-center gap-2">
                   <PenLine className="h-4 w-4 text-emerald" strokeWidth={1.5} />
-                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter" : "Cover Letter"}</label>
+                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"}</label>
                   <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်ပိုင်ခွင့်" : "Optional"})</span>
                 </div>
 
