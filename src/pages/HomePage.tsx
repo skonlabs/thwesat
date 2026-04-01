@@ -149,8 +149,8 @@ const HomePage = () => {
           <div className="grid grid-cols-3 gap-3">
             {[
               { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs" },
-              { value: "—", label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
-              { value: "—", label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
+              { value: `${(allProfiles || []).length}+`, label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
+              { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
             ].map((stat) => (
               <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
                 <p className="text-lg font-bold text-accent">{stat.value}</p>
