@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
     { "degree": "Degree or certification name", "institution": "School/university name", "year": "Graduation year or date range" }
   ],
   "skills": ["skill1", "skill2"],
+  "summary": "Professional summary, profile, or career objective statement from the CV",
   "other": "Any other information from the CV not captured above — certifications, awards, volunteer work, languages spoken, references, hobbies, projects, publications, links, etc. Include everything so nothing is lost."
 }
 
