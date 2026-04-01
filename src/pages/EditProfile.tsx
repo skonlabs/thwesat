@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2 } from "lucide-react";
+import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -352,60 +352,71 @@ const EditProfile = () => {
   const initial = name ? name.charAt(0).toUpperCase() : "?";
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} />
-      <div className="px-5">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col items-center">
+      <div className="px-5 space-y-4">
+        {/* Avatar */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-4 pb-2 flex flex-col items-center">
           <div className="relative">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground overflow-hidden">
-              {avatarUrl ? <img src={avatarUrl} className="h-24 w-24 rounded-full object-cover" /> : initial}
+            <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground overflow-hidden ring-4 ring-primary/10">
+              {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" alt="" /> : initial}
             </div>
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
               disabled={uploadingAvatar}
-              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition-transform active:scale-95"
+              className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-background bg-primary text-primary-foreground shadow-lg transition-all active:scale-90 hover:bg-primary/90"
             >
               {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" strokeWidth={1.5} />}
             </button>
             <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">{lang === "my" ? "ဓာတ်ပုံ ပြောင်းရန် နှိပ်ပါ" : "Tap to change photo"}</p>
+          <p className="mt-2.5 text-[11px] text-muted-foreground font-medium">{lang === "my" ? "ဓာတ်ပုံ ပြောင်းရန် နှိပ်ပါ" : "Tap to change photo"}</p>
         </motion.div>
 
         {/* Basic Information */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြေခံ အချက်အလက်" : "Basic Information"}</h2>
-          <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <User className="h-4 w-4 text-primary" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အခြေခံ အချက်အလက်" : "Basic Information"}</h2>
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ရာထူး" : "Headline"}</Label>
-            <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
+            <Input value={name} onChange={e => setName(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "Bio"}</Label>
-            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[80px] rounded-xl border-border bg-muted/50 text-sm" />
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ရာထူး" : "Headline"}</Label>
+            <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
           </div>
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
-            <Input value={experience} onChange={e => setExperience(e.target.value)} className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "Bio"}</Label>
+            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[80px] rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+          </div>
+          <div>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
+            <Input value={experience} onChange={e => setExperience(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
           </div>
         </motion.div>
 
-        {/* Profile Visibility with explanations */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility"}</h2>
+        {/* Profile Visibility */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <Eye className="h-4 w-4 text-primary" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility"}</h2>
+          </div>
           <div className="space-y-2">
             {VISIBILITY_OPTIONS.map(opt => (
-              <button key={opt.value} onClick={() => setVisibility(opt.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${visibility === opt.value ? "border-primary bg-primary/5" : "border-border active:bg-muted"}`}>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${visibility === opt.value ? "bg-primary/10" : "bg-muted"}`}>
+              <button key={opt.value} onClick={() => setVisibility(opt.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${visibility === opt.value ? "border-primary/40 bg-primary/5 shadow-sm" : "border-border hover:border-border/80 active:bg-muted"}`}>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${visibility === opt.value ? "bg-primary/15" : "bg-muted"}`}>
                   <opt.icon className={`h-4 w-4 ${visibility === opt.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium ${visibility === opt.value ? "text-primary" : "text-foreground"}`}>{opt.label[lang]}</p>
-                  <p className="text-[11px] text-muted-foreground leading-snug">{opt.desc[lang]}</p>
+                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{opt.desc[lang]}</p>
                 </div>
                 {visibility === opt.value && <Check className="h-4 w-4 flex-shrink-0 text-primary" strokeWidth={2} />}
               </button>
@@ -413,12 +424,17 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
-        {/* Preferred Work Type - all types */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး အလုပ်အမျိုးအစား" : "Preferred Work Type"}</h2>
+        {/* Preferred Work Type */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15">
+              <Briefcase className="h-4 w-4 text-accent-foreground" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး အလုပ်အမျိုးအစား" : "Preferred Work Type"}</h2>
+          </div>
           <div className="flex flex-wrap gap-2">
             {WORK_TYPES.map(opt => (
-              <button key={opt.value} onClick={() => toggleWorkType(opt.value)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${preferredWorkTypes.includes(opt.value) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
+              <button key={opt.value} onClick={() => toggleWorkType(opt.value)} className={`rounded-full border px-3.5 py-2 text-xs font-medium transition-all ${preferredWorkTypes.includes(opt.value) ? "border-primary/40 bg-primary/10 text-primary shadow-sm" : "border-border text-muted-foreground hover:border-border/80"}`}>
                 {opt.label[lang]}
               </button>
             ))}
@@ -426,19 +442,24 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Location & Contact */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 space-y-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "တည်နေရာနှင့် ဆက်သွယ်ရန်" : "Location & Contact"}</h2>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <MapPin className="h-4 w-4 text-primary" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "တည်နေရာနှင့် ဆက်သွယ်ရန်" : "Location & Contact"}</h2>
+          </div>
 
           {/* Location dropdown */}
           <div ref={locationRef} className="relative">
-            <Label className="mb-1.5 text-xs text-muted-foreground"><MapPin className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "တည်နေရာ" : "Location"}</Label>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "တည်နေရာ" : "Location"}</Label>
             <div className="relative">
               <Input
                 value={locationSearch}
                 onChange={e => { setLocationSearch(e.target.value); setShowLocationDropdown(true); }}
                 onFocus={() => setShowLocationDropdown(true)}
                 placeholder={lang === "my" ? "မြို့နာမည် ရိုက်ထည့်ပါ..." : "Search city..."}
-                className="h-11 rounded-xl border-border bg-muted/50 pr-8 text-sm"
+                className="h-11 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30"
               />
               <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </div>
@@ -458,19 +479,22 @@ const EditProfile = () => {
 
           {/* Email */}
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Mail className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
-            <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+            </div>
           </div>
 
           {/* Phone with country code */}
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Phone className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဖုန်းနံပါတ်" : "Phone"}</Label>
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ဖုန်းနံပါတ်" : "Phone"}</Label>
             <div className="flex gap-2">
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setShowCountryCodePicker(!showCountryCodePicker)}
-                  className="flex h-11 items-center gap-1 rounded-xl border border-border bg-muted/50 px-3 text-sm font-medium text-foreground"
+                  className="flex h-11 items-center gap-1 rounded-xl border border-border bg-muted/30 px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted/50"
                 >
                   {COUNTRY_CODES.find(c => c.code === phoneCountryCode)?.country || "🌐"} {phoneCountryCode}
                   <ChevronDown className="h-3 w-3 text-muted-foreground" />
@@ -490,22 +514,30 @@ const EditProfile = () => {
                 value={formatPhoneDigits(phoneNumber)}
                 onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11))}
                 placeholder="xxx xxxx xxxx"
-                className="h-11 flex-1 rounded-xl border-border bg-muted/50 text-sm"
+                className="h-11 flex-1 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30"
               />
             </div>
           </div>
 
           {/* Website */}
           <div>
-            <Label className="mb-1.5 text-xs text-muted-foreground"><Globe className="mr-1 inline h-3 w-3" strokeWidth={1.5} />{lang === "my" ? "ဝဘ်ဆိုက်" : "Website"}</Label>
-            <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" className="h-11 rounded-xl border-border bg-muted/50 text-sm" />
+            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ဝဘ်ဆိုက်" : "Website"}</Label>
+            <div className="relative">
+              <Globe className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" className="h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+            </div>
           </div>
         </motion.div>
 
         {/* Remote Work Readiness */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "Remote Work အသင့်အနေ" : "Remote Work Readiness"}</h2>
-          <div className="space-y-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
+              <Wifi className="h-4 w-4 text-emerald-600" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "Remote Work အသင့်အနေ" : "Remote Work Readiness"}</h2>
+          </div>
+          <div className="space-y-1.5">
             {[
               { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => setHasLaptop(!hasLaptop) },
               { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => setInternetStable(!internetStable) },
@@ -513,33 +545,42 @@ const EditProfile = () => {
               { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => setHasWise(!hasWise) },
               { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => setHasUpwork(!hasUpwork) },
             ].map((item, i) => (
-              <button key={i} onClick={item.toggle} className="flex w-full items-center justify-between rounded-lg bg-muted/50 p-3">
-                <div className="flex items-center gap-2">
-                  <item.icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                  <span className="text-sm text-foreground">{item.label}</span>
+              <button key={i} onClick={item.toggle} className={`flex w-full items-center justify-between rounded-xl p-3.5 transition-all ${item.value ? "bg-primary/5" : "bg-muted/30 hover:bg-muted/50"}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${item.value ? "bg-primary/10" : "bg-muted"}`}>
+                    <item.icon className={`h-4 w-4 ${item.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                  </div>
+                  <span className={`text-sm font-medium ${item.value ? "text-foreground" : "text-muted-foreground"}`}>{item.label}</span>
                 </div>
-                <div className={`h-6 w-11 rounded-full transition-colors ${item.value ? "bg-primary" : "bg-muted-foreground/30"}`}>
-                  <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.value ? "translate-x-5" : "translate-x-0.5"} mt-0.5`} />
+                <div className={`h-6 w-11 rounded-full transition-colors ${item.value ? "bg-primary" : "bg-muted-foreground/25"}`}>
+                  <div className={`h-5 w-5 rounded-full bg-card shadow-sm transition-transform ${item.value ? "translate-x-5" : "translate-x-0.5"} mt-0.5`} />
                 </div>
               </button>
             ))}
           </div>
         </motion.div>
 
-        {/* Skills with autocomplete */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
-            <span className="text-[10px] text-muted-foreground">{skills.length}/30</span>
+        {/* Skills */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              </div>
+              <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+            </div>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{skills.length}/30</span>
           </div>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {skills.map(skill => (
-              <span key={skill} className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-                {skill}
-                <button onClick={() => removeSkill(skill)} className="rounded-full p-0.5 active:bg-primary/20"><X className="h-3 w-3" strokeWidth={1.5} /></button>
-              </span>
-            ))}
-          </div>
+          {skills.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {skills.map(skill => (
+                <span key={skill} className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+                  {skill}
+                  <button onClick={() => removeSkill(skill)} className="rounded-full p-0.5 transition-colors hover:bg-primary/20 active:bg-primary/30"><X className="h-3 w-3" strokeWidth={2} /></button>
+                </span>
+              ))}
+            </div>
+          )}
           <div ref={skillRef} className="relative">
             <div className="flex gap-2">
               <Input
@@ -548,9 +589,9 @@ const EditProfile = () => {
                 onFocus={() => setShowSkillSuggestions(true)}
                 onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
                 placeholder={lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ရန်..." : "Add a skill..."}
-                className="h-10 rounded-xl border-border bg-muted/50 text-sm"
+                className="h-10 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30"
               />
-              <Button variant="outline" size="sm" className="rounded-xl" onClick={() => addSkill()}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
+              <Button variant="outline" size="sm" className="h-10 w-10 rounded-xl border-border p-0" onClick={() => addSkill()}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
             </div>
             {showSkillSuggestions && filteredSkillSuggestions.length > 0 && (
               <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
@@ -565,20 +606,27 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
-        {/* Languages dropdown */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ဘာသာစကားများ" : "Languages"}</h2>
-            <span className="text-[10px] text-muted-foreground">{languages.length}/5</span>
+        {/* Languages */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15">
+                <Languages className="h-4 w-4 text-accent-foreground" strokeWidth={1.5} />
+              </div>
+              <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ဘာသာစကားများ" : "Languages"}</h2>
+            </div>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{languages.length}/5</span>
           </div>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {languages.map(l => (
-              <span key={l} className="flex items-center gap-1 rounded-lg bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-foreground">
-                {l}
-                <button onClick={() => removeLanguage(l)} className="rounded-full p-0.5 active:bg-accent/20"><X className="h-3 w-3" strokeWidth={1.5} /></button>
-              </span>
-            ))}
-          </div>
+          {languages.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {languages.map(l => (
+                <span key={l} className="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-foreground">
+                  {l}
+                  <button onClick={() => removeLanguage(l)} className="rounded-full p-0.5 transition-colors hover:bg-accent/20 active:bg-accent/30"><X className="h-3 w-3" strokeWidth={2} /></button>
+                </span>
+              ))}
+            </div>
+          )}
           <div ref={langRef} className="relative">
             <div className="relative">
               <Input
@@ -586,7 +634,7 @@ const EditProfile = () => {
                 onChange={e => { setLanguageSearch(e.target.value); setShowLanguageDropdown(true); }}
                 onFocus={() => setShowLanguageDropdown(true)}
                 placeholder={lang === "my" ? "ဘာသာစကား ရှာပါ..." : "Search language..."}
-                className="h-10 rounded-xl border-border bg-muted/50 pr-8 text-sm"
+                className="h-10 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30"
               />
               <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </div>
@@ -603,10 +651,13 @@ const EditProfile = () => {
           </div>
         </motion.div>
 
-        <Button variant="default" size="lg" className="mt-6 w-full rounded-2xl" onClick={handleSave} disabled={saving}>
-          <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
-          {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes")}
-        </Button>
+        {/* Save Button */}
+        <div className="pt-2 pb-4">
+          <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSave} disabled={saving}>
+            <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
+            {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes")}
+          </Button>
+        </div>
       </div>
     </div>
   );
