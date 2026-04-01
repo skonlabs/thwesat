@@ -661,8 +661,8 @@ const ProfileBuilder = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "AI ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "AI Profile Ready!"}</h2>
-                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် AI ဖြင့် ဖန်တီးထားပါသည်` : `AI-generated for ${platform}`}</p>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် အသင့်ဖြစ်ပါပြီ" : "Profile Ready!"}</h2>
+                      <p className="text-[10px] text-muted-foreground">{lang === "my" ? `${platform} အတွက် ဖန်တီးထားပါသည်` : `Generated for ${platform}`}</p>
                     </div>
                   </div>
                   <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold text-emerald">{platform}</span>
