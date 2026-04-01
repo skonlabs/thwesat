@@ -1,4 +1,5 @@
-import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import { useState } from "react";
+import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -9,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 
-/** Render markdown-like guide content as formatted HTML-safe React elements */
+/** Render markdown-like guide content as formatted React elements */
 function renderGuideContent(raw: string) {
   const lines = raw.split("\n");
   const elements: React.ReactNode[] = [];
@@ -39,13 +40,8 @@ function renderGuideContent(raw: string) {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (!trimmed) {
-      flushUl();
-      flushOl();
-      continue;
-    }
+    if (!trimmed) { flushUl(); flushOl(); continue; }
 
-    // Headings
     if (trimmed.startsWith("### ")) {
       flushUl(); flushOl();
       elements.push(<h4 key={key++} className="mb-2 mt-5 text-sm font-bold text-foreground">{renderInline(trimmed.slice(4))}</h4>);
@@ -55,45 +51,32 @@ function renderGuideContent(raw: string) {
     } else if (trimmed.startsWith("# ")) {
       flushUl(); flushOl();
       elements.push(<h2 key={key++} className="mb-3 mt-6 text-lg font-bold text-foreground">{renderInline(trimmed.slice(2))}</h2>);
-    }
-    // Unordered list
-    else if (/^[-*•]\s/.test(trimmed)) {
+    } else if (/^[-*•]\s/.test(trimmed)) {
       flushOl();
       listBuffer.push(trimmed.replace(/^[-*•]\s+/, ""));
-    }
-    // Ordered list
-    else if (/^\d+[.)]\s/.test(trimmed)) {
+    } else if (/^\d+[.)]\s/.test(trimmed)) {
       flushUl();
       olBuffer.push(trimmed.replace(/^\d+[.)]\s+/, ""));
-    }
-    // Blockquote / callout
-    else if (trimmed.startsWith("> ")) {
+    } else if (trimmed.startsWith("> ")) {
       flushUl(); flushOl();
       elements.push(
         <blockquote key={key++} className="mb-4 border-l-4 border-primary/30 bg-primary/5 py-2 pl-4 pr-3 text-sm italic text-foreground/70 rounded-r-lg">
           {renderInline(trimmed.slice(2))}
         </blockquote>
       );
-    }
-    // Horizontal rule
-    else if (/^---+$/.test(trimmed)) {
+    } else if (/^---+$/.test(trimmed)) {
       flushUl(); flushOl();
       elements.push(<hr key={key++} className="my-5 border-border" />);
-    }
-    // Normal paragraph
-    else {
+    } else {
       flushUl(); flushOl();
       elements.push(<p key={key++} className="mb-3 text-sm leading-relaxed text-foreground/80">{renderInline(trimmed)}</p>);
     }
   }
-  flushUl();
-  flushOl();
+  flushUl(); flushOl();
   return elements;
 }
 
-/** Bold and inline code formatting */
 function renderInline(text: string): React.ReactNode {
-  // Split on **bold** patterns
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
@@ -112,6 +95,9 @@ const GuideDetail = () => {
   const { data: guide, isLoading } = useGuide(id);
   const { data: counts } = useGuideFeedbackCounts(id);
   const { data: userFeedback } = useUserGuideFeedback(id, user?.id);
+  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
 
   const feedback = userFeedback ? (userFeedback.is_helpful ? "yes" : "no") : null;
 
@@ -142,14 +128,36 @@ const GuideDetail = () => {
         toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
       }
     } catch {
-      // user cancelled share dialog
+      // user cancelled
+    }
+  };
+
+  const handleTranslate = async () => {
+    if (translatedContent) {
+      setShowTranslation(!showTranslation);
+      return;
+    }
+    if (!guide) return;
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-guide", {
+        body: { content: guide.content, title: guide.title },
+      });
+      if (error) throw error;
+      setTranslatedContent(data.translatedContent);
+      setShowTranslation(true);
+      toast({ title: "မြန်မာဘာသာသို့ ဘာသာပြန်ပြီးပါပြီ" });
+    } catch {
+      toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed. Please try again.", variant: "destructive" });
+    } finally {
+      setIsTranslating(false);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
+        <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
         <div className="flex items-center justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
@@ -160,7 +168,7 @@ const GuideDetail = () => {
   if (!guide) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
+        <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
         <div className="flex flex-col items-center py-16 text-center px-5">
           <p className="text-sm text-muted-foreground">{lang === "my" ? "လမ်းညွှန်ချက် မတွေ့ပါ" : "Guide not found"}</p>
         </div>
@@ -168,13 +176,13 @@ const GuideDetail = () => {
     );
   }
 
-  const content = lang === "my" && guide.content_my ? guide.content_my : guide.content;
+  const displayContent = showTranslation && translatedContent ? translatedContent : guide.content;
   const yesCount = counts?.yes ?? 0;
   const noCount = counts?.no ?? 0;
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} />
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="mb-2 inline-block rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
@@ -197,9 +205,32 @@ const GuideDetail = () => {
             )}
           </div>
 
+          {/* Translate button */}
+          <button
+            onClick={handleTranslate}
+            disabled={isTranslating}
+            className={`mb-4 flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-medium transition-colors ${
+              showTranslation
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-muted-foreground active:bg-muted"
+            }`}
+          >
+            {isTranslating ? (
+              <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
+            ) : (
+              <Languages className="h-4 w-4" strokeWidth={1.5} />
+            )}
+            {isTranslating
+              ? (lang === "my" ? "ဘာသာပြန်နေသည်..." : "Translating...")
+              : showTranslation
+                ? (lang === "my" ? "မူရင်း English ပြရန်" : "Show Original English")
+                : "🇲🇲 မြန်မာဘာသာသို့ ဘာသာပြန်ရန်"
+            }
+          </button>
+
           {/* Formatted content */}
           <div className="max-w-none">
-            {renderGuideContent(content)}
+            {renderGuideContent(displayContent)}
           </div>
 
           {/* Feedback section */}
