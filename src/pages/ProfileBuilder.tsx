@@ -246,6 +246,7 @@ const ProfileBuilder = () => {
 
   const handleDownloadPdf = async () => {
     if (!generatedProfile) return;
+    const { jsPDF } = await import("jspdf");
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
