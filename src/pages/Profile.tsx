@@ -52,11 +52,18 @@ const Profile = () => {
     setTimeout(() => setReferralCopied(false), 2000);
   };
 
-  const roleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
+  const allRoleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
     { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
     { value: "mentor", icon: GraduationCap, label: { my: "Mentor", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
+
+  // Job Seeker and Employer are mutually exclusive — only show the other non-conflicting roles
+  const roleOptions = allRoleOptions.filter((r) => {
+    if (role === "jobseeker" && r.value === "employer") return false;
+    if (role === "employer" && r.value === "jobseeker") return false;
+    return true;
+  });
 
   const handleSelectRole = (r: UserRole) => {
     setRole(r);
@@ -65,7 +72,7 @@ const Profile = () => {
     toast({ title: lang === "my" ? `${selected.label.my} အနေဖြင့် ပြောင်းပြီးပါပြီ` : `Switched to ${selected.label.en}` });
   };
 
-  const currentRoleLabel = roleOptions.find(o => o.value === role)!;
+  const currentRoleLabel = allRoleOptions.find(o => o.value === role)!;
 
   const handleSignOut = async () => {
     await signOut();
