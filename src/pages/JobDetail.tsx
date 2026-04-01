@@ -528,10 +528,18 @@ const JobDetail = () => {
                         <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
                         <span className="text-foreground truncate">{selectedCv.file_name}</span>
                       </>
+                    ) : selectedGeneratedResume ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
+                        <span className="text-foreground truncate">{selectedGeneratedResume.title}</span>
+                        <button onClick={() => { setPreviewContent(selectedGeneratedResume.content); setPreviewTitle(selectedGeneratedResume.title); }} className="ml-auto text-[10px] font-medium text-primary">
+                          {lang === "my" ? "ကြည့်ရန်" : "Preview"}
+                        </button>
+                      </>
                     ) : (
                       <>
                         <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "CV မပါဝင်ပါ" : "No resume attached"}</span>
+                        <span className="text-muted-foreground">{lang === "my" ? "Resume မပါဝင်ပါ" : "No resume attached"}</span>
                       </>
                     )}
                   </div>
