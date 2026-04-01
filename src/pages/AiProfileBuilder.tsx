@@ -36,8 +36,8 @@ const AiProfileBuilder = () => {
     }
   }, [uploadedFile]);
 
-  const handleToolClick = (path: string, status: string) => {
-    if (status === "Premium" && !profile?.is_premium) {
+  const handleToolClick = (path: string, rawStatus: string) => {
+    if (rawStatus === "Premium" && !profile?.is_premium) {
       navigate("/premium");
       return;
     }
@@ -108,7 +108,8 @@ const AiProfileBuilder = () => {
       icon: FileText,
       title: lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder",
       desc: lang === "my" ? "သင့်မြန်မာဘာသာ CV ကို နိုင်ငံတကာ အဆင့်မီ English Profile အဖြစ် ပြောင်းလဲပေးပါမည်" : "Transform your Myanmar CV into a globally competitive English profile",
-      status: "Ready",
+      status: lang === "my" ? "အသင့်" : "Ready",
+      rawStatus: "Ready",
       path: "/ai-tools/profile-builder",
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -117,9 +118,10 @@ const AiProfileBuilder = () => {
     },
     {
       icon: PenLine,
-      title: lang === "my" ? "Cover Letter ရေးသားရန်" : "Cover Letter Generator",
-      desc: lang === "my" ? "အလုပ်တစ်ခုချင်းစီအတွက် စိတ်ကြိုက် cover letter ရေးသားပေးပါမည်" : "Generate tailored cover letters for each job application",
-      status: "Premium",
+      title: lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန်" : "Cover Letter Generator",
+      desc: lang === "my" ? "အလုပ်တစ်ခုချင်းစီအတွက် စိတ်ကြိုက် အလုပ်လျှောက်လွှာ ရေးသားပေးပါမည်" : "Generate tailored cover letters for each job application",
+      status: lang === "my" ? "ပရီမီယံ" : "Premium",
+      rawStatus: "Premium",
       path: "/ai-tools/cover-letter",
       iconBg: "bg-emerald/10",
       iconColor: "text-emerald",
@@ -130,7 +132,8 @@ const AiProfileBuilder = () => {
       icon: TrendingUp,
       title: lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis",
       desc: lang === "my" ? "သင်လိုချင်သော အလုပ်အတွက် မည်သည့် ကျွမ်းကျင်မှုများ လိုအပ်သေးသည်ကို ခွဲခြမ်းစိတ်ဖြာပေးပါမည်" : "Identify skill gaps between your profile and target roles",
-      status: "Premium",
+      status: lang === "my" ? "ပရီမီယံ" : "Premium",
+      rawStatus: "Premium",
       path: "/ai-tools/skill-gap",
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -141,7 +144,7 @@ const AiProfileBuilder = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"} />
+      <PageHeader title={lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools"} />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Subtitle */}
@@ -248,7 +251,7 @@ const AiProfileBuilder = () => {
           </div>
 
           {/* Tool Cards */}
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်သော Tools များ" : "Available Tools"}</h2>
+          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်သော ကိရိယာများ" : "Available Tools"}</h2>
           <div className="space-y-3">
             {aiFeatures.map((f, i) => (
               <motion.button
@@ -256,7 +259,7 @@ const AiProfileBuilder = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => handleToolClick(f.path, f.status)}
+                onClick={() => handleToolClick(f.path, f.rawStatus)}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted"
               >
                 <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${f.iconBg}`}>
@@ -276,7 +279,7 @@ const AiProfileBuilder = () => {
 
           {/* Supported Platforms */}
           <div className="mt-5 rounded-xl border border-border bg-card p-3">
-            <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "ပံ့ပိုးသော Platform များ" : "Supported Platforms"}</p>
+            <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "ပံ့ပိုးသော ပလက်ဖောင်းများ" : "Supported Platforms"}</p>
             <div className="flex flex-wrap gap-2">
               {["Upwork", "Fiverr", "LinkedIn", "Toptal", "Remote.co"].map((p) => (
                 <span key={p} className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] text-muted-foreground">

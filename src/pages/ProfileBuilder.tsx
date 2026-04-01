@@ -329,7 +329,7 @@ const ProfileBuilder = () => {
 
   const stepLabels = [
     lang === "my" ? "အချက်အလက်" : "Details",
-    lang === "my" ? "Platform" : "Platform",
+    lang === "my" ? "ပလက်ဖောင်း" : "Platform",
     lang === "my" ? "ရလဒ်" : "Result",
   ];
 
@@ -657,8 +657,8 @@ const ProfileBuilder = () => {
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
               <div className="rounded-xl border border-border bg-card p-4">
-                <h2 className="mb-1 text-sm font-semibold text-foreground">{lang === "my" ? "Platform ရွေးချယ်ပါ" : "Choose Platform"}</h2>
-                <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို မည်သည့် platform အတွက် ပြင်ဆင်ချင်ပါသလဲ?" : "Which platform is this profile for?"}</p>
+                <h2 className="mb-1 text-sm font-semibold text-foreground">{lang === "my" ? "ပလက်ဖောင်း ရွေးချယ်ပါ" : "Choose Platform"}</h2>
+                <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို မည်သည့် ပလက်ဖောင်းအတွက် ပြင်ဆင်ချင်ပါသလဲ?" : "Which platform is this profile for?"}</p>
                 <div className="grid grid-cols-2 gap-3">
                   {platforms.map(p => (
                     <button key={p} onClick={() => setPlatform(p)} className={`flex items-center gap-2 rounded-xl border p-3.5 text-left transition-colors ${platform === p ? "border-primary bg-primary/5" : "border-border bg-background active:bg-muted"}`}>
@@ -721,12 +721,12 @@ const ProfileBuilder = () => {
                 </div>
 
                 <div className="mb-3 rounded-lg bg-primary/5 p-3">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Headline</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}</p>
                   <p className="mt-1 text-sm font-semibold text-foreground">{name ? `${name} — ` : ""}{generatedProfile.headline}</p>
                 </div>
 
                 <div className="mb-3">
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Summary</p>
+                  <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "အကျဉ်းချုပ်" : "Summary"}</p>
                   <p className="text-xs leading-relaxed text-foreground/80">{generatedProfile.summary}</p>
                 </div>
 
@@ -739,7 +739,7 @@ const ProfileBuilder = () => {
 
                 {generatedProfile.skills.length > 0 && (
                   <div>
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
+                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {generatedProfile.skills.map((skill, i) => (
                         <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
@@ -795,7 +795,7 @@ const ProfileBuilder = () => {
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
-                {lang === "my" ? "Career Tools သို့ ပြန်သွားရန်" : "Back to Career Tools"}
+                {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
               </Button>
             </motion.div>
           )}

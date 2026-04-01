@@ -111,23 +111,23 @@ const Settings = () => {
       title: lang === "my" ? "ဘာသာစကားနှင့် ဖောင့်" : "Language & Font",
       items: [
         { icon: Languages, label: lang === "my" ? "ဘာသာစကား" : "Language", value: lang === "my" ? "မြန်မာ" : "English", action: () => setShowLanguagePicker(true) },
-        { icon: Type, label: lang === "my" ? "ဖောင့် Encoding" : "Font Encoding", value: "Unicode", action: () => setShowFontEncoding(true) },
+        { icon: Type, label: lang === "my" ? "ဖောင့် ကုဒ်စနစ်" : "Font Encoding", value: "Unicode", action: () => setShowFontEncoding(true) },
       ],
     },
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        { icon: Bell, label: lang === "my" ? "Push အကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
-        { icon: Smartphone, label: lang === "my" ? "Telegram သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
+        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
+        { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
     {
       title: lang === "my" ? "လုံခြုံရေး" : "Security",
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
-        { icon: Clock, label: lang === "my" ? "Session သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
+        { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
         { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
-        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် Token" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
+        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
     {

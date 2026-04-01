@@ -146,9 +146,9 @@ const JobDetail = () => {
   }
 
   const salaryText = job.salary_min && job.salary_max
-    ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}/mo`
-    : job.salary_min ? `$${job.salary_min.toLocaleString()}+/mo`
-    : "Negotiable";
+    ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`
+    : job.salary_min ? `$${job.salary_min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`
+    : lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
 
   const requirementsList = (lang === "my" && job.requirements_my ? job.requirements_my : job.requirements || "")
     .split("\n")
@@ -188,7 +188,7 @@ const JobDetail = () => {
             {[
               { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
               { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || "Remote" },
-              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: job.job_type || "Full-time" },
+              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: job.job_type ? (lang === "my" ? (job.job_type === "Full-time" ? "အပြည့်အဝ" : job.job_type === "Contract" ? "ကန်ထရိုက်" : job.job_type) : job.job_type) : (lang === "my" ? "အပြည့်အဝ" : "Full-time") },
               { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: (job.payment_methods || []).join(", ") || "—" },
             ].map((info) => (
               <div key={info.label} className="rounded-xl border border-border bg-card p-3 shadow-card">
@@ -203,7 +203,7 @@ const JobDetail = () => {
             <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-emerald/5 p-3.5">
               <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald" strokeWidth={1.5} />
               <div>
-                <p className="text-xs font-semibold text-emerald">Diaspora Safe</p>
+                <p className="text-xs font-semibold text-emerald">{lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}</p>
                 <p className="text-[11px] text-muted-foreground">
                   {lang === "my" ? "သံရုံးစာရွက်စာတမ်း မလိုအပ်ပါ" : "No embassy documentation required"}
                 </p>
@@ -415,7 +415,7 @@ const JobDetail = () => {
               <div className="mb-5">
                 <div className="mb-2 flex items-center gap-2">
                   <PenLine className="h-4 w-4 text-emerald" strokeWidth={1.5} />
-                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter" : "Cover Letter"}</label>
+                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"}</label>
                   <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်ပိုင်ခွင့်" : "Optional"})</span>
                 </div>
 
@@ -519,12 +519,12 @@ const JobDetail = () => {
                     {coverLetterMode !== "none" && coverLetter ? (
                       <>
                         <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                        <span className="text-foreground">{lang === "my" ? "Cover Letter ပါဝင်သည်" : "Cover letter included"}</span>
+                        <span className="text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ ပါဝင်သည်" : "Cover letter included"}</span>
                       </>
                     ) : (
                       <>
                         <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "Cover Letter မပါဝင်ပါ" : "No cover letter"}</span>
+                        <span className="text-muted-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ မပါဝင်ပါ" : "No cover letter"}</span>
                       </>
                     )}
                   </div>

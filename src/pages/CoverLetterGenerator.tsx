@@ -12,7 +12,7 @@ import { useSavedJobs } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
 
 const toneOptions = [
-  { value: "professional", labelMy: "Professional", labelEn: "Professional" },
+  { value: "professional", labelMy: "ပရော်ဖက်ရှင်နယ်", labelEn: "Professional" },
   { value: "friendly", labelMy: "ဖော်ရွေသော", labelEn: "Friendly" },
   { value: "confident", labelMy: "ယုံကြည်မှုရှိသော", labelEn: "Confident" },
   { value: "enthusiastic", labelMy: "စိတ်အားထက်သန်သော", labelEn: "Enthusiastic" },
@@ -183,7 +183,7 @@ const CoverLetterGenerator = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "Cover Letter ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
+      <PageHeader title={lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
         {/* Progress */}
         <div className="mb-5 flex gap-2">
@@ -385,7 +385,7 @@ const CoverLetterGenerator = () => {
                     {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
                   </span>
                 ) : (
-                  <>{lang === "my" ? "Cover Letter ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
+                  <>{lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
                 )}
               </Button>
             </motion.div>
@@ -400,11 +400,11 @@ const CoverLetterGenerator = () => {
                       <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "Cover Letter အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
+                      <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ အသင့်ဖြစ်ပါပြီ" : "Cover Letter Ready!"}</h2>
                       <p className="text-[10px] text-muted-foreground">{form.jobTitle} · {form.company}</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-emerald">{form.tone}</span>
+                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-semibold capitalize text-emerald">{lang === "my" ? toneOptions.find(t => t.value === form.tone)?.labelMy : form.tone}</span>
                 </div>
 
                 <div className="rounded-lg bg-background p-3">
@@ -442,7 +442,7 @@ const CoverLetterGenerator = () => {
                   await supabase.from("generated_documents").insert({
                     user_id: session.user.id,
                     doc_type: "cover_letter",
-                    title: `Cover Letter — ${form.jobTitle || ""} at ${form.company || ""}`,
+                    title: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${form.jobTitle || ""} at ${form.company || ""}`,
                     content: generatedLetter,
                     metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
                   });
@@ -457,7 +457,7 @@ const CoverLetterGenerator = () => {
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
-                {lang === "my" ? "Career Tools သို့ ပြန်သွားရန်" : "Back to Career Tools"}
+                {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
               </Button>
             </motion.div>
           )}

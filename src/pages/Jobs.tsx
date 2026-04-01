@@ -9,32 +9,32 @@ import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use
 
 const categories = [
   { my: "အားလုံး", en: "All" },
-  { my: "Tech", en: "Tech" },
-  { my: "Design", en: "Design" },
+  { my: "နည်းပညာ", en: "Tech" },
+  { my: "ဒီဇိုင်း", en: "Design" },
   { my: "စီမံခန့်ခွဲမှု", en: "Management" },
-  { my: "NGO", en: "NGO" },
+  { my: "အကျိုးပြု အဖွဲ့အစည်း", en: "NGO" },
   { my: "ဘာသာပြန်", en: "Translation" },
   { my: "ငွေကြေး", en: "Finance" },
 ];
 
 const jobTypes = [
   { value: "all", labelEn: "All Types", labelMy: "အားလုံး" },
-  { value: "remote_full", labelEn: "Remote Full-time", labelMy: "Remote အပြည့်" },
-  { value: "remote_contract", labelEn: "Remote Contract", labelMy: "Remote ကန်ထရိုက်" },
-  { value: "hybrid", labelEn: "Hybrid", labelMy: "Hybrid" },
+  { value: "remote_full", labelEn: "Remote Full-time", labelMy: "အဝေးထိန်း အပြည့်အဝ" },
+  { value: "remote_contract", labelEn: "Remote Contract", labelMy: "အဝေးထိန်း ကန်ထရိုက်" },
+  { value: "hybrid", labelEn: "Hybrid", labelMy: "ရောစပ်" },
 ];
 
 const locationOptions = [
   { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
-  { value: "Remote", labelEn: "Remote", labelMy: "Remote" },
+  { value: "Remote", labelEn: "Remote", labelMy: "အဝေးထိန်း" },
   { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
 const roleTypeLabels: Record<string, { my: string; en: string }> = {
-  remote_full: { my: "Remote အပြည့်", en: "Remote Full-time" },
-  remote_contract: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" },
-  hybrid: { my: "Hybrid", en: "Hybrid" },
+  remote_full: { my: "အဝေးထိန်း အပြည့်အဝ", en: "Remote Full-time" },
+  remote_contract: { my: "အဝေးထိန်း ကန်ထရိုက်", en: "Remote Contract" },
+  hybrid: { my: "ရောစပ်", en: "Hybrid" },
   "full-time": { my: "အပြည့်အဝ", en: "Full-time" },
   contract: { my: "ကန်ထရိုက်", en: "Contract" },
 };
@@ -49,14 +49,13 @@ function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   return { my: `${days} ရက်`, en: `${days} days` };
 }
 
-function formatSalary(job: Job): string {
+function formatSalary(job: Job, lang: string): string {
   const min = job.salary_min;
   const max = job.salary_max;
-  const cur = job.currency || "USD";
-  if (!min && !max) return "Negotiable";
-  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/mo`;
-  if (min) return `$${min.toLocaleString()}+/mo`;
-  return `Up to $${max?.toLocaleString()}/mo`;
+  if (!min && !max) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
+  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
+  if (min) return `$${min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`;
+  return `${lang === "my" ? "အများဆုံး" : "Up to"} $${max?.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
 }
 
 const Jobs = () => {
@@ -192,7 +191,7 @@ const Jobs = () => {
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
                   <div className="space-y-2">
                     {[
-                      { label: lang === "my" ? "Diaspora Safe သာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
+                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
                       { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: filterVerified, set: setFilterVerified },
                       { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: filterVisa, set: setFilterVisa },
                     ].map(toggle => (
@@ -263,7 +262,7 @@ const Jobs = () => {
                   )}
                   {job.is_diaspora_safe && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
-                      <Shield className="h-2.5 w-2.5" strokeWidth={2} /> Diaspora Safe
+                      <Shield className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}
                     </span>
                   )}
                   {job.requires_embassy && (
@@ -283,7 +282,7 @@ const Jobs = () => {
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}</span>
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? typeLabel.my : typeLabel.en}</span>
                   </div>
-                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job)}</span>
+                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job, lang)}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
