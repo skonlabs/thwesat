@@ -1089,6 +1089,63 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          badge_en: string | null
+          badge_my: string | null
+          country: string
+          created_at: string | null
+          currency: string
+          duration_months: number | null
+          id: string
+          is_active: boolean
+          name_en: string
+          name_my: string
+          plan_id: string
+          price: number
+          save_label_en: string | null
+          save_label_my: string | null
+          sort_order: number
+          updated_at: string | null
+        }
+        Insert: {
+          badge_en?: string | null
+          badge_my?: string | null
+          country?: string
+          created_at?: string | null
+          currency?: string
+          duration_months?: number | null
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_my?: string
+          plan_id: string
+          price?: number
+          save_label_en?: string | null
+          save_label_my?: string | null
+          sort_order?: number
+          updated_at?: string | null
+        }
+        Update: {
+          badge_en?: string | null
+          badge_my?: string | null
+          country?: string
+          created_at?: string | null
+          currency?: string
+          duration_months?: number | null
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_my?: string
+          plan_id?: string
+          price?: number
+          save_label_en?: string | null
+          save_label_my?: string | null
+          sort_order?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           billing_cycle: string | null
