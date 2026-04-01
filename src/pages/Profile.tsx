@@ -181,6 +181,7 @@ const Profile = () => {
                 { icon: Globe, label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", active: profile?.internet_stable },
                 { icon: CreditCard, label: "Payoneer", active: profile?.has_payoneer },
                 { icon: CreditCard, label: "Wise", active: profile?.has_wise },
+                { icon: Briefcase, label: "Upwork", active: profile?.has_upwork },
               ].map((item, i) => (
                 <div key={i} className={`flex items-center gap-2 rounded-lg p-2 ${item.active ? "bg-emerald/5" : "bg-muted"}`}>
                   <item.icon className={`h-3.5 w-3.5 ${item.active ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
@@ -213,9 +214,16 @@ const Profile = () => {
             <Gift className="h-4 w-4 text-primary" strokeWidth={1.5} />
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
           </div>
-          <p className="mb-3 text-xs text-muted-foreground">
+          <p className="mb-2 text-xs text-muted-foreground">
             {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါက Premium ၁ လ အခမဲ့" : "Refer 5 friends = 1 free month of Premium"}
           </p>
+          <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {lang === "my"
+                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အမှတ်ရရှိပါမည်။"
+                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn credit toward free Premium."}
+            </p>
+          </div>
           <div className="mb-2 flex items-center gap-2">
             <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">{referralCode}</div>
             <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral}>
