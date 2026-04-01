@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
@@ -27,12 +28,15 @@ interface EducationEntry {
 
 const ProfileBuilder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang } = useLanguage();
   const { toast } = useToast();
-  const { profile } = useAuth();
+  const { profile, session } = useAuth();
   const [step, setStep] = useState(1);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [cvParsed, setCvParsed] = useState(false);
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
@@ -56,6 +60,57 @@ const ProfileBuilder = () => {
       }
     }
   }, [profile]);
+
+  // Parse CV if file path was passed from Career Tools
+  const cvFilePath = (location.state as any)?.cvFilePath;
+  
+  useEffect(() => {
+    if (cvFilePath && session?.access_token && !cvParsed) {
+      parseCv(cvFilePath);
+    }
+  }, [cvFilePath, session?.access_token]);
+
+  const parseCv = async (filePath: string) => {
+    setParsing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("parse-cv", {
+        body: { file_path: filePath },
+      });
+
+      if (error) throw error;
+      
+      const parsed = data?.data;
+      if (parsed) {
+        if (parsed.name) setName(parsed.name);
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.experience) setExperience(parsed.experience);
+        if (parsed.skills?.length) setSkills(parsed.skills);
+        if (parsed.education?.length) {
+          setEducations(
+            parsed.education.map((ed: any) => ({
+              degree: ed.degree || "",
+              institution: ed.institution || "",
+              year: ed.year || "",
+            }))
+          );
+        }
+        setCvParsed(true);
+        toast({
+          title: lang === "my" ? "CV မှ အချက်အလက်များ ဖတ်ပြီးပါပြီ ✓" : "CV parsed successfully ✓",
+          description: lang === "my" ? "အချက်အလက်များကို စစ်ဆေးပြင်ဆင်ပါ" : "Review and edit the extracted data",
+        });
+      }
+    } catch (err: any) {
+      console.error("CV parse error:", err);
+      toast({
+        title: lang === "my" ? "CV ဖတ်၍ မရပါ" : "Could not parse CV",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setParsing(false);
+    }
+  };
 
   const platforms = ["Upwork", "Fiverr", "LinkedIn", "Toptal"];
 
@@ -156,12 +211,29 @@ const ProfileBuilder = () => {
           {/* Step 1: Input details */}
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              {/* CV Parsing indicator */}
+              {parsing && (
+                <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} />
+                  <div>
+                    <p className="text-sm font-medium text-primary">
+                      {lang === "my" ? "CV ဖတ်နေသည်..." : "Parsing your CV with AI..."}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lang === "my" ? "အချက်အလက်များကို ထုတ်ယူနေပါသည်" : "Extracting name, education, skills & experience"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Pre-populated notice */}
-              {profile && (profile.display_name || (profile.skills && profile.skills.length > 0)) && (
+              {!parsing && (cvParsed || (profile && (profile.display_name || (profile.skills && profile.skills.length > 0)))) && (
                 <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-2.5">
-                  <Check className="h-4 w-4 text-primary" strokeWidth={2} />
+                  <Sparkles className="h-4 w-4 text-primary" strokeWidth={2} />
                   <p className="text-xs text-primary font-medium">
-                    {lang === "my" ? "သင့်ပရိုဖိုင်မှ အချက်အလက်များ ထည့်သွင်းထားပါသည်" : "Pre-filled from your profile & CV"}
+                    {cvParsed
+                      ? (lang === "my" ? "CV မှ အချက်အလက်များ ဖြည့်သွင်းထားပါသည် — စစ်ဆေးပြင်ဆင်ပါ" : "Pre-filled from your CV — review & edit below")
+                      : (lang === "my" ? "သင့်ပရိုဖိုင်မှ အချက်အလက်များ ထည့်သွင်းထားပါသည်" : "Pre-filled from your profile")}
                   </p>
                 </div>
               )}

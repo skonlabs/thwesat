@@ -19,7 +19,7 @@ const AiProfileBuilder = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string; filePath?: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
@@ -28,7 +28,8 @@ const AiProfileBuilder = () => {
       navigate("/premium");
       return;
     }
-    navigate(path);
+    // Pass uploaded CV file path to tools so they can parse it
+    navigate(path, { state: { cvFilePath: uploadedFile?.filePath } });
   };
 
   const processFile = useCallback(async (file: File) => {
@@ -64,7 +65,7 @@ const AiProfileBuilder = () => {
         is_primary: true,
       });
 
-      setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl });
+      setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
       toast({ title: lang === "my" ? "CV တင်ပြီးပါပြီ ✓" : "CV uploaded successfully ✓" });
     } catch (err: any) {
       toast({ title: lang === "my" ? "တင်၍ မရပါ" : "Upload failed", description: err.message, variant: "destructive" });
