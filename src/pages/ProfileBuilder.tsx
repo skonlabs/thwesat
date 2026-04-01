@@ -739,7 +739,7 @@ const ProfileBuilder = () => {
 
                 {generatedProfile.skills.length > 0 && (
                   <div>
-                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Skills</p>
+                    <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {generatedProfile.skills.map((skill, i) => (
                         <span key={i} className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">{skill}</span>
