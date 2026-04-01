@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, ChevronRight, FileText, AlertTriangle, Globe, BookOpen } from "lucide-react";
+import { Shield, ChevronRight, FileText, AlertTriangle, Globe, BookOpen, Briefcase, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useGuides } from "@/hooks/use-guides-data";
 
 const categoryIcons: Record<string, typeof FileText> = {
+  visa: FileText,
+  finance: Globe,
+  legal: Shield,
+  safety: AlertTriangle,
+  employment: Briefcase,
+  essentials: Heart,
+  general: BookOpen,
   Visa: FileText,
   Finance: Globe,
   Legal: Shield,
