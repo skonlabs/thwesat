@@ -687,6 +687,18 @@ const ProfileBuilder = () => {
                 )}
               </div>
 
+              {/* Download buttons */}
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleDownloadPdf} className="flex-1">
+                  <Download className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button variant="outline" onClick={handleDownloadDocx} className="flex-1">
+                  <Download className="h-4 w-4" />
+                  DOCX
+                </Button>
+              </div>
+
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleCopy} className="flex-1">
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
