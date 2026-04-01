@@ -289,6 +289,7 @@ const ProfileBuilder = () => {
   };
 
   const handleDownloadDocx = async () => {
+    if (!generatedProfile) return;
     const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
 
     const { headline, summaryText } = getProfileText();
