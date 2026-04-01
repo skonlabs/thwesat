@@ -24,7 +24,6 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
       navigator.clipboard.writeText(token);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast({ title: lang === "my" ? "Token ကူးယူပြီးပါပြီ" : "Token copied!" });
     }
   };
 

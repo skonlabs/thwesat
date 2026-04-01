@@ -148,7 +148,6 @@ const Community = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-saves"] });
-      toast({ title: lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved" });
       setOpenMenuId(null);
     },
   });
@@ -173,13 +172,11 @@ const Community = () => {
   const handleReport = (postId: string) => {
     if (!user) return;
     supabase.from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
-    toast({ title: lang === "my" ? "တိုင်ကြားပြီးပါပြီ" : "Reported", description: lang === "my" ? "စစ်ဆေးပြီး အရေးယူပါမည်" : "We'll review this post" });
     setOpenMenuId(null);
   };
 
   const handleCopyLink = (postId: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/community/post/${postId}`);
-    toast({ title: lang === "my" ? "လင့်ခ် ကူးပြီးပါပြီ" : "Link copied!" });
     setOpenMenuId(null);
   };
 
@@ -192,7 +189,6 @@ const Community = () => {
       case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`; break;
       case "copy":
         navigator.clipboard.writeText(decodeURIComponent(text));
-        toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied to clipboard!" });
         setSharePostId(null);
         return;
     }
@@ -215,7 +211,6 @@ const Community = () => {
         setShowNewPost(false);
         setNewPostText("");
         setSelectedImage(null);
-        toast({ title: lang === "my" ? "ပို့စ် တင်ပြီးပါပြီ" : "Post submitted", description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your post will appear after review" });
       },
     });
   };
@@ -223,7 +218,6 @@ const Community = () => {
   const handleDeletePost = (postId: string) => {
     deletePost.mutate(postId, {
       onSuccess: () => {
-        toast({ title: lang === "my" ? "ပို့စ် ဖျက်ပြီးပါပြီ" : "Post deleted" });
         setOpenMenuId(null);
       },
     });

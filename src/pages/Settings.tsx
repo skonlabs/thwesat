@@ -63,7 +63,6 @@ const Settings = () => {
   const handleLanguageChange = (newLang: "my" | "en") => {
     setLang(newLang);
     setShowLanguagePicker(false);
-    toast({ title: newLang === "my" ? "ဘာသာစကား ပြောင်းပြီးပါပြီ" : "Language changed" });
   };
 
   const handlePasswordChange = async () => {
@@ -82,33 +81,23 @@ const Settings = () => {
     }
     setShowPasswordChange(false);
     setCurrentPw(""); setNewPw(""); setConfirmPw("");
-    toast({ title: lang === "my" ? "စကားဝှက် ပြောင်းပြီးပါပြီ ✓" : "Password changed ✓" });
   };
 
   const handleDeleteAccount = () => {
     if (deleteText === "DELETE") {
       setShowDeleteConfirm(false);
-      toast({
-        title: lang === "my" ? "အကောင့် ဖျက်ရန် တောင်းဆိုပြီးပါပြီ" : "Account deletion requested",
-        description: lang === "my" ? "၂၄ နာရီအတွင်း ပြန်ရယူနိုင်ပါသည်" : "You can recover within 24 hours",
-      });
       navigate("/");
     }
   };
 
   const handleEmergencyExit = async () => {
     await signOut();
-    toast({
-      title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
-      description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
-    });
     navigate("/");
   };
 
   const generateToken = () => {
     const token = `ts_${crypto.randomUUID().replace(/-/g, "").slice(0, 24)}`;
     setDelegateToken(token);
-    toast({ title: lang === "my" ? "Token ဖန်တီးပြီးပါပြီ" : "Token generated" });
   };
 
   const visibilityLabels: Record<string, { my: string; en: string }> = {
@@ -294,15 +283,15 @@ const Settings = () => {
         open={showTelegram}
         onClose={() => setShowTelegram(false)}
         isLinked={telegramLinked}
-        onLink={() => { setTelegramLinked(true); toast({ title: lang === "my" ? "Telegram ချိတ်ဆက်ပြီးပါပြီ" : "Telegram linked!" }); }}
-        onUnlink={() => { setTelegramLinked(false); toast({ title: lang === "my" ? "Telegram ချိတ်ဆက်မှု ဖြုတ်ပြီးပါပြီ" : "Telegram unlinked" }); }}
+        onLink={() => { setTelegramLinked(true); }}
+        onUnlink={() => { setTelegramLinked(false); }}
       />
       <DelegateTokenSheet
         open={showToken}
         onClose={() => setShowToken(false)}
         token={delegateToken}
         onGenerate={generateToken}
-        onRevoke={() => { setDelegateToken(null); toast({ title: lang === "my" ? "Token ဖျက်သိမ်းပြီးပါပြီ" : "Token revoked" }); }}
+        onRevoke={() => { setDelegateToken(null); }}
       />
       <FontEncodingSheet open={showFontEncoding} onClose={() => setShowFontEncoding(false)} />
       <PrivacyPolicySheet open={showPrivacyPolicy} onClose={() => setShowPrivacyPolicy(false)} />

@@ -105,11 +105,6 @@ const Jobs = () => {
     e.stopPropagation();
     const isSaved = savedJobIds.includes(jobId);
     toggleSaveMutation.mutate({ jobId, isSaved });
-    toast({
-      title: isSaved
-        ? (lang === "my" ? "သိမ်းဆည်းမှု ဖယ်ရှားပြီး" : "Removed from saved")
-        : (lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved!"),
-    });
   };
 
   const isFeatured = (job: Job) => {

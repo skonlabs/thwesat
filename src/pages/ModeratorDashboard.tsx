@@ -60,7 +60,6 @@ const ModeratorDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] });
       setSelectedId(null);
-      toast({ title: lang === "my" ? "ပို့စ် အတည်ပြုပြီး ✓" : "Post approved ✓" });
     },
   });
 
@@ -75,7 +74,6 @@ const ModeratorDashboard = () => {
       setSelectedId(null);
       setShowRemoval(false);
       setRemovalReason("");
-      toast({ title: lang === "my" ? "ပို့စ် ဖယ်ရှားပြီး" : "Post removed" });
     },
   });
 

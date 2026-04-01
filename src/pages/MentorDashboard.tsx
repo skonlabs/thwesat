@@ -72,20 +72,19 @@ const MentorDashboard = () => {
 
   const handleConfirm = (id: string) => {
     updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
+      onSuccess: () => {},
     });
   };
 
   const handleDecline = (id: string) => {
     updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking ပယ်ဖျက်ပြီး" : "Booking declined" }),
+      onSuccess: () => {},
     });
   };
 
   const handleSaveRate = async () => {
     if (!user) return;
     await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
-    toast({ title: lang === "my" ? "နှုန်းထား သိမ်းပြီး ✓" : "Settings saved ✓" });
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);

@@ -46,14 +46,14 @@ const AdminJobQueue = () => {
 
   const handleApprove = (id: string) => {
     updateJob.mutate({ id, status: "active" }, {
-      onSuccess: () => { setSelectedId(null); toast({ title: lang === "my" ? "အတည်ပြုပြီးပါပြီ ✓" : "Listing approved ✓" }); },
+      onSuccess: () => { setSelectedId(null); },
     });
   };
 
   const handleReject = () => {
     if (!selectedId) return;
     updateJob.mutate({ id: selectedId, status: "rejected" }, {
-      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); toast({ title: lang === "my" ? "ငြင်းပယ်ပြီးပါပြီ" : "Listing rejected" }); },
+      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); },
     });
   };
 

@@ -48,7 +48,6 @@ const Profile = () => {
   const copyReferral = () => {
     navigator.clipboard.writeText(`https://thwesone.com/signup?ref=${referralCode}`);
     setReferralCopied(true);
-    toast({ title: lang === "my" ? "ညွှန်းဆိုလင့်ခ် ကူးပြီးပါပြီ" : "Referral link copied!" });
     setTimeout(() => setReferralCopied(false), 2000);
   };
 
@@ -69,7 +68,6 @@ const Profile = () => {
     setRole(r);
     setShowRolePicker(false);
     const selected = roleOptions.find(o => o.value === r)!;
-    toast({ title: lang === "my" ? `${selected.label.my} အနေဖြင့် ပြောင်းပြီးပါပြီ` : `Switched to ${selected.label.en}` });
   };
 
   const currentRoleLabel = allRoleOptions.find(o => o.value === role)!;

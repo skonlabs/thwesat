@@ -49,7 +49,6 @@ const Applications = () => {
     if (!selectedApp) return;
     await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
     queryClient.invalidateQueries({ queryKey: ["applications"] });
-    toast({ title: lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn" });
     setSelectedApp(null);
   };
 

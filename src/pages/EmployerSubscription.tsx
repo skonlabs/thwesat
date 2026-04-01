@@ -64,10 +64,6 @@ const EmployerSubscription = () => {
   const [selected, setSelected] = useState("standard");
 
   const handleSubscribe = () => {
-    toast({
-      title: lang === "my" ? "စာရင်းသွင်းပြီးပါပြီ" : "Subscription activated",
-      description: lang === "my" ? "Stripe Checkout သို့ ပြောင်းပါမည်" : "Redirecting to Stripe Checkout...",
-    });
     navigate("/employer/dashboard");
   };
 

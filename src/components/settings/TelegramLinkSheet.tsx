@@ -26,7 +26,6 @@ const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: Telegr
     navigator.clipboard.writeText(botLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!" });
   };
 
   return (

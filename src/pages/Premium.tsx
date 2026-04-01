@@ -14,10 +14,6 @@ const Premium = () => {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   const handleSubscribe = () => {
-    toast({
-      title: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon",
-      description: lang === "my" ? "Stripe / PromptPay ငွေပေးချေမှု မကြာမီ ရရှိနိုင်ပါမည်" : "Stripe & PromptPay payment coming soon",
-    });
   };
 
   const plans = [

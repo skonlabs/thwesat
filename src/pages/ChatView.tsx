@@ -52,7 +52,6 @@ const ChatView = () => {
   };
 
   const handleCall = (type: "audio" | "video") => {
-    toast({ title: lang === "my" ? "မကြာမီ ရရှိနိုင်ပါမည်" : "Coming soon", description: lang === "my" ? `${type === "audio" ? "အသံ" : "ဗီဒီယို"} ခေါ်ဆိုမှု မကြာမီ ရရှိနိုင်ပါမည်` : `${type === "audio" ? "Voice" : "Video"} calling coming soon` });
   };
 
   const formatTime = (dateStr: string | null) => {

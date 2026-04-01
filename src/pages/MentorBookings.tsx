@@ -62,13 +62,13 @@ const MentorBookings = () => {
 
   const handleConfirm = (id: string) => {
     updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking အတည်ပြုပြီး ✓" : "Booking confirmed ✓" }),
+      onSuccess: () => {},
     });
   };
 
   const handleDecline = (id: string) => {
     updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => toast({ title: lang === "my" ? "Booking ပယ်ဖျက်ပြီး" : "Booking declined" }),
+      onSuccess: () => {},
     });
   };
 

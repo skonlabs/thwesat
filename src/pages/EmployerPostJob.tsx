@@ -76,10 +76,6 @@ const EmployerPostJob = () => {
         company: employerProfile?.company_name || "",
         status: "pending",
       });
-      toast({
-        title: lang === "my" ? "အလုပ်ခေါ်စာ တင်ပြီးပါပြီ" : "Job listing submitted",
-        description: lang === "my" ? "စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Your listing will appear after verification",
-      });
       navigate("/employer/dashboard");
     } catch {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", variant: "destructive" });

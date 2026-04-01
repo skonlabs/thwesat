@@ -91,7 +91,6 @@ const SkillGapAnalysis = () => {
 
   const handleAnalyze = () => {
     if (!selectedRole) {
-      toast({ title: lang === "my" ? "ရာထူး ရွေးချယ်ပါ" : "Select a role", description: lang === "my" ? "ပန်းတိုင် ရာထူးကို ရွေးချယ်ပါ" : "Please select a target role" });
       return;
     }
     setAnalyzing(true);
@@ -151,7 +150,7 @@ const SkillGapAnalysis = () => {
                   ))}
                 </div>
               </div>
-              <Button onClick={() => { if (!selectedRole) { toast({ title: lang === "my" ? "ရာထူး ရွေးချယ်ပါ" : "Select a role" }); return; } setStep(2); }} className="w-full">
+              <Button onClick={() => { if (!selectedRole) { return; } setStep(2); }} className="w-full">
                 {lang === "my" ? "ရှေ့ဆက်ရန်" : "Continue"} <ChevronRight className="h-4 w-4" />
               </Button>
             </motion.div>

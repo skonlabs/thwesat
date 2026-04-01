@@ -17,7 +17,6 @@ const SavedJobs = () => {
   const handleRemove = (jobId: string, title: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toggleSave.mutate({ jobId, isSaved: true });
-    toast({ title: lang === "my" ? "ဖယ်ရှားပြီးပါပြီ" : "Removed", description: title });
   };
 
   const jobs = (savedJobs || []).map(s => s.jobs).filter(Boolean);

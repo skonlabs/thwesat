@@ -65,7 +65,6 @@ const Signup = () => {
       }
     }
     setRole(selectedRole);
-    toast({ title: lang === "my" ? "အကောင့် ဖန်တီးပြီးပါပြီ ✓" : "Account created ✓" });
     navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/dashboard" : "/home");
   };
 

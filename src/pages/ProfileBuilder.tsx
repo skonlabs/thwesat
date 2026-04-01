@@ -140,10 +140,6 @@ const ProfileBuilder = () => {
           );
         }
         setCvParsed(true);
-        toast({
-          title: lang === "my" ? "CV မှ အချက်အလက်များ ဖတ်ပြီးပါပြီ ✓" : "CV parsed successfully ✓",
-          description: lang === "my" ? "အချက်အလက်များကို စစ်ဆေးပြင်ဆင်ပါ" : "Review and edit the extracted data",
-        });
       }
     } catch (err: any) {
       console.error("CV parse error:", err);
@@ -200,10 +196,6 @@ const ProfileBuilder = () => {
 
   const handleGenerate = async () => {
     if (!name && !title) {
-      toast({
-        title: lang === "my" ? "အချက်အလက် ဖြည့်ပါ" : "Fill in details",
-        description: lang === "my" ? "အနည်းဆုံး နာမည်နှင့် ရာထူးကို ဖြည့်ပါ" : "Please fill in at least your name and title",
-      });
       return;
     }
     setGenerating(true);
@@ -242,7 +234,6 @@ const ProfileBuilder = () => {
     const text = `${generatedProfile.headline}\n\n${generatedProfile.summary}\n\n${generatedProfile.sections.map(s => `${s.title}\n${s.content}`).join("\n\n")}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({ title: lang === "my" ? "ကူးယူပြီးပါပြီ" : "Copied!", description: lang === "my" ? "ပရိုဖိုင်ကို clipboard သို့ ကူးယူပြီးပါပြီ" : "Profile copied to clipboard" });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -296,7 +287,6 @@ const ProfileBuilder = () => {
     }
 
     doc.save(`${name || "profile"}-${platform}.pdf`);
-    toast({ title: lang === "my" ? "PDF ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "PDF downloaded" });
   };
 
   const handleDownloadDocx = async () => {
@@ -335,7 +325,6 @@ const ProfileBuilder = () => {
     a.download = `${name || "profile"}-${platform}.docx`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: lang === "my" ? "DOCX ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ" : "DOCX downloaded" });
   };
 
   const stepLabels = [
@@ -796,7 +785,6 @@ const ProfileBuilder = () => {
                     metadata: { platform, name, headline: generatedProfile.headline },
                   });
                   setSaved(true);
-                  toast({ title: lang === "my" ? "သိမ်းဆည်းပြီးပါပြီ" : "Saved for future use" });
                 }}
                 className="w-full"
                 disabled={saved}

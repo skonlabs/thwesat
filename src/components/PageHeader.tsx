@@ -40,10 +40,6 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
     holdTimer.current = setTimeout(() => {
       localStorage.clear();
       sessionStorage.clear();
-      toast({
-        title: lang === "my" ? "ထွက်ပြီးပါပြီ" : "Signed out",
-        description: lang === "my" ? "Local Data အားလုံး ရှင်းလင်းပြီးပါပြီ" : "All local data cleared",
-      });
       navigate("/");
     }, 3000);
   }, [navigate, toast, lang]);

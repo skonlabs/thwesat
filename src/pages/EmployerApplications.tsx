@@ -48,14 +48,12 @@ const EmployerApplications = () => {
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     await updateStatus.mutateAsync({ id, status: newStatus });
-    toast({ title: lang === "my" ? "အခြေအနေ ပြောင်းပြီးပါပြီ" : "Status updated" });
   };
 
   const handleReject = async () => {
     if (selectedId) {
       await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
       setShowReject(false); setSelectedId(null);
-      toast({ title: lang === "my" ? "ငြင်းပယ်ပြီးပါပြီ" : "Rejected" });
     }
   };
 
@@ -63,7 +61,6 @@ const EmployerApplications = () => {
     if (selectedId && placementSalary) {
       const fee = Math.round(parseInt(placementSalary) * 0.08);
       await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: parseInt(placementSalary), placementFee: fee });
-      toast({ title: lang === "my" ? "ခန့်အပ်မှု အတည်ပြုပြီး" : "Placement confirmed", description: `Fee: $${fee}` });
       setShowPlacement(false); setSelectedId(null);
     }
   };
