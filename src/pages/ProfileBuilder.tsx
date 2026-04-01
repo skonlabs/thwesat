@@ -47,6 +47,7 @@ const ProfileBuilder = () => {
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([{ company: "", role: "", duration: "", description: "" }]);
   const [otherInfo, setOtherInfo] = useState("");
   const [educations, setEducations] = useState<EducationEntry[]>([{ degree: "", institution: "", year: "" }]);
@@ -105,6 +106,7 @@ const ProfileBuilder = () => {
           setExperiences([{ company: "", role: "", duration: "", description: parsed.experience }]);
         }
         if (parsed.other) setOtherInfo(parsed.other);
+        if (parsed.summary) setSummary(parsed.summary);
         if (parsed.skills?.length) setSkills(parsed.skills);
         if (parsed.education?.length) {
           setEducations(
@@ -181,7 +183,7 @@ const ProfileBuilder = () => {
 
   const generatedProfile = {
     headline: title || "Full Stack Developer",
-    summary: `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
+    summary: summary || `Results-driven ${title || "professional"} with a proven track record of delivering high-quality solutions. ${experienceText ? `Experienced as ${experienceText.substring(0, 100)}...` : "Passionate about building scalable applications and collaborating with global teams."} Skilled in ${skillsText || "modern technologies"} with a strong foundation in ${educationText || "relevant education"}. Committed to continuous learning and delivering exceptional value to clients worldwide.`,
     skills,
     sections: [
       { title: "Professional Summary", content: `Dedicated ${title || "developer"} seeking remote opportunities to leverage expertise in ${skillsText || "modern web technologies"}. Known for clear communication, meeting deadlines, and producing clean, maintainable work.` },
@@ -284,6 +286,16 @@ const ProfileBuilder = () => {
                   <div>
                     <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရာထူး / အထူးပြု" : "Job Title / Specialty"}</label>
                     <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - Web Developer" : "e.g. Web Developer"} className="h-10 rounded-lg" />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်းချုပ်" : "Professional Summary"}</label>
+                    <textarea
+                      value={summary}
+                      onChange={e => setSummary(e.target.value)}
+                      rows={3}
+                      placeholder={lang === "my" ? "သင့်အကြောင်း အကျဉ်းချုပ် ရေးပါ..." : "Brief professional summary or objective..."}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                    />
                   </div>
                 </div>
               </div>
@@ -591,7 +603,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
