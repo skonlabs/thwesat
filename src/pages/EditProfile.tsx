@@ -98,13 +98,34 @@ const WORK_TYPES = [
 ];
 
 const SUGGESTED_SKILLS = [
-  "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java", "PHP", "HTML/CSS",
-  "Figma", "UI/UX Design", "Graphic Design", "Adobe Photoshop", "Adobe Illustrator",
-  "SEO", "Digital Marketing", "Social Media", "Content Writing", "Copywriting",
-  "Data Entry", "Virtual Assistant", "Customer Service", "Project Management",
-  "Excel", "Google Sheets", "SQL", "Data Analysis", "Accounting", "Bookkeeping",
-  "Video Editing", "Photography", "Translation", "Teaching / Tutoring",
-  "WordPress", "Shopify", "Flutter", "React Native", "AWS", "Docker",
+  // Tech & IT
+  "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java", "PHP", "HTML/CSS", "SQL", "AWS", "Docker", "Flutter", "React Native", "WordPress", "Shopify", "Git", "Linux", "Cybersecurity", "Cloud Computing", "DevOps", "Machine Learning", "AI / ChatGPT",
+  // Design & Creative
+  "Figma", "UI/UX Design", "Graphic Design", "Adobe Photoshop", "Adobe Illustrator", "Adobe Premiere Pro", "After Effects", "Canva", "Video Editing", "Photography", "Animation", "3D Modeling", "Interior Design", "Fashion Design",
+  // Marketing & Communications
+  "SEO", "Digital Marketing", "Social Media Marketing", "Content Writing", "Copywriting", "Email Marketing", "Google Ads", "Facebook Ads", "Public Relations", "Brand Strategy", "Influencer Marketing",
+  // Business & Admin
+  "Data Entry", "Virtual Assistant", "Customer Service", "Project Management", "Business Development", "Sales", "Negotiation", "Human Resources", "Recruiting", "Office Administration", "Executive Assistant", "Procurement",
+  // Finance & Accounting
+  "Excel", "Google Sheets", "Data Analysis", "Accounting", "Bookkeeping", "Financial Analysis", "Budgeting", "Tax Preparation", "Payroll", "QuickBooks", "SAP",
+  // Language & Education
+  "Translation", "Interpretation", "Teaching / Tutoring", "IELTS / TOEFL Prep", "Curriculum Development", "E-Learning", "English Language", "Japanese Language", "Korean Language", "Chinese Language",
+  // Hospitality & Service
+  "Hotel Management", "Restaurant Management", "Food & Beverage", "Barista", "Cooking / Chef", "Event Planning", "Tourism & Travel", "Front Desk", "Housekeeping",
+  // Construction & Engineering
+  "Civil Engineering", "Electrical Engineering", "Mechanical Engineering", "Architecture", "AutoCAD", "Surveying", "Welding", "Plumbing", "Carpentry", "Construction Management",
+  // Healthcare & Wellness
+  "Nursing", "Caregiving", "First Aid / CPR", "Pharmacy", "Medical Coding", "Lab Technician", "Nutrition", "Fitness Training", "Massage Therapy",
+  // Manufacturing & Trades
+  "Sewing / Garment", "Quality Control", "Machine Operation", "Warehouse Management", "Forklift Operation", "Logistics", "Supply Chain", "Inventory Management",
+  // Agriculture & Environment
+  "Farming", "Aquaculture", "Forestry", "Environmental Science", "Sustainability",
+  // Legal & Compliance
+  "Legal Research", "Contract Management", "Compliance", "Immigration Law",
+  // Driving & Transport
+  "Driving (Car)", "Driving (Truck/Heavy)", "Delivery", "Shipping & Freight",
+  // Soft Skills
+  "Leadership", "Communication", "Teamwork", "Problem Solving", "Time Management", "Critical Thinking", "Adaptability", "Conflict Resolution",
 ];
 
 const ALL_LANGUAGES = [
