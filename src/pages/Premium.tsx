@@ -10,7 +10,7 @@ import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const formatPrice = (price: number, currency: string, lang: string) => {
-  if (price === 0) return lang === "my" ? "၀ ကျပ်" : "$0";
+  if (price === 0) return lang === "my" ? "အခမဲ့" : "$0";
   if (currency === "MMK") {
     const rounded = Math.round(price / 100) * 100;
     return `${rounded.toLocaleString()} ကျပ်`;
@@ -22,24 +22,24 @@ const formatTotal = (price: number, currency: string, lang: string) => {
   if (currency === "MMK") {
     return `စုစုပေါင်း ${price.toLocaleString()} ကျပ်`;
   }
-  return `$${price} total`;
+  return lang === "my" ? `စုစုပေါင်း $${price}` : `$${price} total`;
 };
 
 const freeFeatures = [
   { my: "အလုပ် ကြည့်ရှုရန်နှင့် လျှောက်ထားရန်", en: "Browse & apply for jobs" },
   { my: "အခြေခံ ပရိုဖိုင်", en: "Basic profile" },
   { my: "ဥပဒေ လမ်းညွှန်ချက်များ ဖတ်ရှုရန်", en: "Read legal guides" },
-  { my: "Community ပါဝင်ရန်", en: "Join community" },
-  { my: "Profile Builder (၁ ကြိမ်)", en: "Profile Builder (1 use)" },
+  { my: "အသိုင်းအဝိုင်း ပါဝင်ရန်", en: "Join community" },
+  { my: "ပရိုဖိုင် တည်ဆောက်ရေး (၁ ကြိမ်)", en: "Profile Builder (1 use)" },
 ];
 
 const premiumFeatures = [
-  { my: "Profile Builder (အကန့်အသတ်မဲ့)", en: "Unlimited Profile Builder" },
-  { my: "Cover Letter ဖန်တီးရေး", en: "Cover Letter Generator" },
+  { my: "ပရိုဖိုင် တည်ဆောက်ရေး (အကန့်အသတ်မဲ့)", en: "Unlimited Profile Builder" },
+  { my: "အလုပ်လျှောက်လွှာ ဖန်တီးရေး", en: "Cover Letter Generator" },
   { my: "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ", en: "Skill Gap Analysis" },
-  { my: "Mentor ၁:၁ ချိတ်ဆက် (အကန့်အသတ်မဲ့)", en: "Unlimited 1:1 mentor connections" },
-  { my: "ကုဒ်ဝှက် Chat", en: "E2E Encrypted Chat" },
-  { my: "အလုပ်သတိပေး (Telegram + Email)", en: "Job alerts via Telegram & Email" },
+  { my: "လမ်းညွှန် ၁:၁ ချိတ်ဆက် (အကန့်အသတ်မဲ့)", en: "Unlimited 1:1 mentor connections" },
+  { my: "အဆုံးမှအဆုံး ကုဒ်ဝှက် စကားပြောခန်း", en: "E2E Encrypted Chat" },
+  { my: "အလုပ်သတိပေး (တယ်လီဂရမ် + အီးမေးလ်)", en: "Job alerts via Telegram & Email" },
   { my: "စာရွက်စာတမ်း သိုလှောင်ခန်း", en: "Document Vault" },
 ];
 
@@ -186,11 +186,11 @@ const Premium = () => {
               <Crown className="relative h-8 w-8 text-primary-foreground" strokeWidth={1.5} />
             </motion.div>
             <h2 className="mb-1 text-lg font-bold text-foreground">
-              {lang === "my" ? "Premium သို့ အဆင့်မြှင့်ပါ" : "Upgrade to Premium"}
+              {lang === "my" ? "ပရီမီယံ သို့ အဆင့်မြှင့်ပါ" : "Upgrade to Premium"}
             </h2>
             <p className="text-xs text-muted-foreground">
               {lang === "my"
-                ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုရန်"
+                ? "အင်္ဂါရပ်များ အားလုံးကို အသုံးပြုပြီး သင့်အသက်မွေးဝမ်းကြောင်းကို အရှိန်မြှင့်ပါ"
                 : "Unlock all features & accelerate your career"}
             </p>
           </div>
@@ -198,9 +198,9 @@ const Premium = () => {
           {/* Highlights strip */}
           <div className="mb-5 flex items-center justify-center gap-4">
             {[
-              { icon: Zap, label: lang === "my" ? "AI Tools" : "AI Tools" },
+              { icon: Zap, label: lang === "my" ? "AI ကိရိယာ" : "AI Tools" },
               { icon: Shield, label: lang === "my" ? "ကုဒ်ဝှက်" : "Encrypted" },
-              { icon: Sparkles, label: lang === "my" ? "Mentor" : "Mentors" },
+              { icon: Sparkles, label: lang === "my" ? "လမ်းညွှန်" : "Mentors" },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -254,10 +254,10 @@ const Premium = () => {
             >
               {selected === "free"
                 ? lang === "my"
-                  ? "လက်ရှိ Plan"
+                  ? "လက်ရှိ အစီအစဉ်"
                   : "Current Plan"
                 : lang === "my"
-                  ? `${selectedPlan?.name_my} Plan ဖြင့် စတင်ရန်`
+                  ? `${selectedPlan?.name_my} အစီအစဉ်ဖြင့် စတင်ရန်`
                   : `Start ${selectedPlan?.name_en} Plan`}
             </Button>
 
@@ -337,7 +337,7 @@ const Premium = () => {
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {lang === "my"
-                    ? "Premium ၁ လ အခမဲ့ ရယူပါ"
+                    ? "ပရီမီယံ ၁ လ အခမဲ့ ရယူပါ"
                     : "Get 1 free month of Premium"}
                 </p>
               </div>
@@ -346,7 +346,7 @@ const Premium = () => {
 
           <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
             {lang === "my"
-              ? "PromptPay QR, Stripe ဖြင့် ငွေပေးချေနိုင်ပါသည်"
+              ? "PromptPay QR, Stripe ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
               : "Accepts PromptPay QR & Stripe · Cancel anytime"}
           </p>
         </motion.div>
