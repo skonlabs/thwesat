@@ -315,32 +315,44 @@ const ProfileBuilder = () => {
                           <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                         </button>
                       )}
-                      <div className="space-y-2">
-                        <Input
-                          value={ex.role}
-                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, role: e.target.value } : x))}
-                          placeholder={lang === "my" ? "ရာထူး (ဥပမာ - Web Developer)" : "Role (e.g. Web Developer)"}
-                          className="h-9 rounded-lg text-sm"
-                        />
-                        <Input
-                          value={ex.company}
-                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, company: e.target.value } : x))}
-                          placeholder={lang === "my" ? "ကုမ္ပဏီ/အဖွဲ့အစည်း" : "Company / Organization"}
-                          className="h-9 rounded-lg text-sm"
-                        />
-                        <Input
-                          value={ex.duration}
-                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, duration: e.target.value } : x))}
-                          placeholder={lang === "my" ? "ကာလ (ဥပမာ - Jan 2020 - Dec 2022)" : "Duration (e.g. Jan 2020 - Dec 2022)"}
-                          className="h-9 rounded-lg text-sm"
-                        />
-                        <textarea
-                          value={ex.description}
-                          onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, description: e.target.value } : x))}
-                          rows={2}
-                          placeholder={lang === "my" ? "တာဝန်များနှင့် အောင်မြင်ချက်များ..." : "Responsibilities & achievements..."}
-                          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
-                        />
+                      <div className="space-y-3">
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရာထူး" : "Role"}</label>
+                          <Input
+                            value={ex.role}
+                            onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, role: e.target.value } : x))}
+                            placeholder={lang === "my" ? "ဥပမာ - Web Developer" : "e.g. Web Developer"}
+                            className="h-9 rounded-lg text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ / အဖွဲ့အစည်း" : "Company / Organization"}</label>
+                          <Input
+                            value={ex.company}
+                            onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, company: e.target.value } : x))}
+                            placeholder={lang === "my" ? "ဥပမာ - ABC Company" : "e.g. ABC Company"}
+                            className="h-9 rounded-lg text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကာလ" : "Duration"}</label>
+                          <Input
+                            value={ex.duration}
+                            onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, duration: e.target.value } : x))}
+                            placeholder={lang === "my" ? "ဥပမာ - Jan 2020 - Dec 2022" : "e.g. Jan 2020 - Dec 2022"}
+                            className="h-9 rounded-lg text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်ဖော်ပြချက် / တာဝန်များ" : "Description / Responsibilities"}</label>
+                          <textarea
+                            value={ex.description}
+                            onChange={e => setExperiences(experiences.map((x, idx) => idx === i ? { ...x, description: e.target.value } : x))}
+                            rows={3}
+                            placeholder={lang === "my" ? "တာဝန်များနှင့် အောင်မြင်ချက်များ..." : "Responsibilities & achievements..."}
+                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
