@@ -47,6 +47,16 @@ const ProfileBuilder = () => {
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
 
+  const { data: savedResumes = [] } = useQuery({
+    queryKey: ["saved-resumes", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      const { data } = await supabase.from("generated_documents").select("*").eq("user_id", session.user.id).eq("doc_type", "resume").order("created_at", { ascending: false }).limit(10);
+      return data || [];
+    },
+    enabled: !!session?.user?.id,
+  });
+
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
