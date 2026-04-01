@@ -94,12 +94,12 @@ const EmployerApplications = () => {
                 className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {(app.applicant_id || "?").substring(0, 2).toUpperCase()}
+                    {(app.applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-sm font-semibold text-foreground">{app.applicant_id?.substring(0, 8)}</h3>
+                        <h3 className="text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
                         <p className="text-[11px] text-muted-foreground">{app.jobs?.title || "Job"}</p>
                       </div>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>

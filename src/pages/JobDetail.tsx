@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
-import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob } from "@/hooks/use-jobs";
+import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +19,11 @@ const JobDetail = () => {
   const toggleSaveMutation = useToggleSaveJob();
   const applyMutation = useApplyToJob();
 
+  const { data: applications = [] } = useApplications();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
-  const [applied, setApplied] = useState(false);
+
+  const applied = id ? applications.some((a: any) => a.job_id === id) : false;
 
   const saved = id ? savedJobIds.includes(id) : false;
 
@@ -29,7 +31,6 @@ const JobDetail = () => {
     if (!id) return;
     applyMutation.mutate({ jobId: id, coverLetter }, {
       onSuccess: () => {
-        setApplied(true);
         setShowApplyModal(false);
         toast({
           title: lang === "my" ? "လျှောက်လွှာ တင်ပြီးပါပြီ ✓" : "Application submitted ✓",

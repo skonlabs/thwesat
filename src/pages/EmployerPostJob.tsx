@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateJob } from "@/hooks/use-employer-data";
+import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 
 const roleTypes = [
@@ -30,6 +30,7 @@ const EmployerPostJob = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const createJob = useCreateJob();
+  const { data: employerProfile } = useEmployerProfile();
   const [step, setStep] = useState(1);
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
@@ -72,7 +73,7 @@ const EmployerPostJob = () => {
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
-        company: "", // Will be filled from employer profile
+        company: employerProfile?.company_name || "",
         status: "pending",
       });
       toast({
