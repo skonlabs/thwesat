@@ -19,9 +19,9 @@ const categories = [
 
 const jobTypes = [
   { value: "all", labelEn: "All Types", labelMy: "အားလုံး" },
-  { value: "remote_full", labelEn: "Remote Full-time", labelMy: "Remote အပြည့်" },
-  { value: "remote_contract", labelEn: "Remote Contract", labelMy: "Remote ကန်ထရိုက်" },
-  { value: "hybrid", labelEn: "Hybrid", labelMy: "Hybrid" },
+  { value: "remote_full", labelEn: "Remote Full-time", labelMy: "အဝေးထိန်း အပြည့်အဝ" },
+  { value: "remote_contract", labelEn: "Remote Contract", labelMy: "အဝေးထိန်း ကန်ထရိုက်" },
+  { value: "hybrid", labelEn: "Hybrid", labelMy: "ရောစပ်" },
 ];
 
 const locationOptions = [
