@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Globe } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
