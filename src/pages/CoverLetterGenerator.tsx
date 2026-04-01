@@ -256,7 +256,10 @@ const CoverLetterGenerator = () => {
                       {userCvs.slice(0, 1).map((cv: any) => (
                         <button
                           key={cv.id}
-                          onClick={() => parseCv(cv.file_url)}
+                          onClick={() => {
+                            const storagePath = cv.file_url.split('/cv-documents/').pop() || cv.file_url;
+                            parseCv(storagePath);
+                          }}
                           className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors active:bg-muted"
                         >
                           <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
