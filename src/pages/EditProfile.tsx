@@ -216,8 +216,13 @@ const EditProfile = () => {
   };
   const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
   const addLanguage = (l: string) => {
-    if (!languages.includes(l)) {
+    if (!languages.includes(l) && languages.length < 5) {
       setLanguages([...languages, l]);
+      setLanguageSearch("");
+      setShowLanguageDropdown(false);
+    }
+    if (languages.length >= 5) {
+      // Already at limit - just close
       setLanguageSearch("");
       setShowLanguageDropdown(false);
     }
