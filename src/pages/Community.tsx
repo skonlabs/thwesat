@@ -52,6 +52,20 @@ function usePostSaves(postIds: string[]) {
   });
 }
 
+function usePostCommentCounts(postIds: string[]) {
+  return useQuery({
+    queryKey: ["post-comment-counts", postIds],
+    queryFn: async () => {
+      if (!postIds.length) return {};
+      const { data } = await supabase.from("post_comments").select("post_id").in("post_id", postIds);
+      const counts: Record<string, number> = {};
+      (data || []).forEach(c => { counts[c.post_id] = (counts[c.post_id] || 0) + 1; });
+      return counts;
+    },
+    enabled: postIds.length > 0,
+  });
+}
+
 function usePostComments(postId: string | null) {
   return useQuery({
     queryKey: ["post-comments", postId],
@@ -102,6 +116,7 @@ const Community = () => {
   const postIds = posts.map(p => p.id);
   const { data: likesData } = usePostLikes(postIds);
   const { data: savesData } = usePostSaves(postIds);
+  const { data: commentCounts } = usePostCommentCounts(postIds);
   const { data: commentsData } = usePostComments(openCommentId);
   const topLevelComments = (commentsData && !Array.isArray(commentsData)) ? commentsData.topLevel : [];
   const repliesMap = (commentsData && !Array.isArray(commentsData)) ? commentsData.repliesMap : new Map();
@@ -148,6 +163,7 @@ const Community = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments"] });
+      queryClient.invalidateQueries({ queryKey: ["post-comment-counts"] });
       setCommentText("");
       setReplyToId(null);
       setReplyToName(null);
@@ -373,7 +389,7 @@ const Community = () => {
                   <div className="h-5 w-px bg-border" />
                   <button onClick={() => setOpenCommentId(openCommentId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${openCommentId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
                     <MessageCircle className={`h-4 w-4 ${openCommentId === post.id ? "text-primary" : ""}`} strokeWidth={1.5} />
-                    {lang === "my" ? "မှတ်ချက်" : "Comment"}
+                    {(commentCounts?.[post.id] || 0) > 0 ? commentCounts![post.id] : ""} {lang === "my" ? "မှတ်ချက်" : "Comment"}
                   </button>
                   <div className="h-5 w-px bg-border" />
                   <button onClick={() => setSharePostId(sharePostId === post.id ? null : post.id)} className={`flex flex-1 items-center justify-center gap-1.5 py-3 text-xs transition-colors active:bg-muted ${sharePostId === post.id ? "font-semibold text-primary" : "text-muted-foreground"}`}>
