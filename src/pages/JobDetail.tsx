@@ -296,43 +296,70 @@ const JobDetail = () => {
                   <label className="text-sm font-semibold text-foreground">{lang === "my" ? "CV/Resume ရွေးချယ်ပါ" : "Select Resume"}</label>
                 </div>
 
-                {cvDocuments.length > 0 ? (
-                  <div className="space-y-2">
+                {(cvDocuments.length > 0 || generatedResumes.length > 0) ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {/* Uploaded CVs */}
                     {cvDocuments.map((doc: any) => {
-                      const isSelected = selectedCvId === doc.id;
+                      const isSelected = selectedCvId === doc.id && !selectedGeneratedResumeId;
                       return (
                         <div
                           key={doc.id}
                           className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
                             isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
                           }`}
-                          onClick={() => setSelectedCvId(isSelected ? null : doc.id)}
+                          onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-muted"}`}>
-                              <FileText className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                              <Upload className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0">
                               <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
                               <p className="text-[10px] text-muted-foreground">
-                                {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                                {lang === "my" ? "တင်ထားသော CV" : "Uploaded CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {doc.file_url && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(doc.file_url, "_blank");
-                                }}
-                                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted"
-                                title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}
-                              >
+                              <button onClick={(e) => { e.stopPropagation(); window.open(doc.file_url, "_blank"); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
                             )}
                             {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Generated Resumes */}
+                    {generatedResumes.map((doc: any) => {
+                      const isSelected = selectedGeneratedResumeId === doc.id;
+                      const meta = doc.metadata as any;
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          }`}
+                          onClick={() => { setSelectedGeneratedResumeId(isSelected ? null : doc.id); setSelectedCvId(null); }}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
+                              <Sparkles className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {lang === "my" ? "ဖန်တီးထားသော ပရိုဖိုင်" : "Generated Profile"}{meta?.platform ? ` · ${meta.platform}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
+                              <Eye className="h-4 w-4" strokeWidth={1.5} />
+                            </button>
+                            {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
                           </div>
                         </div>
                       );
