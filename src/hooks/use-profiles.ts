@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 export interface ProfileData {
   id: string;
   display_name: string;
-  email: string | null;
+  email?: string | null;
   avatar_url: string | null;
   headline: string | null;
   bio: string | null;
   location: string | null;
-  phone: string | null;
+  phone?: string | null;
   website: string | null;
   primary_role: string;
   skills: string[] | null;
