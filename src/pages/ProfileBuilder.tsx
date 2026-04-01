@@ -368,7 +368,7 @@ const ProfileBuilder = () => {
                   <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} />
                   <div>
                     <p className="text-sm font-medium text-primary">
-                      {lang === "my" ? "CV ဖတ်နေသည်..." : "Parsing your CV with AI..."}
+                      {lang === "my" ? "CV ဖတ်နေသည်..." : "Parsing your CV..."}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
                       {lang === "my" ? "အချက်အလက်များကို ထုတ်ယူနေပါသည်" : "Extracting name, education, skills & experience"}
