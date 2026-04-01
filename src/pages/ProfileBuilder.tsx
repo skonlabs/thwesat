@@ -91,7 +91,20 @@ const ProfileBuilder = () => {
       if (parsed) {
         if (parsed.name) setName(parsed.name);
         if (parsed.title) setTitle(parsed.title);
-        if (parsed.experience) setExperience(parsed.experience);
+        if (parsed.experiences?.length) {
+          setExperiences(
+            parsed.experiences.map((ex: any) => ({
+              company: ex.company || "",
+              role: ex.role || "",
+              duration: ex.duration || "",
+              description: ex.description || "",
+            }))
+          );
+        } else if (parsed.experience) {
+          // Fallback for old format
+          setExperiences([{ company: "", role: "", duration: "", description: parsed.experience }]);
+        }
+        if (parsed.other) setOtherInfo(parsed.other);
         if (parsed.skills?.length) setSkills(parsed.skills);
         if (parsed.education?.length) {
           setEducations(
