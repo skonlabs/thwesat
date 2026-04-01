@@ -603,7 +603,7 @@ const ProfileBuilder = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setName(""); setTitle(""); setSummary(""); setExperiences([{ company: "", role: "", duration: "", description: "" }]); setOtherInfo(""); setEducations([{ degree: "", institution: "", year: "" }]); setSkills([]); setPlatform("Upwork"); }} className="flex-1">
                   <FileText className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
