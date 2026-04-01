@@ -29,6 +29,7 @@ const Applications = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
