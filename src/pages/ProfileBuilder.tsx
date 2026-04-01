@@ -329,7 +329,7 @@ const ProfileBuilder = () => {
 
   const stepLabels = [
     lang === "my" ? "အချက်အလက်" : "Details",
-    lang === "my" ? "Platform" : "Platform",
+    lang === "my" ? "ပလက်ဖောင်း" : "Platform",
     lang === "my" ? "ရလဒ်" : "Result",
   ];
 
