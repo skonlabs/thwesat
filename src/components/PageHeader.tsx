@@ -101,7 +101,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
         </div>
       </header>
       <div className="flex items-center px-5 pb-1 pt-3">
-        {backPath && (
+        {(backPath || onBack) && (
           <button onClick={() => onBack ? onBack() : navigate(backPath!)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
             <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
