@@ -12,7 +12,7 @@ import { useSavedJobs } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
 
 const toneOptions = [
-  { value: "professional", labelMy: "Professional", labelEn: "Professional" },
+  { value: "professional", labelMy: "ပရော်ဖက်ရှင်နယ်", labelEn: "Professional" },
   { value: "friendly", labelMy: "ဖော်ရွေသော", labelEn: "Friendly" },
   { value: "confident", labelMy: "ယုံကြည်မှုရှိသော", labelEn: "Confident" },
   { value: "enthusiastic", labelMy: "စိတ်အားထက်သန်သော", labelEn: "Enthusiastic" },
