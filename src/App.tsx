@@ -39,6 +39,7 @@ import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
 import SearchTalent from "./pages/SearchTalent";
+import BecomeMentor from "./pages/BecomeMentor";
 import MentorDashboard from "./pages/MentorDashboard";
 import MentorMentees from "./pages/MentorMentees";
 import MentorBookings from "./pages/MentorBookings";
@@ -96,6 +97,7 @@ const App = () => (
               <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
               <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
               <Route path="/premium" element={<Premium />} />
+              <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 
               {/* Employer Portal */}

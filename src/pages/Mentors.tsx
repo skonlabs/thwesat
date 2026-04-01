@@ -120,7 +120,7 @@ const Mentors = () => {
               size="sm"
               variant="outline"
               className="h-8 rounded-lg border-accent text-xs font-semibold text-accent-foreground"
-              onClick={() => navigate("/mentors/dashboard")}
+              onClick={() => navigate("/become-mentor")}
             >
               {lang === "my" ? "စတင်ရန်" : "Get Started"}
             </Button>
