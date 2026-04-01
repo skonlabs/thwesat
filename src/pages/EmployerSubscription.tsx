@@ -9,7 +9,7 @@ import PageHeader from "@/components/PageHeader";
 const tiers = [
   {
     id: "basic",
-    name: "Basic",
+    name: { my: "အခြေခံ", en: "Basic" },
     price: 50,
     icon: Briefcase,
     features: [
@@ -19,36 +19,36 @@ const tiers = [
     ],
     notIncluded: [
       { my: "တိုက်ရိုက် မက်ဆေ့ချ်", en: "Direct messages" },
-      { my: "Featured ဖော်ပြမှု", en: "Featured listings" },
+      { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
       { my: "ကိုယ်စားလှယ် ရှာဖွေ", en: "Database search" },
     ],
   },
   {
     id: "standard",
-    name: "Standard",
+    name: { my: "စံနှုန်း", en: "Standard" },
     price: 120,
     icon: Building2,
     popular: true,
     features: [
       { my: "အလုပ်ခေါ်စာ ၃ ခု", en: "3 active listings" },
-      { my: "တိုက်ရိုက် မက်ဆေ့ချ် 20/လ", en: "20 direct messages/mo" },
+      { my: "တိုက်ရိုက် မက်ဆေ့ချ် ၂၀/လ", en: "20 direct messages/mo" },
       { my: "လျှောက်ထားသူ ကြည့်ရှုခွင့်", en: "View applicant profiles" },
       { my: "ခွဲခြမ်းစိတ်ဖြာ အပြည့်", en: "Full analytics" },
     ],
     notIncluded: [
-      { my: "Featured ဖော်ပြမှု", en: "Featured listings" },
+      { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
       { my: "ကိုယ်စားလှယ် ရှာဖွေ", en: "Database search" },
     ],
   },
   {
     id: "premium",
-    name: "Premium",
+    name: { my: "ပရီမီယံ", en: "Premium" },
     price: 300,
     icon: Crown,
     features: [
       { my: "အကန့်အသတ်မရှိ အလုပ်ခေါ်စာ", en: "Unlimited listings" },
       { my: "အကန့်အသတ်မရှိ မက်ဆေ့ချ်", en: "Unlimited messages" },
-      { my: "Featured ဖော်ပြမှု", en: "Featured listings" },
+      { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
       { my: "ကိုယ်စားလှယ် ဒေတာဘေ့စ် ရှာဖွေ", en: "Full database search" },
       { my: "ဦးစားပေး ပံ့ပိုးကူညီမှု", en: "Priority support" },
     ],
@@ -65,12 +65,14 @@ const EmployerSubscription = () => {
     navigate("/employer/dashboard");
   };
 
+  const t = (texts: { my: string; en: string }) => texts[lang];
+
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် Plan" : "Employer Plans"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် အစီအစဉ်" : "Employer Plans"} />
       <div className="px-5">
         <p className="mb-5 text-center text-sm text-muted-foreground">
-          {lang === "my" ? "သင့်လုပ်ငန်းအတွက် အသင့်တော်ဆုံး Plan ကို ရွေးပါ" : "Choose the right plan for your hiring needs"}
+          {lang === "my" ? "သင့်လုပ်ငန်းအတွက် အသင့်တော်ဆုံး အစီအစဉ်ကို ရွေးပါ" : "Choose the right plan for your hiring needs"}
         </p>
 
         <div className="space-y-4">
@@ -91,7 +93,7 @@ const EmployerSubscription = () => {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <tier.icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                  <h3 className="text-base font-bold text-foreground">{tier.name}</h3>
+                  <h3 className="text-base font-bold text-foreground">{t(tier.name)}</h3>
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-foreground">${tier.price}</span>
@@ -102,13 +104,13 @@ const EmployerSubscription = () => {
                 {tier.features.map((f, fi) => (
                   <div key={fi} className="flex items-center gap-2">
                     <Check className="h-3.5 w-3.5 text-emerald" strokeWidth={2} />
-                    <span className="text-xs text-foreground">{lang === "my" ? f.my : f.en}</span>
+                    <span className="text-xs text-foreground">{t(f)}</span>
                   </div>
                 ))}
                 {tier.notIncluded.map((f, fi) => (
                   <div key={fi} className="flex items-center gap-2 opacity-40">
                     <span className="h-3.5 w-3.5 text-center text-xs text-muted-foreground">—</span>
-                    <span className="text-xs text-muted-foreground">{lang === "my" ? f.my : f.en}</span>
+                    <span className="text-xs text-muted-foreground">{t(f)}</span>
                   </div>
                 ))}
               </div>
@@ -123,7 +125,9 @@ const EmployerSubscription = () => {
         </div>
 
         <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={handleSubscribe}>
-          {lang === "my" ? `${tiers.find(t => t.id === selected)?.name} Plan ဖြင့် စတင်ရန်` : `Start ${tiers.find(t => t.id === selected)?.name} Plan`}
+          {lang === "my"
+            ? `${t(tiers.find(t2 => t2.id === selected)?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
+            : `Start ${tiers.find(t2 => t2.id === selected)?.name.en} Plan`}
         </Button>
       </div>
     </div>
