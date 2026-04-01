@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Clock, DollarSign, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
