@@ -31,7 +31,7 @@ const BottomNav = () => {
     { icon: Users, labelMy: "Mentee", labelEn: "Mentees", path: "/mentors/mentees" },
     { icon: Calendar, labelMy: "Booking", labelEn: "Bookings", path: "/mentors/bookings" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
-    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Profile", path: "/profile" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
   const navItems = role === "employer" ? employerNav : role === "mentor" ? mentorNav : jobseekerNav;
