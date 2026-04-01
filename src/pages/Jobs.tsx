@@ -26,7 +26,7 @@ const jobTypes = [
 
 const locationOptions = [
   { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
-  { value: "Remote", labelEn: "Remote", labelMy: "Remote" },
+  { value: "Remote", labelEn: "Remote", labelMy: "အဝေးထိန်း" },
   { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
