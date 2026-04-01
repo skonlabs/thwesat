@@ -116,7 +116,7 @@ const SkillGapAnalysis = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis"} backPath="/ai-tools" />
+      <PageHeader title={lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
         {/* Progress */}
         <div className="mb-5 flex items-center gap-2">

@@ -9,9 +9,10 @@ import logo from "@/assets/logo.svg";
 interface PageHeaderProps {
   title: string;
   backPath?: string;
+  onBack?: () => void;
 }
 
-const PageHeader = ({ title, backPath }: PageHeaderProps) => {
+const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { lang } = useLanguage();
@@ -100,8 +101,8 @@ const PageHeader = ({ title, backPath }: PageHeaderProps) => {
         </div>
       </header>
       <div className="flex items-center px-5 pb-1 pt-3">
-        {backPath && (
-          <button onClick={() => navigate(backPath)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
+        {(backPath || onBack) && (
+          <button onClick={() => onBack ? onBack() : navigate(backPath!)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
             <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
         )}
