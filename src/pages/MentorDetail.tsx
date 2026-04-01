@@ -131,7 +131,7 @@ const MentorDetail = () => {
 
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg gap-3">
-          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/messages")}>
+          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => id && startConversation(id)}>
             <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
           </Button>
           <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>

@@ -107,13 +107,13 @@ const App = () => (
               <Route path="/employer/search" element={<SearchTalent />} />
 
               {/* Admin */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/jobs" element={<AdminJobQueue />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />
+              <Route path="/admin/jobs" element={<RoleGuard allowedRoles={["admin"]}><AdminJobQueue /></RoleGuard>} />
+              <Route path="/admin/users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
+              <Route path="/admin/analytics" element={<RoleGuard allowedRoles={["admin"]}><AdminAnalytics /></RoleGuard>} />
 
               {/* Moderator */}
-              <Route path="/moderator" element={<ModeratorDashboard />} />
+              <Route path="/moderator" element={<RoleGuard allowedRoles={["admin", "moderator"]}><ModeratorDashboard /></RoleGuard>} />
             </Route>
 
             {/* Delegate Access (no nav) */}
