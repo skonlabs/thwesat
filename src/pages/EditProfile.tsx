@@ -213,6 +213,9 @@ const EditProfile = () => {
   const [hasLaptop, setHasLaptop] = useState(false);
   const [internetStable, setInternetStable] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
