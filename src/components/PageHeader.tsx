@@ -12,7 +12,7 @@ interface PageHeaderProps {
   onBack?: () => void;
 }
 
-const PageHeader = ({ title, backPath }: PageHeaderProps) => {
+const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { lang } = useLanguage();
