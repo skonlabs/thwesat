@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
+import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const tiers = [
   {
