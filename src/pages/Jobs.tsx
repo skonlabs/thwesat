@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use-jobs";
+import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -31,14 +32,6 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
-const roleTypeLabels: Record<string, { my: string; en: string }> = {
-  remote_full: { my: "အဝေးထိန်း အပြည့်အဝ", en: "Remote Full-time" },
-  remote_contract: { my: "အဝေးထိန်း ကန်ထရိုက်", en: "Remote Contract" },
-  hybrid: { my: "ရောစပ်", en: "Hybrid" },
-  "full-time": { my: "အပြည့်အဝ", en: "Full-time" },
-  contract: { my: "ကန်ထရိုက်", en: "Contract" },
-};
-
 function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   if (!dateStr) return { my: "မကြာသေးမီ", en: "Recently" };
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -47,15 +40,6 @@ function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   if (hours < 1) return { my: "ယခု", en: "Just now" };
   if (hours < 24) return { my: `${hours} နာရီ`, en: `${hours} hours` };
   return { my: `${days} ရက်`, en: `${days} days` };
-}
-
-function formatSalary(job: Job, lang: string): string {
-  const min = job.salary_min;
-  const max = job.salary_max;
-  if (!min && !max) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
-  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
-  if (min) return `$${min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`;
-  return `${lang === "my" ? "အများဆုံး" : "Up to"} $${max?.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`;
 }
 
 const Jobs = () => {
@@ -231,7 +215,6 @@ const Jobs = () => {
           filteredJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
-            const typeLabel = roleTypeLabels[job.role_type || ""] || { my: job.job_type || "", en: job.job_type || "" };
             const postedAgo = formatTimeAgo(job.created_at);
 
             return (
@@ -248,7 +231,7 @@ const Jobs = () => {
                       <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h3>
+                      <h3 className="text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
                       <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
                     </div>
                   </div>
@@ -275,14 +258,14 @@ const Jobs = () => {
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {(job.skills || []).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
+                  {translateJobTags(job.skills, lang).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? typeLabel.my : typeLabel.en}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.role_type || job.job_type, lang)}</span>
                   </div>
-                  <span className="text-xs font-semibold text-gold-dark">{formatSalary(job, lang)}</span>
+                  <span className="text-xs font-semibold text-gold-dark">{formatJobSalary(job, lang)}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">

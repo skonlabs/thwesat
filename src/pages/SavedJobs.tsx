@@ -5,28 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs, useToggleSaveJob } from "@/hooks/use-jobs";
+import { formatJobSalary, translateJobLocation, translateJobTitle, translateJobType } from "@/lib/job-localization";
 
 const SavedJobs = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { data: savedJobs, isLoading } = useSavedJobs();
   const toggleSave = useToggleSaveJob();
-
-  const getJobTypeLabel = (jobType?: string | null) => {
-    if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
-    if (lang !== "my") return jobType;
-
-    switch (jobType) {
-      case "Full-time":
-        return "အချိန်ပြည့်";
-      case "Part-time":
-        return "အချိန်ပိုင်း";
-      case "Contract":
-        return "စာချုပ်";
-      default:
-        return jobType;
-    }
-  };
 
   const handleRemove = (jobId: string, title: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -60,7 +45,7 @@ const SavedJobs = () => {
                     <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
                     <p className="text-xs text-muted-foreground">{job.company}</p>
                   </div>
                 </div>
@@ -70,12 +55,10 @@ const SavedJobs = () => {
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote")}</span>
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {getJobTypeLabel(job.job_type)}</span>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}</span>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.job_type, lang)}</span>
                 </div>
-                {job.salary_min && job.salary_max && (
-                  <span className="text-xs font-semibold text-primary">${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}/{lang === "my" ? "လ" : "mo"}</span>
-                )}
+                <span className="text-xs font-semibold text-primary">{formatJobSalary(job, lang)}</span>
               </div>
               <div className="mt-3 flex items-center justify-end border-t border-border pt-3">
                 <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>

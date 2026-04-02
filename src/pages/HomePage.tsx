@@ -7,6 +7,7 @@ import { useJobs } from "@/hooks/use-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
+import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/15", fg: "text-gold-dark" },
@@ -122,7 +123,7 @@ const HomePage = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate text-sm font-semibold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h3>
+                    <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
                     <div className="flex gap-1">
                       {job.is_diaspora_safe && (
                         <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
@@ -134,11 +135,9 @@ const HomePage = () => {
                   <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote")}
+                      <MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}
                     </span>
-                    {job.salary_min && job.salary_max && (
-                      <span className="text-[11px] font-semibold text-gold-dark">${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}/{lang === "my" ? "လ" : "mo"}</span>
-                    )}
+                    <span className="text-[11px] font-semibold text-gold-dark">{formatJobSalary(job, lang)}</span>
                   </div>
                 </div>
               </motion.button>
