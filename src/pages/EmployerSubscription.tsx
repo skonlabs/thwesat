@@ -131,6 +131,16 @@ const EmployerSubscription = () => {
             ? `${t(tiers.find(t2 => t2.id === selected)?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
             : `Start ${tiers.find(t2 => t2.id === selected)?.name.en} Plan`}
         </Button>
+
+        <PaymentMethodSheet
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          amount={tiers.find(t2 => t2.id === selected)?.price || 0}
+          currency="USD"
+          paymentType="employer_subscription"
+          referenceId={selected}
+          onSuccess={() => navigate("/employer/dashboard")}
+        />
       </div>
     </div>
   );
