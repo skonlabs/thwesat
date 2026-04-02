@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, premiumUsers] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, premiumUsers, pendingPayments] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -21,6 +21,7 @@ const AdminDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_premium", true),
+        supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       return {
         totalUsers: users.count || 0,
