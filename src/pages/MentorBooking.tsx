@@ -138,6 +138,23 @@ const MentorBooking = () => {
             )}
           </div>
 
+          {mentorProfile?.hourly_rate && Number(mentorProfile.hourly_rate) > 0 && (
+            <>
+              <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
+                <CreditCard className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                {lang === "my" ? "Session ကြေး ပေးချေရန်" : "Pay Session Fee"}
+              </Button>
+              <PaymentMethodSheet
+                open={paymentOpen}
+                onOpenChange={setPaymentOpen}
+                amount={Number(mentorProfile.hourly_rate)}
+                currency={mentorProfile.currency || "USD"}
+                paymentType="mentor_session"
+                referenceId={mentorId || undefined}
+                onSuccess={() => setPaymentOpen(false)}
+              />
+            </>
+          )}
           <p className="mb-6 text-xs text-muted-foreground">
             {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
           </p>
