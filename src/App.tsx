@@ -48,6 +48,7 @@ import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
+import AdminPayments from "./pages/AdminPayments";
 import DelegateAccess from "./pages/DelegateAccess";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
