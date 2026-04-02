@@ -22,7 +22,7 @@ const Profile = () => {
   const [showRolePicker, setShowRolePicker] = useState(false);
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? "Mentor" : "");
+  const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const referralCode = profile?.referral_code || "TS-XXXXXX";
@@ -52,7 +52,7 @@ const Profile = () => {
   const allRoleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
     { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
-    { value: "mentor", icon: GraduationCap, label: { my: "Mentor", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
+    { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
 
   // Job Seeker and Employer are mutually exclusive — only show the other non-conflicting roles
@@ -88,13 +88,13 @@ const Profile = () => {
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
-    { icon: Star, label: lang === "my" ? "Subscription စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
+    { icon: Star, label: lang === "my" ? "စာရင်းသွင်းမှု စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
-    { icon: Users, label: lang === "my" ? "Booking တောင်းဆိုမှုများ" : "Booking Requests", path: "/mentors/bookings" },
+    { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
     { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
@@ -159,7 +159,7 @@ const Profile = () => {
               <p className="text-xs text-muted-foreground">{headline}</p>
               <div className="mt-1.5 flex items-center gap-2.5">
                 {location && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {location}</span>}
-                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> Remote</span>}
+                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "အဝေးထိန်း" : "Remote"}</span>}
               </div>
             </div>
           </div>
@@ -205,7 +205,7 @@ const Profile = () => {
               <item.icon className={`h-5 w-5 ${'highlight' in item && item.highlight ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
               <p className={`flex-1 text-sm ${'highlight' in item && item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>{item.label}</p>
               {'highlight' in item && item.highlight && (
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">PRO</span>
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">{lang === "my" ? "ပရို" : "PRO"}</span>
               )}
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>

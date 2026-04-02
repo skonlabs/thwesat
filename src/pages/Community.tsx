@@ -263,7 +263,7 @@ const Community = () => {
                   {profile?.display_name?.slice(0, 2).toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{profile?.display_name || "User"}</p>
+                  <p className="text-sm font-semibold text-foreground">{profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User")}</p>
                   <p className="text-[10px] text-muted-foreground">{profile?.headline || ""}</p>
                 </div>
               </div>
@@ -324,13 +324,13 @@ const Community = () => {
                         {post.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-foreground">{post.author?.display_name || "Unknown"}</h3>
+                        <h3 className="text-sm font-semibold text-foreground">{post.author?.display_name || (lang === "my" ? "အမည်မသိ" : "Unknown")}</h3>
                         <p className="text-[10px] text-muted-foreground">{post.author?.headline || ""} · {formatTime(post.created_at)}</p>
                       </div>
                     </div>
                     <div className="relative flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryLabel === "Alert" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
-                        {categoryLabel}
+                        {lang === "my" ? (categories.find(c => c.en === categoryLabel)?.my || categoryLabel) : categoryLabel}
                       </span>
                       <button onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)} className="rounded-lg p-1 text-muted-foreground active:bg-muted">
                         <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />

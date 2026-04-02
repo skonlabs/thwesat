@@ -24,15 +24,15 @@ const typeColors: Record<string, string> = {
   premium: "bg-primary/10 text-primary",
 };
 
-function formatTimeAgo(dateStr: string | null): string {
+function formatTimeAgo(dateStr: string | null, lang: string): string {
   if (!dateStr) return "";
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 60) return `${mins} min`;
-  if (hours < 24) return `${hours} hr`;
-  return `${days} day`;
+  if (mins < 60) return lang === "my" ? `${mins} မိနစ်` : `${mins} min`;
+  if (hours < 24) return lang === "my" ? `${hours} နာရီ` : `${hours} hr`;
+  return lang === "my" ? `${days} ရက်` : `${days} day`;
 }
 
 const Notifications = () => {
@@ -107,7 +107,7 @@ const Notifications = () => {
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {lang === "my" && notif.description_my ? notif.description_my : notif.description}
                   </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground/60">{formatTimeAgo(notif.created_at)} {lang === "my" ? "အကြာ" : "ago"}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground/60">{formatTimeAgo(notif.created_at, lang)} {lang === "my" ? "အကြာ" : "ago"}</p>
                 </div>
               </motion.button>
             );

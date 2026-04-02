@@ -193,7 +193,7 @@ const Mentors = () => {
           </div>
         ) : (
           filteredMentors.map((mentor, i) => {
-            const name = mentor.profile?.display_name || "Mentor";
+            const name = mentor.profile?.display_name || (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor");
             const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
             return (
               <motion.div key={mentor.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}

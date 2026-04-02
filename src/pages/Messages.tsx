@@ -14,10 +14,11 @@ const Messages = () => {
     if (!dateStr) return "";
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m`;
+    if (mins < 60) return lang === "my" ? `${mins}မိ` : `${mins}m`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    return `${Math.floor(hrs / 24)}d`;
+    if (hrs < 24) return lang === "my" ? `${hrs}န` : `${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    return lang === "my" ? `${days}ရ` : `${days}d`;
   };
 
   return (
@@ -59,7 +60,7 @@ const Messages = () => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">{conv.otherProfile?.display_name || "User"}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{conv.otherProfile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User")}</h3>
                   <span className="text-[10px] text-muted-foreground">{formatTime(conv.lastMessage?.created_at)}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">{conv.otherProfile?.headline || ""}</p>

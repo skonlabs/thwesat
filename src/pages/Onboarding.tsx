@@ -37,8 +37,8 @@ const steps = [
   },
   {
     icon: Heart,
-    titleMm: "အသိုင်းအဝိုင်းနှင့် Career Tools", titleEn: "Community & Career Tools",
-    descMm: "အတွေ့အကြုံမျှဝေပါ၊ Profile Builder၊ ဥပဒေလမ်းညွှန်ချက်များ — အားလုံး နှစ်ဘာသာဖြင့်",
+    titleMm: "အသိုင်းအဝိုင်းနှင့် အသက်မွေးမှု ကိရိယာများ", titleEn: "Community & Career Tools",
+    descMm: "အတွေ့အကြုံမျှဝေပါ၊ ပရိုဖိုင် တည်ဆောက်ရေး၊ ဥပဒေလမ်းညွှန်ချက်များ — အားလုံး နှစ်ဘာသာဖြင့်",
     descEn: "Legal guides, profile builder, skill gap analysis — all bilingual in Burmese & English",
     color: "bg-emerald/10 text-emerald",
   },
