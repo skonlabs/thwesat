@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, MessageCircle, Star, CreditCard } from "lucide-react";
+import { Calendar, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +30,13 @@ const topics = [
   { my: "အခြား", en: "Other" },
 ];
 
+const durationOptions = [
+  { minutes: 30, labelEn: "30 min", labelMy: "၃၀ မိနစ်" },
+  { minutes: 60, labelEn: "1 hour", labelMy: "၁ နာရီ" },
+  { minutes: 90, labelEn: "1.5 hours", labelMy: "၁.၅ နာရီ" },
+  { minutes: 120, labelEn: "2 hours", labelMy: "၂ နာရီ" },
+];
+
 const MentorBooking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -44,10 +51,13 @@ const MentorBooking = () => {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState(60);
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
-  const [rating, setRating] = useState(0);
   const [paymentOpen, setPaymentOpen] = useState(false);
+
+  const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
+  const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
 
   // Generate next available days dynamically
   const getNextDays = () => {
@@ -103,8 +113,10 @@ const MentorBooking = () => {
     }
   };
 
-  const mentorName = mentorProfile?.profile?.display_name || (lang === "my" ? "Mentor" : "Mentor");
+  const mentorName = mentorProfile?.profile?.display_name || "Mentor";
   const mentorTitle = mentorProfile ? `${mentorProfile.title || ""} · ${mentorProfile.company || ""}`.replace(/^ · | · $/g, "") : "";
+  const currency = mentorProfile?.currency || "USD";
+  const durationLabel = durationOptions.find(d => d.minutes === selectedDuration);
 
   if (step === 3) {
     return (
@@ -116,7 +128,12 @@ const MentorBooking = () => {
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}</h1>
           <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? `${mentorName} နှင့် ချိန်းဆိုမှု` : `Session with ${mentorName}`}</p>
           <p className="mb-1 text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT)</p>
-          <p className="mb-2 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
+          <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
+            {sessionAmount > 0 && ` · ${currency} ${sessionAmount.toFixed(2)}`}
+          </p>
+
           {goals && (
             <div className="mb-4 w-full rounded-lg bg-muted p-3">
               <p className="text-[10px] font-medium text-muted-foreground">{lang === "my" ? "ပန်းတိုင်" : "Your Goals"}</p>
@@ -124,39 +141,37 @@ const MentorBooking = () => {
             </div>
           )}
 
+          {/* Escrow trust message */}
           <div className="mb-4 w-full rounded-xl border border-border bg-card p-4">
-            <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "Session ကို အမှတ်ပေးပါ" : "Rate this session"}</p>
-            <div className="flex justify-center gap-1">
-              {[1, 2, 3, 4, 5].map(star => (
-                <button key={star} onClick={() => setRating(star)}>
-                  <Star className={`h-8 w-8 ${star <= rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} strokeWidth={1.5} />
-                </button>
-              ))}
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ငွေပေးချေမှု အာမခံ" : "Payment Protection"}</p>
             </div>
-            {rating > 0 && (
-              <p className="mt-2 text-[10px] text-muted-foreground">
-                {rating >= 4 ? (lang === "my" ? "ကျေးဇူးတင်ပါသည်!" : "Thank you!") : (lang === "my" ? "တုံ့ပြန်ချက် မှတ်တမ်းတင်ပြီးပါပြီ" : "Feedback recorded")}
-              </p>
-            )}
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {lang === "my"
+                ? "သင့်ငွေကို Mentor နှင့် Mentee နှစ်ဦးစလုံး Session ပြီးဆုံးကြောင်း အတည်ပြုပြီးမှသာ Mentor ထံသို့ လွှဲပြောင်းပေးပါမည်။"
+                : "Your payment will only be transferred to the mentor after both mentor and mentee confirm the session is completed."}
+            </p>
           </div>
 
-          {mentorProfile?.hourly_rate && Number(mentorProfile.hourly_rate) > 0 && (
+          {sessionAmount > 0 && (
             <>
               <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
                 <CreditCard className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                {lang === "my" ? "Session ကြေး ပေးချေရန်" : "Pay Session Fee"}
+                {lang === "my" ? `${currency} ${sessionAmount.toFixed(2)} ပေးချေရန်` : `Pay ${currency} ${sessionAmount.toFixed(2)}`}
               </Button>
               <PaymentMethodSheet
                 open={paymentOpen}
                 onOpenChange={setPaymentOpen}
-                amount={Number(mentorProfile.hourly_rate)}
-                currency={mentorProfile.currency || "USD"}
+                amount={sessionAmount}
+                currency={currency}
                 paymentType="mentor_session"
                 referenceId={mentorId || undefined}
                 onSuccess={() => setPaymentOpen(false)}
               />
             </>
           )}
+
           <p className="mb-6 text-xs text-muted-foreground">
             {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
           </p>
@@ -192,6 +207,7 @@ const MentorBooking = () => {
               <Star className="h-3 w-3 fill-primary text-primary" />
               <span className="text-[11px] font-medium text-foreground">{mentorProfile?.rating_avg || 0}</span>
               <span className="text-[10px] text-muted-foreground">({mentorProfile?.total_sessions || 0})</span>
+              {hourlyRate > 0 && <span className="ml-1 text-[10px] text-primary font-medium">{currency} {hourlyRate}/hr</span>}
             </div>
           </div>
         </motion.div>
@@ -222,6 +238,25 @@ const MentorBooking = () => {
                 </button>
               ))}
             </div>
+
+            <h2 className="mb-3 text-sm font-semibold text-foreground">
+              <Timer className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
+              {lang === "my" ? "ကြာချိန် ရွေးချယ်ပါ" : "Select Duration"}
+            </h2>
+            <div className="mb-2 grid grid-cols-4 gap-2">
+              {durationOptions.map(opt => (
+                <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-3 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
+                  <p className="text-xs font-medium">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
+                </button>
+              ))}
+            </div>
+            {hourlyRate > 0 && (
+              <p className="mb-5 text-xs text-muted-foreground text-center">
+                {lang === "my"
+                  ? `Session ကြေး: ${currency} ${sessionAmount.toFixed(2)}`
+                  : `Session fee: ${currency} ${sessionAmount.toFixed(2)}`}
+              </p>
+            )}
           </motion.div>
         )}
 
@@ -229,7 +264,8 @@ const MentorBooking = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="mb-5 rounded-xl border border-border bg-muted p-3 text-center">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော အချိန်" : "Selected"}</p>
-              <p className="text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT)</p>
+              <p className="text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT) · {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
+              {sessionAmount > 0 && <p className="mt-0.5 text-xs text-primary font-medium">{currency} {sessionAmount.toFixed(2)}</p>}
             </div>
 
             <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အကြောင်းအရာ ရွေးချယ်ပါ" : "Select Topic"}</h2>
