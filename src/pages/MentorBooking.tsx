@@ -45,6 +45,7 @@ const MentorBooking = () => {
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
   const [rating, setRating] = useState(0);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   // Generate next available days dynamically
   const getNextDays = () => {
