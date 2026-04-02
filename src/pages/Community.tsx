@@ -263,7 +263,7 @@ const Community = () => {
                   {profile?.display_name?.slice(0, 2).toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{profile?.display_name || "User"}</p>
+                  <p className="text-sm font-semibold text-foreground">{profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User")}</p>
                   <p className="text-[10px] text-muted-foreground">{profile?.headline || ""}</p>
                 </div>
               </div>
