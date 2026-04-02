@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Clock, DollarSign, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
+import AvailabilityManager from "@/components/mentor/AvailabilityManager";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
