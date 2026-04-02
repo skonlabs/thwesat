@@ -12,14 +12,14 @@ const skillCategories = ["All", "React", "Node.js", "Python", "UI/UX", "Project 
 
 const experienceOptions = [
   { value: "all", labelEn: "Any", labelMy: "အားလုံး" },
-  { value: "junior", labelEn: "Junior", labelMy: "Junior" },
-  { value: "mid", labelEn: "Mid", labelMy: "Mid" },
-  { value: "senior", labelEn: "Senior", labelMy: "Senior" },
+  { value: "junior", labelEn: "Junior", labelMy: "အစပြု" },
+  { value: "mid", labelEn: "Mid", labelMy: "အလယ်အလတ်" },
+  { value: "senior", labelEn: "Senior", labelMy: "အတွေ့အကြုံမြင့်" },
 ];
 
 const locationOptions = [
   { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
-  { value: "Remote", labelEn: "Remote", labelMy: "Remote" },
+  { value: "Remote", labelEn: "Remote", labelMy: "အဝေးထိန်း" },
   { value: "Bangkok", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
   { value: "Chiang Mai", labelEn: "Chiang Mai", labelMy: "ချင်းမိုင်" },
   { value: "Kuala Lumpur", labelEn: "Kuala Lumpur", labelMy: "ကွာလာလမ်ပူ" },
