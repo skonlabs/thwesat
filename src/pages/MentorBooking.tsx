@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, MessageCircle, Star } from "lucide-react";
+import { Calendar, Clock, CheckCircle, MessageCircle, Star, CreditCard } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useCreateBooking } from "@/hooks/use-mentor-bookings";
 import PageHeader from "@/components/PageHeader";
+import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const timeSlots = [
   { time: "7:00 PM", available: true },
