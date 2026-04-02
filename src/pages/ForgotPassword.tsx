@@ -46,7 +46,7 @@ const ForgotPassword = () => {
             {lang === "my" ? "အီးမေးလ်ကို စစ်ဆေးပြီး လင့်ခ်ကို နှိပ်ပါ" : "Check your email and click the reset link"}
           </p>
           <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => navigate("/login")}>
-            {lang === "my" ? "Login သို့ ပြန်သွားရန်" : "Back to Sign In"}
+            {lang === "my" ? "ဝင်ရောက်ရန် သို့ ပြန်သွားရန်" : "Back to Sign In"}
           </Button>
           <button onClick={() => setSent(false)} className="mt-4 text-xs font-medium text-primary">
             {lang === "my" ? "အခြား Email ဖြင့် ထပ်စမ်းကြည့်ရန်" : "Try a different email"}
