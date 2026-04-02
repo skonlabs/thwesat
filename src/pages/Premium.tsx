@@ -349,11 +349,21 @@ const Premium = () => {
 
           <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
             {lang === "my"
-              ? "PromptPay QR, Stripe ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
-              : "Accepts PromptPay QR & Stripe · Cancel anytime"}
+              ? "KBZPay, Wave, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
+              : "Accepts KBZPay, Wave, Wise & Payoneer · Cancel anytime"}
           </p>
         </motion.div>
       </div>
+
+      <PaymentMethodSheet
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        amount={selectedPlan?.price || 0}
+        currency={selectedPlan?.currency || "USD"}
+        paymentType="subscription"
+        referenceId={selectedPlan?.plan_id}
+        onSuccess={() => navigate("/home")}
+      />
     </div>
   );
 };
