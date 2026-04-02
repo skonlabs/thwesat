@@ -88,7 +88,7 @@ const Profile = () => {
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
-    { icon: Star, label: lang === "my" ? "Subscription စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
+    { icon: Star, label: lang === "my" ? "စာရင်းသွင်းမှု စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
