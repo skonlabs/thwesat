@@ -352,21 +352,21 @@ const JobDetail = () => {
 
                                   const parsed = data?.data;
                                   const formatted = [
-                                    parsed?.name ? `Name: ${parsed.name}` : "",
-                                    parsed?.title ? `Title: ${parsed.title}` : "",
-                                    parsed?.summary ? `Summary:\n${parsed.summary}` : "",
-                                    parsed?.skills?.length ? `Skills: ${parsed.skills.join(", ")}` : "",
+                                    parsed?.name ? `${lang === "my" ? "အမည်" : "Name"}: ${parsed.name}` : "",
+                                    parsed?.title ? `${lang === "my" ? "ရာထူး" : "Title"}: ${parsed.title}` : "",
+                                    parsed?.summary ? `${lang === "my" ? "အကျဉ်းချုပ်" : "Summary"}:\n${parsed.summary}` : "",
+                                    parsed?.skills?.length ? `${lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}: ${parsed.skills.join(", ")}` : "",
                                     parsed?.experiences?.length
-                                      ? `Experience:\n${parsed.experiences
-                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(" at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
+                                      ? `${lang === "my" ? "အတွေ့အကြုံ" : "Experience"}:\n${parsed.experiences
+                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(lang === "my" ? " · " : " at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
                                           .join("\n\n")}`
                                       : "",
                                     parsed?.education?.length
-                                      ? `Education:\n${parsed.education
+                                      ? `${lang === "my" ? "ပညာရေး" : "Education"}:\n${parsed.education
                                           .map((ed: any) => `• ${[ed.degree, ed.institution].filter(Boolean).join(" — ")} ${ed.year ? `(${ed.year})` : ""}`)
                                           .join("\n")}`
                                       : "",
-                                    parsed?.other ? `Other:\n${parsed.other}` : "",
+                                    parsed?.other ? `${lang === "my" ? "အခြား" : "Other"}:\n${parsed.other}` : "",
                                   ]
                                     .filter(Boolean)
                                     .join("\n\n");
@@ -465,7 +465,7 @@ const JobDetail = () => {
                               <div className="min-w-0">
                                 <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
                                 <p className="text-[10px] text-muted-foreground">
-                                  {meta?.tone ? `${meta.tone} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
+                                  {meta?.tone ? `${lang === "my" ? (toneLabels[meta.tone]?.my || meta.tone) : (toneLabels[meta.tone]?.en || meta.tone)} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>
