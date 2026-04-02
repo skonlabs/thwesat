@@ -78,9 +78,9 @@ const Profile = () => {
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
+    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
-    { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -88,15 +88,15 @@ const Profile = () => {
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
-    { icon: Star, label: lang === "my" ? "စာရင်းသွင်းမှု စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
+    { icon: Star, label: lang === "my" ? "စာရင်းသွင်းမှုကို စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
-    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools", path: "/ai-tools" },
-    { icon: Star, label: lang === "my" ? "Premium အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
+    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -181,7 +181,7 @@ const Profile = () => {
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
           </div>
           <p className="mb-2 text-xs text-muted-foreground">
-            {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါက Premium ၁ လ အခမဲ့" : "Refer 5 friends = 1 free month of Premium"}
+            {lang === "my" ? "သူငယ်ချင်း ၅ ဦးကို ဖိတ်ခေါ်နိုင်ပါက ပရီမီယံ ၁ လ အခမဲ့ရရှိမည်" : "Refer 5 friends = 1 free month of Premium"}
           </p>
           <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
             <p className="text-[11px] leading-relaxed text-muted-foreground">

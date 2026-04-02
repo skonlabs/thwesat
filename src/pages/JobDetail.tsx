@@ -86,6 +86,28 @@ const JobDetail = () => {
 
   const applied = id ? applications.some((a: any) => a.job_id === id) : false;
   const saved = id ? savedJobIds.includes(id) : false;
+  const toneLabels: Record<string, { my: string; en: string }> = {
+    professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
+    friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
+    confident: { my: "ယုံကြည်မှုရှိသော", en: "Confident" },
+    enthusiastic: { my: "စိတ်အားထက်သန်သော", en: "Enthusiastic" },
+  };
+
+  const getJobTypeLabel = (jobType?: string | null) => {
+    if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
+    if (lang !== "my") return jobType;
+
+    switch (jobType) {
+      case "Full-time":
+        return "အချိန်ပြည့်";
+      case "Part-time":
+        return "အချိန်ပိုင်း";
+      case "Contract":
+        return "စာချုပ်";
+      default:
+        return jobType;
+    }
+  };
 
   const handleApply = () => {
     if (!id) return;
@@ -187,8 +209,8 @@ const JobDetail = () => {
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
               { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
-              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || "Remote" },
-              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: job.job_type ? (lang === "my" ? (job.job_type === "Full-time" ? "အပြည့်အဝ" : job.job_type === "Contract" ? "ကန်ထရိုက်" : job.job_type) : job.job_type) : (lang === "my" ? "အပြည့်အဝ" : "Full-time") },
+              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote") },
+              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: getJobTypeLabel(job.job_type) },
               { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: (job.payment_methods || []).join(", ") || "—" },
             ].map((info) => (
               <div key={info.label} className="rounded-xl border border-border bg-card p-3 shadow-card">
@@ -330,21 +352,21 @@ const JobDetail = () => {
 
                                   const parsed = data?.data;
                                   const formatted = [
-                                    parsed?.name ? `Name: ${parsed.name}` : "",
-                                    parsed?.title ? `Title: ${parsed.title}` : "",
-                                    parsed?.summary ? `Summary:\n${parsed.summary}` : "",
-                                    parsed?.skills?.length ? `Skills: ${parsed.skills.join(", ")}` : "",
+                                    parsed?.name ? `${lang === "my" ? "အမည်" : "Name"}: ${parsed.name}` : "",
+                                    parsed?.title ? `${lang === "my" ? "ရာထူး" : "Title"}: ${parsed.title}` : "",
+                                    parsed?.summary ? `${lang === "my" ? "အကျဉ်းချုပ်" : "Summary"}:\n${parsed.summary}` : "",
+                                    parsed?.skills?.length ? `${lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}: ${parsed.skills.join(", ")}` : "",
                                     parsed?.experiences?.length
-                                      ? `Experience:\n${parsed.experiences
-                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(" at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
+                                      ? `${lang === "my" ? "အတွေ့အကြုံ" : "Experience"}:\n${parsed.experiences
+                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(lang === "my" ? " · " : " at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
                                           .join("\n\n")}`
                                       : "",
                                     parsed?.education?.length
-                                      ? `Education:\n${parsed.education
+                                      ? `${lang === "my" ? "ပညာရေး" : "Education"}:\n${parsed.education
                                           .map((ed: any) => `• ${[ed.degree, ed.institution].filter(Boolean).join(" — ")} ${ed.year ? `(${ed.year})` : ""}`)
                                           .join("\n")}`
                                       : "",
-                                    parsed?.other ? `Other:\n${parsed.other}` : "",
+                                    parsed?.other ? `${lang === "my" ? "အခြား" : "Other"}:\n${parsed.other}` : "",
                                   ]
                                     .filter(Boolean)
                                     .join("\n\n");
@@ -443,7 +465,7 @@ const JobDetail = () => {
                               <div className="min-w-0">
                                 <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
                                 <p className="text-[10px] text-muted-foreground">
-                                  {meta?.tone ? `${meta.tone} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
+                                  {meta?.tone ? `${lang === "my" ? (toneLabels[meta.tone]?.my || meta.tone) : (toneLabels[meta.tone]?.en || meta.tone)} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>

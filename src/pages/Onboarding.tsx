@@ -9,22 +9,22 @@ import LanguageToggle from "@/components/LanguageToggle";
 const steps = [
   {
     icon: Globe,
-    titleMm: "မြန်မာ့ Diaspora အတွက်", titleEn: "Built for Myanmar's Diaspora",
+    titleMm: "မြန်မာ့ပြည်ပရောက်များအတွက်", titleEn: "Built for Myanmar's Diaspora",
     descMm: "အလုပ်ရှာဖွေသူ၊ အလုပ်ရှင်နှင့် လမ်းညွှန်သူများအားလုံးအတွက် တစ်နေရာတည်း ပလက်ဖောင်း",
     descEn: "One platform for job seekers, employers, and mentors — connecting Myanmar talent worldwide",
     color: "bg-primary/10 text-primary",
   },
   {
     icon: Briefcase,
-    titleMm: "အလုပ်ရှာဖွေ · တက်လန့်ရှာ", titleEn: "Find Jobs · Find Talent",
-    descMm: "အလုပ်ရှာဖွေသူများ — diaspora-safe အလုပ်များ ရှာပါ။ အလုပ်ရှင်များ — ကမ္ဘာတစ်ဝှမ်းမှ မြန်မာ talent ရှာဖွေပါ",
+    titleMm: "အလုပ်ရှာဖွေ · ကျွမ်းကျင်သူရှာဖွေ", titleEn: "Find Jobs · Find Talent",
+    descMm: "အလုပ်ရှာဖွေသူများ — အတည်ပြုထားသော အဝေးထိန်းအလုပ်များ ရှာပါ။ အလုပ်ရှင်များ — ကမ္ဘာတစ်ဝှမ်းရှိ မြန်မာကျွမ်းကျင်သူများကို ရှာဖွေပါ",
     descEn: "Job seekers — discover verified remote jobs. Employers — find skilled Myanmar professionals globally",
     color: "bg-gold/10 text-gold-dark",
   },
   {
     icon: Users,
-    titleMm: "လမ်းညွှန်မှု ပေးပါ · ရယူပါ", titleEn: "Mentor & Be Mentored",
-    descMm: "လမ်းညွှန်သူအဖြစ် သင့်အတွေ့အကြုံမျှဝေပါ သို့မဟုတ် အတွေ့အကြုံရှိသူများထံမှ ၁:၁ လမ်းညွှန်မှုရယူပါ",
+    titleMm: "လမ်းညွှန်ပေးပါ · လမ်းညွှန်ခံပါ", titleEn: "Mentor & Be Mentored",
+    descMm: "လမ်းညွှန်သူအဖြစ် သင့်အတွေ့အကြုံမျှဝေပါ သို့မဟုတ် အတွေ့အကြုံရှိသူများထံမှ တစ်ဦးချင်း လမ်းညွှန်မှုရယူပါ",
     descEn: "Share your expertise as a mentor or get 1:1 guidance from experienced Myanmar professionals",
     color: "bg-emerald/10 text-emerald",
   },
@@ -38,7 +38,7 @@ const steps = [
   {
     icon: Heart,
     titleMm: "အသိုင်းအဝိုင်းနှင့် အသက်မွေးမှု ကိရိယာများ", titleEn: "Community & Career Tools",
-    descMm: "အတွေ့အကြုံမျှဝေပါ၊ ပရိုဖိုင် တည်ဆောက်ရေး၊ ဥပဒေလမ်းညွှန်ချက်များ — အားလုံး နှစ်ဘာသာဖြင့်",
+    descMm: "ဥပဒေလမ်းညွှန်ချက်များ၊ ပရိုဖိုင်တည်ဆောက်ရေးနှင့် ကျွမ်းကျင်မှုကွာဟချက် ဆန်းစစ်မှုများကို မြန်မာ/အင်္ဂလိပ် နှစ်ဘာသာဖြင့် အသုံးပြုနိုင်ပါသည်",
     descEn: "Legal guides, profile builder, skill gap analysis — all bilingual in Burmese & English",
     color: "bg-emerald/10 text-emerald",
   },

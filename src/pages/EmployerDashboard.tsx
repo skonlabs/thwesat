@@ -22,7 +22,7 @@ const quickActions = [
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-accent/10", fg: "text-accent" },
   { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-primary/10", fg: "text-primary" },
   { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Sparkles, label: "Tools", labelEn: "Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
 ];
 
 const EmployerDashboard = () => {
@@ -39,7 +39,7 @@ const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် Dashboard" : "Employer Dashboard"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
           <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />

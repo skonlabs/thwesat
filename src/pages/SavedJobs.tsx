@@ -12,6 +12,22 @@ const SavedJobs = () => {
   const { data: savedJobs, isLoading } = useSavedJobs();
   const toggleSave = useToggleSaveJob();
 
+  const getJobTypeLabel = (jobType?: string | null) => {
+    if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
+    if (lang !== "my") return jobType;
+
+    switch (jobType) {
+      case "Full-time":
+        return "အချိန်ပြည့်";
+      case "Part-time":
+        return "အချိန်ပိုင်း";
+      case "Contract":
+        return "စာချုပ်";
+      default:
+        return jobType;
+    }
+  };
+
   const handleRemove = (jobId: string, title: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toggleSave.mutate({ jobId, isSaved: true });
@@ -54,11 +70,11 @@ const SavedJobs = () => {
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location || "Remote"}</span>
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {job.job_type || "Full-time"}</span>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote")}</span>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {getJobTypeLabel(job.job_type)}</span>
                 </div>
                 {job.salary_min && job.salary_max && (
-                  <span className="text-xs font-semibold text-primary">${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}/mo</span>
+                  <span className="text-xs font-semibold text-primary">${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}/{lang === "my" ? "လ" : "mo"}</span>
                 )}
               </div>
               <div className="mt-3 flex items-center justify-end border-t border-border pt-3">
