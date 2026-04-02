@@ -1,24 +1,19 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { format, addDays, getDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useCreateBooking } from "@/hooks/use-mentor-bookings";
+import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import PageHeader from "@/components/PageHeader";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
-
-const timeSlots = [
-  { time: "7:00 PM", available: true },
-  { time: "7:30 PM", available: true },
-  { time: "8:00 PM", available: false },
-  { time: "8:30 PM", available: true },
-  { time: "9:00 PM", available: true },
-];
 
 const topics = [
   { my: "အသက်မွေးမှု လမ်းညွှန်", en: "Career Coaching" },
@@ -37,6 +32,18 @@ const durationOptions = [
   { minutes: 120, labelEn: "2 hours", labelMy: "၂ နာရီ" },
 ];
 
+const DAY_KEY_MAP: Record<number, string> = {
+  0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat",
+};
+
+function formatTime(t: string) {
+  const [h, m] = t.split(":");
+  const hr = parseInt(h);
+  const suffix = hr >= 12 ? "PM" : "AM";
+  const hr12 = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr;
+  return `${hr12}:${m} ${suffix}`;
+}
+
 const MentorBooking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -45,10 +52,11 @@ const MentorBooking = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: mentorProfile } = useMentorProfile(mentorId || undefined);
+  const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
   const createBooking = useCreateBooking();
 
   const [step, setStep] = useState(1);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState(60);
@@ -59,44 +67,57 @@ const MentorBooking = () => {
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
   const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
 
-  // Generate next available days dynamically
-  const getNextDays = () => {
-    const availableDays = mentorProfile?.available_days || [];
-    const dayNames: Record<string, number> = { Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6 };
-    const dayLabels: Record<string, { my: string; en: string }> = {
-      Sunday: { my: "တနင်္ဂနွေ", en: "Sun" }, Monday: { my: "တနင်္လာ", en: "Mon" },
-      Tuesday: { my: "အင်္ဂါ", en: "Tue" }, Wednesday: { my: "ဗုဒ္ဓဟူး", en: "Wed" },
-      Thursday: { my: "ကြာသပတေး", en: "Thu" }, Friday: { my: "သောကြာ", en: "Fri" },
-      Saturday: { my: "စနေ", en: "Sat" },
-    };
-    const result: { date: string; day: { my: string; en: string }; dateStr: string }[] = [];
-    const today = new Date();
-    for (let i = 1; i <= 30 && result.length < 4; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const dayName = Object.keys(dayNames).find(k => dayNames[k] === d.getDay()) || "";
-      if (availableDays.length === 0 || availableDays.includes(dayName)) {
-        const label = dayLabels[dayName] || { my: dayName.slice(0, 3), en: dayName.slice(0, 3) };
-        result.push({
-          date: `${label.en} ${d.getDate()}`,
-          day: label,
-          dateStr: d.toISOString().split("T")[0],
-        });
-      }
+  // Which days of the week have availability slots
+  const availableDayKeys = useMemo(() => {
+    const days = new Set(availabilitySlots.map(s => s.day_of_week));
+    // Also include mentor_profiles.available_days as fallback
+    if (mentorProfile?.available_days) {
+      mentorProfile.available_days.forEach(d => days.add(d));
     }
-    return result;
+    return days;
+  }, [availabilitySlots, mentorProfile?.available_days]);
+
+  // Disable dates that don't match available days
+  const disableDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date <= today) return true;
+    if (date > addDays(today, 60)) return true;
+    const dayKey = DAY_KEY_MAP[getDay(date)];
+    return !availableDayKeys.has(dayKey);
   };
 
-  const days = getNextDays();
+  // Time slots for selected date
+  const timeSlotsForDate = useMemo(() => {
+    if (!selectedDate) return [];
+    const dayKey = DAY_KEY_MAP[getDay(selectedDate)];
+    const slots = availabilitySlots.filter(s => s.day_of_week === dayKey && !s.is_booked);
+    if (slots.length > 0) {
+      return slots.map(s => ({ time: formatTime(s.start_time), raw: s.start_time, available: true }));
+    }
+    // Fallback: if no specific slots defined but day is in available_days
+    if (mentorProfile?.available_days?.includes(dayKey)) {
+      return [
+        { time: "9:00 AM", raw: "09:00", available: true },
+        { time: "10:00 AM", raw: "10:00", available: true },
+        { time: "2:00 PM", raw: "14:00", available: true },
+        { time: "3:00 PM", raw: "15:00", available: true },
+        { time: "7:00 PM", raw: "19:00", available: true },
+      ];
+    }
+    return [];
+  }, [selectedDate, availabilitySlots, mentorProfile?.available_days]);
+
+  const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
+  const selectedDateDisplay = selectedDate ? format(selectedDate, "EEE, MMM d") : "";
 
   const handleConfirm = async () => {
-    if (!user || !mentorId || !selectedDay || !selectedTime || !selectedTopic) return;
-    const dayInfo = days.find(d => d.date === selectedDay);
+    if (!user || !mentorId || !selectedDate || !selectedTime || !selectedTopic) return;
     try {
       await createBooking.mutateAsync({
         mentor_id: mentorId,
         mentee_id: user.id,
-        scheduled_date: dayInfo?.dateStr || selectedDay,
+        scheduled_date: selectedDateStr,
         scheduled_time: selectedTime,
         topic: selectedTopic,
         message,
@@ -127,7 +148,7 @@ const MentorBooking = () => {
           </div>
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}</h1>
           <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? `${mentorName} နှင့် ချိန်းဆိုမှု` : `Session with ${mentorName}`}</p>
-          <p className="mb-1 text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT)</p>
+          <p className="mb-1 text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime}</p>
           <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
           <p className="mb-3 text-xs text-muted-foreground">
             {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
@@ -141,7 +162,6 @@ const MentorBooking = () => {
             </div>
           )}
 
-          {/* Escrow trust message */}
           <div className="mb-4 w-full rounded-xl border border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.5} />
@@ -214,31 +234,57 @@ const MentorBooking = () => {
 
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+            {/* Calendar picker */}
             <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <Calendar className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-              {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Day"}
+              <CalendarIcon className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
+              {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Date"}
             </h2>
-            <div className="mb-5 grid grid-cols-4 gap-2">
-              {days.map(d => (
-                <button key={d.date} onClick={() => setSelectedDay(d.date)} className={`rounded-xl border p-3 text-center transition-all ${selectedDay === d.date ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
-                  <p className="text-[10px] opacity-70">{lang === "my" ? d.day.my : d.day.en}</p>
-                  <p className="text-sm font-semibold">{d.date.split(" ")[1]}</p>
-                </button>
-              ))}
+            <div className="mb-5 flex justify-center rounded-xl border border-border bg-card p-2">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                  setSelectedTime(null);
+                }}
+                disabled={disableDate}
+                className="pointer-events-auto"
+              />
             </div>
 
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-              {lang === "my" ? "အချိန် ရွေးချယ်ပါ" : "Select Time"} <span className="text-xs text-muted-foreground">(SGT)</span>
-            </h2>
-            <div className="mb-5 grid grid-cols-3 gap-2">
-              {timeSlots.map(slot => (
-                <button key={slot.time} disabled={!slot.available} onClick={() => setSelectedTime(slot.time)} className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${!slot.available ? "border-border bg-muted text-muted-foreground/40 cursor-not-allowed" : selectedTime === slot.time ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
-                  {slot.time}
-                </button>
-              ))}
-            </div>
+            {/* Time slots */}
+            {selectedDate && (
+              <>
+                <h2 className="mb-3 text-sm font-semibold text-foreground">
+                  <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
+                  {lang === "my" ? "အချိန် ရွေးချယ်ပါ" : "Select Time"}
+                  <span className="ml-1 text-xs text-muted-foreground">{selectedDateDisplay}</span>
+                </h2>
+                {timeSlotsForDate.length > 0 ? (
+                  <div className="mb-5 grid grid-cols-3 gap-2">
+                    {timeSlotsForDate.map(slot => (
+                      <button
+                        key={slot.raw}
+                        onClick={() => setSelectedTime(slot.time)}
+                        className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${
+                          selectedTime === slot.time
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground active:bg-muted"
+                        }`}
+                      >
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mb-5 text-center text-xs text-muted-foreground">
+                    {lang === "my" ? "ဤနေ့တွင် အချိန်မရှိပါ" : "No available time slots for this day"}
+                  </p>
+                )}
+              </>
+            )}
 
+            {/* Duration */}
             <h2 className="mb-3 text-sm font-semibold text-foreground">
               <Timer className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
               {lang === "my" ? "ကြာချိန် ရွေးချယ်ပါ" : "Select Duration"}
@@ -264,7 +310,7 @@ const MentorBooking = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="mb-5 rounded-xl border border-border bg-muted p-3 text-center">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော အချိန်" : "Selected"}</p>
-              <p className="text-sm font-semibold text-foreground">{selectedDay} · {selectedTime} (SGT) · {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
+              <p className="text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime} · {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
               {sessionAmount > 0 && <p className="mt-0.5 text-xs text-primary font-medium">{currency} {sessionAmount.toFixed(2)}</p>}
             </div>
 
@@ -289,7 +335,7 @@ const MentorBooking = () => {
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDay || !selectedTime} onClick={() => setStep(2)}>
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || !selectedTime} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
