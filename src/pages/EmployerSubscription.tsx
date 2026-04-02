@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
+import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const tiers = [
   {
@@ -60,9 +61,10 @@ const EmployerSubscription = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const [selected, setSelected] = useState("standard");
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const handleSubscribe = () => {
-    navigate("/employer/dashboard");
+    setPaymentOpen(true);
   };
 
   const t = (texts: { my: string; en: string }) => texts[lang];
@@ -129,6 +131,16 @@ const EmployerSubscription = () => {
             ? `${t(tiers.find(t2 => t2.id === selected)?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
             : `Start ${tiers.find(t2 => t2.id === selected)?.name.en} Plan`}
         </Button>
+
+        <PaymentMethodSheet
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          amount={tiers.find(t2 => t2.id === selected)?.price || 0}
+          currency="USD"
+          paymentType="employer_subscription"
+          referenceId={selected}
+          onSuccess={() => navigate("/employer/dashboard")}
+        />
       </div>
     </div>
   );

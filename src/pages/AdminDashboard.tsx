@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Users, Briefcase, Shield, TrendingUp, AlertTriangle, MessageCircle, DollarSign, ChevronRight, Clock, CheckCircle, Crown } from "lucide-react";
+import { Users, Briefcase, Shield, TrendingUp, AlertTriangle, MessageCircle, DollarSign, ChevronRight, Clock, CheckCircle, Crown, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, premiumUsers] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, premiumUsers, pendingPayments] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -21,6 +21,7 @@ const AdminDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_premium", true),
+        supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       return {
         totalUsers: users.count || 0,
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
         premiumUsers: premiumUsers.count || 0,
+        pendingPayments: (pendingPayments as any).count || 0,
       };
     },
   });
@@ -45,6 +47,7 @@ const AdminDashboard = () => {
     { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Community Posts" }, count: counts?.pendingPosts || 0, path: "/moderator", urgent: false },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/users", urgent: false },
     { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/users", urgent: (counts?.reports || 0) > 0 },
+    { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments", urgent: (counts?.pendingPayments || 0) > 0 },
   ];
 
   return (

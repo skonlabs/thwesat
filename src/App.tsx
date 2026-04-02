@@ -48,6 +48,7 @@ import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
+import AdminPayments from "./pages/AdminPayments";
 import DelegateAccess from "./pages/DelegateAccess";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="/admin/jobs" element={<RoleGuard allowedRoles={["admin"]}><AdminJobQueue /></RoleGuard>} />
               <Route path="/admin/users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
               <Route path="/admin/analytics" element={<RoleGuard allowedRoles={["admin"]}><AdminAnalytics /></RoleGuard>} />
+              <Route path="/admin/payments" element={<RoleGuard allowedRoles={["admin"]}><AdminPayments /></RoleGuard>} />
 
               {/* Moderator */}
               <Route path="/moderator" element={<RoleGuard allowedRoles={["admin", "moderator"]}><ModeratorDashboard /></RoleGuard>} />

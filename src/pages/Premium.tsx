@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
+import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const formatPrice = (price: number, currency: string, lang: string) => {
   if (price === 0) return lang === "my" ? "အခမဲ့" : "$0";
@@ -159,11 +160,13 @@ const Premium = () => {
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const [selected, setSelected] = useState("6mo");
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const isPremium = profile?.is_premium;
   const { data: plans, isLoading } = useSubscriptionPlans();
 
   const handleSubscribe = () => {
-    // TODO: integrate with payment
+    if (selected === "free") return;
+    setPaymentOpen(true);
   };
 
   const selectedPlan = plans?.find((p) => p.plan_id === selected);
@@ -346,11 +349,21 @@ const Premium = () => {
 
           <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
             {lang === "my"
-              ? "PromptPay QR, Stripe ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
-              : "Accepts PromptPay QR & Stripe · Cancel anytime"}
+              ? "KBZPay, Wave, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
+              : "Accepts KBZPay, Wave, Wise & Payoneer · Cancel anytime"}
           </p>
         </motion.div>
       </div>
+
+      <PaymentMethodSheet
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        amount={selectedPlan?.price || 0}
+        currency={selectedPlan?.currency || "USD"}
+        paymentType="subscription"
+        referenceId={selectedPlan?.plan_id}
+        onSuccess={() => navigate("/home")}
+      />
     </div>
   );
 };
