@@ -49,7 +49,7 @@ const ForgotPassword = () => {
             {lang === "my" ? "ဝင်ရောက်ရန် သို့ ပြန်သွားရန်" : "Back to Sign In"}
           </Button>
           <button onClick={() => setSent(false)} className="mt-4 text-xs font-medium text-primary">
-            {lang === "my" ? "အခြား Email ဖြင့် ထပ်စမ်းကြည့်ရန်" : "Try a different email"}
+            {lang === "my" ? "အခြား အီးမေးလ် ဖြင့် ထပ်စမ်းကြည့်ရန်" : "Try a different email"}
           </button>
         </motion.div>
       </div>

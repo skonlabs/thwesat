@@ -107,7 +107,7 @@ const Notifications = () => {
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {lang === "my" && notif.description_my ? notif.description_my : notif.description}
                   </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground/60">{formatTimeAgo(notif.created_at)} {lang === "my" ? "အကြာ" : "ago"}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground/60">{formatTimeAgo(notif.created_at, lang)} {lang === "my" ? "အကြာ" : "ago"}</p>
                 </div>
               </motion.button>
             );

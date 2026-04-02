@@ -14,10 +14,11 @@ const Messages = () => {
     if (!dateStr) return "";
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m`;
+    if (mins < 60) return lang === "my" ? `${mins}မိ` : `${mins}m`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    return `${Math.floor(hrs / 24)}d`;
+    if (hrs < 24) return lang === "my" ? `${hrs}န` : `${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    return lang === "my" ? `${days}ရ` : `${days}d`;
   };
 
   return (
