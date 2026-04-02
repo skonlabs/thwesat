@@ -60,7 +60,7 @@ const Messages = () => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">{conv.otherProfile?.display_name || "User"}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{conv.otherProfile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User")}</h3>
                   <span className="text-[10px] text-muted-foreground">{formatTime(conv.lastMessage?.created_at)}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">{conv.otherProfile?.headline || ""}</p>

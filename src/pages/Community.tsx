@@ -324,7 +324,7 @@ const Community = () => {
                         {post.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-foreground">{post.author?.display_name || "Unknown"}</h3>
+                        <h3 className="text-sm font-semibold text-foreground">{post.author?.display_name || (lang === "my" ? "အမည်မသိ" : "Unknown")}</h3>
                         <p className="text-[10px] text-muted-foreground">{post.author?.headline || ""} · {formatTime(post.created_at)}</p>
                       </div>
                     </div>
