@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
+import { formatJobSalary, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -93,22 +94,6 @@ const JobDetail = () => {
     enthusiastic: { my: "စိတ်အားထက်သန်သော", en: "Enthusiastic" },
   };
 
-  const getJobTypeLabel = (jobType?: string | null) => {
-    if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
-    if (lang !== "my") return jobType;
-
-    switch (jobType) {
-      case "Full-time":
-        return "အချိန်ပြည့်";
-      case "Part-time":
-        return "အချိန်ပိုင်း";
-      case "Contract":
-        return "စာချုပ်";
-      default:
-        return jobType;
-    }
-  };
-
   const handleApply = () => {
     if (!id) return;
     applyMutation.mutate(
@@ -167,10 +152,8 @@ const JobDetail = () => {
     );
   }
 
-  const salaryText = job.salary_min && job.salary_max
-    ? `$${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}/${lang === "my" ? "လ" : "mo"}`
-    : job.salary_min ? `$${job.salary_min.toLocaleString()}+/${lang === "my" ? "လ" : "mo"}`
-    : lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
+  const salaryText = formatJobSalary(job, lang);
+  const displayTitle = translateJobTitle(job.title, job.title_my, lang);
 
   const requirementsList = (lang === "my" && job.requirements_my ? job.requirements_my : job.requirements || "")
     .split("\n")
@@ -190,7 +173,7 @@ const JobDetail = () => {
               <Briefcase className="h-7 w-7 text-accent" strokeWidth={1.5} />
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground">{lang === "my" && job.title_my ? job.title_my : job.title}</h1>
+              <h1 className="text-lg font-bold text-foreground">{displayTitle}</h1>
               <p className="text-sm text-muted-foreground">{job.company}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {job.is_verified && (
@@ -209,9 +192,9 @@ const JobDetail = () => {
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
               { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
-              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote") },
-              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: getJobTypeLabel(job.job_type) },
-              { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: (job.payment_methods || []).join(", ") || "—" },
+                { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: translateJobLocation(job.location, lang) },
+                { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: translateJobType(job.role_type || job.job_type, lang) },
+                { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: translatePaymentMethods(job.payment_methods, lang).join(", ") || "—" },
             ].map((info) => (
               <div key={info.label} className="rounded-xl border border-border bg-card p-3 shadow-card">
                 <info.icon className="mb-1 h-4 w-4 text-accent" strokeWidth={1.5} />
@@ -258,7 +241,7 @@ const JobDetail = () => {
             <div className="mt-5">
               <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
               <div className="flex flex-wrap gap-2">
-                {(job.skills || []).map((s) => (
+                {translateJobTags(job.skills, lang).map((s) => (
                   <span key={s} className="rounded-lg bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
                 ))}
               </div>
@@ -272,7 +255,7 @@ const JobDetail = () => {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">{job.company}</h3>
-                <p className="text-xs text-muted-foreground">{job.location} · {job.category}</p>
+                <p className="text-xs text-muted-foreground">{translateJobLocation(job.location, lang)} · {translateJobCategory(job.category, lang)}</p>
               </div>
             </div>
           </div>
@@ -293,7 +276,7 @@ const JobDetail = () => {
                 <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
                 <button onClick={() => setShowApplyModal(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
               </div>
-              <p className="mb-5 text-xs text-muted-foreground">{job.title} · {job.company}</p>
+              <p className="mb-5 text-xs text-muted-foreground">{displayTitle} · {job.company}</p>
 
               {/* Profile badge */}
               <div className="mb-5 rounded-xl bg-emerald/5 p-3">
