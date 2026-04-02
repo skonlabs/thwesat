@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
+import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const formatPrice = (price: number, currency: string, lang: string) => {
   if (price === 0) return lang === "my" ? "အခမဲ့" : "$0";
