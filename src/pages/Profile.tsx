@@ -159,7 +159,7 @@ const Profile = () => {
               <p className="text-xs text-muted-foreground">{headline}</p>
               <div className="mt-1.5 flex items-center gap-2.5">
                 {location && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {location}</span>}
-                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> Remote</span>}
+                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "အဝေးထိန်း" : "Remote"}</span>}
               </div>
             </div>
           </div>
