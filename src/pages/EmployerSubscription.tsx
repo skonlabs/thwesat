@@ -61,9 +61,10 @@ const EmployerSubscription = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const [selected, setSelected] = useState("standard");
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const handleSubscribe = () => {
-    navigate("/employer/dashboard");
+    setPaymentOpen(true);
   };
 
   const t = (texts: { my: string; en: string }) => texts[lang];
