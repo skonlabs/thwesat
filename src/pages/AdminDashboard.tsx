@@ -47,6 +47,7 @@ const AdminDashboard = () => {
     { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Community Posts" }, count: counts?.pendingPosts || 0, path: "/moderator", urgent: false },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/users", urgent: false },
     { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/users", urgent: (counts?.reports || 0) > 0 },
+    { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments", urgent: (counts?.pendingPayments || 0) > 0 },
   ];
 
   return (
