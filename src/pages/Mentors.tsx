@@ -15,6 +15,12 @@ const categories = [
   { my: "စီးပွားရေး", en: "Business" },
   { my: "ဥပဒေ", en: "Legal" },
   { my: "အသက်မွေးမှု", en: "Career" },
+  { my: "ဥပဒေ အကြံပေး", en: "Legal Advice" },
+  { my: "အလုပ်လုပ်ခွင့်", en: "Work Permit" },
+  { my: "လူဝင်မှုကြီးကြပ်ရေး", en: "Immigration" },
+  { my: "ဘာသာစကား", en: "Language" },
+  { my: "စိတ်ကျန်းမာရေး", en: "Mental Health" },
+  { my: "ငွေကြေးစီမံခန့်ခွဲမှု", en: "Finance" },
 ];
 
 const locationOptions = [
@@ -32,10 +38,15 @@ const ratingOptions = [
 
 function expertiseToCategory(expertise: string[]): string {
   const joined = expertise.join(" ").toLowerCase();
-  if (joined.includes("react") || joined.includes("system") || joined.includes("tech")) return "Tech";
-  if (joined.includes("ui") || joined.includes("design") || joined.includes("portfolio")) return "Design";
-  if (joined.includes("law") || joined.includes("permit") || joined.includes("visa") || joined.includes("pink")) return "Legal";
-  if (joined.includes("career") || joined.includes("interview") || joined.includes("leadership")) return "Career";
+  if (joined.includes("react") || joined.includes("system") || joined.includes("tech") || joined.includes("software") || joined.includes("data")) return "Tech";
+  if (joined.includes("ui") || joined.includes("design") || joined.includes("portfolio") || joined.includes("ux")) return "Design";
+  if (joined.includes("law") || joined.includes("legal") || joined.includes("advice")) return "Legal Advice";
+  if (joined.includes("permit") || joined.includes("work permit") || joined.includes("pink card")) return "Work Permit";
+  if (joined.includes("visa") || joined.includes("immigration") || joined.includes("passport")) return "Immigration";
+  if (joined.includes("language") || joined.includes("english") || joined.includes("japanese") || joined.includes("thai")) return "Language";
+  if (joined.includes("mental") || joined.includes("wellbeing") || joined.includes("counseling") || joined.includes("stress")) return "Mental Health";
+  if (joined.includes("finance") || joined.includes("money") || joined.includes("tax") || joined.includes("remittance")) return "Finance";
+  if (joined.includes("career") || joined.includes("interview") || joined.includes("leadership") || joined.includes("resume")) return "Career";
   return "Business";
 }
 
