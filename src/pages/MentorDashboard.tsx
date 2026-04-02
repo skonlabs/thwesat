@@ -125,13 +125,13 @@ const MentorDashboard = () => {
         {/* Availability & Rate */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5 rounded-xl border border-border bg-card p-4">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "ရနိုင်မှု & နှုန်းထား" : "Availability & Rate"}</h3>
+            <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground">{isAvailable ? (lang === "my" ? "ရနိုင်" : "Available") : (lang === "my" ? "မရနိုင်" : "Unavailable")}</span>
               <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
             </div>
           </div>
-          <div className="mb-4">
+          <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း (USD)" : "Hourly Rate (USD)"}</label>
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
@@ -140,17 +140,12 @@ const MentorDashboard = () => {
               <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
           </div>
-          <div>
-            <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ရနိုင်သောရက်များ" : "Available Days"}</label>
-            <div className="flex gap-1.5">
-              {availabilityDays.map(d => (
-                <button key={d.day} onClick={() => toggleDay(d.day)} className={`flex-1 rounded-lg py-2 text-center text-[10px] font-medium transition-colors ${activeDays.includes(d.day) ? "bg-primary text-primary-foreground" : "border border-border text-muted-foreground"}`}>
-                  {lang === "my" ? d.dayMy.slice(0, 2) : d.day}
-                </button>
-              ))}
-            </div>
-          </div>
         </motion.div>
+
+        {/* Availability Calendar */}
+        <div className="mb-5">
+          <AvailabilityManager />
+        </div>
 
         {/* Earnings */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5 rounded-xl border border-border bg-card p-4">
