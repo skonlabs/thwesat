@@ -86,6 +86,28 @@ const JobDetail = () => {
 
   const applied = id ? applications.some((a: any) => a.job_id === id) : false;
   const saved = id ? savedJobIds.includes(id) : false;
+  const toneLabels: Record<string, { my: string; en: string }> = {
+    professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
+    friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
+    confident: { my: "ယုံကြည်မှုရှိသော", en: "Confident" },
+    enthusiastic: { my: "စိတ်အားထက်သန်သော", en: "Enthusiastic" },
+  };
+
+  const getJobTypeLabel = (jobType?: string | null) => {
+    if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
+    if (lang !== "my") return jobType;
+
+    switch (jobType) {
+      case "Full-time":
+        return "အချိန်ပြည့်";
+      case "Part-time":
+        return "အချိန်ပိုင်း";
+      case "Contract":
+        return "စာချုပ်";
+      default:
+        return jobType;
+    }
+  };
 
   const handleApply = () => {
     if (!id) return;
@@ -187,8 +209,8 @@ const JobDetail = () => {
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
               { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
-              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || "Remote" },
-              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: job.job_type ? (lang === "my" ? (job.job_type === "Full-time" ? "အပြည့်အဝ" : job.job_type === "Contract" ? "ကန်ထရိုက်" : job.job_type) : job.job_type) : (lang === "my" ? "အပြည့်အဝ" : "Full-time") },
+              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: job.location || (lang === "my" ? "အဝေးထိန်း" : "Remote") },
+              { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: getJobTypeLabel(job.job_type) },
               { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: (job.payment_methods || []).join(", ") || "—" },
             ].map((info) => (
               <div key={info.label} className="rounded-xl border border-border bg-card p-3 shadow-card">
