@@ -160,11 +160,13 @@ const Premium = () => {
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const [selected, setSelected] = useState("6mo");
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const isPremium = profile?.is_premium;
   const { data: plans, isLoading } = useSubscriptionPlans();
 
   const handleSubscribe = () => {
-    // TODO: integrate with payment
+    if (selected === "free") return;
+    setPaymentOpen(true);
   };
 
   const selectedPlan = plans?.find((p) => p.plan_id === selected);
