@@ -23,6 +23,19 @@ const categories = [
   { my: "ငွေကြေးစီမံခန့်ခွဲမှု", en: "Finance" },
 ];
 
+const locationOptions = [
+  { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
+  { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
+  { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
+  { value: "Tokyo, JP", labelEn: "Tokyo", labelMy: "တိုကျို" },
+];
+
+const ratingOptions = [
+  { value: "all", labelEn: "Any Rating", labelMy: "အားလုံး" },
+  { value: "4.5", labelEn: "4.5+", labelMy: "၄.၅+" },
+  { value: "4.8", labelEn: "4.8+", labelMy: "၄.၈+" },
+];
+
 function expertiseToCategory(expertise: string[]): string {
   const joined = expertise.join(" ").toLowerCase();
   if (joined.includes("react") || joined.includes("system") || joined.includes("tech") || joined.includes("software") || joined.includes("data")) return "Tech";
