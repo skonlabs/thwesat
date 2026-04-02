@@ -31,6 +31,7 @@ const AdminDashboard = () => {
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
         premiumUsers: premiumUsers.count || 0,
+        pendingPayments: (pendingPayments as any).count || 0,
       };
     },
   });
