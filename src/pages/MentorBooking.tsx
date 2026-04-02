@@ -25,6 +25,8 @@ const topics = [
   { my: "CV စစ်ဆေး", en: "Resume Review" },
   { my: "အင်တာဗျူး ပြင်ဆင်", en: "Interview Prep" },
   { my: "နည်းပညာ လမ်းညွှန်", en: "Technical Guidance" },
+  { my: "ဥပဒေ အကြံပေး", en: "Legal Advice" },
+  { my: "အလုပ်လုပ်ခွင့်", en: "Work Permit" },
   { my: "အခြား", en: "Other" },
 ];
 
