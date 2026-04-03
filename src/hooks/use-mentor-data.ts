@@ -16,6 +16,7 @@ export interface MentorWithProfile {
   total_sessions: number | null;
   total_mentees: number | null;
   available_days: string[] | null;
+  timezone: string | null;
   profile?: {
     display_name: string;
     headline: string | null;
