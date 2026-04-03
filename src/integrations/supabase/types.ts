@@ -427,6 +427,7 @@ export type Database = {
           external_url: string | null
           id: string
           is_diaspora_safe: boolean | null
+          is_featured: boolean
           is_verified: boolean | null
           job_type: string | null
           location: string | null
@@ -458,6 +459,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
+          is_featured?: boolean
           is_verified?: boolean | null
           job_type?: string | null
           location?: string | null
@@ -489,6 +491,7 @@ export type Database = {
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
+          is_featured?: boolean
           is_verified?: boolean | null
           job_type?: string | null
           location?: string | null

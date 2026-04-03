@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Languages, Loader2 } from "lucide-react";
+import { ArrowRight, AlertTriangle, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,7 @@ const EmployerPostJob = () => {
   const [requiresEmbassy, setRequiresEmbassy] = useState(false);
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
 
@@ -70,6 +71,7 @@ const EmployerPostJob = () => {
         requires_embassy: requiresEmbassy,
         requires_work_permit: requiresWorkPermit,
         visa_sponsorship: visaSponsorship,
+        is_featured: isFeatured,
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
@@ -183,6 +185,20 @@ const EmployerPostJob = () => {
               <label className="flex items-start gap-3">
                 <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
                 <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
+              </label>
+            </div>
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
+              <label className="flex items-start gap-3">
+                <Checkbox checked={isFeatured} onCheckedChange={v => setIsFeatured(!!v)} className="mt-0.5" />
+                <div>
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+                    {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                    {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည် (Pro အစီအစဉ် လိုအပ်သည်)" : "Highlighted on home screen (requires Pro plan)"}
+                  </p>
+                </div>
               </label>
             </div>
             <div>

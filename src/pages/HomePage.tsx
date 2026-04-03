@@ -26,7 +26,8 @@ const HomePage = () => {
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
 
-  const featuredJobs = (jobs || []).slice(0, 3);
+  const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
+  const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
   const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = profile?.primary_role === "mentor"
@@ -114,7 +115,7 @@ const HomePage = () => {
             </button>
           </div>
           <div className="space-y-2.5">
-            {featuredJobs.map((job: any, i: number) => (
+            {latestJobs.map((job: any, i: number) => (
               <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
                 onClick={() => navigate(`/jobs/${job.id}`)}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors active:bg-muted">
@@ -142,7 +143,7 @@ const HomePage = () => {
                 </div>
               </motion.button>
             ))}
-            {featuredJobs.length === 0 && (
+            {latestJobs.length === 0 && (
               <p className="py-6 text-center text-xs text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
             )}
           </div>
