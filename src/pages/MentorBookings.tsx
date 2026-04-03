@@ -1,23 +1,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Plus } from "lucide-react";
+import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useMentorBookings, useUpdateBookingStatus, useCreateBooking } from "@/hooks/use-mentor-bookings";
+import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-
-const topics = [
-  { my: "အသက်မွေးမှု လမ်းညွှန်", en: "Career Coaching" },
-  { my: "CV စစ်ဆေး", en: "Resume Review" },
-  { my: "အင်တာဗျူး ပြင်ဆင်", en: "Interview Prep" },
-  { my: "နည်းပညာ လမ်းညွှန်", en: "Technical Guidance" },
-];
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   pending: { label: { my: "စောင့်ဆိုင်း", en: "Pending" }, color: "text-primary bg-primary/10", icon: Clock },
@@ -32,15 +26,39 @@ const MentorBookings = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: bookings = [], isLoading } = useMentorBookings();
   const updateStatus = useUpdateBookingStatus();
-  const createBooking = useCreateBooking();
+  const markComplete = useMarkSessionComplete();
   const [filter, setFilter] = useState<FilterType>("all");
-  const [showNewBooking, setShowNewBooking] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [bookingMessage, setBookingMessage] = useState("");
+
+  // Rating state
+  const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);
+  const [ratingMentorId, setRatingMentorId] = useState<string | null>(null);
+  const [ratingValue, setRatingValue] = useState(5);
+  const [ratingText, setRatingText] = useState("");
+
+  const submitReview = useMutation({
+    mutationFn: async () => {
+      if (!user || !ratingBookingId || !ratingMentorId) throw new Error("Missing data");
+      const { error } = await supabase.from("mentor_reviews").insert({
+        mentor_id: ratingMentorId,
+        reviewer_id: user.id,
+        booking_id: ratingBookingId,
+        rating: ratingValue,
+        review_text: ratingText,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: lang === "my" ? "အဆင့်သတ်မှတ်ပြီးပါပြီ" : "Review submitted!" });
+      setRatingBookingId(null);
+      setRatingText("");
+      setRatingValue(5);
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+    },
+  });
 
   // Fetch mentee profiles
   const menteeIds = [...new Set(bookings.map((b: any) => b.mentee_id))];
@@ -58,17 +76,25 @@ const MentorBookings = () => {
   const filtered = filter === "all" ? bookings : bookings.filter((b: any) => b.status === filter);
   const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
 
-  const handleConfirm = (id: string) => {
-    updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => {},
-    });
+  const isMentor = (booking: any) => booking.mentor_id === user?.id;
+  const isMentee = (booking: any) => booking.mentee_id === user?.id;
+
+  const hasMyCompletion = (booking: any) => {
+    if (isMentor(booking)) return !!(booking as any).mentor_completed_at;
+    if (isMentee(booking)) return !!(booking as any).mentee_completed_at;
+    return false;
   };
 
-  const handleDecline = (id: string) => {
-    updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => {},
-    });
+  const bothCompleted = (booking: any) =>
+    !!(booking as any).mentor_completed_at && !!(booking as any).mentee_completed_at;
+
+  const handleMarkComplete = (booking: any) => {
+    const role = isMentor(booking) ? "mentor" : "mentee";
+    markComplete.mutate({ id: booking.id, role });
   };
+
+  const handleConfirm = (id: string) => updateStatus.mutate({ id, status: "confirmed" });
+  const handleDecline = (id: string) => updateStatus.mutate({ id, status: "cancelled" });
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -107,6 +133,9 @@ const MentorBookings = () => {
             {filtered.map((booking: any, i: number) => {
               const sc = statusConfig[booking.status] || statusConfig.pending;
               const mentee = menteeMap.get(booking.mentee_id);
+              const myCompleted = hasMyCompletion(booking);
+              const fullyDone = bothCompleted(booking);
+
               return (
                 <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex items-start gap-3">
@@ -125,18 +154,65 @@ const MentorBookings = () => {
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_date}</span>
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_time}</span>
                       </div>
-                      {booking.status === "pending" && booking.booked_by === "mentee" && (
+
+                      {/* Pending: confirm/decline (mentor only) */}
+                      {booking.status === "pending" && booking.booked_by === "mentee" && isMentor(booking) && (
                         <div className="mt-3 flex gap-2">
                           <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
                           <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
                         </div>
                       )}
+
+                      {/* Confirmed: message + mark complete */}
                       {booking.status === "confirmed" && (
+                        <div className="mt-3 space-y-2">
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => navigate("/messages")}>
+                              <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                            </Button>
+                            {!myCompleted && (
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="rounded-lg text-xs"
+                                disabled={markComplete.isPending}
+                                onClick={() => handleMarkComplete(booking)}
+                              >
+                                <ShieldCheck className="mr-1 h-3.5 w-3.5" />
+                                {lang === "my" ? "Session ပြီးဆုံးကြောင်း အတည်ပြုရန်" : "Mark Complete"}
+                              </Button>
+                            )}
+                          </div>
+                          {myCompleted && !fullyDone && (
+                            <p className="text-[10px] text-emerald font-medium">
+                              ✓ {lang === "my" ? "သင် အတည်ပြုပြီးပါပြီ။ အခြားတစ်ဖက် အတည်ပြုရန် စောင့်ပါ" : "You confirmed. Waiting for the other party to confirm."}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Completed: show rating button (mentee only, after both confirm) */}
+                      {booking.status === "completed" && fullyDone && isMentee(booking) && (
                         <div className="mt-3">
-                          <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => navigate("/messages")}>
-                            <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-lg text-xs"
+                            onClick={() => {
+                              setRatingBookingId(booking.id);
+                              setRatingMentorId(booking.mentor_id);
+                            }}
+                          >
+                            <Star className="mr-1 h-3.5 w-3.5 text-accent" /> {lang === "my" ? "အဆင့်သတ်မှတ်ရန်" : "Rate this session"}
                           </Button>
                         </div>
+                      )}
+
+                      {/* Completed info */}
+                      {booking.status === "completed" && fullyDone && (
+                        <p className="mt-2 text-[10px] text-emerald font-medium">
+                          ✓ {lang === "my" ? "နှစ်ဦးစလုံး အတည်ပြုပြီးပါပြီ" : "Both parties confirmed completion"}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -152,6 +228,47 @@ const MentorBookings = () => {
           </div>
         )}
       </div>
+
+      {/* Rating Sheet */}
+      <Sheet open={!!ratingBookingId} onOpenChange={(open) => { if (!open) setRatingBookingId(null); }}>
+        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-8">
+          <SheetHeader>
+            <SheetTitle className="text-base">{lang === "my" ? "Session ကို အဆင့်သတ်မှတ်ပါ" : "Rate this Session"}</SheetTitle>
+            <SheetDescription className="text-xs">
+              {lang === "my" ? "သင်၏ အတွေ့အကြုံကို မျှဝေပါ" : "Share your experience with this session"}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4 space-y-4">
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map(v => (
+                <button key={v} onClick={() => setRatingValue(v)}>
+                  <Star
+                    className={`h-8 w-8 transition-colors ${v <= ratingValue ? "fill-accent text-accent" : "text-muted-foreground"}`}
+                    strokeWidth={1.5}
+                  />
+                </button>
+              ))}
+            </div>
+            <Textarea
+              value={ratingText}
+              onChange={e => setRatingText(e.target.value)}
+              placeholder={lang === "my" ? "သင်၏ အကြံပြုချက် (ရွေးချယ်ခွင့်)" : "Your feedback (optional)"}
+              className="min-h-[80px] rounded-xl"
+            />
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full rounded-xl"
+              disabled={submitReview.isPending}
+              onClick={() => submitReview.mutate()}
+            >
+              {submitReview.isPending
+                ? (lang === "my" ? "တင်နေသည်..." : "Submitting...")
+                : (lang === "my" ? "အဆင့်သတ်မှတ်ရန်" : "Submit Review")}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
