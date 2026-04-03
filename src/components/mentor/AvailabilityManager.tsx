@@ -103,6 +103,7 @@ export default function AvailabilityManager() {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = useState(false);
+  const [showAllDates, setShowAllDates] = useState(false);
   const [viewDate, setViewDate] = useState<Date | undefined>(undefined);
 
   const [tzInitialized, setTzInitialized] = useState(false);
