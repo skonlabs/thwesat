@@ -3,6 +3,7 @@ import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { useRole } from "@/hooks/use-role";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
@@ -16,6 +17,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
+  const { role } = useRole();
   const [logoOpacity, setLogoOpacity] = useState(1);
   const holdTimer = useRef<NodeJS.Timeout | null>(null);
   const holdStart = useRef<number>(0);
@@ -53,7 +55,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
-            onClick={() => navigate("/home")}
+            onClick={() => navigate(role === "employer" ? "/employer/dashboard" : role === "mentor" ? "/mentors/dashboard" : "/home")}
             onTouchStart={startHold}
             onTouchEnd={cancelHold}
             onTouchCancel={cancelHold}
