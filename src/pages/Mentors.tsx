@@ -148,7 +148,7 @@ const Mentors = () => {
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <h2 className="text-base font-semibold text-foreground">{lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"}</h2>
                 <div className="flex items-center gap-3">
-                  {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs text-primary">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>}
+                  {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs text-accent font-medium">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>}
                   <button onClick={() => setShowFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted"><X className="h-4 w-4 text-muted-foreground" /></button>
                 </div>
               </div>
