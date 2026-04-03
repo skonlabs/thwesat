@@ -134,11 +134,21 @@ const MentorDashboard = () => {
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း (USD)" : "Hourly Rate (USD)"}</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              <select
+                value={currency}
+                onChange={e => setCurrency(e.target.value)}
+                className="h-10 rounded-xl border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="MMK">MMK (ကျပ်)</option>
+                <option value="SGD">SGD (S$)</option>
+                <option value="THB">THB (฿)</option>
+                <option value="MYR">MYR (RM)</option>
+              </select>
               <Input type="number" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className="h-10 w-24 rounded-xl text-center" />
-              <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hour"}</span>
+              <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
               <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
           </div>
