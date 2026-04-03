@@ -194,13 +194,15 @@ const Mentors = () => {
 
       <div className="space-y-2.5 px-5 pb-6">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex flex-col items-center py-16 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading mentors..."}</p>
           </div>
         ) : filteredMentors.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No mentors found"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
           </div>
         ) : (
           filteredMentors.map((mentor, i) => {
