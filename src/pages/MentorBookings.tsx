@@ -96,6 +96,28 @@ const MentorBookings = () => {
   const handleConfirm = (id: string) => updateStatus.mutate({ id, status: "confirmed" });
   const handleDecline = (id: string) => updateStatus.mutate({ id, status: "cancelled" });
 
+  const handleAcceptProposal = async (booking: any) => {
+    if (!user) return;
+    // Create a new booking with the proposed date/time
+    const { error } = await supabase.from("mentor_bookings").insert({
+      mentor_id: booking.mentor_id,
+      mentee_id: booking.mentee_id,
+      scheduled_date: booking.proposed_date,
+      scheduled_time: booking.proposed_time,
+      topic: booking.topic,
+      message: booking.message,
+      goals: booking.goals,
+      booked_by: "mentee",
+      status: "confirmed",
+    });
+    if (error) {
+      toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", variant: "destructive" });
+      return;
+    }
+    toast({ title: lang === "my" ? "အချိန်အသစ် လက်ခံပြီး" : "New time accepted!" });
+    queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "Booking များ" : "Bookings"} backPath="/mentors/dashboard" />
@@ -212,6 +234,32 @@ const MentorBookings = () => {
                       {booking.status === "completed" && fullyDone && (
                         <p className="mt-2 text-[10px] text-emerald font-medium">
                           ✓ {lang === "my" ? "နှစ်ဦးစလုံး အတည်ပြုပြီးပါပြီ" : "Both parties confirmed completion"}
+                        </p>
+                      )}
+
+                      {/* Counter-proposal from mentor */}
+                      {booking.status === "cancelled" && booking.proposed_date && booking.proposed_time && isMentee(booking) && (
+                        <div className="mt-3 rounded-lg border border-accent/30 bg-accent/5 p-3">
+                          <p className="mb-1 text-xs font-medium text-foreground">
+                            🔄 {lang === "my" ? "Mentor မှ အချိန်အသစ် အဆိုပြုထားပါသည်" : "Mentor proposed a new time"}
+                          </p>
+                          <div className="mb-2 flex items-center gap-3 text-xs text-foreground">
+                            <span className="flex items-center gap-1"><Calendar className="h-3 w-3" strokeWidth={1.5} /> {booking.proposed_date}</span>
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.proposed_time}</span>
+                          </div>
+                          {booking.decline_reason && (
+                            <p className="mb-2 text-[11px] text-muted-foreground italic">"{booking.decline_reason}"</p>
+                          )}
+                          <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={() => handleAcceptProposal(booking)}>
+                            {lang === "my" ? "အချိန်အသစ် လက်ခံမည်" : "Accept New Time"}
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Decline reason without proposal */}
+                      {booking.status === "cancelled" && booking.decline_reason && !booking.proposed_date && (
+                        <p className="mt-2 text-[11px] text-muted-foreground italic">
+                          {lang === "my" ? "အကြောင်းပြချက်: " : "Reason: "}"{booking.decline_reason}"
                         </p>
                       )}
                     </div>

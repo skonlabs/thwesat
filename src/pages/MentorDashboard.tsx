@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, DollarSign, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +47,12 @@ const MentorDashboard = () => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
 
+  // Decline with counter-proposal state
+  const [declineBookingId, setDeclineBookingId] = useState<string | null>(null);
+  const [declineReason, setDeclineReason] = useState("");
+  const [proposedDate, setProposedDate] = useState("");
+  const [proposedTime, setProposedTime] = useState("");
+
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
@@ -78,8 +84,22 @@ const MentorDashboard = () => {
   };
 
   const handleDecline = (id: string) => {
-    updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => {},
+    setDeclineBookingId(id);
+    setDeclineReason("");
+    setProposedDate("");
+    setProposedTime("");
+  };
+
+  const handleSubmitDecline = () => {
+    if (!declineBookingId) return;
+    updateStatus.mutate({
+      id: declineBookingId,
+      status: "cancelled",
+      declineReason: declineReason || undefined,
+      proposedDate: proposedDate || undefined,
+      proposedTime: proposedTime || undefined,
+    }, {
+      onSuccess: () => setDeclineBookingId(null),
     });
   };
 
@@ -251,6 +271,45 @@ const MentorDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Decline / Counter-Proposal Modal */}
+      <AnimatePresence>
+        {declineBookingId && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40" onClick={() => setDeclineBookingId(null)} />
+            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl bg-card p-5">
+              <h3 className="mb-1 text-sm font-semibold text-foreground">{lang === "my" ? "Booking ငြင်းပယ်ရန်" : "Decline Booking"}</h3>
+              <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အချိန်အသစ် အဆိုပြုနိုင်ပါသည် (မဖြစ်မနေမဟုတ်)" : "You can optionally propose an alternative time"}</p>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အကြောင်းပြချက်" : "Reason (optional)"}</label>
+                  <Input value={declineReason} onChange={e => setDeclineReason(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - ထိုအချိန် အစည်းအဝေးရှိ" : "e.g. I have a meeting at that time"} className="rounded-xl" />
+                </div>
+
+                <div className="rounded-xl border border-border bg-background p-3">
+                  <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "📅 အချိန်အသစ် အဆိုပြုရန်" : "📅 Propose a new time"}</p>
+                  <div className="flex gap-2">
+                    <Input type="date" value={proposedDate} onChange={e => setProposedDate(e.target.value)} className="flex-1 rounded-xl text-xs" min={new Date().toISOString().split("T")[0]} />
+                    <Input type="time" value={proposedTime} onChange={e => setProposedTime(e.target.value)} className="w-28 rounded-xl text-xs" />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setDeclineBookingId(null)}>
+                    {lang === "my" ? "ပယ်ဖျက်" : "Cancel"}
+                  </Button>
+                  <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleSubmitDecline} disabled={updateStatus.isPending}>
+                    {proposedDate && proposedTime
+                      ? (lang === "my" ? "ငြင်းပယ်ပြီး အချိန်သစ်ပေး" : "Decline & Propose")
+                      : (lang === "my" ? "ငြင်းပယ်မည်" : "Decline")}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
