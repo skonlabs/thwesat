@@ -48,7 +48,7 @@ export function useUserRoles() {
 
   const allowedRoles: UserRole[] = [];
 
-  if (!isLoading && profile && !isAdmin) {
+  if (!isLoading && profile && !isSystemRole) {
     // Base role from signup
     if (primaryRole === "employer") {
       allowedRoles.push("employer");
@@ -64,5 +64,5 @@ export function useUserRoles() {
 
   const hasRole = (role: UserRole) => allowedRoles.includes(role);
 
-  return { allowedRoles, hasRole, isLoading, isAdmin };
+  return { allowedRoles, hasRole, isLoading, isAdmin, isModerator, isSystemRole };
 }
