@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useJobs } from "@/hooks/use-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
@@ -22,9 +24,17 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
+  const { isAdmin, isLoading: rolesLoading } = useUserRoles();
   const { data: jobs } = useJobs();
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
+
+  // Redirect admin users to admin dashboard
+  useEffect(() => {
+    if (!rolesLoading && isAdmin) {
+      navigate("/admin", { replace: true });
+    }
+  }, [rolesLoading, isAdmin, navigate]);
 
   const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
