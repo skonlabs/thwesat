@@ -132,7 +132,7 @@ const Guides = () => {
 
             {/* Search results */}
             {isSearching && (
-              <div className="space-y-2.5 pb-6">
+              <div className="space-y-3 pb-24">
                 <p className="mb-2 text-xs text-muted-foreground">
                   {searchResults.length} {lang === "my" ? "ခု တွေ့ရှိသည်" : "results found"}
                 </p>
@@ -166,7 +166,7 @@ const Guides = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4 pb-6">
+                  <div className="space-y-4 pb-24">
                     {Object.entries(categoryMeta).map(([catKey, meta]) => {
                       const catGuides = countryGuides[catKey];
                       if (!catGuides || catGuides.length === 0) return null;
@@ -200,7 +200,7 @@ const Guides = () => {
 
             {/* Country grid by region */}
             {!isSearching && !selectedCountry && (
-              <div className="space-y-5 pb-6">
+              <div className="space-y-3 pb-24">
                 {regionOrder.map((region) => {
                   const regionCountries = region.countries
                     .filter((c) => countryData.has(c))

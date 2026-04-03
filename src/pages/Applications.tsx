@@ -82,7 +82,7 @@ const Applications = () => {
         </div>
       </div>
 
-      <div className="space-y-3 px-5 pb-6">
+      <div className="space-y-3 px-5 pb-24">
         {isLoading ? (
          <div className="flex flex-col items-center py-16 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
