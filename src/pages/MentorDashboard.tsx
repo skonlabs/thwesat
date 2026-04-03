@@ -43,12 +43,14 @@ const MentorDashboard = () => {
   const updateStatus = useUpdateBookingStatus();
   const [bookingFilter, setBookingFilter] = useState("all");
   const [hourlyRate, setHourlyRate] = useState("30");
+  const [currency, setCurrency] = useState("USD");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
 
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
+      setCurrency(mentorProfile.currency || "USD");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
     }
@@ -83,7 +85,7 @@ const MentorDashboard = () => {
 
   const handleSaveRate = async () => {
     if (!user) return;
-    await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
@@ -132,11 +134,21 @@ const MentorDashboard = () => {
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း (USD)" : "Hourly Rate (USD)"}</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              <select
+                value={currency}
+                onChange={e => setCurrency(e.target.value)}
+                className="h-10 rounded-xl border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="MMK">MMK (ကျပ်)</option>
+                <option value="SGD">SGD (S$)</option>
+                <option value="THB">THB (฿)</option>
+                <option value="MYR">MYR (RM)</option>
+              </select>
               <Input type="number" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className="h-10 w-24 rounded-xl text-center" />
-              <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hour"}</span>
+              <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
               <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
           </div>
