@@ -170,6 +170,28 @@ export function useUpdateBookingStatus() {
         const recipientId = isMentor ? booking.mentee_id : booking.mentor_id;
 
         if (status === "confirmed") {
+          // Create or update mentor_mentees record
+          const { data: existingMentee } = await supabase
+            .from("mentor_mentees")
+            .select("id, sessions_completed")
+            .eq("mentor_id", booking.mentor_id)
+            .eq("mentee_id", booking.mentee_id)
+            .maybeSingle();
+
+          if (existingMentee) {
+            await supabase
+              .from("mentor_mentees")
+              .update({ status: "active", updated_at: new Date().toISOString() })
+              .eq("id", existingMentee.id);
+          } else {
+            await supabase.from("mentor_mentees").insert({
+              mentor_id: booking.mentor_id,
+              mentee_id: booking.mentee_id,
+              status: "active",
+              started_at: new Date().toISOString(),
+            });
+          }
+
           await sendBookingNotification({
             recipientId,
             senderId: user.id,
