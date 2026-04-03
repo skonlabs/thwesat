@@ -15,6 +15,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
   const { toast } = useToast();
@@ -27,6 +28,15 @@ const Signup = () => {
   const [showReferral, setShowReferral] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-fill referral code from URL param
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setReferralCode(ref.toUpperCase());
+      setShowReferral(true);
+    }
+  }, [searchParams]);
 
   const handleSignup = async () => {
     if (!name.trim()) {
