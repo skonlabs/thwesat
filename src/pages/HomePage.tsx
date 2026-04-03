@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare, AlertTriangle, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useJobs } from "@/hooks/use-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
