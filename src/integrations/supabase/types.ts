@@ -432,6 +432,7 @@ export type Database = {
           job_type: string | null
           location: string | null
           payment_methods: string[] | null
+          rejection_reason: string | null
           requirements: string | null
           requirements_my: string | null
           requires_embassy: boolean | null
@@ -464,6 +465,7 @@ export type Database = {
           job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
+          rejection_reason?: string | null
           requirements?: string | null
           requirements_my?: string | null
           requires_embassy?: boolean | null
@@ -496,6 +498,7 @@ export type Database = {
           job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
+          rejection_reason?: string | null
           requirements?: string | null
           requirements_my?: string | null
           requires_embassy?: boolean | null
