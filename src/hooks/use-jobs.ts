@@ -22,6 +22,7 @@ export interface Job {
   requirements_my: string | null;
   is_diaspora_safe: boolean | null;
   is_verified: boolean | null;
+  is_featured: boolean;
   visa_sponsorship: boolean | null;
   requires_embassy: boolean | null;
   payment_methods: string[] | null;

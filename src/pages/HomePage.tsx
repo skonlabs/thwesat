@@ -143,7 +143,7 @@ const HomePage = () => {
                 </div>
               </motion.button>
             ))}
-            {featuredJobs.length === 0 && (
+            {latestJobs.length === 0 && (
               <p className="py-6 text-center text-xs text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
             )}
           </div>
