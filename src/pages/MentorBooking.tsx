@@ -73,7 +73,9 @@ const MentorBooking = () => {
   const today = startOfDay(new Date());
 
   const disableDate = (date: Date) => {
-    if (isBefore(date, today) || date.getTime() === today.getTime()) return true;
+    if (isBefore(date, today)) return true;
+    // If no slots exist yet, allow all future dates so the user can still pick
+    if (availableDates.size === 0) return false;
     const dateStr = format(date, "yyyy-MM-dd");
     return !availableDates.has(dateStr);
   };
