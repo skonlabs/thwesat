@@ -24,17 +24,19 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
-  const { isAdmin, isLoading: rolesLoading } = useUserRoles();
+  const { isAdmin, isModerator, isLoading: rolesLoading } = useUserRoles();
   const { data: jobs } = useJobs();
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
 
-  // Redirect admin users to admin dashboard
+  // Redirect admin/moderator users to their dashboard
   useEffect(() => {
     if (!rolesLoading && isAdmin) {
       navigate("/admin", { replace: true });
+    } else if (!rolesLoading && isModerator) {
+      navigate("/moderator", { replace: true });
     }
-  }, [rolesLoading, isAdmin, navigate]);
+  }, [rolesLoading, isAdmin, isModerator, navigate]);
 
   const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);

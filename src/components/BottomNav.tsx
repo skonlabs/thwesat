@@ -11,7 +11,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { allowedRoles, isLoading, isAdmin } = useUserRoles();
+  const { allowedRoles, isLoading, isSystemRole } = useUserRoles();
 
   // If current role isn't allowed, reset to the first allowed role
   useEffect(() => {
@@ -20,8 +20,8 @@ const BottomNav = () => {
     }
   }, [isLoading, allowedRoles, role, setRole]);
 
-  // Admin users should not see the bottom nav — they use admin screens
-  if (isAdmin) return null;
+  // Admin/moderator users should not see the bottom nav
+  if (isSystemRole) return null;
 
   const jobseekerNav = [
     { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
