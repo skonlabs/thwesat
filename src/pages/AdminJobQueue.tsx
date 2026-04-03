@@ -50,7 +50,7 @@ const AdminJobQueue = () => {
 
   const handleReject = () => {
     if (!selectedId) return;
-    updateJob.mutate({ id: selectedId, status: "rejected" }, {
+    updateJob.mutate({ id: selectedId, status: "rejected", rejectionReason }, {
       onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); },
     });
   };
