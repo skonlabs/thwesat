@@ -25,6 +25,22 @@ const Profile = () => {
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
 
+  // Fetch referral count
+  const { data: referralCount = 0 } = useQuery({
+    queryKey: ["referral-count", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return 0;
+      const { count, error } = await supabase
+        .from("referrals")
+        .select("id", { count: "exact", head: true })
+        .eq("referrer_id", profile.id)
+        .eq("status", "completed");
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!profile?.id,
+  });
+
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
   const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
