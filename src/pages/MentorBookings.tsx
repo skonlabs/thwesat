@@ -114,6 +114,16 @@ const MentorBookings = () => {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", variant: "destructive" });
       return;
     }
+
+    // Send confirmation notification back to mentor
+    await sendNotification.mutateAsync({
+      recipientId: booking.mentor_id,
+      senderId: user.id,
+      type: "booking_confirmed",
+      bookingDate: booking.proposed_date,
+      bookingTime: booking.proposed_time,
+    });
+
     toast({ title: lang === "my" ? "အချိန်အသစ် လက်ခံပြီး" : "New time accepted!" });
     queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
   };
