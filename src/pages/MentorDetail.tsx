@@ -53,11 +53,15 @@ const MentorDetail = () => {
             <p className="text-sm text-muted-foreground">{mentor.title}</p>
             <p className="text-xs text-muted-foreground">{mentor.company} · {mentor.location}</p>
             <div className="mt-3 flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
-                <span className="text-sm font-bold text-foreground">{mentor.rating_avg || 0}</span>
-              </div>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location}</span>
+              {(mentor.rating_avg || 0) > 0 ? (
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
+                  <span className="text-sm font-bold text-foreground">{mentor.rating_avg}</span>
+                </div>
+              ) : (
+                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">{lang === "my" ? "အသစ် Mentor" : "New Mentor"}</span>
+              )}
+              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set")}</span>
               {mentor.is_available && (
                 <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
