@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Calendar as CalendarIcon, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { format, addDays, getDay } from "date-fns";
+import { format, isBefore, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -31,10 +32,6 @@ const durationOptions = [
   { minutes: 90, labelEn: "1.5 hours", labelMy: "၁.၅ နာရီ" },
   { minutes: 120, labelEn: "2 hours", labelMy: "၂ နာရီ" },
 ];
-
-const DAY_KEY_MAP: Record<number, string> = {
-  0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat",
-};
 
 function formatTime(t: string) {
   const [h, m] = t.split(":");
@@ -66,47 +63,29 @@ const MentorBooking = () => {
 
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
   const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
+  const currency = mentorProfile?.currency || "USD";
 
-  // Which days of the week have availability slots
-  const availableDayKeys = useMemo(() => {
-    const days = new Set(availabilitySlots.map(s => s.day_of_week));
-    // Also include mentor_profiles.available_days as fallback
-    if (mentorProfile?.available_days) {
-      mentorProfile.available_days.forEach(d => days.add(d));
-    }
-    return days;
-  }, [availabilitySlots, mentorProfile?.available_days]);
+  // Dates that have available slots
+  const availableDates = useMemo(() => {
+    return new Set(availabilitySlots.filter(s => s.slot_date).map(s => s.slot_date!));
+  }, [availabilitySlots]);
 
-  // Disable dates that don't match available days
+  const today = startOfDay(new Date());
+
   const disableDate = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (date <= today) return true;
-    if (date > addDays(today, 60)) return true;
-    const dayKey = DAY_KEY_MAP[getDay(date)];
-    return !availableDayKeys.has(dayKey);
+    if (isBefore(date, today) || date.getTime() === today.getTime()) return true;
+    const dateStr = format(date, "yyyy-MM-dd");
+    return !availableDates.has(dateStr);
   };
 
   // Time slots for selected date
   const timeSlotsForDate = useMemo(() => {
     if (!selectedDate) return [];
-    const dayKey = DAY_KEY_MAP[getDay(selectedDate)];
-    const slots = availabilitySlots.filter(s => s.day_of_week === dayKey && !s.is_booked);
-    if (slots.length > 0) {
-      return slots.map(s => ({ time: formatTime(s.start_time), raw: s.start_time, available: true }));
-    }
-    // Fallback: if no specific slots defined but day is in available_days
-    if (mentorProfile?.available_days?.includes(dayKey)) {
-      return [
-        { time: "9:00 AM", raw: "09:00", available: true },
-        { time: "10:00 AM", raw: "10:00", available: true },
-        { time: "2:00 PM", raw: "14:00", available: true },
-        { time: "3:00 PM", raw: "15:00", available: true },
-        { time: "7:00 PM", raw: "19:00", available: true },
-      ];
-    }
-    return [];
-  }, [selectedDate, availabilitySlots, mentorProfile?.available_days]);
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    return availabilitySlots
+      .filter(s => s.slot_date === dateStr && !s.is_booked)
+      .map(s => ({ time: formatTime(s.start_time), raw: s.start_time, available: true }));
+  }, [selectedDate, availabilitySlots]);
 
   const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const selectedDateDisplay = selectedDate ? format(selectedDate, "EEE, MMM d") : "";
@@ -136,7 +115,7 @@ const MentorBooking = () => {
 
   const mentorName = mentorProfile?.profile?.display_name || "Mentor";
   const mentorTitle = mentorProfile ? `${mentorProfile.title || ""} · ${mentorProfile.company || ""}`.replace(/^ · | · $/g, "") : "";
-  const currency = mentorProfile?.currency || "USD";
+  const mentorTz = (mentorProfile as any)?.timezone || "Asia/Yangon";
   const durationLabel = durationOptions.find(d => d.minutes === selectedDuration);
 
   if (step === 3) {
@@ -239,6 +218,9 @@ const MentorBooking = () => {
               <CalendarIcon className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
               {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Date"}
             </h2>
+            <p className="mb-2 text-[10px] text-muted-foreground">
+              {lang === "my" ? `Mentor Timezone: ${mentorTz}` : `Mentor's timezone: ${mentorTz}`}
+            </p>
             <div className="mb-5 flex justify-center rounded-xl border border-border bg-card p-2">
               <Calendar
                 mode="single"
@@ -248,9 +230,17 @@ const MentorBooking = () => {
                   setSelectedTime(null);
                 }}
                 disabled={disableDate}
-                className="pointer-events-auto"
+                modifiers={{ hasSlots: (date) => availableDates.has(format(date, "yyyy-MM-dd")) }}
+                modifiersClassNames={{ hasSlots: "bg-primary/10 font-bold" }}
+                className={cn("pointer-events-auto")}
               />
             </div>
+
+            {availableDates.size === 0 && (
+              <p className="mb-5 text-center text-xs text-muted-foreground">
+                {lang === "my" ? "ဤ Mentor တွင် ရနိုင်သော ရက် မရှိသေးပါ" : "This mentor hasn't set any available dates yet"}
+              </p>
+            )}
 
             {/* Time slots */}
             {selectedDate && (
