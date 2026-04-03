@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
   const { toast } = useToast();
@@ -27,6 +28,15 @@ const Signup = () => {
   const [showReferral, setShowReferral] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-fill referral code from URL param
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setReferralCode(ref.toUpperCase());
+      setShowReferral(true);
+    }
+  }, [searchParams]);
 
   const handleSignup = async () => {
     if (!name.trim()) {
@@ -41,6 +51,22 @@ const Signup = () => {
       toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
+
+    // Validate referral code if provided
+    let referrerId: string | null = null;
+    if (referralCode.trim()) {
+      const { data: referrerProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("referral_code", referralCode.trim())
+        .maybeSingle();
+      if (!referrerProfile) {
+        toast({ title: lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code", variant: "destructive" });
+        return;
+      }
+      referrerId = referrerProfile.id;
+    }
+
     setIsLoading(true);
     const { error } = await signUp(email, password, name, selectedRole);
     setIsLoading(false);
@@ -51,17 +77,22 @@ const Signup = () => {
     // Get the new user and persist role + referral
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
-      // Save referral code if provided
-      if (referralCode.trim()) {
+      // Save referral code and create referral record
+      if (referralCode.trim() && referrerId) {
         await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
+        // Create referral record with 'completed' status (user signed up successfully)
+        await supabase.from("referrals").insert({
+          referrer_id: referrerId,
+          referred_id: newUser.id,
+          referral_code: referralCode.trim(),
+          status: "completed",
+        });
       }
       // Persist role to user_roles table via SECURITY DEFINER function
       if (selectedRole === "employer") {
         await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
-        // Employer role is tracked via employer_profiles table, not user_roles enum
       } else if (selectedRole === "mentor") {
         await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
-        // Mentor role is tracked via mentor_profiles table
       }
     }
     setRole(selectedRole);
