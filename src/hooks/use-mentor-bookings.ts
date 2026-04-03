@@ -222,6 +222,7 @@ export function useUpdateBookingStatus() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
