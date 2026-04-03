@@ -55,6 +55,7 @@ const Mentors = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const { role } = useRole();
+  const { startConversation } = useStartConversation();
   const { data: mentors = [], isLoading } = useMentorProfiles();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
