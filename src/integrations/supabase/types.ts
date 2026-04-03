@@ -1382,12 +1382,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_referral_premium: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      process_referral_reward: {
+        Args: { _referrer_id: string }
+        Returns: undefined
       }
       set_user_role: {
         Args: {
