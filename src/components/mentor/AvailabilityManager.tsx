@@ -289,28 +289,28 @@ export default function AvailabilityManager() {
             onSelect={(dates) => setSelectedDates(dates || [])}
             disabled={(date) => isBefore(date, today) || date > maxDate}
             modifiers={{ hasSlots: (date) => datesWithSlots.has(format(date, "yyyy-MM-dd")) }}
-            modifiersClassNames={{ hasSlots: "ring-2 ring-emerald/30 ring-inset bg-emerald/5" }}
+            modifiersClassNames={{ hasSlots: "bg-primary/8 font-semibold" }}
             className={cn("p-3 pointer-events-auto")}
             classNames={{
               months: "flex flex-col w-full",
-              month: "space-y-3 w-full",
-              caption: "flex justify-center pt-1 relative items-center",
+              month: "space-y-2 w-full",
+              caption: "flex justify-center pt-1 relative items-center mb-1",
               caption_label: "text-sm font-bold text-foreground",
               nav: "space-x-1 flex items-center",
-              nav_button: "h-8 w-8 bg-muted hover:bg-accent rounded-xl flex items-center justify-center text-foreground transition-colors",
+              nav_button: "h-7 w-7 bg-muted hover:bg-accent rounded-full flex items-center justify-center text-foreground transition-colors",
               nav_button_previous: "absolute left-1",
               nav_button_next: "absolute right-1",
               table: "w-full border-collapse",
-              head_row: "flex justify-between",
-              head_cell: "w-10 text-[11px] font-semibold text-muted-foreground text-center",
-              row: "flex w-full justify-between mt-1",
-              cell: "h-10 w-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-              day: "h-10 w-10 p-0 font-medium text-xs rounded-xl hover:bg-accent transition-colors aria-selected:opacity-100",
+              head_row: "flex",
+              head_cell: "flex-1 text-[11px] font-medium text-muted-foreground text-center py-1",
+              row: "flex w-full mt-0.5",
+              cell: "flex-1 aspect-square text-center text-sm p-0.5 relative focus-within:relative focus-within:z-20",
+              day: "h-full w-full p-0 font-normal text-xs rounded-full hover:bg-accent transition-colors aria-selected:opacity-100 flex items-center justify-center",
               day_range_end: "day-range-end",
-              day_selected: "!bg-primary !text-primary-foreground !font-semibold shadow-sm hover:!bg-primary",
-              day_today: "bg-accent/60 font-bold text-accent-foreground",
-              day_outside: "text-muted-foreground/40 opacity-40",
-              day_disabled: "text-muted-foreground/30 opacity-30",
+              day_selected: "!bg-primary !text-primary-foreground !font-semibold hover:!bg-primary",
+              day_today: "bg-accent font-bold text-accent-foreground",
+              day_outside: "text-muted-foreground opacity-30",
+              day_disabled: "text-muted-foreground opacity-30",
               day_hidden: "invisible",
             }}
             month={viewDate}
