@@ -15,7 +15,6 @@ export function useMentorBookings(asMentor = true) {
         .eq(column, user.id)
         .order("scheduled_date", { ascending: false });
       if (error) throw error;
-      // Fetch other party profiles
       const otherIds = [...new Set((data || []).map(b => asMentor ? b.mentee_id : b.mentor_id))];
       if (otherIds.length === 0) return (data || []).map(b => ({ ...b, otherProfile: null }));
       const { data: profiles } = await supabase
@@ -32,18 +31,177 @@ export function useMentorBookings(asMentor = true) {
   });
 }
 
+async function sendBookingNotification({
+  recipientId,
+  senderId,
+  type,
+  bookingDate,
+  bookingTime,
+  proposedDate,
+  proposedTime,
+}: {
+  recipientId: string;
+  senderId: string;
+  type: "new_booking" | "booking_confirmed" | "booking_declined" | "booking_counter_proposal";
+  bookingDate: string;
+  bookingTime: string;
+  proposedDate?: string;
+  proposedTime?: string;
+}) {
+  // Get sender name
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", senderId)
+    .maybeSingle();
+  const senderName = senderProfile?.display_name || "Someone";
+
+  const titles: Record<string, { en: string; my: string }> = {
+    new_booking: { en: `New booking request from ${senderName}`, my: `${senderName} ထံမှ Booking အသစ်` },
+    booking_confirmed: { en: `${senderName} confirmed your booking`, my: `${senderName} သင့် Booking ကို အတည်ပြုပြီ` },
+    booking_declined: { en: `${senderName} declined your booking`, my: `${senderName} သင့် Booking ကို ငြင်းပယ်ပြီ` },
+    booking_counter_proposal: { en: `${senderName} proposed a new time`, my: `${senderName} အချိန်အသစ် အဆိုပြုပြီ` },
+  };
+
+  const descriptions: Record<string, { en: string; my: string }> = {
+    new_booking: { en: `Session on ${bookingDate} at ${bookingTime}`, my: `${bookingDate} ${bookingTime} တွင် Session` },
+    booking_confirmed: { en: `Your session on ${bookingDate} at ${bookingTime} is confirmed`, my: `${bookingDate} ${bookingTime} Session အတည်ပြုပြီ` },
+    booking_declined: { en: `Your session on ${bookingDate} at ${bookingTime} was declined`, my: `${bookingDate} ${bookingTime} Session ငြင်းပယ်ခံရပြီ` },
+    booking_counter_proposal: {
+      en: `New proposed time: ${proposedDate} at ${proposedTime}. Check your bookings to accept.`,
+      my: `အချိန်အသစ်: ${proposedDate} ${proposedTime}။ Booking တွင် စစ်ဆေးပါ။`,
+    },
+  };
+
+  // 1. In-app notification
+  await supabase.from("notifications").insert({
+    user_id: recipientId,
+    notification_type: "booking",
+    title: titles[type].en,
+    title_my: titles[type].my,
+    description: descriptions[type].en,
+    description_my: descriptions[type].my,
+    link_path: "/mentors/bookings",
+  });
+
+  // 2. Auto-message: find or create conversation, then send
+  const { data: myParts } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id")
+    .eq("user_id", senderId);
+
+  let conversationId: string | null = null;
+
+  if (myParts && myParts.length > 0) {
+    const convIds = myParts.map(p => p.conversation_id);
+    const { data: otherParts } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", recipientId)
+      .in("conversation_id", convIds);
+
+    if (otherParts && otherParts.length > 0) {
+      conversationId = otherParts[0].conversation_id;
+    }
+  }
+
+  if (!conversationId) {
+    const { data: conv } = await supabase.from("conversations").insert({}).select("id").single();
+    if (conv) {
+      conversationId = conv.id;
+      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: senderId });
+      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: recipientId });
+    }
+  }
+
+  if (conversationId) {
+    const messageTexts: Record<string, string> = {
+      new_booking: `📅 Booking request: ${bookingDate} at ${bookingTime}`,
+      booking_confirmed: `✅ Booking confirmed: ${bookingDate} at ${bookingTime}`,
+      booking_declined: `❌ Booking declined: ${bookingDate} at ${bookingTime}`,
+      booking_counter_proposal: `🔄 Proposed new time: ${proposedDate} at ${proposedTime}. Please check your bookings to accept or decline.`,
+    };
+
+    await supabase.from("messages").insert({
+      conversation_id: conversationId,
+      sender_id: senderId,
+      content: messageTexts[type],
+    });
+  }
+}
+
 export function useUpdateBookingStatus() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({
+      id,
+      status,
+      declineReason,
+      proposedDate,
+      proposedTime,
+    }: {
+      id: string;
+      status: string;
+      declineReason?: string;
+      proposedDate?: string;
+      proposedTime?: string;
+    }) => {
+      const updatePayload: any = { status };
+      if (declineReason) updatePayload.decline_reason = declineReason;
+      if (proposedDate) updatePayload.proposed_date = proposedDate;
+      if (proposedTime) updatePayload.proposed_time = proposedTime;
+
       const { error } = await supabase
         .from("mentor_bookings")
-        .update({ status })
+        .update(updatePayload)
         .eq("id", id);
       if (error) throw error;
+
+      // Get booking details for notification
+      const { data: booking } = await supabase
+        .from("mentor_bookings")
+        .select("mentor_id, mentee_id, scheduled_date, scheduled_time")
+        .eq("id", id)
+        .single();
+
+      if (booking && user) {
+        const isMentor = user.id === booking.mentor_id;
+        const recipientId = isMentor ? booking.mentee_id : booking.mentor_id;
+
+        if (status === "confirmed") {
+          await sendBookingNotification({
+            recipientId,
+            senderId: user.id,
+            type: "booking_confirmed",
+            bookingDate: booking.scheduled_date,
+            bookingTime: booking.scheduled_time,
+          });
+        } else if (status === "cancelled" && proposedDate && proposedTime) {
+          await sendBookingNotification({
+            recipientId,
+            senderId: user.id,
+            type: "booking_counter_proposal",
+            bookingDate: booking.scheduled_date,
+            bookingTime: booking.scheduled_time,
+            proposedDate,
+            proposedTime,
+          });
+        } else if (status === "cancelled") {
+          await sendBookingNotification({
+            recipientId,
+            senderId: user.id,
+            type: "booking_declined",
+            bookingDate: booking.scheduled_date,
+            bookingTime: booking.scheduled_time,
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 }
@@ -55,13 +213,11 @@ export function useMarkSessionComplete() {
     mutationFn: async ({ id, role }: { id: string; role: "mentor" | "mentee" }) => {
       if (!user) throw new Error("Not authenticated");
       const field = role === "mentor" ? "mentor_completed_at" : "mentee_completed_at";
-      // First mark the completion timestamp
       const { error } = await supabase
         .from("mentor_bookings")
         .update({ [field]: new Date().toISOString() } as any)
         .eq("id", id);
       if (error) throw error;
-      // Check if both sides completed — if so, mark status as completed
       const { data: booking } = await supabase
         .from("mentor_bookings")
         .select("mentor_completed_at, mentee_completed_at")
@@ -90,9 +246,20 @@ export function useCreateBooking() {
         .from("mentor_bookings")
         .insert(booking);
       if (error) throw error;
+
+      // Send notification + auto-message to mentor
+      await sendBookingNotification({
+        recipientId: booking.mentor_id,
+        senderId: user.id,
+        type: "new_booking",
+        bookingDate: booking.scheduled_date,
+        bookingTime: booking.scheduled_time,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 }
