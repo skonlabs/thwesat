@@ -282,15 +282,37 @@ export default function AvailabilityManager() {
         <label className="mb-1.5 block text-xs font-medium text-foreground">
           {lang === "my" ? "ရက်များ ရွေးပါ (တစ်ခုထက်ပိုရွေးနိုင်)" : "Pick dates (tap to toggle, multi-select)"}
         </label>
-        <div className="rounded-2xl border border-border bg-background p-2 shadow-card">
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-card">
           <Calendar
             mode="multiple"
             selected={selectedDates}
             onSelect={(dates) => setSelectedDates(dates || [])}
             disabled={(date) => isBefore(date, today) || date > maxDate}
             modifiers={{ hasSlots: (date) => datesWithSlots.has(format(date, "yyyy-MM-dd")) }}
-            modifiersClassNames={{ hasSlots: "!ring-2 !ring-emerald/40 ring-inset !bg-emerald/5" }}
-            className={cn("p-3 pointer-events-auto w-full [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full [&_.rdp-head_row]:flex [&_.rdp-head_row]:justify-between [&_.rdp-row]:flex [&_.rdp-row]:justify-between [&_.rdp-head_cell]:w-10 [&_.rdp-head_cell]:text-[11px] [&_.rdp-head_cell]:font-semibold [&_.rdp-head_cell]:text-muted-foreground [&_.rdp-cell]:w-10 [&_.rdp-cell]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:h-10 [&_.rdp-day]:text-xs [&_.rdp-day]:font-medium [&_.rdp-day]:rounded-xl [&_.rdp-day_selected]:!bg-primary [&_.rdp-day_selected]:!text-primary-foreground [&_.rdp-day_selected]:shadow-sm [&_.rdp-day_today]:bg-accent/60 [&_.rdp-day_today]:font-bold [&_.rdp-nav_button]:h-8 [&_.rdp-nav_button]:w-8 [&_.rdp-nav_button]:rounded-xl [&_.rdp-nav_button]:border-border [&_.rdp-caption_label]:text-sm [&_.rdp-caption_label]:font-bold [&_.rdp-caption_label]:text-foreground")}
+            modifiersClassNames={{ hasSlots: "ring-2 ring-emerald/30 ring-inset bg-emerald/5" }}
+            className={cn("p-3 pointer-events-auto")}
+            classNames={{
+              months: "flex flex-col w-full",
+              month: "space-y-3 w-full",
+              caption: "flex justify-center pt-1 relative items-center",
+              caption_label: "text-sm font-bold text-foreground",
+              nav: "space-x-1 flex items-center",
+              nav_button: "h-8 w-8 bg-muted hover:bg-accent rounded-xl flex items-center justify-center text-foreground transition-colors",
+              nav_button_previous: "absolute left-1",
+              nav_button_next: "absolute right-1",
+              table: "w-full border-collapse",
+              head_row: "flex justify-between",
+              head_cell: "w-10 text-[11px] font-semibold text-muted-foreground text-center",
+              row: "flex w-full justify-between mt-1",
+              cell: "h-10 w-10 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+              day: "h-10 w-10 p-0 font-medium text-xs rounded-xl hover:bg-accent transition-colors aria-selected:opacity-100",
+              day_range_end: "day-range-end",
+              day_selected: "!bg-primary !text-primary-foreground !font-semibold shadow-sm hover:!bg-primary",
+              day_today: "bg-accent/60 font-bold text-accent-foreground",
+              day_outside: "text-muted-foreground/40 opacity-40",
+              day_disabled: "text-muted-foreground/30 opacity-30",
+              day_hidden: "invisible",
+            }}
             month={viewDate}
             onMonthChange={setViewDate}
           />
