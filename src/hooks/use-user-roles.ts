@@ -41,6 +41,8 @@ export function useUserRoles() {
   });
 
   const isAdmin = systemRoles?.includes("admin") ?? false;
+  const isModerator = systemRoles?.includes("moderator") ?? false;
+  const isSystemRole = isAdmin || isModerator;
   const primaryRole = (profile?.primary_role as UserRole) || "jobseeker";
   const isLoading = authLoading || mentorLoading || rolesLoading;
 
