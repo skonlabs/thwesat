@@ -552,6 +552,7 @@ export type Database = {
         Row: {
           booked_by: string | null
           created_at: string | null
+          decline_reason: string | null
           goals: string | null
           id: string
           mentee_completed_at: string | null
@@ -559,6 +560,8 @@ export type Database = {
           mentor_completed_at: string | null
           mentor_id: string
           message: string | null
+          proposed_date: string | null
+          proposed_time: string | null
           scheduled_date: string
           scheduled_time: string
           status: string | null
@@ -569,6 +572,7 @@ export type Database = {
         Insert: {
           booked_by?: string | null
           created_at?: string | null
+          decline_reason?: string | null
           goals?: string | null
           id?: string
           mentee_completed_at?: string | null
@@ -576,6 +580,8 @@ export type Database = {
           mentor_completed_at?: string | null
           mentor_id: string
           message?: string | null
+          proposed_date?: string | null
+          proposed_time?: string | null
           scheduled_date: string
           scheduled_time: string
           status?: string | null
@@ -586,6 +592,7 @@ export type Database = {
         Update: {
           booked_by?: string | null
           created_at?: string | null
+          decline_reason?: string | null
           goals?: string | null
           id?: string
           mentee_completed_at?: string | null
@@ -593,6 +600,8 @@ export type Database = {
           mentor_completed_at?: string | null
           mentor_id?: string
           message?: string | null
+          proposed_date?: string | null
+          proposed_time?: string | null
           scheduled_date?: string
           scheduled_time?: string
           status?: string | null
