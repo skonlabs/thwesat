@@ -99,7 +99,7 @@ const MentorBooking = () => {
         mentor_id: mentorId,
         mentee_id: user.id,
         scheduled_date: selectedDateStr,
-        scheduled_time: selectedTime,
+        scheduled_time: selectedTime || "TBD",
         topic: selectedTopic,
         message,
         goals,
