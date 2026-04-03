@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 
 const Profile = () => {
@@ -18,6 +19,7 @@ const Profile = () => {
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
+  const { allowedRoles, isLoading: rolesLoading } = useUserRoles();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
 
@@ -55,12 +57,8 @@ const Profile = () => {
     { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
 
-  // Job Seeker and Employer are mutually exclusive — only show the other non-conflicting roles
-  const roleOptions = allRoleOptions.filter((r) => {
-    if (role === "jobseeker" && r.value === "employer") return false;
-    if (role === "employer" && r.value === "jobseeker") return false;
-    return true;
-  });
+  // Only show roles the user actually has access to
+  const roleOptions = allRoleOptions.filter((r) => allowedRoles.includes(r.value));
 
   const handleSelectRole = (r: UserRole) => {
     setRole(r);

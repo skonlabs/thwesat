@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RoleGuard from "@/components/RoleGuard";
+import AppRoleGuard from "@/components/AppRoleGuard";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
@@ -82,9 +83,9 @@ const App = () => (
               <Route path="/mentors" element={<Mentors />} />
               <Route path="/mentors/:id" element={<MentorDetail />} />
               <Route path="/mentors/book" element={<MentorBooking />} />
-              <Route path="/mentors/dashboard" element={<MentorDashboard />} />
-              <Route path="/mentors/mentees" element={<MentorMentees />} />
-              <Route path="/mentors/bookings" element={<MentorBookings />} />
+              <Route path="/mentors/dashboard" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorDashboard /></AppRoleGuard>} />
+              <Route path="/mentors/mentees" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorMentees /></AppRoleGuard>} />
+              <Route path="/mentors/bookings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorBookings /></AppRoleGuard>} />
               <Route path="/guides" element={<Guides />} />
               <Route path="/guides/:id" element={<GuideDetail />} />
               <Route path="/community" element={<Community />} />
@@ -102,12 +103,12 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
 
               {/* Employer Portal */}
-              <Route path="/employer/onboarding" element={<EmployerOnboarding />} />
-              <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-              <Route path="/employer/post-job" element={<EmployerPostJob />} />
-              <Route path="/employer/applications" element={<EmployerApplications />} />
-              <Route path="/employer/subscription" element={<EmployerSubscription />} />
-              <Route path="/employer/search" element={<SearchTalent />} />
+              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
+              <Route path="/employer/dashboard" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerDashboard /></AppRoleGuard>} />
+              <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
+              <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
+              <Route path="/employer/subscription" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerSubscription /></AppRoleGuard>} />
+              <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />

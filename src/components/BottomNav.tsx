@@ -1,14 +1,24 @@
+import { useEffect } from "react";
 import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, GraduationCap, Calendar } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole } from "@/hooks/use-role";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { role } = useRole();
+  const { role, setRole } = useRole();
+  const { allowedRoles, isLoading } = useUserRoles();
+
+  // If current role isn't allowed, reset to the first allowed role
+  useEffect(() => {
+    if (!isLoading && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+      setRole(allowedRoles[0]);
+    }
+  }, [isLoading, allowedRoles, role, setRole]);
 
   const jobseekerNav = [
     { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
