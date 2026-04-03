@@ -93,7 +93,7 @@ const MentorBooking = () => {
   const selectedDateDisplay = selectedDate ? format(selectedDate, "EEE, MMM d") : "";
 
   const handleConfirm = async () => {
-    if (!user || !mentorId || !selectedDate || !selectedTime || !selectedTopic) return;
+    if (!user || !mentorId || !selectedDate || !selectedTopic) return;
     try {
       await createBooking.mutateAsync({
         mentor_id: mentorId,
