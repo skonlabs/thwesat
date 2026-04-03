@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMentorAllAvailability, useAddAvailabilitySlot, useDeleteAvailabilitySlot } from "@/hooks/use-mentor-availability";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useLanguage } from "@/hooks/use-language";
