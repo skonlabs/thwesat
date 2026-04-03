@@ -1,0 +1,1 @@
+INSERT INTO public.user_roles (user_id, role) VALUES ('73146d9d-cbe7-4d8f-8450-ab2d12741b17'::uuid, 'admin'::app_role) ON CONFLICT (user_id, role) DO NOTHING;
