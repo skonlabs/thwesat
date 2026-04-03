@@ -58,7 +58,7 @@ const EmployerSubscription = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် အစီအစဉ်" : "Employer Plans"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် အစီအစဉ်" : "Employer Plans"} backPath="/employer/dashboard" />
       <div className="px-5">
         <p className="mb-5 text-center text-sm text-muted-foreground">
           {lang === "my" ? "သင့်လုပ်ငန်းအတွက် အသင့်တော်ဆုံး အစီအစဉ်ကို ရွေးပါ" : "Choose the right plan for your hiring needs"}

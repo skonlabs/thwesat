@@ -65,7 +65,7 @@ const EmployerApplications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} />
+      <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
       <div className="px-5">
         <div className="mb-3 rounded-xl border border-border bg-card p-3">
           <p className="text-[10px] text-muted-foreground">{apps.length} {lang === "my" ? "ဦး လျှောက်ထားပြီး" : "applicants"}</p>
