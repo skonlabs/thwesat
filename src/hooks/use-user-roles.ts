@@ -7,6 +7,8 @@ import type { UserRole } from "@/hooks/use-role";
  * Determines which app roles (jobseeker / employer / mentor) the current user
  * is allowed to access, based on their profile's primary_role and whether a
  * mentor_profiles row exists.
+ *
+ * Admin / moderator users get NO app roles — they should only use admin screens.
  */
 export function useUserRoles() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -24,17 +26,31 @@ export function useUserRoles() {
     enabled: !!user,
   });
 
+  const { data: systemRoles, isLoading: rolesLoading } = useQuery({
+    queryKey: ["user-system-roles", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      return data.map((r) => r.role);
+    },
+    enabled: !!user,
+  });
+
+  const isAdmin = systemRoles?.includes("admin") ?? false;
   const primaryRole = (profile?.primary_role as UserRole) || "jobseeker";
-  const isLoading = authLoading || mentorLoading;
+  const isLoading = authLoading || mentorLoading || rolesLoading;
 
   const allowedRoles: UserRole[] = [];
 
-  if (!isLoading && profile) {
+  if (!isLoading && profile && !isAdmin) {
     // Base role from signup
     if (primaryRole === "employer") {
       allowedRoles.push("employer");
     } else {
-      // jobseeker or mentor signup → gets jobseeker access
       allowedRoles.push("jobseeker");
     }
 
@@ -46,5 +62,5 @@ export function useUserRoles() {
 
   const hasRole = (role: UserRole) => allowedRoles.includes(role);
 
-  return { allowedRoles, hasRole, isLoading };
+  return { allowedRoles, hasRole, isLoading, isAdmin };
 }
