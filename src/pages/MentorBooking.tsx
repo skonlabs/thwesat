@@ -331,7 +331,7 @@ const MentorBooking = () => {
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || !selectedTime} onClick={() => setStep(2)}>
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || (availableDates.size > 0 && !selectedTime)} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
