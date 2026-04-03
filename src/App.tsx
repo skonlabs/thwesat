@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RoleGuard from "@/components/RoleGuard";
+import AppRoleGuard from "@/components/AppRoleGuard";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
