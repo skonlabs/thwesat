@@ -148,14 +148,23 @@ const MentorBookings = () => {
 
         {/* Filters */}
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {(["all", "pending", "confirmed", "completed"] as FilterType[]).map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f].label.my : statusConfig[f].label.en)}
-              {f === "pending" && pendingCount > 0 && (
-                <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-[9px] font-bold text-primary">{pendingCount}</span>
-              )}
-            </button>
-          ))}
+          {(["all", "pending", "confirmed", "completed", "cancelled"] as FilterType[]).map(f => {
+            const declinedCount = f === "cancelled" ? bookings.filter((b: any) => b.status === "cancelled").length : 0;
+            const counterProposalCount = f === "cancelled" ? bookings.filter((b: any) => b.status === "cancelled" && b.proposed_date).length : 0;
+            return (
+              <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+                {f === "all" ? (lang === "my" ? "အားလုံး" : "All")
+                  : f === "cancelled" ? (lang === "my" ? "ငြင်းပယ်" : "Declined")
+                  : (lang === "my" ? statusConfig[f].label.my : statusConfig[f].label.en)}
+                {f === "pending" && pendingCount > 0 && (
+                  <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-[9px] font-bold text-primary">{pendingCount}</span>
+                )}
+                {f === "cancelled" && counterProposalCount > 0 && (
+                  <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{counterProposalCount}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {isLoading ? (
