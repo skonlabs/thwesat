@@ -17,6 +17,43 @@ const MentorDetail = () => {
   const { startConversation } = useStartConversation();
   const { data: mentor, isLoading } = useMentorProfile(id);
 
+  // Fetch next available slot
+  const { data: nextSlot } = useQuery({
+    queryKey: ["next-available-slot", id],
+    queryFn: async () => {
+      if (!id) return null;
+      const today = new Date().toISOString().split("T")[0];
+      const { data } = await supabase
+        .from("mentor_availability_slots")
+        .select("slot_date, start_time, end_time")
+        .eq("mentor_id", id)
+        .eq("is_booked", false)
+        .gte("slot_date", today)
+        .order("slot_date", { ascending: true })
+        .order("start_time", { ascending: true })
+        .limit(1);
+      if (!data || data.length === 0) return null;
+      return data[0];
+    },
+    enabled: !!id,
+  });
+
+  const { data: totalSlots = 0 } = useQuery({
+    queryKey: ["available-slots-count", id],
+    queryFn: async () => {
+      if (!id) return 0;
+      const today = new Date().toISOString().split("T")[0];
+      const { count } = await supabase
+        .from("mentor_availability_slots")
+        .select("id", { count: "exact", head: true })
+        .eq("mentor_id", id)
+        .eq("is_booked", false)
+        .gte("slot_date", today);
+      return count || 0;
+    },
+    enabled: !!id,
+  });
+
   const { data: reviews = [] } = useQuery({
     queryKey: ["mentor-reviews", id],
     queryFn: async () => {
