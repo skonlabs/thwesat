@@ -43,6 +43,7 @@ const MentorDashboard = () => {
   const updateStatus = useUpdateBookingStatus();
   const [bookingFilter, setBookingFilter] = useState("all");
   const [hourlyRate, setHourlyRate] = useState("30");
+  const [currency, setCurrency] = useState("USD");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
 
