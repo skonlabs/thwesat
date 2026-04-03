@@ -1,0 +1,24 @@
+INSERT INTO public.guides (title, category, content, country, country_flag, is_verified, read_time_minutes)
+SELECT title, cat, content, country, flag, true, 5
+FROM (VALUES
+('Sri Lanka', '🇱🇰'), ('Pakistan', '🇵🇰'), ('New Zealand', '🇳🇿'),
+('Kuwait', '🇰🇼'), ('Bahrain', '🇧🇭'), ('Oman', '🇴🇲'),
+('Hong Kong', '🇭🇰'), ('China', '🇨🇳'), ('Brunei', '🇧🇳'),
+('Maldives', '🇲🇻'), ('Mongolia', '🇲🇳'), ('Myanmar', '🇲🇲')
+) AS countries(country, flag)
+CROSS JOIN (VALUES
+('visa', 'Visa & Work Permit Guide'),
+('employment', 'Employment & Jobs Guide'),
+('essentials', 'Daily Life & Essentials Guide'),
+('safety', 'Safety & Scam Prevention Guide')
+) AS categories(cat, cat_title)
+CROSS JOIN LATERAL (
+SELECT
+  country || ' — ' || cat_title AS title,
+  CASE cat
+    WHEN 'visa' THEN E'## Visa & Work Permit Guide for ' || country || E'\n\n### Overview\n' || country || E' has specific visa requirements for Myanmar nationals.\n\n### Common Visa Types\n- **Tourist Visa**: 30-90 days, not for employment\n- **Work Visa**: Required for legal employment, employer-sponsored\n- **Business Visa**: For meetings, not regular employment\n\n### Application Process\n1. Secure job offer from employer in ' || country || E'\n2. Employer initiates work permit sponsorship\n3. Gather documents (passport, photos, medical cert, police clearance)\n4. Submit application at embassy or online\n5. Wait for processing (2-8 weeks)\n\n### Required Documents\n- Valid passport (6+ months validity)\n- Passport photos (white background)\n- Employment contract\n- Medical certificate\n- Police clearance from Myanmar\n- Educational certificates\n\n### Tips\n- Verify requirements through official embassy website\n- Never pay unofficial agents\n- Keep copies of all documents\n- Start process 2-3 months in advance\n\n### Renewal\n- Annual renewal typically required\n- Start 60 days before expiry\n- Maintain valid status to avoid penalties'
+    WHEN 'employment' THEN E'## Employment Guide for ' || country || E'\n\n### Job Market\n' || country || E' offers opportunities in manufacturing, construction, hospitality, tech, and services.\n\n### Popular Sectors\n- **Manufacturing**: Assembly, quality control\n- **Construction**: Skilled and unskilled labor\n- **Hospitality**: Hotels, restaurants\n- **IT**: Software, data entry, BPO\n- **Healthcare**: Nursing, caregiving\n\n### Worker Rights\n- Minimum wage laws apply to foreigners\n- Working hours regulated by law\n- Overtime must be compensated\n- Rest days and holidays provided\n\n### Finding Jobs\n1. Use agencies registered with Myanmar government\n2. Check online job portals\n3. Network with Myanmar communities in ' || country || E'\n4. Apply directly to companies\n\n### Red Flags\n- Excessive upfront fees\n- Unrealistic salary promises\n- Passport surrender requests\n- No written contract\n\n### Contract Checklist\n- Job title and description\n- Salary and payment schedule\n- Working hours and overtime\n- Leave entitlements\n- Insurance coverage\n- Termination conditions'
+    WHEN 'essentials' THEN E'## Daily Life in ' || country || E'\n\n### Accommodation\n- Company housing often available\n- Shared apartments are affordable\n- Always get written rental agreement\n\n### Transportation\n- Use public transport (buses, trains, metro)\n- Ride-hailing apps available\n- Get local transit card for discounts\n\n### Communication\n- Buy local SIM card on arrival\n- Download popular messaging apps\n- Save emergency numbers\n- Learn basic local phrases\n\n### Banking\n- Open local bank account\n- Compare remittance services for Myanmar\n- Keep emergency cash\n\n### Food\n- Asian groceries carry Myanmar ingredients\n- Cooking at home saves money\n- Myanmar restaurants in most cities\n\n### Healthcare\n- Register with local clinic\n- Know your insurance coverage\n- Learn emergency number\n- Keep personal medications\n\n### Culture\n- Learn basic greetings\n- Respect local customs\n- Be punctual'
+    WHEN 'safety' THEN E'## Safety Guide for ' || country || E'\n\n### Common Scams\n- **Recruitment Fraud**: Fake agencies collecting fees\n- **Document Theft**: Passport confiscation\n- **Salary Theft**: Unpaid wages\n- **Forced Labor**: Working without consent\n\n### Protection Tips\n1. Verify agencies through Myanmar Ministry of Labor\n2. Never surrender your passport\n3. Keep document copies\n4. Get everything in writing\n5. Know local labor laws\n6. Stay connected with Myanmar community\n\n### If in Trouble\n- Contact Myanmar Embassy\n- Call local emergency services\n- Reach migrant worker organizations\n- Document everything\n\n### Workplace Safety\n- Follow safety protocols\n- Use protective equipment\n- Report unsafe conditions\n- Know emergency exit locations\n\n### Legal Rights\n- Right to fair wages per contract\n- Passport cannot be confiscated\n- Right to medical treatment\n- Can file labor complaints'
+  END AS content
+) AS generated(title, content);
