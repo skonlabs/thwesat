@@ -103,6 +103,7 @@ export default function AvailabilityManager() {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = useState(false);
+  const [showAllDates, setShowAllDates] = useState(false);
   const [viewDate, setViewDate] = useState<Date | undefined>(undefined);
 
   const [tzInitialized, setTzInitialized] = useState(false);
@@ -395,7 +396,7 @@ export default function AvailabilityManager() {
               {slots.length} {lang === "my" ? "ခု" : "total slots"}
             </span>
           </div>
-          {upcomingDates.slice(0, 7).map(dateStr => {
+          {upcomingDates.slice(0, showAllDates ? undefined : 3).map(dateStr => {
             const daySlots = (slotsByDate.get(dateStr) || []).sort((a, b) => a.start_time.localeCompare(b.start_time));
             const bookedCount = daySlots.filter(s => s.is_booked).length;
             return (
@@ -435,10 +436,21 @@ export default function AvailabilityManager() {
               </div>
             );
           })}
-          {upcomingDates.length > 7 && (
-            <p className="text-center text-[10px] text-muted-foreground">
-              +{upcomingDates.length - 7} {lang === "my" ? "ရက်" : "more days"}
-            </p>
+          {!showAllDates && upcomingDates.length > 3 && (
+            <button
+              onClick={() => setShowAllDates(true)}
+              className="w-full rounded-lg border border-border bg-muted/50 py-2 text-center text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted"
+            >
+              +{upcomingDates.length - 3} {lang === "my" ? "ရက် ကြည့်ရန်" : "more days"}
+            </button>
+          )}
+          {showAllDates && upcomingDates.length > 3 && (
+            <button
+              onClick={() => setShowAllDates(false)}
+              className="w-full rounded-lg border border-border bg-muted/50 py-2 text-center text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted"
+            >
+              {lang === "my" ? "ချုံ့ရန်" : "Show less"}
+            </button>
           )}
         </div>
       )}
