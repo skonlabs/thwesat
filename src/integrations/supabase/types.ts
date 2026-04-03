@@ -551,7 +551,9 @@ export type Database = {
           created_at: string | null
           goals: string | null
           id: string
+          mentee_completed_at: string | null
           mentee_id: string
+          mentor_completed_at: string | null
           mentor_id: string
           message: string | null
           scheduled_date: string
@@ -566,7 +568,9 @@ export type Database = {
           created_at?: string | null
           goals?: string | null
           id?: string
+          mentee_completed_at?: string | null
           mentee_id: string
+          mentor_completed_at?: string | null
           mentor_id: string
           message?: string | null
           scheduled_date: string
@@ -581,7 +585,9 @@ export type Database = {
           created_at?: string | null
           goals?: string | null
           id?: string
+          mentee_completed_at?: string | null
           mentee_id?: string
+          mentor_completed_at?: string | null
           mentor_id?: string
           message?: string | null
           scheduled_date?: string

@@ -48,6 +48,35 @@ export function useUpdateBookingStatus() {
   });
 }
 
+export function useMarkSessionComplete() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, role }: { id: string; role: "mentor" | "mentee" }) => {
+      if (!user) throw new Error("Not authenticated");
+      const field = role === "mentor" ? "mentor_completed_at" : "mentee_completed_at";
+      // First mark the completion timestamp
+      const { error } = await supabase
+        .from("mentor_bookings")
+        .update({ [field]: new Date().toISOString() } as any)
+        .eq("id", id);
+      if (error) throw error;
+      // Check if both sides completed — if so, mark status as completed
+      const { data: booking } = await supabase
+        .from("mentor_bookings")
+        .select("mentor_completed_at, mentee_completed_at")
+        .eq("id", id)
+        .single();
+      if (booking && (booking as any).mentor_completed_at && (booking as any).mentee_completed_at) {
+        await supabase.from("mentor_bookings").update({ status: "completed" }).eq("id", id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+    },
+  });
+}
+
 export function useCreateBooking() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
