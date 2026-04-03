@@ -36,7 +36,12 @@ export function useMentorProfiles() {
         .order("rating_avg", { ascending: false });
       if (error) throw error;
 
-      const ids = (data || []).map(m => m.id);
+      // Filter out incomplete mentor profiles (must have title and at least some expertise)
+      const validMentors = (data || []).filter(
+        (m) => m.title && m.title.trim() !== ""
+      );
+
+      const ids = validMentors.map(m => m.id);
       if (ids.length === 0) return [];
 
       const { data: profiles } = await supabase
@@ -45,7 +50,7 @@ export function useMentorProfiles() {
         .in("id", ids);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
-      return (data || []).map(mentor => ({
+      return validMentors.map(mentor => ({
         ...mentor,
         profile: profileMap.get(mentor.id),
       })) as MentorWithProfile[];

@@ -73,7 +73,9 @@ const MentorBooking = () => {
   const today = startOfDay(new Date());
 
   const disableDate = (date: Date) => {
-    if (isBefore(date, today) || date.getTime() === today.getTime()) return true;
+    if (isBefore(date, today)) return true;
+    // If no slots exist yet, allow all future dates so the user can still pick
+    if (availableDates.size === 0) return false;
     const dateStr = format(date, "yyyy-MM-dd");
     return !availableDates.has(dateStr);
   };
@@ -91,13 +93,13 @@ const MentorBooking = () => {
   const selectedDateDisplay = selectedDate ? format(selectedDate, "EEE, MMM d") : "";
 
   const handleConfirm = async () => {
-    if (!user || !mentorId || !selectedDate || !selectedTime || !selectedTopic) return;
+    if (!user || !mentorId || !selectedDate || !selectedTopic) return;
     try {
       await createBooking.mutateAsync({
         mentor_id: mentorId,
         mentee_id: user.id,
         scheduled_date: selectedDateStr,
-        scheduled_time: selectedTime,
+        scheduled_time: selectedTime || "TBD",
         topic: selectedTopic,
         message,
         goals,
@@ -236,10 +238,14 @@ const MentorBooking = () => {
               />
             </div>
 
-            {availableDates.size === 0 && (
-              <p className="mb-5 text-center text-xs text-muted-foreground">
-                {lang === "my" ? "ဤ Mentor တွင် ရနိုင်သော ရက် မရှိသေးပါ" : "This mentor hasn't set any available dates yet"}
-              </p>
+            {availableDates.size === 0 && !selectedDate && (
+              <div className="mb-5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "ဤ Mentor သည် အချိန်ဇယား မသတ်မှတ်ရသေးပါ။ ရက် ရွေးချယ်ပြီး တောင်းဆိုချက် ပို့နိုင်ပါသည်"
+                    : "This mentor hasn't set specific availability yet. Pick a preferred date to send a booking request"}
+                </p>
+              </div>
             )}
 
             {/* Time slots */}
@@ -325,7 +331,7 @@ const MentorBooking = () => {
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto max-w-lg">
           {step === 1 ? (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || !selectedTime} onClick={() => setStep(2)}>
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || (availableDates.size > 0 && !selectedTime)} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
