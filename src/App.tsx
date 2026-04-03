@@ -103,12 +103,12 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
 
               {/* Employer Portal */}
-              <Route path="/employer/onboarding" element={<EmployerOnboarding />} />
-              <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-              <Route path="/employer/post-job" element={<EmployerPostJob />} />
-              <Route path="/employer/applications" element={<EmployerApplications />} />
-              <Route path="/employer/subscription" element={<EmployerSubscription />} />
-              <Route path="/employer/search" element={<SearchTalent />} />
+              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
+              <Route path="/employer/dashboard" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerDashboard /></AppRoleGuard>} />
+              <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
+              <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
+              <Route path="/employer/subscription" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerSubscription /></AppRoleGuard>} />
+              <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />
