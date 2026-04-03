@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap } from "lucide-react";
+import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useRole } from "@/hooks/use-role";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -54,6 +55,7 @@ const Mentors = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const { role } = useRole();
+  const { startConversation } = useStartConversation();
   const { data: mentors = [], isLoading } = useMentorProfiles();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -252,9 +254,14 @@ const Mentors = () => {
                       </span>
                     )}
                   </div>
-                  <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
-                    <MessageCircle className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ချိတ်ဆက်" : "Connect"}
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
+                      <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                    </Button>
+                    <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
+                      {lang === "my" ? "ပရိုဖိုင်" : "Profile"}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             );
