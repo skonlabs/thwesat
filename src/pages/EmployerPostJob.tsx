@@ -71,6 +71,7 @@ const EmployerPostJob = () => {
         requires_embassy: requiresEmbassy,
         requires_work_permit: requiresWorkPermit,
         visa_sponsorship: visaSponsorship,
+        is_featured: isFeatured,
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",

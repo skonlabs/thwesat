@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Building2, Briefcase, Users, Search, Star, Crown } from "lucide-react";
+import { Check, Briefcase, Crown, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -11,46 +11,35 @@ const tiers = [
   {
     id: "basic",
     name: { my: "အခြေခံ", en: "Basic" },
-    price: 50,
+    priceMonthly: 5,
+    priceYearly: 60,
     icon: Briefcase,
     features: [
-      { my: "အလုပ်ခေါ်စာ ၁ ခု", en: "1 active listing" },
+      { my: "အလုပ်ခေါ်စာ ၁ ခု / လ", en: "1 job post per month" },
       { my: "လျှောက်ထားသူ ကြည့်ရှုခွင့်", en: "View applicant profiles" },
       { my: "အခြေခံ ခွဲခြမ်းစိတ်ဖြာ", en: "Basic analytics" },
+      { my: "တိုက်ရိုက် မက်ဆေ့ချ် ၁၀/လ", en: "10 direct messages/mo" },
     ],
     notIncluded: [
-      { my: "တိုက်ရိုက် မက်ဆေ့ချ်", en: "Direct messages" },
-      { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
-      { my: "ကိုယ်စားလှယ် ရှာဖွေ", en: "Database search" },
-    ],
-  },
-  {
-    id: "standard",
-    name: { my: "စံနှုန်း", en: "Standard" },
-    price: 120,
-    icon: Building2,
-    popular: true,
-    features: [
-      { my: "အလုပ်ခေါ်စာ ၃ ခု", en: "3 active listings" },
-      { my: "တိုက်ရိုက် မက်ဆေ့ချ် ၂၀/လ", en: "20 direct messages/mo" },
-      { my: "လျှောက်ထားသူ ကြည့်ရှုခွင့်", en: "View applicant profiles" },
-      { my: "ခွဲခြမ်းစိတ်ဖြာ အပြည့်", en: "Full analytics" },
-    ],
-    notIncluded: [
-      { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
-      { my: "ကိုယ်စားလှယ် ရှာဖွေ", en: "Database search" },
-    ],
-  },
-  {
-    id: "premium",
-    name: { my: "ပရီမီယံ", en: "Premium" },
-    price: 300,
-    icon: Crown,
-    features: [
-      { my: "အကန့်အသတ်မရှိ အလုပ်ခေါ်စာ", en: "Unlimited listings" },
-      { my: "အကန့်အသတ်မရှိ မက်ဆေ့ချ်", en: "Unlimited messages" },
+      { my: "အကန့်အသတ်မရှိ အလုပ်ခေါ်စာ", en: "Unlimited job posts" },
       { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" },
       { my: "ကိုယ်စားလှယ် ဒေတာဘေ့စ် ရှာဖွေ", en: "Full database search" },
+      { my: "ဦးစားပေး ပံ့ပိုးကူညီမှု", en: "Priority support" },
+    ],
+  },
+  {
+    id: "pro",
+    name: { my: "ပရို", en: "Pro" },
+    priceMonthly: 25,
+    priceYearly: 300,
+    icon: Crown,
+    popular: true,
+    features: [
+      { my: "အကန့်အသတ်မရှိ အလုပ်ခေါ်စာ", en: "Unlimited job posts" },
+      { my: "အလုပ်ခေါ်စာ ထူးခြားဖော်ပြ", en: "Mark jobs as Featured" },
+      { my: "အကန့်အသတ်မရှိ မက်ဆေ့ချ်", en: "Unlimited messages" },
+      { my: "ကိုယ်စားလှယ် ဒေတာဘေ့စ် ရှာဖွေ", en: "Full database search" },
+      { my: "ခွဲခြမ်းစိတ်ဖြာ အပြည့်", en: "Full analytics" },
       { my: "ဦးစားပေး ပံ့ပိုးကူညီမှု", en: "Priority support" },
     ],
     notIncluded: [],
@@ -60,12 +49,10 @@ const tiers = [
 const EmployerSubscription = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const [selected, setSelected] = useState("standard");
+  const [selected, setSelected] = useState("pro");
   const [paymentOpen, setPaymentOpen] = useState(false);
 
-  const handleSubscribe = () => {
-    setPaymentOpen(true);
-  };
+  const selectedTier = tiers.find(t => t.id === selected);
 
   const t = (texts: { my: string; en: string }) => texts[lang];
 
@@ -76,6 +63,12 @@ const EmployerSubscription = () => {
         <p className="mb-5 text-center text-sm text-muted-foreground">
           {lang === "my" ? "သင့်လုပ်ငန်းအတွက် အသင့်တော်ဆုံး အစီအစဉ်ကို ရွေးပါ" : "Choose the right plan for your hiring needs"}
         </p>
+
+        <div className="mb-3 rounded-xl bg-muted/50 p-2.5 text-center">
+          <p className="text-[11px] font-semibold text-muted-foreground">
+            {lang === "my" ? "နှစ်စဉ် ကြိုတင်ငွေပေးချေ (လစဉ် ကျသင့်ငွေ ဖော်ပြထားသည်)" : "Billed annually (monthly price shown)"}
+          </p>
+        </div>
 
         <div className="space-y-4">
           {tiers.map((tier, i) => (
@@ -89,7 +82,7 @@ const EmployerSubscription = () => {
             >
               {tier.popular && (
                 <span className="absolute -top-3 left-4 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold text-primary-foreground">
-                  {lang === "my" ? "လူကြိုက်များ" : "Popular"}
+                  {lang === "my" ? "အကောင်းဆုံး" : "Best Value"}
                 </span>
               )}
               <div className="mb-3 flex items-center justify-between">
@@ -98,8 +91,11 @@ const EmployerSubscription = () => {
                   <h3 className="text-base font-bold text-foreground">{t(tier.name)}</h3>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-foreground">${tier.price}</span>
+                  <span className="text-2xl font-bold text-foreground">${tier.priceMonthly}</span>
                   <span className="text-xs text-muted-foreground">/{lang === "my" ? "လ" : "mo"}</span>
+                  <p className="text-[10px] text-muted-foreground">
+                    {lang === "my" ? `စုစုပေါင်း $${tier.priceYearly}/နှစ်` : `$${tier.priceYearly}/year total`}
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -126,16 +122,16 @@ const EmployerSubscription = () => {
           </p>
         </div>
 
-        <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={handleSubscribe}>
+        <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
           {lang === "my"
-            ? `${t(tiers.find(t2 => t2.id === selected)?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
-            : `Start ${tiers.find(t2 => t2.id === selected)?.name.en} Plan`}
+            ? `${t(selectedTier?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
+            : `Start ${selectedTier?.name.en} Plan — $${selectedTier?.priceYearly}/yr`}
         </Button>
 
         <PaymentMethodSheet
           open={paymentOpen}
           onOpenChange={setPaymentOpen}
-          amount={tiers.find(t2 => t2.id === selected)?.price || 0}
+          amount={selectedTier?.priceYearly || 0}
           currency="USD"
           paymentType="employer_subscription"
           referenceId={selected}
