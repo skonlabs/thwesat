@@ -338,6 +338,24 @@ const EditProfile = () => {
       has_laptop: hasLaptop, internet_stable: internetStable,
       remote_ready: hasLaptop && internetStable,
     }).eq("id", profile.id);
+
+    // Sync mentor_profiles if user is a mentor
+    if (profile.primary_role === "mentor") {
+      const { data: mentorExists } = await supabase
+        .from("mentor_profiles")
+        .select("id")
+        .eq("id", profile.id)
+        .maybeSingle();
+      if (mentorExists) {
+        await supabase.from("mentor_profiles").update({
+          title: headline || "",
+          bio: bio || "",
+          expertise: skills || [],
+          location: location || "",
+        }).eq("id", profile.id);
+      }
+    }
+
     setSaving(false);
     if (error) {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
