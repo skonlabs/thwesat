@@ -191,7 +191,7 @@ const MentorBooking = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-40">
+    <div className="bg-background pb-40">
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath={`/mentors/${mentorId}`} />
 
       <div className="px-5">
