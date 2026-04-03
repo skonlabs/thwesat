@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, MapPin, Calendar, MessageCircle } from "lucide-react";
+import { Star, MapPin, Calendar, MessageCircle, Clock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -16,6 +16,43 @@ const MentorDetail = () => {
   const { lang } = useLanguage();
   const { startConversation } = useStartConversation();
   const { data: mentor, isLoading } = useMentorProfile(id);
+
+  // Fetch next available slot
+  const { data: nextSlot } = useQuery({
+    queryKey: ["next-available-slot", id],
+    queryFn: async () => {
+      if (!id) return null;
+      const today = new Date().toISOString().split("T")[0];
+      const { data } = await supabase
+        .from("mentor_availability_slots")
+        .select("slot_date, start_time, end_time")
+        .eq("mentor_id", id)
+        .eq("is_booked", false)
+        .gte("slot_date", today)
+        .order("slot_date", { ascending: true })
+        .order("start_time", { ascending: true })
+        .limit(1);
+      if (!data || data.length === 0) return null;
+      return data[0];
+    },
+    enabled: !!id,
+  });
+
+  const { data: totalSlots = 0 } = useQuery({
+    queryKey: ["available-slots-count", id],
+    queryFn: async () => {
+      if (!id) return 0;
+      const today = new Date().toISOString().split("T")[0];
+      const { count } = await supabase
+        .from("mentor_availability_slots")
+        .select("id", { count: "exact", head: true })
+        .eq("mentor_id", id)
+        .eq("is_booked", false)
+        .gte("slot_date", today);
+      return count || 0;
+    },
+    enabled: !!id,
+  });
 
   const { data: reviews = [] } = useQuery({
     queryKey: ["mentor-reviews", id],
@@ -102,16 +139,42 @@ const MentorDetail = () => {
             </div>
           )}
 
-          {mentor.available_days && mentor.available_days.length > 0 && (
-            <div className="mt-5">
-              <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်ချိန်" : "Available Days"}</h2>
-              <div className="flex flex-wrap gap-2">
-                {mentor.available_days.map((d) => (
-                  <span key={d} className="rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground">{d}</span>
-                ))}
+          <div className="mt-5">
+            <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "နောက်ရရှိနိုင်ချိန်" : "Next Available Slot"}</h2>
+            {nextSlot ? (
+              <div className="rounded-xl border border-border bg-card p-3.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                    <Calendar className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      {new Date(nextSlot.slot_date + "T00:00:00").toLocaleDateString(lang === "my" ? "my" : "en-US", { weekday: "short", month: "short", day: "numeric" })}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" strokeWidth={1.5} />
+                      {nextSlot.start_time} – {nextSlot.end_time}
+                    </div>
+                  </div>
+                </div>
+                {totalSlots > 1 && (
+                  <p className="mt-2.5 text-[11px] text-muted-foreground">
+                    {lang === "my"
+                      ? `နောက်ထပ် ${totalSlots - 1} ခုရှိပါသေးသည်။ ချိန်းဆိုရန် နှိပ်ပါ။`
+                      : `${totalSlots - 1} more slot${totalSlots - 1 > 1 ? "s" : ""} available — tap Book to see all times.`}
+                  </p>
+                )}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="rounded-xl border border-border bg-card p-3.5">
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "လက်ရှိ အချိန်ဇယား မရှိသေးပါ။ ချိန်းဆိုရန် နှိပ်၍ အချိန်တောင်းဆိုနိုင်ပါသည်။"
+                    : "No open slots right now. Tap Book to request a session time."}
+                </p>
+              </div>
+            )}
+          </div>
 
           {reviews.length > 0 && (
             <div className="mt-5">
