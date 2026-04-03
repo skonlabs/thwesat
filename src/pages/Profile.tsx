@@ -24,6 +24,7 @@ const Profile = () => {
   const { allowedRoles, isLoading: rolesLoading } = useUserRoles();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
+  const [showReferredList, setShowReferredList] = useState(false);
 
   // Fetch referral count
   const { data: referralCount = 0 } = useQuery({
@@ -37,6 +38,33 @@ const Profile = () => {
         .eq("status", "completed");
       if (error) return 0;
       return count || 0;
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Fetch referred friends with their profile info
+  const { data: referredFriends = [] } = useQuery({
+    queryKey: ["referred-friends", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data: referrals, error } = await supabase
+        .from("referrals")
+        .select("referred_id, created_at")
+        .eq("referrer_id", profile.id)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false });
+      if (error || !referrals?.length) return [];
+      const referredIds = referrals.map(r => r.referred_id).filter(Boolean) as string[];
+      if (!referredIds.length) return [];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, created_at")
+        .in("id", referredIds);
+      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      return referrals.map(r => ({
+        ...profileMap.get(r.referred_id!),
+        referral_date: r.created_at,
+      })).filter(r => r.display_name);
     },
     enabled: !!profile?.id,
   });
@@ -221,12 +249,51 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="mb-2 flex items-center gap-2">
+          <div className="mb-3 flex items-center gap-2">
             <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">{referralCode}</div>
             <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral}>
               {referralCopied ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
             </Button>
           </div>
+
+          {/* Referred friends list */}
+          {referralCount > 0 && (
+            <>
+              <button
+                onClick={() => setShowReferredList(!showReferredList)}
+                className="flex w-full items-center gap-2 text-xs font-semibold text-primary"
+              >
+                <Users className="h-3.5 w-3.5" strokeWidth={1.5} />
+                {lang === "my"
+                  ? `ညွှန်းဆိုပြီးသော သူငယ်ချင်းများ (${referralCount})`
+                  : `Referred Friends (${referralCount})`}
+                <ChevronRight className={`ml-auto h-3.5 w-3.5 transition-transform ${showReferredList ? "rotate-90" : ""}`} strokeWidth={1.5} />
+              </button>
+              {showReferredList && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2 space-y-1.5">
+                  {referredFriends.map((friend: any, i: number) => (
+                    <div key={i} className="flex items-center gap-2.5 rounded-lg bg-card/80 border border-border px-3 py-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                        {friend.avatar_url ? (
+                          <img src={friend.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
+                        ) : (
+                          (friend.display_name || "U").slice(0, 2).toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">{friend.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {lang === "my" ? "ပါဝင်သည့်ရက်" : "Joined"}{" "}
+                          {new Date(friend.referral_date || friend.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Check className="h-3.5 w-3.5 text-primary/60" strokeWidth={2} />
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </>
+          )}
         </motion.div>
 
         {/* Menu */}
