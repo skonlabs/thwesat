@@ -83,9 +83,9 @@ const App = () => (
               <Route path="/mentors" element={<Mentors />} />
               <Route path="/mentors/:id" element={<MentorDetail />} />
               <Route path="/mentors/book" element={<MentorBooking />} />
-              <Route path="/mentors/dashboard" element={<MentorDashboard />} />
-              <Route path="/mentors/mentees" element={<MentorMentees />} />
-              <Route path="/mentors/bookings" element={<MentorBookings />} />
+              <Route path="/mentors/dashboard" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorDashboard /></AppRoleGuard>} />
+              <Route path="/mentors/mentees" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorMentees /></AppRoleGuard>} />
+              <Route path="/mentors/bookings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorBookings /></AppRoleGuard>} />
               <Route path="/guides" element={<Guides />} />
               <Route path="/guides/:id" element={<GuideDetail />} />
               <Route path="/community" element={<Community />} />
