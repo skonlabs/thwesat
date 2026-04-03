@@ -35,8 +35,10 @@ const AdminJobQueue = () => {
   const selected = jobs.find((j: any) => j.id === selectedId);
 
   const updateJob = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase.from("jobs").update({ status }).eq("id", id);
+    mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
+      const update: Record<string, unknown> = { status };
+      if (rejectionReason) update.rejection_reason = rejectionReason;
+      const { error } = await supabase.from("jobs").update(update).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-pending-jobs"] }),

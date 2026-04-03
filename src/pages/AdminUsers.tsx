@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Users, Shield, Crown, Ban, CheckCircle, Key, Trash2 } from "lucide-react";
+import { Search, Crown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
