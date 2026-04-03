@@ -57,7 +57,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background px-6 pt-6 pb-8">
+    <div className="min-h-screen bg-background px-5 pt-6 pb-24">
       <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
         <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
         <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>

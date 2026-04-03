@@ -118,7 +118,7 @@ const SearchTalent = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
+                    <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-3">
                       <div>
                         <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အတွေ့အကြုံ" : "Experience"}</p>
                         <div className="flex flex-wrap gap-2">

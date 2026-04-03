@@ -43,7 +43,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
-      <div className="border-b border-border bg-card px-5 pb-5 pt-4">
+      <div className="border-b border-border bg-card px-5 pb-24 pt-4">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             {profile?.avatar_url ? <img src={profile.avatar_url} className="h-11 w-11 rounded-full object-cover" /> : initial}
