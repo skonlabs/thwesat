@@ -57,12 +57,8 @@ const Profile = () => {
     { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
 
-  // Job Seeker and Employer are mutually exclusive — only show the other non-conflicting roles
-  const roleOptions = allRoleOptions.filter((r) => {
-    if (role === "jobseeker" && r.value === "employer") return false;
-    if (role === "employer" && r.value === "jobseeker") return false;
-    return true;
-  });
+  // Only show roles the user actually has access to
+  const roleOptions = allRoleOptions.filter((r) => allowedRoles.includes(r.value));
 
   const handleSelectRole = (r: UserRole) => {
     setRole(r);
