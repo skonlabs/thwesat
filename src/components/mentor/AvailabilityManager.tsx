@@ -96,6 +96,7 @@ export default function AvailabilityManager() {
   const { data: slots = [] } = useMentorAllAvailability(user?.id);
   const addSlot = useAddAvailabilitySlot();
   const deleteSlot = useDeleteAvailabilitySlot();
+  const queryClient = useQueryClient();
 
   const defaultTz = mentorProfile?.timezone || guessTimezoneFromPhone(profile?.phone);
   const [timezone, setTimezone] = useState<string>(defaultTz);
