@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   session: Session | null;
@@ -47,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
@@ -62,8 +62,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
@@ -72,16 +73,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
         }
-        setLoading(false);
+        // Only set loading false here if we've already initialized via getSession
+        // or if this is a subsequent event (sign in/out)
+        if (initializedRef.current) {
+          setLoading(false);
+        }
       }
     );
 
+    // Then get initial session - this is the primary initialization path
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
       }
+      initializedRef.current = true;
       setLoading(false);
     });
 
