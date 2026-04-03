@@ -36,7 +36,7 @@ const MentorDetail = () => {
   }
 
   if (!mentor) {
-    return <div className="min-h-screen bg-background p-5"><PageHeader title="Mentor" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
+    return <div className="min-h-screen bg-background p-5"><PageHeader title="Mentor" backPath="/mentors" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
   }
 
   const displayName = mentor.profile?.display_name || "Mentor";
