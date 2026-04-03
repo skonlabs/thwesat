@@ -115,7 +115,7 @@ const HomePage = () => {
             </button>
           </div>
           <div className="space-y-2.5">
-            {featuredJobs.map((job: any, i: number) => (
+            {latestJobs.map((job: any, i: number) => (
               <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
                 onClick={() => navigate(`/jobs/${job.id}`)}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors active:bg-muted">
