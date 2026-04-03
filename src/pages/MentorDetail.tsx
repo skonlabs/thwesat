@@ -49,7 +49,18 @@ const MentorDetail = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">
             <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{initials}</div>
-            <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
+              {mentor.is_available ? (
+                <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
+                </span>
+              ) : (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {lang === "my" ? "အလုပ်များနေ" : "Busy"}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">{mentor.title}</p>
             <p className="text-xs text-muted-foreground">{mentor.company} · {mentor.location}</p>
             <div className="mt-3 flex items-center gap-4">
@@ -62,11 +73,6 @@ const MentorDetail = () => {
                 <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">{lang === "my" ? "အသစ် Mentor" : "New Mentor"}</span>
               )}
               <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set")}</span>
-              {mentor.is_available && (
-                <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
-                </span>
-              )}
             </div>
           </div>
 
