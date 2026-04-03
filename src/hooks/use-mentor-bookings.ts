@@ -314,21 +314,45 @@ export function useMentorMentees() {
     queryKey: ["mentor-mentees", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase
-        .from("mentor_mentees")
+      // Get all confirmed bookings for this mentor
+      const { data: bookings, error } = await supabase
+        .from("mentor_bookings")
         .select("*")
         .eq("mentor_id", user.id)
-        .order("created_at", { ascending: false });
+        .eq("status", "confirmed")
+        .order("scheduled_date", { ascending: false });
       if (error) throw error;
-      const menteeIds = [...new Set((data || []).map(m => m.mentee_id))];
-      if (menteeIds.length === 0) return [];
+      if (!bookings || bookings.length === 0) return [];
+
+      // Deduplicate by mentee_id, keeping the latest booking per mentee
+      const menteeMap = new Map<string, any>();
+      for (const b of bookings) {
+        if (!menteeMap.has(b.mentee_id)) {
+          menteeMap.set(b.mentee_id, {
+            id: b.id,
+            mentee_id: b.mentee_id,
+            mentor_id: b.mentor_id,
+            status: "active",
+            sessions_completed: 0,
+            started_at: b.created_at,
+            goals: b.goals,
+            notes: b.message,
+          });
+        } else {
+          // Increment session count for repeat mentees
+          menteeMap.get(b.mentee_id).sessions_completed += 1;
+        }
+      }
+
+      const menteeIds = [...menteeMap.keys()];
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location")
         .in("id", menteeIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(m => ({
+      return [...menteeMap.values()].map(m => ({
         ...m,
+        sessions_completed: m.sessions_completed + 1, // count includes the first booking
         profile: profileMap.get(m.mentee_id) || null,
       }));
     },
