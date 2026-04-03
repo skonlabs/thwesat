@@ -98,7 +98,7 @@ const Mentors = () => {
           <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">{activeFilterCount}</span>
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{activeFilterCount}</span>
             )}
           </button>
         </div>

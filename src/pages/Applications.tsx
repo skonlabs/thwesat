@@ -84,13 +84,18 @@ const Applications = () => {
 
       <div className="space-y-3 px-5 pb-6">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+         <div className="flex flex-col items-center py-16 text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
           </div>
         ) : filteredApps.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-            <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်လွှာ မရှိပါ" : "No applications"}</p>
+            <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်လွှာ မရှိပါ" : "No applications yet"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "အလုပ်ရှာဖွေပြီး လျှောက်ထားပါ" : "Browse jobs and start applying"}</p>
+            <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/jobs")}>
+              {lang === "my" ? "အလုပ်ရှာဖွေရန်" : "Browse Jobs"}
+            </Button>
           </div>
         ) : (
           filteredApps.map((app: any, i: number) => {

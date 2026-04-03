@@ -80,7 +80,16 @@ const EmployerApplications = () => {
 
         <div className="space-y-3">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+            <div className="flex flex-col items-center py-12 text-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center py-12 text-center">
+              <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+              <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်ထားသူ မရှိပါ" : "No applications yet"}</p>
+              <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "လျှောက်ထားသူများ ရောက်လာသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Applications will appear here once candidates apply"}</p>
+            </div>
           ) : filtered.map((app: any, i: number) => {
             const sc = statusConfig[app.status] || statusConfig.applied;
             return (
