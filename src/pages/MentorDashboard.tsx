@@ -85,7 +85,7 @@ const MentorDashboard = () => {
 
   const handleSaveRate = async () => {
     if (!user) return;
-    await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
