@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Users, Sparkles } from "lucide-react";
+import { MessageCircle, CheckCircle, XCircle, Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -20,9 +20,7 @@ const removalReasons = [
 
 const quickActions = [
   { icon: MessageCircle, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-accent/10", fg: "text-accent" },
-  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: Shield, label: "လမ်းညွှန်", labelEn: "Guides", path: "/guides", bg: "bg-accent/10", fg: "text-accent" },
 ];
 
 const ModeratorDashboard = () => {
