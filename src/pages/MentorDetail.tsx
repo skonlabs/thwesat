@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, MapPin, Calendar, MessageCircle } from "lucide-react";
+import { Star, MapPin, Calendar, MessageCircle, Clock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
