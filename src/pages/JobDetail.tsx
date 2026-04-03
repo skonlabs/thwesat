@@ -164,7 +164,7 @@ const JobDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Job header */}
