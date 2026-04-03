@@ -44,7 +44,7 @@ const MentorDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} />
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} backPath="/mentors" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">
