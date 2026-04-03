@@ -23,7 +23,7 @@ const SavedJobs = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} backPath="/jobs" />
-      <div className="space-y-3 px-5 pb-6">
+      <div className="space-y-3 px-5 pb-24">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />

@@ -231,7 +231,7 @@ const MentorBookings = () => {
 
       {/* Rating Sheet */}
       <Sheet open={!!ratingBookingId} onOpenChange={(open) => { if (!open) setRatingBookingId(null); }}>
-        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-8">
+        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-24">
           <SheetHeader>
             <SheetTitle className="text-base">{lang === "my" ? "Session ကို အဆင့်သတ်မှတ်ပါ" : "Rate this Session"}</SheetTitle>
             <SheetDescription className="text-xs">

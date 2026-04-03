@@ -59,7 +59,7 @@ const ChatView = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="border-b border-border bg-card px-4 py-3">
+      <div className="border-b border-border bg-card px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate("/messages")} className="rounded-lg p-1 text-foreground active:bg-muted"><ArrowLeft className="h-5 w-5" strokeWidth={1.5} /></button>
@@ -83,7 +83,7 @@ const ChatView = () => {
         </div>
       </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
+      <div className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
         <div className="mb-4 flex justify-center">
           <span className="rounded-full bg-muted px-3 py-1 text-[10px] text-muted-foreground">🔒 {lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "Messages are end-to-end encrypted"}</span>
         </div>

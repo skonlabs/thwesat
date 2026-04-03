@@ -650,7 +650,7 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Save Button */}
-        <div className="pt-2 pb-4">
+        <div className="pt-2 pb-24">
           <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSave} disabled={saving}>
             <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
             {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes")}

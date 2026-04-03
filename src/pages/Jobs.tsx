@@ -142,7 +142,7 @@ const Jobs = () => {
                   </button>
                 </div>
               </div>
-              <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-5">
+              <div className="max-h-[60vh] overflow-y-auto px-5 py-4 space-y-3">
                 <div>
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Job Type"}</p>
                   <p className="mb-2 text-[10px] text-muted-foreground">{lang === "my" ? "တစ်ခုထက်ပို ရွေးချယ်နိုင်သည်" : "Select multiple types"}</p>
@@ -199,7 +199,7 @@ const Jobs = () => {
         )}
       </AnimatePresence>
 
-      <div className="space-y-2.5 px-5 pb-6">
+      <div className="space-y-2.5 px-5 pb-24">
         {isLoading ? (
           <div className="flex flex-col items-center py-16 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
