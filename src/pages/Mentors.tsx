@@ -241,7 +241,7 @@ const Mentors = () => {
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
                     {mentor.is_available ? (
                       <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
