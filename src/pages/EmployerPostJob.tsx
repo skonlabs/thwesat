@@ -47,6 +47,7 @@ const EmployerPostJob = () => {
   const [requiresEmbassy, setRequiresEmbassy] = useState(false);
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
 
