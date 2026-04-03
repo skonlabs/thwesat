@@ -84,8 +84,22 @@ const MentorDashboard = () => {
   };
 
   const handleDecline = (id: string) => {
-    updateStatus.mutate({ id, status: "cancelled" }, {
-      onSuccess: () => {},
+    setDeclineBookingId(id);
+    setDeclineReason("");
+    setProposedDate("");
+    setProposedTime("");
+  };
+
+  const handleSubmitDecline = () => {
+    if (!declineBookingId) return;
+    updateStatus.mutate({
+      id: declineBookingId,
+      status: "cancelled",
+      declineReason: declineReason || undefined,
+      proposedDate: proposedDate || undefined,
+      proposedTime: proposedTime || undefined,
+    }, {
+      onSuccess: () => setDeclineBookingId(null),
     });
   };
 
