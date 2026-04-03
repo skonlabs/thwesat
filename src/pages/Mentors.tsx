@@ -218,7 +218,18 @@ const Mentors = () => {
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-sm font-semibold text-foreground">{name}</h3>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-sm font-semibold text-foreground">{name}</h3>
+                          {mentor.is_available ? (
+                            <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                              {lang === "my" ? "အလုပ်များနေ" : "Busy"}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[11px] text-muted-foreground">{mentor.title}</p>
                       </div>
                       <div className="flex items-center gap-0.5">
