@@ -205,16 +205,14 @@ export default function AvailabilityManager() {
     setSelectedTimes(new Set());
 
     // Invalidate queries
-    addSlot.reset();
-    // Force refetch by triggering a no-op mutation
     toast({
       title: lang === "my"
         ? `${added} ခု ထည့်ပြီး${skipped > 0 ? ` (${skipped} ခု ရှိပြီးသား)` : ""}`
         : `Added ${added} slot${added !== 1 ? "s" : ""}${skipped > 0 ? ` (${skipped} already existed)` : ""}`,
     });
 
-    // Refetch
-    window.location.reload();
+    queryClient.invalidateQueries({ queryKey: ["mentor-availability"] });
+    queryClient.invalidateQueries({ queryKey: ["mentor-all-availability"] });
   };
 
   const handleDelete = (id: string) => deleteSlot.mutate(id);
