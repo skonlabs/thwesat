@@ -41,12 +41,14 @@ export function useUserRoles() {
   });
 
   const isAdmin = systemRoles?.includes("admin") ?? false;
+  const isModerator = systemRoles?.includes("moderator") ?? false;
+  const isSystemRole = isAdmin || isModerator;
   const primaryRole = (profile?.primary_role as UserRole) || "jobseeker";
   const isLoading = authLoading || mentorLoading || rolesLoading;
 
   const allowedRoles: UserRole[] = [];
 
-  if (!isLoading && profile && !isAdmin) {
+  if (!isLoading && profile && !isSystemRole) {
     // Base role from signup
     if (primaryRole === "employer") {
       allowedRoles.push("employer");
@@ -62,5 +64,5 @@ export function useUserRoles() {
 
   const hasRole = (role: UserRole) => allowedRoles.includes(role);
 
-  return { allowedRoles, hasRole, isLoading, isAdmin };
+  return { allowedRoles, hasRole, isLoading, isAdmin, isModerator, isSystemRole };
 }
