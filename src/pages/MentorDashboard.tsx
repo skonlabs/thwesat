@@ -50,6 +50,7 @@ const MentorDashboard = () => {
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
+      setCurrency(mentorProfile.currency || "USD");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
     }
