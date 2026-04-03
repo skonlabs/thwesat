@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 
 const Profile = () => {
