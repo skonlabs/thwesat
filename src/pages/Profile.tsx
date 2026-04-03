@@ -199,13 +199,28 @@ const Profile = () => {
           <p className="mb-2 text-xs text-muted-foreground">
             {lang === "my" ? "သူငယ်ချင်း ၅ ဦးကို ဖိတ်ခေါ်နိုင်ပါက ပရီမီယံ ၁ လ အခမဲ့ရရှိမည်" : "Refer 5 friends = 1 free month of Premium"}
           </p>
+
+          {/* Progress bar */}
           <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
-              {lang === "my"
-                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အမှတ်ရရှိပါမည်။"
-                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn credit toward free Premium."}
-            </p>
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-xs font-medium text-foreground">
+                {lang === "my" ? "ညွှန်းဆိုမှု တိုးတက်မှု" : "Referral Progress"}
+              </span>
+              <span className="text-xs font-bold text-primary">{Math.min(referralCount, 5)}/5</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-border">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${Math.min((referralCount / 5) * 100, 100)}%` }}
+              />
+            </div>
+            {referralCount >= 5 && (
+              <p className="mt-1.5 text-[10px] font-semibold text-primary">
+                🎉 {lang === "my" ? "ပရီမီယံ ဆုလာဘ် ရရှိပြီး!" : "Premium reward earned!"}
+              </p>
+            )}
           </div>
+
           <div className="mb-2 flex items-center gap-2">
             <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">{referralCode}</div>
             <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral}>
