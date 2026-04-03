@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Users, Sparkles } from "lucide-react";
+import { MessageCircle, CheckCircle, XCircle, Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
