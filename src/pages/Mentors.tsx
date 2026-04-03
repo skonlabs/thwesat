@@ -220,9 +220,15 @@ const Mentors = () => {
                         <p className="text-[11px] text-muted-foreground">{mentor.title}</p>
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <Star className="h-3.5 w-3.5 fill-primary text-primary" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground">{mentor.rating_avg || 0}</span>
-                        <span className="text-[10px] text-muted-foreground">({mentor.total_sessions || 0})</span>
+                        {(mentor.rating_avg || 0) > 0 ? (
+                          <>
+                            <Star className="h-3.5 w-3.5 fill-primary text-primary" strokeWidth={1.5} />
+                            <span className="text-xs font-semibold text-foreground">{mentor.rating_avg}</span>
+                            <span className="text-[10px] text-muted-foreground">({mentor.total_sessions || 0})</span>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground">{lang === "my" ? "အသစ်" : "New"}</span>
+                        )}
                       </div>
                     </div>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{mentor.company}</p>
