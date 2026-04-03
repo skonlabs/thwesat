@@ -26,7 +26,8 @@ const HomePage = () => {
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
 
-  const featuredJobs = (jobs || []).slice(0, 3);
+  const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
+  const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
   const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = profile?.primary_role === "mentor"
