@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
+import { UserStatusBadge } from "@/components/UserStatusBadge";
 
 const MentorDetail = () => {
   const navigate = useNavigate();
