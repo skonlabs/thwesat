@@ -282,15 +282,15 @@ export default function AvailabilityManager() {
         <label className="mb-1.5 block text-xs font-medium text-foreground">
           {lang === "my" ? "ရက်များ ရွေးပါ (တစ်ခုထက်ပိုရွေးနိုင်)" : "Pick dates (tap to toggle, multi-select)"}
         </label>
-        <div className="rounded-xl border border-border bg-background p-1">
+        <div className="rounded-2xl border border-border bg-background p-2 shadow-card">
           <Calendar
             mode="multiple"
             selected={selectedDates}
             onSelect={(dates) => setSelectedDates(dates || [])}
             disabled={(date) => isBefore(date, today) || date > maxDate}
             modifiers={{ hasSlots: (date) => datesWithSlots.has(format(date, "yyyy-MM-dd")) }}
-            modifiersClassNames={{ hasSlots: "ring-1 ring-primary/40 ring-inset" }}
-            className={cn("p-2 pointer-events-auto")}
+            modifiersClassNames={{ hasSlots: "!ring-2 !ring-emerald/40 ring-inset !bg-emerald/5" }}
+            className={cn("p-3 pointer-events-auto w-full [&_.rdp-months]:w-full [&_.rdp-month]:w-full [&_.rdp-table]:w-full [&_.rdp-head_row]:flex [&_.rdp-head_row]:justify-between [&_.rdp-row]:flex [&_.rdp-row]:justify-between [&_.rdp-head_cell]:w-10 [&_.rdp-head_cell]:text-[11px] [&_.rdp-head_cell]:font-semibold [&_.rdp-head_cell]:text-muted-foreground [&_.rdp-cell]:w-10 [&_.rdp-cell]:h-10 [&_.rdp-day]:w-10 [&_.rdp-day]:h-10 [&_.rdp-day]:text-xs [&_.rdp-day]:font-medium [&_.rdp-day]:rounded-xl [&_.rdp-day_selected]:!bg-primary [&_.rdp-day_selected]:!text-primary-foreground [&_.rdp-day_selected]:shadow-sm [&_.rdp-day_today]:bg-accent/60 [&_.rdp-day_today]:font-bold [&_.rdp-nav_button]:h-8 [&_.rdp-nav_button]:w-8 [&_.rdp-nav_button]:rounded-xl [&_.rdp-nav_button]:border-border [&_.rdp-caption_label]:text-sm [&_.rdp-caption_label]:font-bold [&_.rdp-caption_label]:text-foreground")}
             month={viewDate}
             onMonthChange={setViewDate}
           />
