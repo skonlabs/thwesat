@@ -24,6 +24,7 @@ const Profile = () => {
   const { allowedRoles, isLoading: rolesLoading } = useUserRoles();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
+  const [showReferredList, setShowReferredList] = useState(false);
 
   // Fetch referral count
   const { data: referralCount = 0 } = useQuery({
@@ -37,6 +38,33 @@ const Profile = () => {
         .eq("status", "completed");
       if (error) return 0;
       return count || 0;
+    },
+    enabled: !!profile?.id,
+  });
+
+  // Fetch referred friends with their profile info
+  const { data: referredFriends = [] } = useQuery({
+    queryKey: ["referred-friends", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data: referrals, error } = await supabase
+        .from("referrals")
+        .select("referred_id, created_at")
+        .eq("referrer_id", profile.id)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false });
+      if (error || !referrals?.length) return [];
+      const referredIds = referrals.map(r => r.referred_id).filter(Boolean) as string[];
+      if (!referredIds.length) return [];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, created_at")
+        .in("id", referredIds);
+      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      return referrals.map(r => ({
+        ...profileMap.get(r.referred_id!),
+        referral_date: r.created_at,
+      })).filter(r => r.display_name);
     },
     enabled: !!profile?.id,
   });
