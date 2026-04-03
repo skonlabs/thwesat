@@ -47,6 +47,12 @@ const MentorDashboard = () => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
 
+  // Decline with counter-proposal state
+  const [declineBookingId, setDeclineBookingId] = useState<string | null>(null);
+  const [declineReason, setDeclineReason] = useState("");
+  const [proposedDate, setProposedDate] = useState("");
+  const [proposedTime, setProposedTime] = useState("");
+
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
