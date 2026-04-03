@@ -33,7 +33,7 @@ const ForgotPassword = () => {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />

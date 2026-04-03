@@ -16,7 +16,7 @@ const Welcome = () => {
         <img src={heroPattern} alt="" className="h-full w-full object-cover" />
       </div>
 
-      <div className="relative z-10 mt-6 self-end px-6">
+      <div className="relative z-10 mt-6 self-end px-5">
         <LanguageToggle />
       </div>
 
@@ -46,7 +46,7 @@ const Welcome = () => {
         </motion.p>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.5 }} className="relative z-10 w-full px-6 pb-12">
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.5 }} className="relative z-10 w-full px-5 pb-12">
         <Button variant="default" size="xl" className="mb-4 w-full rounded-2xl shadow-navy" onClick={() => navigate("/onboarding")}>
           {lang === "my" ? "စတင်ရန်" : "Get Started"}
         </Button>

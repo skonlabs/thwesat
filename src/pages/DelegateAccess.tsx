@@ -44,7 +44,7 @@ const DelegateAccess = () => {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border-4 border-primary/20 border-t-primary" />
         <p className="text-sm text-muted-foreground">{lang === "my" ? "ဝင်ရောက်ခွင့် စစ်ဆေးနေပါသည်..." : "Verifying access..."}</p>
       </div>
@@ -54,7 +54,7 @@ const DelegateAccess = () => {
   if (status === "success") {
     const daysLeft = tokenData ? Math.max(0, Math.ceil((new Date(tokenData.expires_at).getTime() - Date.now()) / 86400000)) : 0;
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
           <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
         </motion.div>
@@ -78,7 +78,7 @@ const DelegateAccess = () => {
 
   // Expired / Invalid
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
         <AlertTriangle className="h-10 w-10 text-destructive" strokeWidth={1.5} />
       </motion.div>
