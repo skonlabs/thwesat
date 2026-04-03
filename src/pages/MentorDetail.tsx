@@ -85,7 +85,11 @@ const MentorDetail = () => {
 
           <div className="mt-5">
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "About"}</h2>
-            <p className="text-sm leading-relaxed text-foreground/80">{lang === "my" ? (mentor.bio_my || mentor.bio) : (mentor.bio || mentor.bio_my)}</p>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              {(lang === "my" ? (mentor.bio_my || mentor.bio) : (mentor.bio || mentor.bio_my)) || (
+                <span className="text-muted-foreground italic">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း မထည့်ရသေးပါ" : "This mentor hasn't added a bio yet"}</span>
+              )}
+            </p>
           </div>
 
           {mentor.expertise && mentor.expertise.length > 0 && (
