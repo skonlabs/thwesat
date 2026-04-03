@@ -20,7 +20,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   cancelled: { label: { my: "ပယ်ဖျက်", en: "Cancelled" }, color: "text-destructive bg-destructive/10", icon: XCircle },
 };
 
-type FilterType = "all" | "pending" | "confirmed" | "completed";
+type FilterType = "all" | "pending" | "confirmed" | "completed" | "cancelled";
 
 const MentorBookings = () => {
   const navigate = useNavigate();
