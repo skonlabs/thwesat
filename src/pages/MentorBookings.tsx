@@ -32,6 +32,7 @@ const MentorBookings = () => {
   const updateStatus = useUpdateBookingStatus();
   const markComplete = useMarkSessionComplete();
   const sendNotification = useSendBookingNotification();
+  const [filter, setFilter] = useState<FilterType>("all");
 
   // Rating state
   const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);

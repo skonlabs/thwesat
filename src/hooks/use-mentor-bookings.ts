@@ -206,6 +206,27 @@ export function useUpdateBookingStatus() {
   });
 }
 
+export function useSendBookingNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      recipientId: string;
+      senderId: string;
+      type: "new_booking" | "booking_confirmed" | "booking_declined" | "booking_counter_proposal";
+      bookingDate: string;
+      bookingTime: string;
+      proposedDate?: string;
+      proposedTime?: string;
+    }) => {
+      await sendBookingNotification(params);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
 export function useMarkSessionComplete() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
