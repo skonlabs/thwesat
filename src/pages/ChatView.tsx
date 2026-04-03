@@ -88,7 +88,7 @@ const ChatView = () => {
           <span className="rounded-full bg-muted px-3 py-1 text-[10px] text-muted-foreground">🔒 {lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "Messages are end-to-end encrypted"}</span>
         </div>
         {isLoading ? (
-          <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+          <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           messages.map((msg: any) => (
             <div key={msg.id} className={`flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}>

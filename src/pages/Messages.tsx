@@ -36,11 +36,12 @@ const Messages = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+        <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
       ) : conversations.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center px-5">
           <Lock className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
           <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "မက်ဆေ့ချ် မရှိသေးပါ" : "No messages yet"}</p>
+          <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "Mentor သို့မဟုတ် အလုပ်ရှင်ကို ဆက်သွယ်ပါ" : "Start a conversation with a mentor or employer"}</p>
         </div>
       ) : (
         <div className="divide-y divide-border">

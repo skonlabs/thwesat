@@ -151,7 +151,7 @@ const GuideDetail = () => {
       <div className="min-h-screen bg-background">
         <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
         <div className="flex items-center justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       </div>
     );

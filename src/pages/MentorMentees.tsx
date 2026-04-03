@@ -56,7 +56,7 @@ const MentorMentees = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "Mentee များ" : "My Mentees"} />
+      <PageHeader title={lang === "my" ? "Mentee များ" : "My Mentees"} backPath="/mentors/dashboard" />
       <div className="px-5">
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-2">
@@ -86,7 +86,7 @@ const MentorMentees = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <div className="space-y-3">
             {filtered.map((mentee: any, i: number) => {

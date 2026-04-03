@@ -32,11 +32,11 @@ const MentorDetail = () => {
   });
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
+    return <div className="flex min-h-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
   }
 
   if (!mentor) {
-    return <div className="min-h-screen bg-background p-5"><PageHeader title="Mentor" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
+    return <div className="min-h-screen bg-background p-5"><PageHeader title="Mentor" backPath="/mentors" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
   }
 
   const displayName = mentor.profile?.display_name || "Mentor";
@@ -44,7 +44,7 @@ const MentorDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} />
+      <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} backPath="/mentors" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex flex-col items-center text-center">
@@ -53,11 +53,15 @@ const MentorDetail = () => {
             <p className="text-sm text-muted-foreground">{mentor.title}</p>
             <p className="text-xs text-muted-foreground">{mentor.company} · {mentor.location}</p>
             <div className="mt-3 flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
-                <span className="text-sm font-bold text-foreground">{mentor.rating_avg || 0}</span>
-              </div>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location}</span>
+              {(mentor.rating_avg || 0) > 0 ? (
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
+                  <span className="text-sm font-bold text-foreground">{mentor.rating_avg}</span>
+                </div>
+              ) : (
+                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">{lang === "my" ? "အသစ် Mentor" : "New Mentor"}</span>
+              )}
+              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set")}</span>
               {mentor.is_available && (
                 <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
@@ -70,7 +74,7 @@ const MentorDetail = () => {
             {[
               { value: mentor.total_sessions || 0, label: lang === "my" ? "ချိန်းဆိုမှု" : "Sessions" },
               { value: mentor.total_mentees || 0, label: lang === "my" ? "လူဦးရေ" : "Mentees" },
-              { value: `$${mentor.hourly_rate || 0}/hr`, label: lang === "my" ? "နှုန်းထား" : "Rate" },
+              { value: mentor.hourly_rate ? `$${mentor.hourly_rate}/hr` : (lang === "my" ? "အခမဲ့" : "Free"), label: lang === "my" ? "နှုန်းထား" : "Rate" },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
                 <p className="text-lg font-bold text-primary">{s.value}</p>
@@ -81,7 +85,11 @@ const MentorDetail = () => {
 
           <div className="mt-5">
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "About"}</h2>
-            <p className="text-sm leading-relaxed text-foreground/80">{lang === "my" ? (mentor.bio_my || mentor.bio) : (mentor.bio || mentor.bio_my)}</p>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              {(lang === "my" ? (mentor.bio_my || mentor.bio) : (mentor.bio || mentor.bio_my)) || (
+                <span className="text-muted-foreground italic">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း မထည့်ရသေးပါ" : "This mentor hasn't added a bio yet"}</span>
+              )}
+            </p>
           </div>
 
           {mentor.expertise && mentor.expertise.length > 0 && (

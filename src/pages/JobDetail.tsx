@@ -132,7 +132,7 @@ const JobDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
         <div className="flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
@@ -143,7 +143,7 @@ const JobDetail = () => {
   if (!job) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
         <div className="flex flex-col items-center py-20 text-center px-5">
           <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
           <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "အလုပ် မတွေ့ပါ" : "Job not found"}</p>
@@ -164,7 +164,7 @@ const JobDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Job header */}

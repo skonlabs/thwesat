@@ -119,7 +119,7 @@ const ModeratorDashboard = () => {
 
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "စစ်ဆေးရန် ပို့စ်များ" : "Pending Posts"}</h2>
         {isLoading ? (
-          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <div className="space-y-3">
             {posts.map((post: any, i: number) => (

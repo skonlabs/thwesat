@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Download, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Mail, Send } from "lucide-react";
+import { ChevronRight, Download, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Mail, Send, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +65,7 @@ const EmployerApplications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} />
+      <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
       <div className="px-5">
         <div className="mb-3 rounded-xl border border-border bg-card p-3">
           <p className="text-[10px] text-muted-foreground">{apps.length} {lang === "my" ? "ဦး လျှောက်ထားပြီး" : "applicants"}</p>
@@ -80,7 +80,16 @@ const EmployerApplications = () => {
 
         <div className="space-y-3">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+            <div className="flex flex-col items-center py-12 text-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center py-12 text-center">
+              <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+              <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်ထားသူ မရှိပါ" : "No applications yet"}</p>
+              <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "လျှောက်ထားသူများ ရောက်လာသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Applications will appear here once candidates apply"}</p>
+            </div>
           ) : filtered.map((app: any, i: number) => {
             const sc = statusConfig[app.status] || statusConfig.applied;
             return (

@@ -86,7 +86,7 @@ const EmployerPostJob = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ တင်ရန်" : "Post a Job"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ တင်ရန်" : "Post a Job"} backPath="/employer/dashboard" />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">
           {[1, 2].map(s => (
@@ -97,6 +97,9 @@ const EmployerPostJob = () => {
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "အလုပ် အချက်အလက်" : "Job Details"}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "my" ? "💡 ခေါင်းစဉ်နှင့် ဖော်ပြချက်ကို ရှင်းလင်းစွာ ရေးပါ — လျှောက်ထားသူ ပိုများလာပါမည်" : "💡 Clear titles and detailed descriptions attract more qualified applicants"}
+            </p>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (English) *" : "Title (English) *"}</label>
               <Input value={titleEn} onChange={e => setTitleEn(e.target.value)} placeholder="e.g. Senior React Developer" className="h-11 rounded-xl" />

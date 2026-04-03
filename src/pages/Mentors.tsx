@@ -98,7 +98,7 @@ const Mentors = () => {
           <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">{activeFilterCount}</span>
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{activeFilterCount}</span>
             )}
           </button>
         </div>
@@ -148,7 +148,7 @@ const Mentors = () => {
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <h2 className="text-base font-semibold text-foreground">{lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"}</h2>
                 <div className="flex items-center gap-3">
-                  {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs text-primary">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>}
+                  {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs text-accent font-medium">{lang === "my" ? "ရှင်းလင်းမည်" : "Clear all"}</button>}
                   <button onClick={() => setShowFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted"><X className="h-4 w-4 text-muted-foreground" /></button>
                 </div>
               </div>
@@ -194,13 +194,15 @@ const Mentors = () => {
 
       <div className="space-y-2.5 px-5 pb-6">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex flex-col items-center py-16 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading mentors..."}</p>
           </div>
         ) : filteredMentors.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No mentors found"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
           </div>
         ) : (
           filteredMentors.map((mentor, i) => {
@@ -218,9 +220,15 @@ const Mentors = () => {
                         <p className="text-[11px] text-muted-foreground">{mentor.title}</p>
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <Star className="h-3.5 w-3.5 fill-primary text-primary" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground">{mentor.rating_avg || 0}</span>
-                        <span className="text-[10px] text-muted-foreground">({mentor.total_sessions || 0})</span>
+                        {(mentor.rating_avg || 0) > 0 ? (
+                          <>
+                            <Star className="h-3.5 w-3.5 fill-primary text-primary" strokeWidth={1.5} />
+                            <span className="text-xs font-semibold text-foreground">{mentor.rating_avg}</span>
+                            <span className="text-[10px] text-muted-foreground">({mentor.total_sessions || 0})</span>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground">{lang === "my" ? "အသစ်" : "New"}</span>
+                        )}
                       </div>
                     </div>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{mentor.company}</p>
@@ -233,7 +241,7 @@ const Mentors = () => {
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location}</span>
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
                     {mentor.is_available ? (
                       <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
