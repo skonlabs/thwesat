@@ -56,7 +56,7 @@ const MentorMentees = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "Mentee များ" : "My Mentees"} />
+      <PageHeader title={lang === "my" ? "Mentee များ" : "My Mentees"} backPath="/mentors/dashboard" />
       <div className="px-5">
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-2">
