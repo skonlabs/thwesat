@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete } from "@/hooks/use-mentor-bookings";
+import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete, useSendBookingNotification } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +20,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   cancelled: { label: { my: "ပယ်ဖျက်", en: "Cancelled" }, color: "text-destructive bg-destructive/10", icon: XCircle },
 };
 
-type FilterType = "all" | "pending" | "confirmed" | "completed";
+type FilterType = "all" | "pending" | "confirmed" | "completed" | "cancelled";
 
 const MentorBookings = () => {
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const MentorBookings = () => {
   const { data: bookings = [], isLoading } = useMentorBookings();
   const updateStatus = useUpdateBookingStatus();
   const markComplete = useMarkSessionComplete();
+  const sendNotification = useSendBookingNotification();
   const [filter, setFilter] = useState<FilterType>("all");
 
   // Rating state
@@ -114,6 +115,16 @@ const MentorBookings = () => {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", variant: "destructive" });
       return;
     }
+
+    // Send confirmation notification back to mentor
+    await sendNotification.mutateAsync({
+      recipientId: booking.mentor_id,
+      senderId: user.id,
+      type: "booking_confirmed",
+      bookingDate: booking.proposed_date,
+      bookingTime: booking.proposed_time,
+    });
+
     toast({ title: lang === "my" ? "အချိန်အသစ် လက်ခံပြီး" : "New time accepted!" });
     queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
   };
@@ -138,14 +149,23 @@ const MentorBookings = () => {
 
         {/* Filters */}
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {(["all", "pending", "confirmed", "completed"] as FilterType[]).map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f].label.my : statusConfig[f].label.en)}
-              {f === "pending" && pendingCount > 0 && (
-                <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-[9px] font-bold text-primary">{pendingCount}</span>
-              )}
-            </button>
-          ))}
+          {(["all", "pending", "confirmed", "completed", "cancelled"] as FilterType[]).map(f => {
+            const declinedCount = f === "cancelled" ? bookings.filter((b: any) => b.status === "cancelled").length : 0;
+            const counterProposalCount = f === "cancelled" ? bookings.filter((b: any) => b.status === "cancelled" && b.proposed_date).length : 0;
+            return (
+              <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+                {f === "all" ? (lang === "my" ? "အားလုံး" : "All")
+                  : f === "cancelled" ? (lang === "my" ? "ငြင်းပယ်" : "Declined")
+                  : (lang === "my" ? statusConfig[f].label.my : statusConfig[f].label.en)}
+                {f === "pending" && pendingCount > 0 && (
+                  <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-[9px] font-bold text-primary">{pendingCount}</span>
+                )}
+                {f === "cancelled" && counterProposalCount > 0 && (
+                  <span className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{counterProposalCount}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {isLoading ? (
