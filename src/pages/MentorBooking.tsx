@@ -238,10 +238,14 @@ const MentorBooking = () => {
               />
             </div>
 
-            {availableDates.size === 0 && (
-              <p className="mb-5 text-center text-xs text-muted-foreground">
-                {lang === "my" ? "ဤ Mentor တွင် ရနိုင်သော ရက် မရှိသေးပါ" : "This mentor hasn't set any available dates yet"}
-              </p>
+            {availableDates.size === 0 && !selectedDate && (
+              <div className="mb-5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "ဤ Mentor သည် အချိန်ဇယား မသတ်မှတ်ရသေးပါ။ ရက် ရွေးချယ်ပြီး တောင်းဆိုချက် ပို့နိုင်ပါသည်"
+                    : "This mentor hasn't set specific availability yet. Pick a preferred date to send a booking request"}
+                </p>
+              </div>
             )}
 
             {/* Time slots */}
