@@ -96,6 +96,28 @@ const MentorBookings = () => {
   const handleConfirm = (id: string) => updateStatus.mutate({ id, status: "confirmed" });
   const handleDecline = (id: string) => updateStatus.mutate({ id, status: "cancelled" });
 
+  const handleAcceptProposal = async (booking: any) => {
+    if (!user) return;
+    // Create a new booking with the proposed date/time
+    const { error } = await supabase.from("mentor_bookings").insert({
+      mentor_id: booking.mentor_id,
+      mentee_id: booking.mentee_id,
+      scheduled_date: booking.proposed_date,
+      scheduled_time: booking.proposed_time,
+      topic: booking.topic,
+      message: booking.message,
+      goals: booking.goals,
+      booked_by: "mentee",
+      status: "confirmed",
+    });
+    if (error) {
+      toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", variant: "destructive" });
+      return;
+    }
+    toast({ title: lang === "my" ? "အချိန်အသစ် လက်ခံပြီး" : "New time accepted!" });
+    queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "Booking များ" : "Bookings"} backPath="/mentors/dashboard" />
