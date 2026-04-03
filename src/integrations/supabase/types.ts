@@ -520,6 +520,7 @@ export type Database = {
           id: string
           is_booked: boolean
           mentor_id: string
+          slot_date: string | null
           start_time: string
           updated_at: string
         }
@@ -530,6 +531,7 @@ export type Database = {
           id?: string
           is_booked?: boolean
           mentor_id: string
+          slot_date?: string | null
           start_time: string
           updated_at?: string
         }
@@ -540,6 +542,7 @@ export type Database = {
           id?: string
           is_booked?: boolean
           mentor_id?: string
+          slot_date?: string | null
           start_time?: string
           updated_at?: string
         }
@@ -689,6 +692,7 @@ export type Database = {
           location: string | null
           mentoring_since: string | null
           rating_avg: number | null
+          timezone: string
           title: string | null
           total_mentees: number | null
           total_sessions: number | null
@@ -708,6 +712,7 @@ export type Database = {
           location?: string | null
           mentoring_since?: string | null
           rating_avg?: number | null
+          timezone?: string
           title?: string | null
           total_mentees?: number | null
           total_sessions?: number | null
@@ -727,6 +732,7 @@ export type Database = {
           location?: string | null
           mentoring_since?: string | null
           rating_avg?: number | null
+          timezone?: string
           title?: string | null
           total_mentees?: number | null
           total_sessions?: number | null

@@ -6,11 +6,13 @@ export interface AvailabilitySlot {
   id: string;
   mentor_id: string;
   day_of_week: string;
+  slot_date: string | null;
   start_time: string;
   end_time: string;
   is_booked: boolean;
 }
 
+/** Fetch available (unbooked) slots for a mentor — used by mentees when booking */
 export function useMentorAvailability(mentorId: string | undefined) {
   return useQuery({
     queryKey: ["mentor-availability", mentorId],
@@ -21,15 +23,18 @@ export function useMentorAvailability(mentorId: string | undefined) {
         .select("*")
         .eq("mentor_id", mentorId)
         .eq("is_booked", false)
-        .order("day_of_week")
+        .not("slot_date", "is", null)
+        .gte("slot_date", new Date().toISOString().split("T")[0])
+        .order("slot_date")
         .order("start_time");
       if (error) throw error;
-      return (data || []) as AvailabilitySlot[];
+      return (data || []) as unknown as AvailabilitySlot[];
     },
     enabled: !!mentorId,
   });
 }
 
+/** Fetch ALL slots for a mentor (including booked) — used by mentor dashboard */
 export function useMentorAllAvailability(mentorId: string | undefined) {
   return useQuery({
     queryKey: ["mentor-all-availability", mentorId],
@@ -39,10 +44,12 @@ export function useMentorAllAvailability(mentorId: string | undefined) {
         .from("mentor_availability_slots")
         .select("*")
         .eq("mentor_id", mentorId)
-        .order("day_of_week")
+        .not("slot_date", "is", null)
+        .gte("slot_date", new Date().toISOString().split("T")[0])
+        .order("slot_date")
         .order("start_time");
       if (error) throw error;
-      return (data || []) as AvailabilitySlot[];
+      return (data || []) as unknown as AvailabilitySlot[];
     },
     enabled: !!mentorId,
   });
@@ -52,11 +59,11 @@ export function useAddAvailabilitySlot() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (slot: { day_of_week: string; start_time: string; end_time: string }) => {
+    mutationFn: async (slot: { slot_date: string; day_of_week: string; start_time: string; end_time: string }) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
         .from("mentor_availability_slots")
-        .insert({ mentor_id: user.id, ...slot });
+        .insert({ mentor_id: user.id, ...slot } as any);
       if (error) throw error;
     },
     onSuccess: () => {
