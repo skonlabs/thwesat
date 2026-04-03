@@ -70,7 +70,7 @@ const AdminJobQueue = () => {
       <div className="px-5">
         <p className="mb-4 text-xs text-muted-foreground">{jobs.length} {lang === "my" ? "ခု စစ်ဆေးရန်ရှိ" : "pending review"}</p>
         {isLoading ? (
-          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <div className="space-y-3">
             {jobs.map((job: any, i: number) => (

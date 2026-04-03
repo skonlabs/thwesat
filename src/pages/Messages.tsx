@@ -36,7 +36,7 @@ const Messages = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+        <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
       ) : conversations.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center px-5">
           <Lock className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />

@@ -96,7 +96,7 @@ const SearchTalent = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>
+          <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <>
             <p className="mb-3 text-xs text-muted-foreground">{filtered.length} {lang === "my" ? "ဦး တွေ့ရှိ" : "talent found"}</p>
