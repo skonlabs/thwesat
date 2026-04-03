@@ -254,9 +254,14 @@ const Mentors = () => {
                       </span>
                     )}
                   </div>
-                  <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
-                    <MessageCircle className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ချိတ်ဆက်" : "Connect"}
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
+                      <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                    </Button>
+                    <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
+                      {lang === "my" ? "ပရိုဖိုင်" : "Profile"}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             );
