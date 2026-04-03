@@ -100,10 +100,27 @@ const MentorDashboard = () => {
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10" },
   ];
 
+  const isProfileIncomplete = !mentorProfile?.title || !mentorProfile?.expertise?.length;
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title="Mentor Dashboard" />
       <div className="px-5">
+        {isProfileIncomplete && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+            <p className="text-sm font-semibold text-foreground">
+              {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your mentor profile is incomplete"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "my"
+                ? "အခြား အသုံးပြုသူများ သင့်ကို ရှာတွေ့နိုင်ရန် ခေါင်းစဉ်၊ ကျွမ်းကျင်မှုနှင့် တည်နေရာ ဖြည့်ပါ"
+                : "Add your title, expertise, and location so job seekers can find and book you"}
+            </p>
+            <Button variant="outline" size="sm" className="mt-3 rounded-lg border-destructive/30 text-xs" onClick={() => navigate("/profile/edit")}>
+              {lang === "my" ? "ပရိုဖိုင် ဖြည့်ရန်" : "Complete Profile"}
+            </Button>
+          </motion.div>
+        )}
         <div className="mb-5 grid grid-cols-2 gap-3">
           {stats.map((stat, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-xl border border-border bg-card p-3.5">
