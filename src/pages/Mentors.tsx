@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send } from "lucide-react";
+import { UserStatusBadge } from "@/components/UserStatusBadge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
@@ -220,15 +221,7 @@ const Mentors = () => {
                       <div>
                         <div className="flex items-center gap-1.5">
                           <h3 className="text-sm font-semibold text-foreground">{name}</h3>
-                          {mentor.is_available ? (
-                            <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
-                              {lang === "my" ? "အလုပ်များနေ" : "Busy"}
-                            </span>
-                          )}
+                          <UserStatusBadge status={mentor.status || "offline"} />
                         </div>
                         <p className="text-[11px] text-muted-foreground">{mentor.title}</p>
                       </div>

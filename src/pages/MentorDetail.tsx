@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
+import { UserStatusBadge } from "@/components/UserStatusBadge";
 
 const MentorDetail = () => {
   const navigate = useNavigate();
@@ -51,15 +52,7 @@ const MentorDetail = () => {
             <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{initials}</div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
-              {mentor.is_available ? (
-                <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald" /> {lang === "my" ? "ရရှိနိုင်" : "Available"}
-                </span>
-              ) : (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  {lang === "my" ? "အလုပ်များနေ" : "Busy"}
-                </span>
-              )}
+              <UserStatusBadge status={mentor.status || "offline"} size="md" />
             </div>
             <p className="text-sm text-muted-foreground">{mentor.title}</p>
             <p className="text-xs text-muted-foreground">{mentor.company} · {mentor.location}</p>

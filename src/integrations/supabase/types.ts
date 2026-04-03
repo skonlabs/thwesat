@@ -1023,6 +1023,7 @@ export type Database = {
           internet_stable: boolean | null
           is_premium: boolean | null
           languages: string[] | null
+          last_seen_at: string | null
           location: string | null
           phone: string | null
           preferred_work_types: string[] | null
@@ -1052,6 +1053,7 @@ export type Database = {
           internet_stable?: boolean | null
           is_premium?: boolean | null
           languages?: string[] | null
+          last_seen_at?: string | null
           location?: string | null
           phone?: string | null
           preferred_work_types?: string[] | null
@@ -1081,6 +1083,7 @@ export type Database = {
           internet_stable?: boolean | null
           is_premium?: boolean | null
           languages?: string[] | null
+          last_seen_at?: string | null
           location?: string | null
           phone?: string | null
           preferred_work_types?: string[] | null
