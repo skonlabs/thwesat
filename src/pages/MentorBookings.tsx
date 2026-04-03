@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete } from "@/hooks/use-mentor-bookings";
+import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete, useSendBookingNotification } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
