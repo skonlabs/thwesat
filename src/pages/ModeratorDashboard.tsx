@@ -220,22 +220,6 @@ const ModeratorDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
       <div className="px-5">
-        {/* Stats row */}
-        <div className="mb-5 grid grid-cols-4 gap-2">
-          {[
-            { label: lang === "my" ? "ပို့စ်" : "Posts", count: posts.length, icon: MessageCircle },
-            { label: lang === "my" ? "အလုပ်" : "Jobs", count: pendingJobs.length, icon: Briefcase },
-            { label: lang === "my" ? "ငွေ" : "Payments", count: pendingPayments.length, icon: CreditCard },
-            { label: lang === "my" ? "ချိန်းဆို" : "Bookings", count: bookings.filter((b: any) => b.status === "pending").length, icon: CalendarCheck },
-          ].map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-xl border border-border bg-card p-2.5 text-center">
-              <s.icon className="mx-auto mb-1 h-4 w-4 text-primary" strokeWidth={1.5} />
-              <p className="text-base font-bold text-foreground">{s.count}</p>
-              <p className="text-[9px] text-muted-foreground">{s.label}</p>
-            </motion.div>
-          ))}
-        </div>
-
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
