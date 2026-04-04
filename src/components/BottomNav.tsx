@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, GraduationCap, Calendar } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -11,17 +11,14 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { allowedRoles, isLoading, isSystemRole } = useUserRoles();
+  const { allowedRoles, isLoading, isSystemRole, isAdmin, isModerator } = useUserRoles();
 
-  // If current role isn't allowed, reset to the first allowed role
+  // If current role isn't allowed (and not a system role), reset to the first allowed role
   useEffect(() => {
-    if (!isLoading && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+    if (!isLoading && !isSystemRole && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
       setRole(allowedRoles[0]);
     }
-  }, [isLoading, allowedRoles, role, setRole]);
-
-  // Admin/moderator users should not see the bottom nav
-  if (isSystemRole) return null;
+  }, [isLoading, allowedRoles, role, setRole, isSystemRole]);
 
   const jobseekerNav = [
     { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
@@ -47,24 +44,48 @@ const BottomNav = () => {
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
-  const navItems = role === "employer" ? employerNav : role === "mentor" ? mentorNav : jobseekerNav;
+  const adminNav = [
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/admin" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
+    { icon: CreditCard, labelMy: "ငွေ", labelEn: "Payments", path: "/admin/payments" },
+    { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
+    { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
+  ];
+
+  const moderatorNav = [
+    { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
+    { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
+    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
+  ];
+
+  const navItems = isAdmin
+    ? adminNav
+    : isModerator
+      ? moderatorNav
+      : role === "employer"
+        ? employerNav
+        : role === "mentor"
+          ? mentorNav
+          : jobseekerNav;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+          const isActive = location.pathname === item.path || (item.path !== "/admin" && item.path !== "/moderator" && location.pathname.startsWith(item.path + "/"));
+          const exactActive = location.pathname === item.path;
+          const active = isActive || exactActive;
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <item.icon className="h-5 w-5" strokeWidth={isActive ? 2 : 1.5} />
-              <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-medium")}>
+              <item.icon className="h-5 w-5" strokeWidth={active ? 2 : 1.5} />
+              <span className={cn("text-[10px] leading-tight", active ? "font-semibold" : "font-medium")}>
                 {lang === "my" ? item.labelMy : item.labelEn}
               </span>
             </button>
