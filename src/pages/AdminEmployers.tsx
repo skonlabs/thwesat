@@ -56,7 +56,7 @@ const AdminEmployers = () => {
     mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
       const update: Record<string, unknown> = {
         verification_status: status,
-        is_verified: status === "approved",
+        is_verified: status === "verified",
       };
       const { error } = await supabase.from("employer_profiles").update(update).eq("id", id);
       if (error) throw error;
