@@ -13,6 +13,7 @@ import PageHeader from "@/components/PageHeader";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
   pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
+  verified: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
 };
@@ -55,7 +56,7 @@ const AdminEmployers = () => {
     mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
       const update: Record<string, unknown> = {
         verification_status: status,
-        is_verified: status === "approved",
+        is_verified: status === "verified",
       };
       const { error } = await supabase.from("employer_profiles").update(update).eq("id", id);
       if (error) throw error;
@@ -70,7 +71,7 @@ const AdminEmployers = () => {
   });
 
   const handleApprove = (id: string) => {
-    updateStatus.mutate({ id, status: "approved" });
+    updateStatus.mutate({ id, status: "verified" });
     toast.success(lang === "my" ? "အလုပ်ရှင် အတည်ပြုပြီး" : "Employer approved");
   };
 
@@ -81,7 +82,10 @@ const AdminEmployers = () => {
   };
 
   const filtered = employers.filter((e: any) => {
-    const matchesTab = tab === "all" || (e.verification_status || "pending") === tab;
+    const status = e.verification_status || "pending";
+    const matchesTab = tab === "all" 
+      || (tab === "approved" && (status === "verified" || status === "approved"))
+      || (tab !== "approved" && status === tab);
     const q = search.toLowerCase();
     const matchesSearch = !q || (e.company_name || "").toLowerCase().includes(q) || (e.profile?.display_name || "").toLowerCase().includes(q) || (e.profile?.email || "").toLowerCase().includes(q);
     return matchesTab && matchesSearch;
