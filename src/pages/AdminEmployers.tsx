@@ -82,7 +82,10 @@ const AdminEmployers = () => {
   };
 
   const filtered = employers.filter((e: any) => {
-    const matchesTab = tab === "all" || (e.verification_status || "pending") === tab;
+    const status = e.verification_status || "pending";
+    const matchesTab = tab === "all" 
+      || (tab === "approved" && (status === "verified" || status === "approved"))
+      || (tab !== "approved" && status === tab);
     const q = search.toLowerCase();
     const matchesSearch = !q || (e.company_name || "").toLowerCase().includes(q) || (e.profile?.display_name || "").toLowerCase().includes(q) || (e.profile?.email || "").toLowerCase().includes(q);
     return matchesTab && matchesSearch;
