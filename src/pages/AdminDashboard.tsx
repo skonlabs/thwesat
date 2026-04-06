@@ -82,6 +82,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: { my: "အသုံးပြုသူ", en: "Users" }, path: "/admin/users", icon: Users },
+            { label: { my: "အလုပ်ရှင်များ", en: "Employers" }, path: "/admin/employers", icon: Briefcase },
             { label: { my: "ခွဲခြမ်းစိတ်ဖြာ", en: "Analytics" }, path: "/admin/analytics", icon: TrendingUp },
           ].map((item, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }} onClick={() => navigate(item.path)} className="flex flex-col items-center rounded-xl border border-border bg-card p-4 active:bg-muted/30">
