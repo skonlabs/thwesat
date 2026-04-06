@@ -13,6 +13,7 @@ import PageHeader from "@/components/PageHeader";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
   pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
+  verified: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
 };
