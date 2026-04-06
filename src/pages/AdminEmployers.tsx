@@ -71,7 +71,7 @@ const AdminEmployers = () => {
   });
 
   const handleApprove = (id: string) => {
-    updateStatus.mutate({ id, status: "approved" });
+    updateStatus.mutate({ id, status: "verified" });
     toast.success(lang === "my" ? "အလုပ်ရှင် အတည်ပြုပြီး" : "Employer approved");
   };
 
