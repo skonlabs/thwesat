@@ -52,6 +52,8 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminEmployers from "./pages/AdminEmployers";
 import DelegateAccess from "./pages/DelegateAccess";
+import EmployerEditJob from "./pages/EmployerEditJob";
+import EmployerEditCompany from "./pages/EmployerEditCompany";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import SiteGate from "./components/SiteGate";
@@ -110,6 +112,8 @@ const App = () => (
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
               <Route path="/employer/subscription" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerSubscription /></AppRoleGuard>} />
               <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
+              <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditJob /></AppRoleGuard>} />
+              <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />

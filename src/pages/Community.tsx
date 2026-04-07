@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 
@@ -201,6 +202,10 @@ const Community = () => {
         setShowNewPost(false);
         setNewPostText("");
         setSelectedImage(null);
+        toast.success(lang === "my" ? "ပို့စ်တင်ပြီး — စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Post submitted — it will appear after review");
+      },
+      onError: () => {
+        toast.error(lang === "my" ? "ပို့စ်တင်၍ မရပါ" : "Failed to create post");
       },
     });
   };
@@ -317,7 +322,7 @@ const Community = () => {
 
             return (
               <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card">
-                <div className="p-4 pb-24">
+                <div className="p-4 pb-3">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -363,6 +368,9 @@ const Community = () => {
                     </div>
                   </div>
                   <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {post.image_url && (
+                    <img src={post.image_url} alt="Post" className="mb-3 w-full rounded-lg object-cover max-h-64" />
+                  )}
                 </div>
 
                 {/* Action bar */}

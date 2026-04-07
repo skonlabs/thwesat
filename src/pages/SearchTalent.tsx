@@ -29,6 +29,7 @@ const SearchTalent = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
+  const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker" || p.primary_role === "mentor");
   const [search, setSearch] = useState("");
   const [activeSkill, setActiveSkill] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
@@ -47,7 +48,7 @@ const SearchTalent = () => {
     return lower.includes("senior") || lower.includes("lead") || lower.includes("principal");
   };
 
-  const filtered = profiles.filter(p => {
+  const filtered = filteredByRole.filter(p => {
     const matchesSearch = !search || 
       p.display_name.toLowerCase().includes(search.toLowerCase()) || 
       (p.headline || "").toLowerCase().includes(search.toLowerCase()) || 
@@ -165,7 +166,7 @@ const SearchTalent = () => {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate(`/profile/${talent.id}`)}
                   className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30"
                 >
                   <div className="flex items-start gap-3">

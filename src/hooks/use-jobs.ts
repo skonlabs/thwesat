@@ -25,6 +25,7 @@ export interface Job {
   is_featured: boolean;
   visa_sponsorship: boolean | null;
   requires_embassy: boolean | null;
+  requires_work_permit: boolean | null;
   payment_methods: string[] | null;
   status: string | null;
   applicant_count: number | null;
