@@ -46,7 +46,12 @@ const Applications = () => {
 
   const handleWithdraw = async () => {
     if (!selectedApp) return;
-    await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
+    const { error } = await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
+    if (error) {
+      toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
+      return;
+    }
+    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီး" : "Application withdrawn successfully");
     queryClient.invalidateQueries({ queryKey: ["applications"] });
     setSelectedApp(null);
   };
