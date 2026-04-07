@@ -368,6 +368,9 @@ const Community = () => {
                     </div>
                   </div>
                   <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {post.image_url && (
+                    <img src={post.image_url} alt="Post" className="mb-3 w-full rounded-lg object-cover max-h-64" />
+                  )}
                 </div>
 
                 {/* Action bar */}

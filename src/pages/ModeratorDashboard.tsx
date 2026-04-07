@@ -324,6 +324,9 @@ const ModeratorDashboard = () => {
             <p className="mb-1 text-xs text-muted-foreground">by {selectedPost.author?.display_name || "User"} · {formatTime(selectedPost.created_at)}</p>
             <div className="my-4 rounded-xl bg-muted p-4">
               <p className="text-sm leading-relaxed text-foreground">{lang === "my" ? selectedPost.content_my : (selectedPost.content_en || selectedPost.content_my)}</p>
+              {selectedPost.image_url && (
+                <img src={selectedPost.image_url} alt="Post image" className="mt-3 w-full rounded-lg object-cover max-h-64" />
+              )}
             </div>
             <div className="flex gap-3">
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}</Button>
