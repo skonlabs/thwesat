@@ -201,6 +201,10 @@ const Community = () => {
         setShowNewPost(false);
         setNewPostText("");
         setSelectedImage(null);
+        toast.success(lang === "my" ? "ပို့စ်တင်ပြီး — စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Post submitted — it will appear after review");
+      },
+      onError: () => {
+        toast.error(lang === "my" ? "ပို့စ်တင်၍ မရပါ" : "Failed to create post");
       },
     });
   };

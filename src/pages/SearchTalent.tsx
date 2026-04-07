@@ -166,7 +166,7 @@ const SearchTalent = () => {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate(`/profile/${talent.id}`)}
                   className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30"
                 >
                   <div className="flex items-start gap-3">
