@@ -53,6 +53,7 @@ import AdminPayments from "./pages/AdminPayments";
 import AdminEmployers from "./pages/AdminEmployers";
 import DelegateAccess from "./pages/DelegateAccess";
 import EmployerEditJob from "./pages/EmployerEditJob";
+import PublicProfile from "./pages/PublicProfile";
 import EmployerEditCompany from "./pages/EmployerEditCompany";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="/community" element={<Community />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/edit" element={<EditProfile />} />
+              <Route path="/profile/:id" element={<PublicProfile />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/chat" element={<ChatView />} />
               <Route path="/notifications" element={<Notifications />} />
