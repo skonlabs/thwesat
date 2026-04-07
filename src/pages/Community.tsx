@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 
