@@ -52,6 +52,8 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminEmployers from "./pages/AdminEmployers";
 import DelegateAccess from "./pages/DelegateAccess";
+import EmployerEditJob from "./pages/EmployerEditJob";
+import EmployerEditCompany from "./pages/EmployerEditCompany";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import SiteGate from "./components/SiteGate";
