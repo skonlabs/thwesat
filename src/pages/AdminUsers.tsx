@@ -97,6 +97,27 @@ const AdminUsers = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Delete Confirmation */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားမည်" : "Remove User"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤအသုံးပြုသူကို ဖယ်ရှားမည်။ ဆက်လုပ်မည်လား?" : "This will remove the user's profile. Continue?"}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={async () => {
+                  const { error } = await supabase.from("profiles").delete().eq("id", deleteConfirmId);
+                  if (error) { toast.error(lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove user"); }
+                  else { toast.success(lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားပြီး" : "User removed"); queryClient.invalidateQueries({ queryKey: ["admin-users"] }); }
+                  setDeleteConfirmId(null);
+                }}>{lang === "my" ? "ဖယ်ရှားရန်" : "Remove"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
