@@ -148,6 +148,27 @@ const AiProfileBuilder = () => {
       <PageHeader title={lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools"} />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          {isEmployer ? (
+            <>
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                  <Sparkles className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my" ? "အလုပ်ရှင်အတွက် ကိရိယာများ" : "Employer tools"}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-card p-6 text-center">
+                <Briefcase className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                <p className="text-sm font-medium text-foreground">{lang === "my" ? "အလုပ်ရှင်များအတွက် ဤကိရိယာများ မလိုအပ်ပါ" : "These tools are designed for job seekers"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{lang === "my" ? "အလုပ်ကြော်ငြာ တင်ရန် Dashboard ကို သွားပါ" : "Go to your Dashboard to post jobs and manage applications"}</p>
+                <Button variant="default" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/employer/dashboard")}>
+                  {lang === "my" ? "Dashboard သို့" : "Go to Dashboard"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
           {/* Subtitle */}
           <div className="mb-5 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
