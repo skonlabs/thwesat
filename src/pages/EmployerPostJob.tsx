@@ -154,11 +154,11 @@ const EmployerPostJob = () => {
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD)" : "Min Salary (USD)"}</label>
-                <Input type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="1000" className="h-11 rounded-xl" />
+                <Input type="number" min="0" value={salaryMin} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMin(v); }} placeholder="1000" className="h-11 rounded-xl" />
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD)" : "Max Salary (USD)"}</label>
-                <Input type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="5000" className="h-11 rounded-xl" />
+                <Input type="number" min="0" value={salaryMax} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMax(v); }} placeholder="5000" className="h-11 rounded-xl" />
               </div>
             </div>
             {(roleType === "hybrid" || roleType === "onsite") && (
