@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, X, File, Check } from "lucide-react";
+import { Sparkles, FileText, PenLine, TrendingUp, ChevronRight, Upload, Globe, X, File, Check, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
