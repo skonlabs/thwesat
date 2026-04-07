@@ -28,7 +28,7 @@ export interface Job {
   requires_work_permit: boolean | null;
   payment_methods: string[] | null;
   status: string | null;
-  requirements_my: string | null;
+  applicant_count: number | null;
   applicant_count: number | null;
   created_at: string | null;
   external_url: string | null;
