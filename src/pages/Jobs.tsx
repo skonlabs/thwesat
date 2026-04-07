@@ -278,7 +278,13 @@ const Jobs = () => {
                       </span>
                     )}
                   </div>
-                  <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  {hasApplied ? (
+                    <span className="flex items-center gap-1 rounded-lg bg-emerald/10 px-2.5 py-1 text-xs font-medium text-emerald">
+                      <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? "လျှောက်ပြီး" : "Applied"}
+                    </span>
+                  ) : (
+                    <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  )}
                 </div>
               </motion.div>
             );
