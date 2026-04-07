@@ -310,6 +310,8 @@ const AiProfileBuilder = () => {
               ))}
             </div>
           </div>
+          </>
+          )}
         </motion.div>
       </div>
     </div>
