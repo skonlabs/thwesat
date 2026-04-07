@@ -90,6 +90,9 @@ const AdminUsers = () => {
                 <p>{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}: {selected.headline || "—"}</p>
                 <p>{lang === "my" ? "စတင်ရက်" : "Joined"}: {new Date(selected.created_at).toLocaleDateString()}</p>
               </div>
+              <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားရန်" : "Remove User"}
+              </Button>
             </motion.div>
           </motion.div>
         )}
