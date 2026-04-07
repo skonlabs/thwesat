@@ -23,6 +23,7 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
   interviewed: { my: "အင်တာဗျူး", en: "Interviewed", color: "bg-primary/10 text-primary" },
   rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
   placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
+  withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", color: "bg-muted text-muted-foreground" },
 };
 
 const Applications = () => {
