@@ -29,6 +29,7 @@ const SearchTalent = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
+  const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker" || p.primary_role === "mentor");
   const [search, setSearch] = useState("");
   const [activeSkill, setActiveSkill] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
