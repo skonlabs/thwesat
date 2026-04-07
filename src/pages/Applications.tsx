@@ -8,6 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
@@ -22,6 +23,7 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
   interviewed: { my: "အင်တာဗျူး", en: "Interviewed", color: "bg-primary/10 text-primary" },
   rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
   placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
+  withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", color: "bg-muted text-muted-foreground" },
 };
 
 const Applications = () => {
@@ -45,7 +47,12 @@ const Applications = () => {
 
   const handleWithdraw = async () => {
     if (!selectedApp) return;
-    await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
+    const { error } = await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
+    if (error) {
+      toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
+      return;
+    }
+    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီး" : "Application withdrawn successfully");
     queryClient.invalidateQueries({ queryKey: ["applications"] });
     setSelectedApp(null);
   };

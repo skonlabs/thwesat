@@ -321,7 +321,7 @@ const Community = () => {
             const categoryLabel = post.category || "general";
 
             return (
-              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card">
+              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card ${!post.is_approved ? "border-yellow-500/30" : "border-border"}`}>
                 <div className="p-4 pb-3">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-start gap-3">
@@ -368,6 +368,12 @@ const Community = () => {
                     </div>
                   </div>
                   <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {!post.is_approved && isOwn && (
+                    <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-yellow-500/10 px-3 py-2">
+                      <Clock className="h-3.5 w-3.5 text-yellow-600" strokeWidth={1.5} />
+                      <span className="text-[11px] font-medium text-yellow-700">{lang === "my" ? "စစ်ဆေးနေဆဲ" : "Pending Review"}</span>
+                    </div>
+                  )}
                   {post.image_url && (
                     <img src={post.image_url} alt="Post" className="mb-3 w-full rounded-lg object-cover max-h-64" />
                   )}

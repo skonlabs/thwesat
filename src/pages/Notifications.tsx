@@ -13,6 +13,10 @@ const typeIcons: Record<string, typeof Briefcase> = {
   message: MessageCircle,
   guide: Shield,
   premium: Star,
+  payment_approved: CheckCircle,
+  payment_rejected: Shield,
+  referral_reward: Star,
+  system: Bell,
 };
 
 const typeColors: Record<string, string> = {
@@ -22,6 +26,10 @@ const typeColors: Record<string, string> = {
   message: "bg-accent/10 text-accent",
   guide: "bg-secondary text-secondary-foreground",
   premium: "bg-primary/10 text-primary",
+  payment_approved: "bg-emerald/10 text-emerald",
+  payment_rejected: "bg-destructive/10 text-destructive",
+  referral_reward: "bg-gold/10 text-gold-dark",
+  system: "bg-muted text-muted-foreground",
 };
 
 function formatTimeAgo(dateStr: string | null, lang: string): string {

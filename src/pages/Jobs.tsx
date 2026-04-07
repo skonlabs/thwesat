@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
-import { useJobs, useSavedJobIds, useToggleSaveJob, type Job } from "@/hooks/use-jobs";
+import { useJobs, useSavedJobIds, useToggleSaveJob, useApplications, type Job } from "@/hooks/use-jobs";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
 
 const categories = [
@@ -47,6 +47,7 @@ const Jobs = () => {
   const { lang } = useLanguage();
   const { data: jobs = [], isLoading } = useJobs();
   const { data: savedJobIds = [] } = useSavedJobIds();
+  const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
 
   const [search, setSearch] = useState("");
@@ -215,6 +216,7 @@ const Jobs = () => {
           filteredJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
+            const hasApplied = applications.some((a: any) => a.job_id === job.id);
             const postedAgo = formatTimeAgo(job.created_at);
 
             return (
@@ -276,7 +278,13 @@ const Jobs = () => {
                       </span>
                     )}
                   </div>
-                  <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  {hasApplied ? (
+                    <span className="flex items-center gap-1 rounded-lg bg-emerald/10 px-2.5 py-1 text-xs font-medium text-emerald">
+                      <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? "လျှောက်ပြီး" : "Applied"}
+                    </span>
+                  ) : (
+                    <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                  )}
                 </div>
               </motion.div>
             );
