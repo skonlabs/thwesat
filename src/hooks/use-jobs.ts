@@ -29,7 +29,6 @@ export interface Job {
   payment_methods: string[] | null;
   status: string | null;
   applicant_count: number | null;
-  applicant_count: number | null;
   created_at: string | null;
   external_url: string | null;
 }
