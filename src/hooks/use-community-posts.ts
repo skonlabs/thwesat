@@ -24,14 +24,16 @@ export interface CommunityPost {
 
 export function useCommunityPosts(category?: string) {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["community-posts", category, lang],
+    queryKey: ["community-posts", category, lang, user?.id],
     queryFn: async () => {
+      // RLS already handles: approved posts OR own posts
+      // But we need to not filter by is_approved on the client so own unapproved posts show
       let query = supabase
         .from("community_posts")
         .select("*")
-        .eq("is_approved", true)
         .order("created_at", { ascending: false });
       if (category && category !== "All") {
         query = query.eq("category", category);
