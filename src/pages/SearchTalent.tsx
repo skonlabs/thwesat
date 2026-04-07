@@ -48,7 +48,7 @@ const SearchTalent = () => {
     return lower.includes("senior") || lower.includes("lead") || lower.includes("principal");
   };
 
-  const filtered = profiles.filter(p => {
+  const filtered = filteredByRole.filter(p => {
     const matchesSearch = !search || 
       p.display_name.toLowerCase().includes(search.toLowerCase()) || 
       (p.headline || "").toLowerCase().includes(search.toLowerCase()) || 
