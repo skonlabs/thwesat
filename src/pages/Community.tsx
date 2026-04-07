@@ -368,6 +368,12 @@ const Community = () => {
                     </div>
                   </div>
                   <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {!post.is_approved && isOwn && (
+                    <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-yellow-500/10 px-3 py-2">
+                      <Clock className="h-3.5 w-3.5 text-yellow-600" strokeWidth={1.5} />
+                      <span className="text-[11px] font-medium text-yellow-700">{lang === "my" ? "စစ်ဆေးနေဆဲ" : "Pending Review"}</span>
+                    </div>
+                  )}
                   {post.image_url && (
                     <img src={post.image_url} alt="Post" className="mb-3 w-full rounded-lg object-cover max-h-64" />
                   )}
