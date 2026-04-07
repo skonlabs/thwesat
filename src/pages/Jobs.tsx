@@ -47,6 +47,7 @@ const Jobs = () => {
   const { lang } = useLanguage();
   const { data: jobs = [], isLoading } = useJobs();
   const { data: savedJobIds = [] } = useSavedJobIds();
+  const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
 
   const [search, setSearch] = useState("");
