@@ -195,9 +195,21 @@ const Community = () => {
     }
   };
 
-  const handleNewPost = () => {
+  const handleNewPost = async () => {
     if (!newPostText.trim()) return;
-    createPost.mutate({ contentMy: newPostText, contentEn: newPostText, category: newPostCategory }, {
+    let imageUrl: string | undefined;
+    // Upload image to Supabase storage if selected
+    if (selectedImage && fileInputRef.current?.files?.[0] && user) {
+      const file = fileInputRef.current.files[0];
+      const ext = file.name.split(".").pop();
+      const filePath = `community/${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      if (!uploadErr) {
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        imageUrl = urlData.publicUrl;
+      }
+    }
+    createPost.mutate({ contentMy: newPostText, contentEn: newPostText, category: newPostCategory, imageUrl }, {
       onSuccess: () => {
         setShowNewPost(false);
         setNewPostText("");
