@@ -17,6 +17,7 @@ const AiProfileBuilder = () => {
   const { lang } = useLanguage();
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const isEmployer = profile?.primary_role === "employer";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: number; url?: string; filePath?: string } | null>(() => {
