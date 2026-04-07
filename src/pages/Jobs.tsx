@@ -216,6 +216,7 @@ const Jobs = () => {
           filteredJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
+            const hasApplied = applications.some((a: any) => a.job_id === job.id);
             const postedAgo = formatTimeAgo(job.created_at);
 
             return (
