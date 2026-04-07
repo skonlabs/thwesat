@@ -322,7 +322,7 @@ const Community = () => {
 
             return (
               <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card">
-                <div className="p-4 pb-24">
+                <div className="p-4 pb-3">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
