@@ -21,7 +21,7 @@ const Profile = () => {
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
-  const { allowedRoles, isLoading: rolesLoading } = useUserRoles();
+  const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showReferredList, setShowReferredList] = useState(false);
