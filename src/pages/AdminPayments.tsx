@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, DollarSign, Eye, ChevronDown } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { useAllPaymentRequests, useUpdatePaymentRequest } from "@/hooks/use-payment";
+import { useAllPaymentRequests, useUpdatePaymentRequest, getPaymentProofSignedUrl } from "@/hooks/use-payment";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ const AdminPayments = () => {
   const [filter, setFilter] = useState<FilterType>("all");
   const [selectedPayment, setSelectedPayment] = useState<PaymentRequest | null>(null);
   const [adminNote, setAdminNote] = useState("");
+  const [proofSignedUrl, setProofSignedUrl] = useState<string | null>(null);
 
   // Fetch user profiles for display
   const userIds = [...new Set((payments || []).map(p => p.user_id))];
@@ -61,8 +62,17 @@ const AdminPayments = () => {
   const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
   const filtered = (payments || []).filter(p => filter === "all" || p.status === filter);
-
   const pendingCount = (payments || []).filter(p => p.status === "pending").length;
+
+  // Generate signed URL when a payment with proof is selected
+  useEffect(() => {
+    setProofSignedUrl(null);
+    if (selectedPayment?.proof_url) {
+      getPaymentProofSignedUrl(selectedPayment.proof_url).then(url => {
+        setProofSignedUrl(url);
+      });
+    }
+  }, [selectedPayment]);
 
   const handleAction = async (status: "approved" | "rejected") => {
     if (!selectedPayment) return;
@@ -74,13 +84,13 @@ const AdminPayments = () => {
       });
       toast({
         title: status === "approved"
-          ? (lang === "my" ? "အတည်ပြုပြီး" : "Approved")
-          : (lang === "my" ? "ပယ်ချပြီး" : "Rejected"),
+          ? (lang === "my" ? "အတည်ပြုပြီး" : "Payment Approved Successfully")
+          : (lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected"),
       });
       setSelectedPayment(null);
       setAdminNote("");
-    } catch {
-      toast({ title: lang === "my" ? "အမှား" : "Error", variant: "destructive" });
+    } catch (err: any) {
+      toast({ title: lang === "my" ? "အမှား" : "Error", description: err?.message || "Failed to update payment", variant: "destructive" });
     }
   };
 
@@ -216,11 +226,17 @@ const AdminPayments = () => {
                 </div>
               </div>
 
-              {/* Proof image */}
+              {/* Proof image - using signed URL for private bucket */}
               {selectedPayment.proof_url && (
                 <div>
                   <p className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "ငွေလွှဲ အထောက်အထား" : "Payment Proof"}</p>
-                  <img src={selectedPayment.proof_url} alt="proof" className="w-full rounded-xl border border-border object-contain max-h-64" />
+                  {proofSignedUrl ? (
+                    <img src={proofSignedUrl} alt="proof" className="w-full rounded-xl border border-border object-contain max-h-64" />
+                  ) : (
+                    <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-muted">
+                      <p className="text-xs text-muted-foreground">{lang === "my" ? "ပုံ ဖွင့်နေသည်..." : "Loading proof..."}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -233,7 +249,7 @@ const AdminPayments = () => {
                 </div>
               )}
 
-              {/* Admin note */}
+              {/* Admin note + actions for pending */}
               {selectedPayment.status === "pending" && (
                 <>
                   <Textarea

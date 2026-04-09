@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Download, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Mail, Send, Users } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
+import { toast } from "sonner";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {
   applied: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
@@ -33,6 +34,7 @@ const EmployerApplications = () => {
   const { lang } = useLanguage();
   const { data: applications, isLoading } = useEmployerApplications();
   const updateStatus = useUpdateApplicationStatus();
+  const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPlacement, setShowPlacement] = useState(false);
@@ -45,21 +47,38 @@ const EmployerApplications = () => {
   const selected = apps.find((a: any) => a.id === selectedId);
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
-    await updateStatus.mutateAsync({ id, status: newStatus });
+    try {
+      await updateStatus.mutateAsync({ id, status: newStatus });
+      toast.success(lang === "my" ? "အခြေအနေ ပြောင်းပြီး" : "Status updated successfully");
+      setSelectedId(null);
+    } catch (err: any) {
+      toast.error(lang === "my" ? "အခြေအနေ ပြောင်း၍ မရပါ" : "Failed to update status");
+    }
   };
 
   const handleReject = async () => {
     if (selectedId) {
-      await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
-      setShowReject(false); setSelectedId(null);
+      try {
+        await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
+        toast.success(lang === "my" ? "ငြင်းပယ်ပြီး" : "Application rejected");
+        setShowReject(false); setSelectedId(null); setRejectionReason("");
+      } catch {
+        toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to reject");
+      }
     }
   };
 
   const handlePlacement = async () => {
     if (selectedId && placementSalary) {
-      const fee = Math.round(parseInt(placementSalary) * 0.08);
-      await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: parseInt(placementSalary), placementFee: fee });
-      setShowPlacement(false); setSelectedId(null);
+      try {
+        const salary = parseInt(placementSalary);
+        const fee = Math.round(salary * 0.08);
+        await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
+        toast.success(lang === "my" ? "ခန့်အပ်မှု အတည်ပြုပြီး" : "Placement confirmed!");
+        setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
+      } catch {
+        toast.error(lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ" : "Failed to confirm placement");
+      }
     }
   };
 
@@ -71,7 +90,7 @@ const EmployerApplications = () => {
           <p className="text-[10px] text-muted-foreground">{apps.length} {lang === "my" ? "ဦး လျှောက်ထားပြီး" : "applicants"}</p>
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "applied", "shortlisted", "interviewed", "placed", "rejected"].map(f => (
+          {["all", "applied", "shortlisted", "interviewed", "offered", "placed", "rejected"].map(f => (
             <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
             </button>
@@ -98,7 +117,7 @@ const EmployerApplications = () => {
                 className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {(app.applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                    {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
@@ -121,25 +140,42 @@ const EmployerApplications = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
             <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
-              <h2 className="mb-2 text-lg font-bold text-foreground">{selected.jobs?.title || "Application"}</h2>
+              <div className="mb-2 flex items-start justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-foreground">{selected.applicant_profile?.display_name || "Applicant"}</h2>
+                  <p className="text-xs text-muted-foreground">{selected.jobs?.title || "Application"}</p>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${(statusConfig[selected.status] || statusConfig.applied).color}`}>
+                  {lang === "my" ? (statusConfig[selected.status] || statusConfig.applied).label.my : (statusConfig[selected.status] || statusConfig.applied).label.en}
+                </span>
+              </div>
               {selected.cover_letter && (
                 <div className="mb-4 rounded-xl bg-muted p-3">
-                  <p className="text-xs text-muted-foreground">Cover Letter</p>
+                  <p className="text-xs text-muted-foreground">{lang === "my" ? "Cover Letter" : "Cover Letter"}</p>
                   <p className="mt-1 text-sm text-foreground">{selected.cover_letter}</p>
                 </div>
               )}
-              <div className="mt-4 border-t border-border pt-4">
+              
+              {/* Message applicant button */}
+              <Button variant="outline" size="sm" className="mb-4 w-full rounded-xl" onClick={() => { setSelectedId(null); startConversation(selected.applicant_id); }}>
+                <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                {lang === "my" ? "မက်ဆေ့ချ် ပို့ရန်" : "Message Applicant"}
+              </Button>
+
+              <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
                   {statusFlow.filter(s => s !== selected.status).map(s => (
                     <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs"
-                      onClick={() => { if (s === "placed") setShowPlacement(true); else { handleStatusUpdate(selected.id, s); setSelectedId(null); } }}>
+                      onClick={() => { if (s === "placed") setShowPlacement(true); else handleStatusUpdate(selected.id, s); }}>
                       {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}
                     </Button>
                   ))}
-                  <Button variant="destructive" size="sm" className="rounded-lg text-xs" onClick={() => setShowReject(true)}>
-                    {lang === "my" ? "ငြင်းပယ်" : "Reject"}
-                  </Button>
+                  {selected.status !== "rejected" && (
+                    <Button variant="destructive" size="sm" className="rounded-lg text-xs" onClick={() => setShowReject(true)}>
+                      {lang === "my" ? "ငြင်းပယ်" : "Reject"}
+                    </Button>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -160,8 +196,8 @@ const EmployerApplications = () => {
                 ))}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowReject(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
+                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowReject(false); setRejectionReason(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason || updateStatus.isPending}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
               </div>
             </motion.div>
           </motion.div>
@@ -176,12 +212,12 @@ const EmployerApplications = () => {
               <p className="mb-4 text-xs text-muted-foreground">8% placement fee</p>
               <div className="mb-3">
                 <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (USD/လ) *" : "Monthly Salary (USD) *"}</label>
-                <input type="number" value={placementSalary} onChange={e => setPlacementSalary(e.target.value)} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
+                <input type="number" min="0" value={placementSalary} onChange={e => setPlacementSalary(e.target.value)} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
               </div>
-              {placementSalary && <p className="mb-4 text-xs text-muted-foreground">Fee: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
+              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">Fee: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
               <div className="flex gap-3">
-                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowPlacement(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary}>{lang === "my" ? "အတည်ပြုရန်" : "Confirm"}</Button>
+                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>{lang === "my" ? "အတည်ပြုရန်" : "Confirm"}</Button>
               </div>
             </motion.div>
           </motion.div>
