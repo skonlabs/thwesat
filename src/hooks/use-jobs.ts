@@ -145,6 +145,22 @@ export function useApplyToJob() {
           status: "applied",
         });
       if (error) throw error;
+
+      // Notify employer about new application
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", jobId).single();
+      const { data: applicantProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      const applicantName = applicantProfile?.display_name || "Someone";
+      if (job) {
+        await supabase.from("notifications").insert({
+          user_id: job.employer_id,
+          notification_type: "application",
+          title: `New application from ${applicantName}`,
+          title_my: `${applicantName} ထံမှ လျှောက်လွှာအသစ်`,
+          description: `${applicantName} applied for ${job.title}`,
+          description_my: `${applicantName} သည် ${job.title_my || job.title} အတွက် လျှောက်ထားပါပြီ`,
+          link_path: "/employer/applications",
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });

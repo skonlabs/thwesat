@@ -74,7 +74,21 @@ const MentorMentees = () => {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: async (_: unknown, menteeId: string) => {
+      // Notify mentee
+      if (user) {
+        const { data: mentorProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+        const mentorName = mentorProfile?.display_name || "Your mentor";
+        await supabase.from("notifications").insert({
+          user_id: menteeId,
+          notification_type: "mentor",
+          title: `${mentorName} accepted you as a mentee!`,
+          title_my: `${mentorName} သင့်ကို mentee အဖြစ် လက်ခံပြီ!`,
+          description: "You can now schedule sessions and start learning.",
+          description_my: "Session များ ချိန်းဆိုပြီး သင်ယူနိုင်ပါပြီ။",
+          link_path: "/mentors/bookings",
+        });
+      }
       toast.success(lang === "my" ? "Mentee လက်ခံပြီး" : "Mentee accepted");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
@@ -97,7 +111,21 @@ const MentorMentees = () => {
         .eq("status", "pending");
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_: unknown, menteeId: string) => {
+      // Notify mentee
+      if (user) {
+        const { data: mentorProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+        const mentorName = mentorProfile?.display_name || "A mentor";
+        await supabase.from("notifications").insert({
+          user_id: menteeId,
+          notification_type: "mentor",
+          title: `${mentorName} declined your mentee request`,
+          title_my: `${mentorName} သင့် mentee တောင်းဆိုမှုကို ငြင်းပယ်ပြီ`,
+          description: "You can explore other mentors on the platform.",
+          description_my: "အခြား mentor များကို ရှာဖွေနိုင်ပါသည်။",
+          link_path: "/mentors",
+        });
+      }
       toast.success(lang === "my" ? "Mentee ငြင်းပယ်ပြီး" : "Mentee declined");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });

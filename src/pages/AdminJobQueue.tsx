@@ -58,11 +58,27 @@ const AdminJobQueue = () => {
 
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
+      // Get job info before update for notification
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).single();
       const { error } = await supabase.from("jobs").update({
         status,
         ...(rejectionReason ? { rejection_reason: rejectionReason } : {}),
       }).eq("id", id);
       if (error) throw error;
+
+      // Notify employer about job status
+      if (job) {
+        const isApproved = status === "active";
+        await supabase.from("notifications").insert({
+          user_id: job.employer_id,
+          notification_type: "job",
+          title: isApproved ? `Your job "${job.title}" has been approved!` : `Your job "${job.title}" was rejected`,
+          title_my: isApproved ? `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ အတည်ပြုပြီး!` : `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ ငြင်းပယ်ခံရပြီ`,
+          description: isApproved ? "Your job listing is now live and visible to job seekers." : (rejectionReason || "Your job listing did not meet our guidelines."),
+          description_my: isApproved ? "သင့်အလုပ်ကြော်ငြာကို အလုပ်ရှာဖွေသူများ မြင်နိုင်ပါပြီ။" : (rejectionReason || "သင့်အလုပ်ကြော်ငြာသည် လမ်းညွှန်ချက်များနှင့် ကိုက်ညီမှု မရှိပါ။"),
+          link_path: "/employer/dashboard",
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
