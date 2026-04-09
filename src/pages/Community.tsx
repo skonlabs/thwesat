@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, Link2, Bookmark, BookmarkCheck, Trash2, Copy } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -108,6 +108,8 @@ const Community = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingPost, setEditingPost] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
   const createPost = useCreatePost();
@@ -238,6 +240,31 @@ const Community = () => {
       },
     });
   };
+
+  const handleEditPost = (post: typeof posts[0]) => {
+    setEditingPost(post.id);
+    setEditText(lang === "my" ? post.content_my : (post.content_en || post.content_my));
+    setOpenMenuId(null);
+  };
+
+  const updatePost = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      const { error } = await supabase.from("community_posts").update({
+        content_my: content,
+        content_en: content,
+      }).eq("id", postId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["community-posts"] });
+      setEditingPost(null);
+      setEditText("");
+      toast.success(lang === "my" ? "ပို့စ် ပြင်ဆင်ပြီး" : "Post updated");
+    },
+    onError: () => {
+      toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update post");
+    },
+  });
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
@@ -373,10 +400,16 @@ const Community = () => {
                               {lang === "my" ? "လင့်ခ် ကူးယူရန်" : "Copy Link"}
                             </button>
                             {isOwn ? (
-                              <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
-                                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                                {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
-                              </button>
+                              <>
+                                <button onClick={() => handleEditPost(post)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
+                                  <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                                  {lang === "my" ? "ပို့စ် ပြင်ဆင်ရန်" : "Edit Post"}
+                                </button>
+                                <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
+                                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                                  {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
+                                </button>
+                              </>
                             ) : (
                               <button onClick={() => handleReport(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
                                 <Flag className="h-4 w-4" strokeWidth={1.5} />
@@ -388,7 +421,21 @@ const Community = () => {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {editingPost === post.id ? (
+                    <div className="mb-3 space-y-2">
+                      <Textarea value={editText} onChange={e => setEditText(e.target.value)} className="min-h-[80px] rounded-xl text-sm" />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" className="rounded-xl text-xs" onClick={() => { setEditingPost(null); setEditText(""); }}>
+                          {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+                        </Button>
+                        <Button size="sm" className="rounded-xl text-xs" disabled={!editText.trim() || updatePost.isPending} onClick={() => updatePost.mutate({ postId: post.id, content: editText })}>
+                          {updatePost.isPending ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "သိမ်းရန်" : "Save")}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  )}
                   {!post.is_approved && isOwn && (
                     <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-yellow-500/10 px-3 py-2">
                       <Clock className="h-3.5 w-3.5 text-yellow-600" strokeWidth={1.5} />
