@@ -92,6 +92,7 @@ export function useMessages(conversationId: string | undefined) {
       return data || [];
     },
     enabled: !!conversationId && !!user,
+    refetchInterval: 5000,
   });
 }
 
