@@ -38,7 +38,7 @@ const AdminDashboard = () => {
 
   const stats = [
     { icon: Users, label: { my: "စုစုပေါင်း အသုံးပြုသူ", en: "Total Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
-    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်ခေါ်စာ", en: "Active Listings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs" },
+    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်ခေါ်စာ", en: "Active Listings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
     { icon: Crown, label: { my: "Premium အသုံးပြုသူ", en: "Premium Users" }, value: counts?.premiumUsers?.toString() || "0", color: "text-accent bg-accent/10", path: "/admin/users" },
   ];
 
