@@ -11,7 +11,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
-...
+
+const statusConfig: Record<string, { color: string; label: { en: string; my: string } }> = {
+  pending: { color: "bg-yellow-100 text-yellow-700", label: { en: "Pending", my: "စစ်ဆေးရန်" } },
+  verified: { color: "bg-green-100 text-green-700", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
+  approved: { color: "bg-green-100 text-green-700", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
+  rejected: { color: "bg-red-100 text-red-700", label: { en: "Rejected", my: "ပယ်ချပြီး" } },
+};
+
 const AdminEmployers = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
