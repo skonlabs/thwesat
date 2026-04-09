@@ -378,6 +378,11 @@ const ModeratorDashboard = () => {
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowJobReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ပယ်ချ" : "Reject"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => approveJob.mutate(selectedJob.id)} disabled={!jobChecks.every(Boolean)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
             </div>
+            {isAdmin && (
+              <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl" onClick={() => { setSelectedJobId(null); navigate(`/admin/edit-job/${selectedJob.id}`); }}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Job"}
+              </Button>
+            )}
           </BottomSheet>
         )}
       </AnimatePresence>
