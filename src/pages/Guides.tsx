@@ -270,27 +270,35 @@ const Guides = () => {
 };
 
 /** Reusable guide card for search results */
-function GuideCard({ guide, lang, navigate }: { guide: any; lang: string; navigate: (path: string) => void }) {
+function GuideCard({ guide, lang, navigate, isAdmin, onDelete }: { guide: any; lang: string; navigate: (path: string) => void; isAdmin?: boolean; onDelete?: (id: string) => void }) {
   const meta = categoryMeta[guide.category?.toLowerCase()] || categoryMeta.general;
   const Icon = meta.icon;
   return (
-    <button onClick={() => navigate(`/guides/${guide.id}`)}
-      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
-      <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
-        <Icon className="h-5 w-5" strokeWidth={1.5} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold leading-snug text-foreground">
-          {lang === "my" && guide.title_my ? guide.title_my : guide.title}
-        </h3>
-        <div className="mt-1 flex items-center gap-2">
-          {guide.country_flag && <span className="text-xs">{guide.country_flag}</span>}
-          <span className="text-[10px] text-muted-foreground">{guide.country}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{guide.category}</span>
+    <div className="flex items-center gap-2">
+      <button onClick={() => navigate(`/guides/${guide.id}`)}
+        className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
+          <Icon className="h-5 w-5" strokeWidth={1.5} />
         </div>
-      </div>
-      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-    </button>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold leading-snug text-foreground">
+            {lang === "my" && guide.title_my ? guide.title_my : guide.title}
+          </h3>
+          <div className="mt-1 flex items-center gap-2">
+            {guide.country_flag && <span className="text-xs">{guide.country_flag}</span>}
+            <span className="text-[10px] text-muted-foreground">{guide.country}</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{guide.category}</span>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+      </button>
+      {isAdmin && (
+        <div className="flex flex-col gap-1">
+          <button onClick={() => navigate(`/admin/guides/${guide.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
+          <button onClick={() => onDelete?.(guide.id)} className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5" /></button>
+        </div>
+      )}
+    </div>
   );
 }
 
