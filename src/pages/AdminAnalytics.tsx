@@ -37,7 +37,7 @@ const AdminAnalytics = () => {
     {
       title: { my: "အဖွဲ့ဝင်များ", en: "Members" },
       items: [
-        { label: { my: "စုစုပေါင်း မှတ်ပုံတင်", en: "Total Registrations" }, value: metrics?.totalUsers?.toLocaleString() || "0" },
+        { label: { my: "စုစုပေါင်း မှတ်ပုံတင်", en: "Total Registrations" }, value: metrics?.totalUsers?.toLocaleString() || "0", path: "/admin/users" },
       ],
     },
     {
