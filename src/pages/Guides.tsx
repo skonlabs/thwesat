@@ -36,9 +36,24 @@ const regionOrder: { en: string; my: string; countries: string[] }[] = [
 const Guides = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isAdmin } = useUserRoles();
   const { data: guides = [], isLoading } = useGuides();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteGuideId, setDeleteGuideId] = useState<string | null>(null);
+
+  const handleDeleteGuide = async () => {
+    if (!deleteGuideId) return;
+    const { error } = await supabase.from("guides").delete().eq("id", deleteGuideId);
+    if (error) {
+      toast.error("Failed to delete guide");
+    } else {
+      toast.success(lang === "my" ? "လမ်းညွှန်ချက် ဖျက်ပြီး" : "Guide deleted");
+      queryClient.invalidateQueries({ queryKey: ["guides"] });
+    }
+    setDeleteGuideId(null);
+  };
 
   // Build country data
   const countryData = useMemo(() => {
