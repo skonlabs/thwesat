@@ -71,6 +71,18 @@ const AdminEmployers = () => {
         is_verified: status === "verified",
       }).eq("id", id);
       if (error) throw error;
+
+      // Notify employer about verification status
+      const isVerified = status === "verified";
+      await supabase.from("notifications").insert({
+        user_id: id,
+        notification_type: isVerified ? "system" : "system",
+        title: isVerified ? "Your employer account is verified! ✅" : "Employer verification update",
+        title_my: isVerified ? "သင့်အလုပ်ရှင်အကောင့် အတည်ပြုပြီ! ✅" : "အလုပ်ရှင် အတည်ပြုမှု အခြေအနေ",
+        description: isVerified ? "You can now post jobs and manage applications." : (reason || "Your employer profile was not approved."),
+        description_my: isVerified ? "အလုပ်များ တင်ပြီး လျှောက်လွှာများ စီမံနိုင်ပါပြီ။" : (reason || "သင့်အလုပ်ရှင်ပရိုဖိုင် အတည်ပြုခြင်း မရှိပါ။"),
+        link_path: "/employer/dashboard",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
