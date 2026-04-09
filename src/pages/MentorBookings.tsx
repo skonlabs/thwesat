@@ -136,14 +136,14 @@ const MentorBookings = () => {
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           {[
-            { value: pendingCount, label: lang === "my" ? "စောင့်ဆိုင်း" : "Pending", color: "text-primary" },
-            { value: bookings.filter((b: any) => b.status === "confirmed").length, label: lang === "my" ? "အတည်ပြု" : "Confirmed", color: "text-emerald" },
-            { value: bookings.filter((b: any) => b.status === "completed").length, label: lang === "my" ? "ပြီးဆုံး" : "Done", color: "text-muted-foreground" },
+            { value: pendingCount, label: lang === "my" ? "စောင့်ဆိုင်း" : "Pending", color: "text-primary", filterVal: "pending" as FilterType },
+            { value: bookings.filter((b: any) => b.status === "confirmed").length, label: lang === "my" ? "အတည်ပြု" : "Confirmed", color: "text-emerald", filterVal: "confirmed" as FilterType },
+            { value: bookings.filter((b: any) => b.status === "completed").length, label: lang === "my" ? "ပြီးဆုံး" : "Done", color: "text-muted-foreground", filterVal: "completed" as FilterType },
           ].map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-3 text-center">
+            <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
               <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
 

@@ -86,8 +86,18 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
       <div className="px-5">
-        <div className="mb-3 rounded-xl border border-border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground">{apps.length} {lang === "my" ? "ဦး လျှောက်ထားပြီး" : "applicants"}</p>
+        <div className="mb-4 grid grid-cols-4 gap-2">
+          {[
+            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
+            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => a.status === "applied" || a.status === "submitted").length, color: "text-primary", filterVal: "applied" },
+            { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
+            { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
+          ].map((s) => (
+            <button key={s.label} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
+              <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
+              <p className="text-[9px] text-muted-foreground">{s.label}</p>
+            </button>
+          ))}
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {["all", "applied", "shortlisted", "interviewed", "offered", "placed", "rejected"].map(f => (

@@ -107,21 +107,21 @@ const AdminPayments = () => {
       <div className="px-5">
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-border bg-card p-3 text-center">
+          <button onClick={() => setFilter("all")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "all" ? "border-primary" : "border-border"}`}>
             <DollarSign className="mx-auto mb-1 h-5 w-5 text-primary" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{payments?.length || 0}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-3 text-center">
+          </button>
+          <button onClick={() => setFilter("pending")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "pending" ? "border-primary" : "border-border"}`}>
             <Clock className="mx-auto mb-1 h-5 w-5 text-yellow-600" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{pendingCount}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စစ်ဆေးရန်" : "Pending"}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-3 text-center">
+          </button>
+          <button onClick={() => setFilter("approved")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "approved" ? "border-primary" : "border-border"}`}>
             <CheckCircle className="mx-auto mb-1 h-5 w-5 text-emerald" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{(payments || []).filter(p => p.status === "approved").length}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "အတည်ပြုပြီး" : "Approved"}</p>
-          </div>
+          </button>
         </div>
 
         {/* Filter pills */}
