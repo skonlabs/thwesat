@@ -12,23 +12,41 @@ const AdminAnalytics = () => {
   const { data: metrics } = useQuery({
     queryKey: ["admin-analytics"],
     queryFn: async () => {
-      const [users, jobs, activeJobs, posts, mentors, bookings, applications] = await Promise.all([
+      const [users, premiumUsers, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_premium", true),
+        supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
+        supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("is_verified", true),
         supabase.from("jobs").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }),
+        supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", true),
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }).not("title", "is", null).neq("title", ""),
         supabase.from("mentor_bookings").select("id", { count: "exact", head: true }),
         supabase.from("applications").select("id", { count: "exact", head: true }),
+        supabase.from("payment_requests").select("id", { count: "exact", head: true }),
+        supabase.from("payment_requests").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("guides").select("id", { count: "exact", head: true }),
       ]);
       return {
         totalUsers: users.count || 0,
+        premiumUsers: premiumUsers.count || 0,
+        totalEmployers: employers.count || 0,
+        verifiedEmployers: verifiedEmployers.count || 0,
         totalJobs: jobs.count || 0,
         activeJobs: activeJobs.count || 0,
+        pendingJobs: pendingJobs.count || 0,
         totalPosts: posts.count || 0,
+        approvedPosts: approvedPosts.count || 0,
         totalMentors: mentors.count || 0,
         totalBookings: bookings.count || 0,
         totalApplications: applications.count || 0,
+        totalPayments: payments.count || 0,
+        approvedPayments: approvedPayments.count || 0,
+        pendingReports: reports.count || 0,
+        totalGuides: guides.count || 0,
       };
     },
   });
@@ -37,7 +55,15 @@ const AdminAnalytics = () => {
     {
       title: { my: "အဖွဲ့ဝင်များ", en: "Members" },
       items: [
-        { label: { my: "စုစုပေါင်း မှတ်ပုံတင်", en: "Total Registrations" }, value: metrics?.totalUsers?.toLocaleString() || "0", path: "/admin/users" },
+        { label: { my: "စုစုပေါင်း မှတ်ပုံတင်", en: "Total Users" }, value: metrics?.totalUsers?.toLocaleString() || "0", path: "/admin/users" },
+        { label: { my: "Premium အသုံးပြုသူ", en: "Premium Users" }, value: metrics?.premiumUsers?.toString() || "0", path: "/admin/users" },
+      ],
+    },
+    {
+      title: { my: "အလုပ်ရှင်များ", en: "Employers" },
+      items: [
+        { label: { my: "စုစုပေါင်း အလုပ်ရှင်", en: "Total Employers" }, value: metrics?.totalEmployers?.toString() || "0", path: "/admin/employers" },
+        { label: { my: "အတည်ပြုပြီး", en: "Verified" }, value: metrics?.verifiedEmployers?.toString() || "0", path: "/admin/employers?status=approved" },
       ],
     },
     {
@@ -45,13 +71,23 @@ const AdminAnalytics = () => {
       items: [
         { label: { my: "စုစုပေါင်း", en: "Total Listed" }, value: metrics?.totalJobs?.toString() || "0", path: "/admin/jobs" },
         { label: { my: "တက်ကြွ", en: "Active" }, value: metrics?.activeJobs?.toString() || "0", path: "/admin/jobs?status=active" },
+        { label: { my: "စစ်ဆေးရန်", en: "Pending Review" }, value: metrics?.pendingJobs?.toString() || "0", path: "/admin/jobs?status=pending" },
         { label: { my: "လျှောက်ထားမှု", en: "Applications" }, value: metrics?.totalApplications?.toString() || "0", path: "/admin/jobs" },
+      ],
+    },
+    {
+      title: { my: "ငွေပေးချေမှု", en: "Payments" },
+      items: [
+        { label: { my: "စုစုပေါင်း", en: "Total Requests" }, value: metrics?.totalPayments?.toString() || "0", path: "/admin/payments" },
+        { label: { my: "အတည်ပြုပြီး", en: "Approved" }, value: metrics?.approvedPayments?.toString() || "0", path: "/admin/payments" },
       ],
     },
     {
       title: { my: "အသိုင်းအဝိုင်း", en: "Community" },
       items: [
         { label: { my: "ပို့စ်များ", en: "Total Posts" }, value: metrics?.totalPosts?.toString() || "0", path: "/community" },
+        { label: { my: "အတည်ပြုပြီး", en: "Approved Posts" }, value: metrics?.approvedPosts?.toString() || "0", path: "/community" },
+        { label: { my: "ဥပဒေလမ်းညွှန်", en: "Guides" }, value: metrics?.totalGuides?.toString() || "0", path: "/guides" },
       ],
     },
     {
@@ -59,6 +95,12 @@ const AdminAnalytics = () => {
       items: [
         { label: { my: "Mentors", en: "Active Mentors" }, value: metrics?.totalMentors?.toString() || "0", path: "/mentors" },
         { label: { my: "ချိန်းဆိုမှုများ", en: "Total Sessions" }, value: metrics?.totalBookings?.toString() || "0", path: "/moderator" },
+      ],
+    },
+    {
+      title: { my: "လုံခြုံရေး", en: "Safety" },
+      items: [
+        { label: { my: "စစ်ဆေးရန် တိုင်ကြားချက်", en: "Pending Reports" }, value: metrics?.pendingReports?.toString() || "0", path: "/admin/users" },
       ],
     },
   ];

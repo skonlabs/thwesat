@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, Calendar, Search, Clock, MapPin, BookOpen, ChevronRight } from "lucide-react";
+import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,9 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorMentees } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useStartConversation } from "@/hooks/use-start-conversation";
+import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
@@ -25,10 +27,85 @@ const MentorMentees = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { data: mentees = [], isLoading } = useMentorMentees();
+  const { startConversation } = useStartConversation();
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterType>("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [detailTab, setDetailTab] = useState<"overview" | "notes">("overview");
+
+  // Accept mentee: update mentor_mentees status to active
+  const acceptMentee = useMutation({
+    mutationFn: async (menteeId: string) => {
+      if (!user) throw new Error("Not authenticated");
+      // Find the pending booking and confirm it
+      const { data: pendingBooking } = await supabase
+        .from("mentor_bookings")
+        .select("id")
+        .eq("mentor_id", user.id)
+        .eq("mentee_id", menteeId)
+        .eq("status", "pending")
+        .limit(1)
+        .maybeSingle();
+
+      if (pendingBooking) {
+        const { error } = await supabase
+          .from("mentor_bookings")
+          .update({ status: "confirmed" })
+          .eq("id", pendingBooking.id);
+        if (error) throw error;
+      }
+
+      // Upsert mentor_mentees to active
+      const { data: existing } = await supabase
+        .from("mentor_mentees")
+        .select("id")
+        .eq("mentor_id", user.id)
+        .eq("mentee_id", menteeId)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase.from("mentor_mentees").update({ status: "active" }).eq("id", existing.id);
+      } else {
+        await supabase.from("mentor_mentees").insert({
+          mentor_id: user.id,
+          mentee_id: menteeId,
+          status: "active",
+        });
+      }
+    },
+    onSuccess: () => {
+      toast.success(lang === "my" ? "Mentee လက်ခံပြီး" : "Mentee accepted");
+      queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      setSelectedId(null);
+    },
+    onError: () => {
+      toast.error(lang === "my" ? "လက်ခံ၍ မရပါ" : "Failed to accept mentee");
+    },
+  });
+
+  // Decline mentee: cancel pending bookings
+  const declineMentee = useMutation({
+    mutationFn: async (menteeId: string) => {
+      if (!user) throw new Error("Not authenticated");
+      const { error } = await supabase
+        .from("mentor_bookings")
+        .update({ status: "cancelled" })
+        .eq("mentor_id", user.id)
+        .eq("mentee_id", menteeId)
+        .eq("status", "pending");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(lang === "my" ? "Mentee ငြင်းပယ်ပြီး" : "Mentee declined");
+      queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      setSelectedId(null);
+    },
+    onError: () => {
+      toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to decline mentee");
+    },
+  });
 
   // Fetch mentee profiles
   const menteeIds = [...new Set(mentees.map((m: any) => m.mentee_id))];
@@ -92,7 +169,7 @@ const MentorMentees = () => {
             {filtered.map((mentee: any, i: number) => {
               const sc = statusConfig[mentee.status] || statusConfig.pending;
               return (
-                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => { setSelectedId(mentee.id); setDetailTab("overview"); }} className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(mentee.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{mentee.profile?.display_name?.slice(0, 2).toUpperCase() || "?"}</div>
                     <div className="flex-1 min-w-0">
@@ -164,7 +241,7 @@ const MentorMentees = () => {
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => navigate("/messages")}>
+                  <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => { setSelectedId(null); startConversation(selectedMentee.mentee_id); }}>
                     <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                   </Button>
                   <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => navigate("/mentors/bookings")}>
@@ -173,10 +250,22 @@ const MentorMentees = () => {
                 </div>
                 {selectedMentee.status === "pending" && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setSelectedId(null)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 rounded-lg text-xs border-destructive text-destructive"
+                      disabled={declineMentee.isPending}
+                      onClick={() => declineMentee.mutate(selectedMentee.mentee_id)}
+                    >
                       {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                     </Button>
-                    <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setSelectedId(null)}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex-1 rounded-lg text-xs"
+                      disabled={acceptMentee.isPending}
+                      onClick={() => acceptMentee.mutate(selectedMentee.mentee_id)}
+                    >
                       {lang === "my" ? "လက်ခံရန်" : "Accept Mentee"}
                     </Button>
                   </div>
