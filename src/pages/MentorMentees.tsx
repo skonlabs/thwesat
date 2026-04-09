@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight } from "lucide-react";
+import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
