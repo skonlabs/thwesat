@@ -80,9 +80,11 @@ const Applications = () => {
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {[
             { value: "all", label: lang === "my" ? "အားလုံး" : "All" },
-            { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
-            { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
             { value: "applied", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
+            { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
+            { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
+            { value: "offered", label: lang === "my" ? "ကမ်းလှမ်းခံရ" : "Offered" },
+            { value: "rejected", label: lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected" },
           ].map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.value ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f.label}
