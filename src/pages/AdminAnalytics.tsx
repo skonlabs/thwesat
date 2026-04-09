@@ -51,7 +51,7 @@ const AdminAnalytics = () => {
     {
       title: { my: "အသိုင်းအဝိုင်း", en: "Community" },
       items: [
-        { label: { my: "ပို့စ်များ", en: "Total Posts" }, value: metrics?.totalPosts?.toString() || "0" },
+        { label: { my: "ပို့စ်များ", en: "Total Posts" }, value: metrics?.totalPosts?.toString() || "0", path: "/community" },
       ],
     },
     {
