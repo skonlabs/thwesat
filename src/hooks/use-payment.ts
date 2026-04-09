@@ -39,6 +39,7 @@ export function useCreatePaymentRequest() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-user-profiles"] });
     },
   });
 }

@@ -167,6 +167,7 @@ export function useApplications() {
       return data;
     },
     enabled: !!user,
+    refetchInterval: 30000,
   });
 }
 
@@ -213,6 +214,7 @@ export function useEmployerApplications(jobId?: string) {
       return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];
     },
     enabled: !!user,
+    refetchInterval: 30000,
   });
 }
 

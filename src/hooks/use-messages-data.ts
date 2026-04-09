@@ -74,6 +74,7 @@ export function useConversations() {
       return results;
     },
     enabled: !!user,
+    refetchInterval: 15000,
   });
 }
 
@@ -92,6 +93,7 @@ export function useMessages(conversationId: string | undefined) {
       return data || [];
     },
     enabled: !!conversationId && !!user,
+    refetchInterval: 5000,
   });
 }
 
