@@ -240,6 +240,17 @@ const MentorMentees = () => {
                     <p className="text-xs text-foreground">{selectedMentee.notes}</p>
                   </div>
                 )}
+
+                {/* Inline edit for goals & notes */}
+                {selectedMentee.status === "active" && (
+                  <EditMenteeFields
+                    menteeRelId={selectedMentee.id}
+                    currentGoals={selectedMentee.goals || ""}
+                    currentNotes={selectedMentee.notes || ""}
+                    lang={lang}
+                  />
+                )}
+
                 <div className="flex gap-2">
                   <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => { setSelectedId(null); startConversation(selectedMentee.mentee_id); }}>
                     <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
