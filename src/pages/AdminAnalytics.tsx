@@ -57,8 +57,8 @@ const AdminAnalytics = () => {
     {
       title: { my: "Mentorship", en: "Mentorship" },
       items: [
-        { label: { my: "Mentors", en: "Active Mentors" }, value: metrics?.totalMentors?.toString() || "0" },
-        { label: { my: "ချိန်းဆိုမှုများ", en: "Total Sessions" }, value: metrics?.totalBookings?.toString() || "0" },
+        { label: { my: "Mentors", en: "Active Mentors" }, value: metrics?.totalMentors?.toString() || "0", path: "/mentors" },
+        { label: { my: "ချိန်းဆိုမှုများ", en: "Total Sessions" }, value: metrics?.totalBookings?.toString() || "0", path: "/mentors" },
       ],
     },
   ];
