@@ -44,8 +44,8 @@ const AdminAnalytics = () => {
       title: { my: "အလုပ်ခေါ်စာ", en: "Jobs" },
       items: [
         { label: { my: "စုစုပေါင်း", en: "Total Listed" }, value: metrics?.totalJobs?.toString() || "0", path: "/admin/jobs" },
-        { label: { my: "တက်ကြွ", en: "Active" }, value: metrics?.activeJobs?.toString() || "0", path: "/admin/jobs" },
-        { label: { my: "လျှောက်ထားမှု", en: "Applications" }, value: metrics?.totalApplications?.toString() || "0", path: "/admin/jobs" },
+        { label: { my: "တက်ကြွ", en: "Active" }, value: metrics?.activeJobs?.toString() || "0", path: "/admin/jobs?status=active" },
+        { label: { my: "လျှောက်ထားမှု", en: "Applications" }, value: metrics?.totalApplications?.toString() || "0", path: "/admin/users" },
       ],
     },
     {
