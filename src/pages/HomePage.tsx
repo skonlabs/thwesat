@@ -94,30 +94,6 @@ const HomePage = () => {
           ))}
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-4 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
-          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
-          <div>
-            <p className="text-[11px] font-bold text-destructive">{lang === "my" ? "⚠️ အလိမ်အညာ သတိပေးချက်" : "⚠️ Scam Alert"}</p>
-            <p className="mt-0.5 text-[10px] text-foreground/70">
-              {lang === "my" ? "Processing Fee တောင်းသော Remote Job ကမ်းလှမ်းချက်များကို သတိထားပါ" : "Beware of remote job offers asking for processing fees"}
-            </p>
-          </div>
-        </motion.div>
-
-        {completionPct < 100 && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
-              <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
-            </div>
-            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.5, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
-            </div>
-            <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
-              {lang === "my" ? "ယခု ဖြည့်စွက်ရန်" : "Complete now"} →
-            </button>
-          </motion.div>
-        )}
 
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
