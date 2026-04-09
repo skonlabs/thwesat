@@ -20,10 +20,10 @@ const availabilityDays = [
 ];
 
 const quickActions = [
-  { icon: MessageCircle, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Sparkles, label: "အသက်မွေးမှု Tools", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
-  { icon: Eye, label: "ပရိုဖိုင်ကြည့်", labelEn: "View Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: Users, label: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: MessageCircle, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Eye, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
 ];
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
