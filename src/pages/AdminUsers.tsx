@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Crown, Trash2, Shield, ShieldCheck, ToggleLeft, ToggleRight } from "lucide-react";
+import { Search, Crown, Trash2, Shield, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
