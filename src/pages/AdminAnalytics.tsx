@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 
 const AdminAnalytics = () => {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   const { data: metrics } = useQuery({
