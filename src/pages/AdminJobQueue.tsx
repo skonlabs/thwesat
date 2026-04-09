@@ -84,6 +84,18 @@ const AdminJobQueue = () => {
     });
   };
 
+  const handleDeleteJob = async (jobId: string) => {
+    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
+    if (error) {
+      // toast not imported, use alert-like inline
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    }
+    setDeleteConfirmId(null);
+  };
+
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
     const diff = Date.now() - new Date(dateStr).getTime();
