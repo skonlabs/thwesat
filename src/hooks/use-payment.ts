@@ -33,8 +33,8 @@ export function useCreatePaymentRequest() {
     }) => {
       if (!user) throw new Error("Not authenticated");
       const { error } = await supabase
-        .from("payment_requests" as any)
-        .insert({ ...req, user_id: user.id } as any);
+        .from("payment_requests")
+        .insert({ ...req, user_id: user.id });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -50,7 +50,7 @@ export function useMyPaymentRequests() {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("payment_requests" as any)
+        .from("payment_requests")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
@@ -66,7 +66,7 @@ export function useAllPaymentRequests() {
     queryKey: ["payment-requests", "admin"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("payment_requests" as any)
+        .from("payment_requests")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -77,21 +77,26 @@ export function useAllPaymentRequests() {
 
 export function useUpdatePaymentRequest() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ id, status, admin_note }: { id: string; status: string; admin_note?: string }) => {
       // First fetch the payment request to get user_id and type info
       const { data: paymentReq, error: fetchError } = await supabase
-        .from("payment_requests" as any)
+        .from("payment_requests")
         .select("*")
         .eq("id", id)
         .single();
       if (fetchError) throw fetchError;
       const pr = paymentReq as unknown as PaymentRequest;
 
-      const updates: any = { status, reviewed_at: new Date().toISOString() };
+      const updates: Record<string, unknown> = {
+        status,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: user?.id || null,
+      };
       if (admin_note !== undefined) updates.admin_note = admin_note;
       const { error } = await supabase
-        .from("payment_requests" as any)
+        .from("payment_requests")
         .update(updates)
         .eq("id", id);
       if (error) throw error;
@@ -111,7 +116,7 @@ export function useUpdatePaymentRequest() {
             const { data: plan } = await supabase
               .from("subscription_plans")
               .select("duration_months, plan_id")
-              .eq("id", pr.reference_id)
+              .eq("plan_id", pr.reference_id)
               .maybeSingle();
             if (plan?.duration_months) durationMonths = plan.duration_months;
           }
@@ -131,11 +136,10 @@ export function useUpdatePaymentRequest() {
               current_period_start: now.toISOString(),
               current_period_end: periodEnd.toISOString(),
               billing_cycle: durationMonths >= 12 ? "yearly" : "monthly",
-            } as any);
+            });
         }
 
         if (pr.payment_type === "employer_subscription") {
-          // Set is_premium on profile for employer too
           await supabase
             .from("profiles")
             .update({ is_premium: true })
@@ -179,6 +183,23 @@ export async function uploadPaymentProof(userId: string, file: File): Promise<st
     .from("payment-proofs")
     .upload(path, file, { upsert: true });
   if (error) throw error;
-  const { data } = supabase.storage.from("payment-proofs").getPublicUrl(path);
-  return data.publicUrl;
+  // Store the path, not a public URL (bucket is private)
+  return path;
+}
+
+// Helper to get a signed URL for viewing payment proofs
+export async function getPaymentProofSignedUrl(proofPath: string): Promise<string | null> {
+  if (!proofPath) return null;
+  // Handle legacy full URLs - extract path
+  let path = proofPath;
+  if (proofPath.includes("/storage/v1/object/")) {
+    const match = proofPath.match(/payment-proofs\/(.+)$/);
+    if (match) path = match[1];
+    else return proofPath; // fallback to raw URL
+  }
+  const { data, error } = await supabase.storage
+    .from("payment-proofs")
+    .createSignedUrl(path, 3600); // 1 hour expiry
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
 }

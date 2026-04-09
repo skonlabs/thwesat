@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, UserMinus, Link2, Bookmark, BookmarkCheck, Trash2, Copy } from "lucide-react";
+import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, Link2, Bookmark, BookmarkCheck, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -78,7 +78,6 @@ function usePostComments(postId: string | null) {
       const { data: profiles } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       const enriched = (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
-      // Build tree: top-level comments + nested replies
       const topLevel = enriched.filter(c => !c.parent_id);
       const repliesMap = new Map<string, typeof enriched>();
       enriched.filter(c => c.parent_id).forEach(c => {
@@ -107,6 +106,7 @@ const Community = () => {
   const [replyToName, setReplyToName] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
@@ -192,6 +192,16 @@ const Community = () => {
     if (file) {
       const url = URL.createObjectURL(file);
       setSelectedImage(url);
+      setSelectedFile(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setSelectedFile(null);
+    // Reset file input so the same file can be re-selected
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -199,11 +209,10 @@ const Community = () => {
     if (!newPostText.trim()) return;
     let imageUrl: string | undefined;
     // Upload image to Supabase storage if selected
-    if (selectedImage && fileInputRef.current?.files?.[0] && user) {
-      const file = fileInputRef.current.files[0];
-      const ext = file.name.split(".").pop();
+    if (selectedFile && user) {
+      const ext = selectedFile.name.split(".").pop();
       const filePath = `community/${user.id}/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(filePath, selectedFile, { upsert: true });
       if (!uploadErr) {
         const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
         imageUrl = urlData.publicUrl;
@@ -213,7 +222,7 @@ const Community = () => {
       onSuccess: () => {
         setShowNewPost(false);
         setNewPostText("");
-        setSelectedImage(null);
+        handleRemoveImage();
         toast.success(lang === "my" ? "ပို့စ်တင်ပြီး — စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Post submitted — it will appear after review");
       },
       onError: () => {
@@ -288,7 +297,7 @@ const Community = () => {
               {selectedImage && (
                 <div className="relative mb-3">
                   <img src={selectedImage} alt="Attached" className="h-32 w-full rounded-lg object-cover" />
-                  <button onClick={() => setSelectedImage(null)} className="absolute right-2 top-2 rounded-full bg-foreground/60 p-1"><X className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} /></button>
+                  <button onClick={handleRemoveImage} className="absolute right-2 top-2 rounded-full bg-foreground/60 p-1"><X className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} /></button>
                 </div>
               )}
               <div className="mb-4">
@@ -435,7 +444,6 @@ const Community = () => {
                           <div className="mb-3 space-y-3">
                             {topLevelComments.map((c: any) => (
                               <div key={c.id}>
-                                {/* Top-level comment */}
                                 <div className="flex gap-2.5">
                                   <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                                     {c.author?.display_name?.slice(0, 2).toUpperCase() || "U"}
@@ -453,7 +461,6 @@ const Community = () => {
                                     </div>
                                   </div>
                                 </div>
-                                {/* Replies (indented) */}
                                 {(repliesMap.get(c.id) || []).map((r: any) => (
                                   <div key={r.id} className="ml-9 mt-2 flex gap-2.5 border-l-2 border-border pl-3">
                                     <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground">

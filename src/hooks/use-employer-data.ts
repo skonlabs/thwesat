@@ -56,17 +56,51 @@ export function useCreateJob() {
 
 export function useUpdateApplicationStatus() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ id, status, rejectionReason, placementSalary, placementFee, forwardedToEmail }: {
       id: string; status: string; rejectionReason?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string;
     }) => {
       const update: Record<string, unknown> = { status };
-      if (rejectionReason) update.rejection_reason = rejectionReason;
-      if (placementSalary) update.placement_salary = placementSalary;
-      if (placementFee) update.placement_fee = placementFee;
+      if (rejectionReason) {
+        update.rejection_reason = rejectionReason;
+        update.rejection_reason_my = rejectionReason;
+      }
+      if (placementSalary !== undefined && placementSalary !== null) update.placement_salary = placementSalary;
+      if (placementFee !== undefined && placementFee !== null) update.placement_fee = placementFee;
       if (forwardedToEmail) update.forwarded_to_email = forwardedToEmail;
       const { error } = await supabase.from("applications").update(update).eq("id", id);
       if (error) throw error;
+
+      // Send notification to applicant about status change
+      const { data: app } = await supabase.from("applications").select("applicant_id, job_id").eq("id", id).single();
+      if (app) {
+        const { data: job } = await supabase.from("jobs").select("title, title_my").eq("id", app.job_id).single();
+        const jobTitle = job?.title || "Job";
+        const jobTitleMy = job?.title_my || jobTitle;
+        
+        const notifMap: Record<string, { title: string; titleMy: string; desc: string; descMy: string; type: string }> = {
+          viewed: { title: `Your application was viewed`, titleMy: `သင့်လျှောက်လွှာကို ကြည့်ရှုပြီး`, desc: `Employer viewed your application for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် သင့်လျှောက်လွှာကို ကြည့်ရှုပြီး`, type: "application" },
+          shortlisted: { title: `You've been shortlisted!`, titleMy: `ရွေးချယ်ခံရပါပြီ!`, desc: `Great news! You've been shortlisted for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ရွေးချယ်ခံရပါပြီ`, type: "application" },
+          interviewed: { title: `Interview scheduled`, titleMy: `အင်တာဗျူး ချိန်းဆိုပြီး`, desc: `An interview has been scheduled for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် အင်တာဗျူး ချိန်းဆိုပြီး`, type: "application" },
+          offered: { title: `Job offer received!`, titleMy: `အလုပ်ကမ်းလှမ်းချက် ရရှိပါပြီ!`, desc: `You received an offer for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ကမ်းလှမ်းချက် ရရှိပါပြီ`, type: "application" },
+          placed: { title: `Congratulations! You're placed!`, titleMy: `ဂုဏ်ယူပါသည်! ခန့်အပ်ခံရပါပြီ!`, desc: `You've been placed for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ခန့်အပ်ခံရပါပြီ`, type: "application" },
+          rejected: { title: `Application update`, titleMy: `လျှောက်လွှာ အခြေအနေ`, desc: rejectionReason || `Your application for ${jobTitle} was not selected`, descMy: rejectionReason || `${jobTitleMy} အတွက် သင့်လျှောက်လွှာ ရွေးချယ်ခံရခြင်း မရှိပါ`, type: "application" },
+        };
+
+        const notif = notifMap[status];
+        if (notif) {
+          await supabase.from("notifications").insert({
+            user_id: app.applicant_id,
+            notification_type: notif.type,
+            title: notif.title,
+            title_my: notif.titleMy,
+            description: notif.desc,
+            description_my: notif.descMy,
+            link_path: "/applications",
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
