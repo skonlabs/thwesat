@@ -144,7 +144,29 @@ const Profile = () => {
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
-  const menuItems = role === "employer" ? employerMenu : role === "mentor" ? mentorMenu : jobseekerMenu;
+  const adminMenu = [
+    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Shield, label: lang === "my" ? "စီမံခန့်ခွဲမှု" : "Admin Dashboard", path: "/admin" },
+    { icon: Users, label: lang === "my" ? "သုံးသူများ စီမံရန်" : "Manage Users", path: "/admin/users" },
+    { icon: Briefcase, label: lang === "my" ? "အလုပ်များ စီမံရန်" : "Manage Jobs", path: "/admin/jobs" },
+    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
+  ];
+
+  const moderatorMenu = [
+    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Shield, label: lang === "my" ? "စစ်ဆေးရေး" : "Moderation", path: "/moderator" },
+    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
+  ];
+
+  const menuItems = isAdmin
+    ? adminMenu
+    : isModerator
+      ? moderatorMenu
+      : role === "employer"
+        ? employerMenu
+        : role === "mentor"
+          ? mentorMenu
+          : jobseekerMenu;
 
   return (
     <div className="min-h-screen bg-background pb-24">
