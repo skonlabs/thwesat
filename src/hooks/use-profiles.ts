@@ -27,7 +27,6 @@ export interface ProfileData {
   preferred_work_types: string[] | null;
 }
 
-// Public-safe fields (excludes PII like email, phone)
 const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, is_premium, remote_ready, has_laptop, internet_stable, has_wise, has_payoneer, has_upwork, referral_code, preferred_work_types, created_at";
 
 export function useAllProfiles(search?: string) {
@@ -38,10 +37,12 @@ export function useAllProfiles(search?: string) {
         .from("profiles")
         .select(PUBLIC_PROFILE_FIELDS)
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(1000);
+
       if (search) {
         query = query.or(`display_name.ilike.%${search}%,headline.ilike.%${search}%`);
       }
+
       const { data, error } = await query;
       if (error) throw error;
       return data as ProfileData[];
@@ -58,7 +59,7 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
         .select(PUBLIC_PROFILE_FIELDS)
         .in("primary_role", ["jobseeker", "mentor"])
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(1000);
 
       if (filters?.search) {
         query = query.or(`display_name.ilike.%${filters.search}%,headline.ilike.%${filters.search}%`);
@@ -69,6 +70,7 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
       if (filters?.available) {
         query = query.eq("remote_ready", true);
       }
+
       const { data, error } = await query;
       if (error) throw error;
       return data as ProfileData[];
