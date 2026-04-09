@@ -61,7 +61,7 @@ export function useUpdateApplicationStatus() {
     mutationFn: async ({ id, status, rejectionReason, placementSalary, placementFee, forwardedToEmail }: {
       id: string; status: string; rejectionReason?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string;
     }) => {
-      const update: Record<string, unknown> = { status };
+      const update: any = { status };
       if (rejectionReason) {
         update.rejection_reason = rejectionReason;
         update.rejection_reason_my = rejectionReason;

@@ -89,7 +89,7 @@ export function useUpdatePaymentRequest() {
       if (fetchError) throw fetchError;
       const pr = paymentReq as unknown as PaymentRequest;
 
-      const updates: Record<string, unknown> = {
+      const updates: any = {
         status,
         reviewed_at: new Date().toISOString(),
         reviewed_by: user?.id || null,

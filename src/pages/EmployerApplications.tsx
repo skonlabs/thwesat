@@ -117,7 +117,7 @@ const EmployerApplications = () => {
                 className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {(app.applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                    {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
