@@ -212,8 +212,23 @@ const Profile = () => {
             </motion.div>
           )}
         </motion.div>
+        )}
 
-        {/* Profile card */}
+        {/* Admin/Moderator Role Badge */}
+        {isSystemRole && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
+            <div className="flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+              <Shield className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">{lang === "my" ? "အခန်းကဏ္ဍ" : "Role"}</p>
+                <p className="text-sm font-semibold text-primary">
+                  {isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : (lang === "my" ? "စစ်ဆေးသူ" : "Moderator")}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-start gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
