@@ -105,7 +105,7 @@ const EmployerApplications = () => {
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
-            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => a.status === "applied" || a.status === "submitted").length, color: "text-primary", filterVal: "applied" },
+            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
             { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
@@ -116,9 +116,13 @@ const EmployerApplications = () => {
           ))}
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "applied", "shortlisted", "interviewed", "offered", "placed", "rejected"].map(f => (
+          {["all", "new", "shortlisted", "interview", "offered", "placed", "rejected"].map(f => (
             <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
+              {f === "all"
+                ? (lang === "my" ? "အားလုံး" : "All")
+                : f === "new"
+                  ? (lang === "my" ? "အသစ်" : "New")
+                  : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
             </button>
           ))}
         </div>
