@@ -21,7 +21,7 @@ const Profile = () => {
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
-  const { allowedRoles, isLoading: rolesLoading } = useUserRoles();
+  const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showReferredList, setShowReferredList] = useState(false);
@@ -70,7 +70,7 @@ const Profile = () => {
   });
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
+  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const referralCode = profile?.referral_code || "TS-XXXXXX";
@@ -144,7 +144,29 @@ const Profile = () => {
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
-  const menuItems = role === "employer" ? employerMenu : role === "mentor" ? mentorMenu : jobseekerMenu;
+  const adminMenu = [
+    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Shield, label: lang === "my" ? "စီမံခန့်ခွဲမှု" : "Admin Dashboard", path: "/admin" },
+    { icon: Users, label: lang === "my" ? "သုံးသူများ စီမံရန်" : "Manage Users", path: "/admin/users" },
+    { icon: Briefcase, label: lang === "my" ? "အလုပ်များ စီမံရန်" : "Manage Jobs", path: "/admin/jobs" },
+    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
+  ];
+
+  const moderatorMenu = [
+    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Shield, label: lang === "my" ? "စစ်ဆေးရေး" : "Moderation", path: "/moderator" },
+    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
+  ];
+
+  const menuItems = isAdmin
+    ? adminMenu
+    : isModerator
+      ? moderatorMenu
+      : role === "employer"
+        ? employerMenu
+        : role === "mentor"
+          ? mentorMenu
+          : jobseekerMenu;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -152,6 +174,7 @@ const Profile = () => {
 
       <div className="px-5 pt-4">
         {/* Role Switcher */}
+        {!isSystemRole && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
           <button
             onClick={() => setShowRolePicker(!showRolePicker)}
@@ -189,8 +212,23 @@ const Profile = () => {
             </motion.div>
           )}
         </motion.div>
+        )}
 
-        {/* Profile card */}
+        {/* Admin/Moderator Role Badge */}
+        {isSystemRole && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
+            <div className="flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+              <Shield className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">{lang === "my" ? "အခန်းကဏ္ဍ" : "Role"}</p>
+                <p className="text-sm font-semibold text-primary">
+                  {isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : (lang === "my" ? "စစ်ဆေးသူ" : "Moderator")}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-start gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
@@ -219,6 +257,7 @@ const Profile = () => {
         </motion.div>
 
         {/* Referral Programme */}
+        {!isSystemRole && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div className="mb-2 flex items-center gap-2">
             <Gift className="h-4 w-4 text-primary" strokeWidth={1.5} />
@@ -304,6 +343,7 @@ const Profile = () => {
             </>
           )}
         </motion.div>
+        )}
 
         {/* Menu */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
