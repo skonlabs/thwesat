@@ -231,6 +231,16 @@ const AdminEmployers = () => {
                   <CheckCircle className="mr-1.5 h-4 w-4" />{lang === "my" ? "ပြန်အတည်ပြု" : "Re-approve"}
                 </Button>
               )}
+
+              {/* Edit & Delete actions */}
+              <div className="mt-4 flex gap-3 border-t border-border pt-4">
+                <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}>
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
+                </Button>
+                <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ဖျက်ရန်" : "Delete"}
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
