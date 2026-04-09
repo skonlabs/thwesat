@@ -22,6 +22,7 @@ const statusConfig: Record<string, { color: string; label: { en: string; my: str
 const AdminEmployers = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedTab = searchParams.get("status");
   const initialTab = requestedTab === "pending" || requestedTab === "approved" || requestedTab === "rejected" || requestedTab === "all"
