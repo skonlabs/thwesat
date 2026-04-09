@@ -159,27 +159,39 @@ const AdminJobQueue = () => {
             {jobs.map((job: any, i: number) => {
               const sc = statusConfig[job.status] || statusConfig.pending;
               return (
-                <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                  <div className="flex items-start justify-between">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
-                      <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
+                  <button onClick={() => setSelectedId(job.id)} className="w-full text-left active:bg-muted/30">
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
+                        <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 ml-2">
+                        <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
+                          <sc.icon className="h-3 w-3" strokeWidth={1.5} />
+                          {lang === "my" ? sc.label.my : sc.label.en}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 ml-2">
-                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
-                        <sc.icon className="h-3 w-3" strokeWidth={1.5} />
-                        {lang === "my" ? sc.label.my : sc.label.en}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                    <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                      {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
+                      {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
                     </div>
+                  </button>
+                  <div className="mt-2 flex items-center justify-end gap-1 border-t border-border pt-2">
+                    <button onClick={() => navigate(`/employer/edit-job/${job.id}`)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
+                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
+                    </button>
+                    <button onClick={() => setDeleteConfirmId(job.id)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <span>{lang === "my" ? "ဖျက်" : "Delete"}</span>
+                    </button>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                    {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
-                    {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
-                  </div>
-                </motion.button>
+                </motion.div>
               );
             })}
             {jobs.length === 0 && (
