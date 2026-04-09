@@ -40,7 +40,7 @@ const HomePage = () => {
 
   const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
-  const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
+  
 
   // Calculate profile completion
   const completionFields = [profile?.display_name, profile?.headline, profile?.bio, profile?.location, profile?.skills?.length, profile?.languages?.length];
