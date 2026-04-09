@@ -70,7 +70,7 @@ const Profile = () => {
   });
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
+  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const referralCode = profile?.referral_code || "TS-XXXXXX";
