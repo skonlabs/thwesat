@@ -343,6 +343,7 @@ const Profile = () => {
             </>
           )}
         </motion.div>
+        )}
 
         {/* Menu */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
