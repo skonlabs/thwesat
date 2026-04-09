@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight } from "lucide-react";
+import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {
@@ -240,6 +241,17 @@ const MentorMentees = () => {
                     <p className="text-xs text-foreground">{selectedMentee.notes}</p>
                   </div>
                 )}
+
+                {/* Inline edit for goals & notes */}
+                {selectedMentee.status === "active" && (
+                  <EditMenteeFields
+                    menteeRelId={selectedMentee.id}
+                    currentGoals={selectedMentee.goals || ""}
+                    currentNotes={selectedMentee.notes || ""}
+                    lang={lang}
+                  />
+                )}
+
                 <div className="flex gap-2">
                   <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => { setSelectedId(null); startConversation(selectedMentee.mentee_id); }}>
                     <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
@@ -278,5 +290,50 @@ const MentorMentees = () => {
     </div>
   );
 };
+
+/** Inline editor for mentee goals & notes */
+function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { menteeRelId: string; currentGoals: string; currentNotes: string; lang: string }) {
+  const [editing, setEditing] = useState(false);
+  const [goals, setGoals] = useState(currentGoals);
+  const [notes, setNotes] = useState(currentNotes);
+  const queryClient = useQueryClient();
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("mentor_mentees").update({ goals, notes }).eq("id", menteeRelId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(lang === "my" ? "သိမ်းပြီး" : "Saved");
+      queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
+      setEditing(false);
+    },
+  });
+
+  if (!editing) {
+    return (
+      <Button variant="outline" size="sm" className="w-full rounded-lg text-xs" onClick={() => setEditing(true)}>
+        <Pencil className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "ပန်းတိုင်/မှတ်ချက် ပြင်ရန်" : "Edit Goals & Notes"}
+      </Button>
+    );
+  }
+
+  return (
+    <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
+      <div>
+        <label className="mb-1 block text-[10px] font-semibold text-muted-foreground uppercase">{lang === "my" ? "ပန်းတိုင်" : "Goals"}</label>
+        <Textarea value={goals} onChange={e => setGoals(e.target.value)} className="rounded-lg text-xs" rows={2} />
+      </div>
+      <div>
+        <label className="mb-1 block text-[10px] font-semibold text-muted-foreground uppercase">{lang === "my" ? "မှတ်ချက်" : "Notes"}</label>
+        <Textarea value={notes} onChange={e => setNotes(e.target.value)} className="rounded-lg text-xs" rows={2} />
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setEditing(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" disabled={save.isPending} onClick={() => save.mutate()}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
+      </div>
+    </div>
+  );
+}
 
 export default MentorMentees;

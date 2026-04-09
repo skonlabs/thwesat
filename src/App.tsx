@@ -52,6 +52,7 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminEmployers from "./pages/AdminEmployers";
 import DelegateAccess from "./pages/DelegateAccess";
+import AdminEditGuide from "./pages/AdminEditGuide";
 import EmployerEditJob from "./pages/EmployerEditJob";
 import PublicProfile from "./pages/PublicProfile";
 import EmployerEditCompany from "./pages/EmployerEditCompany";
@@ -125,6 +126,7 @@ const App = () => (
               <Route path="/admin/analytics" element={<RoleGuard allowedRoles={["admin"]}><AdminAnalytics /></RoleGuard>} />
               <Route path="/admin/payments" element={<RoleGuard allowedRoles={["admin"]}><AdminPayments /></RoleGuard>} />
               <Route path="/admin/employers" element={<RoleGuard allowedRoles={["admin"]}><AdminEmployers /></RoleGuard>} />
+              <Route path="/admin/guides/:id" element={<RoleGuard allowedRoles={["admin"]}><AdminEditGuide /></RoleGuard>} />
 
               {/* Moderator */}
               <Route path="/moderator" element={<RoleGuard allowedRoles={["admin", "moderator"]}><ModeratorDashboard /></RoleGuard>} />

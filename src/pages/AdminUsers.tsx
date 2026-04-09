@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Crown, Trash2, Shield, ShieldCheck, ToggleLeft, ToggleRight } from "lucide-react";
+import { Search, Crown, Trash2, Shield, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -18,6 +19,7 @@ const roleColors: Record<string, string> = {
 
 const AdminUsers = () => {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -224,9 +226,14 @@ const AdminUsers = () => {
                 </div>
               </div>
 
-              <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
-                <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားရန်" : "Remove User"}
-              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}>
+                  <span className="mr-1.5">👁</span> {lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
+                </Button>
+                <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}

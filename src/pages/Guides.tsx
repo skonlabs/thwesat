@@ -2,10 +2,15 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ChevronRight, FileText, AlertTriangle, Globe, BookOpen,
-  Briefcase, Heart, Search, X, MapPin,
+  Briefcase, Heart, Search, X, MapPin, Plus, Pencil, Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import { useUserRoles } from "@/hooks/use-user-roles";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useGuides } from "@/hooks/use-guides-data";
 
@@ -31,9 +36,24 @@ const regionOrder: { en: string; my: string; countries: string[] }[] = [
 const Guides = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isAdmin } = useUserRoles();
   const { data: guides = [], isLoading } = useGuides();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteGuideId, setDeleteGuideId] = useState<string | null>(null);
+
+  const handleDeleteGuide = async () => {
+    if (!deleteGuideId) return;
+    const { error } = await supabase.from("guides").delete().eq("id", deleteGuideId);
+    if (error) {
+      toast.error("Failed to delete guide");
+    } else {
+      toast.success(lang === "my" ? "လမ်းညွှန်ချက် ဖျက်ပြီး" : "Guide deleted");
+      queryClient.invalidateQueries({ queryKey: ["guides"] });
+    }
+    setDeleteGuideId(null);
+  };
 
   // Build country data
   const countryData = useMemo(() => {
@@ -80,6 +100,12 @@ const Guides = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
       <div className="px-5 pt-4">
+        {/* Admin: Create button */}
+        {isAdmin && (
+          <Button variant="default" size="sm" className="mb-4 w-full rounded-xl" onClick={() => navigate("/admin/guides/new")}>
+            <Plus className="mr-1.5 h-4 w-4" /> {lang === "my" ? "လမ်းညွှန်ချက်အသစ် ဖန်တီးရန်" : "Create New Guide"}
+          </Button>
+        )}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -137,7 +163,7 @@ const Guides = () => {
                   {searchResults.length} {lang === "my" ? "ခု တွေ့ရှိသည်" : "results found"}
                 </p>
                 {searchResults.map((guide) => (
-                  <GuideCard key={guide.id} guide={guide} lang={lang} navigate={navigate} />
+                  <GuideCard key={guide.id} guide={guide} lang={lang} navigate={navigate} isAdmin={isAdmin} onDelete={setDeleteGuideId} />
                 ))}
                 {searchResults.length === 0 && (
                   <p className="py-8 text-center text-sm text-muted-foreground">
@@ -173,22 +199,30 @@ const Guides = () => {
                       return (
                         <div key={catKey}>
                           {catGuides.map((guide) => (
-                            <motion.button key={guide.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                              onClick={() => navigate(`/guides/${guide.id}`)}
-                              className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
-                              <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
-                                <meta.icon className="h-5 w-5" strokeWidth={1.5} />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-semibold leading-snug text-foreground">
-                                  {lang === "my" ? meta.my : meta.en}
-                                </h3>
-                                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                                  {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
-                                </p>
-                              </div>
-                              <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-                            </motion.button>
+                            <div key={guide.id} className="mb-2 flex items-center gap-2">
+                              <motion.button initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                                onClick={() => navigate(`/guides/${guide.id}`)}
+                                className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+                                <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
+                                  <meta.icon className="h-5 w-5" strokeWidth={1.5} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h3 className="text-sm font-semibold leading-snug text-foreground">
+                                    {lang === "my" ? meta.my : meta.en}
+                                  </h3>
+                                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                    {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
+                                  </p>
+                                </div>
+                                <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                              </motion.button>
+                              {isAdmin && (
+                                <div className="flex flex-col gap-1">
+                                  <button onClick={() => navigate(`/admin/guides/${guide.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => setDeleteGuideId(guide.id)} className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       );
@@ -231,32 +265,56 @@ const Guides = () => {
           </>
         )}
       </div>
+
+      {/* Delete Guide Confirmation */}
+      <AnimatePresence>
+        {deleteGuideId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteGuideId(null)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "လမ်းညွှန်ချက် ဖျက်မည်" : "Delete Guide"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလမ်းညွှန်ချက်ကို ဖျက်မည်။ ဆက်လုပ်မည်လား?" : "This will permanently delete this guide. Continue?"}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteGuideId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleDeleteGuide}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 /** Reusable guide card for search results */
-function GuideCard({ guide, lang, navigate }: { guide: any; lang: string; navigate: (path: string) => void }) {
+function GuideCard({ guide, lang, navigate, isAdmin, onDelete }: { guide: any; lang: string; navigate: (path: string) => void; isAdmin?: boolean; onDelete?: (id: string) => void }) {
   const meta = categoryMeta[guide.category?.toLowerCase()] || categoryMeta.general;
   const Icon = meta.icon;
   return (
-    <button onClick={() => navigate(`/guides/${guide.id}`)}
-      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
-      <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
-        <Icon className="h-5 w-5" strokeWidth={1.5} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold leading-snug text-foreground">
-          {lang === "my" && guide.title_my ? guide.title_my : guide.title}
-        </h3>
-        <div className="mt-1 flex items-center gap-2">
-          {guide.country_flag && <span className="text-xs">{guide.country_flag}</span>}
-          <span className="text-[10px] text-muted-foreground">{guide.country}</span>
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{guide.category}</span>
+    <div className="flex items-center gap-2">
+      <button onClick={() => navigate(`/guides/${guide.id}`)}
+        className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
+          <Icon className="h-5 w-5" strokeWidth={1.5} />
         </div>
-      </div>
-      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-    </button>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold leading-snug text-foreground">
+            {lang === "my" && guide.title_my ? guide.title_my : guide.title}
+          </h3>
+          <div className="mt-1 flex items-center gap-2">
+            {guide.country_flag && <span className="text-xs">{guide.country_flag}</span>}
+            <span className="text-[10px] text-muted-foreground">{guide.country}</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{guide.category}</span>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+      </button>
+      {isAdmin && (
+        <div className="flex flex-col gap-1">
+          <button onClick={() => navigate(`/admin/guides/${guide.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
+          <button onClick={() => onDelete?.(guide.id)} className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5" /></button>
+        </div>
+      )}
+    </div>
   );
 }
 

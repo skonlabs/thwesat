@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users, Pencil, Trash2 } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,7 @@ const statusConfig: Record<string, { color: string; label: { en: string; my: str
 const AdminEmployers = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedTab = searchParams.get("status");
   const initialTab = requestedTab === "pending" || requestedTab === "approved" || requestedTab === "rejected" || requestedTab === "all"
@@ -32,6 +33,7 @@ const AdminEmployers = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     setTab(initialTab);
@@ -88,6 +90,19 @@ const AdminEmployers = () => {
     if (!selectedId) return;
     updateStatus.mutate({ id: selectedId, status: "rejected", reason: rejectReason });
     toast.success(lang === "my" ? "အလုပ်ရှင် ပယ်ချပြီး" : "Employer rejected");
+  };
+
+  const handleDeleteEmployer = async (id: string) => {
+    const { error } = await supabase.from("employer_profiles").delete().eq("id", id);
+    if (error) {
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete employer");
+    } else {
+      toast.success(lang === "my" ? "အလုပ်ရှင် ဖျက်ပြီး" : "Employer deleted");
+      queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+    }
+    setDeleteConfirmId(null);
+    setSelectedId(null);
   };
 
   const filtered = employers.filter((e: any) => {
@@ -216,6 +231,16 @@ const AdminEmployers = () => {
                   <CheckCircle className="mr-1.5 h-4 w-4" />{lang === "my" ? "ပြန်အတည်ပြု" : "Re-approve"}
                 </Button>
               )}
+
+              {/* Edit & Delete actions */}
+              <div className="mt-4 flex gap-3 border-t border-border pt-4">
+                <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}>
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
+                </Button>
+                <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ဖျက်ရန်" : "Delete"}
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -231,6 +256,22 @@ const AdminEmployers = () => {
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setRejecting(false)} className="flex-1 rounded-xl" size="sm">{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="destructive" onClick={handleReject} className="flex-1 rounded-xl" size="sm" disabled={updateStatus.isPending}>{lang === "my" ? "ပယ်ချ" : "Reject"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ရှင် ဖျက်မည်" : "Delete Employer"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤအလုပ်ရှင်ပရိုဖိုင်ကို ဖျက်မည်။ ဆက်လုပ်မည်လား?" : "This will permanently delete the employer profile. Continue?"}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={() => handleDeleteEmployer(deleteConfirmId)}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
               </div>
             </motion.div>
           </motion.div>
