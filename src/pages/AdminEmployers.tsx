@@ -92,6 +92,19 @@ const AdminEmployers = () => {
     toast.success(lang === "my" ? "အလုပ်ရှင် ပယ်ချပြီး" : "Employer rejected");
   };
 
+  const handleDeleteEmployer = async (id: string) => {
+    const { error } = await supabase.from("employer_profiles").delete().eq("id", id);
+    if (error) {
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete employer");
+    } else {
+      toast.success(lang === "my" ? "အလုပ်ရှင် ဖျက်ပြီး" : "Employer deleted");
+      queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+    }
+    setDeleteConfirmId(null);
+    setSelectedId(null);
+  };
+
   const filtered = employers.filter((e: any) => {
     const status = e.verification_status || "pending";
     const matchesTab = tab === "all" 
