@@ -12,7 +12,8 @@ import { toast } from "sonner";
 
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
-  rejected: X, placed: CheckCircle, interviewed: Calendar,
+  rejected: X, placed: CheckCircle, interviewed: Calendar, offered: CheckCircle,
+  withdrawn: X,
 };
 
 const statusLabels: Record<string, { my: string; en: string; color: string }> = {
