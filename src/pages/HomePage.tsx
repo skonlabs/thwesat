@@ -55,32 +55,23 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
-      <div className="border-b border-border bg-card px-5 pb-24 pt-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            {profile?.avatar_url ? <img src={profile.avatar_url} className="h-11 w-11 rounded-full object-cover" /> : initial}
-          </div>
-          <div className="flex-1">
-            <p className="text-xs text-muted-foreground">{lang === "my" ? "မင်္ဂလာပါ" : "Welcome back"}</p>
-            <p className="text-[15px] font-bold text-foreground">{displayName}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {roleLabel}
-            </span>
-            <button onClick={() => navigate("/premium")} className="flex items-center gap-1 rounded-full bg-accent/20 px-2.5 py-1">
-              <Crown className="h-3 w-3 text-gold-dark" strokeWidth={2} />
-              <span className="text-[10px] font-bold text-gold-dark">{profile?.is_premium ? (lang === "my" ? "ပရို" : "Pro") : (lang === "my" ? "အခမဲ့" : "Free")}</span>
-            </button>
-          </div>
-        </div>
-        <button onClick={() => navigate("/jobs")} className="mt-4 flex w-full items-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3 text-left transition-colors active:bg-muted/50">
-          <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-          <span className="text-sm text-muted-foreground">{lang === "my" ? "အလုပ်၊ ကျွမ်းကျင်မှု ရှာဖွေရန်..." : "Search jobs, skills..."}</span>
-        </button>
-      </div>
 
       <div className="px-5 pt-5">
+        {completionPct < 100 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 rounded-xl border border-border bg-card p-4 shadow-card">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
+              <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
+            </div>
+            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
+              <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.3, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
+            </div>
+            <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
+              {lang === "my" ? "ယခု ဖြည့်စွက်ရန်" : "Complete now"} →
+            </button>
+          </motion.div>
+        )}
+
         <div className="grid grid-cols-3 gap-3">
           {jobseekerActions.map((action, i) => (
             <motion.button key={action.path + action.labelEn} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}

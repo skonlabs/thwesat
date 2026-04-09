@@ -58,6 +58,7 @@ const Jobs = () => {
   const [filterDiasporaSafe, setFilterDiasporaSafe] = useState(false);
   const [filterVerified, setFilterVerified] = useState(false);
   const [filterVisa, setFilterVisa] = useState(false);
+  const [showScamAlert, setShowScamAlert] = useState(true);
 
   const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
 
