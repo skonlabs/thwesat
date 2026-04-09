@@ -112,7 +112,7 @@ const ModeratorDashboard = () => {
       const { error } = await supabase.from("community_posts").update({ is_approved: true, moderated_by: user?.id }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); setSelectedPostId(null); toast.success(lang === "my" ? "အတည်ပြုပြီး" : "Post approved"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); toast.success(lang === "my" ? "အတည်ပြုပြီး" : "Post approved"); },
   });
 
   const removePost = useMutation({
