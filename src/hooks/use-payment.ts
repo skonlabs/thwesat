@@ -173,6 +173,8 @@ export function useUpdatePaymentRequest() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-user-profiles"] });
     },
   });
 }
