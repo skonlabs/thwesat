@@ -22,6 +22,7 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
   viewed: { my: "ကြည့်ရှုပြီး", en: "Viewed", color: "bg-primary/10 text-primary" },
   shortlisted: { my: "ရွေးချယ်ခံရ", en: "Shortlisted", color: "bg-emerald/10 text-emerald" },
   interviewed: { my: "အင်တာဗျူး", en: "Interviewed", color: "bg-primary/10 text-primary" },
+  offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", color: "bg-emerald/10 text-emerald" },
   rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
   placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
   withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", color: "bg-muted text-muted-foreground" },
