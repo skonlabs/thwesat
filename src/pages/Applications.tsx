@@ -89,9 +89,10 @@ const Applications = () => {
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {[
             { value: "all", label: lang === "my" ? "အားလုံး" : "All" },
-            { value: "applied", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
+            { value: "new", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
             { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
             { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
+            { value: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Interview" },
             { value: "offered", label: lang === "my" ? "ကမ်းလှမ်းခံရ" : "Offered" },
             { value: "rejected", label: lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected" },
           ].map(f => (

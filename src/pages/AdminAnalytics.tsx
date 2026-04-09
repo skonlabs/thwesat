@@ -17,7 +17,7 @@ const AdminAnalytics = () => {
         supabase.from("jobs").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }),
-        supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
+        supabase.from("mentor_profiles").select("id", { count: "exact", head: true }).not("title", "is", null).neq("title", ""),
         supabase.from("mentor_bookings").select("id", { count: "exact", head: true }),
         supabase.from("applications").select("id", { count: "exact", head: true }),
       ]);

@@ -195,7 +195,7 @@ const EmployerApplications = () => {
               <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
-                  {statusFlow.filter(s => s !== selected.status).map(s => (
+                  {statusFlow.filter(s => s !== selectedStatus).map(s => (
                     <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs"
                       onClick={() => { if (s === "placed") setShowPlacement(true); else handleStatusUpdate(selected.id, s); }}>
                       {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,22 +11,24 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
-
-const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
-  verified: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
-  approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald-500/10 text-emerald-600", icon: CheckCircle },
-  rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
-};
-
+...
 const AdminEmployers = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get("status");
+  const initialTab = requestedTab === "pending" || requestedTab === "approved" || requestedTab === "rejected" || requestedTab === "all"
+    ? requestedTab
+    : "all";
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState("pending");
+  const [tab, setTab] = useState(initialTab);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   const { data: employers = [], isLoading } = useQuery({
     queryKey: ["admin-employers"],
