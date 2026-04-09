@@ -108,6 +108,8 @@ const Community = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingPost, setEditingPost] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
   const createPost = useCreatePost();
