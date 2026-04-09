@@ -10,18 +10,22 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
 
+const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
+const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
+
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {
   applied: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
   submitted: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
   viewed: { label: { my: "ကြည့်ပြီး", en: "Viewed" }, color: "text-accent bg-accent/10" },
   shortlisted: { label: { my: "ရွေးချယ်ပြီး", en: "Shortlisted" }, color: "text-emerald bg-emerald/10" },
-  interviewed: { label: { my: "အင်တာဗျူး", en: "Interviewed" }, color: "text-primary bg-primary/10" },
+  interview: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
+  interviewed: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
   offered: { label: { my: "ကမ်းလှမ်းပြီး", en: "Offered" }, color: "text-emerald bg-emerald/10" },
   rejected: { label: { my: "ငြင်းပယ်ပြီး", en: "Rejected" }, color: "text-destructive bg-destructive/10" },
   placed: { label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, color: "text-emerald bg-emerald/10" },
 };
 
-const statusFlow = ["applied", "viewed", "shortlisted", "interviewed", "offered", "placed"];
+const statusFlow = ["applied", "viewed", "shortlisted", "interview", "offered", "placed"];
 const rejectionReasons = [
   { my: "အတွေ့အကြုံ မလုံလောက်", en: "Not enough experience" },
   { my: "ကျွမ်းကျင်မှု မကိုက်ညီ", en: "Skills mismatch" },
@@ -43,8 +47,20 @@ const EmployerApplications = () => {
   const [filter, setFilter] = useState("all");
 
   const apps = applications || [];
-  const filtered = filter === "all" ? apps : apps.filter((a: any) => a.status === filter);
+  const filtered = apps.filter((a: any) => {
+    if (filter === "all") return true;
+    if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
+    if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
+    return a.status === filter;
+  });
   const selected = apps.find((a: any) => a.id === selectedId);
+  const selectedStatus = selected
+    ? INTERVIEW_APPLICATION_STATUSES.includes(selected.status)
+      ? "interview"
+      : selected.status === "submitted"
+        ? "applied"
+        : selected.status
+    : null;
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
@@ -89,7 +105,7 @@ const EmployerApplications = () => {
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
-            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => a.status === "applied" || a.status === "submitted").length, color: "text-primary", filterVal: "applied" },
+            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
             { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
@@ -100,9 +116,13 @@ const EmployerApplications = () => {
           ))}
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "applied", "shortlisted", "interviewed", "offered", "placed", "rejected"].map(f => (
+          {["all", "new", "shortlisted", "interview", "offered", "placed", "rejected"].map(f => (
             <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
+              {f === "all"
+                ? (lang === "my" ? "အားလုံး" : "All")
+                : f === "new"
+                  ? (lang === "my" ? "အသစ်" : "New")
+                  : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
             </button>
           ))}
         </div>
@@ -175,7 +195,7 @@ const EmployerApplications = () => {
               <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
-                  {statusFlow.filter(s => s !== selected.status).map(s => (
+                  {statusFlow.filter(s => s !== selectedStatus).map(s => (
                     <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs"
                       onClick={() => { if (s === "placed") setShowPlacement(true); else handleStatusUpdate(selected.id, s); }}>
                       {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}

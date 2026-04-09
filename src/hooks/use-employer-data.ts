@@ -82,6 +82,7 @@ export function useUpdateApplicationStatus() {
         const notifMap: Record<string, { title: string; titleMy: string; desc: string; descMy: string; type: string }> = {
           viewed: { title: `Your application was viewed`, titleMy: `သင့်လျှောက်လွှာကို ကြည့်ရှုပြီး`, desc: `Employer viewed your application for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် သင့်လျှောက်လွှာကို ကြည့်ရှုပြီး`, type: "application" },
           shortlisted: { title: `You've been shortlisted!`, titleMy: `ရွေးချယ်ခံရပါပြီ!`, desc: `Great news! You've been shortlisted for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ရွေးချယ်ခံရပါပြီ`, type: "application" },
+          interview: { title: `Interview scheduled`, titleMy: `အင်တာဗျူး ချိန်းဆိုပြီး`, desc: `An interview has been scheduled for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် အင်တာဗျူး ချိန်းဆိုပြီး`, type: "application" },
           interviewed: { title: `Interview scheduled`, titleMy: `အင်တာဗျူး ချိန်းဆိုပြီး`, desc: `An interview has been scheduled for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် အင်တာဗျူး ချိန်းဆိုပြီး`, type: "application" },
           offered: { title: `Job offer received!`, titleMy: `အလုပ်ကမ်းလှမ်းချက် ရရှိပါပြီ!`, desc: `You received an offer for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ကမ်းလှမ်းချက် ရရှိပါပြီ`, type: "application" },
           placed: { title: `Congratulations! You're placed!`, titleMy: `ဂုဏ်ယူပါသည်! ခန့်အပ်ခံရပါပြီ!`, desc: `You've been placed for ${jobTitle}`, descMy: `${jobTitleMy} အတွက် ခန့်အပ်ခံရပါပြီ`, type: "application" },

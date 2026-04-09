@@ -10,9 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
+const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
+
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
-  rejected: X, placed: CheckCircle, interviewed: Calendar, offered: CheckCircle,
+  rejected: X, placed: CheckCircle, interview: Calendar, interviewed: Calendar, offered: CheckCircle,
   withdrawn: X,
 };
 
@@ -21,7 +24,8 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
   submitted: { my: "တင်ပြပြီး", en: "Submitted", color: "bg-muted text-muted-foreground" },
   viewed: { my: "ကြည့်ရှုပြီး", en: "Viewed", color: "bg-primary/10 text-primary" },
   shortlisted: { my: "ရွေးချယ်ခံရ", en: "Shortlisted", color: "bg-emerald/10 text-emerald" },
-  interviewed: { my: "အင်တာဗျူး", en: "Interviewed", color: "bg-primary/10 text-primary" },
+  interview: { my: "အင်တာဗျူး", en: "Interview", color: "bg-primary/10 text-primary" },
+  interviewed: { my: "အင်တာဗျူး", en: "Interview", color: "bg-primary/10 text-primary" },
   offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", color: "bg-emerald/10 text-emerald" },
   rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
   placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
@@ -37,7 +41,12 @@ const Applications = () => {
   const [filter, setFilter] = useState("all");
 
   const apps = applications || [];
-  const filteredApps = filter === "all" ? apps : apps.filter((a: any) => a.status === filter);
+  const filteredApps = apps.filter((a: any) => {
+    if (filter === "all") return true;
+    if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
+    if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
+    return a.status === filter;
+  });
   const selected = apps.find((a: any) => a.id === selectedApp);
 
   const statusCounts = {
@@ -80,9 +89,10 @@ const Applications = () => {
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {[
             { value: "all", label: lang === "my" ? "အားလုံး" : "All" },
-            { value: "applied", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
+            { value: "new", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
             { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
             { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
+            { value: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Interview" },
             { value: "offered", label: lang === "my" ? "ကမ်းလှမ်းခံရ" : "Offered" },
             { value: "rejected", label: lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected" },
           ].map(f => (
