@@ -61,14 +61,14 @@ const MentorMentees = () => {
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           {[
-            { value: enriched.filter((m: any) => m.status === "active").length, label: lang === "my" ? "လက်ရှိ" : "Active", color: "text-emerald" },
-            { value: enriched.filter((m: any) => m.status === "pending").length, label: lang === "my" ? "စောင့်" : "Pending", color: "text-accent" },
-            { value: enriched.reduce((a: number, m: any) => a + (m.sessions_completed || 0), 0), label: "Sessions", color: "text-foreground" },
+            { value: enriched.filter((m: any) => m.status === "active").length, label: lang === "my" ? "လက်ရှိ" : "Active", color: "text-emerald", action: () => setFilter("active") },
+            { value: enriched.filter((m: any) => m.status === "pending").length, label: lang === "my" ? "စောင့်" : "Pending", color: "text-accent", action: () => setFilter("pending") },
+            { value: enriched.reduce((a: number, m: any) => a + (m.sessions_completed || 0), 0), label: "Sessions", color: "text-foreground", action: () => navigate("/mentors/bookings") },
           ].map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-3 text-center">
+            <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={s.action} className="rounded-xl border border-border bg-card p-3 text-center transition-colors active:bg-muted/30">
               <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
 
