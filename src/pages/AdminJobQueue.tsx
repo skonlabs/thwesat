@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, AlertTriangle, Clock, Briefcase, Pause } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Clock, Briefcase, Pause, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import { toast } from "sonner";
 
 const checklist = [
   { my: "ကုမ္ပဏီ ဝဘ်ဆိုဒ် ရှိ၍ တရားဝင်", en: "Company website exists & legitimate" },
@@ -28,6 +29,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialFilter = (searchParams.get("status") as FilterType) || "all";
   const [filter, setFilter] = useState<FilterType>(initialFilter);
@@ -35,6 +37,7 @@ const AdminJobQueue = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Fetch ALL jobs for admin (not just pending)
   const { data: allJobs = [], isLoading } = useQuery({
@@ -80,6 +83,19 @@ const AdminJobQueue = () => {
     updateJob.mutate({ id: selectedId, status: "rejected", rejectionReason }, {
       onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); },
     });
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
+    if (error) {
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete job");
+    } else {
+      toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်ပြီး" : "Job deleted");
+      queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    }
+    setDeleteConfirmId(null);
   };
 
   const formatTime = (dateStr: string | null) => {
@@ -143,27 +159,39 @@ const AdminJobQueue = () => {
             {jobs.map((job: any, i: number) => {
               const sc = statusConfig[job.status] || statusConfig.pending;
               return (
-                <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                  <div className="flex items-start justify-between">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
-                      <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
+                  <button onClick={() => setSelectedId(job.id)} className="w-full text-left active:bg-muted/30">
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
+                        <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 ml-2">
+                        <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
+                          <sc.icon className="h-3 w-3" strokeWidth={1.5} />
+                          {lang === "my" ? sc.label.my : sc.label.en}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 ml-2">
-                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
-                        <sc.icon className="h-3 w-3" strokeWidth={1.5} />
-                        {lang === "my" ? sc.label.my : sc.label.en}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                    <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                      {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
+                      {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
                     </div>
+                  </button>
+                  <div className="mt-2 flex items-center justify-end gap-1 border-t border-border pt-2">
+                    <button onClick={() => navigate(`/admin/edit-job/${job.id}`)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
+                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
+                    </button>
+                    <button onClick={() => setDeleteConfirmId(job.id)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <span>{lang === "my" ? "ဖျက်" : "Delete"}</span>
+                    </button>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                    {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
-                    {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
-                  </div>
-                </motion.button>
+                </motion.div>
               );
             })}
             {jobs.length === 0 && (
@@ -254,6 +282,22 @@ const AdminJobQueue = () => {
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowReject(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်မည်" : "Delete Job Listing"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။ ဆက်လုပ်မည်လား?" : "This action cannot be undone. Continue?"}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={() => handleDeleteJob(deleteConfirmId)}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
               </div>
             </motion.div>
           </motion.div>

@@ -102,7 +102,8 @@ const EmployerEditJob = () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
-      navigate("/employer/dashboard");
+      queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      navigate(-1);
     }
   };
 
@@ -194,7 +195,7 @@ const EmployerEditJob = () => {
           </label>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/employer/dashboard")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(-1)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
           <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={saving || !titleEn || !descEn}>
             {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "သိမ်းရန်" : "Save Changes")}
           </Button>
