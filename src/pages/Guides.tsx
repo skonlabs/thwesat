@@ -100,6 +100,12 @@ const Guides = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
       <div className="px-5 pt-4">
+        {/* Admin: Create button */}
+        {isAdmin && (
+          <Button variant="default" size="sm" className="mb-4 w-full rounded-xl" onClick={() => navigate("/admin/guides/new")}>
+            <Plus className="mr-1.5 h-4 w-4" /> {lang === "my" ? "လမ်းညွှန်ချက်အသစ် ဖန်တီးရန်" : "Create New Guide"}
+          </Button>
+        )}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
