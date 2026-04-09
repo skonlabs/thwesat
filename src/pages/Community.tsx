@@ -241,6 +241,31 @@ const Community = () => {
     });
   };
 
+  const handleEditPost = (post: typeof posts[0]) => {
+    setEditingPost(post.id);
+    setEditText(lang === "my" ? post.content_my : (post.content_en || post.content_my));
+    setOpenMenuId(null);
+  };
+
+  const updatePost = useMutation({
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
+      const { error } = await supabase.from("community_posts").update({
+        content_my: content,
+        content_en: content,
+      }).eq("id", postId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["community-posts"] });
+      setEditingPost(null);
+      setEditText("");
+      toast.success(lang === "my" ? "ပို့စ် ပြင်ဆင်ပြီး" : "Post updated");
+    },
+    onError: () => {
+      toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update post");
+    },
+  });
+
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
     const diff = Date.now() - new Date(dateStr).getTime();
