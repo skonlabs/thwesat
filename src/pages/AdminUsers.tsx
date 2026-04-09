@@ -19,6 +19,7 @@ const roleColors: Record<string, string> = {
 
 const AdminUsers = () => {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);

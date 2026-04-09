@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {

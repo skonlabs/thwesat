@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Briefcase, CreditCard, CalendarCheck, Eye } from "lucide-react";
+import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Briefcase, CreditCard, CalendarCheck, Eye, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
