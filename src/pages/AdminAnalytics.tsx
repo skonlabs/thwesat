@@ -72,10 +72,10 @@ const AdminAnalytics = () => {
             <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? section.title.my : section.title.en}</h2>
             <div className="grid grid-cols-2 gap-2">
               {section.items.map((m, mi) => (
-                <div key={mi} className="rounded-xl border border-border bg-card p-3">
+                <button key={mi} onClick={() => navigate(m.path)} className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? m.label.my : m.label.en}</p>
                   <p className="text-lg font-bold text-foreground">{m.value}</p>
-                </div>
+                </button>
               ))}
             </div>
           </motion.div>

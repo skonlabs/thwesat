@@ -70,14 +70,14 @@ const EmployerDashboard = () => {
 
         <div className="mb-5 grid grid-cols-2 gap-3">
           {[
-            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10" },
-            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10" },
+            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", path: "/employer/dashboard" },
+            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", path: "/employer/applications" },
           ].map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-xl border border-border bg-card p-3.5">
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={() => navigate(stat.path)} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
               <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
               <p className="text-xl font-bold text-foreground">{stat.value}</p>
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? stat.label.my : stat.label.en}</p>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
 
