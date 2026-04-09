@@ -42,7 +42,10 @@ const AdminJobQueue = () => {
       }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-pending-jobs"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-pending-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+    },
   });
 
   const handleApprove = (id: string) => {

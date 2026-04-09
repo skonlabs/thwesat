@@ -65,15 +65,15 @@ const Applications = () => {
       <div className="px-5">
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
-            { label: lang === "my" ? "တင်ပြပြီး" : "Total", count: statusCounts.total, color: "text-foreground" },
-            { label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed", count: statusCounts.viewed, color: "text-primary" },
-            { label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted", count: statusCounts.shortlisted, color: "text-emerald" },
-            { label: lang === "my" ? "အောင်မြင်" : "Placed", count: statusCounts.placed, color: "text-emerald" },
+            { label: lang === "my" ? "တင်ပြပြီး" : "Total", count: statusCounts.total, color: "text-foreground", filterVal: "all" },
+            { label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed", count: statusCounts.viewed, color: "text-primary", filterVal: "viewed" },
+            { label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted", count: statusCounts.shortlisted, color: "text-emerald", filterVal: "shortlisted" },
+            { label: lang === "my" ? "အောင်မြင်" : "Placed", count: statusCounts.placed, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-2.5 text-center">
+            <button key={s.label} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
               <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
               <p className="text-[9px] text-muted-foreground">{s.label}</p>
-            </div>
+            </button>
           ))}
         </div>
 
