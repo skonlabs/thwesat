@@ -74,10 +74,6 @@ export function useConversations() {
       return results;
     },
     enabled: !!user,
-  });
-}
-
-export function useMessages(conversationId: string | undefined) {
     refetchInterval: 15000,
   });
 }
