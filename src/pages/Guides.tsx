@@ -199,22 +199,30 @@ const Guides = () => {
                       return (
                         <div key={catKey}>
                           {catGuides.map((guide) => (
-                            <motion.button key={guide.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                              onClick={() => navigate(`/guides/${guide.id}`)}
-                              className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
-                              <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
-                                <meta.icon className="h-5 w-5" strokeWidth={1.5} />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <h3 className="text-sm font-semibold leading-snug text-foreground">
-                                  {lang === "my" ? meta.my : meta.en}
-                                </h3>
-                                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                                  {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
-                                </p>
-                              </div>
-                              <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-                            </motion.button>
+                            <div key={guide.id} className="mb-2 flex items-center gap-2">
+                              <motion.button initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                                onClick={() => navigate(`/guides/${guide.id}`)}
+                                className="flex flex-1 items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+                                <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${meta.color}`}>
+                                  <meta.icon className="h-5 w-5" strokeWidth={1.5} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h3 className="text-sm font-semibold leading-snug text-foreground">
+                                    {lang === "my" ? meta.my : meta.en}
+                                  </h3>
+                                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                    {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
+                                  </p>
+                                </div>
+                                <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                              </motion.button>
+                              {isAdmin && (
+                                <div className="flex flex-col gap-1">
+                                  <button onClick={() => navigate(`/admin/guides/${guide.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => setDeleteGuideId(guide.id)} className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       );
