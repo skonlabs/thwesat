@@ -163,7 +163,7 @@ const Guides = () => {
                   {searchResults.length} {lang === "my" ? "ခု တွေ့ရှိသည်" : "results found"}
                 </p>
                 {searchResults.map((guide) => (
-                  <GuideCard key={guide.id} guide={guide} lang={lang} navigate={navigate} />
+                  <GuideCard key={guide.id} guide={guide} lang={lang} navigate={navigate} isAdmin={isAdmin} onDelete={setDeleteGuideId} />
                 ))}
                 {searchResults.length === 0 && (
                   <p className="py-8 text-center text-sm text-muted-foreground">
