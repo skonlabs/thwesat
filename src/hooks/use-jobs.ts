@@ -210,7 +210,7 @@ export function useEmployerApplications(jobId?: string) {
         .select("id, display_name, headline, avatar_url")
         .in("id", applicantIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) }));
+      return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];
     },
     enabled: !!user,
   });

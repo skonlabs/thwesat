@@ -54,11 +54,10 @@ const AdminEmployers = () => {
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
-      const update: Record<string, unknown> = {
+      const { error } = await supabase.from("employer_profiles").update({
         verification_status: status,
         is_verified: status === "verified",
-      };
-      const { error } = await supabase.from("employer_profiles").update(update).eq("id", id);
+      }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
