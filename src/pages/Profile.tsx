@@ -257,6 +257,7 @@ const Profile = () => {
         </motion.div>
 
         {/* Referral Programme */}
+        {!isSystemRole && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
           <div className="mb-2 flex items-center gap-2">
             <Gift className="h-4 w-4 text-primary" strokeWidth={1.5} />
