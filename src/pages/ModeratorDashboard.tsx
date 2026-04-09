@@ -129,7 +129,7 @@ const ModeratorDashboard = () => {
       const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
   });
 
   const rejectJob = useMutation({
