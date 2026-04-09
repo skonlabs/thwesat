@@ -30,6 +30,7 @@ export function useNotifications() {
       return data as Notification[];
     },
     enabled: !!user,
+    refetchInterval: 30000,
   });
 }
 

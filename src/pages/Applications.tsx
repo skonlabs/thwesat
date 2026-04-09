@@ -12,7 +12,8 @@ import { toast } from "sonner";
 
 const statusIcons: Record<string, typeof CheckCircle> = {
   shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
-  rejected: X, placed: CheckCircle, interviewed: Calendar,
+  rejected: X, placed: CheckCircle, interviewed: Calendar, offered: CheckCircle,
+  withdrawn: X,
 };
 
 const statusLabels: Record<string, { my: string; en: string; color: string }> = {
@@ -21,6 +22,7 @@ const statusLabels: Record<string, { my: string; en: string; color: string }> = 
   viewed: { my: "ကြည့်ရှုပြီး", en: "Viewed", color: "bg-primary/10 text-primary" },
   shortlisted: { my: "ရွေးချယ်ခံရ", en: "Shortlisted", color: "bg-emerald/10 text-emerald" },
   interviewed: { my: "အင်တာဗျူး", en: "Interviewed", color: "bg-primary/10 text-primary" },
+  offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", color: "bg-emerald/10 text-emerald" },
   rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
   placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
   withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", color: "bg-muted text-muted-foreground" },
@@ -78,9 +80,11 @@ const Applications = () => {
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {[
             { value: "all", label: lang === "my" ? "အားလုံး" : "All" },
-            { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
-            { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
             { value: "applied", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
+            { value: "viewed", label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed" },
+            { value: "shortlisted", label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted" },
+            { value: "offered", label: lang === "my" ? "ကမ်းလှမ်းခံရ" : "Offered" },
+            { value: "rejected", label: lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected" },
           ].map(f => (
             <button key={f.value} onClick={() => setFilter(f.value)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.value ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f.label}
