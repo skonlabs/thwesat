@@ -88,8 +88,9 @@ const AdminJobQueue = () => {
   const handleDeleteJob = async (jobId: string) => {
     const { error } = await supabase.from("jobs").delete().eq("id", jobId);
     if (error) {
-      // toast not imported, use alert-like inline
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete job");
     } else {
+      toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်ပြီး" : "Job deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
