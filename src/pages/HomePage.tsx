@@ -41,12 +41,6 @@ const HomePage = () => {
   const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
   const displayName = profile?.display_name || (lang === "my" ? "အသုံးပြုသူ" : "User");
-  const initial = displayName.charAt(0).toUpperCase();
-  const roleLabel = profile?.primary_role === "mentor"
-    ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor")
-    : profile?.primary_role === "employer"
-      ? (lang === "my" ? "အလုပ်ရှင်" : "Employer")
-      : (lang === "my" ? "အလုပ်ရှာသူ" : "Job Seeker");
 
   // Calculate profile completion
   const completionFields = [profile?.display_name, profile?.headline, profile?.bio, profile?.location, profile?.skills?.length, profile?.languages?.length];
