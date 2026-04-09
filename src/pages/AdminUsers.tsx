@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Crown, Trash2 } from "lucide-react";
+import { Search, Crown, Trash2, Shield, ShieldCheck, ToggleLeft, ToggleRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,26 +21,101 @@ const AdminUsers = () => {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState("all");
   const queryClient = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at").order("created_at", { ascending: false }).limit(1000);
+      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at, skills, languages, phone").order("created_at", { ascending: false }).limit(1000);
       if (error) throw error;
       return data || [];
     },
   });
 
-  const filtered = users.filter((u: any) =>
-    (u.display_name || "").toLowerCase().includes(search.toLowerCase()) || (u.email || "").toLowerCase().includes(search.toLowerCase())
-  );
+  // Fetch system roles for all users
+  const { data: allRoles = [] } = useQuery({
+    queryKey: ["admin-all-user-roles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("user_roles").select("user_id, role");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const roleMap = new Map<string, string[]>();
+  allRoles.forEach((r: any) => {
+    const existing = roleMap.get(r.user_id) || [];
+    existing.push(r.role);
+    roleMap.set(r.user_id, existing);
+  });
+
+  const filtered = users.filter((u: any) => {
+    const matchesSearch = (u.display_name || "").toLowerCase().includes(search.toLowerCase()) || (u.email || "").toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter === "all" || u.primary_role === roleFilter || (roleFilter === "premium" && u.is_premium);
+    return matchesSearch && matchesRole;
+  });
+
   const selected = users.find((u: any) => u.id === selectedId);
+  const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
+
+  const premiumCount = users.filter((u: any) => u.is_premium).length;
+  const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
+  const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
+
+  const handleTogglePremium = async (userId: string, currentPremium: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_premium: !currentPremium }).eq("id", userId);
+    if (error) {
+      toast.error(lang === "my" ? "ပရီမီယံ ပြောင်း၍ မရပါ" : "Failed to toggle premium");
+    } else {
+      toast.success(!currentPremium
+        ? (lang === "my" ? "ပရီမီယံ ဖွင့်ပြီး" : "Premium activated")
+        : (lang === "my" ? "ပရီမီယံ ပိတ်ပြီး" : "Premium deactivated")
+      );
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+    }
+  };
+
+  const handleSetSystemRole = async (userId: string, role: "admin" | "moderator", action: "add" | "remove") => {
+    if (action === "add") {
+      const { error } = await supabase.rpc("set_user_role", { _user_id: userId, _role: role });
+      if (error) {
+        toast.error(lang === "my" ? "Role သတ်မှတ်၍ မရပါ" : `Failed to set ${role} role`);
+      } else {
+        toast.success(lang === "my" ? `${role} Role သတ်မှတ်ပြီး` : `${role} role assigned`);
+        queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
+      }
+    } else {
+      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+      if (error) {
+        toast.error(lang === "my" ? "Role ဖယ်ရှား၍ မရပါ" : `Failed to remove ${role} role`);
+      } else {
+        toast.success(lang === "my" ? `${role} Role ဖယ်ရှားပြီး` : `${role} role removed`);
+        queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
       <div className="px-5">
+        {/* Summary */}
+        <div className="mb-4 grid grid-cols-4 gap-2">
+          {[
+            { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
+            { label: lang === "my" ? "ပရီမီယံ" : "Premium", count: premiumCount, filterVal: "premium" },
+            { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
+            { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
+          ].map(s => (
+            <button key={s.filterVal} onClick={() => setRoleFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${roleFilter === s.filterVal ? "border-primary" : "border-border"}`}>
+              <p className="text-lg font-bold text-foreground">{s.count}</p>
+              <p className="text-[9px] text-muted-foreground">{s.label}</p>
+            </button>
+          ))}
+        </div>
+
         <div className="relative mb-4">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အမည် သို့မဟုတ် အီးမေးလ်ဖြင့် ရှာ..." : "Search by name or email..."} className="h-10 rounded-xl pl-9" />
@@ -50,19 +126,26 @@ const AdminUsers = () => {
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <div className="space-y-2">
-            {filtered.map((user: any, i: number) => (
-              <motion.button key={user.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} onClick={() => setSelectedId(user.id)} className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left active:bg-muted/30">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(user.display_name || "U").slice(0, 2).toUpperCase()}</div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
-                    {user.is_premium && <Crown className="h-3 w-3 text-primary" />}
+            {filtered.map((user: any, i: number) => {
+              const sysRoles = roleMap.get(user.id) || [];
+              const isAdminUser = sysRoles.includes("admin");
+              const isModUser = sysRoles.includes("moderator");
+              return (
+                <motion.button key={user.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} onClick={() => setSelectedId(user.id)} className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left active:bg-muted/30">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(user.display_name || "U").slice(0, 2).toUpperCase()}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
+                      {user.is_premium && <Crown className="h-3 w-3 shrink-0 text-primary" />}
+                      {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
+                      {isModUser && <ShieldCheck className="h-3 w-3 shrink-0 text-emerald" />}
+                    </div>
+                    <p className="truncate text-[10px] text-muted-foreground">{user.email} · {new Date(user.created_at).toLocaleDateString()}</p>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">{user.email} · {new Date(user.created_at).toLocaleDateString()}</p>
-                </div>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>{user.primary_role}</span>
-              </motion.button>
-            ))}
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>{user.primary_role}</span>
+                </motion.button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -70,26 +153,77 @@ const AdminUsers = () => {
       <AnimatePresence>
         {selected && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-8 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{(selected.display_name || "U").slice(0, 2).toUpperCase()}</div>
                 <div>
                   <h2 className="text-lg font-bold text-foreground">{selected.display_name}</h2>
                   <p className="text-xs text-muted-foreground">{selected.email}</p>
-                  <div className="mt-1 flex gap-2">
+                  <div className="mt-1 flex flex-wrap gap-1.5">
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.jobseeker}`}>{selected.primary_role}</span>
                     {selected.is_premium && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">Premium</span>}
+                    {selectedSystemRoles.includes("admin") && <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Admin</span>}
+                    {selectedSystemRoles.includes("moderator") && <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">Moderator</span>}
                   </div>
                 </div>
               </div>
 
+              {/* User details */}
               <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အချက်အလက်" : "Details"}</h3>
               <div className="mb-4 space-y-1 text-xs text-muted-foreground">
                 <p>{lang === "my" ? "တည်နေရာ" : "Location"}: {selected.location || "—"}</p>
                 <p>{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}: {selected.headline || "—"}</p>
+                <p>{lang === "my" ? "ဖုန်း" : "Phone"}: {selected.phone || "—"}</p>
                 <p>{lang === "my" ? "စတင်ရက်" : "Joined"}: {new Date(selected.created_at).toLocaleDateString()}</p>
+                {selected.skills?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {selected.skills.slice(0, 8).map((s: string) => (
+                      <span key={s} className="rounded bg-muted px-1.5 py-0.5 text-[10px]">{s}</span>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Premium toggle */}
+              <div className="mb-4 rounded-xl border border-border p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">{lang === "my" ? "ပရီမီယံ အခြေအနေ" : "Premium Status"}</span>
+                  </div>
+                  <Switch
+                    checked={selected.is_premium || false}
+                    onCheckedChange={() => handleTogglePremium(selected.id, selected.is_premium || false)}
+                  />
+                </div>
+              </div>
+
+              {/* System role management */}
+              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "စနစ် Role" : "System Roles"}</h3>
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-destructive" />
+                    <span className="text-sm font-medium text-foreground">Admin</span>
+                  </div>
+                  <Switch
+                    checked={selectedSystemRoles.includes("admin")}
+                    onCheckedChange={(checked) => handleSetSystemRole(selected.id, "admin", checked ? "add" : "remove")}
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-emerald" />
+                    <span className="text-sm font-medium text-foreground">Moderator</span>
+                  </div>
+                  <Switch
+                    checked={selectedSystemRoles.includes("moderator")}
+                    onCheckedChange={(checked) => handleSetSystemRole(selected.id, "moderator", checked ? "add" : "remove")}
+                  />
+                </div>
+              </div>
+
               <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားရန်" : "Remove User"}
               </Button>

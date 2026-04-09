@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Eye, TrendingUp, Plus, BarChart3, Clock, CheckCircle, Pause, XCircle, ChevronRight, Building2, Shield, MessageSquare, Sparkles, UserSearch, Pencil, Trash2, Settings } from "lucide-react";
+import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Building2, Shield, MessageSquare, Sparkles, UserSearch, Pencil, Trash2, Settings, Crown, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { useEmployerJobs } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 
@@ -31,16 +32,39 @@ const quickActions = [
 const EmployerDashboard = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: empProfile } = useEmployerProfile();
   const { data: jobs, isLoading } = useEmployerJobs();
   const [filter, setFilter] = useState("all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  // Fetch employer subscription
+  const { data: subscription } = useQuery({
+    queryKey: ["employer-subscription", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const listings = jobs || [];
   const filteredListings = filter === "all" ? listings : listings.filter(l => l.status === filter);
   const activeCount = listings.filter(l => l.status === "active").length;
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
+
+  const planLabel = subscription?.plan_type?.toLowerCase().includes("pro") ? "Pro" : subscription?.plan_type ? "Basic" : null;
+  const planExpiry = subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : null;
 
   const handleDeleteJob = async (jobId: string) => {
     const { error } = await supabase.from("jobs").delete().eq("id", jobId);
@@ -58,14 +82,36 @@ const EmployerDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
-          <div>
-            <p className="text-xs font-bold text-foreground">{empProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီအမည်" : "Company")}</p>
-            <p className={`text-[11px] font-medium ${empProfile?.is_verified ? "text-emerald" : "text-muted-foreground"}`}>
-              {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ" : "Pending Verification")}
-            </p>
+        {/* Company info + subscription */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
+            <div className="flex-1">
+              <p className="text-xs font-bold text-foreground">{empProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီအမည်" : "Company")}</p>
+              <p className={`text-[11px] font-medium ${empProfile?.is_verified ? "text-emerald" : "text-muted-foreground"}`}>
+                {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ" : "Pending Verification")}
+              </p>
+            </div>
+            {/* Subscription badge */}
+            <button onClick={() => navigate("/employer/subscription")} className="flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1">
+              {planLabel ? (
+                <>
+                  <Crown className="h-3 w-3 text-gold-dark" strokeWidth={2} />
+                  <span className="text-[10px] font-bold text-gold-dark">{planLabel}</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
+                  <span className="text-[10px] font-bold text-muted-foreground">{lang === "my" ? "အစီအစဉ်" : "Subscribe"}</span>
+                </>
+              )}
+            </button>
           </div>
+          {planLabel && planExpiry && (
+            <p className="mt-2 text-[10px] text-muted-foreground">
+              {lang === "my" ? `${planLabel} အစီအစဉ် · ${planExpiry} ထိ` : `${planLabel} Plan · Expires ${planExpiry}`}
+            </p>
+          )}
         </motion.div>
 
         <div className="mb-5 grid grid-cols-2 gap-3">
