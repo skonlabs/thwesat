@@ -2,10 +2,15 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ChevronRight, FileText, AlertTriangle, Globe, BookOpen,
-  Briefcase, Heart, Search, X, MapPin,
+  Briefcase, Heart, Search, X, MapPin, Plus, Pencil, Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import { useUserRoles } from "@/hooks/use-user-roles";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useGuides } from "@/hooks/use-guides-data";
 
