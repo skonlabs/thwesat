@@ -52,6 +52,7 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminEmployers from "./pages/AdminEmployers";
 import DelegateAccess from "./pages/DelegateAccess";
+import AdminEditGuide from "./pages/AdminEditGuide";
 import EmployerEditJob from "./pages/EmployerEditJob";
 import PublicProfile from "./pages/PublicProfile";
 import EmployerEditCompany from "./pages/EmployerEditCompany";
