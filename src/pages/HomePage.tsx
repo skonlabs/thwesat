@@ -15,8 +15,8 @@ const jobseekerActions = [
   { icon: Briefcase, label: "အလုပ်ရှာ", labelEn: "Jobs", path: "/jobs", bg: "bg-accent/15", fg: "text-gold-dark" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/8", fg: "text-primary" },
-  { icon: Sparkles, label: "အသက်မွေးမှု ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
-  { icon: MessageSquare, label: "အသိုင်း", labelEn: "Community", path: "/community", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
+  { icon: MessageSquare, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-primary/8", fg: "text-primary" },
 ];
 
