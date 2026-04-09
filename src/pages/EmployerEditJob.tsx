@@ -102,7 +102,8 @@ const EmployerEditJob = () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
-      navigate("/employer/dashboard");
+      queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      navigate(-1);
     }
   };
 
