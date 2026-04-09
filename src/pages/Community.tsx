@@ -421,7 +421,21 @@ const Community = () => {
                       </AnimatePresence>
                     </div>
                   </div>
-                  <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  {editingPost === post.id ? (
+                    <div className="mb-3 space-y-2">
+                      <Textarea value={editText} onChange={e => setEditText(e.target.value)} className="min-h-[80px] rounded-xl text-sm" />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" className="rounded-xl text-xs" onClick={() => { setEditingPost(null); setEditText(""); }}>
+                          {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+                        </Button>
+                        <Button size="sm" className="rounded-xl text-xs" disabled={!editText.trim() || updatePost.isPending} onClick={() => updatePost.mutate({ postId: post.id, content: editText })}>
+                          {updatePost.isPending ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "သိမ်းရန်" : "Save")}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mb-3 text-sm leading-relaxed text-foreground">{lang === "my" ? post.content_my : (post.content_en || post.content_my)}</p>
+                  )}
                   {!post.is_approved && isOwn && (
                     <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-yellow-500/10 px-3 py-2">
                       <Clock className="h-3.5 w-3.5 text-yellow-600" strokeWidth={1.5} />
