@@ -28,6 +28,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialFilter = (searchParams.get("status") as FilterType) || "all";
   const [filter, setFilter] = useState<FilterType>(initialFilter);
@@ -35,6 +36,7 @@ const AdminJobQueue = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Fetch ALL jobs for admin (not just pending)
   const { data: allJobs = [], isLoading } = useQuery({
