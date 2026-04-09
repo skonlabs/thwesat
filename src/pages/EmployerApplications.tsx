@@ -10,18 +10,22 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
 
+const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
+const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
+
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {
   applied: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
   submitted: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
   viewed: { label: { my: "ကြည့်ပြီး", en: "Viewed" }, color: "text-accent bg-accent/10" },
   shortlisted: { label: { my: "ရွေးချယ်ပြီး", en: "Shortlisted" }, color: "text-emerald bg-emerald/10" },
-  interviewed: { label: { my: "အင်တာဗျူး", en: "Interviewed" }, color: "text-primary bg-primary/10" },
+  interview: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
+  interviewed: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
   offered: { label: { my: "ကမ်းလှမ်းပြီး", en: "Offered" }, color: "text-emerald bg-emerald/10" },
   rejected: { label: { my: "ငြင်းပယ်ပြီး", en: "Rejected" }, color: "text-destructive bg-destructive/10" },
   placed: { label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, color: "text-emerald bg-emerald/10" },
 };
 
-const statusFlow = ["applied", "viewed", "shortlisted", "interviewed", "offered", "placed"];
+const statusFlow = ["applied", "viewed", "shortlisted", "interview", "offered", "placed"];
 const rejectionReasons = [
   { my: "အတွေ့အကြုံ မလုံလောက်", en: "Not enough experience" },
   { my: "ကျွမ်းကျင်မှု မကိုက်ညီ", en: "Skills mismatch" },
@@ -43,8 +47,20 @@ const EmployerApplications = () => {
   const [filter, setFilter] = useState("all");
 
   const apps = applications || [];
-  const filtered = filter === "all" ? apps : apps.filter((a: any) => a.status === filter);
+  const filtered = apps.filter((a: any) => {
+    if (filter === "all") return true;
+    if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
+    if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
+    return a.status === filter;
+  });
   const selected = apps.find((a: any) => a.id === selectedId);
+  const selectedStatus = selected
+    ? INTERVIEW_APPLICATION_STATUSES.includes(selected.status)
+      ? "interview"
+      : selected.status === "submitted"
+        ? "applied"
+        : selected.status
+    : null;
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
