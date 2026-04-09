@@ -167,14 +167,14 @@ const HomePage = () => {
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs" },
-              { value: `${(allProfiles || []).length}+`, label: lang === "my" ? "အဖွဲ့ဝင်" : "Members" },
-              { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors" },
+              { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs", path: "/jobs" },
+              { value: `${(allProfiles || []).length}+`, label: lang === "my" ? "အဖွဲ့ဝင်" : "Members", path: "/community" },
+              { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors", path: "/mentors" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg bg-primary-foreground/15 p-3 text-center">
+              <button key={stat.label} onClick={() => navigate(stat.path)} className="rounded-lg bg-primary-foreground/15 p-3 text-center transition-colors active:bg-primary-foreground/25">
                 <p className="text-lg font-bold text-accent">{stat.value}</p>
                 <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
-              </div>
+              </button>
             ))}
           </div>
         </motion.div>

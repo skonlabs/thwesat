@@ -114,10 +114,10 @@ const MentorDashboard = () => {
   const thisMonthEarnings = earnings?.thisMonth || 0;
 
   const stats = [
-    { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10" },
-    { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10" },
-    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-accent bg-accent/10" },
-    { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10" },
+    { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10", path: "/mentors/bookings" },
+    { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors/dashboard" },
+    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-accent bg-accent/10", path: "/mentors/dashboard" },
+    { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
   const isProfileIncomplete = !mentorProfile?.title || !mentorProfile?.expertise?.length;
@@ -143,11 +143,11 @@ const MentorDashboard = () => {
         )}
         <div className="mb-5 grid grid-cols-2 gap-3">
           {stats.map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-xl border border-border bg-card p-3.5">
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={() => navigate(stat.path)} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
               <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
               <p className="text-xl font-bold text-foreground">{stat.value}</p>
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? stat.label.my : stat.label.en}</p>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
 
