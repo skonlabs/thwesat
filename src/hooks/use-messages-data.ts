@@ -78,6 +78,11 @@ export function useConversations() {
 }
 
 export function useMessages(conversationId: string | undefined) {
+    refetchInterval: 15000,
+  });
+}
+
+export function useMessages(conversationId: string | undefined) {
   const { user } = useAuth();
   return useQuery({
     queryKey: ["messages", conversationId],
