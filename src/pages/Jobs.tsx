@@ -125,6 +125,22 @@ const Jobs = () => {
             </button>
           ))}
         </div>
+        <AnimatePresence>
+          {showScamAlert && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-3 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-3">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
+              <div className="flex-1">
+                <p className="text-[11px] font-bold text-destructive">{lang === "my" ? "⚠️ အလိမ်အညာ သတိပေးချက်" : "⚠️ Scam Alert"}</p>
+                <p className="mt-0.5 text-[10px] text-foreground/70">
+                  {lang === "my" ? "Processing Fee တောင်းသော Remote Job ကမ်းလှမ်းချက်များကို သတိထားပါ" : "Beware of remote job offers asking for processing fees"}
+                </p>
+              </div>
+              <button onClick={() => setShowScamAlert(false)} className="flex-shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted">
+                <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Filter Panel */}
