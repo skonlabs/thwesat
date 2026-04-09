@@ -400,10 +400,16 @@ const Community = () => {
                               {lang === "my" ? "လင့်ခ် ကူးယူရန်" : "Copy Link"}
                             </button>
                             {isOwn ? (
-                              <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
-                                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                                {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
-                              </button>
+                              <>
+                                <button onClick={() => handleEditPost(post)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-foreground active:bg-muted">
+                                  <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                                  {lang === "my" ? "ပို့စ် ပြင်ဆင်ရန်" : "Edit Post"}
+                                </button>
+                                <button onClick={() => handleDeletePost(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
+                                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                                  {lang === "my" ? "ပို့စ် ဖျက်ရန်" : "Delete Post"}
+                                </button>
+                              </>
                             ) : (
                               <button onClick={() => handleReport(post.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted">
                                 <Flag className="h-4 w-4" strokeWidth={1.5} />
