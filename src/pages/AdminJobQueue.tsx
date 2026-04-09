@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, AlertTriangle, Clock } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Clock, Briefcase, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -15,24 +16,42 @@ const checklist = [
   { my: "Scam အညွှန်းကိန်း မရှိ", en: "No scam indicators" },
 ];
 
+type FilterType = "all" | "pending" | "active" | "rejected" | "closed";
+
+const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
+  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
+  active: { label: { my: "တက်ကြွ", en: "Active" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
+  rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
+  closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "bg-muted text-muted-foreground", icon: Pause },
+};
+
 const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const initialFilter = (searchParams.get("status") as FilterType) || "all";
+  const [filter, setFilter] = useState<FilterType>(initialFilter);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
 
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ["admin-pending-jobs"],
+  // Fetch ALL jobs for admin (not just pending)
+  const { data: allJobs = [], isLoading } = useQuery({
+    queryKey: ["admin-all-jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("jobs").select("*").eq("status", "pending").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
   });
 
-  const selected = jobs.find((j: any) => j.id === selectedId);
+  const jobs = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
+  const pendingCount = allJobs.filter((j: any) => j.status === "pending").length;
+  const activeCount = allJobs.filter((j: any) => j.status === "active").length;
+  const rejectedCount = allJobs.filter((j: any) => j.status === "rejected").length;
+
+  const selected = allJobs.find((j: any) => j.id === selectedId);
 
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
@@ -43,8 +62,10 @@ const AdminJobQueue = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["admin-pending-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-analytics"] });
     },
   });
 
@@ -70,35 +91,89 @@ const AdminJobQueue = () => {
     return `${Math.floor(hrs / 24)}d ago`;
   };
 
+  const filters: { id: FilterType; label: { my: string; en: string }; count: number }[] = [
+    { id: "all", label: { my: "အားလုံး", en: "All" }, count: allJobs.length },
+    { id: "pending", label: { my: "စစ်ဆေးရန်", en: "Pending" }, count: pendingCount },
+    { id: "active", label: { my: "တက်ကြွ", en: "Active" }, count: activeCount },
+    { id: "rejected", label: { my: "ငြင်းပယ်", en: "Rejected" }, count: rejectedCount },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ စစ်ဆေးရေး" : "Job Verification Queue"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ စီမံခန့်ခွဲ" : "Job Management"} />
       <div className="px-5">
-        <p className="mb-4 text-xs text-muted-foreground">{jobs.length} {lang === "my" ? "ခု စစ်ဆေးရန်ရှိ" : "pending review"}</p>
+        {/* Summary cards */}
+        <div className="mb-4 grid grid-cols-3 gap-3">
+          <button onClick={() => setFilter("all")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "all" ? "border-primary" : "border-border"}`}>
+            <Briefcase className="mx-auto mb-1 h-5 w-5 text-primary" strokeWidth={1.5} />
+            <p className="text-lg font-bold text-foreground">{allJobs.length}</p>
+            <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
+          </button>
+          <button onClick={() => setFilter("pending")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "pending" ? "border-primary" : "border-border"}`}>
+            <Clock className="mx-auto mb-1 h-5 w-5 text-amber-600" strokeWidth={1.5} />
+            <p className="text-lg font-bold text-foreground">{pendingCount}</p>
+            <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စစ်ဆေးရန်" : "Pending"}</p>
+          </button>
+          <button onClick={() => setFilter("active")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "active" ? "border-primary" : "border-border"}`}>
+            <CheckCircle className="mx-auto mb-1 h-5 w-5 text-emerald" strokeWidth={1.5} />
+            <p className="text-lg font-bold text-foreground">{activeCount}</p>
+            <p className="text-[10px] text-muted-foreground">{lang === "my" ? "တက်ကြွ" : "Active"}</p>
+          </button>
+        </div>
+
+        {/* Filter pills */}
+        <div className="mb-4 flex gap-2 overflow-x-auto">
+          {filters.map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`flex-shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+                filter === f.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {lang === "my" ? f.label.my : f.label.en} ({f.count})
+            </button>
+          ))}
+        </div>
+
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <div className="space-y-3">
-            {jobs.map((job: any, i: number) => (
-              <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>
-                    <p className="text-[11px] text-muted-foreground">{job.company}</p>
+            {jobs.map((job: any, i: number) => {
+              const sc = statusConfig[job.status] || statusConfig.pending;
+              return (
+                <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
+                      <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 ml-2">
+                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
+                        <sc.icon className="h-3 w-3" strokeWidth={1.5} />
+                        {lang === "my" ? sc.label.my : sc.label.en}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                    </div>
                   </div>
-                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="h-3 w-3" /> {formatTime(job.created_at)}</span>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                  {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
-                  <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
-                  {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
-                </div>
-              </motion.button>
-            ))}
+                  <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                    {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
+                    {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
+                  </div>
+                </motion.button>
+              );
+            })}
             {jobs.length === 0 && (
               <div className="flex flex-col items-center py-16 text-center">
-                <CheckCircle className="mb-3 h-10 w-10 text-emerald" strokeWidth={1.5} />
-                <p className="text-sm font-medium text-foreground">{lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!"}</p>
+                <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                <p className="text-sm font-medium text-foreground">
+                  {filter === "pending"
+                    ? (lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!")
+                    : (lang === "my" ? "အလုပ်ခေါ်စာ မရှိပါ" : "No jobs found")}
+                </p>
               </div>
             )}
           </div>
@@ -112,20 +187,58 @@ const AdminJobQueue = () => {
             <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>
-              <p className="mb-4 text-sm text-muted-foreground">{selected.company} · ${selected.salary_min || 0}-${selected.salary_max || 0}</p>
-              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "စစ်ဆေးရန် အခြေခံ" : "Review Checklist"}</h3>
-              <div className="mb-4 space-y-2">
-                {checklist.map((item, i) => (
-                  <label key={i} className="flex items-center gap-3 rounded-lg border border-border p-2.5">
-                    <input type="checkbox" checked={!!checked[i]} onChange={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))} className="h-4 w-4 rounded border-primary accent-primary" />
-                    <span className="text-xs text-foreground">{lang === "my" ? item.my : item.en}</span>
-                  </label>
-                ))}
+              <p className="mb-2 text-sm text-muted-foreground">{selected.company} · ${selected.salary_min || 0}-${selected.salary_max || 0}</p>
+
+              {/* Job details */}
+              <div className="mb-4 space-y-1 text-xs text-muted-foreground">
+                <p>{lang === "my" ? "တည်နေရာ" : "Location"}: {selected.location || "—"}</p>
+                <p>{lang === "my" ? "အမျိုးအစား" : "Type"}: {selected.job_type || "—"}</p>
+                <p>{lang === "my" ? "လျှောက်ထားသူ" : "Applicants"}: {selected.applicant_count || 0}</p>
+                <p>{lang === "my" ? "အခြေအနေ" : "Status"}: {selected.status}</p>
+                <p>{lang === "my" ? "ရက်စွဲ" : "Posted"}: {selected.created_at ? new Date(selected.created_at).toLocaleDateString() : "—"}</p>
+                {selected.rejection_reason && (
+                  <p className="text-destructive">{lang === "my" ? "ငြင်းပယ်ချက်" : "Rejection reason"}: {selected.rejection_reason}</p>
+                )}
               </div>
-              <div className="flex gap-3">
-                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ငြင်းပယ်" : "Reject"}</Button>
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
-              </div>
+
+              {selected.description && (
+                <div className="mb-4">
+                  <h3 className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "ဖော်ပြချက်" : "Description"}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">{selected.description}</p>
+                </div>
+              )}
+
+              {/* Checklist for pending jobs */}
+              {selected.status === "pending" && (
+                <>
+                  <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "စစ်ဆေးရန် အခြေခံ" : "Review Checklist"}</h3>
+                  <div className="mb-4 space-y-2">
+                    {checklist.map((item, i) => (
+                      <label key={i} className="flex items-center gap-3 rounded-lg border border-border p-2.5">
+                        <input type="checkbox" checked={!!checked[i]} onChange={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))} className="h-4 w-4 rounded border-primary accent-primary" />
+                        <span className="text-xs text-foreground">{lang === "my" ? item.my : item.en}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ငြင်းပယ်" : "Reject"}</Button>
+                    <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
+                  </div>
+                </>
+              )}
+
+              {/* Actions for non-pending jobs */}
+              {selected.status === "active" && (
+                <div className="flex gap-3">
+                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ပိတ်ရန်" : "Reject"}</Button>
+                </div>
+              )}
+
+              {selected.status === "rejected" && (
+                <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => handleApprove(selected.id)}>
+                  <CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ပြန်အတည်ပြု" : "Re-approve"}
+                </Button>
+              )}
             </motion.div>
           </motion.div>
         )}

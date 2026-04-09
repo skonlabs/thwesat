@@ -38,12 +38,12 @@ const AdminDashboard = () => {
 
   const stats = [
     { icon: Users, label: { my: "စုစုပေါင်း အသုံးပြုသူ", en: "Total Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
-    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်ခေါ်စာ", en: "Active Listings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs" },
+    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်ခေါ်စာ", en: "Active Listings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
     { icon: Crown, label: { my: "Premium အသုံးပြုသူ", en: "Premium Users" }, value: counts?.premiumUsers?.toString() || "0", color: "text-accent bg-accent/10", path: "/admin/users" },
   ];
 
   const pendingItems = [
-    { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs", urgent: (counts?.pendingJobs || 0) > 0 },
+    { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Community Posts" }, count: counts?.pendingPosts || 0, path: "/moderator", urgent: false },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers", urgent: (counts?.pendingEmployers || 0) > 0 },
     { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/users", urgent: (counts?.reports || 0) > 0 },
