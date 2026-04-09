@@ -314,33 +314,48 @@ export function useMentorMentees() {
     queryKey: ["mentor-mentees", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      // Get all confirmed bookings for this mentor
+
       const { data: bookings, error } = await supabase
         .from("mentor_bookings")
         .select("*")
         .eq("mentor_id", user.id)
-        .eq("status", "confirmed")
-        .order("scheduled_date", { ascending: false });
+        .in("status", ["pending", "confirmed", "completed"])
+        .order("scheduled_date", { ascending: false })
+        .order("created_at", { ascending: false });
       if (error) throw error;
       if (!bookings || bookings.length === 0) return [];
 
-      // Deduplicate by mentee_id, keeping the latest booking per mentee
       const menteeMap = new Map<string, any>();
-      for (const b of bookings) {
-        if (!menteeMap.has(b.mentee_id)) {
-          menteeMap.set(b.mentee_id, {
-            id: b.id,
-            mentee_id: b.mentee_id,
-            mentor_id: b.mentor_id,
-            status: "active",
-            sessions_completed: 0,
-            started_at: b.created_at,
-            goals: b.goals,
-            notes: b.message,
+
+      for (const booking of bookings) {
+        const existing = menteeMap.get(booking.mentee_id);
+        const derivedStatus = booking.status === "confirmed" ? "active" : booking.status;
+        const countsAsSession = booking.status === "confirmed" || booking.status === "completed";
+
+        if (!existing) {
+          menteeMap.set(booking.mentee_id, {
+            id: booking.id,
+            mentee_id: booking.mentee_id,
+            mentor_id: booking.mentor_id,
+            status: derivedStatus,
+            sessions_completed: countsAsSession ? 1 : 0,
+            started_at: booking.created_at,
+            goals: booking.goals,
+            notes: booking.message,
           });
-        } else {
-          // Increment session count for repeat mentees
-          menteeMap.get(b.mentee_id).sessions_completed += 1;
+          continue;
+        }
+
+        if (countsAsSession) {
+          existing.sessions_completed += 1;
+        }
+
+        if (booking.created_at && (!existing.started_at || new Date(booking.created_at) < new Date(existing.started_at))) {
+          existing.started_at = booking.created_at;
+        }
+
+        if (derivedStatus === "active") {
+          existing.status = "active";
         }
       }
 
@@ -350,10 +365,10 @@ export function useMentorMentees() {
         .select("id, display_name, headline, avatar_url, location")
         .in("id", menteeIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return [...menteeMap.values()].map(m => ({
-        ...m,
-        sessions_completed: m.sessions_completed + 1, // count includes the first booking
-        profile: profileMap.get(m.mentee_id) || null,
+
+      return [...menteeMap.values()].map(mentee => ({
+        ...mentee,
+        profile: profileMap.get(mentee.mentee_id) || null,
       }));
     },
     enabled: !!user,

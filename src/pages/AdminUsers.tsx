@@ -25,7 +25,7 @@ const AdminUsers = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at").order("created_at", { ascending: false }).limit(100);
+      const { data, error } = await supabase.from("profiles").select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at").order("created_at", { ascending: false }).limit(1000);
       if (error) throw error;
       return data || [];
     },
