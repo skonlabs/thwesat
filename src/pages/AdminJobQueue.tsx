@@ -182,7 +182,7 @@ const AdminJobQueue = () => {
                     </div>
                   </button>
                   <div className="mt-2 flex items-center justify-end gap-1 border-t border-border pt-2">
-                    <button onClick={() => navigate(`/employer/edit-job/${job.id}`)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
+                    <button onClick={() => navigate(`/admin/edit-job/${job.id}`)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
                       <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                       <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
                     </button>
