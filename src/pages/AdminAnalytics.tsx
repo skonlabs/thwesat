@@ -45,7 +45,7 @@ const AdminAnalytics = () => {
       items: [
         { label: { my: "စုစုပေါင်း", en: "Total Listed" }, value: metrics?.totalJobs?.toString() || "0", path: "/admin/jobs" },
         { label: { my: "တက်ကြွ", en: "Active" }, value: metrics?.activeJobs?.toString() || "0", path: "/admin/jobs?status=active" },
-        { label: { my: "လျှောက်ထားမှု", en: "Applications" }, value: metrics?.totalApplications?.toString() || "0", path: "/admin/users" },
+        { label: { my: "လျှောက်ထားမှု", en: "Applications" }, value: metrics?.totalApplications?.toString() || "0", path: "/admin/jobs" },
       ],
     },
     {
@@ -58,7 +58,7 @@ const AdminAnalytics = () => {
       title: { my: "Mentorship", en: "Mentorship" },
       items: [
         { label: { my: "Mentors", en: "Active Mentors" }, value: metrics?.totalMentors?.toString() || "0", path: "/mentors" },
-        { label: { my: "ချိန်းဆိုမှုများ", en: "Total Sessions" }, value: metrics?.totalBookings?.toString() || "0", path: "/mentors" },
+        { label: { my: "ချိန်းဆိုမှုများ", en: "Total Sessions" }, value: metrics?.totalBookings?.toString() || "0", path: "/moderator" },
       ],
     },
   ];
