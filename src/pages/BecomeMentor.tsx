@@ -56,8 +56,17 @@ const BecomeMentor = () => {
 
     setLoading(true);
     try {
-      // Update profile primary_role
-      await supabase.from("profiles").update({ primary_role: "mentor" }).eq("id", user.id);
+      // Only update primary_role if the user is a jobseeker.
+      // Employers keep their primary_role — they just ADD mentor capability.
+      const { data: currentProfile } = await supabase
+        .from("profiles")
+        .select("primary_role")
+        .eq("id", user.id)
+        .single();
+
+      if (currentProfile?.primary_role !== "employer") {
+        await supabase.from("profiles").update({ primary_role: "mentor" }).eq("id", user.id);
+      }
 
       // Create mentor_profile if it doesn't exist
       const { data: existing } = await supabase

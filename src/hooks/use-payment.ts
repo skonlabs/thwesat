@@ -145,6 +145,26 @@ export function useUpdatePaymentRequest() {
             .from("profiles")
             .update({ is_premium: true })
             .eq("id", pr.user_id);
+
+          // Create employer subscription record
+          let durationMonths = 12; // default yearly
+          const planId = pr.reference_id || "employer_basic";
+          const now = new Date();
+          const periodEnd = new Date(now);
+          periodEnd.setMonth(periodEnd.getMonth() + durationMonths);
+
+          await supabase
+            .from("subscriptions")
+            .insert({
+              user_id: pr.user_id,
+              plan_type: planId,
+              status: "active",
+              currency: pr.currency,
+              price_cents: Math.round(pr.amount * 100),
+              current_period_start: now.toISOString(),
+              current_period_end: periodEnd.toISOString(),
+              billing_cycle: "yearly",
+            });
         }
 
         // Send notification to user
