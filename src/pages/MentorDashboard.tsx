@@ -107,7 +107,12 @@ const MentorDashboard = () => {
     if (!user) return;
     const rate = Math.max(0, Number(hourlyRate) || 0);
     setHourlyRate(rate.toString());
-    await supabase.from("mentor_profiles").update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    const { error } = await supabase.from("mentor_profiles").update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    if (error) {
+      toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+    } else {
+      toast.success(lang === "my" ? "သိမ်းဆည်းပြီး" : "Settings saved");
+    }
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
