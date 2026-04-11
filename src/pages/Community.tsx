@@ -170,9 +170,14 @@ const Community = () => {
     },
   });
 
-  const handleReport = (postId: string) => {
+  const handleReport = async (postId: string) => {
     if (!user) return;
-    supabase.from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
+    const { error } = await supabase.from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
+    if (error) {
+      toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
+    } else {
+      toast.success(lang === "my" ? "တိုင်ကြားမှု တင်ပြပြီး" : "Report submitted — we'll review it");
+    }
     setOpenMenuId(null);
   };
 
