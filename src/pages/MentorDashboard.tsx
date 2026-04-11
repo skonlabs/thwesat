@@ -105,7 +105,9 @@ const MentorDashboard = () => {
 
   const handleSaveRate = async () => {
     if (!user) return;
-    await supabase.from("mentor_profiles").update({ hourly_rate: Number(hourlyRate), currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    const rate = Math.max(0, Number(hourlyRate) || 0);
+    setHourlyRate(rate.toString());
+    await supabase.from("mentor_profiles").update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
   };
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
@@ -184,7 +186,10 @@ const MentorDashboard = () => {
                 <option value="THB">THB (฿)</option>
                 <option value="MYR">MYR (RM)</option>
               </select>
-              <Input type="number" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className="h-10 w-24 rounded-xl text-center" />
+              <Input type="number" min="0" value={hourlyRate} onChange={e => {
+                const val = e.target.value;
+                if (val === "" || Number(val) >= 0) setHourlyRate(val);
+              }} className="h-10 w-24 rounded-xl text-center" />
               <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
               <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>

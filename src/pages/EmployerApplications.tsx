@@ -242,7 +242,10 @@ const EmployerApplications = () => {
               <p className="mb-4 text-xs text-muted-foreground">8% placement fee</p>
               <div className="mb-3">
                 <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (USD/လ) *" : "Monthly Salary (USD) *"}</label>
-                <input type="number" min="0" value={placementSalary} onChange={e => setPlacementSalary(e.target.value)} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
+                <input type="number" min="1" value={placementSalary} onChange={e => {
+                  const val = e.target.value;
+                  if (val === "" || Number(val) >= 0) setPlacementSalary(val);
+                }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
               </div>
               {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">Fee: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
               <div className="flex gap-3">
