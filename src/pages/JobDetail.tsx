@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 
@@ -23,8 +24,37 @@ const JobDetail = () => {
   const { data: savedJobIds = [] } = useSavedJobIds();
   const toggleSaveMutation = useToggleSaveJob();
   const applyMutation = useApplyToJob();
+  const { startConversation } = useStartConversation();
 
   const { data: applications = [] } = useApplications();
+  const { data: employerDetails } = useQuery({
+    queryKey: ["job-employer-details", job?.employer_id],
+    queryFn: async () => {
+      if (!job?.employer_id) return null;
+
+      const [profileRes, employerRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, display_name, headline, avatar_url, location, website")
+          .eq("id", job.employer_id)
+          .maybeSingle(),
+        supabase
+          .from("employer_profiles")
+          .select("company_name, company_description, company_website, industry, company_size, hq_country, is_verified")
+          .eq("id", job.employer_id)
+          .maybeSingle(),
+      ]);
+
+      if (profileRes.error) throw profileRes.error;
+      if (employerRes.error) throw employerRes.error;
+
+      return {
+        profile: profileRes.data,
+        employer: employerRes.data,
+      };
+    },
+    enabled: !!job?.employer_id,
+  });
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [coverLetterMode, setCoverLetterMode] = useState<"none" | "manual" | "generated">("none");
@@ -154,6 +184,9 @@ const JobDetail = () => {
 
   const salaryText = formatJobSalary(job, lang);
   const displayTitle = translateJobTitle(job.title, job.title_my, lang);
+  const isOwnJob = user?.id === job.employer_id;
+  const employerCompanyName = employerDetails?.employer?.company_name || job.company;
+  const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
   const requirementsList = (lang === "my" && job.requirements_my ? job.requirements_my : job.requirements || "")
     .split("\n")
@@ -254,10 +287,38 @@ const JobDetail = () => {
                 <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-foreground">{job.company}</h3>
-                <p className="text-xs text-muted-foreground">{translateJobLocation(job.location, lang)} · {translateJobCategory(job.category, lang)}</p>
+                <h3 className="text-sm font-semibold text-foreground">{employerCompanyName}</h3>
+                <p className="text-xs text-muted-foreground">{employerHeadline}</p>
               </div>
             </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+              <div className="rounded-lg bg-muted/40 px-3 py-2">
+                <span className="font-medium text-foreground">{lang === "my" ? "တည်နေရာ" : "Location"}</span>
+                <p className="mt-0.5">{employerDetails?.employer?.hq_country || translateJobLocation(job.location, lang)}</p>
+              </div>
+              <div className="rounded-lg bg-muted/40 px-3 py-2">
+                <span className="font-medium text-foreground">{lang === "my" ? "အရွယ်အစား" : "Company Size"}</span>
+                <p className="mt-0.5">{employerDetails?.employer?.company_size || "—"}</p>
+              </div>
+            </div>
+
+            {employerDetails?.employer?.company_description && (
+              <p className="mt-3 text-xs leading-relaxed text-foreground/80">
+                {employerDetails.employer.company_description}
+              </p>
+            )}
+
+            {(employerDetails?.employer?.company_website || employerDetails?.profile?.website) && (
+              <a
+                href={employerDetails?.employer?.company_website || employerDetails?.profile?.website || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
+              >
+                {lang === "my" ? "ကုမ္ပဏီဝဘ်ဆိုဒ် ကြည့်ရန်" : "View company website"}
+              </a>
+            )}
           </div>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
@@ -579,6 +640,12 @@ const JobDetail = () => {
       {/* Bottom bar */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex max-w-lg items-center gap-3">
+          {!isOwnJob && (
+            <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
+              <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+              {lang === "my" ? "အလုပ်ရှင်ကို မက်ဆေ့ချ်ပို့ရန်" : "Message Employer"}
+            </Button>
+          )}
           {applied ? (
             <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
               <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}

@@ -22,6 +22,13 @@ export interface CommunityPost {
   };
 }
 
+function resolveCommunityImageUrl(imageUrl: string | null) {
+  if (!imageUrl) return null;
+  if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
+
+  return supabase.storage.from("avatars").getPublicUrl(imageUrl).data.publicUrl;
+}
+
 export function useCommunityPosts(category?: string) {
   const { lang } = useLanguage();
   const { user } = useAuth();
@@ -51,6 +58,7 @@ export function useCommunityPosts(category?: string) {
 
       return (data || []).map((post) => ({
         ...post,
+        image_url: resolveCommunityImageUrl(post.image_url),
         author: profileMap.get(post.author_id) || {
           display_name: lang === "my" ? "အမည်မသိ" : "Unknown",
           headline: null,

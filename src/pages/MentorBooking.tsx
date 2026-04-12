@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useCreateBooking } from "@/hooks/use-mentor-bookings";
 import { useMentorAvailability } from "@/hooks/use-mentor-availability";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
@@ -51,6 +52,7 @@ const MentorBooking = () => {
   const { data: mentorProfile } = useMentorProfile(mentorId || undefined);
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
   const createBooking = useCreateBooking();
+  const { startConversation } = useStartConversation();
 
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -178,7 +180,7 @@ const MentorBooking = () => {
             <p className="mb-6 text-xs text-muted-foreground">
               {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
             </p>
-            <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => navigate("/messages")}>
+            <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
               <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
             </Button>
             <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors")}>
