@@ -22,6 +22,7 @@ const Profile = () => {
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
   const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
+  const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0] || role;
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showReferredList, setShowReferredList] = useState(false);
@@ -70,7 +71,7 @@ const Profile = () => {
   });
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : role === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : role === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
+  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const referralCode = profile?.referral_code || "TS-XXXXXX";
@@ -112,7 +113,7 @@ const Profile = () => {
     const selected = roleOptions.find(o => o.value === r)!;
   };
 
-  const currentRoleLabel = allRoleOptions.find(o => o.value === role)!;
+  const currentRoleLabel = allRoleOptions.find(o => o.value === effectiveRole) || allRoleOptions[0];
 
   const handleSignOut = async () => {
     await signOut();
@@ -162,9 +163,9 @@ const Profile = () => {
     ? adminMenu
     : isModerator
       ? moderatorMenu
-      : role === "employer"
+        : effectiveRole === "employer"
         ? employerMenu
-        : role === "mentor"
+          : effectiveRole === "mentor"
           ? mentorMenu
           : jobseekerMenu;
 
@@ -196,17 +197,17 @@ const Profile = () => {
             <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
               {roleOptions.map((r) => (
                 <button key={r.value} onClick={() => handleSelectRole(r.value)}
-                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${role === r.value ? "bg-primary/5" : "active:bg-muted"}`}>
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${role === r.value ? "bg-primary/10" : "bg-muted"}`}>
-                    <r.icon className={`h-4 w-4 ${role === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${effectiveRole === r.value ? "bg-primary/5" : "active:bg-muted"}`}>
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${effectiveRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
+                    <r.icon className={`h-4 w-4 ${effectiveRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
-                    <p className={`text-sm font-medium ${role === r.value ? "text-primary" : "text-foreground"}`}>
+                    <p className={`text-sm font-medium ${effectiveRole === r.value ? "text-primary" : "text-foreground"}`}>
                       {lang === "my" ? r.label.my : r.label.en}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{lang === "my" ? r.desc.my : r.desc.en}</p>
                   </div>
-                  {role === r.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
+                  {effectiveRole === r.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
                 </button>
               ))}
             </motion.div>

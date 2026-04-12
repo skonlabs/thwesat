@@ -218,12 +218,15 @@ const Community = () => {
     // Upload image to Supabase storage if selected
     if (selectedFile && user) {
       const ext = selectedFile.name.split(".").pop();
-      const filePath = `community/${user.id}/${Date.now()}.${ext}`;
+      const filePath = `${user.id}/community-${Date.now()}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("avatars").upload(filePath, selectedFile, { upsert: true });
-      if (!uploadErr) {
-        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-        imageUrl = urlData.publicUrl;
+      if (uploadErr) {
+        toast.error(lang === "my" ? "ဓာတ်ပုံတင်၍ မရပါ" : "Failed to upload image");
+        return;
       }
+
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      imageUrl = urlData.publicUrl;
     }
     createPost.mutate({ contentMy: newPostText, contentEn: newPostText, category: newPostCategory, imageUrl }, {
       onSuccess: () => {

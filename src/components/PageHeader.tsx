@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useRole } from "@/hooks/use-role";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
@@ -18,10 +19,12 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const { lang } = useLanguage();
   const { profile } = useAuth();
   const { role } = useRole();
+  const { allowedRoles } = useUserRoles();
   const [logoOpacity, setLogoOpacity] = useState(1);
   const holdTimer = useRef<NodeJS.Timeout | null>(null);
   const holdStart = useRef<number>(0);
   const animFrame = useRef<number>(0);
+  const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0] || role;
 
   const displayName = profile?.display_name || "U";
   const initial = displayName.charAt(0).toUpperCase();
@@ -55,7 +58,7 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
-            onClick={() => navigate(role === "employer" ? "/employer/dashboard" : role === "mentor" ? "/mentors/dashboard" : "/home")}
+              onClick={() => navigate(effectiveRole === "employer" ? "/employer/dashboard" : effectiveRole === "mentor" ? "/mentors/dashboard" : "/home")}
             onTouchStart={startHold}
             onTouchEnd={cancelHold}
             onTouchCancel={cancelHold}
