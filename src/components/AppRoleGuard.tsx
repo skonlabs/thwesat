@@ -16,6 +16,7 @@ interface AppRoleGuardProps {
 const AppRoleGuard = ({ children, allowedRoles }: AppRoleGuardProps) => {
   const { allowedRoles: userRoles, isLoading } = useUserRoles();
   const { role } = useRole();
+  const effectiveRole = userRoles.includes(role) ? role : userRoles[0];
 
   if (isLoading) {
     return (
@@ -30,9 +31,9 @@ const AppRoleGuard = ({ children, allowedRoles }: AppRoleGuardProps) => {
   if (!hasAccess) {
     // Redirect to the appropriate home for their actual role
     const fallback =
-      role === "employer" && userRoles.includes("employer")
+      effectiveRole === "employer" && userRoles.includes("employer")
         ? "/employer/dashboard"
-        : role === "mentor" && userRoles.includes("mentor")
+        : effectiveRole === "mentor" && userRoles.includes("mentor")
           ? "/mentors/dashboard"
           : "/home";
     return <Navigate to={fallback} replace />;

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +43,7 @@ const MentorDashboard = () => {
   const { data: bookings = [] } = useMentorBookings();
   const { data: earnings } = useMentorEarnings();
   const updateStatus = useUpdateBookingStatus();
+  const { startConversation } = useStartConversation();
   const [bookingFilter, setBookingFilter] = useState("all");
   const [hourlyRate, setHourlyRate] = useState("30");
   const [currency, setCurrency] = useState("USD");
@@ -264,7 +266,7 @@ const MentorDashboard = () => {
                     )}
                     {booking.status === "confirmed" && (
                       <div className="mt-3">
-                        <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => navigate("/messages")}>
+                        <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => startConversation(booking.mentee_id)}>
                           <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                         </Button>
                       </div>
