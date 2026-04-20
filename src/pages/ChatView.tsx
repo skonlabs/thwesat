@@ -192,6 +192,37 @@ const ChatView = () => {
           </button>
         </div>
       </div>
+
+      <Sheet open={!!pickerForMsgId} onOpenChange={(o) => !o && setPickerForMsgId(null)}>
+        <SheetContent side="bottom" className="bottom-16 max-h-[70vh] rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="text-left text-base">
+              {lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Translate to"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-3 space-y-1.5 overflow-y-auto pb-4">
+            {TRANSLATE_LANGUAGES.map((l) => {
+              const msg = messages.find((m: any) => m.id === pickerForMsgId);
+              const activeLang = pickerForMsgId ? translations[pickerForMsgId]?.lang : null;
+              return (
+                <button
+                  key={l.code}
+                  onClick={() => msg && handleTranslateMessage(msg.id, msg.content, l.code)}
+                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    activeLang === l.code
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground active:bg-muted"
+                  }`}
+                >
+                  <span className="text-lg">{l.flag}</span>
+                  <span className="flex-1 font-medium">{l.label}</span>
+                  {activeLang === l.code && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={1.5} />}
+                </button>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
