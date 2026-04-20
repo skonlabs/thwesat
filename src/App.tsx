@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -132,6 +132,13 @@ const App = () => (
 
               {/* Moderator */}
               <Route path="/moderator" element={<RoleGuard allowedRoles={["admin", "moderator"]}><ModeratorDashboard /></RoleGuard>} />
+
+              {/* Legacy path redirects (for older notifications/links) */}
+              <Route path="/moderator/dashboard" element={<Navigate to="/moderator" replace />} />
+              <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
+              <Route path="/mentor/dashboard" element={<Navigate to="/mentors/dashboard" replace />} />
+              <Route path="/mentor/mentees" element={<Navigate to="/mentors/mentees" replace />} />
+              <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
             </Route>
 
             {/* Delegate Access (no nav) */}
