@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 
@@ -15,6 +16,24 @@ const PublicProfile = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { startConversation } = useStartConversation();
+  const { hasRole } = useUserRoles();
+
+  // Check if target user is a mentor or employer (so messaging is allowed for everyone)
+  const { data: targetIsMessageable } = useQuery({
+    queryKey: ["is-messageable", id],
+    queryFn: async () => {
+      if (!id) return false;
+      const [m, e] = await Promise.all([
+        supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
+        supabase.from("employer_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
+      ]);
+      return (m.count ?? 0) > 0 || (e.count ?? 0) > 0;
+    },
+    enabled: !!id,
+  });
+
+  const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer");
+  const canMessage = currentUserCanMessageAnyone || !!targetIsMessageable;
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", id],
