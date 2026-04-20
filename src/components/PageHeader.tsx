@@ -5,6 +5,8 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useRole } from "@/hooks/use-role";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { useNotifications } from "@/hooks/use-notifications-data";
+import { useConversations } from "@/hooks/use-messages-data";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
@@ -20,6 +22,10 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
   const { profile } = useAuth();
   const { role } = useRole();
   const { allowedRoles } = useUserRoles();
+  const { data: notifications = [] } = useNotifications();
+  const { data: conversations = [] } = useConversations();
+  const unreadNotifCount = notifications.filter((n: any) => !n.is_read).length;
+  const unreadMsgCount = conversations.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
   const [logoOpacity, setLogoOpacity] = useState(1);
   const holdTimer = useRef<NodeJS.Timeout | null>(null);
   const holdStart = useRef<number>(0);
@@ -101,7 +107,11 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
               aria-label={lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications"}
             >
               <Bell className="h-5 w-5" strokeWidth={1.5} />
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
+              {unreadNotifCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
+                  {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => navigate("/messages")}
@@ -109,7 +119,11 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
               aria-label={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"}
             >
               <MessageSquare className="h-5 w-5" strokeWidth={1.5} />
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-destructive" />
+              {unreadMsgCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
+                  {unreadMsgCount > 9 ? "9+" : unreadMsgCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => navigate("/profile")}
