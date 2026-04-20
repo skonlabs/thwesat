@@ -63,7 +63,7 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
+      <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} showBack />
 
       <div className="px-5">
         <div className="mb-4 flex items-center justify-between gap-2">

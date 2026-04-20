@@ -43,7 +43,7 @@ const PaymentHistory = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း" : "Payment History"} />
+      <PageHeader title={lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း" : "Payment History"} showBack />
       <div className="px-5">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (

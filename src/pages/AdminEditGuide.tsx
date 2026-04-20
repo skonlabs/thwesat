@@ -91,7 +91,7 @@ const AdminEditGuide = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={isNew ? (lang === "my" ? "လမ်းညွှန်ချက်အသစ်" : "New Guide") : (lang === "my" ? "လမ်းညွှန်ချက် ပြင်ဆင်" : "Edit Guide")} />
+      <PageHeader title={isNew ? (lang === "my" ? "လမ်းညွှန်ချက်အသစ်" : "New Guide") : (lang === "my" ? "လမ်းညွှန်ချက် ပြင်ဆင်" : "Edit Guide")} showBack />
       <div className="space-y-4 px-5">
         <div>
           <label className="mb-1 block text-xs font-medium text-foreground">Title (EN) *</label>
