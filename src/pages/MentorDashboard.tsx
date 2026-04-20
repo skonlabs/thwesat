@@ -182,7 +182,7 @@ const MentorDashboard = () => {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value)}
@@ -197,9 +197,9 @@ const MentorDashboard = () => {
               <Input type="number" min="0" value={hourlyRate} onChange={e => {
                 const val = e.target.value;
                 if (val === "" || Number(val) >= 0) setHourlyRate(val);
-              }} className="h-10 w-24 rounded-xl text-center" />
+              }} className="h-10 w-20 rounded-xl text-center" />
               <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
-              <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
+              <Button variant="outline" size="sm" className="ml-auto h-10 rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
           </div>
         </motion.div>
