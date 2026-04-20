@@ -32,6 +32,19 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
+const applicationStatusLabel: Record<string, { my: string; en: string; tone: string }> = {
+  applied: { my: "လျှောက်ပြီး", en: "Applied", tone: "bg-emerald/10 text-emerald" },
+  submitted: { my: "လျှောက်ပြီး", en: "Applied", tone: "bg-emerald/10 text-emerald" },
+  viewed: { my: "ကြည့်ပြီး", en: "Viewed", tone: "bg-primary/10 text-primary" },
+  shortlisted: { my: "ရွေးချယ်ခံ", en: "Shortlisted", tone: "bg-emerald/10 text-emerald" },
+  interview: { my: "အင်တာဗျူး", en: "Interview", tone: "bg-primary/10 text-primary" },
+  interviewed: { my: "အင်တာဗျူး", en: "Interview", tone: "bg-primary/10 text-primary" },
+  offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", tone: "bg-emerald/10 text-emerald" },
+  placed: { my: "ခန့်အပ်ပြီး", en: "Placed", tone: "bg-emerald/10 text-emerald" },
+  rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", tone: "bg-destructive/10 text-destructive" },
+  withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", tone: "bg-muted text-muted-foreground" },
+};
+
 function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   if (!dateStr) return { my: "မကြာသေးမီ", en: "Recently" };
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -233,7 +246,9 @@ const Jobs = () => {
           filteredJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
-            const hasApplied = applications.some((a: any) => a.job_id === job.id);
+            const application = applications.find((a: any) => a.job_id === job.id);
+            const status = application?.status;
+            const statusMeta = status ? (applicationStatusLabel[status] || applicationStatusLabel.applied) : null;
             const postedAgo = formatTimeAgo(job.created_at);
 
             return (
@@ -295,9 +310,9 @@ const Jobs = () => {
                       </span>
                     )}
                   </div>
-                  {hasApplied ? (
-                    <span className="flex items-center gap-1 rounded-lg bg-emerald/10 px-2.5 py-1 text-xs font-medium text-emerald">
-                      <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? "လျှောက်ပြီး" : "Applied"}
+                  {statusMeta ? (
+                    <span className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium ${statusMeta.tone}`}>
+                      <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? statusMeta.my : statusMeta.en}
                     </span>
                   ) : (
                     <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
