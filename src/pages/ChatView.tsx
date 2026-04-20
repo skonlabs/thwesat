@@ -16,8 +16,13 @@ const ChatView = () => {
   const conversationId = searchParams.get("id") || undefined;
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [messageText, setMessageText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  // Per-message translation state
+  const [translations, setTranslations] = useState<Record<string, { lang: string; text: string }>>({});
+  const [translatingId, setTranslatingId] = useState<string | null>(null);
+  const [pickerForMsgId, setPickerForMsgId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { data: messages = [], isLoading } = useMessages(conversationId);
