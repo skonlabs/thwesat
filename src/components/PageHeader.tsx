@@ -20,7 +20,7 @@ interface PageHeaderProps {
   showBack?: boolean;
 }
 
-const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
+const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
