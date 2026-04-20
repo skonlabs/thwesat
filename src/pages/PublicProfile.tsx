@@ -90,7 +90,10 @@ const PublicProfile = () => {
               )}
             </div>
             <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground">{profile.display_name || "User"}</h1>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <h1 className="text-lg font-bold text-foreground">{profile.display_name || "User"}</h1>
+                <UserRoleBadges userId={profile.id} />
+              </div>
               {profile.headline && <p className="text-xs text-muted-foreground">{profile.headline}</p>}
               {profile.role_title && <p className="text-xs text-primary font-medium">{profile.role_title}</p>}
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
