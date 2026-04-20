@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign, Briefcase, GraduationCap, Crown, RotateCcw, Calendar } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
-import { useAllPaymentRequests, useUpdatePaymentRequest, getPaymentProofSignedUrl } from "@/hooks/use-payment";
+import {
+  useAllPaymentRequests,
+  useUpdatePaymentRequest,
+  getPaymentProofSignedUrl,
+  usePaymentBookingContext,
+  usePaymentEmployerContext,
+} from "@/hooks/use-payment";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,12 +19,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import type { PaymentRequest } from "@/hooks/use-payment";
 
-type FilterType = "all" | "pending" | "approved" | "rejected";
+type FilterType = "all" | "pending" | "approved" | "rejected" | "revoked";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   pending: { label: { my: "စစ်ဆေးရန်", en: "Pending" }, color: "bg-yellow-500/10 text-yellow-600", icon: Clock },
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
+  revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },
 };
 
 const methodLabels: Record<string, string> = {
@@ -29,10 +36,10 @@ const methodLabels: Record<string, string> = {
   payoneer: "Payoneer",
 };
 
-const typeLabels: Record<string, { my: string; en: string }> = {
-  subscription: { my: "အသုံးပြုသူ ပရီမီယံ", en: "User Premium" },
-  mentor_session: { my: "Mentor Session", en: "Mentor Session" },
-  employer_subscription: { my: "အလုပ်ရှင် အစီအစဉ်", en: "Employer Plan" },
+const typeLabels: Record<string, { my: string; en: string; icon: typeof Crown }> = {
+  subscription: { my: "အသုံးပြုသူ ပရီမီယံ", en: "User Premium", icon: Crown },
+  mentor_session: { my: "Mentor Session", en: "Mentor Session", icon: GraduationCap },
+  employer_subscription: { my: "အလုပ်ရှင် အစီအစဉ်", en: "Employer Plan", icon: Briefcase },
 };
 
 const AdminPayments = () => {
@@ -62,6 +69,28 @@ const AdminPayments = () => {
 
   const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
+  // Context data for selected payment
+  const { data: bookingContext } = usePaymentBookingContext(selectedPayment?.booking_id);
+  const { data: employerContext } = usePaymentEmployerContext(
+    selectedPayment?.user_id,
+    selectedPayment?.payment_type || ""
+  );
+
+  // Mentor profile for booking context
+  const { data: mentorProfile } = useQuery({
+    queryKey: ["payment-mentor-profile", bookingContext?.mentor_id],
+    queryFn: async () => {
+      if (!bookingContext?.mentor_id) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .eq("id", bookingContext.mentor_id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!bookingContext?.mentor_id,
+  });
+
   const filtered = (payments || []).filter(p => filter === "all" || p.status === filter);
   const pendingCount = (payments || []).filter(p => p.status === "pending").length;
 
@@ -75,7 +104,7 @@ const AdminPayments = () => {
     }
   }, [selectedPayment]);
 
-  const handleAction = async (status: "approved" | "rejected") => {
+  const handleAction = async (status: "approved" | "rejected" | "revoked") => {
     if (!selectedPayment) return;
     try {
       await updatePayment.mutateAsync({
@@ -86,6 +115,8 @@ const AdminPayments = () => {
       toast({
         title: status === "approved"
           ? (lang === "my" ? "အတည်ပြုပြီး" : "Payment Approved Successfully")
+          : status === "revoked"
+          ? (lang === "my" ? "ရုပ်သိမ်းပြီး" : "Payment Revoked")
           : (lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected"),
       });
       setSelectedPayment(null);
@@ -100,6 +131,7 @@ const AdminPayments = () => {
     { id: "pending", label: { my: "စစ်ဆေးရန်", en: "Pending" } },
     { id: "approved", label: { my: "အတည်ပြုပြီး", en: "Approved" } },
     { id: "rejected", label: { my: "ပယ်ချပြီး", en: "Rejected" } },
+    { id: "revoked", label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" } },
   ];
 
   return (
@@ -156,7 +188,8 @@ const AdminPayments = () => {
             {filtered.map((p, i) => {
               const sc = statusConfig[p.status] || statusConfig.pending;
               const profile = profileMap.get(p.user_id);
-              const tl = typeLabels[p.payment_type] || { my: p.payment_type, en: p.payment_type };
+              const tl = typeLabels[p.payment_type] || { my: p.payment_type, en: p.payment_type, icon: DollarSign };
+              const TypeIcon = tl.icon;
               return (
                 <motion.button
                   key={p.id}
@@ -170,10 +203,13 @@ const AdminPayments = () => {
                     <sc.icon className="h-5 w-5" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {profile?.display_name || "User"}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <TypeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {profile?.display_name || "User"}
+                      </p>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate">
                       {methodLabels[p.payment_method] || p.payment_method} · {lang === "my" ? tl.my : tl.en}
                     </p>
                   </div>
@@ -227,6 +263,60 @@ const AdminPayments = () => {
                 </div>
               </div>
 
+              {/* Reference / plan id */}
+              {selectedPayment.reference_id && (
+                <div className="rounded-lg bg-muted p-2.5">
+                  <p className="text-[10px] text-muted-foreground">{lang === "my" ? "အကိုးအကား" : "Reference / Plan"}</p>
+                  <p className="text-sm font-mono text-foreground">{selectedPayment.reference_id}</p>
+                </div>
+              )}
+
+              {/* Booking context for mentor sessions */}
+              {selectedPayment.payment_type === "mentor_session" && bookingContext && (
+                <div className="rounded-lg border border-border bg-card p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "Booking အသေးစိတ်" : "Booking Details"}
+                  </p>
+                  <div className="space-y-1 text-xs">
+                    <p className="text-foreground"><span className="text-muted-foreground">{lang === "my" ? "Mentor:" : "Mentor:"}</span> {mentorProfile?.display_name || "—"}</p>
+                    <p className="text-foreground flex items-center gap-1.5">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      {bookingContext.scheduled_date} · {bookingContext.scheduled_time}
+                    </p>
+                    {bookingContext.topic && (
+                      <p className="text-foreground"><span className="text-muted-foreground">{lang === "my" ? "ခေါင်းစဉ်:" : "Topic:"}</span> {bookingContext.topic}</p>
+                    )}
+                    <p className="text-foreground">
+                      <span className="text-muted-foreground">{lang === "my" ? "Booking အခြေအနေ:" : "Booking status:"}</span>{" "}
+                      <span className={bookingContext.status === "cancelled" || bookingContext.status === "declined" ? "text-destructive font-semibold" : ""}>
+                        {bookingContext.status}
+                      </span>
+                    </p>
+                  </div>
+                  {(bookingContext.status === "cancelled" || bookingContext.status === "declined") && selectedPayment.status === "pending" && (
+                    <p className="mt-2 rounded bg-destructive/10 p-2 text-[11px] text-destructive">
+                      ⚠️ {lang === "my" ? "ဤ Booking ကို ပယ်ဖျက်ထားသည်။ ငွေပေးချေမှုကို အတည်မပြုပါနှင့်။" : "This booking is cancelled. Do not approve this payment."}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Employer context */}
+              {selectedPayment.payment_type === "employer_subscription" && employerContext && (
+                <div className="rounded-lg border border-border bg-card p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "ကုမ္ပဏီ" : "Company"}
+                  </p>
+                  <p className="text-sm font-semibold text-foreground">{employerContext.company_name || "—"}</p>
+                  {employerContext.subscription_tier && (
+                    <p className="text-[11px] text-muted-foreground">
+                      {lang === "my" ? "လက်ရှိ အစီအစဉ်:" : "Current tier:"} <span className="font-medium text-foreground">{employerContext.subscription_tier}</span>
+                      {employerContext.subscription_expires_at && ` (${lang === "my" ? "သက်တမ်းကုန်:" : "expires"} ${new Date(employerContext.subscription_expires_at).toLocaleDateString()})`}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Proof image - using signed URL for private bucket */}
               {selectedPayment.proof_url && (
                 <div>
@@ -250,36 +340,51 @@ const AdminPayments = () => {
                 </div>
               )}
 
-              {/* Admin note + actions for pending */}
+              {/* Admin note */}
+              {(selectedPayment.status === "pending" || selectedPayment.status === "approved") && (
+                <Textarea
+                  value={adminNote}
+                  onChange={e => setAdminNote(e.target.value)}
+                  placeholder={lang === "my" ? "မှတ်ချက် (ရွေးချယ်ပိုင်ခွင့်)" : "Admin note (optional)"}
+                  className="min-h-[60px] rounded-xl"
+                />
+              )}
+
+              {/* Actions for pending */}
               {selectedPayment.status === "pending" && (
-                <>
-                  <Textarea
-                    value={adminNote}
-                    onChange={e => setAdminNote(e.target.value)}
-                    placeholder={lang === "my" ? "မှတ်ချက် (ရွေးချယ်ပိုင်ခွင့်)" : "Admin note (optional)"}
-                    className="min-h-[60px] rounded-xl"
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      variant="default"
-                      className="flex-1 rounded-xl"
-                      disabled={updatePayment.isPending}
-                      onClick={() => handleAction("approved")}
-                    >
-                      <CheckCircle className="mr-1.5 h-4 w-4" />
-                      {lang === "my" ? "အတည်ပြုရန်" : "Approve"}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1 rounded-xl"
-                      disabled={updatePayment.isPending}
-                      onClick={() => handleAction("rejected")}
-                    >
-                      <XCircle className="mr-1.5 h-4 w-4" />
-                      {lang === "my" ? "ပယ်ချရန်" : "Reject"}
-                    </Button>
-                  </div>
-                </>
+                <div className="flex gap-2">
+                  <Button
+                    variant="default"
+                    className="flex-1 rounded-xl"
+                    disabled={updatePayment.isPending}
+                    onClick={() => handleAction("approved")}
+                  >
+                    <CheckCircle className="mr-1.5 h-4 w-4" />
+                    {lang === "my" ? "အတည်ပြုရန်" : "Approve"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1 rounded-xl"
+                    disabled={updatePayment.isPending}
+                    onClick={() => handleAction("rejected")}
+                  >
+                    <XCircle className="mr-1.5 h-4 w-4" />
+                    {lang === "my" ? "ပယ်ချရန်" : "Reject"}
+                  </Button>
+                </div>
+              )}
+
+              {/* Revoke action for approved payments */}
+              {selectedPayment.status === "approved" && (
+                <Button
+                  variant="destructive"
+                  className="w-full rounded-xl"
+                  disabled={updatePayment.isPending}
+                  onClick={() => handleAction("revoked")}
+                >
+                  <RotateCcw className="mr-1.5 h-4 w-4" />
+                  {lang === "my" ? "အတည်ပြုမှုကို ရုပ်သိမ်းရန်" : "Revoke / Refund"}
+                </Button>
               )}
 
               {selectedPayment.admin_note && selectedPayment.status !== "pending" && (

@@ -1430,6 +1430,10 @@ export type Database = {
         Args: { _referrer_id: string }
         Returns: undefined
       }
+      review_payment_request: {
+        Args: { _admin_note?: string; _new_status: string; _payment_id: string }
+        Returns: Json
+      }
       set_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

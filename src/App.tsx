@@ -33,6 +33,7 @@ import ProfileBuilder from "./pages/ProfileBuilder";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import SkillGapAnalysis from "./pages/SkillGapAnalysis";
 import Premium from "./pages/Premium";
+import PaymentHistory from "./pages/PaymentHistory";
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -105,6 +106,7 @@ const App = () => (
               <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
               <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
               <Route path="/premium" element={<Premium />} />
+              <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 

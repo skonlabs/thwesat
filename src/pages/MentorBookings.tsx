@@ -192,9 +192,25 @@ const MentorBookings = () => {
                           <sc.icon className="h-3 w-3" strokeWidth={1.5} />{lang === "my" ? sc.label.my : sc.label.en}
                         </span>
                       </div>
-                      <div className="mt-1.5 flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                         <span className="flex items-center gap-1"><Calendar className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_date}</span>
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_time}</span>
+                        {booking.payment_status && booking.payment_status !== "unpaid" && (
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                            booking.payment_status === "paid" ? "bg-emerald/10 text-emerald" :
+                            booking.payment_status === "pending" ? "bg-yellow-500/10 text-yellow-600" :
+                            "bg-destructive/10 text-destructive"
+                          }`}>
+                            {booking.payment_status === "paid" && (lang === "my" ? "ပေးချေပြီး" : "Paid")}
+                            {booking.payment_status === "pending" && (lang === "my" ? "ပေးချေမှု စစ်ဆေးနေသည်" : "Payment pending")}
+                            {booking.payment_status === "refunded" && (lang === "my" ? "ပြန်အမ်းပြီး" : "Refunded")}
+                          </span>
+                        )}
+                        {booking.payment_status === "unpaid" && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                            {lang === "my" ? "မပေးချေရသေး" : "Unpaid"}
+                          </span>
+                        )}
                       </div>
 
                       {/* Pending: confirm/decline (mentor only) */}
