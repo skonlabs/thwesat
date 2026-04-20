@@ -38,6 +38,14 @@ export function useCreatePaymentRequest() {
         .from("payment_requests")
         .insert({ ...req, user_id: user.id } as any);
       if (error) throw error;
+
+      // If this is a mentor session payment, flip the booking to "pending payment verification"
+      if (req.payment_type === "mentor_session" && req.booking_id) {
+        await supabase
+          .from("mentor_bookings")
+          .update({ payment_status: "pending" } as any)
+          .eq("id", req.booking_id);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
