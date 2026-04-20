@@ -1,0 +1,2 @@
+INSERT INTO public.payment_requests (user_id, payment_method, payment_type, amount, currency, reference_id, proof_url, status)
+VALUES ('112e4a7d-905e-40c4-8916-3a0a8a85f293', 'wave', 'subscription', 15, 'USD', 'premium_3mo', 'seed://e2e-admin-ui-test.png', 'pending');
