@@ -6,32 +6,33 @@
 
 @layer base {
   :root {
-    --background: 240 18% 96%;
-    --foreground: 252 46% 17%;
+    /* Softer warm off-white — editorial cream feel */
+    --background: 36 25% 97%;
+    --foreground: 252 46% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 252 46% 17%;
+    --card-foreground: 252 46% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 252 46% 17%;
+    --popover-foreground: 252 46% 15%;
 
     --primary: 252 46% 17%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 36 30% 98%;
 
-    --secondary: 248 20% 93%;
-    --secondary-foreground: 252 30% 30%;
+    --secondary: 36 18% 94%;
+    --secondary-foreground: 252 30% 28%;
 
-    --muted: 248 15% 93%;
-    --muted-foreground: 252 12% 50%;
+    --muted: 36 14% 93%;
+    --muted-foreground: 252 10% 48%;
 
     --accent: 36 100% 68%;
-    --accent-foreground: 252 46% 17%;
+    --accent-foreground: 252 46% 15%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 248 12% 90%;
-    --input: 248 12% 90%;
+    --border: 36 14% 90%;
+    --input: 36 14% 90%;
     --ring: 36 100% 68%;
 
     --radius: 0.75rem;
@@ -123,10 +124,19 @@
   }
 
   .shadow-card {
-    box-shadow: 0 2px 12px -2px hsl(var(--navy) / 0.06);
+    box-shadow: 0 1px 2px -1px hsl(var(--navy) / 0.04), 0 4px 16px -6px hsl(var(--navy) / 0.06);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 2px 4px -1px hsl(var(--navy) / 0.06), 0 12px 32px -10px hsl(var(--navy) / 0.12);
   }
 
   .shadow-navy {
-    box-shadow: 0 4px 20px -4px hsl(var(--navy) / 0.25);
+    box-shadow: 0 4px 20px -4px hsl(var(--navy) / 0.22);
+  }
+
+  .hairline-gold {
+    background-image: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.5), transparent);
+    height: 1px;
   }
 }
