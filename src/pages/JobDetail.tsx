@@ -639,7 +639,7 @@ const JobDetail = () => {
 
       {/* Bottom bar */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-lg items-center gap-3">
+        <div className="mx-auto flex w-full max-w-md items-center gap-3">
           {!isOwnJob && (
             <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
               <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
