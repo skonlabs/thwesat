@@ -232,6 +232,8 @@ const PaymentMethodSheet = ({
                         {m === "kbzpay" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment")}
                         {m === "wave" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile money")}
                         {m === "promptpay" && (lang === "my" ? "ထိုင်း မိုဘိုင်း ငွေပေးချေမှု" : "Thai mobile payment")}
+                        {m === "wise" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
+                        {m === "payoneer" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
                       </p>
                     </div>
                   </motion.button>
