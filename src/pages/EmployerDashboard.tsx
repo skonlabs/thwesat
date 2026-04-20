@@ -83,7 +83,7 @@ const EmployerDashboard = () => {
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
         {/* Company info + subscription */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4 shadow-card">
           <div className="flex items-start gap-3">
             <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
