@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -41,16 +41,33 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
     };
     animFrame.current = requestAnimationFrame(animate);
     holdTimer.current = setTimeout(() => {
+      // Panic exit: preserve user language preference, clear everything else
+      const preservedLang = localStorage.getItem("thwesone_lang");
       localStorage.clear();
       sessionStorage.clear();
+      if (preservedLang) localStorage.setItem("thwesone_lang", preservedLang);
       navigate("/");
     }, 3000);
-  }, [navigate, lang]);
+  }, [navigate]);
 
   const cancelHold = useCallback(() => {
-    if (holdTimer.current) clearTimeout(holdTimer.current);
-    if (animFrame.current) cancelAnimationFrame(animFrame.current);
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
+    if (animFrame.current) {
+      cancelAnimationFrame(animFrame.current);
+      animFrame.current = 0;
+    }
     setLogoOpacity(1);
+  }, []);
+
+  // Cleanup on unmount to prevent stale timers from firing after navigation
+  useEffect(() => {
+    return () => {
+      if (holdTimer.current) clearTimeout(holdTimer.current);
+      if (animFrame.current) cancelAnimationFrame(animFrame.current);
+    };
   }, []);
 
   return (
