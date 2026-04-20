@@ -349,8 +349,8 @@ const Premium = () => {
 
           <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
             {lang === "my"
-              ? "KBZPay, Wave, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
-              : "Accepts KBZPay, Wave, Wise & Payoneer · Cancel anytime"}
+              ? "KBZPay, WaveMoney, PromptPay ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
+              : "Accepts KBZPay, WaveMoney & PromptPay · Cancel anytime"}
           </p>
         </motion.div>
       </div>
