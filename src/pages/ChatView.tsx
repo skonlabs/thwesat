@@ -77,6 +77,31 @@ const ChatView = () => {
     return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const handleTranslateMessage = async (msgId: string, content: string, targetLang: string) => {
+    setPickerForMsgId(null);
+    const existing = translations[msgId];
+    if (existing && existing.lang === targetLang) {
+      setTranslations((prev) => {
+        const next = { ...prev };
+        delete next[msgId];
+        return next;
+      });
+      return;
+    }
+    setTranslatingId(msgId);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-text", {
+        body: { content, sourceLang: "auto", targetLang },
+      });
+      if (error) throw error;
+      setTranslations((prev) => ({ ...prev, [msgId]: { lang: targetLang, text: data.translatedContent } }));
+    } catch {
+      toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed", variant: "destructive" });
+    } finally {
+      setTranslatingId(null);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <div className="border-b border-border bg-card px-5 py-3">
