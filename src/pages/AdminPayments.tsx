@@ -25,6 +25,8 @@ const methodLabels: Record<string, string> = {
   kbzpay: "KBZPay",
   wave: "WaveMoney",
   promptpay: "PromptPay",
+  wise: "Wise",
+  payoneer: "Payoneer",
 };
 
 const typeLabels: Record<string, { my: string; en: string }> = {

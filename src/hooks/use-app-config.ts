@@ -11,6 +11,8 @@ export interface PaymentAccountsConfig {
   kbzpay: PaymentAccountInfo;
   wave: PaymentAccountInfo;
   promptpay: PaymentAccountInfo;
+  wise: PaymentAccountInfo;
+  payoneer: PaymentAccountInfo;
 }
 
 export interface TelegramBotConfig {
@@ -23,6 +25,8 @@ const DEFAULTS: Record<string, any> = {
     kbzpay: { account_name: "ThweSone", account_number: "09-000-000-000" },
     wave: { account_name: "ThweSone", account_number: "09-000-000-000" },
     promptpay: { account_name: "ThweSone", account_number: "09-000-000-000" },
+    wise: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
+    payoneer: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
   },
   telegram_bot: { username: "ThweSoneBot", url: "https://t.me/ThweSoneBot" },
 };
