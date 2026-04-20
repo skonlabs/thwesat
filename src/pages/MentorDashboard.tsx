@@ -259,13 +259,13 @@ const MentorDashboard = () => {
                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_time}</span>
                     </div>
                     {booking.status === "pending" && (
-                      <div className="mt-3 flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
-                        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
+                      <div className="mt-3 flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
+                        <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
                       </div>
                     )}
                     {booking.status === "confirmed" && (
-                      <div className="mt-3">
+                      <div className="mt-3 flex justify-end">
                         <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => startConversation(booking.mentee_id)}>
                           <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                         </Button>
