@@ -37,6 +37,22 @@ const jobTypeMap: Record<string, string> = {
   remote: "အဝေးထိန်း",
   remote_full: "အဝေးထိန်း အချိန်ပြည့်",
   remote_contract: "အဝေးထိန်း စာချုပ်",
+  remote_partial: "အဝေးထိန်း အချိန်ပိုင်း",
+  onsite: "ရုံးတွင်း",
+  freelance: "လွတ်လပ်အလုပ်",
+};
+
+const jobTypeMapEn: Record<string, string> = {
+  full_time: "Full-time",
+  part_time: "Part-time",
+  contract: "Contract",
+  hybrid: "Hybrid",
+  remote: "Remote",
+  remote_full: "Remote Full-time",
+  remote_contract: "Remote Contract",
+  remote_partial: "Remote Part-time",
+  onsite: "On-site",
+  freelance: "Freelance",
 };
 
 const tagMap: Record<string, string> = {
