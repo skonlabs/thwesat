@@ -187,7 +187,7 @@ const Community = () => {
             title_my: "🚩 Community တိုင်ကြားမှု အသစ်",
             description: "A post has been reported and needs review.",
             description_my: "ပို့စ်တစ်ခု တိုင်ကြားခံရသည် — စစ်ဆေးရန် လိုအပ်ပါသည်။",
-            link_path: "/moderator/dashboard",
+            link_path: "/moderator",
           })),
         );
       }
