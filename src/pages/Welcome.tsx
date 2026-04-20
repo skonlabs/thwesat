@@ -39,11 +39,6 @@ const Welcome = () => {
             : "A platform connecting Myanmar's scattered talent with remote work opportunities and career resources"}
         </motion.p>
 
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.5 }} className="mb-12 text-xs text-muted-foreground/70">
-          {lang === "my"
-            ? "မြန်မာ့ ကျွမ်းကျင်သူများကို ချိတ်ဆက်ပေးခြင်း။ နယ်စပ်ကျော် အသက်မွေးဝမ်းကျောင်း တည်ဆောက်ခြင်း။"
-            : "Connecting Myanmar's Scattered Talent. Building Careers Beyond Borders."}
-        </motion.p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.5 }} className="relative z-10 w-full px-5 pb-12">
