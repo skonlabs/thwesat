@@ -140,15 +140,17 @@ const PublicProfile = () => {
 
           {/* Actions */}
           {!isOwn && user && (
-            <Button
-              variant="default"
-              size="lg"
-              className="w-full rounded-xl"
-              onClick={() => startConversation(profile.id)}
-            >
-              <MessageCircle className="mr-1.5 h-4 w-4" />
-              {lang === "my" ? "စကားပြော" : "Message"}
-            </Button>
+            <div className="mx-auto w-full max-w-md">
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full rounded-xl"
+                onClick={() => startConversation(profile.id)}
+              >
+                <MessageCircle className="mr-1.5 h-4 w-4" />
+                {lang === "my" ? "စကားပြော" : "Message"}
+              </Button>
+            </div>
           )}
         </motion.div>
       </div>
