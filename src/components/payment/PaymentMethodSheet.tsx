@@ -43,7 +43,7 @@ const methodMeta: Record<PaymentMethod, MethodMeta> = {
   wave: {
     name: "Wave Money",
     logo: "📱",
-    color: "bg-yellow-500/10 text-yellow-600",
+    color: "bg-warning/10 text-warning",
     instructions: [
       { en: "Open Wave Money app", my: "Wave Money အက်ပ်ကို ဖွင့်ပါ" },
       { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },

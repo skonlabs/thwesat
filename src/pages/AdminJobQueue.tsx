@@ -20,7 +20,7 @@ const checklist = [
 type FilterType = "all" | "pending" | "active" | "rejected" | "closed";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
+  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
   active: { label: { my: "တက်ကြွ", en: "Active" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
   closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "bg-muted text-muted-foreground", icon: Pause },
