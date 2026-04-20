@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send } from "lucide-react";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
+import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
