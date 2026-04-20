@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Lock, Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
+import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMessages, useSendMessage } from "@/hooks/use-messages-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TRANSLATE_LANGUAGES } from "@/lib/translate-languages";
+import { useToast } from "@/hooks/use-toast";
 
 const ChatView = () => {
   const navigate = useNavigate();
@@ -13,8 +16,13 @@ const ChatView = () => {
   const conversationId = searchParams.get("id") || undefined;
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [messageText, setMessageText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  // Per-message translation state
+  const [translations, setTranslations] = useState<Record<string, { lang: string; text: string }>>({});
+  const [translatingId, setTranslatingId] = useState<string | null>(null);
+  const [pickerForMsgId, setPickerForMsgId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const { data: messages = [], isLoading } = useMessages(conversationId);
@@ -69,6 +77,31 @@ const ChatView = () => {
     return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const handleTranslateMessage = async (msgId: string, content: string, targetLang: string) => {
+    setPickerForMsgId(null);
+    const existing = translations[msgId];
+    if (existing && existing.lang === targetLang) {
+      setTranslations((prev) => {
+        const next = { ...prev };
+        delete next[msgId];
+        return next;
+      });
+      return;
+    }
+    setTranslatingId(msgId);
+    try {
+      const { data, error } = await supabase.functions.invoke("translate-text", {
+        body: { content, sourceLang: "auto", targetLang },
+      });
+      if (error) throw error;
+      setTranslations((prev) => ({ ...prev, [msgId]: { lang: targetLang, text: data.translatedContent } }));
+    } catch {
+      toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed", variant: "destructive" });
+    } finally {
+      setTranslatingId(null);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <div className="border-b border-border bg-card px-5 py-3">
@@ -102,14 +135,49 @@ const ChatView = () => {
         {isLoading ? (
           <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
-          messages.map((msg: any) => (
-            <div key={msg.id} className={`flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.sender_id === user?.id ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
-                <p className="text-sm leading-relaxed">{msg.content}</p>
-                <p className={`mt-1 text-right text-[9px] ${msg.sender_id === user?.id ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(msg.created_at)}</p>
+          messages.map((msg: any) => {
+            const isMine = msg.sender_id === user?.id;
+            const tr = translations[msg.id];
+            const trMeta = tr ? TRANSLATE_LANGUAGES.find(l => l.code === tr.lang) : null;
+            return (
+              <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                <div className={`group max-w-[80%] rounded-2xl px-3.5 py-2.5 ${isMine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                  {tr && (
+                    <div className={`mt-2 border-t pt-2 ${isMine ? "border-primary-foreground/20" : "border-border"}`}>
+                      <p className={`mb-0.5 text-[9px] uppercase tracking-wide ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
+                        {trMeta?.flag} {trMeta?.label}
+                      </p>
+                      <p className={`text-sm leading-relaxed ${isMine ? "text-primary-foreground/90" : "text-foreground/90"}`}>{tr.text}</p>
+                    </div>
+                  )}
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => setPickerForMsgId(msg.id)}
+                      disabled={translatingId === msg.id}
+                      className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium transition-colors ${
+                        isMine
+                          ? "text-primary-foreground/70 active:bg-primary-foreground/10"
+                          : "text-muted-foreground active:bg-muted"
+                      }`}
+                    >
+                      {translatingId === msg.id ? (
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" strokeWidth={2} />
+                      ) : (
+                        <Languages className="h-2.5 w-2.5" strokeWidth={2} />
+                      )}
+                      {translatingId === msg.id
+                        ? (lang === "my" ? "ဘာသာပြန်နေသည်" : "Translating")
+                        : tr
+                          ? (lang === "my" ? "ဘာသာစကား ပြောင်း" : "Change language")
+                          : (lang === "my" ? "ဘာသာပြန်ရန်" : "Translate")}
+                    </button>
+                    <p className={`text-[9px] ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(msg.created_at)}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>
@@ -124,6 +192,37 @@ const ChatView = () => {
           </button>
         </div>
       </div>
+
+      <Sheet open={!!pickerForMsgId} onOpenChange={(o) => !o && setPickerForMsgId(null)}>
+        <SheetContent side="bottom" className="bottom-16 max-h-[70vh] rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="text-left text-base">
+              {lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Translate to"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-3 space-y-1.5 overflow-y-auto pb-4">
+            {TRANSLATE_LANGUAGES.map((l) => {
+              const msg = messages.find((m: any) => m.id === pickerForMsgId);
+              const activeLang = pickerForMsgId ? translations[pickerForMsgId]?.lang : null;
+              return (
+                <button
+                  key={l.code}
+                  onClick={() => msg && handleTranslateMessage(msg.id, msg.content, l.code)}
+                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                    activeLang === l.code
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground active:bg-muted"
+                  }`}
+                >
+                  <span className="text-lg">{l.flag}</span>
+                  <span className="flex-1 font-medium">{l.label}</span>
+                  {activeLang === l.code && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={1.5} />}
+                </button>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

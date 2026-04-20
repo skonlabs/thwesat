@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2 } from "lucide-react";
+import { Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TRANSLATE_LANGUAGES } from "@/lib/translate-languages";
 
 /** Render markdown-like guide content as formatted React elements */
 function renderGuideContent(raw: string) {
@@ -96,8 +98,10 @@ const GuideDetail = () => {
   const { data: counts } = useGuideFeedbackCounts(id);
   const { data: userFeedback } = useUserGuideFeedback(id, user?.id);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [translatedLang, setTranslatedLang] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const feedback = userFeedback ? (userFeedback.is_helpful ? "yes" : "no") : null;
 
@@ -125,19 +129,22 @@ const GuideDetail = () => {
     }
   };
 
-  const handleTranslate = async () => {
-    if (translatedContent) {
-      setShowTranslation(!showTranslation);
+  const handleTranslate = async (langCode: string) => {
+    setPickerOpen(false);
+    if (!guide) return;
+    // If we already translated to this language, just toggle visibility
+    if (translatedContent && translatedLang === langCode) {
+      setShowTranslation(true);
       return;
     }
-    if (!guide) return;
     setIsTranslating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("translate-guide", {
-        body: { content: guide.content, title: guide.title },
+      const { data, error } = await supabase.functions.invoke("translate-text", {
+        body: { content: guide.content, sourceLang: "auto", targetLang: langCode },
       });
       if (error) throw error;
       setTranslatedContent(data.translatedContent);
+      setTranslatedLang(langCode);
       setShowTranslation(true);
     } catch {
       toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed. Please try again.", variant: "destructive" });
@@ -145,6 +152,8 @@ const GuideDetail = () => {
       setIsTranslating(false);
     }
   };
+
+  const activeLangMeta = TRANSLATE_LANGUAGES.find(l => l.code === translatedLang);
 
   if (isLoading) {
     return (
@@ -197,28 +206,68 @@ const GuideDetail = () => {
             )}
           </div>
 
-          {/* Translate button */}
-          <button
-            onClick={handleTranslate}
-            disabled={isTranslating}
-            className={`mb-4 flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-medium transition-colors ${
-              showTranslation
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-muted-foreground active:bg-muted"
-            }`}
-          >
-            {isTranslating ? (
-              <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
-            ) : (
-              <Languages className="h-4 w-4" strokeWidth={1.5} />
+          {/* Translate controls */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setPickerOpen(true)}
+              disabled={isTranslating}
+              className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-medium transition-colors ${
+                showTranslation
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-card text-muted-foreground active:bg-muted"
+              }`}
+            >
+              {isTranslating ? (
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
+              ) : (
+                <Languages className="h-4 w-4" strokeWidth={1.5} />
+              )}
+              {isTranslating
+                ? (lang === "my" ? "ဘာသာပြန်နေသည်..." : "Translating...")
+                : showTranslation && activeLangMeta
+                  ? `${activeLangMeta.flag} ${activeLangMeta.label}`
+                  : (lang === "my" ? "ဘာသာပြန်ရန်" : "Translate")}
+              <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={1.5} />
+            </button>
+            {showTranslation && (
+              <button
+                onClick={() => setShowTranslation(false)}
+                className="rounded-xl border border-border bg-card px-3 py-2.5 text-xs font-medium text-muted-foreground active:bg-muted"
+              >
+                {lang === "my" ? "မူရင်း" : "Original"}
+              </button>
             )}
-            {isTranslating
-              ? (lang === "my" ? "ဘာသာပြန်နေသည်..." : "Translating...")
-              : showTranslation
-                ? (lang === "my" ? "မူရင်း English ပြရန်" : "Show Original English")
-                : "🇲🇲 မြန်မာဘာသာသို့ ဘာသာပြန်ရန်"
-            }
-          </button>
+          </div>
+
+          <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
+            <SheetContent side="bottom" className="bottom-16 max-h-[70vh] rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle className="text-left text-base">
+                  {lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Translate to"}
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-3 space-y-1.5 overflow-y-auto pb-4">
+                {TRANSLATE_LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => handleTranslate(l.code)}
+                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                      translatedLang === l.code && showTranslation
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-foreground active:bg-muted"
+                    }`}
+                  >
+                    <span className="text-lg">{l.flag}</span>
+                    <span className="flex-1 font-medium">{l.label}</span>
+                    {translatedLang === l.code && showTranslation && (
+                      <CheckCircle className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+
 
           {/* Formatted content */}
           <div className="max-w-none">
