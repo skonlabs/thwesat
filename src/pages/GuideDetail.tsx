@@ -98,8 +98,10 @@ const GuideDetail = () => {
   const { data: counts } = useGuideFeedbackCounts(id);
   const { data: userFeedback } = useUserGuideFeedback(id, user?.id);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [translatedLang, setTranslatedLang] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const feedback = userFeedback ? (userFeedback.is_helpful ? "yes" : "no") : null;
 
