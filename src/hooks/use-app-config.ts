@@ -12,6 +12,7 @@ export interface PaymentAccountsConfig {
   wave: PaymentAccountInfo;
   wise: PaymentAccountInfo;
   payoneer: PaymentAccountInfo;
+  venmo: PaymentAccountInfo;
 }
 
 export interface TelegramBotConfig {
@@ -25,6 +26,7 @@ const DEFAULTS: Record<string, any> = {
     wave: { account_name: "ThweSone", account_number: "09-000-000-000" },
     wise: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
     payoneer: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
+    venmo: { account_name: "ThweSone", account_number: "@ThweSone" },
   },
   telegram_bot: { username: "ThweSoneBot", url: "https://t.me/ThweSoneBot" },
 };

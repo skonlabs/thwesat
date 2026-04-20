@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
 
-export type PaymentMethod = "kbzpay" | "wave" | "wise" | "payoneer";
+export type PaymentMethod = "kbzpay" | "wave" | "wise" | "payoneer" | "venmo";
 
 interface PaymentMethodSheetProps {
   open: boolean;
