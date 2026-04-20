@@ -5,7 +5,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMessages, useSendMessage } from "@/hooks/use-messages-data";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ChatView = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const ChatView = () => {
   const [messageText, setMessageText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const queryClient = useQueryClient();
   const { data: messages = [], isLoading } = useMessages(conversationId);
   const sendMessage = useSendMessage();
 
@@ -37,11 +38,22 @@ const ChatView = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Mark messages as read
+  // Mark messages as read whenever new messages arrive in this conversation
   useEffect(() => {
     if (!conversationId || !user) return;
-    supabase.from("messages").update({ is_read: true }).eq("conversation_id", conversationId).neq("sender_id", user.id).eq("is_read", false).then(() => {});
-  }, [conversationId, user, messages]);
+    const hasUnread = messages.some((m: any) => !m.is_read && m.sender_id !== user.id);
+    if (!hasUnread) return;
+    supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", user.id)
+      .eq("is_read", false)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+      });
+  }, [conversationId, user, messages, queryClient]);
 
   const handleSend = () => {
     if (!messageText.trim() || !conversationId) return;
