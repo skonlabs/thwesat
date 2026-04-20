@@ -62,6 +62,7 @@ const MentorBooking = () => {
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
 
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
   const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
@@ -97,7 +98,7 @@ const MentorBooking = () => {
   const handleConfirm = async () => {
     if (!user || !mentorId || !selectedDate || !selectedTopic) return;
     try {
-      await createBooking.mutateAsync({
+      const result = await createBooking.mutateAsync({
         mentor_id: mentorId,
         mentee_id: user.id,
         scheduled_date: selectedDateStr,
@@ -107,6 +108,7 @@ const MentorBooking = () => {
         goals,
         booked_by: "mentee",
       });
+      setCreatedBookingId(result.id);
       setStep(3);
     } catch {
       toast({
@@ -171,7 +173,8 @@ const MentorBooking = () => {
                   amount={sessionAmount}
                   currency={currency}
                   paymentType="mentor_session"
-                  referenceId={mentorId || undefined}
+                  referenceId={createdBookingId || mentorId || undefined}
+                  bookingId={createdBookingId || undefined}
                   onSuccess={() => setPaymentOpen(false)}
                 />
               </>

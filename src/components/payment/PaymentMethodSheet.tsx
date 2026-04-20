@@ -18,6 +18,7 @@ interface PaymentMethodSheetProps {
   currency: string;
   paymentType: "subscription" | "mentor_session" | "employer_subscription";
   referenceId?: string;
+  bookingId?: string;
   onSuccess?: () => void;
 }
 
@@ -108,6 +109,7 @@ const PaymentMethodSheet = ({
   currency,
   paymentType,
   referenceId,
+  bookingId,
   onSuccess,
 }: PaymentMethodSheetProps) => {
   const { lang } = useLanguage();
@@ -158,6 +160,7 @@ const PaymentMethodSheet = ({
         amount,
         currency,
         reference_id: referenceId,
+        booking_id: bookingId,
         proof_url: proofUrl,
       });
       setStep("done");

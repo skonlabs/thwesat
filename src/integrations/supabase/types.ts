@@ -274,6 +274,8 @@ export type Database = {
           industry: string | null
           is_verified: boolean | null
           payment_methods: string[] | null
+          subscription_expires_at: string | null
+          subscription_tier: string | null
           updated_at: string | null
           verification_status: string | null
         }
@@ -292,6 +294,8 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
+          subscription_expires_at?: string | null
+          subscription_tier?: string | null
           updated_at?: string | null
           verification_status?: string | null
         }
@@ -310,6 +314,8 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
+          subscription_expires_at?: string | null
+          subscription_tier?: string | null
           updated_at?: string | null
           verification_status?: string | null
         }
@@ -584,6 +590,7 @@ export type Database = {
           mentor_completed_at: string | null
           mentor_id: string
           message: string | null
+          payment_status: string
           proposed_date: string | null
           proposed_time: string | null
           scheduled_date: string
@@ -604,6 +611,7 @@ export type Database = {
           mentor_completed_at?: string | null
           mentor_id: string
           message?: string | null
+          payment_status?: string
           proposed_date?: string | null
           proposed_time?: string | null
           scheduled_date: string
@@ -624,6 +632,7 @@ export type Database = {
           mentor_completed_at?: string | null
           mentor_id?: string
           message?: string | null
+          payment_status?: string
           proposed_date?: string | null
           proposed_time?: string | null
           scheduled_date?: string
@@ -892,6 +901,7 @@ export type Database = {
         Row: {
           admin_note: string | null
           amount: number
+          booking_id: string | null
           created_at: string
           currency: string
           id: string
@@ -908,6 +918,7 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           amount?: number
+          booking_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -924,6 +935,7 @@ export type Database = {
         Update: {
           admin_note?: string | null
           amount?: number
+          booking_id?: string | null
           created_at?: string
           currency?: string
           id?: string
