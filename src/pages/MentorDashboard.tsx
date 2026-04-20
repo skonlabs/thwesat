@@ -126,7 +126,7 @@ const MentorDashboard = () => {
   const stats = [
     { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10", path: "/mentors/bookings" },
     { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors/dashboard" },
-    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-accent bg-accent/10", path: "/mentors/dashboard" },
+    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-gold-dark bg-accent/15", path: "/mentors/dashboard" },
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
