@@ -109,6 +109,7 @@ const PaymentMethodSheet = ({
   currency,
   paymentType,
   referenceId,
+  bookingId,
   onSuccess,
 }: PaymentMethodSheetProps) => {
   const { lang } = useLanguage();
@@ -159,6 +160,7 @@ const PaymentMethodSheet = ({
         amount,
         currency,
         reference_id: referenceId,
+        booking_id: bookingId,
         proof_url: proofUrl,
       });
       setStep("done");

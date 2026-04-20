@@ -284,11 +284,13 @@ export function useCreateBooking() {
     mutationFn: async (booking: {
       mentor_id: string; mentee_id: string; scheduled_date: string; scheduled_time: string;
       topic?: string; message?: string; goals?: string; booked_by?: string;
-    }) => {
+    }): Promise<{ id: string }> => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("mentor_bookings")
-        .insert(booking);
+        .insert(booking)
+        .select("id")
+        .single();
       if (error) throw error;
 
       // Send notification + auto-message to mentor
@@ -299,6 +301,8 @@ export function useCreateBooking() {
         bookingDate: booking.scheduled_date,
         bookingTime: booking.scheduled_time,
       });
+
+      return { id: data.id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
