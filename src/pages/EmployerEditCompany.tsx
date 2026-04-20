@@ -94,7 +94,7 @@ const EmployerEditCompany = () => {
         <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
           <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (<button key={m} onClick={() => togglePayment(m)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(m) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{m}</button>))}</div>
         </div>
-        <div className="flex gap-3 pt-2">
+        <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/employer/dashboard")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
           <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={upsert.isPending || !companyName}>
             {upsert.isPending ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "သိမ်းရန်" : "Save")}
