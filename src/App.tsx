@@ -33,6 +33,7 @@ import ProfileBuilder from "./pages/ProfileBuilder";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import SkillGapAnalysis from "./pages/SkillGapAnalysis";
 import Premium from "./pages/Premium";
+import PaymentHistory from "./pages/PaymentHistory";
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
