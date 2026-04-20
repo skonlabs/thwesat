@@ -129,19 +129,22 @@ const GuideDetail = () => {
     }
   };
 
-  const handleTranslate = async () => {
-    if (translatedContent) {
-      setShowTranslation(!showTranslation);
+  const handleTranslate = async (langCode: string) => {
+    setPickerOpen(false);
+    if (!guide) return;
+    // If we already translated to this language, just toggle visibility
+    if (translatedContent && translatedLang === langCode) {
+      setShowTranslation(true);
       return;
     }
-    if (!guide) return;
     setIsTranslating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("translate-guide", {
-        body: { content: guide.content, title: guide.title },
+      const { data, error } = await supabase.functions.invoke("translate-text", {
+        body: { content: guide.content, sourceLang: "auto", targetLang: langCode },
       });
       if (error) throw error;
       setTranslatedContent(data.translatedContent);
+      setTranslatedLang(langCode);
       setShowTranslation(true);
     } catch {
       toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed. Please try again.", variant: "destructive" });
@@ -149,6 +152,8 @@ const GuideDetail = () => {
       setIsTranslating(false);
     }
   };
+
+  const activeLangMeta = TRANSLATE_LANGUAGES.find(l => l.code === translatedLang);
 
   if (isLoading) {
     return (
