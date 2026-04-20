@@ -22,7 +22,7 @@ import type { PaymentRequest } from "@/hooks/use-payment";
 type FilterType = "all" | "pending" | "approved" | "rejected" | "revoked";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
-  pending: { label: { my: "စစ်ဆေးရန်", en: "Pending" }, color: "bg-yellow-500/10 text-yellow-600", icon: Clock },
+  pending: { label: { my: "စစ်ဆေးရန်", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
   revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },
@@ -146,7 +146,7 @@ const AdminPayments = () => {
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
           </button>
           <button onClick={() => setFilter("pending")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "pending" ? "border-primary" : "border-border"}`}>
-            <Clock className="mx-auto mb-1 h-5 w-5 text-yellow-600" strokeWidth={1.5} />
+            <Clock className="mx-auto mb-1 h-5 w-5 text-warning" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{pendingCount}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စစ်ဆေးရန်" : "Pending"}</p>
           </button>

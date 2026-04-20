@@ -13,10 +13,10 @@ import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 
 const statusConfig: Record<string, { color: string; label: { en: string; my: string } }> = {
-  pending: { color: "bg-yellow-100 text-yellow-700", label: { en: "Pending", my: "စစ်ဆေးရန်" } },
-  verified: { color: "bg-green-100 text-green-700", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
-  approved: { color: "bg-green-100 text-green-700", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
-  rejected: { color: "bg-red-100 text-red-700", label: { en: "Rejected", my: "ပယ်ချပြီး" } },
+  pending: { color: "bg-warning/15 text-warning", label: { en: "Pending", my: "စစ်ဆေးရန်" } },
+  verified: { color: "bg-emerald/15 text-emerald", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
+  approved: { color: "bg-emerald/15 text-emerald", label: { en: "Approved", my: "အတည်ပြုပြီး" } },
+  rejected: { color: "bg-destructive/15 text-destructive", label: { en: "Rejected", my: "ပယ်ချပြီး" } },
 };
 
 const AdminEmployers = () => {

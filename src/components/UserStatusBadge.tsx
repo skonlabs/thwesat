@@ -15,7 +15,7 @@ const statusConfig = {
   },
   busy: {
     dotClass: "bg-amber-500",
-    badgeClass: "bg-amber-500/10 text-amber-600",
+    badgeClass: "bg-warning/10 text-warning",
     labelEn: "Busy",
     labelMy: "အလုပ်များနေ",
   },

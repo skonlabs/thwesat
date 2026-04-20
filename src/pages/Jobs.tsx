@@ -315,7 +315,7 @@ const Jobs = () => {
                       <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? statusMeta.my : statusMeta.en}
                     </span>
                   ) : (
-                    <Button variant="default" size="sm" className="rounded-lg text-xs">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+                    <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
                   )}
                 </div>
               </motion.div>

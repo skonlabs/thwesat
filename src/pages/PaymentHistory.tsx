@@ -8,7 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
-  pending: { label: { my: "စစ်ဆေးနေသည်", en: "Pending" }, color: "bg-yellow-500/10 text-yellow-600", icon: Clock },
+  pending: { label: { my: "စစ်ဆေးနေသည်", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
   revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },

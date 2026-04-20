@@ -209,7 +209,7 @@ const MentorBookings = () => {
                         {booking.payment_status && booking.payment_status !== "unpaid" && (
                           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             booking.payment_status === "paid" ? "bg-emerald/10 text-emerald" :
-                            booking.payment_status === "pending" ? "bg-yellow-500/10 text-yellow-600" :
+                            booking.payment_status === "pending" ? "bg-warning/10 text-warning" :
                             "bg-destructive/10 text-destructive"
                           }`}>
                             {booking.payment_status === "paid" && (lang === "my" ? "ပေးချေပြီး" : "Paid")}

@@ -20,7 +20,7 @@ const checklist = [
 type FilterType = "all" | "pending" | "active" | "rejected" | "closed";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-amber-500/10 text-amber-600", icon: Clock },
+  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
   active: { label: { my: "တက်ကြွ", en: "Active" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
   closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "bg-muted text-muted-foreground", icon: Pause },
@@ -142,7 +142,7 @@ const AdminJobQueue = () => {
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
           </button>
           <button onClick={() => setFilter("pending")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "pending" ? "border-primary" : "border-border"}`}>
-            <Clock className="mx-auto mb-1 h-5 w-5 text-amber-600" strokeWidth={1.5} />
+            <Clock className="mx-auto mb-1 h-5 w-5 text-warning" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{pendingCount}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စစ်ဆေးရန်" : "Pending"}</p>
           </button>
