@@ -11,7 +11,7 @@ const Welcome = () => {
   const { lang } = useLanguage();
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between overflow-hidden bg-background">
       <div className="absolute inset-0 opacity-[0.04]">
         <img src={heroPattern} alt="" className="h-full w-full object-cover" />
       </div>

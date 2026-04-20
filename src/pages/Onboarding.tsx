@@ -60,7 +60,7 @@ const Onboarding = () => {
   const step = steps[currentStep];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-5 pt-12">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background px-5 pt-12">
       <div className="mb-8 flex items-center justify-center gap-2">
         {steps.map((_, i) => (
           <div key={i} className={`h-2 rounded-full transition-all duration-300 ${i === currentStep ? "w-8 bg-gradient-gold" : i < currentStep ? "w-2 bg-primary/40" : "w-2 bg-muted"}`} />
