@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
     { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs" },
-    { icon: Crown, label: { my: "Premium", en: "Premium" }, value: counts?.premiumUsers?.toString() || "0", color: "text-accent bg-accent/10", path: "/admin/users" },
+    { icon: Crown, label: { my: "Premium", en: "Premium" }, value: counts?.premiumUsers?.toString() || "0", color: "text-gold-dark bg-accent/15", path: "/admin/users" },
     { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/employers" },
   ];
 
