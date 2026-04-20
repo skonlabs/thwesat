@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
+import { UserRoleBadges } from "@/components/RoleBadge";
 
 const skillCategories = ["All", "React", "Node.js", "Python", "UI/UX", "Project Management", "Translation", "Marketing"];
 
