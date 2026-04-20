@@ -12,8 +12,12 @@ import logo from "@/assets/logo.svg";
 
 interface PageHeaderProps {
   title: string;
+  /** Fallback path used only when there is no prior in-app history (e.g. opened via direct link). Default browser-back is preferred. */
   backPath?: string;
+  /** Custom back handler. When provided, takes precedence over default browser-back. */
   onBack?: () => void;
+  /** When true, always show the back button (even if no backPath/onBack is provided) using browser history. Defaults to true when backPath is set. */
+  showBack?: boolean;
 }
 
 const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
