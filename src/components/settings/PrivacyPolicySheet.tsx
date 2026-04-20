@@ -66,8 +66,8 @@ const PrivacyPolicySheet = ({ open, onClose }: PrivacyPolicySheetProps) => {
 
         <p className="pt-2 text-center text-[10px] text-muted-foreground">
           {lang === "my"
-            ? "မေးစရာရှိပါက support@thwesone.com သို့ ဆက်သွယ်ပါ"
-            : "For questions, contact support@thwesone.com"}
+            ? "မေးစရာရှိပါက support@thwesat.com သို့ ဆက်သွယ်ပါ"
+            : "For questions, contact support@thwesat.com"}
         </p>
       </div>
     </SettingsBottomSheet>

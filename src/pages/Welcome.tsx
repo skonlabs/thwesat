@@ -22,11 +22,11 @@ const Welcome = () => {
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 text-center">
         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: "easeOut" }}>
-          <img src={logo} alt="ThweSone" width={120} height={120} className="mx-auto mb-6" />
+          <img src={logo} alt="ThweSat" width={120} height={120} className="mx-auto mb-6" />
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="mb-2 text-4xl font-bold">
-          <span className="text-primary">Thwe</span><span className="text-accent">Sone</span>
+          <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
         </motion.h1>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="mb-2 text-lg font-medium text-foreground">

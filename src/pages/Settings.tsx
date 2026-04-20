@@ -221,7 +221,7 @@ const Settings = () => {
           </div>
         </motion.div>
 
-        <p className="mt-6 text-center text-[10px] text-muted-foreground">ThweSone v1.0.0 · Build 2026.03</p>
+        <p className="mt-6 text-center text-[10px] text-muted-foreground">ThweSat v1.0.0 · Build 2026.03</p>
       </div>
 
       {/* === Bottom Sheet Modals === */}

@@ -9,15 +9,15 @@ interface LanguageState {
 }
 
 export const useLanguage = create<LanguageState>((set) => ({
-  lang: (localStorage.getItem("thwesone_lang") as Language) || "en",
+  lang: (localStorage.getItem("thwesat_lang") as Language) || "en",
   setLang: (lang) => {
-    localStorage.setItem("thwesone_lang", lang);
+    localStorage.setItem("thwesat_lang", lang);
     set({ lang });
   },
   toggleLang: () =>
     set((state) => {
       const next = state.lang === "my" ? "en" : "my";
-      localStorage.setItem("thwesone_lang", next);
+      localStorage.setItem("thwesat_lang", next);
       return { lang: next };
     }),
 }));

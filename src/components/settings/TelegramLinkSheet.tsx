@@ -20,7 +20,7 @@ const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: Telegr
   const [username, setUsername] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const botLink = bot?.url || "https://t.me/ThweSoneBot";
+  const botLink = bot?.url || "https://t.me/ThweSatBot";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(botLink);
@@ -46,8 +46,8 @@ const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: Telegr
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 {lang === "my"
-                  ? "ThweSone Bot ကို Telegram တွင်ဖွင့်ပြီး /start ကို နှိပ်ပါ"
-                  : "Open ThweSone Bot on Telegram and tap /start"}
+                  ? "ThweSat Bot ကို Telegram တွင်ဖွင့်ပြီး /start ကို နှိပ်ပါ"
+                  : "Open ThweSat Bot on Telegram and tap /start"}
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2">

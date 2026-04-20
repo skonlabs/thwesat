@@ -52,10 +52,10 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
     animFrame.current = requestAnimationFrame(animate);
     holdTimer.current = setTimeout(() => {
       // Panic exit: preserve user language preference, clear everything else
-      const preservedLang = localStorage.getItem("thwesone_lang");
+      const preservedLang = localStorage.getItem("thwesat_lang");
       localStorage.clear();
       sessionStorage.clear();
-      if (preservedLang) localStorage.setItem("thwesone_lang", preservedLang);
+      if (preservedLang) localStorage.setItem("thwesat_lang", preservedLang);
       navigate("/");
     }, 3000);
   }, [navigate]);
@@ -96,12 +96,12 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
           >
             <img
               src={logo}
-              alt="ThweSone"
+              alt="ThweSat"
               className="h-7 w-7 rounded-md transition-opacity"
               style={{ opacity: logoOpacity }}
               draggable={false}
             />
-            <span className="text-sm font-bold"><span className="text-primary">Thwe</span><span className="text-accent">Sone</span></span>
+            <span className="text-sm font-bold"><span className="text-primary">Thwe</span><span className="text-accent">Sat</span></span>
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />

@@ -14,7 +14,7 @@ const options = [
     id: "members",
     icon: Users,
     label: { my: "အဖွဲ့ဝင်များသာ", en: "Members Only" },
-    desc: { my: "ThweSone အဖွဲ့ဝင်များသာ သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်", en: "Only registered ThweSone members can see your profile" },
+    desc: { my: "ThweSat အဖွဲ့ဝင်များသာ သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်", en: "Only registered ThweSat members can see your profile" },
   },
   {
     id: "public",

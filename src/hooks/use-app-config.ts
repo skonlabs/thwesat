@@ -22,13 +22,13 @@ export interface TelegramBotConfig {
 
 const DEFAULTS: Record<string, any> = {
   payment_accounts: {
-    kbzpay: { account_name: "ThweSone", account_number: "09-000-000-000" },
-    wave: { account_name: "ThweSone", account_number: "09-000-000-000" },
-    promptpay: { account_name: "ThweSone", account_number: "09-000-000-000" },
-    wise: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
-    payoneer: { account_name: "ThweSone", account_email: "payments@thwesone.com" },
+    kbzpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
+    wave: { account_name: "ThweSat", account_number: "09-000-000-000" },
+    promptpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
+    wise: { account_name: "ThweSat", account_email: "payments@thwesat.com" },
+    payoneer: { account_name: "ThweSat", account_email: "payments@thwesat.com" },
   },
-  telegram_bot: { username: "ThweSoneBot", url: "https://t.me/ThweSoneBot" },
+  telegram_bot: { username: "ThweSatBot", url: "https://t.me/ThweSatBot" },
 };
 
 export function useAppConfig<T = any>(key: string) {

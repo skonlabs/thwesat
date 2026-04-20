@@ -116,7 +116,7 @@ const Signup = () => {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col">
-        <img src={logo} alt="ThweSone" width={56} height={56} className="mb-6" />
+        <img src={logo} alt="ThweSat" width={56} height={56} className="mb-6" />
 
         <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Create Account"}</h1>
         <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "အခမဲ့ဖြစ်ပါသည်" : "It's free"}</p>
