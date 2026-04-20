@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, AlertTriangle, Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2 } from "lucide-react";
+import { Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TRANSLATE_LANGUAGES } from "@/lib/translate-languages";
 
 /** Render markdown-like guide content as formatted React elements */
 function renderGuideContent(raw: string) {
