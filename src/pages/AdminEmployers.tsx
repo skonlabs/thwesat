@@ -183,7 +183,7 @@ const AdminEmployers = () => {
       <AnimatePresence>
         {selected && !rejecting && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-lg rounded-t-3xl bg-card p-6 pb-8 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-8 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
 
               <div className="mb-4 flex items-center gap-3">

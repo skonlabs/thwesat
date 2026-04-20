@@ -331,7 +331,8 @@ const JobDetail = () => {
       <AnimatePresence>
         {showApplyModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               {/* Header */}
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
@@ -619,7 +620,7 @@ const JobDetail = () => {
       <AnimatePresence>
         {previewContent && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/50 p-5" onClick={() => setPreviewContent(null)}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-card p-5" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl bg-card p-5" onClick={e => e.stopPropagation()}>
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground truncate">{previewTitle}</h3>
                 <button onClick={() => setPreviewContent(null)} className="rounded-lg p-1 active:bg-muted">

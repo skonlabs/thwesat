@@ -289,8 +289,9 @@ const MentorDashboard = () => {
       <AnimatePresence>
         {declineBookingId && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/40" onClick={() => setDeclineBookingId(null)} />
-            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-lg rounded-t-2xl bg-card p-5">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] bg-foreground/40" onClick={() => setDeclineBookingId(null)} />
+            <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="fixed inset-x-0 bottom-16 z-[60] mx-auto max-w-md rounded-t-2xl bg-card p-5">
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h3 className="mb-1 text-sm font-semibold text-foreground">{lang === "my" ? "Booking ငြင်းပယ်ရန်" : "Decline Booking"}</h3>
               <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အချိန်အသစ် အဆိုပြုနိုင်ပါသည် (မဖြစ်မနေမဟုတ်)" : "You can optionally propose an alternative time"}</p>
 
