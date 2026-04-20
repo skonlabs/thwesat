@@ -4,7 +4,7 @@ import { Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
-import { useNotifications, useMarkNotificationRead } from "@/hooks/use-notifications-data";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/use-notifications-data";
 
 const typeIcons: Record<string, typeof Briefcase> = {
   job: Briefcase,
@@ -49,6 +49,7 @@ const Notifications = () => {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const { data: notifications = [], isLoading } = useNotifications();
   const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
   const filteredNotifs = filter === "unread" ? notifications.filter(n => !n.is_read) : notifications;
@@ -65,13 +66,20 @@ const Notifications = () => {
       <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} />
 
       <div className="px-5">
-        <div className="mb-4 flex gap-2">
-          <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-            {lang === "my" ? "အားလုံး" : "All"}
-          </button>
-          <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "unread" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-            {lang === "my" ? `မဖတ်ရသေး (${unreadCount})` : `Unread (${unreadCount})`}
-          </button>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div className="flex gap-2">
+            <button onClick={() => setFilter("all")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "all" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+              {lang === "my" ? "အားလုံး" : "All"}
+            </button>
+            <button onClick={() => setFilter("unread")} className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${filter === "unread" ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+              {lang === "my" ? `မဖတ်ရသေး (${unreadCount})` : `Unread (${unreadCount})`}
+            </button>
+          </div>
+          {unreadCount > 0 && (
+            <button onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending} className="text-xs font-medium text-primary disabled:opacity-50">
+              {lang === "my" ? "အားလုံးဖတ်ပြီး" : "Mark all read"}
+            </button>
+          )}
         </div>
       </div>
 
