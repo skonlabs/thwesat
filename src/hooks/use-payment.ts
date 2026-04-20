@@ -81,13 +81,24 @@ export function useUpdatePaymentRequest() {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async ({ id, status, admin_note }: { id: string; status: string; admin_note?: string }) => {
-      // First fetch the payment request to get user_id and type info
+      const assertNoError = (error: { message?: string } | null, fallback: string) => {
+        if (error) throw new Error(error.message || fallback);
+      };
+
+      const paymentLinkPath = (paymentType: string) => {
+        if (paymentType === "employer_subscription") return "/employer/dashboard";
+        if (paymentType === "mentor_session") return "/mentors";
+        return "/premium";
+      };
+
       const { data: paymentReq, error: fetchError } = await supabase
         .from("payment_requests")
         .select("*")
         .eq("id", id)
-        .single();
-      if (fetchError) throw fetchError;
+        .maybeSingle();
+      assertNoError(fetchError, "Failed to load payment request");
+      if (!paymentReq) throw new Error("Payment request not found");
+
       const pr = paymentReq as unknown as PaymentRequest;
 
       const updates: any = {
@@ -100,25 +111,25 @@ export function useUpdatePaymentRequest() {
         .from("payment_requests")
         .update(updates)
         .eq("id", id);
-      if (error) throw error;
+      assertNoError(error, "Failed to update payment request");
 
       // On approval, activate premium / subscription automatically
       if (status === "approved") {
         if (pr.payment_type === "subscription") {
-          // Set is_premium on profile
-          await supabase
+          const { error: profileError } = await supabase
             .from("profiles")
             .update({ is_premium: true })
             .eq("id", pr.user_id);
+          assertNoError(profileError, "Failed to activate premium profile");
 
-          // Determine duration from reference_id (plan_id) or default 1 month
           let durationMonths = 1;
           if (pr.reference_id) {
-            const { data: plan } = await supabase
+            const { data: plan, error: planError } = await supabase
               .from("subscription_plans")
               .select("duration_months, plan_id")
               .eq("plan_id", pr.reference_id)
               .maybeSingle();
+            assertNoError(planError, "Failed to load subscription plan");
             if (plan?.duration_months) durationMonths = plan.duration_months;
           }
 
@@ -126,7 +137,7 @@ export function useUpdatePaymentRequest() {
           const periodEnd = new Date(now);
           periodEnd.setMonth(periodEnd.getMonth() + durationMonths);
 
-          await supabase
+          const { error: subscriptionError } = await supabase
             .from("subscriptions")
             .insert({
               user_id: pr.user_id,
@@ -138,22 +149,23 @@ export function useUpdatePaymentRequest() {
               current_period_end: periodEnd.toISOString(),
               billing_cycle: durationMonths >= 12 ? "yearly" : "monthly",
             });
+          assertNoError(subscriptionError, "Failed to create subscription");
         }
 
         if (pr.payment_type === "employer_subscription") {
-          await supabase
+          const { error: profileError } = await supabase
             .from("profiles")
             .update({ is_premium: true })
             .eq("id", pr.user_id);
+          assertNoError(profileError, "Failed to activate employer premium");
 
-          // Create employer subscription record
           let durationMonths = 12; // default yearly
           const planId = pr.reference_id || "employer_basic";
           const now = new Date();
           const periodEnd = new Date(now);
           periodEnd.setMonth(periodEnd.getMonth() + durationMonths);
 
-          await supabase
+          const { error: subscriptionError } = await supabase
             .from("subscriptions")
             .insert({
               user_id: pr.user_id,
@@ -165,36 +177,39 @@ export function useUpdatePaymentRequest() {
               current_period_end: periodEnd.toISOString(),
               billing_cycle: "yearly",
             });
+          assertNoError(subscriptionError, "Failed to create employer subscription");
         }
 
-        // Send notification to user
-        await supabase.from("notifications").insert({
+        const { error: approvalNotificationError } = await supabase.from("notifications").insert({
           user_id: pr.user_id,
           notification_type: "payment_approved",
           title: "Payment Approved",
           title_my: "ငွေပေးချေမှု အတည်ပြုပြီး",
           description: "Your payment has been approved and your account has been activated.",
           description_my: "သင့်ငွေပေးချေမှုကို အတည်ပြုပြီး သင့်အကောင့်ကို အသက်သွင်းပြီးပါပြီ။",
-          link_path: pr.payment_type === "employer_subscription" ? "/employer/dashboard" : "/premium",
+          link_path: paymentLinkPath(pr.payment_type),
         });
+        assertNoError(approvalNotificationError, "Failed to notify user about approval");
       }
 
       if (status === "rejected") {
-        await supabase.from("notifications").insert({
+        const { error: rejectionNotificationError } = await supabase.from("notifications").insert({
           user_id: pr.user_id,
           notification_type: "payment_rejected",
           title: "Payment Rejected",
           title_my: "ငွေပေးချေမှု ပယ်ချခံရသည်",
           description: admin_note || "Your payment was not approved. Please try again or contact support.",
           description_my: admin_note || "သင့်ငွေပေးချေမှုကို အတည်မပြုပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် ပံ့ပိုးကူညီမှုကို ဆက်သွယ်ပါ။",
-          link_path: "/premium",
+          link_path: paymentLinkPath(pr.payment_type),
         });
+        assertNoError(rejectionNotificationError, "Failed to notify user about rejection");
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
       queryClient.invalidateQueries({ queryKey: ["payment-user-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
     },
   });
 }
