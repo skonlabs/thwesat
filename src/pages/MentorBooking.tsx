@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Calendar as CalendarIcon, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -14,6 +16,7 @@ import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useCreateBooking } from "@/hooks/use-mentor-bookings";
 import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
@@ -50,9 +53,26 @@ const MentorBooking = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: mentorProfile, isLoading: mentorLoading } = useMentorProfile(mentorId || undefined);
+  // Fallback profile lookup for the case where current user is a mentor booking
+  // a non-mentor (no mentor_profiles row exists for the target).
+  const { data: fallbackProfile } = useQuery({
+    queryKey: ["booking-target-profile", mentorId],
+    queryFn: async () => {
+      if (!mentorId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, headline")
+        .eq("id", mentorId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!mentorId && !mentorLoading && !mentorProfile,
+  });
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
   const createBooking = useCreateBooking();
   const { startConversation } = useStartConversation();
+  const { hasRole, isLoading: rolesLoading } = useUserRoles();
+  const currentUserIsMentor = hasRole("mentor");
 
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -119,12 +139,13 @@ const MentorBooking = () => {
     }
   };
 
-  const mentorName = mentorProfile?.profile?.display_name || "Mentor";
+  const mentorName = mentorProfile?.profile?.display_name || fallbackProfile?.display_name || "User";
   const mentorTitle = mentorProfile ? `${mentorProfile.title || ""} · ${mentorProfile.company || ""}`.replace(/^ · | · $/g, "") : "";
   const mentorTz = (mentorProfile as any)?.timezone || "Asia/Yangon";
   const durationLabel = durationOptions.find(d => d.minutes === selectedDuration);
 
-  // Guard: only allow booking when the target user is actually a mentor
+  // Guard: non-mentors can only book with users who ARE mentors.
+  // Mentors themselves may book with anyone.
   if (!mentorId) {
     return (
       <div className="min-h-screen bg-background pb-10">
@@ -138,7 +159,7 @@ const MentorBooking = () => {
     );
   }
 
-  if (mentorLoading) {
+  if (mentorLoading || rolesLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -146,7 +167,7 @@ const MentorBooking = () => {
     );
   }
 
-  if (!mentorProfile) {
+  if (!mentorProfile && !currentUserIsMentor) {
     return (
       <div className="min-h-screen bg-background pb-10">
         <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath="/mentors" />
@@ -157,8 +178,8 @@ const MentorBooking = () => {
             </h2>
             <p className="text-sm text-muted-foreground">
               {lang === "my"
-                ? "ဤအသုံးပြုသူသည် Mentor မဟုတ်သေးပါ။ ချိန်းဆိုမှု ပြုလုပ်နိုင်ရန် Mentor ဖြစ်ရန် လိုအပ်ပါသည်။"
-                : "This user isn't a mentor, so sessions can't be booked with them."}
+                ? "ဤအသုံးပြုသူသည် Mentor မဟုတ်သေးပါ။ Mentor တစ်ဦးနှင့်သာ ချိန်းဆို၍ ရပါသည်။"
+                : "This user isn't a mentor. You can only book sessions with mentors."}
             </p>
             <Button variant="outline" className="mt-5 rounded-xl" onClick={() => navigate("/mentors")}>
               {lang === "my" ? "Mentor များကို ကြည့်ရန်" : "Browse Mentors"}
