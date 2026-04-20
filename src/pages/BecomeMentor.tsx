@@ -77,6 +77,15 @@ const BecomeMentor = () => {
 
       if (!existing) {
         await supabase.from("mentor_profiles").insert({ id: user.id });
+        await supabase.from("notifications").insert({
+          user_id: user.id,
+          notification_type: "mentor",
+          title: "🎓 Welcome, Mentor!",
+          title_my: "🎓 Mentor အဖြစ် ကြိုဆိုပါသည်!",
+          description: "Set your availability and rate to start receiving bookings.",
+          description_my: "Booking များ လက်ခံရန် သင့်အချိန်နှင့် နှုန်းထားကို သတ်မှတ်ပါ။",
+          link_path: "/mentors/dashboard",
+        });
       }
 
       setRole("mentor");

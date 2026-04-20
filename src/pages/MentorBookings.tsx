@@ -51,6 +51,17 @@ const MentorBookings = () => {
         review_text: ratingText,
       });
       if (error) throw error;
+      const { data: reviewerProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      const reviewerName = reviewerProfile?.display_name || "A mentee";
+      await supabase.from("notifications").insert({
+        user_id: ratingMentorId,
+        notification_type: "mentor",
+        title: `⭐ New ${ratingValue}-star review from ${reviewerName}`,
+        title_my: `⭐ ${reviewerName} ထံမှ ${ratingValue}-star အဆင့်သတ်မှတ်ချက်`,
+        description: ratingText || "Your mentee left you a review.",
+        description_my: ratingText || "သင့် mentee က အဆင့်သတ်မှတ်ချက် ပေးခဲ့သည်။",
+        link_path: "/mentors/dashboard",
+      });
     },
     onSuccess: () => {
       toast({ title: lang === "my" ? "အဆင့်သတ်မှတ်ပြီးပါပြီ" : "Review submitted!" });

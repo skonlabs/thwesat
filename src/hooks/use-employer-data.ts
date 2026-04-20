@@ -163,8 +163,20 @@ export function useApprovePost() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (postId: string) => {
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", postId).single();
       const { error } = await supabase.from("community_posts").update({ is_approved: true }).eq("id", postId);
       if (error) throw error;
+      if (post?.author_id) {
+        await supabase.from("notifications").insert({
+          user_id: post.author_id,
+          notification_type: "community",
+          title: "Your post has been approved! ✅",
+          title_my: "သင့်ပို့စ် အတည်ပြုပြီးပါပြီ! ✅",
+          description: "Your post is now visible to the community.",
+          description_my: "သင့်ပို့စ်ကို community တွင် မြင်နိုင်ပါပြီ။",
+          link_path: "/community",
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-posts"] });

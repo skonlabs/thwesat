@@ -176,6 +176,21 @@ const Community = () => {
     if (error) {
       toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
     } else {
+      // Notify all admins/moderators about the new report
+      const { data: staff } = await supabase.from("user_roles").select("user_id, role").in("role", ["admin", "moderator"]);
+      if (staff && staff.length) {
+        await supabase.from("notifications").insert(
+          staff.map((s: any) => ({
+            user_id: s.user_id,
+            notification_type: "moderation",
+            title: "🚩 New community report",
+            title_my: "🚩 Community တိုင်ကြားမှု အသစ်",
+            description: "A post has been reported and needs review.",
+            description_my: "ပို့စ်တစ်ခု တိုင်ကြားခံရသည် — စစ်ဆေးရန် လိုအပ်ပါသည်။",
+            link_path: "/moderator/dashboard",
+          })),
+        );
+      }
       toast.success(lang === "my" ? "တိုင်ကြားမှု တင်ပြပြီး" : "Report submitted — we'll review it");
     }
     setOpenMenuId(null);
