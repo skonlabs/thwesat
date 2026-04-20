@@ -34,6 +34,8 @@ export function useCreatePaymentRequest() {
       proof_url?: string;
     }) => {
       if (!user) throw new Error("Not authenticated");
+      if (!(req.amount > 0)) throw new Error("Amount must be greater than zero");
+
       const { error } = await supabase
         .from("payment_requests")
         .insert({ ...req, user_id: user.id } as any);
@@ -50,6 +52,7 @@ export function useCreatePaymentRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
       queryClient.invalidateQueries({ queryKey: ["payment-user-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
     },
   });
 }
@@ -86,185 +89,33 @@ export function useAllPaymentRequests() {
   });
 }
 
+/**
+ * Approve / reject / revoke a payment request.
+ *
+ * All side-effects (subscription extension, employer tier, booking payment
+ * status, mentor earnings, notifications) are handled atomically inside the
+ * `review_payment_request` Postgres function. The function is idempotent and
+ * validates the amount against the matching subscription plan when known.
+ */
 export function useUpdatePaymentRequest() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
   return useMutation({
-    mutationFn: async ({ id, status, admin_note }: { id: string; status: string; admin_note?: string }) => {
-      const assertNoError = (error: { message?: string } | null, fallback: string) => {
-        if (error) throw new Error(error.message || fallback);
-      };
-
-      const paymentLinkPath = (paymentType: string) => {
-        if (paymentType === "employer_subscription") return "/employer/dashboard";
-        if (paymentType === "mentor_session") return "/mentors";
-        return "/premium";
-      };
-
-      const { data: paymentReq, error: fetchError } = await supabase
-        .from("payment_requests")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      assertNoError(fetchError, "Failed to load payment request");
-      if (!paymentReq) throw new Error("Payment request not found");
-
-      const pr = paymentReq as unknown as PaymentRequest;
-
-      const updates: any = {
-        status,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user?.id || null,
-      };
-      if (admin_note !== undefined) updates.admin_note = admin_note;
-      const { error } = await supabase
-        .from("payment_requests")
-        .update(updates)
-        .eq("id", id);
-      assertNoError(error, "Failed to update payment request");
-
-      // On approval, route by payment_type
-      if (status === "approved") {
-        const now = new Date();
-
-        if (pr.payment_type === "subscription") {
-          // Jobseeker / mentor premium
-          let durationMonths = 1;
-          if (pr.reference_id) {
-            const { data: plan, error: planError } = await supabase
-              .from("subscription_plans")
-              .select("duration_months, plan_id")
-              .eq("plan_id", pr.reference_id)
-              .maybeSingle();
-            assertNoError(planError, "Failed to load subscription plan");
-            if (plan?.duration_months) durationMonths = plan.duration_months;
-          }
-
-          const periodEnd = new Date(now);
-          periodEnd.setMonth(periodEnd.getMonth() + durationMonths);
-
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .update({ is_premium: true })
-            .eq("id", pr.user_id);
-          assertNoError(profileError, "Failed to activate premium profile");
-
-          const { error: subscriptionError } = await supabase
-            .from("subscriptions")
-            .insert({
-              user_id: pr.user_id,
-              plan_type: pr.reference_id || "premium",
-              status: "active",
-              currency: pr.currency,
-              price_cents: Math.round(pr.amount * 100),
-              current_period_start: now.toISOString(),
-              current_period_end: periodEnd.toISOString(),
-              billing_cycle: durationMonths >= 12 ? "yearly" : "monthly",
-            });
-          assertNoError(subscriptionError, "Failed to create subscription");
-        }
-
-        if (pr.payment_type === "employer_subscription") {
-          // Employer plan — yearly billing, tier on employer_profiles
-          const tier = pr.reference_id || "basic";
-          const durationMonths = 12;
-          const periodEnd = new Date(now);
-          periodEnd.setMonth(periodEnd.getMonth() + durationMonths);
-
-          const { error: employerError } = await supabase
-            .from("employer_profiles")
-            .update({
-              subscription_tier: tier,
-              subscription_expires_at: periodEnd.toISOString(),
-            } as any)
-            .eq("id", pr.user_id);
-          assertNoError(employerError, "Failed to activate employer plan");
-
-          const { error: subscriptionError } = await supabase
-            .from("subscriptions")
-            .insert({
-              user_id: pr.user_id,
-              plan_type: `employer_${tier}`,
-              status: "active",
-              currency: pr.currency,
-              price_cents: Math.round(pr.amount * 100),
-              current_period_start: now.toISOString(),
-              current_period_end: periodEnd.toISOString(),
-              billing_cycle: "yearly",
-            });
-          assertNoError(subscriptionError, "Failed to create employer subscription");
-        }
-
-        if (pr.payment_type === "mentor_session") {
-          // Mark booking as paid + create mentor earnings entry
-          const bookingId = (pr as any).booking_id || pr.reference_id;
-          if (bookingId) {
-            const { data: booking, error: bookingFetchError } = await supabase
-              .from("mentor_bookings")
-              .select("id, mentor_id")
-              .eq("id", bookingId)
-              .maybeSingle();
-            assertNoError(bookingFetchError, "Failed to load booking");
-
-            if (booking) {
-              const { error: bookingUpdateError } = await supabase
-                .from("mentor_bookings")
-                .update({ payment_status: "paid" } as any)
-                .eq("id", booking.id);
-              assertNoError(bookingUpdateError, "Failed to mark booking as paid");
-
-              // Mentor receives 80%, platform fee 20%
-              const mentorPayout = Math.round(pr.amount * 0.8 * 100) / 100;
-
-              const { error: earningsError } = await supabase
-                .from("mentor_earnings")
-                .insert({
-                  mentor_id: booking.mentor_id,
-                  booking_id: booking.id,
-                  amount: mentorPayout,
-                  currency: pr.currency,
-                  status: "pending",
-                });
-              assertNoError(earningsError, "Failed to create mentor earnings entry");
-            }
-          }
-        }
-
-        const { error: approvalNotificationError } = await supabase.from("notifications").insert({
-          user_id: pr.user_id,
-          notification_type: "payment_approved",
-          title: "Payment Approved",
-          title_my: "ငွေပေးချေမှု အတည်ပြုပြီး",
-          description: "Your payment has been approved and your account has been activated.",
-          description_my: "သင့်ငွေပေးချေမှုကို အတည်ပြုပြီး သင့်အကောင့်ကို အသက်သွင်းပြီးပါပြီ။",
-          link_path: paymentLinkPath(pr.payment_type),
-        });
-        assertNoError(approvalNotificationError, "Failed to notify user about approval");
-      }
-
-      if (status === "rejected") {
-        // Revert booking payment status if it was a session payment
-        if (pr.payment_type === "mentor_session") {
-          const bookingId = (pr as any).booking_id || pr.reference_id;
-          if (bookingId) {
-            await supabase
-              .from("mentor_bookings")
-              .update({ payment_status: "unpaid" } as any)
-              .eq("id", bookingId);
-          }
-        }
-
-        const { error: rejectionNotificationError } = await supabase.from("notifications").insert({
-          user_id: pr.user_id,
-          notification_type: "payment_rejected",
-          title: "Payment Rejected",
-          title_my: "ငွေပေးချေမှု ပယ်ချခံရသည်",
-          description: admin_note || "Your payment was not approved. Please try again or contact support.",
-          description_my: admin_note || "သင့်ငွေပေးချေမှုကို အတည်မပြုပါ။ ထပ်မံကြိုးစားပါ သို့မဟုတ် ပံ့ပိုးကူညီမှုကို ဆက်သွယ်ပါ။",
-          link_path: paymentLinkPath(pr.payment_type),
-        });
-        assertNoError(rejectionNotificationError, "Failed to notify user about rejection");
-      }
+    mutationFn: async ({
+      id,
+      status,
+      admin_note,
+    }: {
+      id: string;
+      status: "approved" | "rejected" | "revoked";
+      admin_note?: string;
+    }) => {
+      const { data, error } = await (supabase as any).rpc("review_payment_request", {
+        _payment_id: id,
+        _new_status: status,
+        _admin_note: admin_note ?? null,
+      });
+      if (error) throw new Error(error.message || "Failed to review payment");
+      return data as { ok: boolean; status: string; noop?: boolean };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
@@ -274,7 +125,47 @@ export function useUpdatePaymentRequest() {
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-earnings"] });
       queryClient.invalidateQueries({ queryKey: ["employer-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
+  });
+}
+
+/**
+ * Lookup helpers for the admin payment sheet — gives the admin context
+ * before approving (booking details for mentor sessions, company name for
+ * employer subscriptions).
+ */
+export function usePaymentBookingContext(bookingId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["payment-booking-context", bookingId],
+    queryFn: async () => {
+      if (!bookingId) return null;
+      const { data, error } = await supabase
+        .from("mentor_bookings")
+        .select("id, mentor_id, mentee_id, scheduled_date, scheduled_time, topic, status, payment_status")
+        .eq("id", bookingId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!bookingId,
+  });
+}
+
+export function usePaymentEmployerContext(userId: string | null | undefined, paymentType: string) {
+  return useQuery({
+    queryKey: ["payment-employer-context", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("employer_profiles")
+        .select("id, company_name, subscription_tier, subscription_expires_at")
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId && paymentType === "employer_subscription",
   });
 }
 
