@@ -101,7 +101,7 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
               style={{ opacity: logoOpacity }}
               draggable={false}
             />
-            <span className="text-sm font-bold"><span className="text-primary">Thwe</span><span className="text-accent">Sone</span></span>
+            <span className="text-sm font-bold"><span className="text-primary">Thwe</span><span className="text-accent">Sat</span></span>
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />
