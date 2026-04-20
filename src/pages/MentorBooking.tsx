@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Calendar as CalendarIcon, Clock, CheckCircle, MessageCircle, Star, CreditCard, Timer, ShieldCheck } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -51,6 +53,21 @@ const MentorBooking = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: mentorProfile, isLoading: mentorLoading } = useMentorProfile(mentorId || undefined);
+  // Fallback profile lookup for the case where current user is a mentor booking
+  // a non-mentor (no mentor_profiles row exists for the target).
+  const { data: fallbackProfile } = useQuery({
+    queryKey: ["booking-target-profile", mentorId],
+    queryFn: async () => {
+      if (!mentorId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, headline")
+        .eq("id", mentorId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!mentorId && !mentorLoading && !mentorProfile,
+  });
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
   const createBooking = useCreateBooking();
   const { startConversation } = useStartConversation();
@@ -122,7 +139,7 @@ const MentorBooking = () => {
     }
   };
 
-  const mentorName = mentorProfile?.profile?.display_name || "Mentor";
+  const mentorName = mentorProfile?.profile?.display_name || fallbackProfile?.display_name || "User";
   const mentorTitle = mentorProfile ? `${mentorProfile.title || ""} · ${mentorProfile.company || ""}`.replace(/^ · | · $/g, "") : "";
   const mentorTz = (mentorProfile as any)?.timezone || "Asia/Yangon";
   const durationLabel = durationOptions.find(d => d.minutes === selectedDuration);
