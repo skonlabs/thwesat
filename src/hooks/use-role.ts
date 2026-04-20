@@ -8,9 +8,9 @@ interface RoleState {
 }
 
 export const useRole = create<RoleState>((set) => ({
-  role: (localStorage.getItem("thwesone_role") as UserRole) || "jobseeker",
+  role: (localStorage.getItem("thwesat_role") as UserRole) || "jobseeker",
   setRole: (role) => {
-    localStorage.setItem("thwesone_role", role);
+    localStorage.setItem("thwesat_role", role);
     set({ role });
   },
 }));

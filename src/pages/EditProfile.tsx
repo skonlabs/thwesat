@@ -145,7 +145,7 @@ const VISIBILITY_OPTIONS = [
     value: "members",
     icon: Users,
     label: { en: "Community Only", my: "အဖွဲ့ဝင်များသာ" },
-    desc: { en: "Only registered ThweSone members can see your profile", my: "ThweSone အဖွဲ့ဝင်များသာ သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်" },
+    desc: { en: "Only registered ThweSat members can see your profile", my: "ThweSat အဖွဲ့ဝင်များသာ သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်" },
   },
   {
     value: "employers",

@@ -36,8 +36,8 @@ const FontEncodingSheet = ({ open, onClose }: FontEncodingSheetProps) => {
           </p>
           <p className="text-[11px] leading-relaxed text-muted-foreground">
             {lang === "my"
-              ? "ThweSone သည် Unicode (UTF-8) Encoding ကိုသာ အသုံးပြုပါသည်။ ၎င်းသည် နိုင်ငံတကာ စံနှုန်းဖြစ်ပြီး မြန်မာ၊ အင်္ဂလိပ်နှင့် အခြားဘာသာစကားများကို မှန်ကန်စွာ ပြသပေးပါသည်။ Zawgyi Encoding ကို ပံ့ပိုးမပေးပါ။"
-              : "ThweSone exclusively uses Unicode (UTF-8) encoding. This is the international standard that correctly displays Myanmar, English, and other languages. Zawgyi encoding is not supported."}
+              ? "ThweSat သည် Unicode (UTF-8) Encoding ကိုသာ အသုံးပြုပါသည်။ ၎င်းသည် နိုင်ငံတကာ စံနှုန်းဖြစ်ပြီး မြန်မာ၊ အင်္ဂလိပ်နှင့် အခြားဘာသာစကားများကို မှန်ကန်စွာ ပြသပေးပါသည်။ Zawgyi Encoding ကို ပံ့ပိုးမပေးပါ။"
+              : "ThweSat exclusively uses Unicode (UTF-8) encoding. This is the international standard that correctly displays Myanmar, English, and other languages. Zawgyi encoding is not supported."}
           </p>
         </div>
 

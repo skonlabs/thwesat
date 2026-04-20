@@ -344,7 +344,7 @@ const JobDetail = () => {
               <div className="mb-5 rounded-xl bg-emerald/5 p-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={1.5} />
-                  <p className="text-xs font-medium text-emerald">{lang === "my" ? "ThweSone ပရိုဖိုင်ဖြင့် လျှောက်ထားမည်" : "Applying with your ThweSone profile"}</p>
+                  <p className="text-xs font-medium text-emerald">{lang === "my" ? "ThweSat ပရိုဖိုင်ဖြင့် လျှောက်ထားမည်" : "Applying with your ThweSat profile"}</p>
                 </div>
               </div>
 
@@ -562,7 +562,7 @@ const JobDetail = () => {
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 text-xs">
                     <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                    <span className="text-foreground">{lang === "my" ? "ThweSone ပရိုဖိုင်" : "ThweSone Profile"}</span>
+                    <span className="text-foreground">{lang === "my" ? "ThweSat ပရိုဖိုင်" : "ThweSat Profile"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     {selectedCv ? (
