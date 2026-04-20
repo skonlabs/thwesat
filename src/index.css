@@ -44,6 +44,10 @@
     --navy-light: 252 35% 28%;
     --emerald: 152 60% 38%;
     --emerald-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 252 30% 30%;
