@@ -194,7 +194,10 @@ const PaymentMethodSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl pb-8">
+      <SheetContent
+        side="bottom"
+        className="bottom-16 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t pb-8 sm:mx-auto sm:max-w-md"
+      >
         <SheetHeader>
           <SheetTitle className="text-base font-bold">
             {step === "select" && (lang === "my" ? "ငွေပေးချေနည်း ရွေးချယ်ပါ" : "Choose Payment Method")}

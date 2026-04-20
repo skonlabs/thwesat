@@ -142,9 +142,11 @@ const EmployerPostJob = () => {
                 ))}
               </div>
             </div>
-            <Button variant="default" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
-              {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
+            <div className="mx-auto w-full max-w-md pt-2">
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
+                {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            </div>
           </motion.div>
         )}
 
@@ -226,7 +228,7 @@ const EmployerPostJob = () => {
                 <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed"}</p>
               </div>
             )}
-            <div className="flex gap-3 pt-2">
+            <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit} disabled={createJob.isPending}>
                 {createJob.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်ရန်" : "Submit")}

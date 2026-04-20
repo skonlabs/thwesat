@@ -228,7 +228,7 @@ const AdminJobQueue = () => {
       <AnimatePresence>
         {selected && !showReject && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
+            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>
               <p className="mb-2 text-sm text-muted-foreground">{selected.company} · ${selected.salary_min || 0}-${selected.salary_max || 0}</p>
