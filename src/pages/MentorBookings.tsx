@@ -226,16 +226,16 @@ const MentorBookings = () => {
 
                       {/* Pending: confirm/decline (mentor only) */}
                       {booking.status === "pending" && booking.booked_by === "mentee" && isMentor(booking) && (
-                        <div className="mt-3 flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
-                          <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
+                        <div className="mt-3 flex justify-end gap-2">
+                          <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
+                          <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
                         </div>
                       )}
 
                       {/* Confirmed: message + mark complete */}
                       {booking.status === "confirmed" && (
                         <div className="mt-3 space-y-2">
-                          <div className="flex gap-2">
+                          <div className="flex justify-end gap-2">
                             <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => navigate("/messages")}>
                               <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                             </Button>
@@ -253,7 +253,7 @@ const MentorBookings = () => {
                             )}
                           </div>
                           {myCompleted && !fullyDone && (
-                            <p className="text-[10px] text-emerald font-medium">
+                            <p className="text-right text-[10px] text-emerald font-medium">
                               ✓ {lang === "my" ? "သင် အတည်ပြုပြီးပါပြီ။ အခြားတစ်ဖက် အတည်ပြုရန် စောင့်ပါ" : "You confirmed. Waiting for the other party to confirm."}
                             </p>
                           )}
@@ -262,7 +262,7 @@ const MentorBookings = () => {
 
                       {/* Completed: show rating button (mentee only, after both confirm) */}
                       {booking.status === "completed" && fullyDone && isMentee(booking) && (
-                        <div className="mt-3">
+                        <div className="mt-3 flex justify-end">
                           <Button
                             variant="outline"
                             size="sm"
