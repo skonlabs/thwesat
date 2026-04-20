@@ -236,7 +236,7 @@ const ModeratorDashboard = () => {
   const pendingPayments = paymentRequests.filter((p: any) => p.status === "pending");
 
   const statusBadge = (status: string) => {
-    const colors: Record<string, string> = { pending: "bg-amber-100 text-amber-800", approved: "bg-emerald-100 text-emerald-800", rejected: "bg-red-100 text-red-800", confirmed: "bg-emerald-100 text-emerald-800", completed: "bg-blue-100 text-blue-800", declined: "bg-red-100 text-red-800" };
+    const colors: Record<string, string> = { pending: "bg-warning/15 text-warning", approved: "bg-emerald/15 text-emerald", rejected: "bg-destructive/15 text-destructive", confirmed: "bg-emerald/15 text-emerald", completed: "bg-info/15 text-info", declined: "bg-destructive/15 text-destructive" };
     return <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${colors[status] || "bg-muted text-muted-foreground"}`}>{status}</span>;
   };
 
