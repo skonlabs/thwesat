@@ -240,30 +240,58 @@ const GuideDetail = () => {
           </div>
 
           <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
-            <SheetContent side="bottom" className="bottom-16 max-h-[70vh] rounded-t-2xl">
-              <SheetHeader>
-                <SheetTitle className="text-left text-base">
-                  {lang === "my" ? "ဘာသာစကား ရွေးပါ" : "Translate to"}
-                </SheetTitle>
+            <SheetContent side="bottom" className="bottom-16 max-h-[75vh] rounded-t-3xl border-t-0 px-5 pb-6 pt-5">
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
+              <SheetHeader className="mb-1">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-gold shadow-gold">
+                    <Languages className="h-4 w-4 text-primary" strokeWidth={2} />
+                  </div>
+                  <div className="text-left">
+                    <SheetTitle className="text-base font-bold leading-tight">
+                      {lang === "my" ? "ဘာသာပြန်ရန်" : "Translate to"}
+                    </SheetTitle>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lang === "my" ? "ဘာသာစကား ရွေးချယ်ပါ" : "Choose a language"}
+                    </p>
+                  </div>
+                </div>
               </SheetHeader>
-              <div className="mt-3 space-y-1.5 overflow-y-auto pb-4">
-                {TRANSLATE_LANGUAGES.map((l) => (
-                  <button
-                    key={l.code}
-                    onClick={() => handleTranslate(l.code)}
-                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
-                      translatedLang === l.code && showTranslation
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-card text-foreground active:bg-muted"
-                    }`}
-                  >
-                    <span className="text-lg">{l.flag}</span>
-                    <span className="flex-1 font-medium">{l.label}</span>
-                    {translatedLang === l.code && showTranslation && (
-                      <CheckCircle className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                    )}
-                  </button>
-                ))}
+              <div className="mt-4 grid grid-cols-2 gap-2 overflow-y-auto pb-2">
+                {TRANSLATE_LANGUAGES.map((l) => {
+                  const isActive = translatedLang === l.code && showTranslation;
+                  const [native, latin] = l.label.includes("(")
+                    ? [l.label.split("(")[0].trim(), l.label.match(/\(([^)]+)\)/)?.[1] ?? ""]
+                    : [l.label, ""];
+                  return (
+                    <button
+                      key={l.code}
+                      onClick={() => handleTranslate(l.code)}
+                      className={`relative flex flex-col items-start gap-1.5 overflow-hidden rounded-2xl border p-3 text-left transition-all active:scale-[0.98] ${
+                        isActive
+                          ? "border-primary bg-primary text-primary-foreground shadow-navy"
+                          : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute right-2 top-2">
+                          <CheckCircle className="h-4 w-4 text-accent" strokeWidth={2} />
+                        </div>
+                      )}
+                      <span className="text-2xl leading-none">{l.flag}</span>
+                      <div className="min-w-0">
+                        <p className={`truncate text-sm font-semibold leading-tight ${isActive ? "text-primary-foreground" : "text-foreground"}`}>
+                          {native}
+                        </p>
+                        {latin && (
+                          <p className={`truncate text-[10px] leading-tight ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                            {latin}
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </SheetContent>
           </Sheet>
