@@ -109,17 +109,41 @@ const ModeratorDashboard = () => {
   // ─── MUTATIONS ───
   const approvePost = useMutation({
     mutationFn: async (id: string) => {
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
       const { error } = await supabase.from("community_posts").update({ is_approved: true, moderated_by: user?.id }).eq("id", id);
       if (error) throw error;
+      if (post?.author_id) {
+        await supabase.from("notifications").insert({
+          user_id: post.author_id,
+          notification_type: "community",
+          title: "Your post has been approved! ✅",
+          title_my: "သင့်ပို့စ် အတည်ပြုပြီးပါပြီ! ✅",
+          description: "Your post is now visible to the community.",
+          description_my: "သင့်ပို့စ်ကို community တွင် မြင်နိုင်ပါပြီ။",
+          link_path: "/community",
+        });
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); toast.success(lang === "my" ? "အတည်ပြုပြီး" : "Post approved"); },
   });
 
   const removePost = useMutation({
     mutationFn: async (id: string) => {
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
       await supabase.from("community_posts").update({ moderated_by: user?.id, moderation_reason: removalReason }).eq("id", id);
       const { error } = await supabase.from("community_posts").delete().eq("id", id);
       if (error) throw error;
+      if (post?.author_id) {
+        await supabase.from("notifications").insert({
+          user_id: post.author_id,
+          notification_type: "community",
+          title: "Your post was removed",
+          title_my: "သင့်ပို့စ် ဖယ်ရှားခံရပါသည်",
+          description: removalReason || "Your post did not meet community guidelines.",
+          description_my: removalReason || "သင့်ပို့စ်သည် community လမ်းညွှန်ချက်များနှင့် ကိုက်ညီမှု မရှိပါ။",
+          link_path: "/community",
+        });
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); setShowRemoval(false); setRemovalReason(""); toast.success(lang === "my" ? "ဖယ်ရှားပြီး" : "Post removed"); },
   });
