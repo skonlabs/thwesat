@@ -9,6 +9,7 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
+import { UserRoleBadges } from "@/components/RoleBadge";
 
 const PublicProfile = () => {
   const { id } = useParams<{ id: string }>();
