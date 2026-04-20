@@ -3,12 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 export function useStartConversation() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hasRole } = useUserRoles();
 
   const startConversation = async (otherUserId: string) => {
     if (!user) return;
@@ -18,7 +20,7 @@ export function useStartConversation() {
     }
 
     try {
-      // Check if conversation already exists between these two users
+      // If an existing conversation already exists, always allow re-entering it.
       const { data: myParticipations } = await supabase
         .from("conversation_participants")
         .select("conversation_id")
@@ -38,9 +40,34 @@ export function useStartConversation() {
         }
       }
 
+      // Gating for NEW conversations:
+      // - Mentors and employers can message anyone.
+      // - Everyone else can only message users who are mentors or employers.
+      const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer");
+      if (!currentUserCanMessageAnyone) {
+        const [mentorRes, employerRes] = await Promise.all([
+          supabase
+            .from("mentor_profiles")
+            .select("id", { head: true, count: "exact" })
+            .eq("id", otherUserId),
+          supabase
+            .from("employer_profiles")
+            .select("id", { head: true, count: "exact" })
+            .eq("id", otherUserId),
+        ]);
+        const targetIsMentor = (mentorRes.count ?? 0) > 0;
+        const targetIsEmployer = (employerRes.count ?? 0) > 0;
+        if (!targetIsMentor && !targetIsEmployer) {
+          toast({
+            title: "Messaging not available",
+            description: "You can only message mentors or employers.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       // Generate UUID client-side to avoid RLS SELECT issue on conversations
-      // (The SELECT policy requires user to be a participant, but participants
-      //  aren't added until after the conversation is created)
       const convId = crypto.randomUUID();
       const { error: convErr } = await supabase
         .from("conversations")
