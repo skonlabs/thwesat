@@ -257,38 +257,27 @@ const GuideDetail = () => {
                   </div>
                 </div>
               </SheetHeader>
-              <div className="mt-4 grid grid-cols-2 gap-2 overflow-y-auto pb-2">
+              <div className="mt-4 grid grid-cols-3 gap-1.5 overflow-y-auto pb-2 sm:grid-cols-4">
                 {TRANSLATE_LANGUAGES.map((l) => {
                   const isActive = translatedLang === l.code && showTranslation;
-                  const [native, latin] = l.label.includes("(")
-                    ? [l.label.split("(")[0].trim(), l.label.match(/\(([^)]+)\)/)?.[1] ?? ""]
-                    : [l.label, ""];
+                  const native = l.label.includes("(") ? l.label.split("(")[0].trim() : l.label;
                   return (
                     <button
                       key={l.code}
                       onClick={() => handleTranslate(l.code)}
-                      className={`relative flex flex-col items-start gap-1.5 overflow-hidden rounded-2xl border p-3 text-left transition-all active:scale-[0.98] ${
+                      className={`relative flex min-w-0 flex-col items-center gap-1 rounded-xl border p-2 text-center transition-all active:scale-[0.97] ${
                         isActive
                           ? "border-primary bg-primary text-primary-foreground shadow-navy"
                           : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-muted/50"
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute right-2 top-2">
-                          <CheckCircle className="h-4 w-4 text-accent" strokeWidth={2} />
-                        </div>
+                        <CheckCircle className="absolute right-1 top-1 h-3 w-3 text-accent" strokeWidth={2.5} />
                       )}
-                      <span className="text-2xl leading-none">{l.flag}</span>
-                      <div className="min-w-0">
-                        <p className={`truncate text-sm font-semibold leading-tight ${isActive ? "text-primary-foreground" : "text-foreground"}`}>
-                          {native}
-                        </p>
-                        {latin && (
-                          <p className={`truncate text-[10px] leading-tight ${isActive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                            {latin}
-                          </p>
-                        )}
-                      </div>
+                      <span className="text-xl leading-none">{l.flag}</span>
+                      <span className={`block w-full truncate text-[11px] font-semibold leading-tight ${isActive ? "text-primary-foreground" : "text-foreground"}`}>
+                        {native}
+                      </span>
                     </button>
                   );
                 })}
