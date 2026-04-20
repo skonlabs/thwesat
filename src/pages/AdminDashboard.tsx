@@ -89,14 +89,18 @@ const AdminDashboard = () => {
           )}
         </div>
         <div className="mb-5 space-y-2">
-          {pendingItems.map((item, i) => (
-            <motion.button key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }} onClick={() => navigate(item.path)} className={`flex w-full items-center gap-3 rounded-xl border bg-card p-3.5 text-left active:bg-muted/30 ${item.urgent && item.count > 0 ? "border-destructive/30" : "border-border"}`}>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${item.urgent && item.count > 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}><item.icon className="h-4 w-4" strokeWidth={1.5} /></div>
-              <p className="flex-1 text-sm font-medium text-foreground">{lang === "my" ? item.label.my : item.label.en}</p>
-              <span className={`min-w-[28px] rounded-full px-2 py-0.5 text-center text-xs font-bold ${item.urgent && item.count > 0 ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"}`}>{item.count}</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            </motion.button>
-          ))}
+          {pendingItems.map((item, i) => {
+            const showUrgent = item.urgent && item.count > 0;
+            return (
+              <motion.button key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }} onClick={() => navigate(item.path)} className={`relative flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border bg-card p-3.5 text-left active:bg-muted/30`}>
+                {showUrgent && <span className="absolute inset-y-2 left-0 w-0.5 rounded-r bg-destructive" aria-hidden />}
+                <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${showUrgent ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}><item.icon className="h-4 w-4" strokeWidth={1.5} /></div>
+                <p className="flex-1 text-sm font-medium text-foreground">{lang === "my" ? item.label.my : item.label.en}</p>
+                <span className={`min-w-[28px] rounded-full px-2 py-0.5 text-center text-xs font-bold ${showUrgent ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"}`}>{item.count}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+              </motion.button>
+            );
+          })}
         </div>
 
         {/* Management Grid */}
