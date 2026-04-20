@@ -23,9 +23,8 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 
 const methodLabels: Record<string, string> = {
   kbzpay: "KBZPay",
-  wave: "Wave Money",
-  wise: "Wise",
-  payoneer: "Payoneer",
+  wave: "WaveMoney",
+  promptpay: "PromptPay",
 };
 
 const typeLabels: Record<string, { my: string; en: string }> = {

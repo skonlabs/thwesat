@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
 
-export type PaymentMethod = "kbzpay" | "wave" | "wise" | "payoneer" | "venmo";
+export type PaymentMethod = "kbzpay" | "wave" | "promptpay";
 
 interface PaymentMethodSheetProps {
   open: boolean;
@@ -49,29 +49,19 @@ const methodMeta: Record<PaymentMethod, MethodMeta> = {
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
-  wise: {
-    name: "Wise",
-    logo: "🌍",
-    color: "bg-green-500/10 text-green-600",
+  promptpay: {
+    name: "PromptPay",
+    logo: "🇹🇭",
+    color: "bg-indigo-500/10 text-indigo-600",
     instructions: [
-      { en: "Log in to your Wise account", my: "Wise အကောင့်သို့ ဝင်ပါ" },
-      { en: "Send money to the account below", my: "အောက်ပါ အကောင့်သို့ ငွေလွှဲပါ" },
-      { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
-    ],
-  },
-  payoneer: {
-    name: "Payoneer",
-    logo: "💰",
-    color: "bg-orange-500/10 text-orange-600",
-    instructions: [
-      { en: "Log in to your Payoneer account", my: "Payoneer အကောင့်သို့ ဝင်ပါ" },
-      { en: "Make a payment to the email below", my: "အောက်ပါ အီးမေးလ်သို့ ငွေလွှဲပါ" },
-      { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
+      { en: "Open your Thai banking app", my: "ထိုင်း ဘဏ်အက်ပ်ကို ဖွင့်ပါ" },
+      { en: "Scan PromptPay or transfer to the number below", my: "PromptPay နံပါတ်သို့ ငွေလွှဲပါ" },
+      { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
 };
 
-const allMethods: PaymentMethod[] = ["kbzpay", "wave", "wise", "payoneer"];
+const allMethods: PaymentMethod[] = ["kbzpay", "wave", "promptpay"];
 
 const buildAccountInfo = (
   method: PaymentMethod,
@@ -221,8 +211,7 @@ const PaymentMethodSheet = ({
                       <p className="text-[10px] text-muted-foreground">
                         {m === "kbzpay" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment")}
                         {m === "wave" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile money")}
-                        {m === "wise" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
-                        {m === "payoneer" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
+                        {m === "promptpay" && (lang === "my" ? "ထိုင်း မိုဘိုင်း ငွေပေးချေမှု" : "Thai mobile payment")}
                       </p>
                     </div>
                   </motion.button>
