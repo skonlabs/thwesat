@@ -158,7 +158,7 @@ const PublicProfile = () => {
           </div>
 
           {/* Actions */}
-          {!isOwn && user && (
+          {!isOwn && user && canMessage && (
             <div className="mx-auto w-full max-w-md">
               <Button
                 variant="default"
