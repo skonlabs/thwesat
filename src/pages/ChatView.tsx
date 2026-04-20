@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Lock, Send, Phone, Video, MoreVertical, Paperclip } from "lucide-react";
+import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMessages, useSendMessage } from "@/hooks/use-messages-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TRANSLATE_LANGUAGES } from "@/lib/translate-languages";
+import { useToast } from "@/hooks/use-toast";
 
 const ChatView = () => {
   const navigate = useNavigate();
