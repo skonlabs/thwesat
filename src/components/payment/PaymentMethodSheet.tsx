@@ -18,6 +18,7 @@ interface PaymentMethodSheetProps {
   currency: string;
   paymentType: "subscription" | "mentor_session" | "employer_subscription";
   referenceId?: string;
+  bookingId?: string;
   onSuccess?: () => void;
 }
 
