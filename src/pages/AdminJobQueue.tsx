@@ -142,7 +142,7 @@ const AdminJobQueue = () => {
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
           </button>
           <button onClick={() => setFilter("pending")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "pending" ? "border-primary" : "border-border"}`}>
-            <Clock className="mx-auto mb-1 h-5 w-5 text-amber-600" strokeWidth={1.5} />
+            <Clock className="mx-auto mb-1 h-5 w-5 text-warning" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{pendingCount}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စစ်ဆေးရန်" : "Pending"}</p>
           </button>
