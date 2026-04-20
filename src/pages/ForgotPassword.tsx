@@ -33,7 +33,7 @@ const ForgotPassword = () => {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center bg-background px-5">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
@@ -57,7 +57,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 pt-6 pb-24">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-background px-5 pt-6 pb-24">
       <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
         <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
         <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>
