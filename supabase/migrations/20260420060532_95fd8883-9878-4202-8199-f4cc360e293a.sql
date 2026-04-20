@@ -1,0 +1,2 @@
+INSERT INTO public.mentor_bookings (mentor_id, mentee_id, scheduled_date, scheduled_time, topic, message, status, payment_status, booked_by)
+VALUES ('4ed9eadb-211b-4566-bbdc-c894d3bf2b13', '112e4a7d-905e-40c4-8916-3a0a8a85f293', '2026-05-01', '10:00 AM', 'E2E Test Session', 'Please confirm — testing the accept flow', 'pending', 'unpaid', 'mentee');
