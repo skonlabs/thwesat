@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
+import { usePaymentAccounts } from "@/hooks/use-app-config";
 
 export type PaymentMethod = "kbzpay" | "wave" | "wise" | "payoneer";
 
@@ -20,32 +21,26 @@ interface PaymentMethodSheetProps {
   onSuccess?: () => void;
 }
 
-const methodConfig: Record<PaymentMethod, {
+type MethodMeta = {
   name: string;
-  nameMy: string;
   logo: string;
   color: string;
   instructions: { en: string; my: string }[];
-  accountInfo: { label: { en: string; my: string }; value: string }[];
-}> = {
+};
+
+const methodMeta: Record<PaymentMethod, MethodMeta> = {
   kbzpay: {
     name: "KBZPay",
-    nameMy: "KBZPay",
     logo: "💳",
     color: "bg-blue-500/10 text-blue-600",
     instructions: [
       { en: "Open KBZPay app", my: "KBZPay အက်ပ်ကို ဖွင့်ပါ" },
-      { en: "Scan QR or transfer to the account below", my: "QR ကုဒ် စကန်ဖတ်ပါ သို့မဟုတ် အောက်ပါ အကောင့်သို့ လွှဲပါ" },
+      { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
-    ],
-    accountInfo: [
-      { label: { en: "Phone", my: "ဖုန်းနံပါတ်" }, value: "09-xxx-xxx-xxx" },
-      { label: { en: "Name", my: "အမည်" }, value: "ThweSone Platform" },
     ],
   },
   wave: {
     name: "Wave Money",
-    nameMy: "Wave Money",
     logo: "📱",
     color: "bg-yellow-500/10 text-yellow-600",
     instructions: [
@@ -53,14 +48,9 @@ const methodConfig: Record<PaymentMethod, {
       { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
-    accountInfo: [
-      { label: { en: "Phone", my: "ဖုန်းနံပါတ်" }, value: "09-xxx-xxx-xxx" },
-      { label: { en: "Name", my: "အမည်" }, value: "ThweSone Platform" },
-    ],
   },
   wise: {
     name: "Wise",
-    nameMy: "Wise",
     logo: "🌍",
     color: "bg-green-500/10 text-green-600",
     instructions: [
@@ -68,14 +58,9 @@ const methodConfig: Record<PaymentMethod, {
       { en: "Send money to the account below", my: "အောက်ပါ အကောင့်သို့ ငွေလွှဲပါ" },
       { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
     ],
-    accountInfo: [
-      { label: { en: "Email", my: "အီးမေးလ်" }, value: "pay@thwesone.app" },
-      { label: { en: "Name", my: "အမည်" }, value: "ThweSone Ltd" },
-    ],
   },
   payoneer: {
     name: "Payoneer",
-    nameMy: "Payoneer",
     logo: "💰",
     color: "bg-orange-500/10 text-orange-600",
     instructions: [
@@ -83,14 +68,28 @@ const methodConfig: Record<PaymentMethod, {
       { en: "Make a payment to the email below", my: "အောက်ပါ အီးမေးလ်သို့ ငွေလွှဲပါ" },
       { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
     ],
-    accountInfo: [
-      { label: { en: "Email", my: "အီးမေးလ်" }, value: "pay@thwesone.app" },
-      { label: { en: "Name", my: "အမည်" }, value: "ThweSone Ltd" },
-    ],
   },
 };
 
 const allMethods: PaymentMethod[] = ["kbzpay", "wave", "wise", "payoneer"];
+
+const buildAccountInfo = (
+  method: PaymentMethod,
+  acc: { account_name?: string; account_number?: string; account_email?: string } | undefined,
+): { label: { en: string; my: string }; value: string }[] => {
+  if (!acc) return [];
+  const info: { label: { en: string; my: string }; value: string }[] = [];
+  if (acc.account_number) {
+    info.push({ label: { en: "Phone", my: "ဖုန်းနံပါတ်" }, value: acc.account_number });
+  }
+  if (acc.account_email) {
+    info.push({ label: { en: "Email", my: "အီးမေးလ်" }, value: acc.account_email });
+  }
+  if (acc.account_name) {
+    info.push({ label: { en: "Name", my: "အမည်" }, value: acc.account_name });
+  }
+  return info;
+};
 
 const PaymentMethodSheet = ({
   open,
@@ -105,6 +104,7 @@ const PaymentMethodSheet = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const createPayment = useCreatePaymentRequest();
+  const { data: accounts } = usePaymentAccounts();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<"select" | "instructions" | "upload" | "done">("select");
@@ -167,7 +167,8 @@ const PaymentMethodSheet = ({
     handleClose(false);
   };
 
-  const config = selected ? methodConfig[selected] : null;
+  const config = selected ? methodMeta[selected] : null;
+  const accountInfo = selected ? buildAccountInfo(selected, accounts?.[selected]) : [];
 
   const displayAmount = currency === "MMK"
     ? `${amount.toLocaleString()} ကျပ်`
@@ -203,7 +204,7 @@ const PaymentMethodSheet = ({
           {step === "select" && (
             <div className="space-y-2">
               {allMethods.map((m) => {
-                const c = methodConfig[m];
+                const c = methodMeta[m];
                 return (
                   <motion.button
                     key={m}
@@ -258,7 +259,7 @@ const PaymentMethodSheet = ({
 
               {/* Account info */}
               <div className="mb-4 rounded-xl border border-border bg-card p-3 space-y-2">
-                {config.accountInfo.map((info, i) => (
+                {accountInfo.map((info, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] text-muted-foreground">{lang === "my" ? info.label.my : info.label.en}</p>

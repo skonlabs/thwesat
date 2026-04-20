@@ -93,7 +93,7 @@ const Profile = () => {
   const completionPct = Math.round((filledCount / profileCompletionFields.length) * 100);
 
   const copyReferral = () => {
-    navigator.clipboard.writeText(`https://thwesone.com/signup?ref=${referralCode}`);
+    navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${referralCode}`);
     setReferralCopied(true);
     setTimeout(() => setReferralCopied(false), 2000);
   };
