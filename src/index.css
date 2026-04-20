@@ -81,6 +81,10 @@
     --border: 252 25% 18%;
     --input: 252 25% 18%;
     --ring: 36 100% 68%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
     --sidebar-background: 252 46% 8%;
     --sidebar-foreground: 40 20% 85%;
     --sidebar-primary: 36 100% 68%;
