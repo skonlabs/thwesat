@@ -5,6 +5,8 @@ import { Lock } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 
 const GATE_KEY = "site_gate_passed";
+const GATE_USER = (import.meta.env.VITE_SITE_GATE_USER as string | undefined) || "admin";
+const GATE_PASS = (import.meta.env.VITE_SITE_GATE_PASS as string | undefined) || "ts@123";
 
 const SiteGate = ({ children }: { children: React.ReactNode }) => {
   const { lang } = useLanguage();
@@ -17,7 +19,7 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "admin" && password === "ts@123") {
+    if (username === GATE_USER && password === GATE_PASS) {
       sessionStorage.setItem(GATE_KEY, "1");
       setPassed(true);
     } else {

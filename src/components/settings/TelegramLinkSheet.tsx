@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Send, Copy, Check, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { useTelegramBot } from "@/hooks/use-app-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SettingsBottomSheet from "./SettingsBottomSheet";
@@ -15,10 +16,11 @@ interface TelegramLinkSheetProps {
 
 const TelegramLinkSheet = ({ open, onClose, isLinked, onLink, onUnlink }: TelegramLinkSheetProps) => {
   const { lang } = useLanguage();
+  const { data: bot } = useTelegramBot();
   const [username, setUsername] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const botLink = "https://t.me/ThweSoneBot";
+  const botLink = bot?.url || "https://t.me/ThweSoneBot";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(botLink);
