@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Type, Shield, Bell, Lock, Key, ChevronRight,
+  Type, Shield, Bell, Lock, Key, ChevronRight, Receipt,
   Languages, Eye, Clock, Smartphone, AlertTriangle, Fingerprint, Trash2, LogOut, X, Check
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -135,6 +135,12 @@ const Settings = () => {
       items: [
         { icon: Eye, label: lang === "my" ? "ပရိုဖိုင် မြင်နိုင်မှု" : "Profile Visibility", value: visibilityLabels[profileVisibility]?.[lang] || "Members only", action: () => setShowVisibility(true) },
         { icon: Shield, label: lang === "my" ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy Policy", value: "", action: () => setShowPrivacyPolicy(true) },
+      ],
+    },
+    {
+      title: lang === "my" ? "ငွေပေးချေမှု" : "Billing",
+      items: [
+        { icon: Receipt, label: lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း" : "Payment History", value: "", action: () => navigate("/payments/history") },
       ],
     },
   ];
