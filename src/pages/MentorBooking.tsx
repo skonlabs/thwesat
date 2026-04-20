@@ -124,6 +124,51 @@ const MentorBooking = () => {
   const mentorTz = (mentorProfile as any)?.timezone || "Asia/Yangon";
   const durationLabel = durationOptions.find(d => d.minutes === selectedDuration);
 
+  // Guard: only allow booking when the target user is actually a mentor
+  if (!mentorId) {
+    return (
+      <div className="min-h-screen bg-background pb-10">
+        <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath="/mentors" />
+        <div className="px-5 pt-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            {lang === "my" ? "Mentor မရွေးချယ်ရသေးပါ" : "No mentor selected"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mentorLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!mentorProfile) {
+    return (
+      <div className="min-h-screen bg-background pb-10">
+        <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath="/mentors" />
+        <div className="mx-auto mt-10 max-w-md px-5 text-center">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <h2 className="mb-2 text-base font-semibold text-foreground">
+              {lang === "my" ? "ချိန်းဆို၍ မရပါ" : "Booking Not Available"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {lang === "my"
+                ? "ဤအသုံးပြုသူသည် Mentor မဟုတ်သေးပါ။ ချိန်းဆိုမှု ပြုလုပ်နိုင်ရန် Mentor ဖြစ်ရန် လိုအပ်ပါသည်။"
+                : "This user isn't a mentor, so sessions can't be booked with them."}
+            </p>
+            <Button variant="outline" className="mt-5 rounded-xl" onClick={() => navigate("/mentors")}>
+              {lang === "my" ? "Mentor များကို ကြည့်ရန်" : "Browse Mentors"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (step === 3) {
     return (
       <div className="bg-background pb-10">
