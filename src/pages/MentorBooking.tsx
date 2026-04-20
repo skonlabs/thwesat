@@ -49,7 +49,7 @@ const MentorBooking = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { data: mentorProfile } = useMentorProfile(mentorId || undefined);
+  const { data: mentorProfile, isLoading: mentorLoading } = useMentorProfile(mentorId || undefined);
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
   const createBooking = useCreateBooking();
   const { startConversation } = useStartConversation();
