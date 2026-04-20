@@ -106,6 +106,7 @@ const App = () => (
               <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
               <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
               <Route path="/premium" element={<Premium />} />
+              <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 
