@@ -135,14 +135,49 @@ const ChatView = () => {
         {isLoading ? (
           <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
-          messages.map((msg: any) => (
-            <div key={msg.id} className={`flex ${msg.sender_id === user?.id ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${msg.sender_id === user?.id ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
-                <p className="text-sm leading-relaxed">{msg.content}</p>
-                <p className={`mt-1 text-right text-[9px] ${msg.sender_id === user?.id ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(msg.created_at)}</p>
+          messages.map((msg: any) => {
+            const isMine = msg.sender_id === user?.id;
+            const tr = translations[msg.id];
+            const trMeta = tr ? TRANSLATE_LANGUAGES.find(l => l.code === tr.lang) : null;
+            return (
+              <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                <div className={`group max-w-[80%] rounded-2xl px-3.5 py-2.5 ${isMine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border border-border bg-card text-foreground"}`}>
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                  {tr && (
+                    <div className={`mt-2 border-t pt-2 ${isMine ? "border-primary-foreground/20" : "border-border"}`}>
+                      <p className={`mb-0.5 text-[9px] uppercase tracking-wide ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
+                        {trMeta?.flag} {trMeta?.label}
+                      </p>
+                      <p className={`text-sm leading-relaxed ${isMine ? "text-primary-foreground/90" : "text-foreground/90"}`}>{tr.text}</p>
+                    </div>
+                  )}
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => setPickerForMsgId(msg.id)}
+                      disabled={translatingId === msg.id}
+                      className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium transition-colors ${
+                        isMine
+                          ? "text-primary-foreground/70 active:bg-primary-foreground/10"
+                          : "text-muted-foreground active:bg-muted"
+                      }`}
+                    >
+                      {translatingId === msg.id ? (
+                        <Loader2 className="h-2.5 w-2.5 animate-spin" strokeWidth={2} />
+                      ) : (
+                        <Languages className="h-2.5 w-2.5" strokeWidth={2} />
+                      )}
+                      {translatingId === msg.id
+                        ? (lang === "my" ? "ဘာသာပြန်နေသည်" : "Translating")
+                        : tr
+                          ? (lang === "my" ? "ဘာသာစကား ပြောင်း" : "Change language")
+                          : (lang === "my" ? "ဘာသာပြန်ရန်" : "Translate")}
+                    </button>
+                    <p className={`text-[9px] ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(msg.created_at)}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>
