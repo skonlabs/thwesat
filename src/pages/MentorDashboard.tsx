@@ -24,7 +24,7 @@ const availabilityDays = [
 const quickActions = [
   { icon: Users, label: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
   { icon: MessageCircle, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/10", fg: "text-accent" },
+  { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
   { icon: Eye, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
 ];
 
@@ -126,7 +126,7 @@ const MentorDashboard = () => {
   const stats = [
     { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10", path: "/mentors/bookings" },
     { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors/dashboard" },
-    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-accent bg-accent/10", path: "/mentors/dashboard" },
+    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-gold-dark bg-accent/15", path: "/mentors/dashboard" },
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
@@ -182,7 +182,7 @@ const MentorDashboard = () => {
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value)}
@@ -197,9 +197,9 @@ const MentorDashboard = () => {
               <Input type="number" min="0" value={hourlyRate} onChange={e => {
                 const val = e.target.value;
                 if (val === "" || Number(val) >= 0) setHourlyRate(val);
-              }} className="h-10 w-24 rounded-xl text-center" />
+              }} className="h-10 w-20 rounded-xl text-center" />
               <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
-              <Button variant="outline" size="sm" className="ml-auto rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
+              <Button variant="outline" size="sm" className="ml-auto h-10 rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
           </div>
         </motion.div>

@@ -154,7 +154,7 @@ const AdminJobQueue = () => {
         </div>
 
         {/* Filter pills */}
-        <div className="mb-4 flex gap-2 overflow-x-auto">
+        <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {filters.map(f => (
             <button
               key={f.id}

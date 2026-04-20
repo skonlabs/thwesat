@@ -224,8 +224,8 @@ const ModeratorDashboard = () => {
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
             <TabsTrigger value="jobs" className="text-xs">{lang === "my" ? "အလုပ်" : "Jobs"}{pendingJobs.length > 0 && ` (${pendingJobs.length})`}</TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs">{lang === "my" ? "ငွေ" : "Pay"}{pendingPayments.length > 0 && ` (${pendingPayments.length})`}</TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs">{lang === "my" ? "ချိန်း" : "Book"}</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs">{lang === "my" ? "ငွေပေးချေ" : "Payments"}{pendingPayments.length > 0 && ` (${pendingPayments.length})`}</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs">{lang === "my" ? "ချိန်းဆိုမှု" : "Bookings"}</TabsTrigger>
           </TabsList>
 
           {/* ─── POSTS TAB ─── */}

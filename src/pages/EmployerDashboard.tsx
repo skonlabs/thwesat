@@ -83,7 +83,7 @@ const EmployerDashboard = () => {
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
         {/* Company info + subscription */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4 shadow-card">
           <div className="flex items-start gap-3">
             <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
@@ -186,11 +186,11 @@ const EmployerDashboard = () => {
                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
                     </button>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
-                        <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
+                        <Pencil className="h-4 w-4" strokeWidth={1.5} />
                       </button>
-                      <button onClick={() => setDeleteConfirmId(listing.id)} className="rounded-lg p-1.5 text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <button onClick={() => setDeleteConfirmId(listing.id)} className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
+                        <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                       </button>
                     </div>
                   </div>

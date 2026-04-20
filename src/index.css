@@ -139,4 +139,15 @@
     background-image: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.5), transparent);
     height: 1px;
   }
+
+  /* Hide scrollbars on horizontal scroll containers (filter pill rows, etc.) */
+  .scrollbar-none,
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar,
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

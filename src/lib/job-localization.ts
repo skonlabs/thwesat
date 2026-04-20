@@ -37,6 +37,22 @@ const jobTypeMap: Record<string, string> = {
   remote: "အဝေးထိန်း",
   remote_full: "အဝေးထိန်း အချိန်ပြည့်",
   remote_contract: "အဝေးထိန်း စာချုပ်",
+  remote_partial: "အဝေးထိန်း အချိန်ပိုင်း",
+  onsite: "ရုံးတွင်း",
+  freelance: "လွတ်လပ်အလုပ်",
+};
+
+const jobTypeMapEn: Record<string, string> = {
+  full_time: "Full-time",
+  part_time: "Part-time",
+  contract: "Contract",
+  hybrid: "Hybrid",
+  remote: "Remote",
+  remote_full: "Remote Full-time",
+  remote_contract: "Remote Contract",
+  remote_partial: "Remote Part-time",
+  onsite: "On-site",
+  freelance: "Freelance",
 };
 
 const tagMap: Record<string, string> = {
@@ -90,7 +106,9 @@ export function translateJobCategory(category: string | null | undefined, lang: 
 
 export function translateJobType(jobType: string | null | undefined, lang: Language): string {
   if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
-  return translateFromMap(jobType, jobTypeMap, lang, normalizeJobType);
+  if (lang === "my") return translateFromMap(jobType, jobTypeMap, lang, normalizeJobType);
+  const key = normalizeJobType(jobType);
+  return jobTypeMapEn[key] || jobType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function translateJobTags(tags: string[] | null | undefined, lang: Language): string[] {
