@@ -75,11 +75,11 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
-              onClick={() => navigate(effectiveRole === "employer" ? "/employer/dashboard" : effectiveRole === "mentor" ? "/mentors/dashboard" : "/home")}
-            onTouchStart={startHold}
+            onClick={() => navigate(effectiveRole === "employer" ? "/employer/dashboard" : effectiveRole === "mentor" ? "/mentors/dashboard" : "/home")}
+            onTouchStart={(e) => { e.currentTarget.dataset.touched = "1"; startHold(); }}
             onTouchEnd={cancelHold}
             onTouchCancel={cancelHold}
-            onMouseDown={startHold}
+            onMouseDown={(e) => { if (e.currentTarget.dataset.touched === "1") return; startHold(); }}
             onMouseUp={cancelHold}
             onMouseLeave={cancelHold}
             className="flex items-center gap-2 select-none"
