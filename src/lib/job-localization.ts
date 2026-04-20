@@ -106,7 +106,9 @@ export function translateJobCategory(category: string | null | undefined, lang: 
 
 export function translateJobType(jobType: string | null | undefined, lang: Language): string {
   if (!jobType) return lang === "my" ? "အချိန်ပြည့်" : "Full-time";
-  return translateFromMap(jobType, jobTypeMap, lang, normalizeJobType);
+  if (lang === "my") return translateFromMap(jobType, jobTypeMap, lang, normalizeJobType);
+  const key = normalizeJobType(jobType);
+  return jobTypeMapEn[key] || jobType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function translateJobTags(tags: string[] | null | undefined, lang: Language): string[] {
