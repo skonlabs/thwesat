@@ -132,7 +132,7 @@ const AdminEmployers = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် စီမံခန့်ခွဲ" : "Employer Management"} />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် စီမံခန့်ခွဲ" : "Employer Management"} showBack />
       <div className="px-5">
         <Tabs value={tab} onValueChange={setTab} className="mb-4">
           <TabsList className="w-full">

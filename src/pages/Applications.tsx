@@ -70,7 +70,7 @@ const Applications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} />
+      <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} showBack />
       <div className="px-5">
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[

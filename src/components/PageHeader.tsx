@@ -12,11 +12,15 @@ import logo from "@/assets/logo.svg";
 
 interface PageHeaderProps {
   title: string;
+  /** Fallback path used only when there is no prior in-app history (e.g. opened via direct link). Default browser-back is preferred. */
   backPath?: string;
+  /** Custom back handler. When provided, takes precedence over default browser-back. */
   onBack?: () => void;
+  /** When true, always show the back button (even if no backPath/onBack is provided) using browser history. Defaults to true when backPath is set. */
+  showBack?: boolean;
 }
 
-const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
+const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
@@ -142,8 +146,23 @@ const PageHeader = ({ title, backPath, onBack }: PageHeaderProps) => {
         </div>
       </header>
       <div className="flex items-center px-5 pb-1 pt-3">
-        {(backPath || onBack) && (
-          <button onClick={() => onBack ? onBack() : navigate(backPath!)} className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted">
+        {(backPath || onBack || showBack) && (
+          <button
+            onClick={() => {
+              if (onBack) return onBack();
+              // Prefer browser back so the user returns exactly where they came from.
+              // Only fall back to backPath when there is no in-app history (direct link / fresh tab).
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else if (backPath) {
+                navigate(backPath);
+              } else {
+                navigate("/home");
+              }
+            }}
+            aria-label={lang === "my" ? "နောက်သို့" : "Back"}
+            className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted"
+          >
             <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
         )}

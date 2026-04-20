@@ -145,7 +145,7 @@ const AiProfileBuilder = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools"} />
+      <PageHeader title={lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools"} showBack />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {isEmployer ? (

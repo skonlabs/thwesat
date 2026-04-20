@@ -193,7 +193,7 @@ const MentorBooking = () => {
   if (step === 3) {
     return (
       <div className="bg-background pb-10">
-        <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} backPath="/mentors" />
+        <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} onBack={() => navigate("/mentors")} />
         <div className="flex flex-col items-center px-5 pt-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex w-full max-w-sm flex-col items-center text-center">
             <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">

@@ -62,7 +62,7 @@ const PublicProfile = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} />
+        <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
         <div className="flex flex-col items-center py-16 text-center px-5">
           <p className="text-sm text-muted-foreground">{lang === "my" ? "ပရိုဖိုင် မတွေ့ပါ" : "Profile not found"}</p>
           <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate(-1)}>
@@ -77,7 +77,7 @@ const PublicProfile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} />
+      <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Header */}
