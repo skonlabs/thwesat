@@ -177,7 +177,10 @@ const SearchTalent = () => {
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="text-sm font-semibold text-foreground">{talent.display_name}</h3>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h3 className="text-sm font-semibold text-foreground">{talent.display_name}</h3>
+                            <UserRoleBadges userId={talent.id} />
+                          </div>
                           <p className="text-[11px] text-muted-foreground">{talent.headline || ""} {talent.experience ? `· ${talent.experience}` : ""}</p>
                         </div>
                         {talent.remote_ready ? (
