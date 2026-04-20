@@ -1,4 +1,1 @@
 project_id = "dbnyhtvpnzsleeqnmggc"
-
-[functions.reset-test-passwords]
-verify_jwt = false
