@@ -104,6 +104,7 @@ const PaymentMethodSheet = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const createPayment = useCreatePaymentRequest();
+  const { data: accounts } = usePaymentAccounts();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<"select" | "instructions" | "upload" | "done">("select");
@@ -166,7 +167,8 @@ const PaymentMethodSheet = ({
     handleClose(false);
   };
 
-  const config = selected ? methodConfig[selected] : null;
+  const config = selected ? methodMeta[selected] : null;
+  const accountInfo = selected ? buildAccountInfo(selected, accounts?.[selected]) : [];
 
   const displayAmount = currency === "MMK"
     ? `${amount.toLocaleString()} ကျပ်`
@@ -202,7 +204,7 @@ const PaymentMethodSheet = ({
           {step === "select" && (
             <div className="space-y-2">
               {allMethods.map((m) => {
-                const c = methodConfig[m];
+                const c = methodMeta[m];
                 return (
                   <motion.button
                     key={m}
@@ -257,7 +259,7 @@ const PaymentMethodSheet = ({
 
               {/* Account info */}
               <div className="mb-4 rounded-xl border border-border bg-card p-3 space-y-2">
-                {config.accountInfo.map((info, i) => (
+                {accountInfo.map((info, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] text-muted-foreground">{lang === "my" ? info.label.my : info.label.en}</p>
