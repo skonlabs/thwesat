@@ -40,6 +40,8 @@ const Applications = () => {
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  const [confirmAccept, setConfirmAccept] = useState(false);
+  const [confirmDecline, setConfirmDecline] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("filter") || "all";
   const setFilter = (next: string) => {
