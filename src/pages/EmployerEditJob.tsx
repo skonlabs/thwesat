@@ -46,7 +46,7 @@ const EmployerEditJob = () => {
   const [requirementsEn, setRequirementsEn] = useState("");
   const [requirementsMy, setRequirementsMy] = useState("");
   const [roleType, setRoleType] = useState("");
-  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [locationCountry, setLocationCountry] = useState("");
@@ -69,7 +69,8 @@ const EmployerEditJob = () => {
       setRequirementsEn(job.requirements || "");
       setRequirementsMy(job.requirements_my || "");
       setRoleType(job.role_type || "");
-      setCategory(job.category || "");
+      const jobCategories = (job as any).categories as string[] | null | undefined;
+      setCategories(jobCategories && jobCategories.length > 0 ? jobCategories : (job.category ? [job.category] : []));
       setSalaryMin(job.salary_min?.toString() || "");
       setSalaryMax(job.salary_max?.toString() || "");
       setLocationCountry(job.location || "");
@@ -116,7 +117,8 @@ const EmployerEditJob = () => {
       requirements: requirementsEn,
       requirements_my: requirementsMy || null,
       role_type: roleType,
-      category,
+      category: categories[0] || null,
+      categories,
       salary_min: minVal,
       salary_max: maxVal,
       location: locationCountry || "Remote",
@@ -198,8 +200,9 @@ const EmployerEditJob = () => {
           </div>
         </div>
         <div>
-          <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</label>
-          <CategoryCombobox value={category} onChange={setCategory} />
+          <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစားများ" : "Categories"}</label>
+          <CategoryCombobox values={categories} onChange={setCategories} />
+          <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသည့် အမျိုးအစားများကို ဖယ်ရှားရန် ✕ ကို နှိပ်ပါ" : "Tap ✕ on a chip to remove a category."}</p>
         </div>
         <div className="flex gap-3">
           <div className="flex-1">

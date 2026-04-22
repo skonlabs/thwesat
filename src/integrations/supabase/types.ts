@@ -444,6 +444,7 @@ export type Database = {
         Row: {
           applicant_count: number | null
           application_method: string | null
+          categories: string[]
           category: string | null
           company: string
           created_at: string | null
@@ -477,6 +478,7 @@ export type Database = {
         Insert: {
           applicant_count?: number | null
           application_method?: string | null
+          categories?: string[]
           category?: string | null
           company?: string
           created_at?: string | null
@@ -510,6 +512,7 @@ export type Database = {
         Update: {
           applicant_count?: number | null
           application_method?: string | null
+          categories?: string[]
           category?: string | null
           company?: string
           created_at?: string | null

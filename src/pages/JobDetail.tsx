@@ -12,7 +12,7 @@ import PageHeader from "@/components/PageHeader";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery } from "@tanstack/react-query";
-import { formatJobSalary, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
+import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 import { pickLocalized } from "@/lib/i18n";
 import { shareJobLink } from "@/lib/share-job";
 
@@ -232,6 +232,11 @@ const JobDetail = () => {
               <h1 className="text-lg font-bold text-foreground">{displayTitle}</h1>
               <p className="text-sm text-muted-foreground">{job.company}</p>
               <div className="mt-2 flex flex-wrap gap-2">
+                {translateJobCategories(job, lang).map((cat) => (
+                  <span key={cat} className="rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-medium text-accent-foreground/80">
+                    {cat}
+                  </span>
+                ))}
                 {job.is_verified && (
                   <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2.5 py-1 text-[11px] font-medium text-emerald">
                     <CheckCircle className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
