@@ -11,6 +11,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
+import CategoryCombobox from "@/components/employer/CategoryCombobox";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -18,7 +19,7 @@ const roleTypes = [
   { value: "hybrid", label: { my: "Hybrid", en: "Hybrid" } },
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
-const categories = ["tech", "design", "pm", "ngo", "translation", "finance", "education", "healthcare"];
+
 const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
 const applicationMethods = [
   { value: "platform", label: { my: "ThweSat မှ", en: "Via Platform" } },
