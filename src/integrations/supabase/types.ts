@@ -35,6 +35,51 @@ export type Database = {
         }
         Relationships: []
       }
+      application_status_history: {
+        Row: {
+          applicant_id: string
+          application_id: string
+          changed_by: string | null
+          created_at: string
+          employer_id: string | null
+          id: string
+          job_id: string
+          metadata: Json
+          new_status: string
+          old_status: string | null
+          reason: string | null
+          reason_my: string | null
+        }
+        Insert: {
+          applicant_id: string
+          application_id: string
+          changed_by?: string | null
+          created_at?: string
+          employer_id?: string | null
+          id?: string
+          job_id: string
+          metadata?: Json
+          new_status: string
+          old_status?: string | null
+          reason?: string | null
+          reason_my?: string | null
+        }
+        Update: {
+          applicant_id?: string
+          application_id?: string
+          changed_by?: string | null
+          created_at?: string
+          employer_id?: string | null
+          id?: string
+          job_id?: string
+          metadata?: Json
+          new_status?: string
+          old_status?: string | null
+          reason?: string | null
+          reason_my?: string | null
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applicant_id: string
@@ -437,6 +482,45 @@ export type Database = {
           title_my?: string | null
           updated_at?: string | null
           verified_by?: string | null
+        }
+        Relationships: []
+      }
+      job_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          employer_id: string
+          id: string
+          job_id: string
+          metadata: Json
+          new_status: string
+          old_status: string | null
+          reason: string | null
+          reason_my: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          employer_id: string
+          id?: string
+          job_id: string
+          metadata?: Json
+          new_status: string
+          old_status?: string | null
+          reason?: string | null
+          reason_my?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          employer_id?: string
+          id?: string
+          job_id?: string
+          metadata?: Json
+          new_status?: string
+          old_status?: string | null
+          reason?: string | null
+          reason_my?: string | null
         }
         Relationships: []
       }
