@@ -65,7 +65,6 @@ const EmployerDashboard = () => {
   });
 
   const listings = jobs || [];
-  const filteredListings = filter === "all" ? listings : listings.filter(l => l.status === filter);
   const activeCount = listings.filter(l => l.status === "active").length;
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
   const placedCount = placementSummary?.count || 0;
@@ -73,18 +72,6 @@ const EmployerDashboard = () => {
 
   const planLabel = subscription?.plan_type?.toLowerCase().includes("pro") ? "Pro" : subscription?.plan_type ? "Basic" : null;
   const planExpiry = subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : null;
-
-  const handleDeleteJob = async (jobId: string) => {
-    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
-    if (error) {
-      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete job");
-    } else {
-      toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်ပြီး" : "Job deleted");
-      queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
-    }
-    setDeleteConfirmId(null);
-  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -131,7 +118,7 @@ const EmployerDashboard = () => {
 
         <div className="mb-5 grid grid-cols-2 gap-3">
           {[
-            { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => updateFilter("active") },
+            { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => navigate("/employer/jobs?listingFilter=active") },
             { icon: Users, label: L.applications, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
             { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
             { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") },
@@ -157,22 +144,6 @@ const EmployerDashboard = () => {
         </div>
 
       </div>
-
-      {/* Delete Confirmation */}
-      <AnimatePresence>
-        {deleteConfirmId && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
-              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်မည်" : "Delete Job Listing"}</h3>
-              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။ ဆက်လုပ်မည်လား?" : "This action cannot be undone. Continue?"}</p>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" className="flex-1 rounded-xl" onClick={() => handleDeleteJob(deleteConfirmId)}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
