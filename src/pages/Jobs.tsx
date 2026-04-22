@@ -213,9 +213,9 @@ const Jobs = () => {
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
                   <div className="space-y-2">
                     {[
-                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
-                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: filterVerified, set: setFilterVerified },
-                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: filterVisa, set: setFilterVisa },
+                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: diasporaOn, set: setFilterDiasporaSafe },
+                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: verifiedOn, set: setFilterVerified },
+                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: visaOn, set: setFilterVisa },
                     ].map(toggle => (
                       <button key={toggle.label} onClick={() => toggle.set(!toggle.value)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
                         <span className="text-sm text-foreground">{toggle.label}</span>
