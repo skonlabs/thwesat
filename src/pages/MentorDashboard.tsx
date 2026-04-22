@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, DollarSign, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -44,7 +44,13 @@ const MentorDashboard = () => {
   const { data: earnings } = useMentorEarnings();
   const updateStatus = useUpdateBookingStatus();
   const { startConversation } = useStartConversation();
-  const [bookingFilter, setBookingFilter] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const bookingFilter = searchParams.get("bookingFilter") || "all";
+  const setBookingFilter = (next: string) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("bookingFilter"); else p.set("bookingFilter", next);
+    setSearchParams(p, { replace: true });
+  };
   const [hourlyRate, setHourlyRate] = useState("30");
   const [currency, setCurrency] = useState("USD");
   const [isAvailable, setIsAvailable] = useState(true);
