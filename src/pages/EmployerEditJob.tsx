@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, AlertTriangle, Star } from "lucide-react";
+import { AlertTriangle, Star, Info } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useLanguage } from "@/hooks/use-language";
 import { useJob } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import { applicationMethodOptions, getApplicationMethodLabel, isValidUrl } from "@/lib/employer-labels";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -21,11 +22,6 @@ const roleTypes = [
 ];
 const categories = ["tech", "design", "pm", "ngo", "translation", "finance", "education", "healthcare"];
 const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
-const applicationMethods = [
-  { value: "platform", label: { my: "ThweSat မှ", en: "Via Platform" } },
-  { value: "external", label: { my: "ပြင်ပလင့်ခ်", en: "External URL" } },
-  { value: "email", label: { my: "အီးမေးလ်", en: "Via Email" } },
-];
 
 const EmployerEditJob = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +30,9 @@ const EmployerEditJob = () => {
   const queryClient = useQueryClient();
   const { data: job, isLoading } = useJob(id);
   const [saving, setSaving] = useState(false);
-  
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [showFeaturedInfo, setShowFeaturedInfo] = useState(false);
+
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
   const [descEn, setDescEn] = useState("");
@@ -51,8 +49,11 @@ const EmployerEditJob = () => {
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [wasFeatured, setWasFeatured] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
+  const [urlTouched, setUrlTouched] = useState(false);
+
   useEffect(() => {
     if (job) {
       setTitleEn(job.title || "");
@@ -71,6 +72,7 @@ const EmployerEditJob = () => {
       setRequiresWorkPermit(job.requires_work_permit || false);
       setVisaSponsorship(job.visa_sponsorship || false);
       setIsFeatured(job.is_featured || false);
+      setWasFeatured(job.is_featured || false);
       setApplicationMethod((job as any).application_method || "platform");
       setExternalUrl((job as any).external_url || "");
     }
@@ -78,14 +80,27 @@ const EmployerEditJob = () => {
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
-  const handleSave = async () => {
-    if (!id) return;
+  const externalUrlInvalid = applicationMethod === "external" && !isValidUrl(externalUrl);
+
+  const handleOpenConfirm = () => {
     const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
     if (minVal !== null && maxVal !== null && minVal > maxVal) {
       toast.error(lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary");
       return;
     }
+    if (applicationMethod === "external" && !isValidUrl(externalUrl)) {
+      setUrlTouched(true);
+      toast.error(lang === "my" ? "လင့်ခ် မှန်ကန်အောင် ထည့်ပါ" : "Please enter a valid URL");
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!id) return;
+    const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
+    const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
     setSaving(true);
     const { error } = await supabase.from("jobs").update({
       title: titleEn,
@@ -105,7 +120,7 @@ const EmployerEditJob = () => {
       visa_sponsorship: visaSponsorship,
       is_featured: isFeatured,
       application_method: applicationMethod,
-      external_url: applicationMethod === "external" ? externalUrl : null,
+      external_url: applicationMethod === "external" ? externalUrl.trim() : null,
       job_type: roleType.includes("contract") ? "contract" : "full-time",
     }).eq("id", id);
     setSaving(false);
@@ -116,6 +131,7 @@ const EmployerEditJob = () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      setConfirmOpen(false);
       navigate(-1);
     }
   };
@@ -128,6 +144,8 @@ const EmployerEditJob = () => {
       </div>
     );
   }
+
+  const methodPreview = getApplicationMethodLabel(applicationMethod, lang);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -214,40 +232,123 @@ const EmployerEditJob = () => {
         <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
           <label className="flex items-start gap-3">
             <Checkbox checked={isFeatured} onCheckedChange={v => setIsFeatured(!!v)} className="mt-0.5" />
-            <div>
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-                {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
-              </p>
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                  <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+                  {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
+                </p>
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setShowFeaturedInfo(s => !s); }}
+                  className="rounded-full p-1 text-muted-foreground hover:text-foreground"
+                  aria-label="Featured info"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <p className="mt-0.5 text-[10px] text-muted-foreground">
                 {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည် (Pro အစီအစဉ် လိုအပ်သည်)" : "Highlighted on home screen (requires Pro plan)"}
               </p>
+              {showFeaturedInfo && (
+                <div className="mt-2 rounded-lg border border-accent/30 bg-background p-2.5 text-[11px] leading-relaxed text-foreground">
+                  <p className="font-medium">{lang === "my" ? "Featured အကြောင်း" : "About Featured"}</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">
+                    <li>{lang === "my" ? "Pro အစီအစဉ်ရှိမှသာ Featured အဖြစ်ဖော်ပြနိုင်ပါမည်" : "Featured placement requires an active Pro plan."}</li>
+                    <li>{lang === "my" ? "ပိတ်လိုက်ပါက အလုပ်ခေါ်စာသည် ပုံမှန်စာရင်းသို့ ပြန်ရောက်မည်" : "Turning Featured off moves the listing back to standard placement."}</li>
+                    <li>{lang === "my" ? "လျှောက်ထားသူများနှင့် မက်ဆေ့ချ်များ ဆုံးရှုံးမည်မဟုတ်ပါ" : "No applicants or messages are lost when toggling."}</li>
+                  </ul>
+                </div>
+              )}
+              {wasFeatured && !isFeatured && (
+                <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-[10px] text-destructive">
+                  <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+                  <span>{lang === "my" ? "ပိတ်ပြီးပါက ပင်မစာမျက်နှာတွင် မပြတော့ပါ" : "Turning Featured off will remove home-screen highlighting."}</span>
+                </div>
+              )}
             </div>
           </label>
         </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "လျှောက်ထားနည်း" : "Application Method"}</label>
           <div className="space-y-2">
-            {applicationMethods.map(m => (
+            {applicationMethodOptions.map(m => (
               <button key={m.value} onClick={() => setApplicationMethod(m.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${applicationMethod === m.value ? "border-primary bg-primary/5" : "border-border"}`}>
                 <div className={`h-4 w-4 rounded-full border-2 ${applicationMethod === m.value ? "border-primary bg-primary" : "border-muted-foreground"}`}>
                   {applicationMethod === m.value && <div className="m-0.5 h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
                 </div>
-                <span className="text-xs text-foreground">{lang === "my" ? m.label.my : m.label.en}</span>
+                <span className="text-xs text-foreground">{m.icon} {lang === "my" ? m.label.my : m.label.en}</span>
               </button>
             ))}
           </div>
           {applicationMethod === "external" && (
-            <Input value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." className="mt-2 h-11 rounded-xl" />
+            <div className="mt-2">
+              <Input
+                value={externalUrl}
+                onChange={e => setExternalUrl(e.target.value)}
+                onBlur={() => setUrlTouched(true)}
+                placeholder="https://..."
+                className={`h-11 rounded-xl ${urlTouched && externalUrlInvalid ? "border-destructive" : ""}`}
+              />
+              {urlTouched && externalUrlInvalid && (
+                <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
+                  <AlertTriangle className="h-3 w-3" />
+                  {lang === "my" ? "မှန်ကန်သော လင့်ခ် (https://...) ထည့်ပါ" : "Enter a valid URL starting with http:// or https://"}
+                </p>
+              )}
+            </div>
           )}
         </div>
         <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(-1)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={saving || !titleEn || !descEn}>
-            {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "သိမ်းရန်" : "Save Changes")}
+          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleOpenConfirm} disabled={saving || !titleEn || !descEn}>
+            {lang === "my" ? "သိမ်းရန်" : "Save Changes"}
           </Button>
         </div>
       </div>
+
+      <Sheet open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>{lang === "my" ? "ပြောင်းလဲမှုများကို အတည်ပြုပါ" : "Confirm Changes"}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-3 space-y-3">
+            <div className="rounded-xl border border-border bg-card p-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ" : "Listing"}</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">{titleEn || titleMy}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ထူးခြား" : "Featured"}</p>
+                <p className={`mt-0.5 flex items-center gap-1 text-sm font-medium ${isFeatured ? "text-accent-foreground" : "text-foreground"}`}>
+                  <Star className={`h-3.5 w-3.5 ${isFeatured ? "fill-accent text-accent" : "text-muted-foreground"}`} strokeWidth={2} />
+                  {isFeatured ? (lang === "my" ? "ဖွင့်" : "On") : (lang === "my" ? "ပိတ်" : "Off")}
+                </p>
+                {wasFeatured !== isFeatured && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    {isFeatured ? (lang === "my" ? "ပင်မ၌ ဦးစားပေးဖော်ပြမည်" : "Will be highlighted on home") : (lang === "my" ? "ပင်မမှ ဖယ်ရှားမည်" : "Will lose home highlight")}
+                  </p>
+                )}
+              </div>
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "လျှောက်နည်း" : "Application"}</p>
+                <p className="mt-0.5 text-sm font-medium text-foreground">{methodPreview.icon} {methodPreview.label}</p>
+                {applicationMethod === "external" && externalUrl && (
+                  <p className="mt-1 truncate text-[10px] text-muted-foreground">{externalUrl}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmOpen(false)} disabled={saving}>
+                {lang === "my" ? "ပြန်ပြင်" : "Back"}
+              </Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={saving}>
+                {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "အတည်ပြု" : "Confirm & Save")}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
