@@ -70,7 +70,6 @@ const MentorBookings = () => {
       });
     },
     onSuccess: () => {
-      onSuccess: () => {
       setRatingBookingId(null);
       setRatingText("");
       setRatingValue(5);
