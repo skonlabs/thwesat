@@ -10,28 +10,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrencyRange } from "@/lib/currency";
+import { getApplicationStatusMeta } from "@/lib/status-labels";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
 const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
 
-const statusIcons: Record<string, typeof CheckCircle> = {
-  shortlisted: CheckCircle, viewed: Eye, applied: FileText, submitted: FileText,
-  rejected: X, placed: CheckCircle, interview: Calendar, interviewed: Calendar, offered: CheckCircle,
-  withdrawn: X,
-};
-
-const statusLabels: Record<string, { my: string; en: string; color: string }> = {
-  applied: { my: "တင်ပြပြီး", en: "Applied", color: "bg-muted text-muted-foreground" },
-  submitted: { my: "တင်ပြပြီး", en: "Submitted", color: "bg-muted text-muted-foreground" },
-  viewed: { my: "ကြည့်ရှုပြီး", en: "Viewed", color: "bg-primary/10 text-primary" },
-  shortlisted: { my: "ရွေးချယ်ခံရ", en: "Shortlisted", color: "bg-emerald/10 text-emerald" },
-  interview: { my: "အင်တာဗျူး", en: "Interview", color: "bg-primary/10 text-primary" },
-  interviewed: { my: "အင်တာဗျူး", en: "Interview", color: "bg-primary/10 text-primary" },
-  offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", color: "bg-emerald/10 text-emerald" },
-  rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", color: "bg-destructive/10 text-destructive" },
-  placed: { my: "အောင်မြင်", en: "Placed", color: "bg-emerald/10 text-emerald" },
-  withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", color: "bg-muted text-muted-foreground" },
-};
+// Build local lookup tables from the shared status registry (seeker perspective).
+const APP_STATUS_KEYS = [
+  "applied", "submitted", "viewed", "shortlisted", "interview", "interviewed",
+  "offered", "rejected", "placed", "withdrawn",
+] as const;
+const statusIcons: Record<string, typeof CheckCircle> = Object.fromEntries(
+  APP_STATUS_KEYS.map((k) => [k, getApplicationStatusMeta(k, "seeker").icon])
+) as Record<string, typeof CheckCircle>;
+const statusLabels: Record<string, { my: string; en: string; color: string }> = Object.fromEntries(
+  APP_STATUS_KEYS.map((k) => {
+    const m = getApplicationStatusMeta(k, "seeker");
+    return [k, { my: m.my, en: m.en, color: m.color }];
+  })
+);
 
 const Applications = () => {
   const navigate = useNavigate();

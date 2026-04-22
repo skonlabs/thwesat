@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
+import { getJobStatusMeta } from "@/lib/status-labels";
 
 const checklist = [
   { my: "ကုမ္ပဏီ ဝဘ်ဆိုဒ် ရှိ၍ တရားဝင်", en: "Company website exists & legitimate" },
@@ -19,12 +20,13 @@ const checklist = [
 
 type FilterType = "all" | "pending" | "active" | "rejected" | "closed";
 
-const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = {
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
-  active: { label: { my: "တက်ကြွ", en: "Active" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
-  rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
-  closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "bg-muted text-muted-foreground", icon: Pause },
-};
+const ADMIN_JOB_STATUS_KEYS = ["pending", "active", "rejected", "closed", "paused"] as const;
+const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof Clock }> = Object.fromEntries(
+  ADMIN_JOB_STATUS_KEYS.map((k) => {
+    const m = getJobStatusMeta(k);
+    return [k, { label: { my: m.my, en: m.en }, color: m.color, icon: m.icon }];
+  })
+);
 
 const AdminJobQueue = () => {
   const { lang } = useLanguage();

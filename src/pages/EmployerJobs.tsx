@@ -11,14 +11,15 @@ import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { employerLabels as L, getApplicationMethodLabel } from "@/lib/employer-labels";
 import { shareJobLink } from "@/lib/share-job";
+import { getJobStatusMeta } from "@/lib/status-labels";
 
-const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
-  active: { label: { my: "လက်ခံနေ", en: "Active" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "text-primary bg-primary/10", icon: Clock },
-  paused: { label: { my: "ခေတ္တရပ်", en: "Paused" }, color: "text-muted-foreground bg-muted", icon: Pause },
-  closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "text-destructive bg-destructive/10", icon: XCircle },
-  rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "text-destructive bg-destructive/10", icon: XCircle },
-};
+const JOB_STATUS_KEYS = ["active", "pending", "paused", "closed", "rejected"] as const;
+const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = Object.fromEntries(
+  JOB_STATUS_KEYS.map((k) => {
+    const m = getJobStatusMeta(k);
+    return [k, { label: { my: m.my, en: m.en }, color: m.color, icon: m.icon }];
+  })
+);
 
 const EmployerJobs = () => {
   const navigate = useNavigate();

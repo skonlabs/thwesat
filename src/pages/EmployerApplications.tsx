@@ -11,22 +11,23 @@ import PageHeader from "@/components/PageHeader";
 import JobScopeBar from "@/components/employer/JobScopeBar";
 import { employerLabels as L } from "@/lib/employer-labels";
 import { toast } from "sonner";
+import { getApplicationStatusMeta } from "@/lib/status-labels";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
 const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
 
-const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = {
-  applied: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
-  submitted: { label: { my: "တင်ပြပြီး", en: "New" }, color: "text-primary bg-primary/10" },
-  viewed: { label: { my: "ကြည့်ပြီး", en: "Viewed" }, color: "text-accent bg-accent/10" },
-  shortlisted: { label: { my: "ရွေးချယ်ပြီး", en: "Shortlisted" }, color: "text-emerald bg-emerald/10" },
-  interview: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
-  interviewed: { label: { my: "အင်တာဗျူး", en: "Interview" }, color: "text-primary bg-primary/10" },
-  offered: { label: { my: "ကမ်းလှမ်းပြီး", en: "Offered" }, color: "text-emerald bg-emerald/10" },
-  rejected: { label: { my: "ငြင်းပယ်ပြီး", en: "Rejected" }, color: "text-destructive bg-destructive/10" },
-  placed: { label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, color: "text-emerald bg-emerald/10" },
-  withdrawn: { label: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn" }, color: "text-muted-foreground bg-muted" },
-};
+// Local lookup built from the shared status registry (employer perspective:
+// `applied`/`submitted` show as "New" in the employer's inbox).
+const APP_STATUS_KEYS = [
+  "applied", "submitted", "viewed", "shortlisted", "interview", "interviewed",
+  "offered", "rejected", "placed", "withdrawn",
+] as const;
+const statusConfig: Record<string, { label: { my: string; en: string }; color: string }> = Object.fromEntries(
+  APP_STATUS_KEYS.map((k) => {
+    const m = getApplicationStatusMeta(k, "employer");
+    return [k, { label: { my: m.my, en: m.en }, color: m.color }];
+  })
+);
 
 const statusFlow = ["shortlisted", "interview", "offered"];
 const rejectionReasons = [
