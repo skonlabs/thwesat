@@ -31,9 +31,12 @@ const EmployerEditJob = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: job, isLoading } = useJob(id);
+  const { data: employerProfile } = useEmployerProfile();
+  const isPro = employerProfile?.subscription_tier === "pro";
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [showFeaturedInfo, setShowFeaturedInfo] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
