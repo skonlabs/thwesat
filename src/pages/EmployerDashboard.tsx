@@ -24,6 +24,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 
 const quickActions = [
   { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
+  { icon: Briefcase, label: "အလုပ်ခေါ်စာများ", labelEn: "Job Listings", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
   { icon: UserSearch, label: "ဝန်ထမ်းရှာ", labelEn: "Find Talent", path: "/employer/search", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: CreditCard, label: "ငွေကြေး", labelEn: "Finance", path: "/employer/finance", bg: "bg-accent/20", fg: "text-gold-dark" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-primary/10", fg: "text-primary" },
@@ -184,77 +185,6 @@ const EmployerDashboard = () => {
           ))}
         </div>
 
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">{L.listings[lang]}</h2>
-        </div>
-        <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "active", "pending", "paused", "closed"].map(f => (
-            <button key={f} onClick={() => updateFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="flex flex-col items-center py-12 text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
-            </div>
-          ) : filteredListings.length === 0 ? (
-            <div className="flex flex-col items-center py-12 text-center">
-              <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-              <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိပါ" : "No job listings yet"}</p>
-              <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ပထမဆုံး အလုပ်ခေါ်စာကို တင်ပါ" : "Post your first job to start receiving applications"}</p>
-              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/employer/post-job")}>
-                <Plus className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အလုပ်တင်ရန်" : "Post a Job"}
-              </Button>
-            </div>
-          ) : (
-            filteredListings.map((listing, i) => {
-              const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
-              return (
-                <motion.div key={listing.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                  className="rounded-xl border border-border bg-card p-4 active:bg-muted/30">
-                  <div className="mb-2 flex items-start justify-between gap-2">
-                    <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex-1 text-left">
-                      <h3 className="text-sm font-semibold text-foreground">{lang === "my" && listing.title_my ? listing.title_my : listing.title}</h3>
-                      <p className="text-[10px] text-muted-foreground">{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : ""}</p>
-                    </button>
-                    <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
-                      <sc.icon className="h-3 w-3" strokeWidth={1.5} />
-                      {lang === "my" ? sc.label.my : sc.label.en}
-                    </span>
-                  </div>
-                  {/* App method badge */}
-                  {(() => {
-                    const m = getApplicationMethodLabel((listing as any).application_method, lang);
-                    const Icon = (listing as any).application_method === "external" ? Link2 : (listing as any).application_method === "email" ? Mail : Send;
-                    return (
-                      <div className="mb-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        <Icon className="h-3 w-3" strokeWidth={1.5} />
-                        <span>{L.applicationMethod[lang]}: <span className="font-medium text-foreground">{m.label}</span></span>
-                      </div>
-                    );
-                  })()}
-                  <div className="flex items-center justify-between">
-                    <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-4 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
-                    </button>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
-                        <Pencil className="h-4 w-4" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => setDeleteConfirmId(listing.id)} className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
-                        <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })
-          )}
-        </div>
       </div>
 
       {/* Delete Confirmation */}
