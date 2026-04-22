@@ -109,6 +109,7 @@ export function useUpdateApplicationStatus() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
     },
   });
 }
