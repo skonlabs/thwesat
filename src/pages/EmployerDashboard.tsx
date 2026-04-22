@@ -123,10 +123,14 @@ const EmployerDashboard = () => {
             { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
             { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") },
           ].map((stat, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
-              <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
-              <p className="text-xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-[10px] text-muted-foreground">{lang === "my" ? stat.label.my : stat.label.en}</p>
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
+              <div className="flex items-center gap-2.5">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
+                <div className="min-w-0">
+                  <p className="text-lg font-bold text-foreground leading-tight">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight truncate">{lang === "my" ? stat.label.my : stat.label.en}</p>
+                </div>
+              </div>
             </motion.button>
           ))}
         </div>

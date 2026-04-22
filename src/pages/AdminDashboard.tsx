@@ -108,12 +108,12 @@ const AdminDashboard = () => {
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "စီမံခန့်ခွဲမှု" : "Management"}</h2>
         <div className="grid grid-cols-3 gap-2.5">
           {managementLinks.map((item, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.04 }} onClick={() => navigate(item.path)} className="flex flex-col items-center rounded-xl border border-border bg-card p-3.5 transition-colors active:bg-muted/30">
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <item.icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.04 }} onClick={() => navigate(item.path)} className="flex flex-col items-center rounded-xl border border-border bg-card p-2.5 transition-colors active:bg-muted/30">
+              <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                <item.icon className="h-4 w-4 text-primary" strokeWidth={1.5} />
               </div>
-              <span className="text-xs font-medium text-foreground">{lang === "my" ? item.label.my : item.label.en}</span>
-              <span className="text-[9px] text-muted-foreground">{lang === "my" ? item.desc.my : item.desc.en}</span>
+              <span className="text-[11px] font-medium text-foreground leading-tight text-center">{lang === "my" ? item.label.my : item.label.en}</span>
+              <span className="text-[9px] text-muted-foreground leading-tight mt-0.5">{lang === "my" ? item.desc.my : item.desc.en}</span>
             </motion.button>
           ))}
         </div>
