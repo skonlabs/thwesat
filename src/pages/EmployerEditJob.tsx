@@ -211,6 +211,36 @@ const EmployerEditJob = () => {
             <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
           </label>
         </div>
+        <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
+          <label className="flex items-start gap-3">
+            <Checkbox checked={isFeatured} onCheckedChange={v => setIsFeatured(!!v)} className="mt-0.5" />
+            <div>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+                {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
+              </p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground">
+                {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည် (Pro အစီအစဉ် လိုအပ်သည်)" : "Highlighted on home screen (requires Pro plan)"}
+              </p>
+            </div>
+          </label>
+        </div>
+        <div>
+          <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "လျှောက်ထားနည်း" : "Application Method"}</label>
+          <div className="space-y-2">
+            {applicationMethods.map(m => (
+              <button key={m.value} onClick={() => setApplicationMethod(m.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors ${applicationMethod === m.value ? "border-primary bg-primary/5" : "border-border"}`}>
+                <div className={`h-4 w-4 rounded-full border-2 ${applicationMethod === m.value ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+                  {applicationMethod === m.value && <div className="m-0.5 h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                </div>
+                <span className="text-xs text-foreground">{lang === "my" ? m.label.my : m.label.en}</span>
+              </button>
+            ))}
+          </div>
+          {applicationMethod === "external" && (
+            <Input value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." className="mt-2 h-11 rounded-xl" />
+          )}
+        </div>
         <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(-1)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
           <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={saving || !titleEn || !descEn}>
