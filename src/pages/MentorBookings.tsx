@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -32,7 +32,13 @@ const MentorBookings = () => {
   const updateStatus = useUpdateBookingStatus();
   const markComplete = useMarkSessionComplete();
   const sendNotification = useSendBookingNotification();
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = (searchParams.get("filter") as FilterType) || "all";
+  const setFilter = (next: FilterType) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("filter"); else p.set("filter", next);
+    setSearchParams(p, { replace: true });
+  };
 
   // Rating state
   const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);
