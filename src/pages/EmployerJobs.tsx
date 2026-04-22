@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Pencil, Trash2, Link2, Mail, Send } from "lucide-react";
+import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { employerLabels as L, getApplicationMethodLabel } from "@/lib/employer-labels";
+import { shareJobLink } from "@/lib/share-job";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   active: { label: { my: "လက်ခံနေ", en: "Active" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
@@ -27,6 +28,21 @@ const EmployerJobs = () => {
   const { data: jobs, isLoading } = useEmployerJobs();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [sharingId, setSharingId] = useState<string | null>(null);
+
+  const handleShare = async (job: { id: string; title: string; title_my: string | null; company: string }) => {
+    setSharingId(job.id);
+    try {
+      await shareJobLink({
+        jobId: job.id,
+        title: lang === "my" && job.title_my ? job.title_my : job.title,
+        company: job.company,
+        lang,
+      });
+    } finally {
+      setSharingId(null);
+    }
+  };
 
   useEffect(() => {
     setFilter(searchParams.get("status") || "all");
@@ -132,6 +148,9 @@ const EmployerJobs = () => {
                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
                     </button>
                     <div className="flex items-center gap-1">
+                      <button onClick={() => handleShare(listing)} disabled={sharingId === listing.id} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60" title={lang === "my" ? "မျှဝေရန်" : "Share"}>
+                        {sharingId === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" strokeWidth={1.5} />}
+                      </button>
                       <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
                         <Pencil className="h-4 w-4" strokeWidth={1.5} />
                       </button>
