@@ -51,7 +51,8 @@ const EmployerEditJob = () => {
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
-
+  const [applicationMethod, setApplicationMethod] = useState("platform");
+  const [externalUrl, setExternalUrl] = useState("");
   useEffect(() => {
     if (job) {
       setTitleEn(job.title || "");
