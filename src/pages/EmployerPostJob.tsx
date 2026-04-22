@@ -119,30 +119,36 @@ const EmployerPostJob = () => {
             <p className="mt-1 text-xs text-muted-foreground">
               {lang === "my" ? "💡 ခေါင်းစဉ်နှင့် ဖော်ပြချက်ကို ရှင်းလင်းစွာ ရေးပါ — လျှောက်ထားသူ ပိုများလာပါမည်" : "💡 Clear titles and detailed descriptions attract more qualified applicants"}
             </p>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (English) *" : "Title (English) *"}</label>
-              <Input value={titleEn} onChange={e => setTitleEn(e.target.value)} placeholder="e.g. Senior React Developer" className="h-11 rounded-xl" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ခေါင်းစဉ် (မြန်မာ)" : "Title (Burmese)"}</label>
-              <Input value={titleMy} onChange={e => setTitleMy(e.target.value)} className="h-11 rounded-xl" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (English) *" : "Description (English) *"}</label>
-              <Textarea value={descEn} onChange={e => setDescEn(e.target.value)} className="min-h-[100px] rounded-xl" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖော်ပြချက် (မြန်မာ)" : "Description (Burmese)"}</label>
-              <Textarea value={descMy} onChange={e => setDescMy(e.target.value)} className="min-h-[80px] rounded-xl" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (English)" : "Requirements (English)"}</label>
-              <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} className="min-h-[80px] rounded-xl" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (မြန်မာ)" : "Requirements (Burmese)"}</label>
-              <Textarea value={requirementsMy} onChange={e => setRequirementsMy(e.target.value)} className="min-h-[60px] rounded-xl" />
-            </div>
+            <BilingualField
+              label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
+              required
+              enValue={titleEn}
+              myValue={titleMy}
+              onEnChange={setTitleEn}
+              onMyChange={setTitleMy}
+              lang={lang}
+            />
+            <BilingualField
+              label={lang === "my" ? "ဖော်ပြချက်" : "Description"}
+              required
+              multiline
+              minHeight={100}
+              enValue={descEn}
+              myValue={descMy}
+              onEnChange={setDescEn}
+              onMyChange={setDescMy}
+              lang={lang}
+            />
+            <BilingualField
+              label={lang === "my" ? "လိုအပ်ချက်" : "Requirements"}
+              multiline
+              minHeight={80}
+              enValue={requirementsEn}
+              myValue={requirementsMy}
+              onEnChange={setRequirementsEn}
+              onMyChange={setRequirementsMy}
+              lang={lang}
+            />
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား *" : "Role Type *"}</label>
               <div className="flex flex-wrap gap-2">
