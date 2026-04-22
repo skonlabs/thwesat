@@ -113,8 +113,8 @@ const PullToRefresh = ({
       </div>
       <div
         style={{
-          transform: `translateY(${pull}px)`,
-          transition: refreshing || pulling.current ? "none" : "transform 200ms ease",
+          paddingTop: `${pull}px`,
+          transition: refreshing || pulling.current ? "none" : "padding-top 200ms ease",
         }}
       >
         {children}
