@@ -136,12 +136,12 @@ const EmployerDashboard = () => {
 
         <div className="mb-5 grid grid-cols-2 gap-3">
           {[
-            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", path: "/employer/dashboard" },
-            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", path: "/employer/applications" },
-            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placements" }, value: placedCount.toString(), color: "text-emerald bg-emerald/10", path: "/employer/applications?filter=placed" },
-            { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", path: "/employer/applications?filter=placed" },
+            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => setFilter("active") },
+            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
+            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placements" }, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
+            { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") },
           ].map((stat, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={() => navigate(stat.path)} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
               <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
               <p className="text-xl font-bold text-foreground">{stat.value}</p>
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? stat.label.my : stat.label.en}</p>
@@ -194,7 +194,7 @@ const EmployerDashboard = () => {
                 <motion.div key={listing.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                   className="rounded-xl border border-border bg-card p-4 active:bg-muted/30">
                   <div className="mb-2 flex items-start justify-between">
-                    <button onClick={() => navigate("/employer/applications")} className="flex-1 text-left">
+                    <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex-1 text-left">
                       <h3 className="text-sm font-semibold text-foreground">{lang === "my" && listing.title_my ? listing.title_my : listing.title}</h3>
                       <p className="text-[10px] text-muted-foreground">{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : ""}</p>
                     </button>
@@ -204,7 +204,7 @@ const EmployerDashboard = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <button onClick={() => navigate("/employer/applications")} className="flex items-center gap-4 text-[11px] text-muted-foreground">
+                    <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-4 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
                     </button>
                     <div className="flex items-center gap-1">
