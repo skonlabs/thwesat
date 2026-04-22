@@ -639,7 +639,12 @@ const JobDetail = () => {
               </div>
 
               {/* Submit */}
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleApply} disabled={applyMutation.isPending}>
+              {!selectedCvId && !selectedGeneratedResumeId && (
+                <p className="text-xs text-destructive text-center">
+                  {lang === "my" ? "လျှောက်ထားရန် ကိုယ်ရေးမှတ်တမ်း ရွေးချယ်ပါ" : "Select or upload a resume to apply"}
+                </p>
+              )}
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleApply} disabled={applyMutation.isPending || (!selectedCvId && !selectedGeneratedResumeId)}>
                 {applyMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
