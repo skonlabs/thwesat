@@ -101,7 +101,14 @@ const EmployerApplications = () => {
   const handleReject = async () => {
     if (!selectedId) return;
     try {
-      await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
+      // Look up the matching Burmese mirror from preset list (so applicant sees localized reason)
+      const preset = rejectionReasons.find(r => r.en === rejectionReason);
+      await updateStatus.mutateAsync({
+        id: selectedId,
+        status: "rejected",
+        rejectionReason,
+        rejectionReasonMy: preset?.my,
+      });
       setShowReject(false); setSelectedId(null); setRejectionReason("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ငြင်းပယ်၍ မရပါ: " : "Failed to reject: ") + (err?.message || "unknown"));
