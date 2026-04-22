@@ -58,10 +58,30 @@ const EmployerDashboard = () => {
     enabled: !!user,
   });
 
+  // Fetch placement summary (count + total fees) across employer's jobs
+  const { data: placementSummary } = useQuery({
+    queryKey: ["employer-placements", user?.id],
+    queryFn: async () => {
+      if (!user) return { count: 0, totalFee: 0 };
+      const { data, error } = await supabase
+        .from("applications")
+        .select("placement_fee, jobs!inner(employer_id)")
+        .eq("status", "placed")
+        .eq("jobs.employer_id", user.id);
+      if (error) return { count: 0, totalFee: 0 };
+      const rows = (data || []) as any[];
+      const totalFee = rows.reduce((sum, r) => sum + (Number(r.placement_fee) || 0), 0);
+      return { count: rows.length, totalFee };
+    },
+    enabled: !!user,
+  });
+
   const listings = jobs || [];
   const filteredListings = filter === "all" ? listings : listings.filter(l => l.status === filter);
   const activeCount = listings.filter(l => l.status === "active").length;
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
+  const placedCount = placementSummary?.count || 0;
+  const placedFees = placementSummary?.totalFee || 0;
 
   const planLabel = subscription?.plan_type?.toLowerCase().includes("pro") ? "Pro" : subscription?.plan_type ? "Basic" : null;
   const planExpiry = subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : null;
@@ -118,6 +138,8 @@ const EmployerDashboard = () => {
           {[
             { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", path: "/employer/dashboard" },
             { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", path: "/employer/applications" },
+            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placements" }, value: placedCount.toString(), color: "text-emerald bg-emerald/10", path: "/employer/applications?filter=placed" },
+            { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", path: "/employer/applications?filter=placed" },
           ].map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={() => navigate(stat.path)} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
               <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
