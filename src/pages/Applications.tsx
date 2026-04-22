@@ -66,6 +66,13 @@ const Applications = () => {
     placed: apps.filter((a: any) => a.status === "placed").length,
   };
 
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["applications"] });
+    queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+    queryClient.invalidateQueries({ queryKey: ["job", selected?.job_id] });
+    queryClient.invalidateQueries({ queryKey: ["jobs"] });
+  };
+
   const handleWithdraw = async () => {
     if (!selectedApp) return;
     const { error } = await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
@@ -73,13 +80,42 @@ const Applications = () => {
       toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
       return;
     }
-    // Refresh every surface that reflects this application's state.
-    queryClient.invalidateQueries({ queryKey: ["applications"] });
-    queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
-    queryClient.invalidateQueries({ queryKey: ["job", selected?.job_id] });
-    queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    invalidate();
     toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
     setConfirmWithdraw(false);
+    setSelectedApp(null);
+  };
+
+  const handleAcceptOffer = async () => {
+    if (!selected) return;
+    const salary = Number(selected.jobs?.salary_max || selected.jobs?.salary_min || 0);
+    const fee = salary > 0 ? Math.round(salary * 0.08) : 0;
+    const { error } = await supabase
+      .from("applications")
+      .update({ status: "placed", placement_salary: salary || null, placement_fee: fee || null })
+      .eq("id", selected.id);
+    if (error) {
+      toast.error(lang === "my" ? "လက်ခံ၍ မရပါ" : "Failed to accept offer");
+      return;
+    }
+    invalidate();
+    setConfirmAccept(false);
+    setSelectedApp(null);
+  };
+
+  const handleDeclineOffer = async () => {
+    if (!selected) return;
+    const reason = lang === "my" ? "လျှောက်ထားသူက ကမ်းလှမ်းမှုကို ငြင်းပယ်" : "Candidate declined the offer";
+    const { error } = await supabase
+      .from("applications")
+      .update({ status: "rejected", rejection_reason: reason, rejection_reason_my: "လျှောက်ထားသူက ကမ်းလှမ်းမှုကို ငြင်းပယ်" })
+      .eq("id", selected.id);
+    if (error) {
+      toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to decline offer");
+      return;
+    }
+    invalidate();
+    setConfirmDecline(false);
     setSelectedApp(null);
   };
 
