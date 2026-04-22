@@ -180,7 +180,7 @@ const EmployerApplications = () => {
           ))}
         </div>
         {/* Show only end-state filters not represented by KPI cards above */}
-        {(filter === "placed" || filter === "rejected") && (
+        {filter === "rejected" && (
           <div className="mb-4 flex items-center gap-2">
             <span className="text-[11px] text-muted-foreground">
               {lang === "my" ? "စစ်ထုတ်ထား:" : "Filtered:"}
