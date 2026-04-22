@@ -217,6 +217,15 @@ const JobDetail = () => {
                 <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
                   <Clock className="h-3 w-3" strokeWidth={1.5} /> {job.created_at ? new Date(job.created_at).toLocaleDateString() : ""}
                 </span>
+                {(() => {
+                  const m = (job as any).application_method || "platform";
+                  const label = m === "external" ? (lang === "my" ? "ပြင်ပလင့်ခ်" : "External URL") : m === "email" ? (lang === "my" ? "အီးမေးလ်ဖြင့်" : "Via Email") : (lang === "my" ? "ThweSat မှ" : "Via Platform");
+                  return (
+                    <span className="flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary">
+                      <Send className="h-3 w-3" strokeWidth={1.5} /> {label}
+                    </span>
+                  );
+                })()}
               </div>
             </div>
           </div>
