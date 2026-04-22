@@ -53,7 +53,11 @@ const EmployerPostJob = () => {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
+  const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
+  const [contractDurationMonths, setContractDurationMonths] = useState("");
+  const [contractDurationNote, setContractDurationNote] = useState("");
   const isPro = employerProfile?.subscription_tier === "pro";
+  const isContract = roleType === "remote_contract";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
