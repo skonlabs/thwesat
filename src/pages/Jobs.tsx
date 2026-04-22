@@ -247,7 +247,16 @@ const Jobs = () => {
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
-            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              {activeFilterCount > 0 || activeCategory !== "All" || search
+                ? (lang === "my" ? "စစ်ထုတ်မှုကို ဖြုတ်ပြီး ပြန်ကြည့်ပါ" : "Try clearing filters or search")
+                : (lang === "my" ? "မကြာမီ အလုပ်အသစ်များ ထွက်လာမည်" : "New jobs are added regularly")}
+            </p>
+            {(activeFilterCount > 0 || activeCategory !== "All" || search) && (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveCategory("All"); setSearch(""); }}>
+                {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+              </Button>
+            )}
           </div>
         ) : (
           filteredJobs.map((job, i) => {
