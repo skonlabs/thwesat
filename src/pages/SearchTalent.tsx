@@ -84,7 +84,7 @@ const SearchTalent = () => {
               className="h-11 rounded-xl pl-10"
             />
           </div>
-          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
+          <button type="button" onClick={() => setShowFilters(true)} aria-label={lang === "my" ? "စစ်ထုတ်ရန်" : "Filters"} className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card">
             <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">{activeFilterCount}</span>
