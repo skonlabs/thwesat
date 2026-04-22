@@ -94,12 +94,12 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
       {open && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/40 z-40"
+            className="fixed inset-0 bg-black/40 z-[80]"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
           />
           <motion.div
-            className="fixed left-0 right-0 bottom-16 z-50 bg-background rounded-t-2xl max-h-[80vh] flex flex-col"
+            className="fixed left-1/2 -translate-x-1/2 right-auto bottom-16 w-full max-w-lg z-[81] bg-background rounded-t-2xl max-h-[80vh] flex flex-col border-t border-border shadow-xl"
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
           >
