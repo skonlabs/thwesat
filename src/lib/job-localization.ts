@@ -1,3 +1,5 @@
+import { getCategoryLabel } from "@/lib/job-categories";
+
 type Language = "my" | "en";
 
 type SalaryLike = {
@@ -101,7 +103,21 @@ export function translateJobLocation(location: string | null | undefined, lang: 
 }
 
 export function translateJobCategory(category: string | null | undefined, lang: Language): string {
-  return category ? translateFromMap(category, categoryMap, lang) : "";
+  if (!category) return "";
+  // Prefer canonical preset label; fall back to legacy mapping then custom value.
+  const presetLabel = getCategoryLabel(category, lang);
+  if (presetLabel) return presetLabel;
+  return translateFromMap(category, categoryMap, lang);
+}
+
+export function translateJobCategories(
+  job: { category?: string | null; categories?: string[] | null },
+  lang: Language,
+): string[] {
+  const list = (job.categories && job.categories.length > 0)
+    ? job.categories
+    : (job.category ? [job.category] : []);
+  return list.filter(Boolean).map((c) => translateJobCategory(c, lang));
 }
 
 export function translateJobType(jobType: string | null | undefined, lang: Language): string {

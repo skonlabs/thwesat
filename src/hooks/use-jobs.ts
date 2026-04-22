@@ -15,6 +15,7 @@ export interface Job {
   salary_max: number | null;
   currency: string | null;
   category: string | null;
+  categories: string[] | null;
   skills: string[] | null;
   description: string | null;
   description_my: string | null;
