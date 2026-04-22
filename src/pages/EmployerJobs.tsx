@@ -241,6 +241,14 @@ const EmployerJobs = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <StatusHistorySheet
+        open={!!historyJob}
+        onClose={() => setHistoryJob(null)}
+        kind="job"
+        recordId={historyJob?.id || null}
+        subtitle={historyJob?.title}
+      />
     </div>
   );
 };
