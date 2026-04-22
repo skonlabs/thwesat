@@ -228,32 +228,6 @@ const EmployerApplications = () => {
           })}
         </div>
       </div>
-            </div>
-          ) : filtered.map((app: any, i: number) => {
-            const sc = statusConfig[app.status] || statusConfig.applied;
-            return (
-              <motion.button key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                onClick={() => setSelectedId(app.id)}
-                className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
-                        <p className="text-[11px] text-muted-foreground">{app.jobs?.title || "Job"}</p>
-                      </div>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
 
       <AnimatePresence>
         {selected && !showReject && !showPlacement && (
