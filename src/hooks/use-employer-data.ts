@@ -58,16 +58,22 @@ export function useUpdateApplicationStatus() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async ({ id, status, rejectionReason, placementSalary, placementFee, forwardedToEmail }: {
-      id: string; status: string; rejectionReason?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string;
+    mutationFn: async ({ id, status, rejectionReason, rejectionReasonMy, placementSalary, placementFee, forwardedToEmail }: {
+      id: string; status: string; rejectionReason?: string; rejectionReasonMy?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string;
     }) => {
       const update: any = { status };
       if (rejectionReason) {
         update.rejection_reason = rejectionReason;
-        // Only mirror into _my field if the input is actually Burmese script
-        if (/[\u1000-\u109F]/.test(rejectionReason)) {
+        // Prefer explicit Burmese mirror; otherwise mirror only if input itself is Burmese script
+        if (rejectionReasonMy) {
+          update.rejection_reason_my = rejectionReasonMy;
+        } else if (/[\u1000-\u109F]/.test(rejectionReason)) {
           update.rejection_reason_my = rejectionReason;
         }
+      }
+      // Auto-stamp interview_date when transitioning to interview status
+      if (status === "interview" || status === "interviewed") {
+        update.interview_date = new Date().toISOString();
       }
       if (placementSalary !== undefined && placementSalary !== null) update.placement_salary = placementSalary;
       if (placementFee !== undefined && placementFee !== null) update.placement_fee = placementFee;

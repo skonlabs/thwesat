@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -101,7 +101,14 @@ const EmployerApplications = () => {
   const handleReject = async () => {
     if (!selectedId) return;
     try {
-      await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
+      // Look up the matching Burmese mirror from preset list (so applicant sees localized reason)
+      const preset = rejectionReasons.find(r => r.en === rejectionReason);
+      await updateStatus.mutateAsync({
+        id: selectedId,
+        status: "rejected",
+        rejectionReason,
+        rejectionReasonMy: preset?.my,
+      });
       setShowReject(false); setSelectedId(null); setRejectionReason("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ငြင်းပယ်၍ မရပါ: " : "Failed to reject: ") + (err?.message || "unknown"));
@@ -248,6 +255,12 @@ const EmployerApplications = () => {
                       <span>{selected.jobs?.title || "Application"}</span>
                       {selected.applicant_profile?.location && (
                         <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" strokeWidth={1.5} /> {selected.applicant_profile.location}</span>
+                      )}
+                      {selected.interview_date && (
+                        <span className="flex items-center gap-0.5 text-primary">
+                          <Calendar className="h-2.5 w-2.5" strokeWidth={1.5} />
+                          {lang === "my" ? "အင်တာဗျူး" : "Interview"}: {new Date(selected.interview_date).toLocaleDateString()}
+                        </span>
                       )}
                     </div>
                   </div>
