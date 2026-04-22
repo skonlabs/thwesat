@@ -35,6 +35,7 @@ const rejectionReasons = [
 
 const EmployerApplications = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { lang } = useLanguage();
   const { data: applications, isLoading } = useEmployerApplications();
   const updateStatus = useUpdateApplicationStatus();
@@ -44,7 +45,12 @@ const EmployerApplications = () => {
   const [showPlacement, setShowPlacement] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(searchParams.get("filter") || "all");
+
+  useEffect(() => {
+    const f = searchParams.get("filter");
+    if (f) setFilter(f);
+  }, [searchParams]);
 
   const apps = applications || [];
   const filtered = apps.filter((a: any) => {
