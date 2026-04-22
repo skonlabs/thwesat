@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { applicationMethodOptions, getApplicationMethodLabel, isValidUrl } from "@/lib/employer-labels";
 import BilingualField from "@/components/employer/BilingualField";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
