@@ -51,10 +51,10 @@ const BottomNav = () => {
 
   const adminNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
-    { icon: CreditCard, labelMy: "ငွေ", labelEn: "Payments", path: "/admin/payments" },
     { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
-    { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
+    { icon: DollarSign, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
+    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
+    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
   const moderatorNav: NavItem[] = [
