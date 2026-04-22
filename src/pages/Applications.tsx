@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar } from "lucide-react";
+import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar, History } from "lucide-react";
+import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ const Applications = () => {
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [confirmAccept, setConfirmAccept] = useState(false);
   const [confirmDecline, setConfirmDecline] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("filter") || "all";
   const setFilter = (next: string) => {
@@ -257,11 +259,22 @@ const Applications = () => {
                     {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
                   </Button>
                 </div>
+                <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setHistoryOpen(true)}>
+                  <History className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}
+                </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <StatusHistorySheet
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        kind="application"
+        recordId={selected?.id || null}
+        subtitle={selected?.jobs?.title}
+      />
 
       <AnimatePresence>
         {confirmWithdraw && (
