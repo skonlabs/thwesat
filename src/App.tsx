@@ -12,7 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
-import HomePage from "./pages/HomePage";
+import HomeRedirect from "./pages/HomeRedirect";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
 import SavedJobs from "./pages/SavedJobs";
@@ -86,7 +86,7 @@ const App = () => (
 
             {/* All authenticated pages with bottom nav */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/home" element={<HomeRedirect />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/jobs/saved" element={<SavedJobs />} />
