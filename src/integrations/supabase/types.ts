@@ -447,6 +447,9 @@ export type Database = {
           categories: string[]
           category: string | null
           company: string
+          contract_duration_months: number | null
+          contract_duration_note: string | null
+          contract_duration_type: string | null
           created_at: string | null
           currency: string | null
           description: string | null
@@ -481,6 +484,9 @@ export type Database = {
           categories?: string[]
           category?: string | null
           company?: string
+          contract_duration_months?: number | null
+          contract_duration_note?: string | null
+          contract_duration_type?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -515,6 +521,9 @@ export type Database = {
           categories?: string[]
           category?: string | null
           company?: string
+          contract_duration_months?: number | null
+          contract_duration_note?: string | null
+          contract_duration_type?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
