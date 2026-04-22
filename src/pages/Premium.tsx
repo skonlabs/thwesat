@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Gift, Sparkles, Shield, Zap } from "lucide-react";
+import { Check, Crown, Gift, Sparkles, Shield, Zap, CalendarClock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
@@ -158,11 +160,30 @@ const PlanCard = ({
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [selected, setSelected] = useState("6mo");
   const [paymentOpen, setPaymentOpen] = useState(false);
   const isPremium = profile?.is_premium;
   const { data: plans, isLoading } = useSubscriptionPlans();
+
+  // Fetch active subscription end date so premium users can see when it expires
+  const { data: activeSub } = useQuery({
+    queryKey: ["my-active-subscription", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("plan_type, current_period_end, billing_cycle")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gt("current_period_end", new Date().toISOString())
+        .order("current_period_end", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user && !!isPremium,
+  });
 
   const handleSubscribe = () => {
     if (selected === "free") return;
