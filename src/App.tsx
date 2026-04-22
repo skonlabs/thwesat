@@ -34,6 +34,10 @@ import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import SkillGapAnalysis from "./pages/SkillGapAnalysis";
 import Premium from "./pages/Premium";
 import PaymentHistory from "./pages/PaymentHistory";
+import SeekerFinance from "./pages/SeekerFinance";
+import EmployerFinance from "./pages/EmployerFinance";
+import MentorFinance from "./pages/MentorFinance";
+import AdminFinance from "./pages/AdminFinance";
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -108,6 +112,7 @@ const App = () => (
               <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
               <Route path="/premium" element={<Premium />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
+              <Route path="/finance" element={<SeekerFinance />} />
               <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 
@@ -121,6 +126,9 @@ const App = () => (
               <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
               <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditJob /></AppRoleGuard>} />
               <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />
+              <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerFinance /></AppRoleGuard>} />
+              <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
+              <Route path="/admin/finance" element={<RoleGuard allowedRoles={["admin"]}><AdminFinance /></RoleGuard>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />
