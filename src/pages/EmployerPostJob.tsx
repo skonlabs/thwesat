@@ -146,11 +146,7 @@ const EmployerPostJob = () => {
             </div>
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား *" : "Category *"}</label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map(c => (
-                  <button key={c} onClick={() => setCategory(c)} className={`rounded-full border px-3 py-1.5 text-xs capitalize transition-colors ${category === c ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{c}</button>
-                ))}
-              </div>
+              <CategoryCombobox value={category} onChange={setCategory} />
             </div>
             <div className="mx-auto w-full max-w-md pt-2">
               <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
