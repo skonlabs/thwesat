@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +53,19 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
   const filteredNotifs = filter === "unread" ? notifications.filter(n => !n.is_read) : notifications;
+
+  // Auto-mark unread notifications as read after the user has been on the page ~1.5s
+  const autoMarkedRef = useRef(false);
+  useEffect(() => {
+    if (autoMarkedRef.current) return;
+    if (isLoading) return;
+    if (unreadCount === 0) return;
+    const t = setTimeout(() => {
+      autoMarkedRef.current = true;
+      markAllRead.mutate();
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [isLoading, unreadCount, markAllRead]);
 
   const handleClick = (notif: typeof notifications[0]) => {
     if (!notif.is_read) {

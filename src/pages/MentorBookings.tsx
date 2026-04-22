@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorBookings, useUpdateBookingStatus, useMarkSessionComplete, useSendBookingNotification } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +33,7 @@ const MentorBookings = () => {
   const updateStatus = useUpdateBookingStatus();
   const markComplete = useMarkSessionComplete();
   const sendNotification = useSendBookingNotification();
+  const { startConversation } = useStartConversation();
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = (searchParams.get("filter") as FilterType) || "all";
   const setFilter = (next: FilterType) => {
@@ -240,7 +242,14 @@ const MentorBookings = () => {
                       {booking.status === "confirmed" && (
                         <div className="mt-3 space-y-2">
                           <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => navigate("/messages")}>
+                            <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => {
+                              const otherId = isMentor(booking) ? booking.mentee_id : booking.mentor_id;
+                              const topic = booking.topic || (lang === "my" ? "ကျွန်ုပ်တို့၏ session" : "our session");
+                              const seed = lang === "my"
+                                ? `မင်္ဂလာပါ၊ "${topic}" အကြောင်း ဆွေးနွေးချင်ပါတယ်...`
+                                : `Hi, regarding our upcoming session on "${topic}"...`;
+                              startConversation(otherId, { initialMessage: seed });
+                            }}>
                               <MessageCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                             </Button>
                             {!myCompleted && (

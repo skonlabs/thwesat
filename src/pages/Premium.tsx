@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Gift, Sparkles, Shield, Zap } from "lucide-react";
+import { Check, Crown, Gift, Sparkles, Shield, Zap, CalendarClock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
@@ -158,11 +160,30 @@ const PlanCard = ({
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [selected, setSelected] = useState("6mo");
   const [paymentOpen, setPaymentOpen] = useState(false);
   const isPremium = profile?.is_premium;
   const { data: plans, isLoading } = useSubscriptionPlans();
+
+  // Fetch active subscription end date so premium users can see when it expires
+  const { data: activeSub } = useQuery({
+    queryKey: ["my-active-subscription", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("plan_type, current_period_end, billing_cycle")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gt("current_period_end", new Date().toISOString())
+        .order("current_period_end", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user && !!isPremium,
+  });
 
   const handleSubscribe = () => {
     if (selected === "free") return;
@@ -198,7 +219,32 @@ const Premium = () => {
             </p>
           </div>
 
-          {/* Highlights strip */}
+          {/* Active subscription banner */}
+          {isPremium && activeSub?.current_period_end && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 flex items-center gap-3 rounded-2xl border border-emerald/20 bg-emerald/5 px-4 py-3"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald/15">
+                <CalendarClock className="h-4 w-4 text-emerald" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-foreground">
+                  {lang === "my" ? "ပရီမီယံ အသုံးပြုနေသည်" : "Premium active"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {lang === "my"
+                    ? `${new Date(activeSub.current_period_end).toLocaleDateString()} ထိ`
+                    : `Renews / expires on ${new Date(activeSub.current_period_end).toLocaleDateString()}`}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs" onClick={() => navigate("/payments/history")}>
+                {lang === "my" ? "မှတ်တမ်း" : "History"}
+              </Button>
+            </motion.div>
+          )}
+
           <div className="mb-5 flex items-center justify-center gap-4">
             {[
               { icon: Zap, label: lang === "my" ? "AI ကိရိယာ" : "AI Tools" },

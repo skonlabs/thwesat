@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bookmark, MapPin, Briefcase, Clock, Trash2 } from "lucide-react";
+import { Bookmark, MapPin, Briefcase, Clock, Trash2, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -13,7 +13,7 @@ const SavedJobs = () => {
   const { data: savedJobs, isLoading } = useSavedJobs();
   const toggleSave = useToggleSaveJob();
 
-  const handleRemove = (jobId: string, title: string, e: React.MouseEvent) => {
+  const handleRemove = (jobId: string, _title: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toggleSave.mutate({ jobId, isSaved: true });
   };
@@ -33,6 +33,9 @@ const SavedJobs = () => {
             <Bookmark className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "သိမ်းထားသော အလုပ် မရှိပါ" : "No saved jobs"}</p>
             <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "အလုပ်များကို Bookmark နှိပ်ပြီး သိမ်းထားပါ" : "Bookmark jobs to save them here"}</p>
+            <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/jobs")}>
+              {lang === "my" ? "အလုပ်ရှာဖွေရန်" : "Browse Jobs"}
+            </Button>
           </div>
         ) : (
           jobs.map((job: any, i: number) => (
@@ -45,7 +48,14 @@ const SavedJobs = () => {
                     <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                      {job.is_diaspora_safe && (
+                        <span className="flex items-center rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
+                          <Shield className="mr-0.5 h-2.5 w-2.5" strokeWidth={2} />{lang === "my" ? "လုံခြုံ" : "Safe"}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">{job.company}</p>
                   </div>
                 </div>
