@@ -25,7 +25,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { data: settings } = useUserSettings();
   const updateSettings = useUpdateUserSettings();
 
