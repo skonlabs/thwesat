@@ -384,7 +384,7 @@ const Community = () => {
             <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ပို့စ် မရှိသေးပါ" : "No posts yet"}</p>
             <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ပထမဆုံး ပို့စ်ကို သင်ရေးပါ" : "Be the first to share something with the community"}</p>
-            <Button variant="default" size="sm" className="mt-4 rounded-xl" onClick={() => setShowCreatePost(true)}>
+            <Button variant="default" size="sm" className="mt-4 rounded-xl" onClick={() => setShowNewPost(true)}>
               {lang === "my" ? "ပို့စ် ရေးရန်" : "Create a post"}
             </Button>
           </div>
