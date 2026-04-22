@@ -33,13 +33,28 @@ const quickActions = [
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: empProfile } = useEmployerProfile();
   const { data: jobs, isLoading } = useEmployerJobs();
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(searchParams.get("listingFilter") || "all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Sync URL <-> local filter so context survives back/forward
+  useEffect(() => {
+    const f = searchParams.get("listingFilter");
+    setFilter(f || "all");
+  }, [searchParams]);
+
+  const updateFilter = (next: string) => {
+    setFilter(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === "all") params.delete("listingFilter");
+    else params.set("listingFilter", next);
+    setSearchParams(params, { replace: true });
+  };
 
   // Fetch employer subscription
   const { data: subscription } = useQuery({
