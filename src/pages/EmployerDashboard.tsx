@@ -217,7 +217,7 @@ const EmployerDashboard = () => {
               return (
                 <motion.div key={listing.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                   className="rounded-xl border border-border bg-card p-4 active:bg-muted/30">
-                  <div className="mb-2 flex items-start justify-between">
+                  <div className="mb-2 flex items-start justify-between gap-2">
                     <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex-1 text-left">
                       <h3 className="text-sm font-semibold text-foreground">{lang === "my" && listing.title_my ? listing.title_my : listing.title}</h3>
                       <p className="text-[10px] text-muted-foreground">{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : ""}</p>
@@ -227,6 +227,17 @@ const EmployerDashboard = () => {
                       {lang === "my" ? sc.label.my : sc.label.en}
                     </span>
                   </div>
+                  {/* App method badge */}
+                  {(() => {
+                    const m = getApplicationMethodLabel((listing as any).application_method, lang);
+                    const Icon = (listing as any).application_method === "external" ? Link2 : (listing as any).application_method === "email" ? Mail : Send;
+                    return (
+                      <div className="mb-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Icon className="h-3 w-3" strokeWidth={1.5} />
+                        <span>{L.applicationMethod[lang]}: <span className="font-medium text-foreground">{m.label}</span></span>
+                      </div>
+                    );
+                  })()}
                   <div className="flex items-center justify-between">
                     <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-4 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
