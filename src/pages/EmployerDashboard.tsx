@@ -186,11 +186,11 @@ const EmployerDashboard = () => {
         </div>
 
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Listings"}</h2>
+          <h2 className="text-sm font-bold text-foreground">{L.listings[lang]}</h2>
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {["all", "active", "pending", "paused", "closed"].map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+            <button key={f} onClick={() => updateFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
             </button>
           ))}
