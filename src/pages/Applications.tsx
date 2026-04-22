@@ -280,6 +280,36 @@ const Applications = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmAccept && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmAccept(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ကမ်းလှမ်းမှု လက်ခံမှာ သေချာပါသလား?" : "Accept this offer?"}</h3>
+              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "လက်ခံပြီးပါက အခြေအနေသည် 'ခန့်အပ်ပြီး' ဖြစ်သွားပါမည်။" : "Once accepted, the application status will be marked as Placed."}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleAcceptOffer}>{lang === "my" ? "လက်ခံ" : "Accept"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmDecline && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmDecline(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ကမ်းလှမ်းမှု ငြင်းပယ်မှာ သေချာပါသလား?" : "Decline this offer?"}</h3>
+              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "ငြင်းပယ်ပြီးသည့်နောက် ပြန်လည်လက်ခံ၍ မရနိုင်ပါ။" : "This action cannot be undone."}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmDecline(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleDeclineOffer}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
