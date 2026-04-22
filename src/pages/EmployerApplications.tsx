@@ -169,7 +169,7 @@ const EmployerApplications = () => {
 
         <div className="mb-4 grid grid-cols-5 gap-2">
           {[
-            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
+            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.filter((a: any) => a.status !== "placed").length, color: "text-foreground", filterVal: "all" },
             { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
             { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "interview" },
