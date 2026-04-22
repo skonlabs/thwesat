@@ -289,19 +289,7 @@ const EmployerApplications = () => {
                   {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                 </Button>
               </div>
-              
-              {/* Message applicant button — seeds the first message with the job title */}
-              <Button variant="outline" size="sm" className="mb-4 w-full rounded-xl" onClick={() => {
-                const jobTitle = selected.jobs?.title || "your application";
-                const seed = lang === "my"
-                  ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက် သင့်လျှောက်လွှာနှင့် ပတ်သက်၍...`
-                  : `Hi, regarding your application for "${jobTitle}"...`;
-                setSelectedId(null);
-                startConversation(selected.applicant_id, { initialMessage: seed });
-              }}>
-                <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                {lang === "my" ? "မက်ဆေ့ချ် ပို့ရန်" : "Message Applicant"}
-              </Button>
+
 
               <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
