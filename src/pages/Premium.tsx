@@ -284,6 +284,7 @@ const Premium = () => {
                   isSelected={selected === plan.plan_id}
                   onSelect={() => setSelected(plan.plan_id)}
                   isPremium={isPremium}
+                  activePlanId={isPremium ? activeSub?.plan_type : null}
                   lang={lang}
                   index={i}
                 />
