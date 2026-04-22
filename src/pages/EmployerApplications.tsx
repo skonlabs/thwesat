@@ -126,22 +126,11 @@ const EmployerApplications = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
+      <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
       <div className="px-5">
-        {jobIdParam && (
-          <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
-              <p className="truncate text-xs font-medium text-foreground">
-                <span className="text-muted-foreground">{lang === "my" ? "အလုပ်အလိုက်" : "Filtered by job"}: </span>
-                {scopedJobTitle || (lang === "my" ? "(အမည်မရှိ)" : "(this job)")}
-              </p>
-            </div>
-            <button onClick={clearJobScope} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted">
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
-          </div>
-        )}
+        {/* Job context breadcrumb + dropdown switcher */}
+        <JobScopeBar jobId={jobIdParam} onSelectJob={setJobScope} />
+
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
@@ -149,7 +138,7 @@ const EmployerApplications = () => {
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
             { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
-            <button key={s.label} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
+            <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
               <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
               <p className="text-[9px] text-muted-foreground">{s.label}</p>
             </button>
@@ -157,7 +146,7 @@ const EmployerApplications = () => {
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {["all", "new", "shortlisted", "interview", "offered", "placed", "rejected"].map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+            <button key={f} onClick={() => updateFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f === "all"
                 ? (lang === "my" ? "အားလုံး" : "All")
                 : f === "new"
@@ -175,9 +164,70 @@ const EmployerApplications = () => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center py-12 text-center">
-              <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-              <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်ထားသူ မရှိပါ" : "No applications yet"}</p>
-              <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "လျှောက်ထားသူများ ရောက်လာသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Applications will appear here once candidates apply"}</p>
+              {filter === "placed" ? (
+                <>
+                  <CheckCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                  <p className="text-sm font-medium text-muted-foreground">{L.noPlacements[lang]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">
+                    {lang === "my" ? "ခန့်အပ်လိုက်သောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Confirmed placements will appear here"}
+                  </p>
+                  <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => updateFilter("shortlisted")}>
+                    {lang === "my" ? "ရွေးချယ်ထားသူများ ကြည့်ရန်" : "View shortlisted"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                  <p className="text-sm font-medium text-muted-foreground">{L.noApplications[lang]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">
+                    {jobIdParam
+                      ? (lang === "my" ? "ဤအလုပ်အတွက် လျှောက်ထားသူ မရှိသေးပါ" : "No applications for this listing yet")
+                      : (lang === "my" ? "လျှောက်ထားသူများ ရောက်လာသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Applications will appear here once candidates apply")}
+                  </p>
+                  <div className="mt-4 flex gap-2">
+                    {jobIdParam ? (
+                      <>
+                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setJobScope(undefined)}>
+                          {L.allJobs[lang]}
+                        </Button>
+                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate(`/employer/edit-job/${jobIdParam}`)}>
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" /> {L.editJob[lang]}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate("/employer/post-job")}>
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> {L.postJob[lang]}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          ) : filtered.map((app: any, i: number) => {
+            const sc = statusConfig[app.status] || statusConfig.applied;
+            return (
+              <motion.button key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                onClick={() => setSelectedId(app.id)}
+                className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
+                        <p className="text-[11px] text-muted-foreground">{app.jobs?.title || "Job"}</p>
+                      </div>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
             </div>
           ) : filtered.map((app: any, i: number) => {
             const sc = statusConfig[app.status] || statusConfig.applied;
