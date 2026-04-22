@@ -150,11 +150,12 @@ const EmployerApplications = () => {
         {/* Job context breadcrumb + dropdown switcher */}
         <JobScopeBar jobId={jobIdParam} onSelectJob={setJobScope} />
 
-        <div className="mb-4 grid grid-cols-4 gap-2">
+        <div className="mb-4 grid grid-cols-5 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
             { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
+            { label: lang === "my" ? "ဆောင်ရွက်ဆဲ" : "In Progress", count: apps.filter((a: any) => ["viewed", "interview", "interviewed", "offered"].includes(a.status)).length, color: "text-primary", filterVal: "interview" },
             { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
             <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
