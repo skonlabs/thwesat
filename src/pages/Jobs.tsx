@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useJobs, useSavedJobIds, useToggleSaveJob, useApplications, type Job } from "@/hooks/use-jobs";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -63,14 +64,20 @@ const Jobs = () => {
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
 
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterType, setFilterType] = useState("all");
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterDiasporaSafe, setFilterDiasporaSafe] = useState(false);
-  const [filterVerified, setFilterVerified] = useState(false);
-  const [filterVisa, setFilterVisa] = useState(false);
+  const [filterType, setFilterType] = useSearchParamState("type", "all");
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterDiasporaSafe, setFilterDiasporaSafeRaw] = useSearchParamState("safe", "0");
+  const [filterVerified, setFilterVerifiedRaw] = useSearchParamState("verified", "0");
+  const [filterVisa, setFilterVisaRaw] = useSearchParamState("visa", "0");
+  const setFilterDiasporaSafe = (v: boolean) => setFilterDiasporaSafeRaw(v ? "1" : "0");
+  const setFilterVerified = (v: boolean) => setFilterVerifiedRaw(v ? "1" : "0");
+  const setFilterVisa = (v: boolean) => setFilterVisaRaw(v ? "1" : "0");
+  const diasporaOn = filterDiasporaSafe === "1";
+  const verifiedOn = filterVerified === "1";
+  const visaOn = filterVisa === "1";
   const [showScamAlert, setShowScamAlert] = useState(true);
 
   const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
