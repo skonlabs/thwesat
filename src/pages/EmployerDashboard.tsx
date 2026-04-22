@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Building2, Shield, MessageSquare, Sparkles, UserSearch, Pencil, Trash2, Settings, Crown, CreditCard } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Building2, Shield, MessageSquare, Sparkles, UserSearch, Pencil, Trash2, Settings, Crown, CreditCard, Link2, Mail, Send } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
@@ -11,6 +11,8 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
+import { employerLabels as L, getApplicationMethodLabel } from "@/lib/employer-labels";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   active: { label: { my: "လက်ခံနေ", en: "Active" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
@@ -31,13 +33,28 @@ const quickActions = [
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: empProfile } = useEmployerProfile();
   const { data: jobs, isLoading } = useEmployerJobs();
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(searchParams.get("listingFilter") || "all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Sync URL <-> local filter so context survives back/forward
+  useEffect(() => {
+    const f = searchParams.get("listingFilter");
+    setFilter(f || "all");
+  }, [searchParams]);
+
+  const updateFilter = (next: string) => {
+    setFilter(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === "all") params.delete("listingFilter");
+    else params.set("listingFilter", next);
+    setSearchParams(params, { replace: true });
+  };
 
   // Fetch employer subscription
   const { data: subscription } = useQuery({
@@ -134,11 +151,18 @@ const EmployerDashboard = () => {
           )}
         </motion.div>
 
+        {/* Onboarding checklist (dismissible, hides when complete) */}
+        <EmployerOnboardingChecklist
+          hasCompany={!!empProfile?.company_name}
+          hasAnyJob={listings.length > 0}
+          hasAnyApplication={totalApplicants > 0}
+        />
+
         <div className="mb-5 grid grid-cols-2 gap-3">
           {[
-            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => setFilter("active") },
-            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
-            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placements" }, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
+            { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => updateFilter("active") },
+            { icon: Users, label: L.applications, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
+            { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
             { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") },
           ].map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
@@ -162,11 +186,11 @@ const EmployerDashboard = () => {
         </div>
 
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Listings"}</h2>
+          <h2 className="text-sm font-bold text-foreground">{L.listings[lang]}</h2>
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {["all", "active", "pending", "paused", "closed"].map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+            <button key={f} onClick={() => updateFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
               {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
             </button>
           ))}
@@ -193,7 +217,7 @@ const EmployerDashboard = () => {
               return (
                 <motion.div key={listing.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                   className="rounded-xl border border-border bg-card p-4 active:bg-muted/30">
-                  <div className="mb-2 flex items-start justify-between">
+                  <div className="mb-2 flex items-start justify-between gap-2">
                     <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex-1 text-left">
                       <h3 className="text-sm font-semibold text-foreground">{lang === "my" && listing.title_my ? listing.title_my : listing.title}</h3>
                       <p className="text-[10px] text-muted-foreground">{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : ""}</p>
@@ -203,6 +227,17 @@ const EmployerDashboard = () => {
                       {lang === "my" ? sc.label.my : sc.label.en}
                     </span>
                   </div>
+                  {/* App method badge */}
+                  {(() => {
+                    const m = getApplicationMethodLabel((listing as any).application_method, lang);
+                    const Icon = (listing as any).application_method === "external" ? Link2 : (listing as any).application_method === "email" ? Mail : Send;
+                    return (
+                      <div className="mb-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Icon className="h-3 w-3" strokeWidth={1.5} />
+                        <span>{L.applicationMethod[lang]}: <span className="font-medium text-foreground">{m.label}</span></span>
+                      </div>
+                    );
+                  })()}
                   <div className="flex items-center justify-between">
                     <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-4 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
