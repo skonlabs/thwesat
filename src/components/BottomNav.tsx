@@ -53,7 +53,7 @@ const BottomNav = () => {
     { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
     { icon: DollarSign, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
-    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
+    { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
