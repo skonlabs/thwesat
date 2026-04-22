@@ -40,6 +40,8 @@ const Applications = () => {
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  const [confirmAccept, setConfirmAccept] = useState(false);
+  const [confirmDecline, setConfirmDecline] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("filter") || "all";
   const setFilter = (next: string) => {
@@ -64,6 +66,13 @@ const Applications = () => {
     placed: apps.filter((a: any) => a.status === "placed").length,
   };
 
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["applications"] });
+    queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+    queryClient.invalidateQueries({ queryKey: ["job", selected?.job_id] });
+    queryClient.invalidateQueries({ queryKey: ["jobs"] });
+  };
+
   const handleWithdraw = async () => {
     if (!selectedApp) return;
     const { error } = await supabase.from("applications").update({ status: "withdrawn", withdrawn_at: new Date().toISOString() }).eq("id", selectedApp);
@@ -71,13 +80,42 @@ const Applications = () => {
       toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
       return;
     }
-    // Refresh every surface that reflects this application's state.
-    queryClient.invalidateQueries({ queryKey: ["applications"] });
-    queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
-    queryClient.invalidateQueries({ queryKey: ["job", selected?.job_id] });
-    queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    invalidate();
     toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
     setConfirmWithdraw(false);
+    setSelectedApp(null);
+  };
+
+  const handleAcceptOffer = async () => {
+    if (!selected) return;
+    const salary = Number(selected.jobs?.salary_max || selected.jobs?.salary_min || 0);
+    const fee = salary > 0 ? Math.round(salary * 0.08) : 0;
+    const { error } = await supabase
+      .from("applications")
+      .update({ status: "placed", placement_salary: salary || null, placement_fee: fee || null })
+      .eq("id", selected.id);
+    if (error) {
+      toast.error(lang === "my" ? "လက်ခံ၍ မရပါ" : "Failed to accept offer");
+      return;
+    }
+    invalidate();
+    setConfirmAccept(false);
+    setSelectedApp(null);
+  };
+
+  const handleDeclineOffer = async () => {
+    if (!selected) return;
+    const reason = lang === "my" ? "လျှောက်ထားသူက ကမ်းလှမ်းမှုကို ငြင်းပယ်" : "Candidate declined the offer";
+    const { error } = await supabase
+      .from("applications")
+      .update({ status: "rejected", rejection_reason: reason, rejection_reason_my: "လျှောက်ထားသူက ကမ်းလှမ်းမှုကို ငြင်းပယ်" })
+      .eq("id", selected.id);
+    if (error) {
+      toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to decline offer");
+      return;
+    }
+    invalidate();
+    setConfirmDecline(false);
     setSelectedApp(null);
   };
 
@@ -201,15 +239,27 @@ const Applications = () => {
                   {lang === "my" ? (statusLabels[selected.status] || statusLabels.applied).my : (statusLabels[selected.status] || statusLabels.applied).en}
                 </span>
               </div>
-              <div className="flex gap-3">
-                {(selected.status === "applied" || selected.status === "submitted") && (
-                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
-                    {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
-                  </Button>
+              <div className="flex flex-col gap-2">
+                {(selected.status === "offered" || selected.status === "interviewed") && (
+                  <div className="flex gap-2">
+                    <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(true)}>
+                      {lang === "my" ? "ကမ်းလှမ်းမှု လက်ခံ" : "Accept Offer"}
+                    </Button>
+                    <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmDecline(true)}>
+                      {lang === "my" ? "ငြင်းပယ်" : "Decline"}
+                    </Button>
+                  </div>
                 )}
-                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setSelectedApp(null); navigate(`/jobs/${selected.job_id}`); }}>
-                  {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
-                </Button>
+                <div className="flex gap-2">
+                  {(selected.status === "applied" || selected.status === "submitted") && (
+                    <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
+                      {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
+                    </Button>
+                  )}
+                  <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setSelectedApp(null); navigate(`/jobs/${selected.job_id}`); }}>
+                    {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -225,6 +275,36 @@ const Applications = () => {
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleWithdraw}>{lang === "my" ? "ရုပ်သိမ်း" : "Withdraw"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmAccept && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmAccept(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ကမ်းလှမ်းမှု လက်ခံမှာ သေချာပါသလား?" : "Accept this offer?"}</h3>
+              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "လက်ခံပြီးပါက အခြေအနေသည် 'ခန့်အပ်ပြီး' ဖြစ်သွားပါမည်။" : "Once accepted, the application status will be marked as Placed."}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleAcceptOffer}>{lang === "my" ? "လက်ခံ" : "Accept"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmDecline && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmDecline(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ကမ်းလှမ်းမှု ငြင်းပယ်မှာ သေချာပါသလား?" : "Decline this offer?"}</h3>
+              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "ငြင်းပယ်ပြီးသည့်နောက် ပြန်လည်လက်ခံ၍ မရနိုင်ပါ။" : "This action cannot be undone."}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmDecline(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleDeclineOffer}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
               </div>
             </motion.div>
           </motion.div>
