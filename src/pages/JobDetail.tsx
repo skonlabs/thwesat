@@ -13,6 +13,7 @@ import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplication
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
+import { pickLocalized } from "@/lib/i18n";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -188,7 +189,7 @@ const JobDetail = () => {
   const employerCompanyName = employerDetails?.employer?.company_name || job.company;
   const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
-  const requirementsList = (lang === "my" && job.requirements_my ? job.requirements_my : job.requirements || "")
+  const requirementsList = pickLocalized(job.requirements, job.requirements_my, lang)
     .split("\n")
     .filter(r => r.trim());
 
@@ -261,7 +262,7 @@ const JobDetail = () => {
           <div className="mt-5">
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်အကြောင်း" : "Description"}</h2>
             <p className="text-sm leading-relaxed text-foreground/80">
-              {lang === "my" && job.description_my ? job.description_my : job.description}
+              {pickLocalized(job.description, job.description_my, lang)}
             </p>
           </div>
 
@@ -295,8 +296,16 @@ const JobDetail = () => {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8">
                 <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">{employerCompanyName}</h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-sm font-semibold text-foreground">{employerCompanyName}</h3>
+                  {employerDetails?.employer?.is_verified && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
+                      <CheckCircle className="h-2.5 w-2.5" strokeWidth={2} />
+                      {lang === "my" ? "အတည်ပြု" : "Verified"}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground">{employerHeadline}</p>
               </div>
             </div>
