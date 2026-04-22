@@ -23,8 +23,7 @@ const availabilityDays = [
 
 const quickActions = [
   { icon: Users, label: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: DollarSign, label: "ဝင်ငွေ", labelEn: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: MessageCircle, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-accent/15", fg: "text-gold-dark" },
+  { icon: DollarSign, label: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Eye, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
 ];
 

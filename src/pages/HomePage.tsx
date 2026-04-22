@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, MessageSquare } from "lucide-react";
+import { Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, Wallet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,7 +16,7 @@ const jobseekerActions = [
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/8", fg: "text-primary" },
   { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
-  { icon: MessageSquare, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Wallet, label: "ငွေကြေး", labelEn: "Finance", path: "/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-primary/8", fg: "text-primary" },
 ];
 
