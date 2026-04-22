@@ -257,7 +257,7 @@ const ModeratorDashboard = () => {
             {postsLoading ? <Spinner /> : posts.length === 0 ? <EmptyState label={lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ!" : "All caught up!"} /> : (
               <div className="space-y-3">
                 {posts.map((post: any, i: number) => (
-                  <motion.button key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPostId(post.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                  <motion.button key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPostId(post.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
                     <div className="mb-1 flex items-start justify-between">
                       <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? post.content_my?.slice(0, 50) : (post.content_en || post.content_my)?.slice(0, 50)}...</h3>
                       <span className="text-[10px] text-muted-foreground">{formatTime(post.created_at)}</span>
@@ -277,7 +277,7 @@ const ModeratorDashboard = () => {
             {jobsLoading ? <Spinner /> : pendingJobs.length === 0 ? <EmptyState label={lang === "my" ? "စစ်ဆေးစရာ အလုပ် မရှိပါ" : "No pending jobs"} /> : (
               <div className="space-y-3">
                 {pendingJobs.map((job: any, i: number) => (
-                  <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedJobId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                  <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedJobId(job.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
                     <div className="mb-1 flex items-start justify-between">
                       <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? (job.title_my || job.title) : job.title}</h3>
                       <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
@@ -297,7 +297,7 @@ const ModeratorDashboard = () => {
             {paymentsLoading ? <Spinner /> : paymentRequests.length === 0 ? <EmptyState label={lang === "my" ? "ငွေပေးချေမှု မရှိပါ" : "No payment requests"} /> : (
               <div className="space-y-3">
                 {paymentRequests.map((pr: any, i: number) => (
-                  <motion.button key={pr.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPaymentId(pr.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                  <motion.button key={pr.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPaymentId(pr.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
                     <div className="mb-1 flex items-start justify-between">
                       <h3 className="text-sm font-semibold text-foreground">{pr.profile?.display_name || "User"}</h3>
                       <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ const ModeratorDashboard = () => {
             {bookingsLoading ? <Spinner /> : bookings.length === 0 ? <EmptyState label={lang === "my" ? "ချိန်းဆိုမှု မရှိပါ" : "No bookings"} /> : (
               <div className="space-y-3">
                 {bookings.map((bk: any, i: number) => (
-                  <motion.button key={bk.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedBookingId(bk.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                  <motion.button key={bk.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedBookingId(bk.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
                     <div className="mb-1 flex items-start justify-between">
                       <h3 className="text-sm font-semibold text-foreground line-clamp-1">{bk.topic || bk.topic_my || (lang === "my" ? "ခေါင်းစဉ်မရှိ" : "No topic")}</h3>
                       <div className="flex items-center gap-2">
