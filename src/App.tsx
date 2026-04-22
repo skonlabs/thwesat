@@ -117,9 +117,17 @@ const App = () => (
               <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 
+              {/* Unified dashboard — every role-specific dashboard URL redirects here.
+                  /dashboard renders Employer/Mentor/Admin/Moderator/Seeker view dynamically. */}
+              <Route path="/employer/dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/mentors/dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/mentor/dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/moderator" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
+
               {/* Employer Portal */}
               <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
-              <Route path="/employer/dashboard" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerDashboard /></AppRoleGuard>} />
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
               <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
@@ -131,8 +139,7 @@ const App = () => (
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
               <Route path="/admin/finance" element={<RoleGuard allowedRoles={["admin"]}><AdminFinance /></RoleGuard>} />
 
-              {/* Admin */}
-              <Route path="/admin" element={<RoleGuard allowedRoles={["admin"]}><AdminDashboard /></RoleGuard>} />
+              {/* Admin sub-pages */}
               <Route path="/admin/jobs" element={<RoleGuard allowedRoles={["admin"]}><AdminJobQueue /></RoleGuard>} />
               <Route path="/admin/edit-job/:id" element={<RoleGuard allowedRoles={["admin"]}><EmployerEditJob /></RoleGuard>} />
               <Route path="/admin/users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
@@ -141,13 +148,8 @@ const App = () => (
               <Route path="/admin/employers" element={<RoleGuard allowedRoles={["admin"]}><AdminEmployers /></RoleGuard>} />
               <Route path="/admin/guides/:id" element={<RoleGuard allowedRoles={["admin"]}><AdminEditGuide /></RoleGuard>} />
 
-              {/* Moderator */}
-              <Route path="/moderator" element={<RoleGuard allowedRoles={["admin", "moderator"]}><ModeratorDashboard /></RoleGuard>} />
-
-              {/* Legacy path redirects (for older notifications/links) */}
-              <Route path="/moderator/dashboard" element={<Navigate to="/moderator" replace />} />
+              {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
-              <Route path="/mentor/dashboard" element={<Navigate to="/mentors/dashboard" replace />} />
               <Route path="/mentor/mentees" element={<Navigate to="/mentors/mentees" replace />} />
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
             </Route>
