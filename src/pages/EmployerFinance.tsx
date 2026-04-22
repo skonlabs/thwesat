@@ -42,11 +42,30 @@ const EmployerFinance = () => {
   const navigate = useNavigate();
   const [proofFor, setProofFor] = useState<any | null>(null);
   const [detailFor, setDetailFor] = useState<any | null>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
   const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "subs">("all");
+
+  useEffect(() => {
+    let cancelled = false;
+    setProofUrl(null);
+    if (!detailFor?.proof_url) return;
+    const path = detailFor.proof_url as string;
+    if (/^https?:\/\//i.test(path)) {
+      setProofUrl(path);
+      return;
+    }
+    supabase.storage
+      .from("payment-proofs")
+      .createSignedUrl(path, 3600)
+      .then(({ data }) => {
+        if (!cancelled && data?.signedUrl) setProofUrl(data.signedUrl);
+      });
+    return () => { cancelled = true; };
+  }, [detailFor]);
 
   const { data: payments, isLoading, refetch } = useQuery({
     queryKey: ["employer-finance", user?.id],
