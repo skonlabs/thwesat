@@ -87,7 +87,8 @@ const Jobs = () => {
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.company.toLowerCase().includes(search.toLowerCase()) ||
       (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
-    const matchesCategory = activeCategory === "All" || job.category === activeCategory;
+    const jobCats = (job.categories && job.categories.length > 0) ? job.categories : (job.category ? [job.category] : []);
+    const matchesCategory = activeCategory === "All" || jobCats.some(c => c === activeCategory || c.toLowerCase() === activeCategory.toLowerCase());
     const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
     const matchesLocation = filterLocation === "all" || job.location === filterLocation;
     const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
