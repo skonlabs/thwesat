@@ -397,9 +397,9 @@ const Community = () => {
             const categoryLabel = post.category || "general";
 
             return (
-              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card ${!post.is_approved ? "border-yellow-500/30" : "border-border"}`}>
+              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card ${!post.is_approved ? "border-warning/30" : "border-border"}`}>
                 {!post.is_approved && isOwn && (
-                  <div className="flex items-center gap-2 rounded-t-xl border-b border-yellow-500/20 bg-yellow-500/5 px-4 py-2 text-[11px] font-medium text-yellow-700 dark:text-yellow-400">
+                  <div className="flex items-center gap-2 rounded-t-xl border-b border-warning/20 bg-warning/5 px-4 py-2 text-[11px] font-medium text-warning">
                     <Clock className="h-3 w-3" strokeWidth={2} />
                     {lang === "my" ? "သင်၏ ပို့စ်ကို စစ်ဆေးနေပါသည်။ အတည်ပြုပြီးမှ အခြားသူများ မြင်နိုင်ပါမည်။" : "Your post is awaiting review. It will appear to others once approved."}
                   </div>
