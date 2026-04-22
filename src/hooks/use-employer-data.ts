@@ -64,7 +64,10 @@ export function useUpdateApplicationStatus() {
       const update: any = { status };
       if (rejectionReason) {
         update.rejection_reason = rejectionReason;
-        update.rejection_reason_my = rejectionReason;
+        // Only mirror into _my field if the input is actually Burmese script
+        if (/[\u1000-\u109F]/.test(rejectionReason)) {
+          update.rejection_reason_my = rejectionReason;
+        }
       }
       if (placementSalary !== undefined && placementSalary !== null) update.placement_salary = placementSalary;
       if (placementFee !== undefined && placementFee !== null) update.placement_fee = placementFee;
