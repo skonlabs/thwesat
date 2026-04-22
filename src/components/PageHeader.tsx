@@ -85,7 +85,7 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
-            onClick={() => navigate(effectiveRole === "employer" ? "/employer/dashboard" : effectiveRole === "mentor" ? "/mentors/dashboard" : "/home")}
+            onClick={() => navigate("/dashboard")}
             onTouchStart={(e) => { e.currentTarget.dataset.touched = "1"; startHold(); }}
             onTouchEnd={cancelHold}
             onTouchCancel={cancelHold}
@@ -157,7 +157,7 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
               } else if (backPath) {
                 navigate(backPath);
               } else {
-                navigate("/home");
+                navigate("/dashboard");
               }
             }}
             aria-label={lang === "my" ? "နောက်သို့" : "Back"}

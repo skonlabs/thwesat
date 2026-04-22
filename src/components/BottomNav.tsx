@@ -26,7 +26,7 @@ const BottomNav = () => {
   type NavItem = { icon: typeof Home; labelMy: string; labelEn: string; path: string; badgeKey?: "messages" | "notifications" };
 
   const jobseekerNav: NavItem[] = [
-    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
+    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { icon: Users, labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
     { icon: FileText, labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
@@ -34,7 +34,7 @@ const BottomNav = () => {
   ];
 
   const employerNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/employer/dashboard" },
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/employer/jobs" },
     { icon: Users, labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
     { icon: CheckCircle, labelMy: "ခန့်အပ်မှု", labelEn: "Placements", path: "/employer/applications?filter=placed" },
@@ -42,7 +42,7 @@ const BottomNav = () => {
   ];
 
   const mentorNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/mentors/dashboard" },
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Calendar, labelMy: "ချိန်းဆို", labelEn: "Bookings", path: "/mentors/bookings" },
     { icon: MessageSquare, labelMy: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
     { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
@@ -50,7 +50,7 @@ const BottomNav = () => {
   ];
 
   const adminNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/admin" },
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
     { icon: CreditCard, labelMy: "ငွေ", labelEn: "Payments", path: "/admin/payments" },
     { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
@@ -58,6 +58,7 @@ const BottomNav = () => {
   ];
 
   const moderatorNav: NavItem[] = [
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
