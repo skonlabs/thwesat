@@ -239,15 +239,27 @@ const Applications = () => {
                   {lang === "my" ? (statusLabels[selected.status] || statusLabels.applied).my : (statusLabels[selected.status] || statusLabels.applied).en}
                 </span>
               </div>
-              <div className="flex gap-3">
-                {(selected.status === "applied" || selected.status === "submitted") && (
-                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
-                    {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
-                  </Button>
+              <div className="flex flex-col gap-2">
+                {(selected.status === "offered" || selected.status === "interviewed") && (
+                  <div className="flex gap-2">
+                    <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(true)}>
+                      {lang === "my" ? "ကမ်းလှမ်းမှု လက်ခံ" : "Accept Offer"}
+                    </Button>
+                    <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmDecline(true)}>
+                      {lang === "my" ? "ငြင်းပယ်" : "Decline"}
+                    </Button>
+                  </div>
                 )}
-                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setSelectedApp(null); navigate(`/jobs/${selected.job_id}`); }}>
-                  {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
-                </Button>
+                <div className="flex gap-2">
+                  {(selected.status === "applied" || selected.status === "submitted") && (
+                    <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
+                      {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
+                    </Button>
+                  )}
+                  <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setSelectedApp(null); navigate(`/jobs/${selected.job_id}`); }}>
+                    {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
