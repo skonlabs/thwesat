@@ -35,9 +35,9 @@ const BottomNav = () => {
 
   const employerNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/employer/dashboard" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/employer/jobs" },
     { icon: Users, labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
-    { icon: MessageSquare, labelMy: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
-    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
+    { icon: CheckCircle, labelMy: "ခန့်အပ်မှု", labelEn: "Placements", path: "/employer/applications?filter=placed" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
