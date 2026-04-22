@@ -282,7 +282,15 @@ const Mentors = () => {
                   ))}
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
+                    {nextSlots[mentor.id] && (
+                      <span className="flex items-center gap-1 text-[10px] font-medium text-emerald">
+                        <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                        {lang === "my" ? "နောက်ဆုံး လပ်" : "Next"}: {nextSlots[mentor.id].date} · {nextSlots[mentor.id].time}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
                       <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
