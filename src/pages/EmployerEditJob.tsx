@@ -72,9 +72,13 @@ const EmployerEditJob = () => {
 
   const handleSave = async () => {
     if (!id) return;
-    setSaving(true);
     const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
+    if (minVal !== null && maxVal !== null && minVal > maxVal) {
+      toast.error(lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary");
+      return;
+    }
+    setSaving(true);
     const { error } = await supabase.from("jobs").update({
       title: titleEn,
       title_my: titleMy || null,
@@ -139,6 +143,10 @@ const EmployerEditJob = () => {
         <div>
           <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (English)" : "Requirements (English)"}</label>
           <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} className="min-h-[80px] rounded-xl" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (မြန်မာ)" : "Requirements (Burmese)"}</label>
+          <Textarea value={requirementsMy} onChange={e => setRequirementsMy(e.target.value)} className="min-h-[60px] rounded-xl" />
         </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Role Type"}</label>

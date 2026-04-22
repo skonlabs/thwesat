@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -35,9 +35,10 @@ const rejectionReasons = [
 
 const EmployerApplications = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
-  const { data: applications, isLoading } = useEmployerApplications();
+  const jobIdParam = searchParams.get("jobId") || undefined;
+  const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -49,10 +50,11 @@ const EmployerApplications = () => {
 
   useEffect(() => {
     const f = searchParams.get("filter");
-    if (f) setFilter(f);
+    setFilter(f || "all");
   }, [searchParams]);
 
   const apps = applications || [];
+  const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
   const filtered = apps.filter((a: any) => {
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
@@ -67,6 +69,12 @@ const EmployerApplications = () => {
         ? "applied"
         : selected.status
     : null;
+
+  const clearJobScope = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("jobId");
+    setSearchParams(next, { replace: true });
+  };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
@@ -107,6 +115,20 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
       <div className="px-5">
+        {jobIdParam && (
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
+              <p className="truncate text-xs font-medium text-foreground">
+                <span className="text-muted-foreground">{lang === "my" ? "အလုပ်အလိုက်" : "Filtered by job"}: </span>
+                {scopedJobTitle || (lang === "my" ? "(အမည်မရှိ)" : "(this job)")}
+              </p>
+            </div>
+            <button onClick={clearJobScope} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted">
+              <X className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
+        )}
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
