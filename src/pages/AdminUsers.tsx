@@ -133,7 +133,7 @@ const AdminUsers = () => {
               const isAdminUser = sysRoles.includes("admin");
               const isModUser = sysRoles.includes("moderator");
               return (
-                <motion.button key={user.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} onClick={() => setSelectedId(user.id)} className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left active:bg-muted/30">
+                <motion.button type="button" key={user.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} onClick={() => setSelectedId(user.id)} className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{(user.display_name || "U").slice(0, 2).toUpperCase()}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

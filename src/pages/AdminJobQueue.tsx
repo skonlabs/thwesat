@@ -177,8 +177,8 @@ const AdminJobQueue = () => {
             {jobs.map((job: any, i: number) => {
               const sc = statusConfig[job.status] || statusConfig.pending;
               return (
-                <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
-                  <button onClick={() => setSelectedId(job.id)} className="w-full text-left active:bg-muted/30">
+                <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card overflow-hidden">
+                  <button type="button" onClick={() => setSelectedId(job.id)} className="w-full p-4 text-left transition-colors hover:bg-muted/20 active:bg-muted/30">
                     <div className="flex items-start justify-between">
                       <div className="min-w-0 flex-1">
                         <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
@@ -199,12 +199,12 @@ const AdminJobQueue = () => {
                       {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
                     </div>
                   </button>
-                  <div className="mt-2 flex items-center justify-end gap-1 border-t border-border pt-2">
-                    <button onClick={() => navigate(`/admin/edit-job/${job.id}`)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
+                  <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-2">
+                    <button type="button" onClick={(e) => { e.stopPropagation(); navigate(`/admin/edit-job/${job.id}`); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors">
                       <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
                       <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
                     </button>
-                    <button onClick={() => setDeleteConfirmId(job.id)} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(job.id); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors">
                       <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                       <span>{lang === "my" ? "ဖျက်" : "Delete"}</span>
                     </button>

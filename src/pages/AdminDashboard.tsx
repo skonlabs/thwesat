@@ -83,7 +83,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Pending Actions */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center gap-2">
           <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "လုပ်ဆောင်ရန်" : "Pending Actions"}</h2>
           {totalPending > 0 && (
             <span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">{totalPending}</span>
