@@ -1,17 +1,40 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Upload } from "lucide-react";
+import { Upload, FileCheck2, FileClock, FileWarning } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
+import FinanceFilters, { applyFinanceFilters, type StatusFilter } from "@/components/finance/FinanceFilters";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 import { uploadPaymentProof } from "@/hooks/use-payment";
+
+/** Visual proof status for a placement-fee row. */
+function ProofStatusChip({ p, lang }: { p: any; lang: "my" | "en" }) {
+  if (p.payment_type !== "placement_fee") return null;
+  let Icon = FileWarning;
+  let cls = "bg-destructive/10 text-destructive";
+  let labelMy = "အထောက်အထား မရှိသေး";
+  let labelEn = "No proof";
+  if (p.status === "approved") {
+    Icon = FileCheck2; cls = "bg-emerald/10 text-emerald";
+    labelMy = "အတည်ပြုပြီး"; labelEn = "Approved";
+  } else if (p.proof_url) {
+    Icon = FileClock; cls = "bg-warning/10 text-warning";
+    labelMy = "စစ်ဆေးနေသည်"; labelEn = "Under review";
+  }
+  return (
+    <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium ${cls}`}>
+      <Icon className="h-2.5 w-2.5" strokeWidth={2} />
+      {lang === "my" ? labelMy : labelEn}
+    </span>
+  );
+}
 
 const EmployerFinance = () => {
   const { lang } = useLanguage();
@@ -20,6 +43,8 @@ const EmployerFinance = () => {
   const [proofFor, setProofFor] = useState<any | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [currency, setCurrency] = useState<string>("all");
 
   const { data: payments, isLoading, refetch } = useQuery({
     queryKey: ["employer-finance", user?.id],
@@ -40,6 +65,8 @@ const EmployerFinance = () => {
   const subs = all.filter((p) => p.payment_type === "employer_subscription");
   const due = all.filter((p) => p.status === "pending");
   const paid = all.filter((p) => p.status === "approved");
+  const filtered = useMemo(() => applyFinanceFilters(all, status, currency), [all, status, currency]);
+  const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
 
   const handleUpload = async () => {
     if (!proofFor || !file || !user) return;
@@ -87,7 +114,22 @@ const EmployerFinance = () => {
               rows: subs.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
             },
           ]}
-          rows={all.map((p) => ({
+          rows={[]}
+          emptyText={{ my: "", en: "" }}
+        />
+
+        <FinanceFilters
+          status={status}
+          onStatusChange={setStatus}
+          currency={currency}
+          onCurrencyChange={setCurrency}
+          availableCurrencies={currencies}
+        />
+
+        <FinanceLedger
+          isLoading={isLoading}
+          totals={[]}
+          rows={filtered.map((p) => ({
             id: p.id,
             title: lang === "my"
               ? paymentTypeLabels[p.payment_type]?.my || p.payment_type
@@ -97,13 +139,14 @@ const EmployerFinance = () => {
             currency: p.currency,
             status: p.status,
             date: p.created_at,
+            trailing: <ProofStatusChip p={p} lang={lang} />,
             onClick: () => {
               if (p.payment_type === "placement_fee" && p.status === "pending" && !p.proof_url) {
                 setProofFor(p);
               }
             },
           }))}
-          emptyText={{ my: "ငွေကြေးမှတ်တမ်း မရှိသေးပါ", en: "No financial activity yet" }}
+          emptyText={{ my: "ငွေကြေးမှတ်တမ်း မရှိသေးပါ", en: "No financial activity matches these filters" }}
         />
       </div>
 
