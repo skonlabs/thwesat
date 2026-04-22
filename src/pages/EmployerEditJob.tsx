@@ -72,9 +72,13 @@ const EmployerEditJob = () => {
 
   const handleSave = async () => {
     if (!id) return;
-    setSaving(true);
     const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
+    if (minVal !== null && maxVal !== null && minVal > maxVal) {
+      toast.error(lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary");
+      return;
+    }
+    setSaving(true);
     const { error } = await supabase.from("jobs").update({
       title: titleEn,
       title_my: titleMy || null,
