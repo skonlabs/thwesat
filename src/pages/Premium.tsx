@@ -219,7 +219,32 @@ const Premium = () => {
             </p>
           </div>
 
-          {/* Highlights strip */}
+          {/* Active subscription banner */}
+          {isPremium && activeSub?.current_period_end && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 flex items-center gap-3 rounded-2xl border border-emerald/20 bg-emerald/5 px-4 py-3"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald/15">
+                <CalendarClock className="h-4 w-4 text-emerald" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-foreground">
+                  {lang === "my" ? "ပရီမီယံ အသုံးပြုနေသည်" : "Premium active"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {lang === "my"
+                    ? `${new Date(activeSub.current_period_end).toLocaleDateString()} ထိ`
+                    : `Renews / expires on ${new Date(activeSub.current_period_end).toLocaleDateString()}`}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs" onClick={() => navigate("/payments/history")}>
+                {lang === "my" ? "မှတ်တမ်း" : "History"}
+              </Button>
+            </motion.div>
+          )}
+
           <div className="mb-5 flex items-center justify-center gap-4">
             {[
               { icon: Zap, label: lang === "my" ? "AI ကိရိယာ" : "AI Tools" },
