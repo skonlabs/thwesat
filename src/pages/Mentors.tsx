@@ -236,6 +236,11 @@ const Mentors = () => {
             <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No mentors found"}</p>
             <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
+            {(activeCategory !== "All" || filterLocation !== "all" || filterRating !== "all" || filterAvailable || search) && (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveCategory("All"); setSearch(""); }}>
+                {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+              </Button>
+            )}
           </div>
         ) : (
           filteredMentors.map((mentor, i) => {
