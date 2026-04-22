@@ -145,6 +145,10 @@ const EmployerEditJob = () => {
           <Textarea value={requirementsEn} onChange={e => setRequirementsEn(e.target.value)} className="min-h-[80px] rounded-xl" />
         </div>
         <div>
+          <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိုအပ်ချက် (မြန်မာ)" : "Requirements (Burmese)"}</label>
+          <Textarea value={requirementsMy} onChange={e => setRequirementsMy(e.target.value)} className="min-h-[60px] rounded-xl" />
+        </div>
+        <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Role Type"}</label>
           <div className="flex flex-wrap gap-2">
             {roleTypes.map(r => (
