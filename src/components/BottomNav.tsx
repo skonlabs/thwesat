@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -35,9 +35,9 @@ const BottomNav = () => {
 
   const employerNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/employer/dashboard" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/employer/jobs" },
     { icon: Users, labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
-    { icon: MessageSquare, labelMy: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
-    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
+    { icon: CheckCircle, labelMy: "ခန့်အပ်မှု", labelEn: "Placements", path: "/employer/applications?filter=placed" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
@@ -83,9 +83,14 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm pb-safe">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || (item.path !== "/admin" && item.path !== "/moderator" && location.pathname.startsWith(item.path + "/"));
-          const exactActive = location.pathname === item.path;
-          const active = isActive || exactActive;
+          const [itemPath, itemQuery] = item.path.split("?");
+          const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && itemPath !== "/moderator" && location.pathname.startsWith(itemPath + "/"));
+          const currentFilter = new URLSearchParams(location.search).get("filter");
+          const itemFilter = itemQuery ? new URLSearchParams(itemQuery).get("filter") : null;
+          // Sibling routes share a pathname but differ by ?filter=. Match filter when relevant.
+          const hasSiblingWithFilter = navItems.some((n) => n !== item && n.path.split("?")[0] === itemPath);
+          const filterMatches = hasSiblingWithFilter ? currentFilter === itemFilter : true;
+          const active = pathMatches && filterMatches;
           const badge = getBadge(item.badgeKey);
           return (
             <button

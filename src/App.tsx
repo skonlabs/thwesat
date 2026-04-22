@@ -38,6 +38,7 @@ import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerPostJob from "./pages/EmployerPostJob";
+import EmployerJobs from "./pages/EmployerJobs";
 import EmployerApplications from "./pages/EmployerApplications";
 import EmployerSubscription from "./pages/EmployerSubscription";
 import SearchTalent from "./pages/SearchTalent";
@@ -114,6 +115,7 @@ const App = () => (
               <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
               <Route path="/employer/dashboard" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerDashboard /></AppRoleGuard>} />
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
+              <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
               <Route path="/employer/subscription" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerSubscription /></AppRoleGuard>} />
               <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
