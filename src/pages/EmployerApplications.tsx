@@ -242,7 +242,12 @@ const EmployerApplications = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowPlacement(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
               <h3 className="mb-1 text-base font-bold text-foreground">{lang === "my" ? "ခန့်အပ်မှု အတည်ပြုရန်" : "Confirm Placement"}</h3>
-              <p className="mb-4 text-xs text-muted-foreground">8% placement fee</p>
+              {selected && (
+                <p className="mb-1 text-xs font-medium text-foreground">
+                  {selected.applicant_profile?.display_name || "Applicant"} · {selected.jobs?.title || "Job"}
+                </p>
+              )}
+              <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% ကောက်ခံပါမည်" : "8% placement fee will apply"}</p>
               <div className="mb-3">
                 <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (USD/လ) *" : "Monthly Salary (USD) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
@@ -250,10 +255,12 @@ const EmployerApplications = () => {
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
                 }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
               </div>
-              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">Fee: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
+              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>{lang === "my" ? "အတည်ပြုရန်" : "Confirm"}</Button>
+                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
+                  {updateStatus.isPending ? (lang === "my" ? "လုပ်ဆောင်နေ..." : "Saving...") : (lang === "my" ? "အတည်ပြုရန်" : "Confirm")}
+                </Button>
               </div>
             </motion.div>
           </motion.div>
