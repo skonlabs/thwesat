@@ -58,10 +58,30 @@ const EmployerDashboard = () => {
     enabled: !!user,
   });
 
+  // Fetch placement summary (count + total fees) across employer's jobs
+  const { data: placementSummary } = useQuery({
+    queryKey: ["employer-placements", user?.id],
+    queryFn: async () => {
+      if (!user) return { count: 0, totalFee: 0 };
+      const { data, error } = await supabase
+        .from("applications")
+        .select("placement_fee, jobs!inner(employer_id)")
+        .eq("status", "placed")
+        .eq("jobs.employer_id", user.id);
+      if (error) return { count: 0, totalFee: 0 };
+      const rows = (data || []) as any[];
+      const totalFee = rows.reduce((sum, r) => sum + (Number(r.placement_fee) || 0), 0);
+      return { count: rows.length, totalFee };
+    },
+    enabled: !!user,
+  });
+
   const listings = jobs || [];
   const filteredListings = filter === "all" ? listings : listings.filter(l => l.status === filter);
   const activeCount = listings.filter(l => l.status === "active").length;
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
+  const placedCount = placementSummary?.count || 0;
+  const placedFees = placementSummary?.totalFee || 0;
 
   const planLabel = subscription?.plan_type?.toLowerCase().includes("pro") ? "Pro" : subscription?.plan_type ? "Basic" : null;
   const planExpiry = subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : null;
