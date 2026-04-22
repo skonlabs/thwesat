@@ -70,6 +70,8 @@ const EmployerApplications = () => {
   const apps = applications || [];
   const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
   const filtered = apps.filter((a: any) => {
+    // Placed applications belong on the dedicated Placements tab, never here
+    if (a.status === "placed") return false;
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
     if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
@@ -167,7 +169,7 @@ const EmployerApplications = () => {
 
         <div className="mb-4 grid grid-cols-5 gap-2">
           {[
-            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
+            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.filter((a: any) => a.status !== "placed").length, color: "text-foreground", filterVal: "all" },
             { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
             { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "interview" },
@@ -180,7 +182,7 @@ const EmployerApplications = () => {
           ))}
         </div>
         {/* Show only end-state filters not represented by KPI cards above */}
-        {(filter === "placed" || filter === "rejected") && (
+        {filter === "rejected" && (
           <div className="mb-4 flex items-center gap-2">
             <span className="text-[11px] text-muted-foreground">
               {lang === "my" ? "စစ်ထုတ်ထား:" : "Filtered:"}
