@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Upload, FileCheck2, FileClock, FileWarning } from "lucide-react";
@@ -42,11 +42,30 @@ const EmployerFinance = () => {
   const navigate = useNavigate();
   const [proofFor, setProofFor] = useState<any | null>(null);
   const [detailFor, setDetailFor] = useState<any | null>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
   const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "subs">("all");
+
+  useEffect(() => {
+    let cancelled = false;
+    setProofUrl(null);
+    if (!detailFor?.proof_url) return;
+    const path = detailFor.proof_url as string;
+    if (/^https?:\/\//i.test(path)) {
+      setProofUrl(path);
+      return;
+    }
+    supabase.storage
+      .from("payment-proofs")
+      .createSignedUrl(path, 3600)
+      .then(({ data }) => {
+        if (!cancelled && data?.signedUrl) setProofUrl(data.signedUrl);
+      });
+    return () => { cancelled = true; };
+  }, [detailFor]);
 
   const { data: payments, isLoading, refetch } = useQuery({
     queryKey: ["employer-finance", user?.id],
@@ -278,14 +297,38 @@ const EmployerFinance = () => {
                   <p className="text-xs text-foreground">{detailFor.admin_note}</p>
                 </div>
               )}
-              {detailFor.payment_type === "placement_fee" && detailFor.status === "pending" && !detailFor.proof_url && (
-                <Button
-                  onClick={() => { setProofFor(detailFor); setDetailFor(null); }}
-                  className="w-full rounded-xl"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {lang === "my" ? "အထောက်အထား တင်ရန်" : "Submit Proof"}
-                </Button>
+              {detailFor.proof_url ? (
+                <div className="rounded-lg border border-border p-3">
+                  <p className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "အထောက်အထား" : "Attachment"}
+                  </p>
+                  {proofUrl ? (
+                    <a href={proofUrl} target="_blank" rel="noopener noreferrer" className="block">
+                      <img
+                        src={proofUrl}
+                        alt="Payment proof"
+                        className="max-h-64 w-full rounded-md border border-border object-contain"
+                      />
+                      <p className="mt-2 text-[10px] text-primary underline">
+                        {lang === "my" ? "အပြည့်အစုံ ဖွင့်ရန်" : "Open full size"}
+                      </p>
+                    </a>
+                  ) : (
+                    <p className="text-[10px] text-muted-foreground">
+                      {lang === "my" ? "ဖွင့်နေသည်..." : "Loading attachment..."}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                detailFor.payment_type === "placement_fee" && detailFor.status === "pending" && (
+                  <Button
+                    onClick={() => { setProofFor(detailFor); setDetailFor(null); }}
+                    className="w-full rounded-xl"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {lang === "my" ? "အထောက်အထား တင်ရန်" : "Submit Proof"}
+                  </Button>
+                )
               )}
             </div>
           )}
