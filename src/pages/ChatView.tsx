@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
