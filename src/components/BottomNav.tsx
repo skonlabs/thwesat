@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle, FileText } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle, FileText, DollarSign } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
