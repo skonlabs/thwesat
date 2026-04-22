@@ -29,6 +29,23 @@ const EmployerJobs = () => {
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [sharingId, setSharingId] = useState<string | null>(null);
+  const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const handleStatusChange = async (jobId: string, newStatus: "active" | "paused" | "closed") => {
+    setUpdatingId(jobId);
+    try {
+      const { error } = await supabase.from("jobs").update({ status: newStatus }).eq("id", jobId);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      setStatusMenuId(null);
+    } catch (err: any) {
+      toast.error((lang === "my" ? "ပြောင်း၍မရပါ: " : "Failed to update: ") + (err?.message || ""));
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const handleShare = async (job: { id: string; title: string; title_my: string | null; company: string }) => {
     setSharingId(job.id);
