@@ -86,7 +86,8 @@ const App = () => (
 
             {/* All authenticated pages with bottom nav */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/home" element={<HomeRedirect />} />
+              <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<HomeRedirect />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/jobs/saved" element={<SavedJobs />} />
