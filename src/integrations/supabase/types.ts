@@ -656,6 +656,8 @@ export type Database = {
           id: string
           mentor_id: string
           paid_at: string | null
+          paid_out_at: string | null
+          payout_note: string | null
           status: string
           updated_at: string | null
         }
@@ -667,6 +669,8 @@ export type Database = {
           id?: string
           mentor_id: string
           paid_at?: string | null
+          paid_out_at?: string | null
+          payout_note?: string | null
           status?: string
           updated_at?: string | null
         }
@@ -678,6 +682,8 @@ export type Database = {
           id?: string
           mentor_id?: string
           paid_at?: string | null
+          paid_out_at?: string | null
+          payout_note?: string | null
           status?: string
           updated_at?: string | null
         }

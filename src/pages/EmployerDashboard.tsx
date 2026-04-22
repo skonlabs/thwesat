@@ -25,9 +25,9 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const quickActions = [
   { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
   { icon: UserSearch, label: "ဝန်ထမ်းရှာ", labelEn: "Find Talent", path: "/employer/search", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: CreditCard, label: "ငွေကြေး", labelEn: "Finances", path: "/employer/finance", bg: "bg-accent/20", fg: "text-gold-dark" },
   { icon: MessageSquare, label: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", bg: "bg-accent/10", fg: "text-accent" },
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Settings, label: "ကုမ္ပဏီ", labelEn: "Company", path: "/employer/edit-company", bg: "bg-accent/10", fg: "text-accent" },
 ];
 
