@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -234,21 +234,61 @@ const EmployerApplications = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
             <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-8 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
-              <div className="mb-2 flex items-start justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-foreground">{selected.applicant_profile?.display_name || "Applicant"}</h2>
-                  <p className="text-xs text-muted-foreground">{selected.jobs?.title || "Application"}</p>
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="flex flex-1 items-start gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                    {((selected as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-bold text-foreground">{selected.applicant_profile?.display_name || "Applicant"}</h2>
+                    {selected.applicant_profile?.headline && (
+                      <p className="text-[11px] text-muted-foreground">{selected.applicant_profile.headline}</p>
+                    )}
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
+                      <span>{selected.jobs?.title || "Application"}</span>
+                      {selected.applicant_profile?.location && (
+                        <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" strokeWidth={1.5} /> {selected.applicant_profile.location}</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${(statusConfig[selected.status] || statusConfig.applied).color}`}>
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${(statusConfig[selected.status] || statusConfig.applied).color}`}>
                   {lang === "my" ? (statusConfig[selected.status] || statusConfig.applied).label.my : (statusConfig[selected.status] || statusConfig.applied).label.en}
                 </span>
               </div>
+
+              {selected.applicant_profile?.skills?.length > 0 && (
+                <div className="mb-3 flex flex-wrap gap-1.5">
+                  {selected.applicant_profile.skills.slice(0, 8).map((s: string) => (
+                    <span key={s} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{s}</span>
+                  ))}
+                </div>
+              )}
+
               {selected.cover_letter && (
                 <div className="mb-4 rounded-xl bg-muted p-3">
                   <p className="text-xs text-muted-foreground">{lang === "my" ? "Cover Letter" : "Cover Letter"}</p>
-                  <p className="mt-1 text-sm text-foreground">{selected.cover_letter}</p>
+                  <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{selected.cover_letter}</p>
                 </div>
               )}
+
+              <div className="mb-4 grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" className="rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.applicant_id}`); }}>
+                  <EyeIcon className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                  {lang === "my" ? "ပရိုဖိုင် ကြည့်ရန်" : "View Profile"}
+                </Button>
+                <Button variant="default" size="sm" className="rounded-xl" onClick={() => {
+                  const jobTitle = selected.jobs?.title || "your application";
+                  const seed = lang === "my"
+                    ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက် သင့်လျှောက်လွှာနှင့် ပတ်သက်၍...`
+                    : `Hi, regarding your application for "${jobTitle}"...`;
+                  setSelectedId(null);
+                  startConversation(selected.applicant_id, { initialMessage: seed });
+                }}>
+                  <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                  {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                </Button>
+              </div>
               
               {/* Message applicant button — seeds the first message with the job title */}
               <Button variant="outline" size="sm" className="mb-4 w-full rounded-xl" onClick={() => {
