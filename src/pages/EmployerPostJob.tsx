@@ -90,6 +90,9 @@ const EmployerPostJob = () => {
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
+        contract_duration_type: isContract ? contractDurationType : null,
+        contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
+        contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         company: employerProfile?.company_name || "",
         status: "pending",
       });
