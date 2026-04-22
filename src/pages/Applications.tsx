@@ -38,6 +38,7 @@ const Applications = () => {
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("filter") || "all";
   const setFilter = (next: string) => {
@@ -70,6 +71,8 @@ const Applications = () => {
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["applications"] });
+    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
+    setConfirmWithdraw(false);
     setSelectedApp(null);
   };
 
