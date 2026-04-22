@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Type, Shield, Bell, Lock, Key, ChevronRight, Receipt,
@@ -11,6 +11,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
@@ -24,7 +25,9 @@ const Settings = () => {
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const { data: settings } = useUserSettings();
+  const updateSettings = useUpdateUserSettings();
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -35,6 +38,20 @@ const Settings = () => {
   const [sessionExpiry, setSessionExpiry] = useState("24h");
   const [telegramLinked, setTelegramLinked] = useState(false);
   const [delegateToken, setDelegateToken] = useState<string | null>(null);
+
+  // Hydrate from server-stored settings
+  useEffect(() => {
+    if (!settings) return;
+    setPushNotifications(settings.push_notifications);
+    setRememberDevice(settings.remember_device);
+    setProfileVisibility(settings.profile_visibility);
+    setSessionExpiry(settings.session_expiry);
+    setTelegramLinked(settings.telegram_linked);
+  }, [settings]);
+
+  const persist = (patch: Record<string, unknown>) => {
+    updateSettings.mutate(patch as any);
+  };
 
   // Sheet states
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
@@ -62,6 +79,7 @@ const Settings = () => {
 
   const handleLanguageChange = (newLang: "my" | "en") => {
     setLang(newLang);
+    persist({ language: newLang });
     setShowLanguagePicker(false);
   };
 
@@ -83,11 +101,24 @@ const Settings = () => {
     setCurrentPw(""); setNewPw(""); setConfirmPw("");
   };
 
-  const handleDeleteAccount = () => {
-    if (deleteText === "DELETE") {
-      setShowDeleteConfirm(false);
-      navigate("/");
+  const handleDeleteAccount = async () => {
+    if (deleteText !== "DELETE") return;
+    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
+    if (user) {
+      await supabase.from("profiles").update({
+        display_name: "Deleted user",
+        bio: "",
+        headline: "",
+        phone: "",
+        website: "",
+        location: "",
+        avatar_url: null,
+        visibility: "private",
+      }).eq("id", user.id);
     }
+    setShowDeleteConfirm(false);
+    await signOut();
+    navigate("/");
   };
 
   const handleEmergencyExit = async () => {
@@ -117,7 +148,7 @@ const Settings = () => {
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
+        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => { const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v }); } },
         { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
@@ -126,7 +157,7 @@ const Settings = () => {
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
         { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
-        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
+        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => { const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v }); } },
         { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
@@ -283,14 +314,14 @@ const Settings = () => {
       </SettingsBottomSheet>
 
       {/* Feature Sheets */}
-      <ProfileVisibilitySheet open={showVisibility} onClose={() => setShowVisibility(false)} value={profileVisibility} onChange={setProfileVisibility} />
-      <SessionExpirySheet open={showSessionExpiry} onClose={() => setShowSessionExpiry(false)} value={sessionExpiry} onChange={setSessionExpiry} />
+      <ProfileVisibilitySheet open={showVisibility} onClose={() => setShowVisibility(false)} value={profileVisibility} onChange={(v) => { setProfileVisibility(v); persist({ profile_visibility: v }); }} />
+      <SessionExpirySheet open={showSessionExpiry} onClose={() => setShowSessionExpiry(false)} value={sessionExpiry} onChange={(v) => { setSessionExpiry(v); persist({ session_expiry: v }); }} />
       <TelegramLinkSheet
         open={showTelegram}
         onClose={() => setShowTelegram(false)}
         isLinked={telegramLinked}
-        onLink={() => { setTelegramLinked(true); }}
-        onUnlink={() => { setTelegramLinked(false); }}
+        onLink={() => { setTelegramLinked(true); persist({ telegram_linked: true }); }}
+        onUnlink={() => { setTelegramLinked(false); persist({ telegram_linked: false, telegram_chat_id: null, telegram_username: null }); }}
       />
       <DelegateTokenSheet
         open={showToken}

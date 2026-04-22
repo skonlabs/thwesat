@@ -70,6 +70,12 @@ const ChatView = () => {
   };
 
   const handleCall = (type: "audio" | "video") => {
+    toast({
+      title: lang === "my" ? "မကြာမီ ရရှိပါမည်" : "Coming soon",
+      description: type === "audio"
+        ? (lang === "my" ? "အသံခေါ်ဆိုမှု လုပ်ဆောင်ချက်ကို ဖန်တီးနေပါသည်" : "Audio calls are not yet available")
+        : (lang === "my" ? "ဗီဒီယို ခေါ်ဆိုမှု လုပ်ဆောင်ချက်ကို ဖန်တီးနေပါသည်" : "Video calls are not yet available"),
+    });
   };
 
   const formatTime = (dateStr: string | null) => {
@@ -183,9 +189,21 @@ const ChatView = () => {
       </div>
 
       <div className="border-t border-border bg-card px-4 py-3 pb-safe">
-        <div className="flex items-center gap-2">
-          <div className="flex flex-1 items-center rounded-full border border-border bg-background px-4 py-2.5">
-            <input value={messageText} onChange={e => setMessageText(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleSend(); }} placeholder={lang === "my" ? "မက်ဆေ့ချ် ရေးရန်..." : "Type a message..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+        <div className="flex items-end gap-2">
+          <div className="flex flex-1 items-center rounded-2xl border border-border bg-background px-4 py-2">
+            <textarea
+              value={messageText}
+              onChange={e => setMessageText(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              rows={1}
+              placeholder={lang === "my" ? "မက်ဆေ့ချ် ရေးရန်... (Shift+Enter = new line)" : "Type a message... (Shift+Enter for new line)"}
+              className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground max-h-32"
+            />
           </div>
           <button onClick={handleSend} disabled={!messageText.trim()} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90 disabled:opacity-40">
             <Send className="h-4 w-4" strokeWidth={1.5} />

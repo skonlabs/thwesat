@@ -9,6 +9,7 @@ import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { formatCurrencyRange } from "@/lib/currency";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
 const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
@@ -38,6 +39,7 @@ const Applications = () => {
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("filter") || "all";
   const setFilter = (next: string) => {
@@ -70,6 +72,8 @@ const Applications = () => {
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["applications"] });
+    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
+    setConfirmWithdraw(false);
     setSelectedApp(null);
   };
 
@@ -151,8 +155,8 @@ const Applications = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-foreground">{job?.title || "Job"}</h3>
-                  <p className="text-xs text-muted-foreground">{job?.company} {job?.salary_min && job?.salary_max ? `· $${job.salary_min}-${job.salary_max}/mo` : ""}</p>
-                  <div className="mt-2 flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">{job?.company} {job?.salary_min && job?.salary_max ? `· ${formatCurrencyRange(job.salary_min, job.salary_max, job.currency, lang, "mo")}` : ""}</p>
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
                     <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sl.color}`}>
                       <Icon className="h-3 w-3" /> {lang === "my" ? sl.my : sl.en}
                     </span>
@@ -161,7 +165,7 @@ const Applications = () => {
                     </span>
                     {app.interview_date && (
                       <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        <Calendar className="h-3 w-3" /> {lang === "my" ? "အင်တာဗျူး" : "Interview"}
+                        <Calendar className="h-3 w-3" /> {new Date(app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     )}
                   </div>
@@ -195,13 +199,28 @@ const Applications = () => {
               </div>
               <div className="flex gap-3">
                 {(selected.status === "applied" || selected.status === "submitted") && (
-                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleWithdraw}>
+                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
                     {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
                   </Button>
                 )}
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setSelectedApp(null); navigate(`/jobs/${selected.job_id}`); }}>
                   {lang === "my" ? "အလုပ် ကြည့်ရှုရန်" : "View Job"}
                 </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmWithdraw && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmWithdraw(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းမှာ သေချာပါသလား?" : "Withdraw this application?"}</h3>
+              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "ရုပ်သိမ်းပြီးသည့်နောက် ပြန်လည် မရနိုင်ပါ။" : "This action cannot be undone. The employer will see your application as withdrawn."}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleWithdraw}>{lang === "my" ? "ရုပ်သိမ်း" : "Withdraw"}</Button>
               </div>
             </motion.div>
           </motion.div>

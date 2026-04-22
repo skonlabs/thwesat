@@ -383,6 +383,10 @@ const Community = () => {
           <div className="flex flex-col items-center py-16 text-center">
             <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ပို့စ် မရှိသေးပါ" : "No posts yet"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ပထမဆုံး ပို့စ်ကို သင်ရေးပါ" : "Be the first to share something with the community"}</p>
+            <Button variant="default" size="sm" className="mt-4 rounded-xl" onClick={() => setShowNewPost(true)}>
+              {lang === "my" ? "ပို့စ် ရေးရန်" : "Create a post"}
+            </Button>
           </div>
         ) : (
           posts.map((post, i) => {
@@ -393,7 +397,13 @@ const Community = () => {
             const categoryLabel = post.category || "general";
 
             return (
-              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card ${!post.is_approved ? "border-yellow-500/30" : "border-border"}`}>
+              <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card ${!post.is_approved ? "border-warning/30" : "border-border"}`}>
+                {!post.is_approved && isOwn && (
+                  <div className="flex items-center gap-2 rounded-t-xl border-b border-warning/20 bg-warning/5 px-4 py-2 text-[11px] font-medium text-warning">
+                    <Clock className="h-3 w-3" strokeWidth={2} />
+                    {lang === "my" ? "သင်၏ ပို့စ်ကို စစ်ဆေးနေပါသည်။ အတည်ပြုပြီးမှ အခြားသူများ မြင်နိုင်ပါမည်။" : "Your post is awaiting review. It will appear to others once approved."}
+                  </div>
+                )}
                 <div className="p-4 pb-3">
                   <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-start gap-3">
