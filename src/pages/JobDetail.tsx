@@ -14,6 +14,7 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 import { pickLocalized } from "@/lib/i18n";
+import { shareJobLink } from "@/lib/share-job";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -149,11 +150,19 @@ const JobDetail = () => {
     );
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({ title: `${job?.title} - ${job?.company}`, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
+  const [isSharing, setIsSharing] = useState(false);
+  const handleShare = async () => {
+    if (!job || !id) return;
+    setIsSharing(true);
+    try {
+      await shareJobLink({
+        jobId: id,
+        title: translateJobTitle(job.title, job.title_my, lang),
+        company: job.company,
+        lang,
+      });
+    } finally {
+      setIsSharing(false);
     }
   };
 
