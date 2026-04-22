@@ -164,17 +164,21 @@ const EmployerApplications = () => {
             </button>
           ))}
         </div>
-        <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "new", "shortlisted", "interview", "offered", "placed", "rejected"].map(f => (
-            <button key={f} onClick={() => updateFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all"
-                ? (lang === "my" ? "အားလုံး" : "All")
-                : f === "new"
-                  ? (lang === "my" ? "အသစ်" : "New")
-                  : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
+        {/* Show only end-state filters not represented by KPI cards above */}
+        {(filter === "placed" || filter === "rejected") && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-[11px] text-muted-foreground">
+              {lang === "my" ? "စစ်ထုတ်ထား:" : "Filtered:"}
+            </span>
+            <button
+              onClick={() => updateFilter("all")}
+              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground"
+            >
+              {lang === "my" ? statusConfig[filter]?.label.my : statusConfig[filter]?.label.en}
+              <X className="h-3 w-3" strokeWidth={2.5} />
             </button>
-          ))}
-        </div>
+          </div>
+        )}
 
         <div className="space-y-3">
           {isLoading ? (
