@@ -92,33 +92,42 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
   return (
     <AnimatePresence onExitComplete={() => setMounted(false)}>
       {open && (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-x-0 top-0 bottom-16 z-[80] flex items-end justify-center bg-foreground/40"
+          onClick={onClose}
+        >
           <motion.div
-            className="fixed inset-0 bg-black/40 z-[80]"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          <motion.div
-            className="fixed left-1/2 -translate-x-1/2 right-auto bottom-16 w-full max-w-lg z-[81] bg-background rounded-t-2xl max-h-[80vh] flex flex-col border-t border-border shadow-xl"
-            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            initial={{ y: 400 }}
+            animate={{ y: 0 }}
+            exit={{ y: 400 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="w-full max-w-lg rounded-t-3xl bg-card flex flex-col max-h-[85vh]"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="mx-auto mt-3 mb-2 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
+            <div className="flex items-center justify-between px-5 pb-3 border-b border-border shrink-0">
               <div className="flex items-center gap-2 min-w-0">
                 <History className="w-5 h-5 text-primary shrink-0" />
                 <div className="min-w-0">
-                  <h3 className="font-semibold truncate">
+                  <h3 className="font-bold text-foreground truncate">
                     {lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}
                   </h3>
                   {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
                 </div>
               </div>
-              <button onClick={onClose} className="p-1 rounded hover:bg-muted" aria-label="close">
-                <X className="w-5 h-5" />
+              <button
+                onClick={onClose}
+                className="rounded-full p-2 active:bg-muted shrink-0"
+                aria-label="close"
+              >
+                <X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
               </button>
             </div>
 
-            <div className="overflow-y-auto p-4 flex-1">
+            <div className="overflow-y-auto px-5 py-4 flex-1">
               {isLoading ? (
                 <div className="flex items-center justify-center py-10 text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -128,25 +137,25 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
                   {lang === "my" ? "မှတ်တမ်း မရှိသေးပါ" : "No history yet"}
                 </p>
               ) : (
-                <ol className="relative border-l border-border ml-2 space-y-4">
+                <ol className="relative border-l-2 border-border ml-2 space-y-5 pb-2">
                   {items.map((r) => {
                     const reason = lang === "my" ? (r.reason_my || r.reason) : (r.reason || r.reason_my);
                     return (
-                      <li key={r.id} className="ml-4">
-                        <span className="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                      <li key={r.id} className="ml-5 relative">
+                        <span className="absolute -left-[26px] top-1.5 w-3 h-3 rounded-full bg-primary border-2 border-card" />
                         <div className="flex items-center gap-2 flex-wrap">
                           <StatusBadge kind={kind} status={r.old_status} lang={lang} />
                           <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
                           <StatusBadge kind={kind} status={r.new_status} lang={lang} />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1.5">
                           {formatDateTime(r.created_at, lang)}
                           {r.changer_name && (
                             <> · {lang === "my" ? "ပြောင်းသူ" : "by"} {r.changer_name}</>
                           )}
                         </p>
                         {reason && (
-                          <p className="text-sm mt-1 p-2 rounded bg-muted/50 border border-border">
+                          <p className="text-sm mt-2 p-2.5 rounded-lg bg-muted/60 border border-border text-foreground">
                             {reason}
                           </p>
                         )}
@@ -157,7 +166,7 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
               )}
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
