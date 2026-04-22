@@ -1,18 +1,15 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Building2, Shield, MessageSquare, Sparkles, UserSearch, Pencil, Trash2, Settings, Crown, CreditCard, Link2, Mail, Send } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Briefcase, Users, Plus, CheckCircle, Building2, UserSearch, Settings, Crown, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { useEmployerJobs } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
-import { employerLabels as L, getApplicationMethodLabel } from "@/lib/employer-labels";
+import { employerLabels as L } from "@/lib/employer-labels";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   active: { label: { my: "လက်ခံနေ", en: "Active" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
