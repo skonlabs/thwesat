@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle, FileText } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -28,8 +28,8 @@ const BottomNav = () => {
   const jobseekerNav: NavItem[] = [
     { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/home" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
-    { icon: MessageSquare, labelMy: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
-    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
+    { icon: Users, labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
+    { icon: FileText, labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
