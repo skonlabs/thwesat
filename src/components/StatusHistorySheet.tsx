@@ -104,30 +104,30 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
             animate={{ y: 0 }}
             exit={{ y: 400 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="w-full max-w-lg rounded-t-3xl bg-card flex flex-col max-h-[85vh]"
+            className="w-full max-w-lg rounded-t-3xl bg-card flex flex-col max-h-[85vh] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mt-3 mb-2 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
-            <div className="flex items-center justify-between px-5 pb-3 border-b border-border shrink-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <History className="w-5 h-5 text-primary shrink-0" />
-                <div className="min-w-0">
-                  <h3 className="font-bold text-foreground truncate">
+            <div className="mx-auto mt-2.5 mb-1 h-1 w-10 rounded-full bg-muted-foreground/30 shrink-0" />
+            <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border shrink-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <History className="w-4 h-4 text-primary shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-bold text-foreground truncate leading-tight">
                     {lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}
                   </h3>
-                  {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+                  {subtitle && <p className="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">{subtitle}</p>}
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="rounded-full p-2 active:bg-muted shrink-0"
+                className="rounded-full p-1.5 -mr-1 active:bg-muted shrink-0"
                 aria-label="close"
               >
                 <X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
               </button>
             </div>
 
-            <div className="overflow-y-auto px-5 py-4 flex-1">
+            <div className="overflow-y-auto px-4 py-4 flex-1 overscroll-contain">
               {isLoading ? (
                 <div className="flex items-center justify-center py-10 text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -137,25 +137,25 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
                   {lang === "my" ? "မှတ်တမ်း မရှိသေးပါ" : "No history yet"}
                 </p>
               ) : (
-                <ol className="relative border-l-2 border-border ml-2 space-y-5 pb-2">
+                <ol className="relative border-l-2 border-border ml-1.5 space-y-4 pb-2">
                   {items.map((r) => {
                     const reason = lang === "my" ? (r.reason_my || r.reason) : (r.reason || r.reason_my);
                     return (
-                      <li key={r.id} className="ml-5 relative">
-                        <span className="absolute -left-[26px] top-1.5 w-3 h-3 rounded-full bg-primary border-2 border-card" />
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <li key={r.id} className="ml-4 relative">
+                        <span className="absolute -left-[22px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary border-2 border-card" />
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <StatusBadge kind={kind} status={r.old_status} lang={lang} />
-                          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+                          <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0" />
                           <StatusBadge kind={kind} status={r.new_status} lang={lang} />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1.5">
+                        <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
                           {formatDateTime(r.created_at, lang)}
                           {r.changer_name && (
                             <> · {lang === "my" ? "ပြောင်းသူ" : "by"} {r.changer_name}</>
                           )}
                         </p>
                         {reason && (
-                          <p className="text-sm mt-2 p-2.5 rounded-lg bg-muted/60 border border-border text-foreground">
+                          <p className="text-xs mt-1.5 p-2 rounded-lg bg-muted/60 border border-border text-foreground leading-snug break-words">
                             {reason}
                           </p>
                         )}
