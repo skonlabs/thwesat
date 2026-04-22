@@ -80,7 +80,7 @@ const Jobs = () => {
   const visaOn = filterVisa === "1";
   const [showScamAlert, setShowScamAlert] = useState(true);
 
-  const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
+  const activeFilterCount = [filterType !== "all", filterLocation !== "all", diasporaOn, verifiedOn, visaOn].filter(Boolean).length;
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = search === "" ||
@@ -90,9 +90,9 @@ const Jobs = () => {
     const matchesCategory = activeCategory === "All" || job.category === activeCategory;
     const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
     const matchesLocation = filterLocation === "all" || job.location === filterLocation;
-    const matchesDiaspora = !filterDiasporaSafe || job.is_diaspora_safe;
-    const matchesVerified = !filterVerified || job.is_verified;
-    const matchesVisa = !filterVisa || job.visa_sponsorship;
+    const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
+    const matchesVerified = !verifiedOn || job.is_verified;
+    const matchesVisa = !visaOn || job.visa_sponsorship;
     return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
   });
 
