@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Type, Shield, Bell, Lock, Key, ChevronRight, Receipt,
@@ -11,6 +11,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
@@ -25,6 +26,8 @@ const Settings = () => {
   const { lang, setLang } = useLanguage();
   const { toast } = useToast();
   const { signOut } = useAuth();
+  const { data: settings } = useUserSettings();
+  const updateSettings = useUpdateUserSettings();
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -35,6 +38,20 @@ const Settings = () => {
   const [sessionExpiry, setSessionExpiry] = useState("24h");
   const [telegramLinked, setTelegramLinked] = useState(false);
   const [delegateToken, setDelegateToken] = useState<string | null>(null);
+
+  // Hydrate from server-stored settings
+  useEffect(() => {
+    if (!settings) return;
+    setPushNotifications(settings.push_notifications);
+    setRememberDevice(settings.remember_device);
+    setProfileVisibility(settings.profile_visibility);
+    setSessionExpiry(settings.session_expiry);
+    setTelegramLinked(settings.telegram_linked);
+  }, [settings]);
+
+  const persist = (patch: Record<string, unknown>) => {
+    updateSettings.mutate(patch as any);
+  };
 
   // Sheet states
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
@@ -62,6 +79,7 @@ const Settings = () => {
 
   const handleLanguageChange = (newLang: "my" | "en") => {
     setLang(newLang);
+    persist({ language: newLang });
     setShowLanguagePicker(false);
   };
 
@@ -83,11 +101,24 @@ const Settings = () => {
     setCurrentPw(""); setNewPw(""); setConfirmPw("");
   };
 
-  const handleDeleteAccount = () => {
-    if (deleteText === "DELETE") {
-      setShowDeleteConfirm(false);
-      navigate("/");
+  const handleDeleteAccount = async () => {
+    if (deleteText !== "DELETE") return;
+    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
+    if (user) {
+      await supabase.from("profiles").update({
+        display_name: "Deleted user",
+        bio: "",
+        headline: "",
+        phone: "",
+        website: "",
+        location: "",
+        avatar_url: null,
+        visibility: "private",
+      }).eq("id", user.id);
     }
+    setShowDeleteConfirm(false);
+    await signOut();
+    navigate("/");
   };
 
   const handleEmergencyExit = async () => {
