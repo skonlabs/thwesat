@@ -33,18 +33,19 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
-const applicationStatusLabel: Record<string, { my: string; en: string; tone: string }> = {
-  applied: { my: "လျှောက်ပြီး", en: "Applied", tone: "bg-emerald/10 text-emerald" },
-  submitted: { my: "လျှောက်ပြီး", en: "Applied", tone: "bg-emerald/10 text-emerald" },
-  viewed: { my: "ကြည့်ပြီး", en: "Viewed", tone: "bg-primary/10 text-primary" },
-  shortlisted: { my: "ရွေးချယ်ခံ", en: "Shortlisted", tone: "bg-emerald/10 text-emerald" },
-  interview: { my: "အင်တာဗျူး", en: "Interview", tone: "bg-primary/10 text-primary" },
-  interviewed: { my: "အင်တာဗျူး", en: "Interview", tone: "bg-primary/10 text-primary" },
-  offered: { my: "ကမ်းလှမ်းခံရ", en: "Offered", tone: "bg-emerald/10 text-emerald" },
-  placed: { my: "ခန့်အပ်ပြီး", en: "Placed", tone: "bg-emerald/10 text-emerald" },
-  rejected: { my: "ငြင်းပယ်ခံရ", en: "Rejected", tone: "bg-destructive/10 text-destructive" },
-  withdrawn: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn", tone: "bg-muted text-muted-foreground" },
-};
+// Application status badges shown on job cards (seeker perspective).
+// Built from the shared registry so labels stay in sync with My Applications.
+import { getApplicationStatusMeta } from "@/lib/status-labels";
+const APP_BADGE_KEYS = [
+  "applied", "submitted", "viewed", "shortlisted", "interview", "interviewed",
+  "offered", "placed", "rejected", "withdrawn",
+] as const;
+const applicationStatusLabel: Record<string, { my: string; en: string; tone: string }> = Object.fromEntries(
+  APP_BADGE_KEYS.map((k) => {
+    const m = getApplicationStatusMeta(k, "seeker");
+    return [k, { my: m.my, en: m.en, tone: m.color }];
+  })
+);
 
 function formatTimeAgo(dateStr: string | null): { my: string; en: string } {
   if (!dateStr) return { my: "မကြာသေးမီ", en: "Recently" };
