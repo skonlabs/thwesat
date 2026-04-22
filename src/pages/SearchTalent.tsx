@@ -8,6 +8,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
 import { UserRoleBadges } from "@/components/RoleBadge";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
 
 const skillCategories = ["All", "React", "Node.js", "Python", "UI/UX", "Project Management", "Translation", "Marketing"];
 
@@ -31,12 +32,14 @@ const SearchTalent = () => {
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
   const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker" || p.primary_role === "mentor");
-  const [search, setSearch] = useState("");
-  const [activeSkill, setActiveSkill] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeSkill, setActiveSkill] = useSearchParamState("skill", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterExp, setFilterExp] = useState("all");
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterAvailable, setFilterAvailable] = useState(false);
+  const [filterExp, setFilterExp] = useSearchParamState("exp", "all");
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterAvailableRaw, setFilterAvailableRaw] = useSearchParamState("avail", "0");
+  const filterAvailable = filterAvailableRaw === "1";
+  const setFilterAvailable = (v: boolean) => setFilterAvailableRaw(v ? "1" : "0");
 
   const activeFilterCount = [filterExp !== "all", filterLocation !== "all", filterAvailable].filter(Boolean).length;
 
