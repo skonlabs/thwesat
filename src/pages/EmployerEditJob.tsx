@@ -15,6 +15,7 @@ import PageHeader from "@/components/PageHeader";
 import { applicationMethodOptions, getApplicationMethodLabel, isValidUrl } from "@/lib/employer-labels";
 import BilingualField from "@/components/employer/BilingualField";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
+import CategoryCombobox from "@/components/employer/CategoryCombobox";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -22,7 +23,7 @@ const roleTypes = [
   { value: "hybrid", label: { my: "Hybrid", en: "Hybrid" } },
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
-const categories = ["tech", "design", "pm", "ngo", "translation", "finance", "education", "healthcare"];
+
 const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
 
 const EmployerEditJob = () => {
@@ -198,11 +199,7 @@ const EmployerEditJob = () => {
         </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</label>
-          <div className="flex flex-wrap gap-2">
-            {categories.map(c => (
-              <button key={c} onClick={() => setCategory(c)} className={`rounded-full border px-3 py-1.5 text-xs capitalize transition-colors ${category === c ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{c}</button>
-            ))}
-          </div>
+          <CategoryCombobox value={category} onChange={setCategory} />
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
