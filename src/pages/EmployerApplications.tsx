@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -35,9 +35,10 @@ const rejectionReasons = [
 
 const EmployerApplications = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
-  const { data: applications, isLoading } = useEmployerApplications();
+  const jobIdParam = searchParams.get("jobId") || undefined;
+  const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -49,10 +50,11 @@ const EmployerApplications = () => {
 
   useEffect(() => {
     const f = searchParams.get("filter");
-    if (f) setFilter(f);
+    setFilter(f || "all");
   }, [searchParams]);
 
   const apps = applications || [];
+  const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
   const filtered = apps.filter((a: any) => {
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
@@ -67,6 +69,12 @@ const EmployerApplications = () => {
         ? "applied"
         : selected.status
     : null;
+
+  const clearJobScope = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("jobId");
+    setSearchParams(next, { replace: true });
+  };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
