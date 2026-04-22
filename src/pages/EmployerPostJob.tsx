@@ -41,7 +41,7 @@ const EmployerPostJob = () => {
   const [requirementsEn, setRequirementsEn] = useState("");
   const [requirementsMy, setRequirementsMy] = useState("");
   const [roleType, setRoleType] = useState("");
-  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [locationCountry, setLocationCountry] = useState("");
@@ -73,7 +73,8 @@ const EmployerPostJob = () => {
         requirements: requirementsEn,
         requirements_my: requirementsMy || null,
         role_type: roleType,
-        category,
+        category: categories[0] || null,
+        categories,
         salary_min: minVal,
         salary_max: maxVal,
         location: locationCountry || "Remote",
