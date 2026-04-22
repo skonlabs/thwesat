@@ -130,6 +130,17 @@ const JobDetail = () => {
 
   const handleApply = () => {
     if (!id) return;
+    if (!selectedCvId && !selectedGeneratedResumeId) {
+      toast({
+        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း လိုအပ်ပါသည်" : "Resume required",
+        description:
+          lang === "my"
+            ? "လျှောက်ထားရန် ကိုယ်ရေးမှတ်တမ်း တင်ထားပါ သို့မဟုတ် ရွေးချယ်ပါ။"
+            : "Please upload or select a resume before applying.",
+        variant: "destructive",
+      });
+      return;
+    }
     applyMutation.mutate(
       {
         jobId: id,
