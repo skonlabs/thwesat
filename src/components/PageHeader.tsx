@@ -157,7 +157,7 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
               } else if (backPath) {
                 navigate(backPath);
               } else {
-                navigate("/home");
+                navigate("/dashboard");
               }
             }}
             aria-label={lang === "my" ? "နောက်သို့" : "Back"}
