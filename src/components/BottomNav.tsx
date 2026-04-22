@@ -83,9 +83,14 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm pb-safe">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || (item.path !== "/admin" && item.path !== "/moderator" && location.pathname.startsWith(item.path + "/"));
-          const exactActive = location.pathname === item.path;
-          const active = isActive || exactActive;
+          const [itemPath, itemQuery] = item.path.split("?");
+          const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && itemPath !== "/moderator" && location.pathname.startsWith(itemPath + "/"));
+          const currentFilter = new URLSearchParams(location.search).get("filter");
+          const itemFilter = itemQuery ? new URLSearchParams(itemQuery).get("filter") : null;
+          // Sibling routes share a pathname but differ by ?filter=. Match filter when relevant.
+          const hasSiblingWithFilter = navItems.some((n) => n !== item && n.path.split("?")[0] === itemPath);
+          const filterMatches = hasSiblingWithFilter ? currentFilter === itemFilter : true;
+          const active = pathMatches && filterMatches;
           const badge = getBadge(item.badgeKey);
           return (
             <button
