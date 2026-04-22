@@ -41,10 +41,12 @@ const EmployerFinance = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [proofFor, setProofFor] = useState<any | null>(null);
+  const [detailFor, setDetailFor] = useState<any | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
+  const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "subs">("all");
 
   const { data: payments, isLoading, refetch } = useQuery({
     queryKey: ["employer-finance", user?.id],
@@ -65,7 +67,16 @@ const EmployerFinance = () => {
   const subs = all.filter((p) => p.payment_type === "employer_subscription");
   const due = all.filter((p) => p.status === "pending");
   const paid = all.filter((p) => p.status === "approved");
-  const filtered = useMemo(() => applyFinanceFilters(all, status, currency), [all, status, currency]);
+
+  const kpiScoped = useMemo(() => {
+    if (kpiFilter === "paid") return paid;
+    if (kpiFilter === "due") return due;
+    if (kpiFilter === "placement") return placementInvoices;
+    if (kpiFilter === "subs") return subs;
+    return all;
+  }, [kpiFilter, all, paid, due, placementInvoices, subs]);
+
+  const filtered = useMemo(() => applyFinanceFilters(kpiScoped, status, currency), [kpiScoped, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
 
   const handleUpload = async () => {
@@ -88,6 +99,15 @@ const EmployerFinance = () => {
     }
   };
 
+  const handleRowClick = (p: any) => {
+    // Placement fees with no proof → open upload sheet directly
+    if (p.payment_type === "placement_fee" && p.status === "pending" && !p.proof_url) {
+      setProofFor(p);
+      return;
+    }
+    setDetailFor(p);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ငွေကြေး မှတ်တမ်း" : "Employer Finances"} showBack />
@@ -99,19 +119,27 @@ const EmployerFinance = () => {
               label: { my: "ပေးချေပြီး", en: "Total Paid" },
               rows: paid.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-emerald/30",
+              onClick: () => setKpiFilter(kpiFilter === "paid" ? "all" : "paid"),
+              active: kpiFilter === "paid",
             },
             {
               label: { my: "ပေးချေရန်", en: "Outstanding" },
               rows: due.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-warning/30",
+              onClick: () => setKpiFilter(kpiFilter === "due" ? "all" : "due"),
+              active: kpiFilter === "due",
             },
             {
               label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" },
               rows: placementInvoices.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              onClick: () => setKpiFilter(kpiFilter === "placement" ? "all" : "placement"),
+              active: kpiFilter === "placement",
             },
             {
               label: { my: "အစီအစဉ် ကုန်ကျ", en: "Plan Spend" },
               rows: subs.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              onClick: () => setKpiFilter(kpiFilter === "subs" ? "all" : "subs"),
+              active: kpiFilter === "subs",
             },
           ]}
           rows={[]}
@@ -139,17 +167,14 @@ const EmployerFinance = () => {
             currency: p.currency,
             status: p.status,
             date: p.created_at,
-            trailing: <ProofStatusChip p={p} lang={lang} />,
-            onClick: () => {
-              if (p.payment_type === "placement_fee" && p.status === "pending" && !p.proof_url) {
-                setProofFor(p);
-              }
-            },
+            trailing: <span><ProofStatusChip p={p} lang={lang} /></span>,
+            onClick: () => handleRowClick(p),
           }))}
           emptyText={{ my: "ငွေကြေးမှတ်တမ်း မရှိသေးပါ", en: "No financial activity matches these filters" }}
         />
       </div>
 
+      {/* Upload proof sheet */}
       <Sheet open={!!proofFor} onOpenChange={(v) => { if (!v) { setProofFor(null); setFile(null); } }}>
         <SheetContent side="bottom" className="bottom-16 max-h-[80vh] overflow-y-auto rounded-t-3xl pb-8">
           <SheetHeader>
@@ -186,6 +211,82 @@ const EmployerFinance = () => {
                   ? (lang === "my" ? "တင်နေသည်..." : "Uploading...")
                   : (lang === "my" ? "အထောက်အထား တင်ရန်" : "Submit Proof")}
               </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Payment detail sheet */}
+      <Sheet open={!!detailFor} onOpenChange={(v) => { if (!v) setDetailFor(null); }}>
+        <SheetContent side="bottom" className="bottom-16 max-h-[80vh] overflow-y-auto rounded-t-3xl pb-8">
+          <SheetHeader>
+            <SheetTitle className="text-base font-bold">
+              {lang === "my" ? "ငွေပေးချေမှု အသေးစိတ်" : "Payment Details"}
+            </SheetTitle>
+          </SheetHeader>
+          {detailFor && (
+            <div className="mt-4 space-y-3 text-xs">
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "အမျိုးအစား" : "Type"}
+                </p>
+                <p className="text-sm font-semibold text-foreground">
+                  {lang === "my"
+                    ? paymentTypeLabels[detailFor.payment_type]?.my || detailFor.payment_type
+                    : paymentTypeLabels[detailFor.payment_type]?.en || detailFor.payment_type}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg bg-muted p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "ပမာဏ" : "Amount"}
+                  </p>
+                  <p className="text-sm font-bold text-foreground">
+                    {formatMoney(Number(detailFor.amount), detailFor.currency, lang)}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-muted p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "အခြေအနေ" : "Status"}
+                  </p>
+                  <p className="text-sm font-semibold capitalize text-foreground">{detailFor.status}</p>
+                </div>
+              </div>
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "ကိုးကားနံပါတ်" : "Reference"}
+                </p>
+                <p className="font-mono text-xs text-foreground">{shortRef(detailFor.id)}</p>
+              </div>
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "ပေးချေနည်း" : "Method"}
+                </p>
+                <p className="text-xs font-medium uppercase text-foreground">{detailFor.payment_method || "—"}</p>
+              </div>
+              <div className="rounded-lg bg-muted p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "ရက်စွဲ" : "Date"}
+                </p>
+                <p className="text-xs text-foreground">{new Date(detailFor.created_at).toLocaleString()}</p>
+              </div>
+              {detailFor.admin_note && (
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {lang === "my" ? "မှတ်ချက်" : "Note"}
+                  </p>
+                  <p className="text-xs text-foreground">{detailFor.admin_note}</p>
+                </div>
+              )}
+              {detailFor.payment_type === "placement_fee" && detailFor.status === "pending" && !detailFor.proof_url && (
+                <Button
+                  onClick={() => { setProofFor(detailFor); setDetailFor(null); }}
+                  className="w-full rounded-xl"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {lang === "my" ? "အထောက်အထား တင်ရန်" : "Submit Proof"}
+                </Button>
+              )}
             </div>
           )}
         </SheetContent>
