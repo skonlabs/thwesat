@@ -213,6 +213,11 @@ const SearchTalent = () => {
                   <Search className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
                   <p className="text-sm font-medium text-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No results found"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search"}</p>
+                  {(activeSkill !== "All" || filterExp !== "all" || filterLocation !== "all" || filterAvailable || search) && (
+                    <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveSkill("All"); setSearch(""); }}>
+                      {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
