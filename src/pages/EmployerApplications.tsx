@@ -75,6 +75,16 @@ const EmployerApplications = () => {
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedId);
+
+  // Auto-mark application as "viewed" when the employer opens it
+  useEffect(() => {
+    if (!selected) return;
+    if (NEW_APPLICATION_STATUSES.includes(selected.status)) {
+      updateStatus.mutate({ id: selected.id, status: "viewed" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+
   const selectedStatus = selected
     ? INTERVIEW_APPLICATION_STATUSES.includes(selected.status)
       ? "interview"
