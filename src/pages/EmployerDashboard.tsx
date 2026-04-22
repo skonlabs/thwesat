@@ -11,14 +11,6 @@ import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
 import { employerLabels as L } from "@/lib/employer-labels";
 
-const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
-  active: { label: { my: "လက်ခံနေ", en: "Active" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
-  pending: { label: { my: "စစ်ဆေးဆဲ", en: "Pending" }, color: "text-primary bg-primary/10", icon: Clock },
-  paused: { label: { my: "ခေတ္တရပ်", en: "Paused" }, color: "text-muted-foreground bg-muted", icon: Pause },
-  closed: { label: { my: "ပိတ်ပြီး", en: "Closed" }, color: "text-destructive bg-destructive/10", icon: XCircle },
-  rejected: { label: { my: "ငြင်းပယ်", en: "Rejected" }, color: "text-destructive bg-destructive/10", icon: XCircle },
-};
-
 const quickActions = [
   { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
   { icon: Briefcase, label: "အလုပ်ခေါ်စာများ", labelEn: "Job Listings", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
@@ -30,28 +22,10 @@ const quickActions = [
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const { data: empProfile } = useEmployerProfile();
-  const { data: jobs, isLoading } = useEmployerJobs();
-  const [filter, setFilter] = useState(searchParams.get("listingFilter") || "all");
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  // Sync URL <-> local filter so context survives back/forward
-  useEffect(() => {
-    const f = searchParams.get("listingFilter");
-    setFilter(f || "all");
-  }, [searchParams]);
-
-  const updateFilter = (next: string) => {
-    setFilter(next);
-    const params = new URLSearchParams(searchParams);
-    if (next === "all") params.delete("listingFilter");
-    else params.set("listingFilter", next);
-    setSearchParams(params, { replace: true });
-  };
+  const { data: jobs } = useEmployerJobs();
 
   // Fetch employer subscription
   const { data: subscription } = useQuery({
