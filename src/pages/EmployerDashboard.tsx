@@ -151,11 +151,18 @@ const EmployerDashboard = () => {
           )}
         </motion.div>
 
+        {/* Onboarding checklist (dismissible, hides when complete) */}
+        <EmployerOnboardingChecklist
+          hasCompany={!!empProfile?.company_name}
+          hasAnyJob={listings.length > 0}
+          hasAnyApplication={totalApplicants > 0}
+        />
+
         <div className="mb-5 grid grid-cols-2 gap-3">
           {[
-            { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => setFilter("active") },
-            { icon: Users, label: { my: "လျှောက်ထားသူ", en: "Applications" }, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
-            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placements" }, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
+            { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => updateFilter("active") },
+            { icon: Users, label: L.applications, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
+            { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
             { icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") },
           ].map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
