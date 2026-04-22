@@ -113,8 +113,6 @@ const MentorDashboard = () => {
     const { error } = await supabase.from("mentor_profiles").update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
     if (error) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
-    } else {
-      toast.success(lang === "my" ? "သိမ်းဆည်းပြီး" : "Settings saved");
     }
   };
 
@@ -279,7 +277,21 @@ const MentorDashboard = () => {
           {filteredBookings.length === 0 && (
             <div className="flex flex-col items-center py-12 text-center">
               <Calendar className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
-              <p className="text-sm font-medium text-foreground">{lang === "my" ? "Booking မရှိပါ" : "No bookings"}</p>
+              <p className="text-sm font-medium text-foreground">
+                {bookings.length === 0
+                  ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet")
+                  : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing matches this filter")}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {bookings.length === 0
+                  ? (lang === "my" ? "ရနိုင်သော အချိန်များ သတ်မှတ်ထားပြီး mentee များကို စောင့်ပါ" : "Set your availability so mentees can book a session")
+                  : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try a different status")}
+              </p>
+              {bookings.length === 0 && (
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/profile/edit")}>
+                  {lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit profile"}
+                </Button>
+              )}
             </div>
           )}
         </div>

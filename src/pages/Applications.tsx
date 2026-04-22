@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
@@ -38,7 +38,13 @@ const Applications = () => {
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
-  const [filter, setFilter] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = searchParams.get("filter") || "all";
+  const setFilter = (next: string) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("filter"); else p.set("filter", next);
+    setSearchParams(p, { replace: true });
+  };
 
   const apps = applications || [];
   const filteredApps = apps.filter((a: any) => {
@@ -63,7 +69,6 @@ const Applications = () => {
       toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
       return;
     }
-    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီး" : "Application withdrawn successfully");
     queryClient.invalidateQueries({ queryKey: ["applications"] });
     setSelectedApp(null);
   };
@@ -112,11 +117,25 @@ const Applications = () => {
         ) : filteredApps.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-            <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "လျှောက်လွှာ မရှိပါ" : "No applications yet"}</p>
-            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "အလုပ်ရှာဖွေပြီး လျှောက်ထားပါ" : "Browse jobs and start applying"}</p>
-            <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/jobs")}>
-              {lang === "my" ? "အလုပ်ရှာဖွေရန်" : "Browse Jobs"}
-            </Button>
+            <p className="text-sm font-medium text-muted-foreground">
+              {apps.length === 0
+                ? (lang === "my" ? "လျှောက်လွှာ မရှိပါ" : "No applications yet")
+                : (lang === "my" ? "ဤစစ်ထုတ်မှုအတွက် မရှိပါ" : "Nothing matches this filter")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              {apps.length === 0
+                ? (lang === "my" ? "အလုပ်ရှာဖွေပြီး လျှောက်ထားပါ" : "Browse jobs and start applying")
+                : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ သို့မဟုတ် အားလုံးကို ပြန်ကြည့်ပါ" : "Try a different status or view all")}
+            </p>
+            {apps.length === 0 ? (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/jobs")}>
+                {lang === "my" ? "အလုပ်ရှာဖွေရန်" : "Browse Jobs"}
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => setFilter("all")}>
+                {lang === "my" ? "အားလုံးပြန်ကြည့်" : "View all"}
+              </Button>
+            )}
           </div>
         ) : (
           filteredApps.map((app: any, i: number) => {

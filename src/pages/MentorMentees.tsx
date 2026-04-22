@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
@@ -30,7 +30,13 @@ const MentorMentees = () => {
   const { data: mentees = [], isLoading } = useMentorMentees();
   const { startConversation } = useStartConversation();
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = (searchParams.get("filter") as FilterType) || "all";
+  const setFilter = (next: FilterType) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("filter"); else p.set("filter", next);
+    setSearchParams(p, { replace: true });
+  };
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -89,7 +95,6 @@ const MentorMentees = () => {
           link_path: "/mentors/bookings",
         });
       }
-      toast.success(lang === "my" ? "Mentee လက်ခံပြီး" : "Mentee accepted");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       setSelectedId(null);
@@ -126,7 +131,6 @@ const MentorMentees = () => {
           link_path: "/mentors",
         });
       }
-      toast.success(lang === "my" ? "Mentee ငြင်းပယ်ပြီး" : "Mentee declined");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       setSelectedId(null);
@@ -222,7 +226,25 @@ const MentorMentees = () => {
             {filtered.length === 0 && (
               <div className="flex flex-col items-center py-12 text-center">
                 <Users className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
-                <p className="text-sm font-medium text-foreground">{lang === "my" ? "Mentee မရှိပါ" : "No mentees found"}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {enriched.length === 0
+                    ? (lang === "my" ? "Mentee မရှိသေးပါ" : "No mentees yet")
+                    : (lang === "my" ? "ဤစစ်ထုတ်မှုအတွက် မရှိပါ" : "Nothing matches this filter")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {enriched.length === 0
+                    ? (lang === "my" ? "သင့်ပရိုဖိုင်ကို ပြည့်စုံစွာ ဖြည့်ပါ၊ Mentee များ သင့်ကိုရှာဖွေနိုင်ရန်" : "Complete your profile so mentees can find and book you")
+                    : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try a different status or view all")}
+                </p>
+                {enriched.length === 0 ? (
+                  <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/profile/edit")}>
+                    {lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit profile"}
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => setFilter("all")}>
+                    {lang === "my" ? "အားလုံးပြန်ကြည့်" : "View all"}
+                  </Button>
+                )}
               </div>
             )}
           </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -32,7 +32,13 @@ const MentorBookings = () => {
   const updateStatus = useUpdateBookingStatus();
   const markComplete = useMarkSessionComplete();
   const sendNotification = useSendBookingNotification();
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = (searchParams.get("filter") as FilterType) || "all";
+  const setFilter = (next: FilterType) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("filter"); else p.set("filter", next);
+    setSearchParams(p, { replace: true });
+  };
 
   // Rating state
   const [ratingBookingId, setRatingBookingId] = useState<string | null>(null);
@@ -64,7 +70,6 @@ const MentorBookings = () => {
       });
     },
     onSuccess: () => {
-      toast({ title: lang === "my" ? "အဆင့်သတ်မှတ်ပြီးပါပြီ" : "Review submitted!" });
       setRatingBookingId(null);
       setRatingText("");
       setRatingValue(5);
@@ -136,7 +141,6 @@ const MentorBookings = () => {
       bookingTime: booking.proposed_time,
     });
 
-    toast({ title: lang === "my" ? "အချိန်အသစ် လက်ခံပြီး" : "New time accepted!" });
     queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
   };
 
@@ -317,7 +321,21 @@ const MentorBookings = () => {
             {filtered.length === 0 && (
               <div className="flex flex-col items-center py-12 text-center">
                 <Calendar className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
-                <p className="text-sm font-medium text-foreground">{lang === "my" ? "Booking မရှိပါ" : "No bookings"}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {bookings.length === 0
+                    ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet")
+                    : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing matches this filter")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {bookings.length === 0
+                    ? (lang === "my" ? "ရနိုင်သော အချိန်များ သတ်မှတ်ထားပြီး mentee များကို စောင့်ပါ" : "Set your availability so mentees can book a session")
+                    : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ သို့မဟုတ် အားလုံးကို ပြန်ကြည့်ပါ" : "Try a different status or view all")}
+                </p>
+                {bookings.length > 0 && (
+                  <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => setFilter("all")}>
+                    {lang === "my" ? "အားလုံးပြန်ကြည့်" : "View all"}
+                  </Button>
+                )}
               </div>
             )}
           </div>
