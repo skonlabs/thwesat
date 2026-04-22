@@ -13,6 +13,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import HomePage from "./pages/HomePage";
+import HomeRedirect from "./pages/HomeRedirect";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
 import SavedJobs from "./pages/SavedJobs";
