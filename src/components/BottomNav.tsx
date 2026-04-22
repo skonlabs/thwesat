@@ -58,6 +58,7 @@ const BottomNav = () => {
   ];
 
   const moderatorNav: NavItem[] = [
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
     { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
