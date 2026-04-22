@@ -216,7 +216,12 @@ export default function AvailabilityManager() {
     queryClient.invalidateQueries({ queryKey: ["mentor-all-availability"] });
   };
 
-  const handleDelete = (id: string) => deleteSlot.mutate(id);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const handleDelete = (id: string) => setDeleteConfirmId(id);
+  const confirmDelete = () => {
+    if (!deleteConfirmId) return;
+    deleteSlot.mutate(deleteConfirmId, { onSettled: () => setDeleteConfirmId(null) });
+  };
 
   const handleSaveTimezone = async () => {
     if (!user) return;
@@ -476,6 +481,21 @@ export default function AvailabilityManager() {
           )}
         </div>
       )}
+
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အချိန်ဇယား ဖျက်မည်" : "Delete Time Slot"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤအချိန်ဇယားကို ဖျက်မည်လား?" : "Remove this time slot from your availability?"}</p>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={confirmDelete} disabled={deleteSlot.isPending}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
