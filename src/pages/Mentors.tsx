@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send } from "lucide-react";
+import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send, Calendar } from "lucide-react";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
 import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import PageHeader from "@/components/PageHeader";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useRole } from "@/hooks/use-role";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -59,12 +62,38 @@ const Mentors = () => {
   const { role } = useRole();
   const { startConversation } = useStartConversation();
   const { data: mentors = [], isLoading } = useMentorProfiles();
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterRating, setFilterRating] = useState("all");
-  const [filterAvailable, setFilterAvailable] = useState(false);
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterRating, setFilterRating] = useSearchParamState("rating", "all");
+  const [filterAvailableRaw, setFilterAvailableRaw] = useSearchParamState("avail", "0");
+  const filterAvailable = filterAvailableRaw === "1";
+  const setFilterAvailable = (v: boolean) => setFilterAvailableRaw(v ? "1" : "0");
+
+  // Fetch next available slot per mentor
+  const mentorIds = mentors.map(m => m.id);
+  const { data: nextSlots = {} } = useQuery({
+    queryKey: ["mentor-next-slots", mentorIds],
+    queryFn: async () => {
+      if (!mentorIds.length) return {};
+      const today = new Date().toISOString().split("T")[0];
+      const { data } = await supabase
+        .from("mentor_availability_slots")
+        .select("mentor_id, slot_date, start_time")
+        .in("mentor_id", mentorIds)
+        .eq("is_booked", false)
+        .not("slot_date", "is", null)
+        .gte("slot_date", today)
+        .order("slot_date").order("start_time");
+      const map: Record<string, { date: string; time: string }> = {};
+      (data || []).forEach((s: any) => {
+        if (!map[s.mentor_id]) map[s.mentor_id] = { date: s.slot_date, time: s.start_time };
+      });
+      return map;
+    },
+    enabled: mentorIds.length > 0,
+  });
 
   const activeFilterCount = [filterLocation !== "all", filterRating !== "all", filterAvailable].filter(Boolean).length;
 
