@@ -154,8 +154,8 @@ const Applications = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-foreground">{job?.title || "Job"}</h3>
-                  <p className="text-xs text-muted-foreground">{job?.company} {job?.salary_min && job?.salary_max ? `· $${job.salary_min}-${job.salary_max}/mo` : ""}</p>
-                  <div className="mt-2 flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">{job?.company} {job?.salary_min && job?.salary_max ? `· ${formatCurrencyRange(job.salary_min, job.salary_max, job.currency, lang, "mo")}` : ""}</p>
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
                     <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sl.color}`}>
                       <Icon className="h-3 w-3" /> {lang === "my" ? sl.my : sl.en}
                     </span>
@@ -164,7 +164,7 @@ const Applications = () => {
                     </span>
                     {app.interview_date && (
                       <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        <Calendar className="h-3 w-3" /> {lang === "my" ? "အင်တာဗျူး" : "Interview"}
+                        <Calendar className="h-3 w-3" /> {new Date(app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     )}
                   </div>
@@ -198,7 +198,7 @@ const Applications = () => {
               </div>
               <div className="flex gap-3">
                 {(selected.status === "applied" || selected.status === "submitted") && (
-                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={handleWithdraw}>
+                  <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmWithdraw(true)}>
                     {lang === "my" ? "ရုပ်သိမ်းရန်" : "Withdraw"}
                   </Button>
                 )}
