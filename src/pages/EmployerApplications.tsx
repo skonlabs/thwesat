@@ -78,23 +78,26 @@ const EmployerApplications = () => {
         await updateStatus.mutateAsync({ id: selectedId, status: "rejected", rejectionReason });
         toast.success(lang === "my" ? "ငြင်းပယ်ပြီး" : "Application rejected");
         setShowReject(false); setSelectedId(null); setRejectionReason("");
-      } catch {
-        toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to reject");
+      } catch (err: any) {
+        toast.error((lang === "my" ? "ငြင်းပယ်၍ မရပါ: " : "Failed to reject: ") + (err?.message || "unknown"));
       }
     }
   };
 
   const handlePlacement = async () => {
-    if (selectedId && placementSalary) {
-      try {
-        const salary = parseInt(placementSalary);
-        const fee = Math.round(salary * 0.08);
-        await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
-        toast.success(lang === "my" ? "ခန့်အပ်မှု အတည်ပြုပြီး" : "Placement confirmed!");
-        setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
-      } catch {
-        toast.error(lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ" : "Failed to confirm placement");
-      }
+    if (!selectedId) return;
+    const salary = parseInt(placementSalary, 10);
+    if (!Number.isFinite(salary) || salary <= 0) {
+      toast.error(lang === "my" ? "လစာ မှန်ကန်စွာ ထည့်ပါ" : "Enter a valid salary");
+      return;
+    }
+    try {
+      const fee = Math.round(salary * 0.08);
+      await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
+      toast.success(lang === "my" ? "ခန့်အပ်မှု အတည်ပြုပြီး" : "Placement confirmed!");
+      setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
+    } catch (err: any) {
+      toast.error((lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ: " : "Failed to confirm placement: ") + (err?.message || "unknown"));
     }
   };
 
