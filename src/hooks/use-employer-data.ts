@@ -116,6 +116,11 @@ export function useUpdateApplicationStatus() {
       queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+      // Placement summary on the employer dashboard depends on application status.
+      queryClient.invalidateQueries({ queryKey: ["employer-placements"] });
+      // The notification we just inserted should appear immediately.
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-notifications"] });
     },
   });
 }
@@ -191,6 +196,7 @@ export function useApprovePost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-posts"] });
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
   });
 }
@@ -199,12 +205,27 @@ export function useApproveJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (jobId: string) => {
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", jobId).maybeSingle();
       const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", jobId);
       if (error) throw error;
+      // Notify the employer that their listing went live.
+      if (job?.employer_id) {
+        await supabase.from("notifications").insert({
+          user_id: job.employer_id,
+          notification_type: "job",
+          title: "Your job listing is live",
+          title_my: "သင့်အလုပ်ကြော်ငြာ စတင်ပြသပြီးပါပြီ",
+          description: `"${job.title}" has been approved and is now visible to candidates.`,
+          description_my: `"${job.title_my || job.title}" အတည်ပြုပြီး လူကြည့်နိုင်ပါပြီ။`,
+          link_path: "/employer/dashboard",
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
   });
 }

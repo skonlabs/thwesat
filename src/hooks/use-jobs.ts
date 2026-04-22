@@ -121,6 +121,17 @@ export function useToggleSaveJob() {
         if (error) throw error;
       }
     },
+    onMutate: async ({ jobId, isSaved }) => {
+      // Optimistic update so the bookmark UI feels instant on slow networks.
+      await queryClient.cancelQueries({ queryKey: ["saved-job-ids"] });
+      const previous = queryClient.getQueryData<string[]>(["saved-job-ids", user?.id]) || [];
+      const next = isSaved ? previous.filter(id => id !== jobId) : [...previous, jobId];
+      queryClient.setQueryData(["saved-job-ids", user?.id], next);
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["saved-job-ids", user?.id], ctx.previous);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["saved-job-ids"] });
@@ -135,16 +146,40 @@ export function useApplyToJob() {
   return useMutation({
     mutationFn: async ({ jobId, coverLetter, cvDocumentId }: { jobId: string; coverLetter?: string; cvDocumentId?: string }) => {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase
+      // If a previous application exists (e.g. withdrawn / rejected), reactivate it
+      // instead of inserting (which would violate the UNIQUE(job_id, applicant_id) constraint).
+      const { data: existing } = await supabase
         .from("applications")
-        .insert({
-          applicant_id: user.id,
-          job_id: jobId,
-          cover_letter: coverLetter || "",
-          cv_document_id: cvDocumentId || null,
-          status: "applied",
-        });
-      if (error) throw error;
+        .select("id, status")
+        .eq("applicant_id", user.id)
+        .eq("job_id", jobId)
+        .maybeSingle();
+      if (existing) {
+        const { error } = await supabase
+          .from("applications")
+          .update({
+            status: "applied",
+            cover_letter: coverLetter || "",
+            cv_document_id: cvDocumentId || null,
+            withdrawn_at: null,
+            rejection_reason: "",
+            rejection_reason_my: "",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("applications")
+          .insert({
+            applicant_id: user.id,
+            job_id: jobId,
+            cover_letter: coverLetter || "",
+            cv_document_id: cvDocumentId || null,
+            status: "applied",
+          });
+        if (error) throw error;
+      }
 
       // Notify employer about new application
       const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", jobId).single();
@@ -162,8 +197,11 @@ export function useApplyToJob() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["job", vars.jobId] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
     },
   });
 }

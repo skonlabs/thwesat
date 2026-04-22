@@ -25,6 +25,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   offered: { label: { my: "ကမ်းလှမ်းပြီး", en: "Offered" }, color: "text-emerald bg-emerald/10" },
   rejected: { label: { my: "ငြင်းပယ်ပြီး", en: "Rejected" }, color: "text-destructive bg-destructive/10" },
   placed: { label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, color: "text-emerald bg-emerald/10" },
+  withdrawn: { label: { my: "ရုပ်သိမ်းပြီး", en: "Withdrawn" }, color: "text-muted-foreground bg-muted" },
 };
 
 const statusFlow = ["applied", "viewed", "shortlisted", "interview", "offered", "placed"];

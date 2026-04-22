@@ -116,7 +116,9 @@ const JobDetail = () => {
     enabled: !!user && showApplyModal,
   });
 
-  const applied = id ? applications.some((a: any) => a.job_id === id) : false;
+  // A withdrawn or rejected application should NOT block the user from re-applying.
+  const myApplication = id ? applications.find((a: any) => a.job_id === id) : null;
+  const applied = !!myApplication && !["withdrawn", "rejected"].includes((myApplication as any).status);
   const saved = id ? savedJobIds.includes(id) : false;
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },

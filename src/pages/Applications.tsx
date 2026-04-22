@@ -71,7 +71,11 @@ const Applications = () => {
       toast.error(lang === "my" ? "ရုပ်သိမ်း၍ မရပါ" : "Failed to withdraw application");
       return;
     }
+    // Refresh every surface that reflects this application's state.
     queryClient.invalidateQueries({ queryKey: ["applications"] });
+    queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+    queryClient.invalidateQueries({ queryKey: ["job", selected?.job_id] });
+    queryClient.invalidateQueries({ queryKey: ["jobs"] });
     toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
     setConfirmWithdraw(false);
     setSelectedApp(null);
