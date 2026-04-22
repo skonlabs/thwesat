@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { applicationMethodOptions, getApplicationMethodLabel, isValidUrl } from "@/lib/employer-labels";
 import BilingualField from "@/components/employer/BilingualField";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -30,9 +31,12 @@ const EmployerEditJob = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: job, isLoading } = useJob(id);
+  const { data: employerProfile } = useEmployerProfile();
+  const isPro = employerProfile?.subscription_tier === "pro";
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [showFeaturedInfo, setShowFeaturedInfo] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const [titleEn, setTitleEn] = useState("");
   const [titleMy, setTitleMy] = useState("");
@@ -236,14 +240,27 @@ const EmployerEditJob = () => {
             <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
           </label>
         </div>
-        <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
+        <div className={`rounded-xl border p-4 ${isPro ? "border-accent/30 bg-accent/5" : "border-border bg-muted/30"}`}>
           <label className="flex items-start gap-3">
-            <Checkbox checked={isFeatured} onCheckedChange={v => setIsFeatured(!!v)} className="mt-0.5" />
+            <Checkbox
+              checked={isFeatured}
+              onCheckedChange={(v) => {
+                if (!isPro) {
+                  setUpgradeOpen(true);
+                  return;
+                }
+                setIsFeatured(!!v);
+              }}
+              className="mt-0.5"
+            />
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                   <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
                   {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
+                  {!isPro && (
+                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent">Pro</span>
+                  )}
                 </p>
                 <button
                   type="button"
@@ -351,6 +368,39 @@ const EmployerEditJob = () => {
               </Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={saving}>
                 {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "အတည်ပြု" : "Confirm & Save")}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={upgradeOpen} onOpenChange={setUpgradeOpen}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Star className="h-4 w-4 fill-accent text-accent" />
+              {lang === "my" ? "Pro အစီအစဉ် လိုအပ်သည်" : "Pro Plan Required"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-3 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {lang === "my"
+                ? "Featured အလုပ်ခေါ်စာများကို ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြသည်။ ဤအင်္ဂါရပ်ကို Pro အစီအစဉ်ဖြင့်သာ အသုံးပြုနိုင်ပါသည်။"
+                : "Featured listings get priority placement on the home screen. This is a Pro-only feature — upgrade to enable it, then come back and finish editing your job."}
+            </p>
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-3 text-xs text-foreground">
+              <p className="font-semibold">{lang === "my" ? "Pro ပါဝင်ပစ္စည်းများ" : "Pro includes"}</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+                <li>{lang === "my" ? "Featured အလုပ်ခေါ်စာ ဖော်ပြခြင်း" : "Featured job placement"}</li>
+                <li>{lang === "my" ? "ပိုမို မြင်သာသော လူငှားရေး tools" : "Advanced hiring tools"}</li>
+              </ul>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setUpgradeOpen(false)}>
+                {lang === "my" ? "နောက်မှ" : "Not Now"}
+              </Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { setUpgradeOpen(false); navigate("/employer/subscription"); }}>
+                {lang === "my" ? "Pro သို့ တိုးမြှင့်" : "Upgrade to Pro"}
               </Button>
             </div>
           </div>
