@@ -259,6 +259,39 @@ const EmployerPostJob = () => {
           </motion.div>
         )}
       </div>
+
+      <Sheet open={upgradeOpen} onOpenChange={setUpgradeOpen}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Star className="h-4 w-4 fill-accent text-accent" />
+              {lang === "my" ? "Pro အစီအစဉ် လိုအပ်သည်" : "Pro Plan Required"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-3 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {lang === "my"
+                ? "Featured အလုပ်ခေါ်စာများကို ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြသည်။ ဤအင်္ဂါရပ်ကို Pro အစီအစဉ်ဖြင့်သာ အသုံးပြုနိုင်ပါသည်။"
+                : "Featured listings get priority placement on the home screen. Upgrade to Pro to enable it, then come back and post your job."}
+            </p>
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-3 text-xs text-foreground">
+              <p className="font-semibold">{lang === "my" ? "Pro ပါဝင်ပစ္စည်းများ" : "Pro includes"}</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+                <li>{lang === "my" ? "Featured အလုပ်ခေါ်စာ ဖော်ပြခြင်း" : "Featured job placement"}</li>
+                <li>{lang === "my" ? "ပိုမို မြင်သာသော လူငှားရေး tools" : "Advanced hiring tools"}</li>
+              </ul>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setUpgradeOpen(false)}>
+                {lang === "my" ? "နောက်မှ" : "Not Now"}
+              </Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { setUpgradeOpen(false); navigate("/employer/subscription"); }}>
+                {lang === "my" ? "Pro သို့ တိုးမြှင့်" : "Upgrade to Pro"}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
