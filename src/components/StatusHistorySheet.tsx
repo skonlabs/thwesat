@@ -104,7 +104,7 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
             animate={{ y: 0 }}
             exit={{ y: 400 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="w-full max-w-lg rounded-t-3xl bg-card flex flex-col max-h-[85vh]"
+            className="w-full max-w-lg rounded-t-3xl bg-card flex flex-col max-h-[85vh] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mt-3 mb-2 h-1 w-10 rounded-full bg-muted-foreground/20 shrink-0" />
