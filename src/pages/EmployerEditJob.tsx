@@ -71,6 +71,8 @@ const EmployerEditJob = () => {
       setRequiresWorkPermit(job.requires_work_permit || false);
       setVisaSponsorship(job.visa_sponsorship || false);
       setIsFeatured(job.is_featured || false);
+      setApplicationMethod(job.application_method || "platform");
+      setExternalUrl(job.external_url || "");
     }
   }, [job]);
 
