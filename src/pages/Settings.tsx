@@ -148,7 +148,7 @@ const Settings = () => {
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => setPushNotifications(!pushNotifications) },
+        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => { const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v }); } },
         { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
@@ -157,7 +157,7 @@ const Settings = () => {
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
         { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
-        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => setRememberDevice(!rememberDevice) },
+        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => { const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v }); } },
         { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
@@ -314,14 +314,14 @@ const Settings = () => {
       </SettingsBottomSheet>
 
       {/* Feature Sheets */}
-      <ProfileVisibilitySheet open={showVisibility} onClose={() => setShowVisibility(false)} value={profileVisibility} onChange={setProfileVisibility} />
-      <SessionExpirySheet open={showSessionExpiry} onClose={() => setShowSessionExpiry(false)} value={sessionExpiry} onChange={setSessionExpiry} />
+      <ProfileVisibilitySheet open={showVisibility} onClose={() => setShowVisibility(false)} value={profileVisibility} onChange={(v) => { setProfileVisibility(v); persist({ profile_visibility: v }); }} />
+      <SessionExpirySheet open={showSessionExpiry} onClose={() => setShowSessionExpiry(false)} value={sessionExpiry} onChange={(v) => { setSessionExpiry(v); persist({ session_expiry: v }); }} />
       <TelegramLinkSheet
         open={showTelegram}
         onClose={() => setShowTelegram(false)}
         isLinked={telegramLinked}
-        onLink={() => { setTelegramLinked(true); }}
-        onUnlink={() => { setTelegramLinked(false); }}
+        onLink={() => { setTelegramLinked(true); persist({ telegram_linked: true }); }}
+        onUnlink={() => { setTelegramLinked(false); persist({ telegram_linked: false, telegram_chat_id: null, telegram_username: null }); }}
       />
       <DelegateTokenSheet
         open={showToken}
