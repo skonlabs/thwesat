@@ -174,6 +174,9 @@ const EmployerJobs = () => {
                       <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
                         <Pencil className="h-4 w-4" strokeWidth={1.5} />
                       </button>
+                      <button onClick={() => setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title })} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}>
+                        <History className="h-4 w-4" strokeWidth={1.5} />
+                      </button>
                       {(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
                         <div className="relative">
                           <button
