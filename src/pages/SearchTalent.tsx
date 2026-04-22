@@ -8,6 +8,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
 import { UserRoleBadges } from "@/components/RoleBadge";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
 
 const skillCategories = ["All", "React", "Node.js", "Python", "UI/UX", "Project Management", "Translation", "Marketing"];
 
@@ -31,12 +32,14 @@ const SearchTalent = () => {
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
   const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker" || p.primary_role === "mentor");
-  const [search, setSearch] = useState("");
-  const [activeSkill, setActiveSkill] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeSkill, setActiveSkill] = useSearchParamState("skill", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterExp, setFilterExp] = useState("all");
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterAvailable, setFilterAvailable] = useState(false);
+  const [filterExp, setFilterExp] = useSearchParamState("exp", "all");
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterAvailableRaw, setFilterAvailableRaw] = useSearchParamState("avail", "0");
+  const filterAvailable = filterAvailableRaw === "1";
+  const setFilterAvailable = (v: boolean) => setFilterAvailableRaw(v ? "1" : "0");
 
   const activeFilterCount = [filterExp !== "all", filterLocation !== "all", filterAvailable].filter(Boolean).length;
 
@@ -210,6 +213,11 @@ const SearchTalent = () => {
                   <Search className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
                   <p className="text-sm font-medium text-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No results found"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search"}</p>
+                  {(activeSkill !== "All" || filterExp !== "all" || filterLocation !== "all" || filterAvailable || search) && (
+                    <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveSkill("All"); setSearch(""); }}>
+                      {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

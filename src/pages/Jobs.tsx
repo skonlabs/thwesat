@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useJobs, useSavedJobIds, useToggleSaveJob, useApplications, type Job } from "@/hooks/use-jobs";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -63,17 +64,23 @@ const Jobs = () => {
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
 
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterType, setFilterType] = useState("all");
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterDiasporaSafe, setFilterDiasporaSafe] = useState(false);
-  const [filterVerified, setFilterVerified] = useState(false);
-  const [filterVisa, setFilterVisa] = useState(false);
+  const [filterType, setFilterType] = useSearchParamState("type", "all");
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterDiasporaSafe, setFilterDiasporaSafeRaw] = useSearchParamState("safe", "0");
+  const [filterVerified, setFilterVerifiedRaw] = useSearchParamState("verified", "0");
+  const [filterVisa, setFilterVisaRaw] = useSearchParamState("visa", "0");
+  const setFilterDiasporaSafe = (v: boolean) => setFilterDiasporaSafeRaw(v ? "1" : "0");
+  const setFilterVerified = (v: boolean) => setFilterVerifiedRaw(v ? "1" : "0");
+  const setFilterVisa = (v: boolean) => setFilterVisaRaw(v ? "1" : "0");
+  const diasporaOn = filterDiasporaSafe === "1";
+  const verifiedOn = filterVerified === "1";
+  const visaOn = filterVisa === "1";
   const [showScamAlert, setShowScamAlert] = useState(true);
 
-  const activeFilterCount = [filterType !== "all", filterLocation !== "all", filterDiasporaSafe, filterVerified, filterVisa].filter(Boolean).length;
+  const activeFilterCount = [filterType !== "all", filterLocation !== "all", diasporaOn, verifiedOn, visaOn].filter(Boolean).length;
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = search === "" ||
@@ -83,9 +90,9 @@ const Jobs = () => {
     const matchesCategory = activeCategory === "All" || job.category === activeCategory;
     const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
     const matchesLocation = filterLocation === "all" || job.location === filterLocation;
-    const matchesDiaspora = !filterDiasporaSafe || job.is_diaspora_safe;
-    const matchesVerified = !filterVerified || job.is_verified;
-    const matchesVisa = !filterVisa || job.visa_sponsorship;
+    const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
+    const matchesVerified = !verifiedOn || job.is_verified;
+    const matchesVisa = !visaOn || job.visa_sponsorship;
     return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
   });
 
@@ -206,9 +213,9 @@ const Jobs = () => {
                   <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
                   <div className="space-y-2">
                     {[
-                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: filterDiasporaSafe, set: setFilterDiasporaSafe },
-                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: filterVerified, set: setFilterVerified },
-                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: filterVisa, set: setFilterVisa },
+                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: diasporaOn, set: setFilterDiasporaSafe },
+                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: verifiedOn, set: setFilterVerified },
+                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: visaOn, set: setFilterVisa },
                     ].map(toggle => (
                       <button key={toggle.label} onClick={() => toggle.set(!toggle.value)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
                         <span className="text-sm text-foreground">{toggle.label}</span>
@@ -240,7 +247,16 @@ const Jobs = () => {
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
-            <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              {activeFilterCount > 0 || activeCategory !== "All" || search
+                ? (lang === "my" ? "စစ်ထုတ်မှုကို ဖြုတ်ပြီး ပြန်ကြည့်ပါ" : "Try clearing filters or search")
+                : (lang === "my" ? "မကြာမီ အလုပ်အသစ်များ ထွက်လာမည်" : "New jobs are added regularly")}
+            </p>
+            {(activeFilterCount > 0 || activeCategory !== "All" || search) && (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveCategory("All"); setSearch(""); }}>
+                {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+              </Button>
+            )}
           </div>
         ) : (
           filteredJobs.map((job, i) => {

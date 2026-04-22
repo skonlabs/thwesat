@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send } from "lucide-react";
+import { Search, Star, MapPin, MessageCircle, SlidersHorizontal, X, Check, GraduationCap, Send, Calendar } from "lucide-react";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
 import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import PageHeader from "@/components/PageHeader";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useRole } from "@/hooks/use-role";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -59,12 +62,38 @@ const Mentors = () => {
   const { role } = useRole();
   const { startConversation } = useStartConversation();
   const { data: mentors = [], isLoading } = useMentorProfiles();
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [filterRating, setFilterRating] = useState("all");
-  const [filterAvailable, setFilterAvailable] = useState(false);
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterRating, setFilterRating] = useSearchParamState("rating", "all");
+  const [filterAvailableRaw, setFilterAvailableRaw] = useSearchParamState("avail", "0");
+  const filterAvailable = filterAvailableRaw === "1";
+  const setFilterAvailable = (v: boolean) => setFilterAvailableRaw(v ? "1" : "0");
+
+  // Fetch next available slot per mentor
+  const mentorIds = mentors.map(m => m.id);
+  const { data: nextSlots = {} } = useQuery({
+    queryKey: ["mentor-next-slots", mentorIds],
+    queryFn: async () => {
+      if (!mentorIds.length) return {};
+      const today = new Date().toISOString().split("T")[0];
+      const { data } = await supabase
+        .from("mentor_availability_slots")
+        .select("mentor_id, slot_date, start_time")
+        .in("mentor_id", mentorIds)
+        .eq("is_booked", false)
+        .not("slot_date", "is", null)
+        .gte("slot_date", today)
+        .order("slot_date").order("start_time");
+      const map: Record<string, { date: string; time: string }> = {};
+      (data || []).forEach((s: any) => {
+        if (!map[s.mentor_id]) map[s.mentor_id] = { date: s.slot_date, time: s.start_time };
+      });
+      return map;
+    },
+    enabled: mentorIds.length > 0,
+  });
 
   const activeFilterCount = [filterLocation !== "all", filterRating !== "all", filterAvailable].filter(Boolean).length;
 
@@ -207,6 +236,11 @@ const Mentors = () => {
             <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No mentors found"}</p>
             <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ရှာဖွေမှုကို ပြောင်းကြည့်ပါ" : "Try adjusting your search or filters"}</p>
+            {(activeCategory !== "All" || filterLocation !== "all" || filterRating !== "all" || filterAvailable || search) && (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => { clearFilters(); setActiveCategory("All"); setSearch(""); }}>
+                {lang === "my" ? "စစ်ထုတ်မှု ဖြုတ်ရန်" : "Clear filters"}
+              </Button>
+            )}
           </div>
         ) : (
           filteredMentors.map((mentor, i) => {
@@ -248,7 +282,15 @@ const Mentors = () => {
                   ))}
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Location not set")}</span>
+                    {nextSlots[mentor.id] && (
+                      <span className="flex items-center gap-1 text-[10px] font-medium text-emerald">
+                        <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                        {lang === "my" ? "နောက်ဆုံး လပ်" : "Next"}: {nextSlots[mentor.id].date} · {nextSlots[mentor.id].time}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
                       <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
