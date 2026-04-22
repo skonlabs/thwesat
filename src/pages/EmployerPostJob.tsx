@@ -146,11 +146,12 @@ const EmployerPostJob = () => {
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား *" : "Category *"}</label>
-              <CategoryCombobox value={category} onChange={setCategory} />
+              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစားများ *" : "Categories *"}</label>
+              <CategoryCombobox values={categories} onChange={setCategories} />
+              <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အနည်းဆုံး တစ်ခု ရွေးပါ — အများဆုံး ၅ ခု" : "Pick at least one — up to 5 categories."}</p>
             </div>
             <div className="mx-auto w-full max-w-md pt-2">
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || !category}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || categories.length === 0}>
                 {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </div>
