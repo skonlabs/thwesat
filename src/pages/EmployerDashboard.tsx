@@ -139,7 +139,7 @@ const EmployerDashboard = () => {
               ) : (
                 <>
                   <CreditCard className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
-                  <span className="text-[10px] font-bold text-muted-foreground">{lang === "my" ? "အစီအစဉ်" : "Subscribe"}</span>
+                  <span className="text-[10px] font-bold text-muted-foreground">{lang === "my" ? "အဆင့်မြှင့်" : "Upgrade"}</span>
                 </>
               )}
             </button>
