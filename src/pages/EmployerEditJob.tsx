@@ -112,7 +112,6 @@ const EmployerEditJob = () => {
     if (error) {
       toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update");
     } else {
-      toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ပြင်ဆင်ပြီး" : "Job updated");
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
