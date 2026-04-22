@@ -200,8 +200,9 @@ const EmployerEditJob = () => {
           </div>
         </div>
         <div>
-          <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစား" : "Category"}</label>
-          <CategoryCombobox value={category} onChange={setCategory} />
+          <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစားများ" : "Categories"}</label>
+          <CategoryCombobox values={categories} onChange={setCategories} />
+          <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသည့် အမျိုးအစားများကို ဖယ်ရှားရန် ✕ ကို နှိပ်ပါ" : "Tap ✕ on a chip to remove a category."}</p>
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
