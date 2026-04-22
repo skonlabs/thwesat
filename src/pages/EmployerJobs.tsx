@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, XCircle, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2 } from "lucide-react";
+import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2, MoreVertical } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
