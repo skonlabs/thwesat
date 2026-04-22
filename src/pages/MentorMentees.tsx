@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/use-language";
@@ -30,7 +30,13 @@ const MentorMentees = () => {
   const { data: mentees = [], isLoading } = useMentorMentees();
   const { startConversation } = useStartConversation();
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = (searchParams.get("filter") as FilterType) || "all";
+  const setFilter = (next: FilterType) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("filter"); else p.set("filter", next);
+    setSearchParams(p, { replace: true });
+  };
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
