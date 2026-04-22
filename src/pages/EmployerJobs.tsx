@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2, MoreVertical } from "lucide-react";
+import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2, MoreVertical, History } from "lucide-react";
+import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -32,6 +33,7 @@ const EmployerJobs = () => {
   const [sharingId, setSharingId] = useState<string | null>(null);
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [historyJob, setHistoryJob] = useState<{ id: string; title: string } | null>(null);
 
   const handleStatusChange = async (jobId: string, newStatus: "active" | "paused" | "closed") => {
     setUpdatingId(jobId);
@@ -172,6 +174,9 @@ const EmployerJobs = () => {
                       <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
                         <Pencil className="h-4 w-4" strokeWidth={1.5} />
                       </button>
+                      <button onClick={() => setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title })} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}>
+                        <History className="h-4 w-4" strokeWidth={1.5} />
+                      </button>
                       {(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
                         <div className="relative">
                           <button
@@ -236,6 +241,14 @@ const EmployerJobs = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <StatusHistorySheet
+        open={!!historyJob}
+        onClose={() => setHistoryJob(null)}
+        kind="job"
+        recordId={historyJob?.id || null}
+        subtitle={historyJob?.title}
+      />
     </div>
   );
 };
