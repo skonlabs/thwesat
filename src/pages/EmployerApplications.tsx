@@ -70,6 +70,8 @@ const EmployerApplications = () => {
   const apps = applications || [];
   const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
   const filtered = apps.filter((a: any) => {
+    // Placed applications belong on the dedicated Placements tab, never here
+    if (a.status === "placed") return false;
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
     if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
