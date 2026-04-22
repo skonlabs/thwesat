@@ -21,6 +21,11 @@ const roleTypes = [
 ];
 const categories = ["tech", "design", "pm", "ngo", "translation", "finance", "education", "healthcare"];
 const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
+const applicationMethods = [
+  { value: "platform", label: { my: "ThweSat မှ", en: "Via Platform" } },
+  { value: "external", label: { my: "ပြင်ပလင့်ခ်", en: "External URL" } },
+  { value: "email", label: { my: "အီးမေးလ်", en: "Via Email" } },
+];
 
 const EmployerEditJob = () => {
   const { id } = useParams<{ id: string }>();
