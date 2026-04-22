@@ -111,24 +111,22 @@ const ChatView = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="border-b border-border bg-card px-5 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/messages")} className="rounded-lg p-1 text-foreground active:bg-muted"><ArrowLeft className="h-5 w-5" strokeWidth={1.5} /></button>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {otherProfile?.display_name?.slice(0, 2).toUpperCase() || "?"}
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">{otherProfile?.display_name || "User"}</h3>
-                <div className="flex items-center gap-1">
-                  <Lock className="h-2.5 w-2.5 text-emerald" />
-                  <span className="text-[10px] text-emerald">{lang === "my" ? "ကုဒ်ဝှက်ထား" : "Encrypted"}</span>
-                </div>
+      <PageHeader title={otherProfile?.display_name || (lang === "my" ? "မက်ဆေ့ချ်" : "Chat")} backPath="/messages" />
+      <div className="border-b border-border bg-card px-5 py-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shrink-0">
+              {otherProfile?.display_name?.slice(0, 2).toUpperCase() || "?"}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-foreground truncate">{otherProfile?.display_name || "User"}</h3>
+              <div className="flex items-center gap-1">
+                <Lock className="h-2.5 w-2.5 text-emerald" />
+                <span className="text-[10px] text-emerald">{lang === "my" ? "ကုဒ်ဝှက်ထား" : "Encrypted"}</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => handleCall("audio")} className="rounded-lg p-2 text-muted-foreground active:bg-muted"><Phone className="h-5 w-5" strokeWidth={1.5} /></button>
             <button onClick={() => handleCall("video")} className="rounded-lg p-2 text-muted-foreground active:bg-muted"><Video className="h-5 w-5" strokeWidth={1.5} /></button>
           </div>
