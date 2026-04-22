@@ -155,8 +155,8 @@ const EmployerApplications = () => {
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
             { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
-            { label: lang === "my" ? "ဆောင်ရွက်ဆဲ" : "In Progress", count: apps.filter((a: any) => ["viewed", "interview", "interviewed", "offered"].includes(a.status)).length, color: "text-primary", filterVal: "interview" },
-            { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
+            { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "interview" },
+            { label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: apps.filter((a: any) => a.status === "offered").length, color: "text-emerald", filterVal: "offered" },
           ].map((s) => (
             <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
               <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
