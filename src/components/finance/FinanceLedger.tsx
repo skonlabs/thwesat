@@ -25,7 +25,7 @@ export type LedgerRow = {
 };
 
 interface FinanceLedgerProps {
-  totals: { label: { my: string; en: string }; rows: Money[]; tone?: string }[];
+  totals: { label: { my: string; en: string }; rows: Money[]; tone?: string; onClick?: () => void; active?: boolean }[];
   rows: LedgerRow[];
   isLoading?: boolean;
   emptyText?: { my: string; en: string };
@@ -37,22 +37,28 @@ export default function FinanceLedger({ totals, rows, isLoading, emptyText }: Fi
   return (
     <div>
       {/* Totals strip */}
-      <div className="mb-5 grid grid-cols-2 gap-3">
-        {totals.map((t, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className={`rounded-xl border border-border bg-card p-3.5 ${t.tone || ""}`}
-          >
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              {lang === "my" ? t.label.my : t.label.en}
-            </p>
-            <p className="mt-1 text-base font-bold text-foreground">{formatTotals(t.rows, lang)}</p>
-          </motion.div>
-        ))}
-      </div>
+      {totals.length > 0 && (
+        <div className="mb-5 grid grid-cols-2 gap-3">
+          {totals.map((t, i) => {
+            const Wrap: any = t.onClick ? motion.button : motion.div;
+            return (
+              <Wrap
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+                onClick={t.onClick}
+                className={`rounded-xl border bg-card p-3.5 text-left transition-colors ${t.active ? "border-primary ring-1 ring-primary/30" : "border-border"} ${t.tone || ""} ${t.onClick ? "active:bg-muted/30" : ""}`}
+              >
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? t.label.my : t.label.en}
+                </p>
+                <p className="mt-1 text-base font-bold text-foreground">{formatTotals(t.rows, lang)}</p>
+              </Wrap>
+            );
+          })}
+        </div>
+      )}
 
       {/* Ledger */}
       {isLoading ? (
