@@ -50,10 +50,20 @@ const EmployerApplications = () => {
   const [placementSalary, setPlacementSalary] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") || "all");
 
+  // Keep local filter state in sync when URL changes (back/forward, deep links)
   useEffect(() => {
     const f = searchParams.get("filter");
     setFilter(f || "all");
   }, [searchParams]);
+
+  // Persist filter changes to URL so they survive navigation/back
+  const updateFilter = (next: string) => {
+    setFilter(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === "all") params.delete("filter");
+    else params.set("filter", next);
+    setSearchParams(params, { replace: true });
+  };
 
   const apps = applications || [];
   const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
@@ -72,10 +82,11 @@ const EmployerApplications = () => {
         : selected.status
     : null;
 
-  const clearJobScope = () => {
-    const next = new URLSearchParams(searchParams);
-    next.delete("jobId");
-    setSearchParams(next, { replace: true });
+  const setJobScope = (newJobId: string | undefined) => {
+    const params = new URLSearchParams(searchParams);
+    if (newJobId) params.set("jobId", newJobId);
+    else params.delete("jobId");
+    setSearchParams(params, { replace: true });
   };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
