@@ -187,6 +187,23 @@ const MentorBookings = () => {
 
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <Calendar className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+            <p className="text-sm font-medium text-muted-foreground">
+              {filter === "all"
+                ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet")
+                : (lang === "my" ? "ဤအမျိုးအစား မရှိပါ" : "Nothing in this view")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              {lang === "my" ? "Mentee များ booking တင်လာသောအခါ ဤနေရာတွင် ပေါ်လာမည်" : "When mentees book sessions they will appear here"}
+            </p>
+            {filter !== "all" && (
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => setFilter("all")}>
+                {lang === "my" ? "အားလုံး ကြည့်ရန်" : "View all"}
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="space-y-3">
             {filtered.map((booking: any, i: number) => {
