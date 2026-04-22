@@ -171,6 +171,44 @@ const EmployerJobs = () => {
                       <button onClick={() => navigate(`/employer/edit-job/${listing.id}`)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ပြင်ဆင်" : "Edit"}>
                         <Pencil className="h-4 w-4" strokeWidth={1.5} />
                       </button>
+                      {(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
+                        <div className="relative">
+                          <button
+                            onClick={() => setStatusMenuId(statusMenuId === listing.id ? null : listing.id)}
+                            disabled={updatingId === listing.id}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60"
+                            title={lang === "my" ? "အခြေအနေ" : "Status"}
+                          >
+                            {updatingId === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" strokeWidth={1.5} />}
+                          </button>
+                          {statusMenuId === listing.id && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setStatusMenuId(null)} />
+                              <div className="absolute right-0 top-10 z-50 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                                {listing.status === "paused" && (
+                                  <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                    <Play className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်ရန်" : "Resume"}
+                                  </button>
+                                )}
+                                {listing.status === "active" && (
+                                  <button onClick={() => handleStatusChange(listing.id, "paused")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                    <Pause className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ခေတ္တရပ်" : "Pause"}
+                                  </button>
+                                )}
+                                {listing.status === "closed" ? (
+                                  <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                    <RotateCcw className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်" : "Reopen"}
+                                  </button>
+                                ) : (
+                                  <button onClick={() => handleStatusChange(listing.id, "closed")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-destructive hover:bg-muted">
+                                    <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပိတ်ရန်" : "Close"}
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
                       <button onClick={() => setDeleteConfirmId(listing.id)} className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
                         <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                       </button>
