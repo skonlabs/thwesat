@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History } from "lucide-react";
+import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -48,6 +49,7 @@ const EmployerApplications = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPlacement, setShowPlacement] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") || "all");
@@ -353,11 +355,22 @@ const EmployerApplications = () => {
                     </Button>
                   )}
                 </div>
+                <Button variant="ghost" size="sm" className="mt-3 rounded-lg text-xs" onClick={() => setHistoryOpen(true)}>
+                  <History className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အခြေအနေ မှတ်တမ်း" : "Status History"}
+                </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <StatusHistorySheet
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        kind="application"
+        recordId={selected?.id || null}
+        subtitle={selected ? `${selected.applicant_profile?.display_name || "Applicant"} · ${selected.jobs?.title || ""}` : undefined}
+      />
 
       <AnimatePresence>
         {showReject && (
