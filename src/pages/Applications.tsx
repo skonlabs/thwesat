@@ -9,6 +9,7 @@ import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { formatCurrencyRange } from "@/lib/currency";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
 const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
