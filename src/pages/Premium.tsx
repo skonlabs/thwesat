@@ -51,6 +51,7 @@ const PlanCard = ({
   isSelected,
   onSelect,
   isPremium,
+  activePlanId,
   lang,
   index,
 }: {
@@ -58,11 +59,14 @@ const PlanCard = ({
   isSelected: boolean;
   onSelect: () => void;
   isPremium: boolean | null | undefined;
+  activePlanId?: string | null;
   lang: string;
   index: number;
 }) => {
   const isFree = plan.plan_id === "free";
-  const isCurrent = isFree && !isPremium;
+  const isCurrent = activePlanId
+    ? plan.plan_id === activePlanId
+    : isFree && !isPremium;
   const isPopular = plan.plan_id === "6mo";
   const badge = lang === "my" ? plan.badge_my : plan.badge_en;
   const save = lang === "my" ? plan.save_label_my : plan.save_label_en;
