@@ -53,7 +53,11 @@ const EmployerPostJob = () => {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
+  const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
+  const [contractDurationMonths, setContractDurationMonths] = useState("");
+  const [contractDurationNote, setContractDurationNote] = useState("");
   const isPro = employerProfile?.subscription_tier === "pro";
+  const isContract = roleType === "remote_contract";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
@@ -86,6 +90,9 @@ const EmployerPostJob = () => {
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
+        contract_duration_type: isContract ? contractDurationType : null,
+        contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
+        contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         company: employerProfile?.company_name || "",
         status: "pending",
       });
@@ -175,6 +182,29 @@ const EmployerPostJob = () => {
               <div>
                 <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Country"}</label>
                 <Input value={locationCountry} onChange={e => setLocationCountry(e.target.value)} className="h-11 rounded-xl" />
+              </div>
+            )}
+            {isContract && (
+              <div className="space-y-2 rounded-xl border border-border bg-card p-4">
+                <label className="block text-xs font-semibold text-foreground">{lang === "my" ? "ကန်ထရိုက် ကြာချိန်" : "Contract Duration"}</label>
+                <div className="flex gap-2">
+                  {(["fixed", "variable"] as const).map(t => (
+                    <button key={t} type="button" onClick={() => setContractDurationType(t)} className={`flex-1 rounded-full border px-3 py-1.5 text-xs transition-colors ${contractDurationType === t ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                      {t === "fixed" ? (lang === "my" ? "သတ်မှတ်ထား" : "Fixed") : (lang === "my" ? "ပြောင်းလဲနိုင်" : "Variable")}
+                    </button>
+                  ))}
+                </div>
+                {contractDurationType === "fixed" ? (
+                  <div>
+                    <label className="mb-1 block text-[11px] text-muted-foreground">{lang === "my" ? "လ အရေအတွက်" : "Months"}</label>
+                    <Input type="number" min="1" value={contractDurationMonths} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 1) setContractDurationMonths(v); }} placeholder="6" className="h-11 rounded-xl" />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="mb-1 block text-[11px] text-muted-foreground">{lang === "my" ? "မှတ်ချက် (ရွေးချယ်)" : "Note (optional)"}</label>
+                    <Input value={contractDurationNote} onChange={e => setContractDurationNote(e.target.value)} placeholder={lang === "my" ? "ပရောဂျက်ပေါ် မူတည်" : "Depends on project scope"} className="h-11 rounded-xl" />
+                  </div>
+                )}
               </div>
             )}
             <div>
