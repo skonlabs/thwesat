@@ -8,7 +8,7 @@ import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
-import JobScopeBar from "@/components/employer/JobScopeBar";
+
 import { employerLabels as L } from "@/lib/employer-labels";
 import { toast } from "sonner";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -147,8 +147,23 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
       <div className="px-5">
-        {/* Job context breadcrumb + dropdown switcher */}
-        <JobScopeBar jobId={jobIdParam} onSelectJob={setJobScope} />
+        {/* Show scoped-job breadcrumb only when filtering by a specific listing */}
+        {jobIdParam && (
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2.5">
+            <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
+            <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
+              <span className="text-muted-foreground">{L.filteredByJob[lang]}: </span>
+              {scopedJobTitle || ""}
+            </span>
+            <button
+              onClick={() => setJobScope(undefined)}
+              className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted"
+              aria-label="Clear filter"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
+        )}
 
         <div className="mb-4 grid grid-cols-5 gap-2">
           {[
