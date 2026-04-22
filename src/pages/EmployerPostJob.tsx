@@ -49,8 +49,10 @@ const EmployerPostJob = () => {
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
+  const isPro = employerProfile?.subscription_tier === "pro";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
