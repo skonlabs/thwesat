@@ -54,6 +54,12 @@ const EmployerPostJob = () => {
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
   const handleSubmit = async () => {
+    const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
+    const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
+    if (minVal !== null && maxVal !== null && minVal > maxVal) {
+      toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
+      return;
+    }
     try {
       await createJob.mutateAsync({
         title: titleEn,
@@ -64,8 +70,8 @@ const EmployerPostJob = () => {
         requirements_my: requirementsMy || null,
         role_type: roleType,
         category,
-        salary_min: salaryMin ? Math.max(0, parseInt(salaryMin)) : null,
-        salary_max: salaryMax ? Math.max(0, parseInt(salaryMax)) : null,
+        salary_min: minVal,
+        salary_max: maxVal,
         location: locationCountry || "Remote",
         payment_methods: selectedPayments,
         requires_embassy: requiresEmbassy,
