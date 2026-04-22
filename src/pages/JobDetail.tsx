@@ -669,11 +669,28 @@ const JobDetail = () => {
 
       {/* Bottom bar */}
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg">
-        <div className="mx-auto flex w-full max-w-md items-center gap-3">
+        <div className="mx-auto flex w-full max-w-md items-center gap-2">
+          <button
+            onClick={handleShare}
+            disabled={isSharing}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground active:bg-muted disabled:opacity-60"
+            title={lang === "my" ? "မျှဝေရန်" : "Share"}
+            aria-label={lang === "my" ? "မျှဝေရန်" : "Share"}
+          >
+            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" strokeWidth={1.5} />}
+          </button>
+          <button
+            onClick={handleSave}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${saved ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"} active:bg-muted`}
+            title={lang === "my" ? "သိမ်းရန်" : "Save"}
+            aria-label={lang === "my" ? "သိမ်းရန်" : "Save"}
+          >
+            <Bookmark className="h-4 w-4" strokeWidth={1.5} fill={saved ? "currentColor" : "none"} />
+          </button>
           {!isOwnJob && (
             <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
               <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-              {lang === "my" ? "အလုပ်ရှင်ကို မက်ဆေ့ချ်ပို့ရန်" : "Message Employer"}
+              {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
             </Button>
           )}
           {applied ? (
@@ -682,7 +699,7 @@ const JobDetail = () => {
             </Button>
           ) : (
             <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
-              {lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}
+              {lang === "my" ? "လျှောက်ထားရန်" : "Apply"}
             </Button>
           )}
         </div>
