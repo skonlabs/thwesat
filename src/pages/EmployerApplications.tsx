@@ -115,6 +115,20 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လျှောက်ထားသူများ" : "Applications"} backPath="/employer/dashboard" />
       <div className="px-5">
+        {jobIdParam && (
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
+              <p className="truncate text-xs font-medium text-foreground">
+                <span className="text-muted-foreground">{lang === "my" ? "အလုပ်အလိုက်" : "Filtered by job"}: </span>
+                {scopedJobTitle || (lang === "my" ? "(အမည်မရှိ)" : "(this job)")}
+              </p>
+            </div>
+            <button onClick={clearJobScope} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted">
+              <X className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
+        )}
         <div className="mb-4 grid grid-cols-4 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.length, color: "text-foreground", filterVal: "all" },
