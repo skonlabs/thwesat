@@ -224,7 +224,7 @@ export function useEmployerApplications(jobId?: string) {
       if (!applicantIds.length) return data || [];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, headline, avatar_url")
+        .select("id, display_name, headline, avatar_url, location, skills, experience, languages")
         .in("id", applicantIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
       return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];

@@ -42,16 +42,28 @@ const HomePage = () => {
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
   
 
-  // Calculate profile completion
-  const completionFields = [profile?.display_name, profile?.headline, profile?.bio, profile?.location, profile?.skills?.length, profile?.languages?.length];
+  // Calculate profile completion (must mirror Profile.tsx for consistency)
+  const completionFields = [
+    profile?.display_name,
+    profile?.headline,
+    profile?.bio,
+    profile?.location,
+    profile?.email,
+    profile?.skills?.length,
+    profile?.languages?.length,
+    profile?.experience,
+    profile?.avatar_url,
+    profile?.phone,
+  ];
   const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
+  const showCompletionBar = !rolesLoading && !isAdmin && !isModerator && completionPct < 100;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
       <div className="px-5 pt-5">
-        {completionPct < 100 && (
+        {showCompletionBar && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 rounded-xl border border-border bg-card p-4 shadow-card">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
