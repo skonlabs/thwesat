@@ -5,6 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRoles } from "@/hooks/use-user-roles";
 
+interface StartConversationOptions {
+  /** Optional first message to auto-send after the conversation exists. */
+  initialMessage?: string;
+}
+
 export function useStartConversation() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -12,7 +17,16 @@ export function useStartConversation() {
   const queryClient = useQueryClient();
   const { hasRole } = useUserRoles();
 
-  const startConversation = async (otherUserId: string) => {
+  const sendInitialMessage = async (conversationId: string, content: string) => {
+    if (!user || !content.trim()) return;
+    await supabase.from("messages").insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      content: content.trim(),
+    });
+  };
+
+  const startConversation = async (otherUserId: string, options: StartConversationOptions = {}) => {
     if (!user) return;
     if (otherUserId === user.id) {
       toast({ title: "Cannot message yourself", variant: "destructive" });
@@ -35,7 +49,9 @@ export function useStartConversation() {
           .in("conversation_id", convIds);
 
         if (otherParticipations && otherParticipations.length > 0) {
-          navigate(`/messages/chat?id=${otherParticipations[0].conversation_id}`);
+          const existingId = otherParticipations[0].conversation_id;
+          // Don't auto-resend prefilled text on existing threads — open the chat instead.
+          navigate(`/messages/chat?id=${existingId}`);
           return;
         }
       }
@@ -99,6 +115,11 @@ export function useStartConversation() {
         console.error("Failed to add other participant:", partErr);
         toast({ title: "Failed to create conversation", variant: "destructive" });
         return;
+      }
+
+      // Auto-send seed message for fresh threads only
+      if (options.initialMessage) {
+        await sendInitialMessage(convId, options.initialMessage);
       }
 
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
