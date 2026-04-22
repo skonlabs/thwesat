@@ -150,7 +150,6 @@ const Profile = () => {
 
   const adminMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
-    { icon: Shield, label: lang === "my" ? "စီမံခန့်ခွဲမှု" : "Admin Dashboard", path: "/admin" },
     { icon: Users, label: lang === "my" ? "သုံးသူများ စီမံရန်" : "Manage Users", path: "/admin/users" },
     { icon: Briefcase, label: lang === "my" ? "အလုပ်များ စီမံရန်" : "Manage Jobs", path: "/admin/jobs" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
