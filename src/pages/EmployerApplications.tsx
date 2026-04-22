@@ -201,13 +201,13 @@ const EmployerApplications = () => {
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
                   {statusFlow.filter(s => s !== selectedStatus).map(s => (
-                    <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs"
+                    <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
                       onClick={() => { if (s === "placed") setShowPlacement(true); else handleStatusUpdate(selected.id, s); }}>
                       {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}
                     </Button>
                   ))}
                   {selected.status !== "rejected" && (
-                    <Button variant="destructive" size="sm" className="rounded-lg text-xs" onClick={() => setShowReject(true)}>
+                    <Button variant="destructive" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending} onClick={() => setShowReject(true)}>
                       {lang === "my" ? "ငြင်းပယ်" : "Reject"}
                     </Button>
                   )}
