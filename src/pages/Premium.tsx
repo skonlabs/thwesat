@@ -190,7 +190,7 @@ const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile, user } = useAuth();
-  const [selected, setSelected] = useState("6mo");
+  const [selected, setSelected] = useState<string | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const isPremium = profile?.is_premium;
   const { data: plans, isLoading } = useSubscriptionPlans();
@@ -214,12 +214,32 @@ const Premium = () => {
     enabled: !!user && !!isPremium,
   });
 
+  const activeEndDate = activeSub?.current_period_end
+    ? new Date(activeSub.current_period_end)
+    : null;
+  const activePlanId = isPremium ? activeSub?.plan_type : null;
+
+  // Default selection: prefer 6mo, but skip the user's current plan
+  const effectiveSelected =
+    selected ??
+    (plans?.find((p) => p.plan_id === "6mo" && p.plan_id !== activePlanId)?.plan_id ||
+      plans?.find((p) => p.plan_id !== "free" && p.plan_id !== activePlanId)?.plan_id ||
+      "6mo");
+
   const handleSubscribe = () => {
-    if (selected === "free") return;
+    if (effectiveSelected === "free") return;
     setPaymentOpen(true);
   };
 
-  const selectedPlan = plans?.find((p) => p.plan_id === selected);
+  const selectedPlan = plans?.find((p) => p.plan_id === effectiveSelected);
+  const isExtension = !!isPremium && !!activeEndDate && effectiveSelected !== "free";
+  const projectedNewEnd =
+    isExtension && selectedPlan?.duration_months && activeEndDate
+      ? new Date(
+          activeEndDate.getTime() +
+            selectedPlan.duration_months * 30 * 24 * 60 * 60 * 1000,
+        )
+      : null;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -239,7 +259,13 @@ const Premium = () => {
               <Crown className="relative h-8 w-8 text-primary-foreground" strokeWidth={1.5} />
             </motion.div>
             <h2 className="mb-1 text-lg font-bold text-foreground">
-              {lang === "my" ? "ပရီမီယံ သို့ အဆင့်မြှင့်ပါ" : "Upgrade to Premium"}
+              {isPremium
+                ? lang === "my"
+                  ? "ပရီမီယံ ကို တိုးချဲ့ပါ"
+                  : "Extend your Premium"
+                : lang === "my"
+                  ? "ပရီမီယံ သို့ အဆင့်မြှင့်ပါ"
+                  : "Upgrade to Premium"}
             </h2>
             <p className="text-xs text-muted-foreground">
               {lang === "my"
@@ -249,11 +275,11 @@ const Premium = () => {
           </div>
 
           {/* Active subscription banner */}
-          {isPremium && activeSub?.current_period_end && (
+          {isPremium && activeEndDate && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 flex items-center gap-3 rounded-2xl border border-emerald/20 bg-emerald/5 px-4 py-3"
+              className="mb-3 flex items-center gap-3 rounded-2xl border border-emerald/20 bg-emerald/5 px-4 py-3"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald/15">
                 <CalendarClock className="h-4 w-4 text-emerald" strokeWidth={1.5} />
@@ -264,14 +290,26 @@ const Premium = () => {
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {lang === "my"
-                    ? `${new Date(activeSub.current_period_end).toLocaleDateString()} ထိ`
-                    : `Renews / expires on ${new Date(activeSub.current_period_end).toLocaleDateString()}`}
+                    ? `${formatDate(activeEndDate, lang)} ထိ`
+                    : `Active until ${formatDate(activeEndDate, lang)}`}
                 </p>
               </div>
               <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs" onClick={() => navigate("/payments/history")}>
                 {lang === "my" ? "မှတ်တမ်း" : "History"}
               </Button>
             </motion.div>
+          )}
+
+          {/* Stacking explanation — shown when premium */}
+          {isPremium && activeEndDate && (
+            <div className="mb-5 flex items-start gap-2 rounded-xl bg-primary/5 px-3 py-2.5">
+              <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary" strokeWidth={2} />
+              <p className="text-[11px] leading-relaxed text-foreground">
+                {lang === "my"
+                  ? "အသစ် ဝယ်ယူသော အစီအစဉ်သည် လက်ရှိ သက်တမ်းကုန်ပြီးနောက် စတင်ပါမည်။ သင့် ပရီမီယံ ရက်များ မဆုံးရှုံးပါ။"
+                  : "Any new plan is added on top of your current period — your remaining premium days are never lost."}
+              </p>
+            </div>
           )}
 
           <div className="mb-5 flex items-center justify-center gap-4">
@@ -306,10 +344,11 @@ const Premium = () => {
                 <PlanCard
                   key={plan.id}
                   plan={plan}
-                  isSelected={selected === plan.plan_id}
+                  isSelected={effectiveSelected === plan.plan_id}
                   onSelect={() => setSelected(plan.plan_id)}
                   isPremium={isPremium}
-                  activePlanId={isPremium ? activeSub?.plan_type : null}
+                  activePlanId={activePlanId}
+                  activeEndDate={activeEndDate}
                   lang={lang}
                   index={i}
                 />
@@ -328,17 +367,33 @@ const Premium = () => {
               variant="default"
               size="lg"
               className="w-full rounded-xl text-sm font-bold"
-              disabled={selected === "free"}
+              disabled={effectiveSelected === "free" || effectiveSelected === activePlanId}
               onClick={handleSubscribe}
             >
-              {selected === "free"
+              {effectiveSelected === "free"
                 ? lang === "my"
                   ? "လက်ရှိ အစီအစဉ်"
                   : "Current Plan"
-                : lang === "my"
-                  ? `${selectedPlan?.name_my} အစီအစဉ်ဖြင့် စတင်ရန်`
-                  : `Start ${selectedPlan?.name_en} Plan`}
+                : effectiveSelected === activePlanId
+                  ? lang === "my"
+                    ? "သင့် လက်ရှိ အစီအစဉ်"
+                    : "Your current plan"
+                  : isExtension
+                    ? lang === "my"
+                      ? `${selectedPlan?.duration_months} လ တိုးချဲ့ရန်`
+                      : `Extend by ${selectedPlan?.duration_months} months`
+                    : lang === "my"
+                      ? `${selectedPlan?.name_my} အစီအစဉ်ဖြင့် စတင်ရန်`
+                      : `Start ${selectedPlan?.name_en} Plan`}
             </Button>
+
+            {projectedNewEnd && (
+              <p className="mt-2 text-center text-[11px] font-medium text-foreground">
+                {lang === "my"
+                  ? `သစ်တင် ကုန်ဆုံးမည့်ရက် — ${formatDate(projectedNewEnd, lang)}`
+                  : `New end date — ${formatDate(projectedNewEnd, lang)}`}
+              </p>
+            )}
 
             <p className="mt-2 text-center text-[10px] font-medium text-accent">
               {lang === "my"
