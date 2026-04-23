@@ -42,19 +42,19 @@ const BottomNav = () => {
   ];
 
   const mentorNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { icon: Calendar, labelMy: "ချိန်းဆို", labelEn: "Bookings", path: "/mentors/bookings" },
-    { icon: MessageSquare, labelMy: "မက်ဆေ့ချ်", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
-    { icon: Bell, labelMy: "အကြောင်းကြား", labelEn: "Alerts", path: "/notifications", badgeKey: "notifications" },
-    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
+    { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
+    { icon: Calendar, labelMy: "ဘွတ်ကင်", labelEn: "Bookings", path: "/mentors/bookings" },
+    { icon: Users, labelMy: "ကျောင်းသား", labelEn: "Mentees", path: "/mentors/mentees" },
+    { icon: MessageSquare, labelMy: "မက်ဆေ့", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
   const adminNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
+    { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
     { icon: DollarSign, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
     { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
-    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
   const moderatorNav: NavItem[] = [
@@ -82,7 +82,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm pb-safe">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
+      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2 md:max-w-2xl lg:max-w-3xl">
         {navItems.map((item) => {
           const [itemPath, itemQuery] = item.path.split("?");
           const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && itemPath !== "/moderator" && location.pathname.startsWith(itemPath + "/"));
@@ -113,7 +113,7 @@ const BottomNav = () => {
                   </span>
                 )}
               </div>
-              <span className={cn("text-[10px] leading-tight", active ? "font-semibold" : "font-medium")}>
+              <span className={cn("max-w-[64px] truncate text-[10px] leading-tight", active ? "font-semibold" : "font-medium")}>
                 {lang === "my" ? item.labelMy : item.labelEn}
               </span>
             </button>

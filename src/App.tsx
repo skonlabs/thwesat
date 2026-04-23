@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import RoleGuard from "@/components/RoleGuard";
 import AppRoleGuard from "@/components/AppRoleGuard";
+import SystemRoleGuard from "@/components/SystemRoleGuard";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
@@ -95,7 +95,6 @@ const App = () => (
               <Route path="/mentors" element={<Mentors />} />
               <Route path="/mentors/:id" element={<MentorDetail />} />
               <Route path="/mentors/book" element={<MentorBooking />} />
-              <Route path="/mentors/dashboard" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorDashboard /></AppRoleGuard>} />
               <Route path="/mentors/mentees" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorMentees /></AppRoleGuard>} />
               <Route path="/mentors/bookings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorBookings /></AppRoleGuard>} />
               <Route path="/guides" element={<Guides />} />
@@ -137,16 +136,16 @@ const App = () => (
               <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />
               <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerFinance /></AppRoleGuard>} />
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
-              <Route path="/admin/finance" element={<RoleGuard allowedRoles={["admin"]}><AdminFinance /></RoleGuard>} />
+              <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
 
               {/* Admin sub-pages */}
-              <Route path="/admin/jobs" element={<RoleGuard allowedRoles={["admin"]}><AdminJobQueue /></RoleGuard>} />
-              <Route path="/admin/edit-job/:id" element={<RoleGuard allowedRoles={["admin"]}><EmployerEditJob /></RoleGuard>} />
-              <Route path="/admin/users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
-              <Route path="/admin/analytics" element={<RoleGuard allowedRoles={["admin"]}><AdminAnalytics /></RoleGuard>} />
-              <Route path="/admin/payments" element={<RoleGuard allowedRoles={["admin"]}><AdminPayments /></RoleGuard>} />
-              <Route path="/admin/employers" element={<RoleGuard allowedRoles={["admin"]}><AdminEmployers /></RoleGuard>} />
-              <Route path="/admin/guides/:id" element={<RoleGuard allowedRoles={["admin"]}><AdminEditGuide /></RoleGuard>} />
+              <Route path="/admin/jobs" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminJobQueue /></SystemRoleGuard>} />
+              <Route path="/admin/edit-job/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><EmployerEditJob /></SystemRoleGuard>} />
+              <Route path="/admin/users" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminUsers /></SystemRoleGuard>} />
+              <Route path="/admin/analytics" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminAnalytics /></SystemRoleGuard>} />
+              <Route path="/admin/payments" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/admin/employers" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEmployers /></SystemRoleGuard>} />
+              <Route path="/admin/guides/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEditGuide /></SystemRoleGuard>} />
 
               {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
