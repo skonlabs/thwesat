@@ -1586,6 +1586,96 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          experience: string | null
+          has_laptop: boolean | null
+          has_payoneer: boolean | null
+          has_upwork: boolean | null
+          has_wise: boolean | null
+          headline: string | null
+          id: string | null
+          internet_stable: boolean | null
+          is_premium: boolean | null
+          languages: string[] | null
+          last_seen_at: string | null
+          location: string | null
+          phone: string | null
+          preferred_work_types: string[] | null
+          primary_role: string | null
+          referral_code: string | null
+          remote_ready: boolean | null
+          role_title: string | null
+          skills: string[] | null
+          updated_at: string | null
+          visibility: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: never
+          experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
+          headline?: string | null
+          id?: string | null
+          internet_stable?: boolean | null
+          is_premium?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          phone?: never
+          preferred_work_types?: string[] | null
+          primary_role?: string | null
+          referral_code?: string | null
+          remote_ready?: boolean | null
+          role_title?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          visibility?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: never
+          experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
+          headline?: string | null
+          id?: string | null
+          internet_stable?: boolean | null
+          is_premium?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          phone?: never
+          preferred_work_types?: string[] | null
+          primary_role?: string | null
+          referral_code?: string | null
+          remote_ready?: boolean | null
+          role_title?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          visibility?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       expire_referral_premium: { Args: never; Returns: undefined }
