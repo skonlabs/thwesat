@@ -199,9 +199,7 @@ const Settings = () => {
       title: lang === "my" ? "လုံခြုံရေး" : "Security",
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
-        // Session expiry preference is stored but not yet enforced client-side. Toast tells the
-        // user the preference will activate once enforcement ships.
-        { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: (sessionLabels[sessionExpiry]?.[lang] || "24 hours") + (lang === "my" ? " · မသက်ရောက်သေး" : " · Not enforced yet"), action: () => setShowSessionExpiry(true) },
+        { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
         { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => {
           const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v });
           toast({ title: lang === "my" ? "မှတ်ထားခြင်း သိမ်းဆည်းပြီး" : "Preference saved", description: lang === "my" ? "စက်မှတ်ထားခြင်း လုပ်ဆောင်ချက်အပြည့်အဝ မထွက်ရှိသေးပါ။" : "Device-pinned sessions aren't fully enforced yet — Supabase auto-refresh still applies." });
