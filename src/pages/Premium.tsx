@@ -463,33 +463,6 @@ const Premium = () => {
             </p>
           </motion.div>
 
-          {/* Free tier — shown compactly at the bottom for reference */}
-          <motion.details
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55 }}
-            className="mt-6 rounded-2xl border border-border bg-card p-4"
-          >
-            <summary className="flex cursor-pointer items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              <span>{lang === "my" ? "အခမဲ့ အစီအစဉ်တွင် ပါဝင်သည်" : "Included in Free plan"}</span>
-              <span className="text-[10px] font-semibold text-muted-foreground">
-                {lang === "my" ? "ကြည့်ရန်" : "View"}
-              </span>
-            </summary>
-            <ul className="mt-3 space-y-2">
-              {freeFeatures.map((f, j) => (
-                <li key={j} className="flex items-center gap-2.5">
-                  <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
-                    <Check className="h-2.5 w-2.5 text-emerald" strokeWidth={2} />
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">
-                    {lang === "my" ? f.my : f.en}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </motion.details>
-
           {/* Referral */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
