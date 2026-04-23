@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import BottomNav from "./BottomNav";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
+import { useSessionExpiry } from "@/hooks/use-session-expiry";
 
 // Routes that own scrollable input/chat surfaces where pull-to-refresh
 // would interfere with normal scrolling/typing.
@@ -34,6 +35,7 @@ const ROUTE_REFETCH_KEYS: { match: (path: string) => boolean; keys: string[][] }
 
 const AppLayout = () => {
   usePresenceHeartbeat();
+  useSessionExpiry();
   const queryClient = useQueryClient();
   const location = useLocation();
 
