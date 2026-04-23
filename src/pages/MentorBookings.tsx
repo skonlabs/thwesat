@@ -258,7 +258,18 @@ const MentorBookings = () => {
                       {/* Confirmed: message + mark complete */}
                       {booking.status === "confirmed" && (
                         <div className="mt-3 space-y-2">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            {/* Mentee CTA when payment is still owed */}
+                            {isMentee(booking) && booking.payment_status === "unpaid" && (
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="rounded-lg text-xs"
+                                onClick={() => navigate(`/mentors/booking?mentorId=${booking.mentor_id}&bookingId=${booking.id}#pay`)}
+                              >
+                                {lang === "my" ? "ယခု ပေးချေရန်" : "Pay now"}
+                              </Button>
+                            )}
                             <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => {
                               const otherId = isMentor(booking) ? booking.mentee_id : booking.mentor_id;
                               const topic = booking.topic || (lang === "my" ? "ကျွန်ုပ်တို့၏ session" : "our session");
