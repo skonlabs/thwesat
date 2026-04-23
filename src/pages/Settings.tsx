@@ -471,8 +471,8 @@ const Settings = () => {
               <h2 className="mb-2 text-center text-lg font-bold text-foreground">{lang === "my" ? "အကောင့် ဖျက်မှာ သေချာပါသလား?" : "Delete your account?"}</h2>
               <p className="mb-4 text-center text-xs text-muted-foreground">
                 {lang === "my"
-                  ? "ပရိုဖိုင်အချက်အလက်များ ဖျက်ပစ်ပြီး Sign out လုပ်ပါမည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
-                  : "We will scrub your profile data (name, bio, contact, avatar) and sign you out. Auth account removal must still be requested via Support. Type 'DELETE' to confirm"}
+                  ? `${DELETION_GRACE_DAYS} ရက် Grace period ပြီးမှ ပရိုဖိုင်အချက်အလက်များ (အမည်၊ ကိုယ်ရေး၊ ဆက်သွယ်ရန်၊ avatar) ကို အပြီးအပိုင် ဖျက်ပါမည်။ ထိုကာလအတွင်း ပြန်ဝင်၍ ပယ်ဖျက်နိုင်ပါသည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ`
+                  : `Your profile data (name, bio, contact, avatar) will be scheduled for permanent removal in ${DELETION_GRACE_DAYS} days. You can sign back in any time before then to cancel. Auth account removal still requires Support. Type 'DELETE' to confirm.`}
               </p>
               <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-3 h-11 rounded-xl text-center text-sm" />
               <Input
