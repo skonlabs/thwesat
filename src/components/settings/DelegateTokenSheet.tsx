@@ -36,7 +36,7 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
           ? "ယုံကြည်ရသူကို သင့်အကောင့်ကိုယ်စား လုပ်ဆောင်ခွင့်ပေးရန် Token ဖန်တီးပါ"
           : "Generate a token to allow a trusted person to act on your behalf"}
       </p>
-      <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+      <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
         <p className="text-[11px] text-foreground/80">
           {lang === "my"
             ? "⚠️ ဤ Token သည် ယာယီ စမ်းသပ်ဆဲ ဖြစ်သည်။ Sign-out ပြီးနောက် ပျောက်သွားနိုင်သည်။"
