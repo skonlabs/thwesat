@@ -73,6 +73,39 @@ const Settings = () => {
   const [confirmPw, setConfirmPw] = useState("");
   const [deleteText, setDeleteText] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
+  const [deletionScheduledAt, setDeletionScheduledAt] = useState<string | null>(null);
+
+  // Grace period (days) before profile is purged
+  const DELETION_GRACE_DAYS = 14;
+
+  // Hydrate pending-deletion state and auto-cancel if scheduled date already passed
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("deletion_scheduled_at")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setDeletionScheduledAt((data as { deletion_scheduled_at: string | null } | null)?.deletion_scheduled_at ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  const cancelPendingDeletion = async () => {
+    if (!user?.id) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ deletion_scheduled_at: null, deletion_requested_at: null })
+      .eq("id", user.id);
+    if (error) {
+      toast({ title: lang === "my" ? "ပယ်ဖျက်၍ မရပါ" : "Could not cancel", variant: "destructive" });
+      return;
+    }
+    setDeletionScheduledAt(null);
+  };
 
   const sessionLabels: Record<string, { my: string; en: string }> = {
     "1h": { my: "၁ နာရီ", en: "1 hour" },
