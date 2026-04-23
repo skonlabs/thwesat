@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle, MessageSquare } from "lucide-react";
+import { ArrowLeft, Lock, Send, Languages, Loader2, CheckCircle, MessageSquare } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -75,14 +75,6 @@ const ChatView = () => {
     setMessageText("");
   };
 
-  const handleCall = (type: "audio" | "video") => {
-    toast({
-      title: lang === "my" ? "မကြာမီ ရရှိပါမည်" : "Coming soon",
-      description: type === "audio"
-        ? (lang === "my" ? "အသံခေါ်ဆိုမှု လုပ်ဆောင်ချက်ကို ဖန်တီးနေပါသည်" : "Audio calls are not yet available")
-        : (lang === "my" ? "ဗီဒီယို ခေါ်ဆိုမှု လုပ်ဆောင်ချက်ကို ဖန်တီးနေပါသည်" : "Video calls are not yet available"),
-    });
-  };
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
@@ -132,8 +124,6 @@ const ChatView = () => {
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button onClick={() => handleCall("audio")} className="rounded-lg p-2 text-muted-foreground active:bg-muted"><Phone className="h-5 w-5" strokeWidth={1.5} /></button>
-            <button onClick={() => handleCall("video")} className="rounded-lg p-2 text-muted-foreground active:bg-muted"><Video className="h-5 w-5" strokeWidth={1.5} /></button>
           </div>
         </div>
       </div>
