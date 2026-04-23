@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/use-notifications-data";
+import ListSkeleton from "@/components/ListSkeleton";
 
 const typeIcons: Record<string, typeof Briefcase> = {
   job: Briefcase,
@@ -89,9 +90,7 @@ const Notifications = () => {
 
       <div className="divide-y divide-border">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
+          <ListSkeleton count={6} variant="row" />
         ) : filteredNotifs.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-center px-5">
             <Bell className="mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />

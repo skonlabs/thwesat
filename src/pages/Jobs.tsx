@@ -8,6 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import { useJobs, useSavedJobIds, useToggleSaveJob, useApplications, type Job } from "@/hooks/use-jobs";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
+import ListSkeleton from "@/components/ListSkeleton";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -241,10 +242,7 @@ const Jobs = () => {
 
       <div className="space-y-2.5 px-5 pb-24">
         {isLoading ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading jobs..."}</p>
-          </div>
+          <ListSkeleton count={5} />
         ) : filteredJobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
