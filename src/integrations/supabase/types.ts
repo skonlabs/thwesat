@@ -1523,7 +1523,69 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      employer_profiles_public: {
+        Row: {
+          company_description: string | null
+          company_linkedin: string | null
+          company_name: string | null
+          company_size: string | null
+          company_website: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          hq_country: string | null
+          id: string | null
+          industry: string | null
+          is_verified: boolean | null
+          payment_methods: string[] | null
+          subscription_expires_at: string | null
+          subscription_tier: string | null
+          updated_at: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          company_description?: string | null
+          company_linkedin?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
+          contact_email?: never
+          contact_name?: never
+          contact_phone?: never
+          created_at?: string | null
+          hq_country?: string | null
+          id?: string | null
+          industry?: string | null
+          is_verified?: boolean | null
+          payment_methods?: string[] | null
+          subscription_expires_at?: never
+          subscription_tier?: never
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          company_description?: string | null
+          company_linkedin?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
+          contact_email?: never
+          contact_name?: never
+          contact_phone?: never
+          created_at?: string | null
+          hq_country?: string | null
+          id?: string | null
+          industry?: string | null
+          is_verified?: boolean | null
+          payment_methods?: string[] | null
+          subscription_expires_at?: never
+          subscription_tier?: never
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       expire_referral_premium: { Args: never; Returns: undefined }
@@ -1550,6 +1612,14 @@ export type Database = {
         Returns: undefined
       }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
+      validate_delegate_token: {
+        Args: { _token: string }
+        Returns: {
+          expires_at: string
+          owner_id: string
+          permissions: string[]
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

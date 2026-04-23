@@ -19,24 +19,18 @@ const DelegateAccess = () => {
         setStatus("expired");
         return;
       }
+      // Use SECURITY DEFINER RPC so we don't expose the delegate_tokens
+      // table to general SELECT — only the matching row is returned.
       const { data, error } = await supabase
-        .from("delegate_tokens")
-        .select("*")
-        .eq("token", token)
-        .eq("is_revoked", false)
-        .maybeSingle();
+        .rpc("validate_delegate_token", { _token: token });
 
-      if (error || !data) {
+      const row = Array.isArray(data) ? data[0] : null;
+      if (error || !row) {
         setStatus("expired");
         return;
       }
 
-      if (new Date(data.expires_at) < new Date()) {
-        setStatus("expired");
-        return;
-      }
-
-      setTokenData({ permissions: data.permissions, expires_at: data.expires_at });
+      setTokenData({ permissions: row.permissions, expires_at: row.expires_at });
       setStatus("success");
     };
     verifyToken();
