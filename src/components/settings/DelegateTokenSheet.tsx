@@ -36,11 +36,11 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
           ? "ယုံကြည်ရသူကို သင့်အကောင့်ကိုယ်စား လုပ်ဆောင်ခွင့်ပေးရန် Token ဖန်တီးပါ"
           : "Generate a token to allow a trusted person to act on your behalf"}
       </p>
-      <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
+      <div className="mb-4 rounded-lg border border-border bg-muted/30 px-3 py-2">
         <p className="text-[11px] text-foreground/80">
           {lang === "my"
-            ? "⚠️ ဤ Token သည် ယာယီ စမ်းသပ်ဆဲ ဖြစ်သည်။ Sign-out ပြီးနောက် ပျောက်သွားနိုင်သည်။"
-            : "⚠️ Preview only — generated locally and not yet stored on the server. The token disappears on sign-out and cannot be used by another person yet."}
+            ? "ဤ Token သည် ရက် ၇ ရက်အတွင်း သက်တမ်းကုန်ပါမည်။ စကားဝှက်ပြောင်းခြင်း သို့မဟုတ် ဖျက်သိမ်းခြင်းဖြင့် အချိန်မရွေး ပယ်ဖျက်နိုင်ပါသည်။"
+            : "This token expires in 7 days. You can revoke it anytime, and changing your password will not invalidate it — only revoke does."}
         </p>
       </div>
 
