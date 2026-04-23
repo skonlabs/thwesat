@@ -69,6 +69,7 @@ const Settings = () => {
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [deleteText, setDeleteText] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
 
   const sessionLabels: Record<string, { my: string; en: string }> = {
     "1h": { my: "၁ နာရီ", en: "1 hour" },
@@ -84,12 +85,33 @@ const Settings = () => {
   };
 
   const handlePasswordChange = async () => {
+    if (!currentPw) {
+      toast({ title: lang === "my" ? "လက်ရှိ စကားဝှက် လိုအပ်သည်" : "Current password required", variant: "destructive" });
+      return;
+    }
     if (newPw !== confirmPw) {
       toast({ title: lang === "my" ? "စကားဝှက် မတူပါ" : "Passwords don't match", variant: "destructive" });
       return;
     }
     if (newPw.length < 6) {
       toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
+    if (currentPw === newPw) {
+      toast({ title: lang === "my" ? "စကားဝှက်အသစ်သည် ယခင်နှင့် မတူရပါ" : "New password must differ from current", variant: "destructive" });
+      return;
+    }
+    if (!user?.email) {
+      toast({ title: lang === "my" ? "အီးမေးလ် မတွေ့ပါ" : "Email not found", variant: "destructive" });
+      return;
+    }
+    // Re-authenticate with current password before allowing change
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPw,
+    });
+    if (reauthError) {
+      toast({ title: lang === "my" ? "လက်ရှိ စကားဝှက် မှားနေပါသည်" : "Current password is incorrect", variant: "destructive" });
       return;
     }
     const { error } = await supabase.auth.updateUser({ password: newPw });
@@ -103,19 +125,34 @@ const Settings = () => {
 
   const handleDeleteAccount = async () => {
     if (deleteText !== "DELETE") return;
-    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
-    if (user) {
-      await supabase.from("profiles").update({
-        display_name: "Deleted user",
-        bio: "",
-        headline: "",
-        phone: "",
-        website: "",
-        location: "",
-        avatar_url: null,
-        visibility: "private",
-      }).eq("id", user.id);
+    if (!user?.email) {
+      toast({ title: lang === "my" ? "အီးမေးလ် မတွေ့ပါ" : "Email not found", variant: "destructive" });
+      return;
     }
+    // Require password re-auth before destructive scrub
+    if (!deletePassword) {
+      toast({ title: lang === "my" ? "စကားဝှက် ထည့်ပါ" : "Enter your password to confirm", variant: "destructive" });
+      return;
+    }
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: deletePassword,
+    });
+    if (reauthError) {
+      toast({ title: lang === "my" ? "စကားဝှက် မှားနေပါသည်" : "Password incorrect", variant: "destructive" });
+      return;
+    }
+    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
+    await supabase.from("profiles").update({
+      display_name: "Deleted user",
+      bio: "",
+      headline: "",
+      phone: "",
+      website: "",
+      location: "",
+      avatar_url: null,
+      visibility: "private",
+    }).eq("id", user.id);
     setShowDeleteConfirm(false);
     await signOut();
     navigate("/");
@@ -358,12 +395,19 @@ const Settings = () => {
                   ? "ပရိုဖိုင်အချက်အလက်များ ဖျက်ပစ်ပြီး Sign out လုပ်ပါမည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
                   : "We will scrub your profile data (name, bio, contact, avatar) and sign you out. Auth account removal must still be requested via Support. Type 'DELETE' to confirm"}
               </p>
-              <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-4 h-11 rounded-xl text-center text-sm" />
+              <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-3 h-11 rounded-xl text-center text-sm" />
+              <Input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder={lang === "my" ? "လက်ရှိ စကားဝှက်" : "Current password"}
+                className="mb-4 h-11 rounded-xl text-sm"
+              />
               <div className="flex gap-3">
-                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setShowDeleteConfirm(false)}>
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => { setShowDeleteConfirm(false); setDeletePassword(""); setDeleteText(""); }}>
                   {lang === "my" ? "မလုပ်တော့" : "Cancel"}
                 </Button>
-                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" disabled={deleteText !== "DELETE"} onClick={handleDeleteAccount}>
+                <Button variant="destructive" size="lg" className="flex-1 rounded-xl" disabled={deleteText !== "DELETE" || !deletePassword} onClick={handleDeleteAccount}>
                   {lang === "my" ? "ဖျက်မည်" : "Delete"}
                 </Button>
               </div>
