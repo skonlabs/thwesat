@@ -331,12 +331,42 @@ const Settings = () => {
         {/* Danger Zone */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4">
           <h2 className="mb-2 px-1 text-xs font-semibold text-destructive">{lang === "my" ? "အန္တရာယ်ဇုန်" : "Danger Zone"}</h2>
+
+          {deletionScheduledAt && (() => {
+            const days = Math.max(0, Math.ceil((new Date(deletionScheduledAt).getTime() - Date.now()) / 86400000));
+            const dateLabel = new Date(deletionScheduledAt).toLocaleDateString();
+            return (
+              <div className="mb-3 overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                <div className="mb-2 flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-destructive">
+                      {lang === "my" ? "အကောင့်ဖျက်ရန် စီစဉ်ထားသည်" : "Account deletion scheduled"}
+                    </p>
+                    <p className="mt-1 text-[11px] text-foreground/80">
+                      {lang === "my"
+                        ? `${dateLabel} (${days} ရက်အတွင်း) တွင် ပရိုဖိုင်အချက်အလက်များကို အပြီးအပိုင် ဖျက်ပါမည်။`
+                        : `Your profile data will be permanently scrubbed on ${dateLabel} (${days} day${days === 1 ? "" : "s"} left).`}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="w-full rounded-lg" onClick={cancelPendingDeletion}>
+                  {lang === "my" ? "ဖျက်ခြင်းကို ပယ်ဖျက်" : "Cancel deletion"}
+                </Button>
+              </div>
+            );
+          })()}
+
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <button onClick={() => setShowDeleteConfirm(true)} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left active:bg-destructive/5">
+            <button onClick={() => setShowDeleteConfirm(true)} disabled={!!deletionScheduledAt} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left active:bg-destructive/5 disabled:opacity-50">
               <Trash2 className="h-5 w-5 text-destructive" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-sm text-destructive">{lang === "my" ? "အကောင့် ဖျက်ရန်" : "Delete Account"}</p>
-                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို ဖျက်သိမ်းပြီး Sign out လုပ်ပါမည်" : "Scrubs profile data and signs you out"}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {lang === "my"
+                    ? `${DELETION_GRACE_DAYS} ရက် Grace period ပြီးမှ အပြီးအပိုင် ဖျက်ပါမည်`
+                    : `Schedules deletion in ${DELETION_GRACE_DAYS} days; cancel anytime before then`}
+                </p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
