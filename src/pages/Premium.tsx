@@ -494,38 +494,6 @@ const Premium = () => {
         </motion.div>
       </div>
 
-          {/* Referral */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
-            className="mt-5 rounded-2xl border border-accent/20 bg-accent/5 p-4"
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/15">
-                <Gift className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-foreground">
-                  {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါ" : "Refer 5 friends"}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {lang === "my"
-                    ? "ပရီမီယံ ၁ လ အခမဲ့ ရယူပါ"
-                    : "Get 1 free month of Premium"}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
-            {lang === "my"
-              ? "KBZPay, WaveMoney, PromptPay, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
-              : "Accepts KBZPay, WaveMoney, PromptPay, Wise & Payoneer · Cancel anytime"}
-          </p>
-        </motion.div>
-      </div>
-
       <PaymentMethodSheet
         open={paymentOpen}
         onOpenChange={setPaymentOpen}
