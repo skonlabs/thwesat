@@ -148,7 +148,13 @@ const Settings = () => {
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => { const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v }); } },
+        // Push toggle is wired to user_settings but the browser Push API + service worker
+        // dispatcher is not built yet. Keep it visible so the preference is captured for
+        // when delivery ships, but make it clear via toast if the user expects immediate effect.
+        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => {
+          const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v });
+          if (v) toast({ title: lang === "my" ? "မကြာမီ ရရှိမည်" : "Coming soon", description: lang === "my" ? "ဘရောင်ဇာ Push အကြောင်းကြားချက် မထွက်ရှိသေးပါ။ ယခုအချိန်တွင် Telegram သို့မဟုတ် အီးမေးလ်မှသာ အကြောင်းကြားမည်။" : "Browser push delivery isn't shipped yet. Notifications will continue via Telegram and email." });
+        } },
         { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
@@ -156,8 +162,13 @@ const Settings = () => {
       title: lang === "my" ? "လုံခြုံရေး" : "Security",
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
-        { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
-        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => { const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v }); } },
+        // Session expiry preference is stored but not yet enforced client-side. Toast tells the
+        // user the preference will activate once enforcement ships.
+        { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: (sessionLabels[sessionExpiry]?.[lang] || "24 hours") + (lang === "my" ? " · မသက်ရောက်သေး" : " · Not enforced yet"), action: () => setShowSessionExpiry(true) },
+        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => {
+          const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v });
+          toast({ title: lang === "my" ? "မှတ်ထားခြင်း သိမ်းဆည်းပြီး" : "Preference saved", description: lang === "my" ? "စက်မှတ်ထားခြင်း လုပ်ဆောင်ချက်အပြည့်အဝ မထွက်ရှိသေးပါ။" : "Device-pinned sessions aren't fully enforced yet — Supabase auto-refresh still applies." });
+        } },
         { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
@@ -239,7 +250,7 @@ const Settings = () => {
               <Trash2 className="h-5 w-5 text-destructive" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-sm text-destructive">{lang === "my" ? "အကောင့် ဖျက်ရန်" : "Delete Account"}</p>
-                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "၂၄ နာရီအတွင်း ပြန်ရယူနိုင်" : "24-hour cancellation window"}</p>
+                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို ဖျက်သိမ်းပြီး Sign out လုပ်ပါမည်" : "Scrubs profile data and signs you out"}</p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
@@ -344,8 +355,8 @@ const Settings = () => {
               <h2 className="mb-2 text-center text-lg font-bold text-foreground">{lang === "my" ? "အကောင့် ဖျက်မှာ သေချာပါသလား?" : "Delete your account?"}</h2>
               <p className="mb-4 text-center text-xs text-muted-foreground">
                 {lang === "my"
-                  ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ဖျက်၍ မရပါ။ ၂၄ နာရီအတွင်း ပြန်ရယူနိုင်ပါသည်။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
-                  : "This action cannot be undone. You have 24 hours to recover. Type 'DELETE' to confirm"}
+                  ? "ပရိုဖိုင်အချက်အလက်များ ဖျက်ပစ်ပြီး Sign out လုပ်ပါမည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
+                  : "We will scrub your profile data (name, bio, contact, avatar) and sign you out. Auth account removal must still be requested via Support. Type 'DELETE' to confirm"}
               </p>
               <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-4 h-11 rounded-xl text-center text-sm" />
               <div className="flex gap-3">

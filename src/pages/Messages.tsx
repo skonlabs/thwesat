@@ -46,9 +46,9 @@ const Messages = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} />
       <div className="px-5">
-        <div className="mb-2 flex items-center gap-1.5 text-[10px] text-emerald">
+        <div className="mb-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <Lock className="h-3 w-3" strokeWidth={1.5} />
-          <span>{lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "End-to-end encrypted"}</span>
+          <span>{lang === "my" ? "ပုဂ္ဂိုလ်ရေး စကားဝိုင်း" : "Private conversations"}</span>
         </div>
         <div className="mb-4 mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-3.5 py-3">
           <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />

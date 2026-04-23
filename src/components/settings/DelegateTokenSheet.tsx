@@ -31,11 +31,18 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
       onClose={onClose}
       title={lang === "my" ? "Delegate Access Token" : "Delegate Access Token"}
     >
-      <p className="mb-4 text-xs text-muted-foreground">
+      <p className="mb-2 text-xs text-muted-foreground">
         {lang === "my"
           ? "ယုံကြည်ရသူကို သင့်အကောင့်ကိုယ်စား လုပ်ဆောင်ခွင့်ပေးရန် Token ဖန်တီးပါ"
           : "Generate a token to allow a trusted person to act on your behalf"}
       </p>
+      <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
+        <p className="text-[11px] text-foreground/80">
+          {lang === "my"
+            ? "⚠️ ဤ Token သည် ယာယီ စမ်းသပ်ဆဲ ဖြစ်သည်။ Sign-out ပြီးနောက် ပျောက်သွားနိုင်သည်။"
+            : "⚠️ Preview only — generated locally and not yet stored on the server. The token disappears on sign-out and cannot be used by another person yet."}
+        </p>
+      </div>
 
       {!token ? (
         <div className="space-y-4">
