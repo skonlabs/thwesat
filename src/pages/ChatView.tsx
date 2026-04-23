@@ -121,8 +121,8 @@ const ChatView = () => {
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-foreground truncate">{otherProfile?.display_name || "User"}</h3>
               <div className="flex items-center gap-1">
-                <Lock className="h-2.5 w-2.5 text-emerald" />
-                <span className="text-[10px] text-emerald">{lang === "my" ? "ကုဒ်ဝှက်ထား" : "Encrypted"}</span>
+                <Lock className="h-2.5 w-2.5 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">{lang === "my" ? "ပုဂ္ဂိုလ်ရေး စကားဝိုင်း" : "Private chat"}</span>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ const ChatView = () => {
 
       <div className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
         <div className="mb-4 flex justify-center">
-          <span className="rounded-full bg-muted px-3 py-1 text-[10px] text-muted-foreground">🔒 {lang === "my" ? "စာများကို ကုဒ်ဝှက်ထားပါသည်" : "Messages are end-to-end encrypted"}</span>
+          <span className="rounded-full bg-muted px-3 py-1 text-[10px] text-muted-foreground">{lang === "my" ? "🔒 စကားဝိုင်းသည် ပါဝင်သူနှစ်ဦးတည်းအတွက်သာ မြင်နိုင်ပါသည်" : "🔒 Visible only to you and the other participant"}</span>
         </div>
         {isLoading ? (
           <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
