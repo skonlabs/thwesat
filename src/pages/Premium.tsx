@@ -46,12 +46,20 @@ const premiumFeatures = [
   { my: "စာရွက်စာတမ်း သိုလှောင်ခန်း", en: "Document Vault" },
 ];
 
+const formatDate = (d: Date, lang: string) =>
+  d.toLocaleDateString(lang === "my" ? "my-MM" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
 const PlanCard = ({
   plan,
   isSelected,
   onSelect,
   isPremium,
   activePlanId,
+  activeEndDate,
   lang,
   index,
 }: {
@@ -60,6 +68,7 @@ const PlanCard = ({
   onSelect: () => void;
   isPremium: boolean | null | undefined;
   activePlanId?: string | null;
+  activeEndDate?: Date | null;
   lang: string;
   index: number;
 }) => {
@@ -77,6 +86,15 @@ const PlanCard = ({
     ? plan.price / plan.duration_months
     : 0;
 
+  // Projected new end if user stacks this plan onto an active subscription
+  const projectedEnd =
+    !isFree && !isCurrent && isPremium && activeEndDate && plan.duration_months
+      ? new Date(
+          activeEndDate.getTime() +
+            plan.duration_months * 30 * 24 * 60 * 60 * 1000,
+        )
+      : null;
+
   return (
     <motion.button
       key={plan.plan_id}
@@ -85,14 +103,16 @@ const PlanCard = ({
       transition={{ delay: 0.2 + index * 0.06 }}
       onClick={onSelect}
       className={`relative w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
-        isSelected
-          ? isPopular
-            ? "border-accent bg-accent/5 ring-1 ring-accent/30"
-            : "border-primary bg-primary/5 ring-1 ring-primary/20"
-          : "border-border bg-card hover:border-muted-foreground/20"
+        isCurrent
+          ? "border-emerald/40 bg-emerald/5"
+          : isSelected
+            ? isPopular
+              ? "border-accent bg-accent/5 ring-1 ring-accent/30"
+              : "border-primary bg-primary/5 ring-1 ring-primary/20"
+            : "border-border bg-card hover:border-muted-foreground/20"
       }`}
     >
-      {badge && (
+      {badge && !isCurrent && (
         <span
           className={`absolute -top-2.5 left-4 rounded-full px-3 py-0.5 text-[10px] font-bold ${
             isPopular
@@ -101,6 +121,11 @@ const PlanCard = ({
           }`}
         >
           {badge}
+        </span>
+      )}
+      {isCurrent && (
+        <span className="absolute -top-2.5 left-4 rounded-full bg-emerald px-3 py-0.5 text-[10px] font-bold text-white">
+          {lang === "my" ? "✓ လက်ရှိ အစီအစဉ်" : "✓ Your current plan"}
         </span>
       )}
 
@@ -120,18 +145,18 @@ const PlanCard = ({
         </div>
 
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-foreground">{name}</h3>
-            {isCurrent && (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
-                {lang === "my" ? "လက်ရှိ" : "Current"}
-              </span>
-            )}
-          </div>
-          {save && (
+          <h3 className="text-sm font-bold text-foreground">{name}</h3>
+          {save && !isCurrent && (
             <span className="mt-0.5 inline-block rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-semibold text-emerald">
               {save}
             </span>
+          )}
+          {projectedEnd && (
+            <p className="mt-1 text-[10px] font-medium text-primary">
+              {lang === "my"
+                ? `→ ${formatDate(projectedEnd, lang)} ထိ တိုးချဲ့မည်`
+                : `→ Extends until ${formatDate(projectedEnd, lang)}`}
+            </p>
           )}
         </div>
 
