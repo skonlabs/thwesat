@@ -333,6 +333,39 @@ const Premium = () => {
             ))}
           </div>
 
+          {/* Premium features — shown FIRST so users can decide based on value */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="mb-3 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.05] to-accent/[0.05] p-4"
+          >
+            <div className="mb-3 flex items-center gap-1.5">
+              <Crown className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                {lang === "my" ? "ပရီမီယံဖြင့် ရရှိမည့် အင်္ဂါရပ်များ" : "What you unlock with Premium"}
+              </h3>
+            </div>
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {premiumFeatures.map((f, j) => (
+                <li key={j} className="flex items-start gap-2">
+                  <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-primary/15">
+                    <Check className="h-2.5 w-2.5 text-primary" strokeWidth={3} />
+                  </div>
+                  <span className="text-[11px] leading-snug text-foreground">
+                    {lang === "my" ? f.my : f.en}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <p className="mb-3 px-1 text-center text-[10px] text-muted-foreground">
+            {lang === "my"
+              ? "အောက်တွင် သင့်အတွက် အသင့်တော်ဆုံး အစီအစဉ်ကို ရွေးပါ ↓"
+              : "Pick the plan that fits you below ↓"}
+          </p>
+
           {/* Plan cards */}
           <div className="space-y-2.5">
             {isLoading ? (
@@ -402,57 +435,32 @@ const Premium = () => {
             </p>
           </motion.div>
 
-          {/* Features comparison */}
-          <div className="mt-6 space-y-3">
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 }}
-              className="rounded-2xl border border-border bg-card p-4"
-            >
-              <h3 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                {lang === "my" ? "အခမဲ့ အင်္ဂါရပ်များ" : "Free Features"}
-              </h3>
-              <ul className="space-y-2.5">
-                {freeFeatures.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2.5">
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
-                      <Check className="h-3 w-3 text-emerald" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs text-foreground">
-                      {lang === "my" ? f.my : f.en}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.04] to-accent/[0.04] p-4"
-            >
-              <div className="mb-3 flex items-center gap-1.5">
-                <Crown className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                  {lang === "my" ? "ပရီမီယံ အင်္ဂါရပ်များ" : "Premium Features"}
-                </h3>
-              </div>
-              <ul className="space-y-2.5">
-                {premiumFeatures.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2.5">
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Check className="h-3 w-3 text-primary" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs text-foreground">
-                      {lang === "my" ? f.my : f.en}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
+          {/* Free tier — shown compactly at the bottom for reference */}
+          <motion.details
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="mt-6 rounded-2xl border border-border bg-card p-4"
+          >
+            <summary className="flex cursor-pointer items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span>{lang === "my" ? "အခမဲ့ အစီအစဉ်တွင် ပါဝင်သည်" : "Included in Free plan"}</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">
+                {lang === "my" ? "ကြည့်ရန်" : "View"}
+              </span>
+            </summary>
+            <ul className="mt-3 space-y-2">
+              {freeFeatures.map((f, j) => (
+                <li key={j} className="flex items-center gap-2.5">
+                  <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
+                    <Check className="h-2.5 w-2.5 text-emerald" strokeWidth={2} />
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? f.my : f.en}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.details>
 
           {/* Referral */}
           <motion.div
