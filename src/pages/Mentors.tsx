@@ -13,6 +13,7 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import ListSkeleton from "@/components/ListSkeleton";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -227,10 +228,7 @@ const Mentors = () => {
 
       <div className="space-y-3 px-5 pb-24">
         {isLoading ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading mentors..."}</p>
-          </div>
+          <ListSkeleton count={5} />
         ) : filteredMentors.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />

@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs, useToggleSaveJob } from "@/hooks/use-jobs";
 import { formatJobSalary, translateJobLocation, translateJobTitle, translateJobType } from "@/lib/job-localization";
+import ListSkeleton from "@/components/ListSkeleton";
 
 const SavedJobs = () => {
   const navigate = useNavigate();
@@ -25,9 +26,7 @@ const SavedJobs = () => {
       <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} backPath="/jobs" />
       <div className="space-y-3 px-5 pb-24">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
+          <ListSkeleton count={4} />
         ) : jobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Bookmark className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
