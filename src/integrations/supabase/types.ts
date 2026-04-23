@@ -1158,6 +1158,8 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          deletion_requested_at: string | null
+          deletion_scheduled_at: string | null
           display_name: string
           email: string | null
           experience: string | null
@@ -1188,6 +1190,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          deletion_requested_at?: string | null
+          deletion_scheduled_at?: string | null
           display_name?: string
           email?: string | null
           experience?: string | null
@@ -1218,6 +1222,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          deletion_requested_at?: string | null
+          deletion_scheduled_at?: string | null
           display_name?: string
           email?: string | null
           experience?: string | null
