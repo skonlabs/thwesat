@@ -75,6 +75,35 @@ const PublicProfile = () => {
 
   const isOwn = user?.id === profile.id;
 
+  // Visibility enforcement: respect the owner's privacy preference.
+  // - private: only the owner can view
+  // - members: must be signed in
+  // - public:  anyone
+  const visibility = (profile.visibility || "members") as "public" | "members" | "private";
+  const blocked =
+    !isOwn &&
+    ((visibility === "private") || (visibility === "members" && !user));
+  if (blocked) {
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
+        <div className="flex flex-col items-center py-16 text-center px-5">
+          <p className="text-sm font-semibold text-foreground">
+            {lang === "my" ? "ဤပရိုဖိုင်ကို ကြည့်ရှုခွင့် မရှိပါ" : "This profile is private"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {visibility === "members" && !user
+              ? (lang === "my" ? "Sign in ပြုလုပ်ပြီး ကြည့်ရှုပါ" : "Sign in to view this profile")
+              : (lang === "my" ? "ပိုင်ရှင်က ဖော်ပြထားခြင်း မရှိပါ" : "The owner has restricted access")}
+          </p>
+          <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> {lang === "my" ? "နောက်သို့" : "Go Back"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />

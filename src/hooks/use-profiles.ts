@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export interface ProfileData {
   id: string;
@@ -29,15 +30,32 @@ export interface ProfileData {
 
 const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, is_premium, remote_ready, has_laptop, internet_stable, has_wise, has_payoneer, has_upwork, referral_code, preferred_work_types, created_at";
 
+// Profile-visibility enforcement (client-side):
+// - "public"  : visible to anyone
+// - "members" : visible only to authenticated users
+// - "private" : visible only to the owner
+// RLS still grants read access to all rows; this layer hides records the
+// user shouldn't see in browse/search surfaces. Direct profile lookups by id
+// are gated separately in PublicProfile.tsx.
+function applyVisibilityFilter(query: ReturnType<typeof supabase.from> extends never ? never : any, isAuthed: boolean) {
+  if (isAuthed) {
+    return query.in("visibility", ["public", "members"]);
+  }
+  return query.eq("visibility", "public");
+}
+
 export function useAllProfiles(search?: string) {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["all-profiles", search],
+    queryKey: ["all-profiles", search, !!user],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
         .select(PUBLIC_PROFILE_FIELDS)
         .order("created_at", { ascending: false })
         .limit(1000);
+
+      query = applyVisibilityFilter(query, !!user);
 
       if (search) {
         query = query.or(`display_name.ilike.%${search}%,headline.ilike.%${search}%`);
@@ -51,8 +69,9 @@ export function useAllProfiles(search?: string) {
 }
 
 export function useSearchTalent(filters?: { search?: string; skill?: string; location?: string; available?: boolean }) {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["search-talent", filters],
+    queryKey: ["search-talent", filters, !!user],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
@@ -60,6 +79,8 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
         .in("primary_role", ["jobseeker", "mentor"])
         .order("created_at", { ascending: false })
         .limit(1000);
+
+      query = applyVisibilityFilter(query, !!user);
 
       if (filters?.search) {
         query = query.or(`display_name.ilike.%${filters.search}%,headline.ilike.%${filters.search}%`);

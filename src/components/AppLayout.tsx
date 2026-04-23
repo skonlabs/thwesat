@@ -55,6 +55,13 @@ const AppLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettings?.language]);
 
+  // Apply Myanmar render-font preference. CSS rules in index.css respond
+  // to `data-myanmar-font` on the <html> element. Defaults to "system".
+  useEffect(() => {
+    const fe = userSettings?.font_encoding || "system";
+    document.documentElement.setAttribute("data-myanmar-font", fe);
+  }, [userSettings?.font_encoding]);
+
   const ptrDisabled = PTR_DISABLED_PREFIXES.some((p) =>
     location.pathname.startsWith(p),
   );

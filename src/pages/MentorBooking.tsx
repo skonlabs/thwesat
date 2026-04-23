@@ -191,15 +191,22 @@ const MentorBooking = () => {
   }
 
   if (step === 3) {
+    const requiresPayment = sessionAmount > 0;
     return (
       <div className="bg-background pb-10">
         <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} onBack={() => navigate("/mentors")} />
         <div className="flex flex-col items-center px-5 pt-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex w-full max-w-sm flex-col items-center text-center">
-            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
-              <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
+            <div className={`mb-5 flex h-20 w-20 items-center justify-center rounded-full ${requiresPayment ? "bg-accent/10" : "bg-emerald/10"}`}>
+              {requiresPayment
+                ? <CreditCard className="h-10 w-10 text-accent" strokeWidth={1.5} />
+                : <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />}
             </div>
-            <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}</h1>
+            <h1 className="mb-2 text-xl font-bold text-foreground">
+              {requiresPayment
+                ? (lang === "my" ? "ငွေပေးချေမှု လိုအပ်သည်" : "Payment Required")
+                : (lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!")}
+            </h1>
             <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? `${mentorName} နှင့် ချိန်းဆိုမှု` : `Session with ${mentorName}`}</p>
             <p className="mb-1 text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime}</p>
             <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
@@ -207,6 +214,16 @@ const MentorBooking = () => {
               {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
               {sessionAmount > 0 && ` · ${currency} ${sessionAmount.toFixed(2)}`}
             </p>
+
+            {requiresPayment && (
+              <div className="mb-4 w-full rounded-xl border border-accent/30 bg-accent/5 p-3 text-left">
+                <p className="text-[11px] leading-relaxed text-foreground/80">
+                  {lang === "my"
+                    ? "သင့်ချိန်းဆိုမှုသည် ငွေပေးချေပြီးမှသာ Mentor ထံသို့ အတည်ပြုရန် ပို့ပေးပါမည်။ ငွေမပေးချေမီ Mentor မှ မြင်ရမည်မဟုတ်ပါ။"
+                    : "Your booking is held until payment is submitted. The mentor will not see this request until payment proof is uploaded."}
+                </p>
+              </div>
+            )}
 
             {goals && (
               <div className="mb-4 w-full rounded-lg bg-muted p-3">
@@ -227,7 +244,7 @@ const MentorBooking = () => {
               </p>
             </div>
 
-            {sessionAmount > 0 && (
+            {requiresPayment && (
               <>
                 <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
                   <CreditCard className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
@@ -246,14 +263,18 @@ const MentorBooking = () => {
               </>
             )}
 
-            <p className="mb-6 text-xs text-muted-foreground">
-              {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation email has been sent"}
-            </p>
-            <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
+            {!requiresPayment && (
+              <p className="mb-6 text-xs text-muted-foreground">
+                {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation has been sent to the mentor"}
+              </p>
+            )}
+            <Button variant={requiresPayment ? "outline" : "default"} size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
               <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
             </Button>
-            <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors")}>
-              {lang === "my" ? "Mentors သို့ ပြန်သွားရန်" : "Back to Mentors"}
+            <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate(requiresPayment ? "/mentors/bookings" : "/mentors")}>
+              {requiresPayment
+                ? (lang === "my" ? "Bookings သို့" : "Go to My Bookings")
+                : (lang === "my" ? "Mentors သို့ ပြန်သွားရန်" : "Back to Mentors")}
             </Button>
           </motion.div>
         </div>

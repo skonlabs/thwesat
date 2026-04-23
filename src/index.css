@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* User-selectable Myanmar render font (see FontEncodingSheet).
+   We only ever STORE Unicode — these rules just swap the visual font face. */
+html[data-myanmar-font="pyidaungsu"] body {
+  font-family: 'Pyidaungsu', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+html[data-myanmar-font="noto"] body {
+  font-family: 'Noto Sans Myanmar', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 @layer base {
   :root {
     /* Softer warm off-white — editorial cream feel */
