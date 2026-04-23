@@ -73,6 +73,39 @@ const Settings = () => {
   const [confirmPw, setConfirmPw] = useState("");
   const [deleteText, setDeleteText] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
+  const [deletionScheduledAt, setDeletionScheduledAt] = useState<string | null>(null);
+
+  // Grace period (days) before profile is purged
+  const DELETION_GRACE_DAYS = 14;
+
+  // Hydrate pending-deletion state and auto-cancel if scheduled date already passed
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("deletion_scheduled_at")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setDeletionScheduledAt((data as { deletion_scheduled_at: string | null } | null)?.deletion_scheduled_at ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
+
+  const cancelPendingDeletion = async () => {
+    if (!user?.id) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ deletion_scheduled_at: null, deletion_requested_at: null })
+      .eq("id", user.id);
+    if (error) {
+      toast({ title: lang === "my" ? "ပယ်ဖျက်၍ မရပါ" : "Could not cancel", variant: "destructive" });
+      return;
+    }
+    setDeletionScheduledAt(null);
+  };
 
   const sessionLabels: Record<string, { my: string; en: string }> = {
     "1h": { my: "၁ နာရီ", en: "1 hour" },
@@ -145,18 +178,20 @@ const Settings = () => {
       toast({ title: lang === "my" ? "စကားဝှက် မှားနေပါသည်" : "Password incorrect", variant: "destructive" });
       return;
     }
-    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
-    await supabase.from("profiles").update({
-      display_name: "Deleted user",
-      bio: "",
-      headline: "",
-      phone: "",
-      website: "",
-      location: "",
-      avatar_url: null,
-      visibility: "private",
+    // Schedule deletion N days out instead of immediately scrubbing.
+    // User can sign back in within the grace window to cancel.
+    const scheduledAt = new Date(Date.now() + DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const { error: scheduleError } = await supabase.from("profiles").update({
+      deletion_requested_at: new Date().toISOString(),
+      deletion_scheduled_at: scheduledAt,
     }).eq("id", user.id);
+    if (scheduleError) {
+      toast({ title: lang === "my" ? "မအောင်မြင်ပါ" : "Could not schedule deletion", variant: "destructive" });
+      return;
+    }
     setShowDeleteConfirm(false);
+    setDeleteText("");
+    setDeletePassword("");
     await signOut();
     navigate("/");
   };
@@ -296,12 +331,42 @@ const Settings = () => {
         {/* Danger Zone */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4">
           <h2 className="mb-2 px-1 text-xs font-semibold text-destructive">{lang === "my" ? "အန္တရာယ်ဇုန်" : "Danger Zone"}</h2>
+
+          {deletionScheduledAt && (() => {
+            const days = Math.max(0, Math.ceil((new Date(deletionScheduledAt).getTime() - Date.now()) / 86400000));
+            const dateLabel = new Date(deletionScheduledAt).toLocaleDateString();
+            return (
+              <div className="mb-3 overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                <div className="mb-2 flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-destructive">
+                      {lang === "my" ? "အကောင့်ဖျက်ရန် စီစဉ်ထားသည်" : "Account deletion scheduled"}
+                    </p>
+                    <p className="mt-1 text-[11px] text-foreground/80">
+                      {lang === "my"
+                        ? `${dateLabel} (${days} ရက်အတွင်း) တွင် ပရိုဖိုင်အချက်အလက်များကို အပြီးအပိုင် ဖျက်ပါမည်။`
+                        : `Your profile data will be permanently scrubbed on ${dateLabel} (${days} day${days === 1 ? "" : "s"} left).`}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="w-full rounded-lg" onClick={cancelPendingDeletion}>
+                  {lang === "my" ? "ဖျက်ခြင်းကို ပယ်ဖျက်" : "Cancel deletion"}
+                </Button>
+              </div>
+            );
+          })()}
+
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <button onClick={() => setShowDeleteConfirm(true)} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left active:bg-destructive/5">
+            <button onClick={() => setShowDeleteConfirm(true)} disabled={!!deletionScheduledAt} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left active:bg-destructive/5 disabled:opacity-50">
               <Trash2 className="h-5 w-5 text-destructive" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-sm text-destructive">{lang === "my" ? "အကောင့် ဖျက်ရန်" : "Delete Account"}</p>
-                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပရိုဖိုင်ကို ဖျက်သိမ်းပြီး Sign out လုပ်ပါမည်" : "Scrubs profile data and signs you out"}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {lang === "my"
+                    ? `${DELETION_GRACE_DAYS} ရက် Grace period ပြီးမှ အပြီးအပိုင် ဖျက်ပါမည်`
+                    : `Schedules deletion in ${DELETION_GRACE_DAYS} days; cancel anytime before then`}
+                </p>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
@@ -406,8 +471,8 @@ const Settings = () => {
               <h2 className="mb-2 text-center text-lg font-bold text-foreground">{lang === "my" ? "အကောင့် ဖျက်မှာ သေချာပါသလား?" : "Delete your account?"}</h2>
               <p className="mb-4 text-center text-xs text-muted-foreground">
                 {lang === "my"
-                  ? "ပရိုဖိုင်အချက်အလက်များ ဖျက်ပစ်ပြီး Sign out လုပ်ပါမည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ"
-                  : "We will scrub your profile data (name, bio, contact, avatar) and sign you out. Auth account removal must still be requested via Support. Type 'DELETE' to confirm"}
+                  ? `${DELETION_GRACE_DAYS} ရက် Grace period ပြီးမှ ပရိုဖိုင်အချက်အလက်များ (အမည်၊ ကိုယ်ရေး၊ ဆက်သွယ်ရန်၊ avatar) ကို အပြီးအပိုင် ဖျက်ပါမည်။ ထိုကာလအတွင်း ပြန်ဝင်၍ ပယ်ဖျက်နိုင်ပါသည်။ Auth အကောင့်ကို အပြည့်အ၀ ဖျက်ရန် Support သို့ ဆက်သွယ်ပါ။ အတည်ပြုရန် 'DELETE' ဟု ရိုက်ထည့်ပါ`
+                  : `Your profile data (name, bio, contact, avatar) will be scheduled for permanent removal in ${DELETION_GRACE_DAYS} days. You can sign back in any time before then to cancel. Auth account removal still requires Support. Type 'DELETE' to confirm.`}
               </p>
               <Input value={deleteText} onChange={(e) => setDeleteText(e.target.value)} placeholder='Type "DELETE"' className="mb-3 h-11 rounded-xl text-center text-sm" />
               <Input
@@ -422,7 +487,7 @@ const Settings = () => {
                   {lang === "my" ? "မလုပ်တော့" : "Cancel"}
                 </Button>
                 <Button variant="destructive" size="lg" className="flex-1 rounded-xl" disabled={deleteText !== "DELETE" || !deletePassword} onClick={handleDeleteAccount}>
-                  {lang === "my" ? "ဖျက်မည်" : "Delete"}
+                  {lang === "my" ? "ဖျက်ရန် စီစဉ်" : "Schedule deletion"}
                 </Button>
               </div>
             </motion.div>
