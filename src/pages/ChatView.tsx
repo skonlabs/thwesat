@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Lock, Send, Phone, Video, Languages, Loader2, CheckCircle, MessageSquare } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -20,6 +20,7 @@ const ChatView = () => {
   const { toast } = useToast();
   const [messageText, setMessageText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const didInitialScroll = useRef(false);
   // Per-message translation state
   const [translations, setTranslations] = useState<Record<string, { lang: string; text: string }>>({});
   const [translatingId, setTranslatingId] = useState<string | null>(null);
@@ -44,7 +45,11 @@ const ChatView = () => {
   });
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!messages.length) return;
+    // First paint: jump instantly to the bottom so the user lands at the latest message
+    // without watching a smooth scroll animation. Subsequent updates animate gently.
+    bottomRef.current?.scrollIntoView({ behavior: didInitialScroll.current ? "smooth" : "auto" });
+    didInitialScroll.current = true;
   }, [messages]);
 
   // Mark messages as read whenever new messages arrive in this conversation
@@ -139,6 +144,20 @@ const ChatView = () => {
         </div>
         {isLoading ? (
           <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <MessageSquare className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <p className="text-sm font-medium text-foreground">
+              {lang === "my" ? "စကားစ ပြောကြည့်ပါ" : "Say hello"}
+            </p>
+            <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
+              {lang === "my"
+                ? "အောက်တွင် မက်ဆေ့ချ် ရိုက်ထည့်ပြီး စကားဝိုင်း စတင်ပါ။"
+                : "Type your first message below to start the conversation."}
+            </p>
+          </div>
         ) : (
           messages.map((msg: any) => {
             const isMine = msg.sender_id === user?.id;
