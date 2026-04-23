@@ -333,6 +333,39 @@ const Premium = () => {
             ))}
           </div>
 
+          {/* Premium features — shown FIRST so users can decide based on value */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="mb-3 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.05] to-accent/[0.05] p-4"
+          >
+            <div className="mb-3 flex items-center gap-1.5">
+              <Crown className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                {lang === "my" ? "ပရီမီယံဖြင့် ရရှိမည့် အင်္ဂါရပ်များ" : "What you unlock with Premium"}
+              </h3>
+            </div>
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {premiumFeatures.map((f, j) => (
+                <li key={j} className="flex items-start gap-2">
+                  <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-primary/15">
+                    <Check className="h-2.5 w-2.5 text-primary" strokeWidth={3} />
+                  </div>
+                  <span className="text-[11px] leading-snug text-foreground">
+                    {lang === "my" ? f.my : f.en}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <p className="mb-3 px-1 text-center text-[10px] text-muted-foreground">
+            {lang === "my"
+              ? "အောက်တွင် သင့်အတွက် အသင့်တော်ဆုံး အစီအစဉ်ကို ရွေးပါ ↓"
+              : "Pick the plan that fits you below ↓"}
+          </p>
+
           {/* Plan cards */}
           <div className="space-y-2.5">
             {isLoading ? (
