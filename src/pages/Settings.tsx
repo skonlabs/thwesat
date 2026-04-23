@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
+import { useActiveDelegateToken, useGenerateDelegateToken, useRevokeDelegateToken } from "@/hooks/use-delegate-token";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
@@ -28,6 +29,9 @@ const Settings = () => {
   const { signOut, user } = useAuth();
   const { data: settings } = useUserSettings();
   const updateSettings = useUpdateUserSettings();
+  const { data: activeToken } = useActiveDelegateToken();
+  const generateTokenMutation = useGenerateDelegateToken();
+  const revokeTokenMutation = useRevokeDelegateToken();
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -37,7 +41,6 @@ const Settings = () => {
   const [profileVisibility, setProfileVisibility] = useState("members");
   const [sessionExpiry, setSessionExpiry] = useState("24h");
   const [telegramLinked, setTelegramLinked] = useState(false);
-  const [delegateToken, setDelegateToken] = useState<string | null>(null);
 
   // Hydrate from server-stored settings
   useEffect(() => {
@@ -164,8 +167,22 @@ const Settings = () => {
   };
 
   const generateToken = () => {
-    const token = `ts_${crypto.randomUUID().replace(/-/g, "").slice(0, 24)}`;
-    setDelegateToken(token);
+    generateTokenMutation.mutate(undefined, {
+      onError: (e: unknown) => {
+        const msg = e instanceof Error ? e.message : "Failed to generate token";
+        toast({ title: msg, variant: "destructive" });
+      },
+    });
+  };
+
+  const revokeToken = () => {
+    if (!activeToken) return;
+    revokeTokenMutation.mutate(activeToken.id, {
+      onError: (e: unknown) => {
+        const msg = e instanceof Error ? e.message : "Failed to revoke token";
+        toast({ title: msg, variant: "destructive" });
+      },
+    });
   };
 
   const visibilityLabels: Record<string, { my: string; en: string }> = {
@@ -202,9 +219,8 @@ const Settings = () => {
         { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
         { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => {
           const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v });
-          toast({ title: lang === "my" ? "မှတ်ထားခြင်း သိမ်းဆည်းပြီး" : "Preference saved", description: lang === "my" ? "စက်မှတ်ထားခြင်း လုပ်ဆောင်ချက်အပြည့်အဝ မထွက်ရှိသေးပါ။" : "Device-pinned sessions aren't fully enforced yet — Supabase auto-refresh still applies." });
         } },
-        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: delegateToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
+        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: activeToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
       ],
     },
     {
@@ -372,9 +388,9 @@ const Settings = () => {
       <DelegateTokenSheet
         open={showToken}
         onClose={() => setShowToken(false)}
-        token={delegateToken}
+        token={activeToken?.token ?? null}
         onGenerate={generateToken}
-        onRevoke={() => { setDelegateToken(null); }}
+        onRevoke={revokeToken}
       />
       <FontEncodingSheet open={showFontEncoding} onClose={() => setShowFontEncoding(false)} />
       <PrivacyPolicySheet open={showPrivacyPolicy} onClose={() => setShowPrivacyPolicy(false)} />
