@@ -1,9 +1,12 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import BottomNav from "./BottomNav";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useLanguage } from "@/hooks/use-language";
 
 // Routes that own scrollable input/chat surfaces where pull-to-refresh
 // would interfere with normal scrolling/typing.
@@ -38,6 +41,19 @@ const AppLayout = () => {
   useSessionExpiry();
   const queryClient = useQueryClient();
   const location = useLocation();
+
+  // Cross-device language sync: once user_settings load, adopt the saved
+  // preference if it differs from the local store. localStorage still wins
+  // for unauthenticated visitors.
+  const { data: userSettings } = useUserSettings();
+  const { lang, setLang } = useLanguage();
+  useEffect(() => {
+    const saved = userSettings?.language;
+    if (saved && (saved === "my" || saved === "en") && saved !== lang) {
+      setLang(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSettings?.language]);
 
   const ptrDisabled = PTR_DISABLED_PREFIXES.some((p) =>
     location.pathname.startsWith(p),
