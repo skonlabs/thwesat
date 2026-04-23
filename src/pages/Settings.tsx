@@ -178,18 +178,20 @@ const Settings = () => {
       toast({ title: lang === "my" ? "စကားဝှက် မှားနေပါသည်" : "Password incorrect", variant: "destructive" });
       return;
     }
-    // Soft-delete: scrub PII fields. A full auth account delete needs a server-side function.
-    await supabase.from("profiles").update({
-      display_name: "Deleted user",
-      bio: "",
-      headline: "",
-      phone: "",
-      website: "",
-      location: "",
-      avatar_url: null,
-      visibility: "private",
+    // Schedule deletion N days out instead of immediately scrubbing.
+    // User can sign back in within the grace window to cancel.
+    const scheduledAt = new Date(Date.now() + DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const { error: scheduleError } = await supabase.from("profiles").update({
+      deletion_requested_at: new Date().toISOString(),
+      deletion_scheduled_at: scheduledAt,
     }).eq("id", user.id);
+    if (scheduleError) {
+      toast({ title: lang === "my" ? "မအောင်မြင်ပါ" : "Could not schedule deletion", variant: "destructive" });
+      return;
+    }
     setShowDeleteConfirm(false);
+    setDeleteText("");
+    setDeletePassword("");
     await signOut();
     navigate("/");
   };
