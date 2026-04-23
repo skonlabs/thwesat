@@ -487,7 +487,7 @@ const Settings = () => {
                   {lang === "my" ? "မလုပ်တော့" : "Cancel"}
                 </Button>
                 <Button variant="destructive" size="lg" className="flex-1 rounded-xl" disabled={deleteText !== "DELETE" || !deletePassword} onClick={handleDeleteAccount}>
-                  {lang === "my" ? "ဖျက်မည်" : "Delete"}
+                  {lang === "my" ? "ဖျက်ရန် စီစဉ်" : "Schedule deletion"}
                 </Button>
               </div>
             </motion.div>
