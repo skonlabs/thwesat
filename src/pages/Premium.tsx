@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Gift, Sparkles, Shield, Zap, CalendarClock } from "lucide-react";
+import { Check, Crown, Gift, Sparkles, Shield, Zap, CalendarClock, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
