@@ -435,57 +435,64 @@ const Premium = () => {
             </p>
           </motion.div>
 
-          {/* Features comparison */}
-          <div className="mt-6 space-y-3">
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55 }}
-              className="rounded-2xl border border-border bg-card p-4"
-            >
-              <h3 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                {lang === "my" ? "အခမဲ့ အင်္ဂါရပ်များ" : "Free Features"}
-              </h3>
-              <ul className="space-y-2.5">
-                {freeFeatures.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2.5">
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
-                      <Check className="h-3 w-3 text-emerald" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs text-foreground">
-                      {lang === "my" ? f.my : f.en}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+          {/* Free tier — shown compactly at the bottom for reference */}
+          <motion.details
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="mt-6 rounded-2xl border border-border bg-card p-4"
+          >
+            <summary className="flex cursor-pointer items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span>{lang === "my" ? "အခမဲ့ အစီအစဉ်တွင် ပါဝင်သည်" : "Included in Free plan"}</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">
+                {lang === "my" ? "ကြည့်ရန်" : "View"}
+              </span>
+            </summary>
+            <ul className="mt-3 space-y-2">
+              {freeFeatures.map((f, j) => (
+                <li key={j} className="flex items-center gap-2.5">
+                  <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald/10">
+                    <Check className="h-2.5 w-2.5 text-emerald" strokeWidth={2} />
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? f.my : f.en}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.details>
 
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.04] to-accent/[0.04] p-4"
-            >
-              <div className="mb-3 flex items-center gap-1.5">
-                <Crown className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
-                <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                  {lang === "my" ? "ပရီမီယံ အင်္ဂါရပ်များ" : "Premium Features"}
-                </h3>
+          {/* Referral */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+            className="mt-5 rounded-2xl border border-accent/20 bg-accent/5 p-4"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/15">
+                <Gift className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
               </div>
-              <ul className="space-y-2.5">
-                {premiumFeatures.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2.5">
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Check className="h-3 w-3 text-primary" strokeWidth={2} />
-                    </div>
-                    <span className="text-xs text-foreground">
-                      {lang === "my" ? f.my : f.en}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
+              <div>
+                <p className="text-xs font-bold text-foreground">
+                  {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါ" : "Refer 5 friends"}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {lang === "my"
+                    ? "ပရီမီယံ ၁ လ အခမဲ့ ရယူပါ"
+                    : "Get 1 free month of Premium"}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
+            {lang === "my"
+              ? "KBZPay, WaveMoney, PromptPay, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
+              : "Accepts KBZPay, WaveMoney, PromptPay, Wise & Payoneer · Cancel anytime"}
+          </p>
+        </motion.div>
+      </div>
 
           {/* Referral */}
           <motion.div
