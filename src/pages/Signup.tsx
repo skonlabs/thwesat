@@ -124,7 +124,10 @@ const Signup = () => {
       // Persist role to user_roles table via SECURITY DEFINER function.
       // Pass the actual selected role (jobseeker / employer / mentor) so the
       // DB can use it for downstream logic.
-      await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: selectedRole });
+      // selectedRole is an app-level role (jobseeker/employer/mentor); the
+      // user_roles table only stores system roles (admin/moderator/user).
+      // New signups are always assigned 'user'.
+      await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
     }
     setRole(selectedRole);
     navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/dashboard" : "/home");

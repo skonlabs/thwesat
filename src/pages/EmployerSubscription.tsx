@@ -61,7 +61,7 @@ const EmployerSubscription = () => {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
 
-  const hasActiveSub = employerProfile?.subscription_plan && employerProfile.subscription_plan !== "free";
+  const hasActiveSub = employerProfile?.subscription_tier && employerProfile.subscription_tier !== "free";
   const selectedTier = tiers.find(t => t.id === selected);
 
   const t = (texts: { my: string; en: string }) => texts[lang];

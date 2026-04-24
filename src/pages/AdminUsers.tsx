@@ -484,16 +484,14 @@ const AdminUsers = () => {
                     onClick={async () => {
                       let deleted = false;
                       try {
-                        const { error: rpcError } = await supabase.rpc("delete_user_cascade", { target_user_id: deleteConfirmId });
-                        if (rpcError) throw rpcError;
-                        deleted = true;
-                      } catch {
-                        // RPC not available — fall back to direct profile delete
+                        // RPC delete_user_cascade is not available — fall back to direct profile delete
                         const { error: directError } = await supabase.from("profiles").delete().eq("id", deleteConfirmId);
                         if (!directError) {
                           deleted = true;
                           toast.warning(lang === "my" ? "သတိပေးချက်: ဆက်စပ်မှတ်တမ်းများ ကိုယ်တိုင်ဖျက်ရန် လိုအပ်နိုင်သည်" : "Note: some related records may need manual cleanup.");
                         }
+                      } catch {
+                        deleted = false;
                       }
                       if (deleted) {
                         toast.success(lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားပြီး" : "User removed");

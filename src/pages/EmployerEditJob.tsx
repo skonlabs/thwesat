@@ -97,7 +97,7 @@ const CHAR_LIMIT_REQ = 2000;
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  const markDirty = useCallback(<T>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
+  const markDirty = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
 
   const handleUrlBlur = () => {
     if (!externalUrl) { setExternalUrlError(""); return; }
@@ -142,11 +142,11 @@ const CHAR_LIMIT_REQ = 2000;
       if (user) {
         const { data: emp } = await supabase
           .from("employer_profiles")
-          .select("subscription_plan, subscription_expires_at")
-          .eq("user_id", user.id)
+          .select("subscription_tier, subscription_expires_at")
+          .eq("id", user.id)
           .single();
         const isProActive =
-          emp?.subscription_plan === "pro" &&
+          emp?.subscription_tier === "pro" &&
           (emp.subscription_expires_at == null ||
             emp.subscription_expires_at > new Date().toISOString());
         if (!isProActive) {

@@ -59,7 +59,7 @@ const EmployerEditCompany = () => {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  const markDirty = useCallback(<T>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
+  const markDirty = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
 
   const togglePayment = (m: string) => { setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]); setIsDirty(true); };
 
