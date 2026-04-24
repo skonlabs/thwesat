@@ -5,7 +5,7 @@ import BottomNav from "./BottomNav";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import { useLanguage } from "@/hooks/use-language";
 
 // Routes that own scrollable input/chat surfaces where pull-to-refresh
@@ -42,18 +42,25 @@ const AppLayout = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
 
-  // Cross-device language sync: once user_settings load, adopt the saved
-  // preference if it differs from the local store. localStorage still wins
-  // for unauthenticated visitors.
+  // Cross-device language sync. Rule:
+  //   - If the user has made an explicit choice (toggle), that wins and we
+  //     push it up to the DB so other devices stay in sync.
+  //   - Otherwise (no explicit choice yet this device), adopt the saved DB
+  //     preference. This avoids the bug where logging in on the English
+  //     screen flipped the UI to Burmese because the DB default is "my".
   const { data: userSettings } = useUserSettings();
-  const { lang, setLang } = useLanguage();
+  const { lang, isExplicit, setLang } = useLanguage();
+  const { mutate: updateSettings } = useUpdateUserSettings();
   useEffect(() => {
     const saved = userSettings?.language;
-    if (saved && (saved === "my" || saved === "en") && saved !== lang) {
-      setLang(saved);
+    if (!saved) return;
+    if (isExplicit) {
+      if (saved !== lang) updateSettings({ language: lang });
+    } else if ((saved === "my" || saved === "en") && saved !== lang) {
+      setLang(saved, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSettings?.language]);
+  }, [userSettings?.language, isExplicit]);
 
   // Apply Myanmar render-font preference. CSS rules in index.css respond
   // to `data-myanmar-font` on the <html> element. Defaults to "system".
