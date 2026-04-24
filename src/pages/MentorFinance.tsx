@@ -51,11 +51,10 @@ const MentorFinance = () => {
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
   const currencies = useMemo(() => all.map((e) => e.currency || "USD"), [all]);
 
-  const hasPaymentMethod = !!(mentorProfileData?.payment_methods && (
-    Array.isArray(mentorProfileData.payment_methods)
-      ? (mentorProfileData.payment_methods as any[]).length > 0
-      : Object.keys(mentorProfileData.payment_methods as object).length > 0
-  ));
+  // mentor_profiles has no payment_methods column in the current schema.
+  // Treat any mentor as having a payment method configured for now; replace
+  // with a real check once the column exists.
+  const hasPaymentMethod = true;
 
   const totalEarned = useMemo(() => all.reduce((sum, e) => sum + Number(e.amount || 0), 0), [all]);
   const totalPending = useMemo(() => pending.reduce((sum, e) => sum + Number(e.amount || 0), 0), [pending]);

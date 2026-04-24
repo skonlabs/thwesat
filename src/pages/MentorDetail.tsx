@@ -96,13 +96,14 @@ const MentorDetail = () => {
         .select("user_id")
         .eq("role", "admin");
 
-      const targets = adminRoles && adminRoles.length > 0 ? adminRoles : [{ user_id: null }];
+      const targets = (adminRoles && adminRoles.length > 0 ? adminRoles : []) as { user_id: string }[];
       await Promise.all(
-        targets.map((t: { user_id: string | null }) =>
+        targets.map((t) =>
           supabase.from("notifications").insert({
             user_id: t.user_id,
             notification_type: "profile_report",
-            message: `Profile report for user ${id}: ${reportReason}`,
+            title: "Profile report",
+            description: `Profile report for user ${id}: ${reportReason}`,
             link_path: "/admin/users",
           })
         )

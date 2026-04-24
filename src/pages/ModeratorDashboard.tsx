@@ -154,7 +154,8 @@ const ModeratorDashboard = () => {
         supabase.from("notifications").insert({
           user_id: adminId,
           notification_type: "escalation_request",
-          message: `Moderator escalated ${itemType} ${itemId} for review`,
+          title: "Escalation request",
+          description: `Moderator escalated ${itemType} ${itemId} for review`,
           link_path,
         })
       )
@@ -207,15 +208,16 @@ const ModeratorDashboard = () => {
   const approveJob = useMutation({
     mutationFn: async (id: string) => {
       // Fetch job first so we can notify the poster
-      const { data: job } = await supabase.from("jobs").select("posted_by").eq("id", id).single();
+      const { data: job } = await supabase.from("jobs").select("employer_id").eq("id", id).single();
       const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", id);
       if (error) throw error;
       // Issue #35: notify the employer who posted the job
-      if (job?.posted_by) {
+      if (job?.employer_id) {
         await supabase.from("notifications").insert({
-          user_id: job.posted_by,
+          user_id: job.employer_id,
           notification_type: "job_approved",
-          message: "Your job posting has been approved and is now live.",
+          title: "Job approved",
+          description: "Your job posting has been approved and is now live.",
           link_path: "/employer/jobs",
         });
       }

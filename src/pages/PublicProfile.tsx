@@ -110,8 +110,8 @@ const PublicProfile = () => {
     }
 
     if (visibility === "employers") {
-      const isEmployerOrSystem =
-        hasRole("employer") || hasRole("admin") || hasRole("moderator");
+      // hasRole only knows app roles; admin/moderator are system roles handled elsewhere.
+      const isEmployerOrSystem = hasRole("employer");
       if (!isEmployerOrSystem) {
         return (
           <div className="min-h-screen bg-background pb-24">

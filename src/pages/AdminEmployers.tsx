@@ -122,7 +122,7 @@ const AdminEmployers = () => {
       if (jobsError) throw jobsError;
 
       // Delete associated notifications
-      const userId = employerToDelete?.user_id || id;
+      const userId = id;
       const { error: notifError } = await supabase.from("notifications").delete().eq("user_id", userId);
       if (notifError) throw notifError;
 

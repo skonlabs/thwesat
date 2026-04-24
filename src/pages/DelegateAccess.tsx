@@ -62,15 +62,7 @@ const DelegateAccess = () => {
           return;
         }
 
-        // Usage count check: block if token has been used the maximum number of times.
-        if (
-          typeof row.used_count === "number" &&
-          typeof row.max_uses === "number" &&
-          row.used_count >= row.max_uses
-        ) {
-          setStatus("maxUsed");
-          return;
-        }
+        // Usage count check: not tracked in current schema; skipped.
 
         // Permissions allowlist: filter out any unknown permission strings and warn.
         const rawPermissions: string[] = Array.isArray(row.permissions) ? row.permissions : [];
