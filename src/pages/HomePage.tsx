@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// useEffect removed: admin/moderator routing handled in HomeRedirect.
 import { motion } from "framer-motion";
 import { Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, Wallet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
