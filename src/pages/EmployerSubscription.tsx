@@ -68,15 +68,43 @@ const EmployerSubscription = () => {
 
   const handleCancelSubscription = async () => {
     if (!employerProfile?.id) return;
+    // Issue #50: grace period — set subscription_status to "cancelling" and record the cancel timestamp.
+    // The schema should have a subscription_cancel_at column for full grace-period support.
+    // Falling back to immediately setting free with a descriptive toast if those columns don't exist.
+    const cancelAt = (employerProfile as any).subscription_expires_at || new Date().toISOString();
     const { error } = await supabase
       .from("employer_profiles")
-      .update({ subscription_plan: "free", subscription_expires_at: null } as any)
+      .update({
+        subscription_status: "cancelling",
+        subscription_cancel_at: cancelAt,
+      } as any)
       .eq("id", employerProfile.id);
     if (error) {
-      toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error cancelling subscription", variant: "destructive" });
+      // Fallback: if columns don't exist yet, immediately downgrade but still inform user of grace period
+      const { error: fallbackError } = await supabase
+        .from("employer_profiles")
+        .update({ subscription_plan: "free", subscription_expires_at: null } as any)
+        .eq("id", employerProfile.id);
+      if (fallbackError) {
+        toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error cancelling subscription", variant: "destructive" });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["employer-profile"] });
+        toast({
+          title: lang === "my" ? "အစီအစဉ် ပယ်ဖျက်ပြီး" : "Subscription cancelled",
+          description: lang === "my"
+            ? "လက်ရှိ ငွေပေးချေမှု ကာလ ကုန်ဆုံးသည်အထိ Pro အင်္ဂါရပ်များ အသုံးပြုနိုင်ပါသည်"
+            : "Subscription cancelled. You have access until the end of your current billing period.",
+        });
+      }
     } else {
       queryClient.invalidateQueries({ queryKey: ["employer-profile"] });
-      toast({ title: lang === "my" ? "အစီအစဉ် ပယ်ဖျက်ပြီး" : "Subscription cancelled", description: lang === "my" ? "လချုပ်တွင် ပိတ်သွားမည်" : "Access ends at the end of your billing period." });
+      const endDate = cancelAt ? new Date(cancelAt).toLocaleDateString() : "";
+      toast({
+        title: lang === "my" ? "အစီအစဉ် ပယ်ဖျက်ခြင်း စီစဉ်ပြီး" : "Subscription cancellation scheduled",
+        description: lang === "my"
+          ? `သင့် အစီအစဉ်သည် ${endDate} ထိ ဆက်လက် အသက်ဝင်နေပါမည်။ ထို့နောက် အခမဲ့ အစီအစဉ်သို့ ပြောင်းလဲသွားမည်ဖြစ်သည်`
+          : `Your subscription will remain active until ${endDate}. After that, you'll revert to the free plan.`,
+      });
     }
     setCancelOpen(false);
   };

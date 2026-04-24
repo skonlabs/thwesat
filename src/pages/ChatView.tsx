@@ -110,6 +110,12 @@ const ChatView = () => {
       return;
     }
     setTranslatingId(msgId);
+    // Clear any previous failure for this message so the retry state is fresh
+    setFailedTranslations((prev) => {
+      const next = { ...prev };
+      delete next[msgId];
+      return next;
+    });
     try {
       const { data, error } = await supabase.functions.invoke("translate-text", {
         body: { content, sourceLang: "auto", targetLang },
@@ -117,6 +123,8 @@ const ChatView = () => {
       if (error) throw error;
       setTranslations((prev) => ({ ...prev, [msgId]: { lang: targetLang, text: data.translatedContent } }));
     } catch {
+      // Re-enable the translate button so the user can retry
+      setFailedTranslations((prev) => ({ ...prev, [msgId]: { content, lang: targetLang } }));
       toast({ title: lang === "my" ? "ဘာသာပြန်၍ မရပါ" : "Translation failed", variant: "destructive" });
     } finally {
       setTranslatingId(null);
@@ -183,26 +191,42 @@ const ChatView = () => {
                     </div>
                   )}
                   <div className="mt-1 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => setPickerForMsgId(msg.id)}
-                      disabled={translatingId === msg.id}
-                      className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium transition-colors ${
-                        isMine
-                          ? "text-primary-foreground/70 active:bg-primary-foreground/10"
-                          : "text-muted-foreground active:bg-muted"
-                      }`}
-                    >
-                      {translatingId === msg.id ? (
-                        <Loader2 className="h-2.5 w-2.5 animate-spin" strokeWidth={2} />
-                      ) : (
-                        <Languages className="h-2.5 w-2.5" strokeWidth={2} />
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setPickerForMsgId(msg.id)}
+                        disabled={translatingId === msg.id}
+                        className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium transition-colors ${
+                          isMine
+                            ? "text-primary-foreground/70 active:bg-primary-foreground/10"
+                            : "text-muted-foreground active:bg-muted"
+                        }`}
+                      >
+                        {translatingId === msg.id ? (
+                          <Loader2 className="h-2.5 w-2.5 animate-spin" strokeWidth={2} />
+                        ) : (
+                          <Languages className="h-2.5 w-2.5" strokeWidth={2} />
+                        )}
+                        {translatingId === msg.id
+                          ? (lang === "my" ? "ဘာသာပြန်နေသည်" : "Translating")
+                          : tr
+                            ? (lang === "my" ? "ဘာသာစကား ပြောင်း" : "Change language")
+                            : (lang === "my" ? "ဘာသာပြန်ရန်" : "Translate")}
+                      </button>
+                      {/* Issue #38: Retry button shown when translation has failed */}
+                      {failedTranslations[msg.id] && translatingId !== msg.id && (
+                        <button
+                          onClick={() => {
+                            const failed = failedTranslations[msg.id];
+                            handleTranslateMessage(msg.id, failed.content, failed.lang);
+                          }}
+                          className={`rounded-full px-1.5 py-0.5 text-[9px] font-medium underline transition-colors ${
+                            isMine ? "text-primary-foreground/80" : "text-destructive"
+                          }`}
+                        >
+                          {lang === "my" ? "ထပ်ကြိုးစား" : "Retry"}
+                        </button>
                       )}
-                      {translatingId === msg.id
-                        ? (lang === "my" ? "ဘာသာပြန်နေသည်" : "Translating")
-                        : tr
-                          ? (lang === "my" ? "ဘာသာစကား ပြောင်း" : "Change language")
-                          : (lang === "my" ? "ဘာသာပြန်ရန်" : "Translate")}
-                    </button>
+                    </div>
                     <p className={`text-[9px] ${isMine ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{formatTime(msg.created_at)}</p>
                   </div>
                 </div>
