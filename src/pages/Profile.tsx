@@ -74,7 +74,7 @@ const Profile = () => {
   const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
-  const referralCode = profile?.referral_code || "TS-XXXXXX";
+  const referralCode = profile?.referral_code || "";
   const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
   const profileCompletionFields = [
@@ -93,6 +93,7 @@ const Profile = () => {
   const completionPct = Math.round((filledCount / profileCompletionFields.length) * 100);
 
   const copyReferral = () => {
+    if (!referralCode) return;
     navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${referralCode}`);
     setReferralCopied(true);
     setTimeout(() => setReferralCopied(false), 2000);
@@ -302,8 +303,10 @@ const Profile = () => {
           </div>
 
           <div className="mb-3 flex items-center gap-2">
-            <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">{referralCode}</div>
-            <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral}>
+            <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">
+              {referralCode || (lang === "my" ? "ထုတ်ပေးနေသည်..." : "Generating…")}
+            </div>
+            <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral} disabled={!referralCode}>
               {referralCopied ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
             </Button>
           </div>
