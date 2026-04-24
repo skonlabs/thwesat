@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink } from "lucide-react";
+import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,32 @@ const roleRequirements: Record<string, { required: string[]; nice: string[]; res
   },
 };
 
+const STORAGE_KEY = "skill_gap_result";
+
+interface SavedAnalysis {
+  role: string;
+  score: number;
+  missing: string[];
+  date: string;
+}
+
+function relativeDate(dateStr: string, lang: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (lang === "my") {
+    if (mins < 1) return "ယခုလေး";
+    if (mins < 60) return `${mins} မိနစ် အရင်က`;
+    if (hours < 24) return `${hours} နာရီ အရင်က`;
+    return `${days} ရက် အရင်က`;
+  }
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
+
 const SkillGapAnalysis = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
@@ -82,15 +108,27 @@ const SkillGapAnalysis = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [lastAnalysis, setLastAnalysis] = useState<SavedAnalysis | null>(null);
+
+  // Load saved analysis on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed: SavedAnalysis = JSON.parse(raw);
+        setLastAnalysis(parsed);
+      }
+    } catch {
+      // ignore corrupt storage
+    }
+  }, []);
 
   const toggleSkill = (skill: string) => {
     setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
   };
 
   const handleAnalyze = () => {
-    if (!selectedRole) {
-      return;
-    }
+    if (!selectedRole) return;
     setAnalyzing(true);
     setTimeout(() => { setAnalyzing(false); setStep(3); }, 2000);
   };
@@ -102,27 +140,67 @@ const SkillGapAnalysis = () => {
     const haveNice = reqs.nice.filter(s => selectedSkills.includes(s));
     const missingNice = reqs.nice.filter(s => !selectedSkills.includes(s));
     const score = Math.round((haveRequired.length / reqs.required.length) * 100);
-    return { haveRequired, missingRequired, haveNice, missingNice, score, resources: reqs.resources };
+
+    // Build resources: start with role-specific links, then add fallbacks for missing skills that have no specific resource
+    const specificSkills = new Set(reqs.resources.map(r => r.skill));
+    const fallbackResources: { skill: string; link: string; source: string }[] = [];
+    for (const skill of missingRequired) {
+      if (!specificSkills.has(skill)) {
+        fallbackResources.push(
+          { skill, link: `https://www.youtube.com/results?search_query=${encodeURIComponent(skill)}`, source: "YouTube" },
+          { skill, link: `https://www.coursera.org/search?query=${encodeURIComponent(skill)}`, source: "Coursera" },
+        );
+      }
+    }
+
+    return { haveRequired, missingRequired, haveNice, missingNice, score, resources: [...reqs.resources, ...fallbackResources] };
   };
 
-  const stepLabels = [
-    lang === "my" ? "ရာထူး" : "Role",
-    lang === "my" ? "ကျွမ်းကျင်မှု" : "Skills",
-    lang === "my" ? "ရလဒ်" : "Results",
+  const handleSaveAnalysis = () => {
+    const analysis = getAnalysis();
+    const record: SavedAnalysis = {
+      role: selectedRole,
+      score: analysis.score,
+      missing: analysis.missingRequired,
+      date: new Date().toISOString(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    setLastAnalysis(record);
+  };
+
+  const stepDefs = [
+    { num: 1, labelMy: "ရာထူး ရွေးချယ်", labelEn: "Choose Role" },
+    { num: 2, labelMy: "ကျွမ်းကျင်မှု ရွေးချယ်", labelEn: "Select Skills" },
+    { num: 3, labelMy: "ရလဒ် ကြည့်ရှု", labelEn: "View Results" },
   ];
+
+  const lastAnalysisForRole = lastAnalysis?.role === selectedRole ? lastAnalysis : null;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
-        {/* Progress */}
-        <div className="mb-5 flex items-center gap-2">
-          {stepLabels.map((label, i) => (
-            <div key={i} className="flex flex-1 flex-col items-center gap-1">
-              <div className={`h-1.5 w-full rounded-full ${i + 1 <= step ? "bg-primary" : "bg-muted"}`} />
-              <span className={`text-[10px] font-medium ${i + 1 <= step ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
-            </div>
-          ))}
+        {/* Step indicator */}
+        <div className="mb-5 flex items-start justify-between gap-1">
+          {stepDefs.map((s, i) => {
+            const isCompleted = step > s.num;
+            const isCurrent = step === s.num;
+            return (
+              <div key={s.num} className="flex flex-1 flex-col items-center gap-1.5">
+                <div className="flex w-full items-center">
+                  <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${isCompleted ? "bg-primary text-primary-foreground" : isCurrent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                    {isCompleted ? <Check className="h-3 w-3" strokeWidth={3} /> : s.num}
+                  </div>
+                  {i < stepDefs.length - 1 && (
+                    <div className={`mx-1 h-0.5 flex-1 rounded-full transition-colors ${step > s.num ? "bg-primary" : "bg-muted"}`} />
+                  )}
+                </div>
+                <span className={`text-center text-[9px] font-medium leading-tight ${isCurrent ? "text-primary" : isCompleted ? "text-primary/70" : "text-muted-foreground"}`}>
+                  {lang === "my" ? s.labelMy : s.labelEn}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <AnimatePresence mode="wait">
@@ -147,8 +225,16 @@ const SkillGapAnalysis = () => {
                     </button>
                   ))}
                 </div>
+                {/* Last analyzed for this role */}
+                {lastAnalysis && selectedRole && lastAnalysis.role === selectedRole && (
+                  <p className="mt-3 text-[10px] text-muted-foreground">
+                    {lang === "my"
+                      ? `နောက်ဆုံး ခွဲခြမ်းစိတ်ဖြာ: ${relativeDate(lastAnalysis.date, lang)}`
+                      : `Last analyzed: ${relativeDate(lastAnalysis.date, lang)}`}
+                  </p>
+                )}
               </div>
-              <Button onClick={() => { if (!selectedRole) { return; } setStep(2); }} className="w-full">
+              <Button onClick={() => { if (!selectedRole) return; setStep(2); }} className="w-full">
                 {lang === "my" ? "ရှေ့ဆက်ရန်" : "Continue"} <ChevronRight className="h-4 w-4" />
               </Button>
             </motion.div>
@@ -174,9 +260,19 @@ const SkillGapAnalysis = () => {
                     </button>
                   ))}
                 </div>
-                <p className="mt-3 text-[10px] text-muted-foreground">
-                  {selectedSkills.length} {lang === "my" ? "ခု ရွေးချယ်ထားပါသည်" : "selected"}
-                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-[10px] text-muted-foreground">
+                    {selectedSkills.length} {lang === "my" ? "ခု ရွေးချယ်ထားပါသည်" : "selected"}
+                  </p>
+                  {selectedSkills.length > 0 && (
+                    <button
+                      onClick={() => setSelectedSkills([])}
+                      className="rounded px-2 py-0.5 text-[10px] font-medium text-destructive active:bg-destructive/10"
+                    >
+                      {lang === "my" ? "အားလုံး ဖယ်ရှားရန်" : "Clear all"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-3">
@@ -221,6 +317,14 @@ const SkillGapAnalysis = () => {
                         ? (lang === "my" ? "ကောင်းပါသည်! နောက်ထပ် ကျွမ်းကျင်မှု အနည်းငယ် လိုအပ်ပါသည်" : "Good! A few more skills needed")
                         : (lang === "my" ? "စတင်ရန် ကောင်းပါသည်! လေ့လာရန် အချိန်ယူပါ" : "Good start! Take time to learn more")}
                   </p>
+                  {/* Last analyzed label */}
+                  {lastAnalysisForRole && (
+                    <p className="mt-1 text-[10px] text-muted-foreground/70">
+                      {lang === "my"
+                        ? `နောက်ဆုံး ခွဲခြမ်းစိတ်ဖြာ: ${relativeDate(lastAnalysisForRole.date, lang)}`
+                        : `Last analyzed: ${relativeDate(lastAnalysisForRole.date, lang)}`}
+                    </p>
+                  )}
                 </div>
 
                 {/* Required skills */}
@@ -280,11 +384,15 @@ const SkillGapAnalysis = () => {
                     <TrendingUp className="h-4 w-4" />
                     {lang === "my" ? "ထပ်မံ ခွဲခြမ်းစိတ်ဖြာရန်" : "Analyze Again"}
                   </Button>
-                  <Button onClick={() => navigate("/ai-tools")} className="flex-1">
-                    <ChevronLeft className="h-4 w-4" />
-                    {lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"}
+                  <Button variant="outline" onClick={handleSaveAnalysis} className="flex-1">
+                    <Save className="h-4 w-4" />
+                    {lang === "my" ? "သိမ်းဆည်းရန်" : "Save analysis"}
                   </Button>
                 </div>
+                <Button onClick={() => navigate("/ai-tools")} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "အသက်မွေးမှု Tools" : "Career Tools"}
+                </Button>
               </motion.div>
             );
           })()}
