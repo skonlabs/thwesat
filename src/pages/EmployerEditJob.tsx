@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AlertTriangle, Star, Info, Languages, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,11 @@ const EmployerEditJob = () => {
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
   const [urlTouched, setUrlTouched] = useState(false);
+  const [externalUrlError, setExternalUrlError] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+
+const CHAR_LIMIT_DESC = 3000;
+const CHAR_LIMIT_REQ = 2000;
 
   useEffect(() => {
     if (job) {
@@ -85,7 +90,24 @@ const EmployerEditJob = () => {
     }
   }, [job]);
 
-  const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const markDirty = useCallback(<T>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
+
+  const handleUrlBlur = () => {
+    if (externalUrl && !externalUrl.startsWith("http://") && !externalUrl.startsWith("https://")) {
+      setExternalUrlError("URL must start with http:// or https://");
+    } else {
+      setExternalUrlError("");
+    }
+  };
+
+  const togglePayment = (p: string) => { setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]); setIsDirty(true); };
 
   const externalUrlInvalid = applicationMethod === "external" && !isValidUrl(externalUrl);
 
@@ -158,42 +180,61 @@ const EmployerEditJob = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath="/employer/dashboard" />
-      <div className="px-5 space-y-4">
+      {(job as any)?.updated_at && (
+        <div className="px-5 pb-0 pt-3">
+          <p className="text-[11px] text-muted-foreground">
+            {lang === "my" ? "နောက်ဆုံး ပြင်ဆင်ချိန်:" : "Last edited:"}{" "}
+            {new Date((job as any).updated_at).toLocaleString()}
+          </p>
+        </div>
+      )}
+      {isDirty && (
+        <div className="mx-5 mt-3 rounded-xl border border-yellow-400 bg-yellow-50 px-4 py-2.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+          {lang === "my" ? "မသိမ်းရသေးသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
+        </div>
+      )}
+      <div className="px-5 space-y-4 mt-4">
         <BilingualField
           label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
           required
           enValue={titleEn}
           myValue={titleMy}
-          onEnChange={setTitleEn}
-          onMyChange={setTitleMy}
+          onEnChange={markDirty(setTitleEn)}
+          onMyChange={markDirty(setTitleMy)}
           lang={lang}
         />
-        <BilingualField
-          label={lang === "my" ? "ဖော်ပြချက်" : "Description"}
-          required
-          multiline
-          minHeight={100}
-          enValue={descEn}
-          myValue={descMy}
-          onEnChange={setDescEn}
-          onMyChange={setDescMy}
-          lang={lang}
-        />
-        <BilingualField
-          label={lang === "my" ? "လိုအပ်ချက်" : "Requirements"}
-          multiline
-          minHeight={80}
-          enValue={requirementsEn}
-          myValue={requirementsMy}
-          onEnChange={setRequirementsEn}
-          onMyChange={setRequirementsMy}
-          lang={lang}
-        />
+        <div>
+          <BilingualField
+            label={lang === "my" ? "ဖော်ပြချက်" : "Description"}
+            required
+            multiline
+            minHeight={100}
+            enValue={descEn}
+            myValue={descMy}
+            onEnChange={markDirty(setDescEn)}
+            onMyChange={markDirty(setDescMy)}
+            lang={lang}
+          />
+          <p className="mt-1 text-right text-[10px] text-muted-foreground">{descEn.length}/{CHAR_LIMIT_DESC}</p>
+        </div>
+        <div>
+          <BilingualField
+            label={lang === "my" ? "လိုအပ်ချက်" : "Requirements"}
+            multiline
+            minHeight={80}
+            enValue={requirementsEn}
+            myValue={requirementsMy}
+            onEnChange={markDirty(setRequirementsEn)}
+            onMyChange={markDirty(setRequirementsMy)}
+            lang={lang}
+          />
+          <p className="mt-1 text-right text-[10px] text-muted-foreground">{requirementsEn.length}/{CHAR_LIMIT_REQ}</p>
+        </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား" : "Role Type"}</label>
           <div className="flex flex-wrap gap-2">
             {roleTypes.map(r => (
-              <button key={r.value} onClick={() => setRoleType(r.value)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${roleType === r.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+              <button key={r.value} onClick={() => { setRoleType(r.value); setIsDirty(true); }} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${roleType === r.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
                 {lang === "my" ? r.label.my : r.label.en}
               </button>
             ))}
@@ -201,22 +242,22 @@ const EmployerEditJob = () => {
         </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အမျိုးအစားများ" : "Categories"}</label>
-          <CategoryCombobox values={categories} onChange={setCategories} />
+          <CategoryCombobox values={categories} onChange={(v) => { setCategories(v); setIsDirty(true); }} />
           <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသည့် အမျိုးအစားများကို ဖယ်ရှားရန် ✕ ကို နှိပ်ပါ" : "Tap ✕ on a chip to remove a category."}</p>
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
             <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD)" : "Min Salary (USD)"}</label>
-            <Input type="number" min="0" value={salaryMin} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMin(v); }} className="h-11 rounded-xl" />
+            <Input type="number" min="0" value={salaryMin} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) { setSalaryMin(v); setIsDirty(true); } }} className="h-11 rounded-xl" />
           </div>
           <div className="flex-1">
             <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD)" : "Max Salary (USD)"}</label>
-            <Input type="number" min="0" value={salaryMax} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMax(v); }} className="h-11 rounded-xl" />
+            <Input type="number" min="0" value={salaryMax} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) { setSalaryMax(v); setIsDirty(true); } }} className="h-11 rounded-xl" />
           </div>
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Location"}</label>
-          <Input value={locationCountry} onChange={e => setLocationCountry(e.target.value)} className="h-11 rounded-xl" />
+          <Input value={locationCountry} onChange={e => { setLocationCountry(e.target.value); setIsDirty(true); }} className="h-11 rounded-xl" />
         </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
@@ -228,15 +269,15 @@ const EmployerEditJob = () => {
         </div>
         <div className="space-y-3 rounded-xl border border-border bg-card p-4">
           <label className="flex items-start gap-3">
-            <Checkbox checked={requiresEmbassy} onCheckedChange={v => setRequiresEmbassy(!!v)} className="mt-0.5" />
+            <Checkbox checked={requiresEmbassy} onCheckedChange={v => { setRequiresEmbassy(!!v); setIsDirty(true); }} className="mt-0.5" />
             <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
           </label>
           <label className="flex items-start gap-3">
-            <Checkbox checked={requiresWorkPermit} onCheckedChange={v => setRequiresWorkPermit(!!v)} className="mt-0.5" />
+            <Checkbox checked={requiresWorkPermit} onCheckedChange={v => { setRequiresWorkPermit(!!v); setIsDirty(true); }} className="mt-0.5" />
             <p className="text-xs text-foreground">{lang === "my" ? "Work Permit လိုအပ်" : "Requires Work Permit"}</p>
           </label>
           <label className="flex items-start gap-3">
-            <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
+            <Checkbox checked={visaSponsorship} onCheckedChange={v => { setVisaSponsorship(!!v); setIsDirty(true); }} className="mt-0.5" />
             <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
           </label>
         </div>
@@ -309,12 +350,18 @@ const EmployerEditJob = () => {
             <div className="mt-2">
               <Input
                 value={externalUrl}
-                onChange={e => setExternalUrl(e.target.value)}
-                onBlur={() => setUrlTouched(true)}
+                onChange={e => { setExternalUrl(e.target.value); setIsDirty(true); if (externalUrlError) setExternalUrlError(""); }}
+                onBlur={() => { setUrlTouched(true); handleUrlBlur(); }}
                 placeholder="https://..."
-                className={`h-11 rounded-xl ${urlTouched && externalUrlInvalid ? "border-destructive" : ""}`}
+                className={`h-11 rounded-xl ${(urlTouched && externalUrlInvalid) || externalUrlError ? "border-destructive" : ""}`}
               />
-              {urlTouched && externalUrlInvalid && (
+              {externalUrlError && (
+                <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
+                  <AlertTriangle className="h-3 w-3" />
+                  {externalUrlError}
+                </p>
+              )}
+              {!externalUrlError && urlTouched && externalUrlInvalid && (
                 <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
                   <AlertTriangle className="h-3 w-3" />
                   {lang === "my" ? "မှန်ကန်သော လင့်ခ် (https://...) ထည့်ပါ" : "Enter a valid URL starting with http:// or https://"}

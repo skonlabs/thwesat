@@ -357,6 +357,24 @@ const EmployerPostJob = () => {
         )}
       </div>
 
+      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>{lang === "my" ? "အလုပ်ခေါ်စာ ကြိုကြည့်ရှုမှု" : "Job Preview"}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 space-y-2">
+            <h3 className="text-base font-bold text-foreground">{titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>
+            <p className="text-xs text-muted-foreground font-medium">{employerProfile?.company_name || ""}</p>
+            <div className="flex flex-wrap gap-2 text-[11px]">
+              {roleType && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{roleTypes.find(r => r.value === roleType)?.[lang === "my" ? "label" : "label"]?.[lang] || roleType}</span>}
+              {salaryMin && salaryMax && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">${salaryMin}–${salaryMax}/mo</span>}
+              {locationCountry && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{locationCountry}</span>}
+            </div>
+            {descEn && <p className="text-xs text-foreground/80 leading-relaxed">{descEn.slice(0, 150)}{descEn.length > 150 ? "…" : ""}</p>}
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <Sheet open={upgradeOpen} onOpenChange={setUpgradeOpen}>
         <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
           <SheetHeader>

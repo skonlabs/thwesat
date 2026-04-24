@@ -37,7 +37,19 @@ const AiProfileBuilder = () => {
     }
   }, [uploadedFile]);
 
+  // Clear CV from sessionStorage on signout for security
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        sessionStorage.removeItem("cv-uploaded-file");
+        setUploadedFile(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleToolClick = (path: string, rawStatus: string) => {
+    // Beta tools are accessible to all users; Premium tools require subscription
     if (rawStatus === "Premium" && !profile?.is_premium) {
       navigate("/premium");
       return;
@@ -47,12 +59,14 @@ const AiProfileBuilder = () => {
   };
 
   const processFile = useCallback(async (file: File) => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      toast({ title: lang === "my" ? "PDF သို့မဟုတ် DOCX ဖိုင်သာ ခွင့်ပြုပါသည်" : "Only PDF or DOCX files allowed", variant: "destructive" });
+    const isPdf = file.type.includes("pdf") || file.name.toLowerCase().endsWith(".pdf");
+    const isDocx = file.type.includes("word") || file.name.toLowerCase().endsWith(".docx");
+    if (!isPdf && !isDocx) {
+      toast({ title: lang === "my" ? "PDF သို့မဟုတ် DOCX ဖိုင်သာ ခွင့်ပြုပါသည်" : "Only PDF or DOCX files are accepted", variant: "destructive" });
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      toast({ title: lang === "my" ? "ဖိုင်သည် 10MB ထက် ကျော်လွန်နေပါသည်" : "File exceeds 10MB limit", variant: "destructive" });
+      toast({ title: lang === "my" ? "CV ဖိုင်သည် 10MB ထက် မကျော်ရပါ" : "CV must be under 10MB", variant: "destructive" });
       return;
     }
     if (!user) {
@@ -121,25 +135,25 @@ const AiProfileBuilder = () => {
       icon: PenLine,
       title: lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန်" : "Cover Letter Generator",
       desc: lang === "my" ? "အလုပ်တစ်ခုချင်းစီအတွက် စိတ်ကြိုက် အလုပ်လျှောက်လွှာ ရေးသားပေးပါမည်" : "Generate tailored cover letters for each job application",
-      status: lang === "my" ? "ပရီမီယံ" : "Premium",
-      rawStatus: "Premium",
+      status: lang === "my" ? "ကြိုစမ်းကြည့်ရင်း" : "Beta",
+      rawStatus: "Beta",
       path: "/ai-tools/cover-letter",
       iconBg: "bg-emerald/10",
       iconColor: "text-emerald",
-      statusBg: "bg-primary/10",
-      statusColor: "text-primary",
+      statusBg: "bg-amber-500/10",
+      statusColor: "text-amber-600",
     },
     {
       icon: TrendingUp,
       title: lang === "my" ? "ကျွမ်းကျင်မှု ခွဲခြမ်းစိတ်ဖြာ" : "Skill Gap Analysis",
       desc: lang === "my" ? "သင်လိုချင်သော အလုပ်အတွက် မည်သည့် ကျွမ်းကျင်မှုများ လိုအပ်သေးသည်ကို ခွဲခြမ်းစိတ်ဖြာပေးပါမည်" : "Identify skill gaps between your profile and target roles",
-      status: lang === "my" ? "ပရီမီယံ" : "Premium",
-      rawStatus: "Premium",
+      status: lang === "my" ? "ကြိုစမ်းကြည့်ရင်း" : "Beta",
+      rawStatus: "Beta",
       path: "/ai-tools/skill-gap",
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
-      statusBg: "bg-primary/10",
-      statusColor: "text-primary",
+      statusBg: "bg-amber-500/10",
+      statusColor: "text-amber-600",
     },
   ];
 

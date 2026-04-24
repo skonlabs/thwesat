@@ -6,6 +6,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useStartConversation } from "@/hooks/use-start-conversation";
@@ -15,6 +17,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
+
+const TIMEZONES = [
+  "UTC",
+  "Asia/Yangon",
+  "Asia/Bangkok",
+  "Asia/Kuala_Lumpur",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Europe/London",
+  "America/New_York",
+  "America/Los_Angeles",
+];
+
+function formatReceivedAgo(createdAt: string): string {
+  const diffMs = Date.now() - new Date(createdAt).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHrs = Math.floor(diffMins / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  return `${diffDays}d ago`;
+}
 
 const availabilityDays = [
   { day: "Mon", dayMy: "တနင်္လာ" }, { day: "Tue", dayMy: "အင်္ဂါ" }, { day: "Wed", dayMy: "ဗုဒ္ဓဟူး" },
@@ -51,9 +75,12 @@ const MentorDashboard = () => {
     setSearchParams(p, { replace: true });
   };
   const [hourlyRate, setHourlyRate] = useState("30");
+  const [rateError, setRateError] = useState<string | null>(null);
   const [currency, setCurrency] = useState("USD");
+  const [timezone, setTimezone] = useState("Asia/Yangon");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
+  const [showMentorSetupAlert, setShowMentorSetupAlert] = useState(false);
 
   // Decline with counter-proposal state
   const [declineBookingId, setDeclineBookingId] = useState<string | null>(null);
@@ -62,9 +89,18 @@ const MentorDashboard = () => {
   const [proposedTime, setProposedTime] = useState("");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mentor_setup") === "1") {
+      setShowMentorSetupAlert(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
       setCurrency(mentorProfile.currency || "USD");
+      setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
     }
@@ -113,11 +149,20 @@ const MentorDashboard = () => {
 
   const handleSaveRate = async () => {
     if (!user) return;
-    const rate = Math.max(0, Number(hourlyRate) || 0);
-    setHourlyRate(rate.toString());
-    const { error } = await supabase.from("mentor_profiles").update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays }).eq("id", user.id);
+    const rate = Number(hourlyRate);
+    if (rate < 1 || rate > 10000) {
+      setRateError(lang === "my" ? "နှုန်းထား 1 မှ 10000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 1 and 10,000");
+      return;
+    }
+    setRateError(null);
+    const { error } = await supabase
+      .from("mentor_profiles")
+      .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
+      .eq("id", user.id);
     if (error) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+    } else {
+      toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
     }
   };
 
@@ -139,6 +184,15 @@ const MentorDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title="Mentor Dashboard" />
       <div className="px-5">
+        {showMentorSetupAlert && (
+          <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
+            <AlertDescription className="text-sm">
+              {lang === "my"
+                ? "ကြိုဆိုပါသည်! Mentor Setup: ချိန်းဆိုမှုများ လက်ခံနိုင်ရန် အောက်တွင် နာရီချိန်နှုန်းနှင့် ရနိုင်မှုကို သတ်မှတ်ပါ။"
+                : "Welcome! Complete your mentor setup: set your hourly rate and availability below to start accepting bookings."}
+            </AlertDescription>
+          </Alert>
+        )}
         {isProfileIncomplete && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
             <p className="text-sm font-semibold text-foreground">
@@ -201,13 +255,34 @@ const MentorDashboard = () => {
                 <option value="THB">THB (฿)</option>
                 <option value="MYR">MYR (RM)</option>
               </select>
-              <Input type="number" min="0" value={hourlyRate} onChange={e => {
-                const val = e.target.value;
-                if (val === "" || Number(val) >= 0) setHourlyRate(val);
-              }} className="h-10 w-20 rounded-xl text-center" />
+              <Input
+                type="number"
+                min={1}
+                max={10000}
+                value={hourlyRate}
+                onChange={e => {
+                  setHourlyRate(e.target.value);
+                  setRateError(null);
+                }}
+                className={`h-10 w-20 rounded-xl text-center ${rateError ? "border-destructive" : ""}`}
+              />
               <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
               <Button variant="outline" size="sm" className="ml-auto h-10 rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
+            {rateError && <p className="mt-1 text-xs text-destructive">{rateError}</p>}
+          </div>
+          <div className="mt-3">
+            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "Timezone" : "Timezone"}</label>
+            <Select value={timezone} onValueChange={setTimezone}>
+              <SelectTrigger className="h-10 rounded-xl text-xs">
+                <SelectValue placeholder="Select timezone" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIMEZONES.map(tz => (
+                  <SelectItem key={tz} value={tz} className="text-xs">{tz}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </motion.div>
 
@@ -268,10 +343,19 @@ const MentorDashboard = () => {
                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_time}</span>
                     </div>
                     {booking.status === "pending" && (
-                      <div className="mt-3 flex justify-end gap-2">
-                        <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
-                        <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
-                      </div>
+                      <>
+                        {booking.created_at && (
+                          <p className="mt-2 text-[10px] text-muted-foreground">
+                            {lang === "my"
+                              ? `လက်ခံရရှိချိန် ${formatReceivedAgo(booking.created_at)} — ၂၄ နာရီအတွင်း တုံ့ပြန်ပါ`
+                              : `Received ${formatReceivedAgo(booking.created_at)} — respond within 24h.`}
+                          </p>
+                        )}
+                        <div className="mt-3 flex justify-end gap-2">
+                          <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={() => handleDecline(booking.id)}>{lang === "my" ? "ငြင်းပယ်" : "Decline"}</Button>
+                          <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={() => handleConfirm(booking.id)}>{lang === "my" ? "အတည်ပြု" : "Confirm"}</Button>
+                        </div>
+                      </>
                     )}
                     {booking.status === "confirmed" && (
                       <div className="mt-3 flex justify-end">

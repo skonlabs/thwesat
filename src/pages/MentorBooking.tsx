@@ -117,6 +117,28 @@ const MentorBooking = () => {
 
   const handleConfirm = async () => {
     if (!user || !mentorId || !selectedDate || !selectedTopic) return;
+
+    // Double-check slot availability before confirming
+    if (selectedTime) {
+      const { data: conflicting } = await supabase
+        .from("mentor_bookings")
+        .select("id")
+        .eq("mentor_id", mentorId)
+        .eq("scheduled_date", selectedDateStr)
+        .eq("scheduled_time", selectedTime)
+        .not("status", "in", '("cancelled","declined")');
+      if (conflicting && conflicting.length > 0) {
+        toast({
+          title: lang === "my" ? "အချိန် မရနိုင်ပါ" : "Slot unavailable",
+          description: lang === "my"
+            ? "ဤ အချိန်ကို ယခင်တည်း ချိန်းဆိုပြီးသားဖြစ်သည်။ အခြားအချိန်ရွေးပါ။"
+            : "This slot was just booked. Please select another time.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     try {
       const result = await createBooking.mutateAsync({
         mentor_id: mentorId,
@@ -316,7 +338,9 @@ const MentorBooking = () => {
               {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Date"}
             </h2>
             <p className="mb-2 text-[10px] text-muted-foreground">
-              {lang === "my" ? `Mentor Timezone: ${mentorTz}` : `Mentor's timezone: ${mentorTz}`}
+              {lang === "my"
+                ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
+                : `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`}
             </p>
             <div className="mb-5 flex justify-center rounded-xl border border-border bg-card p-2">
               <Calendar
@@ -399,10 +423,28 @@ const MentorBooking = () => {
 
         {step === 2 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="mb-5 rounded-xl border border-border bg-muted p-3 text-center">
-              <p className="text-xs text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော အချိန်" : "Selected"}</p>
-              <p className="text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime} · {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
-              {sessionAmount > 0 && <p className="mt-0.5 text-xs text-primary font-medium">{currency} {sessionAmount.toFixed(2)}</p>}
+            {/* Summary card */}
+            <div className="mb-5 rounded-xl border border-border bg-muted p-4">
+              <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "ချိန်းဆိုမှု အကျဉ်းချုပ်" : "Booking Summary"}</p>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <p><span className="font-medium text-foreground">{lang === "my" ? "Mentor:" : "Mentor:"}</span> {mentorName}</p>
+                <p><span className="font-medium text-foreground">{lang === "my" ? "ရက်:" : "Date:"}</span> {selectedDateDisplay}</p>
+                {selectedTime && <p><span className="font-medium text-foreground">{lang === "my" ? "အချိန်:" : "Time:"}</span> {selectedTime}</p>}
+                <p><span className="font-medium text-foreground">{lang === "my" ? "ကြာချိန်:" : "Duration:"}</span> {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
+                {sessionAmount > 0 && (
+                  <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {currency} {sessionAmount.toFixed(2)}</p>
+                )}
+                <p className="text-[10px] text-muted-foreground/70">
+                  {lang === "my"
+                    ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
+                    : `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`}
+                </p>
+              </div>
+              <p className="mt-3 text-[10px] text-destructive/80">
+                {lang === "my"
+                  ? "Session မတိုင်မီ ၂၄ နာရီအတွင်း ပယ်ဖျက်သည့် ချိန်းဆိုမှုများအတွက် ငွေပြန်မအမ်းပါ။"
+                  : "Cancellations less than 24 hours before the session are non-refundable."}
+              </p>
             </div>
 
             <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အကြောင်းအရာ ရွေးချယ်ပါ" : "Select Topic"}</h2>
@@ -415,10 +457,24 @@ const MentorBooking = () => {
             </div>
 
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ပန်းတိုင် / ရည်ရွယ်ချက်" : "Your Goals"}</h2>
-            <Textarea value={goals} onChange={e => setGoals(e.target.value)} placeholder={lang === "my" ? "ဤ Session မှ ဘာရယူချင်ပါသလဲ?" : "What do you want to achieve from this session?"} className="mb-4 min-h-[60px] rounded-xl border-border bg-card text-sm" />
+            <Textarea
+              value={goals}
+              onChange={e => { if (e.target.value.length <= 500) setGoals(e.target.value); }}
+              maxLength={500}
+              placeholder={lang === "my" ? "ဤ Session မှ ဘာရယူချင်ပါသလဲ?" : "What do you want to achieve from this session?"}
+              className="mb-1 min-h-[60px] rounded-xl border-border bg-card text-sm"
+            />
+            <p className="mb-4 text-right text-[10px] text-muted-foreground">{goals.length} / 500</p>
 
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "မက်ဆေ့ချ် (ရွေးချယ်ပိုင်ခွင့်)" : "Message (Optional)"}</h2>
-            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={lang === "my" ? "Mentor ကို ကြိုတင် ပြောလိုသည့် အကြောင်းအရာ..." : "Anything you'd like to discuss in advance..."} className="min-h-[60px] rounded-xl border-border bg-card text-sm" />
+            <Textarea
+              value={message}
+              onChange={e => { if (e.target.value.length <= 500) setMessage(e.target.value); }}
+              maxLength={500}
+              placeholder={lang === "my" ? "Mentor ကို ကြိုတင် ပြောလိုသည့် အကြောင်းအရာ..." : "Anything you'd like to discuss in advance..."}
+              className="mb-1 min-h-[60px] rounded-xl border-border bg-card text-sm"
+            />
+            <p className="text-right text-[10px] text-muted-foreground">{message.length} / 500</p>
           </motion.div>
         )}
       </div>

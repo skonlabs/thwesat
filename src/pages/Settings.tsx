@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Type, Shield, Bell, Lock, Key, ChevronRight, Receipt,
-  Languages, Eye, Clock, Smartphone, AlertTriangle, Fingerprint, Trash2, LogOut, X, Check
+  Languages, Eye, Clock, Smartphone, AlertTriangle, Fingerprint, Trash2, LogOut, X, Check, Mail
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,10 @@ const Settings = () => {
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
   const [rememberDevice, setRememberDevice] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(() => {
+    // Persist email notification preference in localStorage until backend is wired.
+    return localStorage.getItem("email_notifications_enabled") !== "false";
+  });
 
   // Values
   const [profileVisibility, setProfileVisibility] = useState("members");
@@ -157,6 +161,10 @@ const Settings = () => {
     }
     setShowPasswordChange(false);
     setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    // Sign out after password change to invalidate all existing sessions.
+    // The user is redirected to login with an informational message.
+    await supabase.auth.signOut();
+    navigate("/login", { state: { message: lang === "my" ? "စကားဝှက် ပြောင်းပြီး။ ထပ်မံ Sign In ပြုလုပ်ပါ။" : "Password changed. Please sign in again." } });
   };
 
   const handleDeleteAccount = async () => {
@@ -192,7 +200,13 @@ const Settings = () => {
     setShowDeleteConfirm(false);
     setDeleteText("");
     setDeletePassword("");
-    await signOut();
+    // Immediately sign out so the user is logged out after scheduling deletion.
+    await supabase.auth.signOut();
+    toast({
+      title: lang === "my"
+        ? "အကောင့်ကို ဖျက်ရန် စီစဉ်ပြီး။ Sign Out ပြုလုပ်ပြီးပါပြီ။"
+        : "Your account is scheduled for deletion. You have been signed out.",
+    });
     navigate("/");
   };
 
@@ -244,7 +258,13 @@ const Settings = () => {
           const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v });
           if (v) toast({ title: lang === "my" ? "မကြာမီ ရရှိမည်" : "Coming soon", description: lang === "my" ? "ဘရောင်ဇာ Push အကြောင်းကြားချက် မထွက်ရှိသေးပါ။ ယခုအချိန်တွင် Telegram သို့မဟုတ် အီးမေးလ်မှသာ အကြောင်းကြားမည်။" : "Browser push delivery isn't shipped yet. Notifications will continue via Telegram and email." });
         } },
-        { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "ချိတ်ဆက်မထား" : "Not linked"), action: () => setShowTelegram(true) },
+        { icon: Mail, label: lang === "my" ? "အီးမေးလ် အကြောင်းကြားချက်" : "Email Notifications", description: lang === "my" ? "လျှောက်လွှာ / မက်ဆေ့ချ် / ဘွတ်ကင် ရရှိသောအခါ အီးမေးလ် ပို့ပါ" : "Email me for new applications, messages & bookings", toggle: true, toggleValue: emailNotifications, onToggle: () => {
+          const v = !emailNotifications; setEmailNotifications(v);
+          localStorage.setItem("email_notifications_enabled", String(v));
+          persist({ email_notifications: v } as any);
+        } },
+        // Telegram toggle is Coming soon — disabled with a badge indicator.
+        { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: lang === "my" ? "မကြာမီ ရရှိမည်" : "Coming soon", disabled: true, action: () => {} },
       ],
     },
     {
@@ -302,12 +322,23 @@ const Settings = () => {
               {section.items.map((item, i) => (
                 <button
                   key={i}
-                  onClick={'action' in item ? item.action : undefined}
-                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30"
+                  onClick={!('disabled' in item && item.disabled) && 'action' in item ? item.action : undefined}
+                  disabled={'disabled' in item && !!item.disabled && !('toggle' in item && item.toggle)}
+                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <item.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                   <div className="flex-1">
-                    <p className="text-sm text-foreground">{item.label}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-foreground">{item.label}</p>
+                      {'disabled' in item && item.disabled && !('toggle' in item && item.toggle) && (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {lang === "my" ? "မကြာမီ" : "Coming soon"}
+                        </span>
+                      )}
+                    </div>
+                    {'description' in item && item.description && (
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">{item.description}</p>
+                    )}
                   </div>
                   {'toggle' in item && item.toggle ? (
                     <button
@@ -319,7 +350,7 @@ const Settings = () => {
                   ) : (
                     <>
                       {'value' in item && item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                      {!('disabled' in item && item.disabled) && <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />}
                     </>
                   )}
                 </button>
@@ -327,6 +358,28 @@ const Settings = () => {
             </div>
           </motion.div>
         ))}
+
+        {/* Security note — active sessions & delegate token read-only notice */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4 space-y-2">
+          <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
+            <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+            <p className="text-[11px] text-muted-foreground">
+              {lang === "my"
+                ? "စကားဝှက် ပြောင်းလဲခြင်းသည် စက်အားလုံးကို Sign Out ပြုလုပ်ပါမည်။"
+                : "For security, changing your password signs out all devices."}
+            </p>
+          </div>
+          {activeToken && (!activeToken.permissions || activeToken.permissions.length === 0) && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
+              <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+              <p className="text-[11px] text-muted-foreground">
+                {lang === "my"
+                  ? "Delegate Token များသည် ယခုအချိန်တွင် ဖတ်ရှုရုံသာ ဝင်ရောက်ခွင့် ရရှိမည်ဖြစ်သည်။"
+                  : "Delegate tokens currently provide read-only access."}
+              </p>
+            </div>
+          )}
+        </motion.div>
 
         {/* Danger Zone */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4">

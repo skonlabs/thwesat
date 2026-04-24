@@ -739,18 +739,24 @@ const EditProfile = () => {
               ))}
             </div>
           )}
+          {languages.length >= 5 && (
+            <p className="mb-2 text-[11px] font-semibold text-destructive">
+              5/5 {lang === "my" ? "ဘာသာစကား — အများဆုံး ရောက်နေပြီ" : "languages — limit reached"}
+            </p>
+          )}
           <div ref={langRef} className="relative">
             <div className="relative">
               <Input
                 value={languageSearch}
-                onChange={e => { setLanguageSearch(e.target.value); setShowLanguageDropdown(true); }}
-                onFocus={() => setShowLanguageDropdown(true)}
-                placeholder={lang === "my" ? "ဘာသာစကား ရှာပါ..." : "Search language..."}
-                className="h-10 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30"
+                onChange={e => { if (languages.length < 5) { setLanguageSearch(e.target.value); setShowLanguageDropdown(true); } }}
+                onFocus={() => { if (languages.length < 5) setShowLanguageDropdown(true); }}
+                placeholder={languages.length >= 5 ? (lang === "my" ? "အများဆုံး ရောက်နေပြီ" : "Language limit reached") : (lang === "my" ? "ဘာသာစကား ရှာပါ..." : "Search language...")}
+                disabled={languages.length >= 5}
+                className="h-10 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30 disabled:opacity-50"
               />
               <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            {showLanguageDropdown && filteredLanguages.length > 0 && (
+            {showLanguageDropdown && filteredLanguages.length > 0 && languages.length < 5 && (
               <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
                 {filteredLanguages.map(l => (
                   <button key={l} onClick={() => addLanguage(l)} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-foreground hover:bg-muted">
