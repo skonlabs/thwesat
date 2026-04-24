@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,6 +20,8 @@ import { shareJobLink } from "@/lib/share-job";
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromSaved = searchParams.get("from") === "saved";
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -64,6 +67,7 @@ const JobDetail = () => {
   const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [parsingCvId, setParsingCvId] = useState<string | null>(null);
 
   // Fetch user's CV documents
   const { data: cvDocuments = [] } = useQuery({
@@ -117,10 +121,21 @@ const JobDetail = () => {
     enabled: !!user && showApplyModal,
   });
 
-  // A withdrawn or rejected application should NOT block the user from re-applying.
+  // Application throttle: find any application for this job
   const myApplication = id ? applications.find((a: any) => a.job_id === id) : null;
-  const applied = !!myApplication && !["withdrawn", "rejected"].includes((myApplication as any).status);
+  // "active" means NOT withdrawn/rejected — user cannot re-apply
+  const hasActiveApplication = !!myApplication && !["withdrawn", "rejected"].includes((myApplication as any)?.status);
+  // Previously applied but was withdrawn/rejected — allow re-apply with different label
+  const hadPreviousApplication = !!myApplication && ["withdrawn", "rejected"].includes((myApplication as any)?.status);
   const saved = id ? savedJobIds.includes(id) : false;
+
+  // Mutual exclusivity: clear selectedGeneratedResumeId when selectedCvId is set and vice versa
+  useEffect(() => {
+    if (selectedCvId) setSelectedGeneratedResumeId(null);
+  }, [selectedCvId]);
+  useEffect(() => {
+    if (selectedGeneratedResumeId) setSelectedCvId(null);
+  }, [selectedGeneratedResumeId]);
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
     friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
@@ -196,7 +211,7 @@ const JobDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
         <div className="px-5">
           <div className="space-y-4">
             <div className="flex items-start gap-4">
@@ -254,7 +269,7 @@ const JobDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Job header */}

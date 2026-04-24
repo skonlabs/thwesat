@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, AlertTriangle, Clock, Briefcase, Pause, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Clock, Briefcase, Pause, Pencil, Trash2, Square, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
@@ -41,6 +41,11 @@ const AdminJobQueue = () => {
   const [checked, setChecked] = useState<Record<number, boolean>>({});
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  // Bulk selection state
+  const [selectedJobIds, setSelectedJobIds] = useState<Set<string>>(new Set());
+  const [showBulkReject, setShowBulkReject] = useState(false);
+  const [bulkRejectionReason, setBulkRejectionReason] = useState("");
+
   // Fetch ALL jobs for admin (not just pending)
   const { data: allJobs = [], isLoading } = useQuery({
     queryKey: ["admin-all-jobs"],
@@ -58,6 +63,9 @@ const AdminJobQueue = () => {
 
   const selected = allJobs.find((j: any) => j.id === selectedId);
 
+  // All checklist items ticked
+  const allChecked = checklist.every((_, i) => !!checked[i]);
+
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
       // Get job info before update for notification
@@ -73,7 +81,7 @@ const AdminJobQueue = () => {
         const isApproved = status === "active";
         await supabase.from("notifications").insert({
           user_id: job.employer_id,
-          notification_type: "job",
+          notification_type: isApproved ? "job" : "job_rejected",
           title: isApproved ? `Your job "${job.title}" has been approved!` : `Your job "${job.title}" was rejected`,
           title_my: isApproved ? `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ အတည်ပြုပြီး!` : `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ ငြင်းပယ်ခံရပြီ`,
           description: isApproved ? "Your job listing is now live and visible to job seekers." : (rejectionReason || "Your job listing did not meet our guidelines."),
@@ -92,15 +100,52 @@ const AdminJobQueue = () => {
 
   const handleApprove = (id: string) => {
     updateJob.mutate({ id, status: "active" }, {
-      onSuccess: () => { setSelectedId(null); },
+      onSuccess: () => { setSelectedId(null); setChecked({}); },
     });
   };
 
   const handleReject = () => {
-    if (!selectedId) return;
+    if (!selectedId || !rejectionReason) return;
     updateJob.mutate({ id: selectedId, status: "rejected", rejectionReason }, {
-      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); },
+      onSuccess: () => { setSelectedId(null); setShowReject(false); setRejectionReason(""); setChecked({}); },
     });
+  };
+
+  // Bulk actions
+  const handleBulkApprove = async () => {
+    const ids = Array.from(selectedJobIds);
+    await Promise.all(ids.map(id => updateJob.mutateAsync({ id, status: "active" })));
+    setSelectedJobIds(new Set());
+    toast.success(lang === "my" ? `${ids.length} ခု အတည်ပြုပြီး` : `${ids.length} jobs approved`);
+  };
+
+  const handleBulkReject = async () => {
+    if (!bulkRejectionReason) return;
+    const ids = Array.from(selectedJobIds);
+    await Promise.all(ids.map(id => updateJob.mutateAsync({ id, status: "rejected", rejectionReason: bulkRejectionReason })));
+    setSelectedJobIds(new Set());
+    setShowBulkReject(false);
+    setBulkRejectionReason("");
+    toast.success(lang === "my" ? `${ids.length} ခု ငြင်းပယ်ပြီး` : `${ids.length} jobs rejected`);
+  };
+
+  const toggleJobSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedJobIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
+  };
+
+  const isAllSelected = jobs.length > 0 && jobs.every((j: any) => selectedJobIds.has(j.id));
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedJobIds(new Set());
+    } else {
+      setSelectedJobIds(new Set(jobs.map((j: any) => j.id)));
+    }
   };
 
   const handleDeleteJob = async (jobId: string) => {
@@ -173,63 +218,106 @@ const AdminJobQueue = () => {
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
-          <div className="space-y-3">
-            {jobs.map((job: any, i: number) => {
-              const sc = statusConfig[job.status] || statusConfig.pending;
-              return (
-                <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card overflow-hidden">
-                  <button type="button" onClick={() => setSelectedId(job.id)} className="w-full p-4 text-left transition-colors hover:bg-muted/20 active:bg-muted/30">
-                    <div className="flex items-start justify-between">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
-                        <p className="text-[11px] text-muted-foreground">{job.company}</p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 ml-2">
-                        <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
-                          <sc.icon className="h-3 w-3" strokeWidth={1.5} />
-                          {lang === "my" ? sc.label.my : sc.label.en}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                      {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
-                      {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
-                    </div>
-                  </button>
-                  <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-2">
-                    <button type="button" onClick={(e) => { e.stopPropagation(); navigate(`/admin/edit-job/${job.id}`); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors">
-                      <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
-                      <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
-                    </button>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(job.id); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors">
-                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                      <span>{lang === "my" ? "ဖျက်" : "Delete"}</span>
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
-            {jobs.length === 0 && (
-              <div className="flex flex-col items-center py-16 text-center">
-                <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                <p className="text-sm font-medium text-foreground">
-                  {filter === "pending"
-                    ? (lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!")
-                    : (lang === "my" ? "အလုပ်ခေါ်စာ မရှိပါ" : "No jobs found")}
-                </p>
+          <>
+            {/* Bulk action bar */}
+            {jobs.length > 0 && (
+              <div className="mb-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAll}
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
+                >
+                  {isAllSelected
+                    ? <CheckSquare className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                    : <Square className="h-4 w-4" strokeWidth={1.5} />}
+                  {lang === "my" ? "အားလုံးရွေး" : "Select all"}
+                </button>
+                {selectedJobIds.size > 0 && (
+                  <>
+                    <span className="text-xs text-muted-foreground">{selectedJobIds.size} {lang === "my" ? "ခု ရွေးပြီး" : "selected"}</span>
+                    <Button size="sm" variant="default" className="ml-auto rounded-lg text-xs py-1 h-7" onClick={handleBulkApprove} disabled={updateJob.isPending}>
+                      <CheckCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "အားလုံး အတည်ပြု" : "Bulk Approve"}
+                    </Button>
+                    <Button size="sm" variant="destructive" className="rounded-lg text-xs py-1 h-7" onClick={() => setShowBulkReject(true)} disabled={updateJob.isPending}>
+                      <XCircle className="mr-1 h-3.5 w-3.5" /> {lang === "my" ? "အားလုံး ငြင်းပယ်" : "Bulk Reject"}
+                    </Button>
+                  </>
+                )}
               </div>
             )}
-          </div>
+
+            <div className="space-y-3">
+              {jobs.map((job: any, i: number) => {
+                const sc = statusConfig[job.status] || statusConfig.pending;
+                const isSelected = selectedJobIds.has(job.id);
+                return (
+                  <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-xl border bg-card overflow-hidden transition-colors ${isSelected ? "border-primary" : "border-border"}`}>
+                    <div className="flex items-start">
+                      {/* Row checkbox */}
+                      <button
+                        type="button"
+                        onClick={(e) => toggleJobSelection(job.id, e)}
+                        className="flex-shrink-0 p-4 pr-2 text-muted-foreground hover:text-primary transition-colors"
+                        aria-label="Select job"
+                      >
+                        {isSelected
+                          ? <CheckSquare className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                          : <Square className="h-4 w-4" strokeWidth={1.5} />}
+                      </button>
+                      <button type="button" onClick={() => setSelectedId(job.id)} className="flex-1 p-4 pl-2 text-left transition-colors hover:bg-muted/20 active:bg-muted/30">
+                        <div className="flex items-start justify-between">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-semibold text-foreground truncate">{job.title}</h3>
+                            <p className="text-[11px] text-muted-foreground">{job.company}</p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1 ml-2">
+                            <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
+                              <sc.icon className="h-3 w-3" strokeWidth={1.5} />
+                              {lang === "my" ? sc.label.my : sc.label.en}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">{formatTime(job.created_at)}</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                          {job.salary_min && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">${job.salary_min}-${job.salary_max}</span>}
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.job_type}</span>
+                          <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{job.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
+                          {job.requires_embassy && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-destructive">Embassy Required</span>}
+                        </div>
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-2">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); navigate(`/admin/edit-job/${job.id}`); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted active:bg-muted transition-colors">
+                        <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        <span>{lang === "my" ? "ပြင်ဆင်" : "Edit"}</span>
+                      </button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(job.id); }} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 active:bg-destructive/10 transition-colors">
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        <span>{lang === "my" ? "ဖျက်" : "Delete"}</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {jobs.length === 0 && (
+                <div className="flex flex-col items-center py-16 text-center">
+                  <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                  <p className="text-sm font-medium text-foreground">
+                    {filter === "pending"
+                      ? (lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ" : "All caught up!")
+                      : (lang === "my" ? "အလုပ်ခေါ်စာ မရှိပါ" : "No jobs found")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
 
       {/* Review Sheet */}
       <AnimatePresence>
         {selected && !showReject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => { setSelectedId(null); setChecked({}); }}>
             <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h2 className="mb-1 text-lg font-bold text-foreground">{selected.title}</h2>
@@ -266,9 +354,14 @@ const AdminJobQueue = () => {
                       </label>
                     ))}
                   </div>
+                  {!allChecked && (
+                    <p className="mb-3 text-center text-xs text-muted-foreground">
+                      {lang === "my" ? "အတည်ပြုရန် အချက်အားလုံး စစ်ဆေးပြီးဖြစ်ရမည်" : "Check all items above to approve"}
+                    </p>
+                  )}
                   <div className="flex gap-3">
                     <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowReject(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ငြင်းပယ်" : "Reject"}</Button>
-                    <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => handleApprove(selected.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
+                    <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={!allChecked || updateJob.isPending} onClick={() => handleApprove(selected.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
                   </div>
                 </>
               )}
@@ -296,10 +389,27 @@ const AdminJobQueue = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowReject(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
               <h3 className="mb-3 text-base font-bold text-foreground">{lang === "my" ? "ငြင်းပယ်ရသည့် အကြောင်းရင်း" : "Rejection Reason"}</h3>
-              <Textarea value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} placeholder={lang === "my" ? "အကြောင်းရင်း ရေးပါ..." : "Explain why..."} className="mb-3 min-h-[80px] rounded-xl" />
+              <Textarea value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} placeholder={lang === "my" ? "အကြောင်းရင်း ရေးပါ... (လိုအပ်သည်)" : "Explain why... (required)"} className="mb-3 min-h-[80px] rounded-xl" />
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowReject(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
+                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason || updateJob.isPending}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bulk Reject Modal */}
+      <AnimatePresence>
+        {showBulkReject && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowBulkReject(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-1 text-base font-bold text-foreground">{lang === "my" ? "အားလုံး ငြင်းပယ်ရန်" : "Bulk Reject"}</h3>
+              <p className="mb-3 text-xs text-muted-foreground">{selectedJobIds.size} {lang === "my" ? "ခု ငြင်းပယ်မည်" : "jobs will be rejected"}</p>
+              <Textarea value={bulkRejectionReason} onChange={e => setBulkRejectionReason(e.target.value)} placeholder={lang === "my" ? "အကြောင်းရင်း ရေးပါ... (လိုအပ်သည်)" : "Explain why... (required)"} className="mb-3 min-h-[80px] rounded-xl" />
+              <div className="flex gap-3">
+                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setShowBulkReject(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleBulkReject} disabled={!bulkRejectionReason || updateJob.isPending}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject All"}</Button>
               </div>
             </motion.div>
           </motion.div>
