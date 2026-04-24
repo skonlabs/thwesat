@@ -480,8 +480,8 @@ const JobDetail = () => {
                                 const storagePath = doc.file_url.split('/cv-documents/').pop();
                                 if (!storagePath) return;
 
+                                setParsingCvId(doc.id);
                                 setPreviewTitle(doc.file_name);
-                                setPreviewContent(lang === "my" ? "CV ကို ဖတ်နေသည်..." : "Loading CV...");
 
                                 try {
                                   const { data, error } = await supabase.functions.invoke("parse-cv", {
@@ -514,9 +514,18 @@ const JobDetail = () => {
                                 } catch {
                                   setPreviewContent(null);
                                   toast({ title: lang === "my" ? "CV ကို မကြည့်ရှုနိုင်ပါ" : "Could not preview CV", variant: "destructive" });
+                                } finally {
+                                  setParsingCvId(null);
                                 }
                               }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
-                                <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                {parsingCvId === doc.id ? (
+                                  <span className="flex items-center gap-1">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-[10px]">{lang === "my" ? "ဖတ်နေ..." : "Parsing..."}</span>
+                                  </span>
+                                ) : (
+                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                )}
                               </button>
                             )}
                             {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
@@ -621,10 +630,32 @@ const JobDetail = () => {
                   </div>
                 )}
 
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="mt-1 block w-full">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full opacity-60 cursor-not-allowed"
+                          disabled
+                        >
+                          <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                          {lang === "my" ? "ဖန်တီးရန် (AI – မကြာမီ)" : "Generate (AI – coming soon)"}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-center">
+                      {lang === "my"
+                        ? "AI အလုပ်လျှောက်လွှာ ဖန်တီးခြင်း မကြာမီ ရရှိမည်။ ကိုယ်တိုင် ရေးနိုင်ပါသည်။"
+                        : "AI cover letter generation is coming soon. You can still write your cover letter manually."}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-1 w-full"
+                  className="mt-2 w-full"
                   onClick={() => {
                     if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
                     else { setCoverLetterMode("manual"); }
@@ -763,13 +794,15 @@ const JobDetail = () => {
               {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
             </Button>
           )}
-          {applied ? (
+          {hasActiveApplication ? (
             <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
-              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
+              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "You have already applied to this job"}
             </Button>
           ) : (
             <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
-              {lang === "my" ? "လျှောက်ထားရန်" : "Apply"}
+              {hadPreviousApplication
+                ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
+                : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
             </Button>
           )}
         </div>

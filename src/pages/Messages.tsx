@@ -74,7 +74,7 @@ const Messages = () => {
           </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
             {conversations.length === 0
-              ? (lang === "my" ? "Mentor သို့မဟုတ် အလုပ်ရှင်ကို ဆက်သွယ်ပါ" : "Start a conversation with a mentor or employer")
+              ? (lang === "my" ? "အလုပ်ကြော်ငြာဖော်ပြသူ သို့မဟုတ် Mentor ကို မက်ဆေ့ချ်ပို့ပြီး စကားဝိုင်း စတင်ပါ" : "Start a conversation by messaging a job poster or mentor.")
               : (lang === "my" ? "အခြားစကားလုံးဖြင့် ပြန်ရှာကြည့်ပါ" : "Try a different search term")}
           </p>
           {conversations.length === 0 && (

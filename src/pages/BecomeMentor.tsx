@@ -1,6 +1,16 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Users, DollarSign, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
+import { GraduationCap, Users, DollarSign, Calendar, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useRole } from "@/hooks/use-role";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +57,7 @@ const BecomeMentor = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleBecomeMentor = async () => {
     if (!user) {
@@ -84,13 +95,13 @@ const BecomeMentor = () => {
           title_my: "🎓 Mentor အဖြစ် ကြိုဆိုပါသည်!",
           description: "Set your availability and rate to start receiving bookings.",
           description_my: "Booking များ လက်ခံရန် သင့်အချိန်နှင့် နှုန်းထားကို သတ်မှတ်ပါ။",
-          link_path: "/mentors/dashboard",
+          link_path: "/dashboard?mentor_setup=1",
         });
       }
 
       setRole("mentor");
       toast.success(lang === "my" ? "လမ်းညွှန်သူ အဖြစ် ပြောင်းလဲပြီးပါပြီ!" : "You're now a mentor!");
-      navigate("/mentors/dashboard");
+      navigate("/dashboard?mentor_setup=1");
     } catch {
       toast.error(lang === "my" ? "အမှားတစ်ခု ဖြစ်ပွားပါသည်" : "Something went wrong");
     } finally {
@@ -178,12 +189,15 @@ const BecomeMentor = () => {
       {/* Sticky CTA */}
       <div className="fixed inset-x-0 bottom-16 z-40 mx-auto max-w-lg border-t border-border bg-card px-5 py-4">
         <Button
-          onClick={handleBecomeMentor}
+          onClick={() => setConfirmOpen(true)}
           disabled={loading}
           className="w-full gap-2 rounded-xl text-sm font-semibold"
         >
           {loading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {lang === "my" ? "Mentor ပရိုဖိုင် ပြင်ဆင်နေသည်..." : "Setting up your mentor profile..."}
+            </>
           ) : (
             <>
               <CheckCircle2 className="h-4 w-4" />
@@ -193,6 +207,33 @@ const BecomeMentor = () => {
           )}
         </Button>
       </div>
+
+      {/* Confirmation AlertDialog */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {lang === "my" ? "Mentor ဖြစ်ရန် အတည်ပြုရန်" : "Ready to become a mentor?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "အတည်ပြုပြီးနောက် သင့်နှုန်းထားနှင့် ရနိုင်ချိန်ကို သတ်မှတ်နိုင်ပါမည်။"
+                : "You'll be able to set your rate and availability after confirming."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmOpen(false);
+                handleBecomeMentor();
+              }}
+            >
+              {lang === "my" ? "အတည်ပြုမည်" : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

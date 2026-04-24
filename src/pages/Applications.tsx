@@ -202,7 +202,14 @@ const Applications = () => {
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Clock className="h-3 w-3" /> {app.created_at ? new Date(app.created_at).toLocaleDateString() : ""}
                     </span>
-                    {app.interview_date && (
+                    {app.status === "interview" && (app.interview_scheduled_at || app.interview_date) && (
+                      <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                        <Calendar className="h-3 w-3" />
+                        {lang === "my" ? "အင်တာဗျူး: " : "Interview: "}
+                        {new Date(app.interview_scheduled_at || app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    )}
+                    {app.status !== "interview" && app.interview_date && (
                       <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                         <Calendar className="h-3 w-3" /> {new Date(app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
@@ -294,7 +301,16 @@ const Applications = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setConfirmAccept(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
               <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ကမ်းလှမ်းမှု လက်ခံမှာ သေချာပါသလား?" : "Accept this offer?"}</h3>
-              <p className="mb-5 text-xs text-muted-foreground">{lang === "my" ? "လက်ခံပြီးပါက အခြေအနေသည် 'ခန့်အပ်ပြီး' ဖြစ်သွားပါမည်။" : "Once accepted, the application status will be marked as Placed."}</p>
+              <p className="mb-3 text-xs text-muted-foreground">
+                {lang === "my"
+                  ? "လက်ခံပြီးပါက အခြေအနေသည် 'ခန့်အပ်ပြီး' ဖြစ်သွားပါမည်။"
+                  : "Once accepted, the application status will be marked as Placed."}
+              </p>
+              <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-xs text-foreground/80">
+                {lang === "my"
+                  ? "သင် လက်ခံခြင်းဖြင့် ခန့်အပ်မှုကို အတည်ပြုပါသည်။ သင့်အလုပ်ရှင်သည် ပေးချေငွေ မှတ်တမ်းတင်ပါမည်။ ဆက်သွားမည်လား?"
+                  : "By accepting, you confirm your placement. Your employer will record a placement fee. Confirm acceptance?"}
+              </div>
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleAcceptOffer}>{lang === "my" ? "လက်ခံ" : "Accept"}</Button>

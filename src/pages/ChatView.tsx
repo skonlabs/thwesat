@@ -26,6 +26,16 @@ const ChatView = () => {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
   const [pickerForMsgId, setPickerForMsgId] = useState<string | null>(null);
 
+  const CHAR_LIMIT = 2000;
+
+  // Restore the user's last-used translation language for this conversation from localStorage.
+  // This means they don't have to re-select the language every visit.
+  const langPrefKey = conversationId ? `chat_lang_pref_${conversationId}` : null;
+  const [preferredTranslateLang, setPreferredTranslateLang] = useState<string | null>(() => {
+    if (!langPrefKey) return null;
+    return localStorage.getItem(langPrefKey);
+  });
+
   const queryClient = useQueryClient();
   const { data: messages = [], isLoading } = useMessages(conversationId);
   const sendMessage = useSendMessage();
@@ -44,13 +54,13 @@ const ChatView = () => {
     enabled: !!conversationId && !!user,
   });
 
+  // Auto-scroll to the bottom whenever new messages arrive (watches array length).
+  // First paint jumps instantly; subsequent updates animate smoothly.
   useEffect(() => {
     if (!messages.length) return;
-    // First paint: jump instantly to the bottom so the user lands at the latest message
-    // without watching a smooth scroll animation. Subsequent updates animate gently.
     bottomRef.current?.scrollIntoView({ behavior: didInitialScroll.current ? "smooth" : "auto" });
     didInitialScroll.current = true;
-  }, [messages]);
+  }, [messages.length]);
 
   // Mark messages as read whenever new messages arrive in this conversation
   useEffect(() => {
