@@ -614,23 +614,37 @@ const Community = () => {
                                                 </button>
                                               )}
                                               <button
-                                                onClick={async () => {
+                                                 onClick={async () => {
                                                   setOpenCommentMenuId(null);
                                                   if (!user) return;
-                                                  const { error } = await supabase.from("notifications").insert({
-                                                    user_id: c.author_id,
-                                                    notification_type: "comment_report",
-                                                    title: "Comment reported",
-                                                    title_my: "မှတ်ချက် တိုင်ကြားခံရသည်",
-                                                    description: `A comment has been reported: "${c.content?.slice(0, 80)}"`,
-                                                    description_my: `မှတ်ချက်တစ်ခု တိုင်ကြားခံရသည်: "${c.content?.slice(0, 80)}"`,
-                                                    link_path: "/moderator",
+                                                  // File a scam_report so it shows in the moderation queue,
+                                                  // and notify staff (NOT the comment author).
+                                                  const { error: reportErr } = await supabase.from("scam_reports").insert({
+                                                    reported_entity_id: c.id,
+                                                    reported_entity_type: "comment",
+                                                    reporter_id: user.id,
+                                                    reason: "Community comment report",
+                                                    description: c.content?.slice(0, 200) || "",
                                                   });
-                                                  if (error) {
+                                                  if (reportErr) {
                                                     toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
-                                                  } else {
-                                                    toast.success(lang === "my" ? "တိုင်ကြားမှု တင်ပြပြီး" : "Report submitted");
+                                                    return;
                                                   }
+                                                  const { data: staff } = await supabase.from("user_roles").select("user_id, role").in("role", ["admin", "moderator"]);
+                                                  if (staff && staff.length) {
+                                                    await supabase.from("notifications").insert(
+                                                      staff.map((s: { user_id: string }) => ({
+                                                        user_id: s.user_id,
+                                                        notification_type: "moderation",
+                                                        title: "🚩 Comment reported",
+                                                        title_my: "🚩 မှတ်ချက် တိုင်ကြားခံရသည်",
+                                                        description: `A comment has been reported: "${c.content?.slice(0, 80)}"`,
+                                                        description_my: `မှတ်ချက်တစ်ခု တိုင်ကြားခံရသည်: "${c.content?.slice(0, 80)}"`,
+                                                        link_path: "/moderator",
+                                                      })),
+                                                    );
+                                                  }
+                                                  toast.success(lang === "my" ? "တိုင်ကြားမှု တင်ပြပြီး" : "Report submitted");
                                                 }}
                                                 className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted"
                                               >
