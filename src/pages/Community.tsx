@@ -20,7 +20,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
-import { sanitizeHtml } from "@/lib/sanitize";
 
 const PAGE_SIZE = 20;
 
