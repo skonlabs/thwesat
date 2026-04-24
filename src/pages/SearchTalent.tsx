@@ -4,6 +4,7 @@ import { Search, MapPin, Star, SlidersHorizontal, X, Check } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import PageHeader from "@/components/PageHeader";
@@ -31,7 +32,7 @@ const SearchTalent = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
-  const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker" || p.primary_role === "mentor");
+  const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker");
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeSkill, setActiveSkill] = useSearchParamState("skill", "All");
   const [showFilters, setShowFilters] = useState(false);
@@ -40,6 +41,7 @@ const SearchTalent = () => {
   const [filterAvailableRaw, setFilterAvailableRaw] = useSearchParamState("avail", "0");
   const filterAvailable = filterAvailableRaw === "1";
   const setFilterAvailable = (v: boolean) => setFilterAvailableRaw(v ? "1" : "0");
+  const [sortOrder, setSortOrder] = useState<"newest" | "name_az" | "senior_first">("newest");
 
   const activeFilterCount = [filterExp !== "all", filterLocation !== "all", filterAvailable].filter(Boolean).length;
 
@@ -62,6 +64,22 @@ const SearchTalent = () => {
     const matchesLoc = filterLocation === "all" || (p.location || "").toLowerCase().includes(filterLocation.toLowerCase());
     const matchesAvail = !filterAvailable || p.remote_ready;
     return matchesSearch && matchesSkill && matchesExp && matchesLoc && matchesAvail;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortOrder === "name_az") return (a.display_name || "").localeCompare(b.display_name || "");
+    if (sortOrder === "senior_first") {
+      const seniorScore = (exp: string | null) => {
+        if (!exp) return 0;
+        const l = exp.toLowerCase();
+        if (l.includes("senior") || l.includes("lead") || l.includes("principal")) return 3;
+        if (l.includes("mid") || l.includes("intermediate")) return 2;
+        return 1;
+      };
+      return seniorScore(b.experience) - seniorScore(a.experience);
+    }
+    // newest first — fall through to original order (already sorted by query)
+    return 0;
   });
 
   const clearFilters = () => {
@@ -104,7 +122,19 @@ const SearchTalent = () => {
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (
           <>
-            <p className="mb-3 text-xs text-muted-foreground">{filtered.length} {lang === "my" ? "ဦး တွေ့ရှိ" : "talent found"}</p>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">{filtered.length} {lang === "my" ? "ဦး တွေ့ရှိ" : "talent found"}</p>
+              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as typeof sortOrder)}>
+                <SelectTrigger className="h-8 w-36 rounded-lg text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">{lang === "my" ? "အသစ်ဆုံး ဦးစွာ" : "Newest first"}</SelectItem>
+                  <SelectItem value="name_az">{lang === "my" ? "နာမည် A-Z" : "Name A-Z"}</SelectItem>
+                  <SelectItem value="senior_first">{lang === "my" ? "အတွေ့အကြုံမြင့် ဦးစွာ" : "Senior first"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Filter Panel */}
             <AnimatePresence>
@@ -164,7 +194,7 @@ const SearchTalent = () => {
             </AnimatePresence>
 
             <div className="space-y-3">
-              {filtered.map((talent, i) => (
+              {sorted.map((talent, i) => (
                 <motion.button
                   key={talent.id}
                   initial={{ opacity: 0, y: 6 }}
