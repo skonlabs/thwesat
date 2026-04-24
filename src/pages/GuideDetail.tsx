@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TRANSLATE_LANGUAGES } from "@/lib/translate-languages";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 /** Render markdown-like guide content as formatted React elements */
 function renderGuideContent(raw: string) {
@@ -78,14 +79,74 @@ function renderGuideContent(raw: string) {
   return elements;
 }
 
+/**
+ * issue #51: extended inline renderer supporting:
+ *   **bold**, *italic*, _italic_, `code`, [text](url) links
+ *
+ * Splits on each pattern in a single pass to preserve correct ordering.
+ * Link URLs are validated to start with http/https for safety.
+ * All rendered output goes through React JSX — no dangerouslySetInnerHTML used here.
+ */
 function renderInline(text: string): React.ReactNode {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+  // Combined regex: captures bold, italic (*/_), inline code, and markdown links.
+  // Order matters: bold (**) must come before italic (*) so ** isn't treated as two *.
+  const tokenRe = /(\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_|`[^`]+`|\[[^\]]+\]\(https?:\/\/[^)]+\))/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let i = 0;
+
+  while ((match = tokenRe.exec(text)) !== null) {
+    const [token] = match;
+    // Append any plain text before this token.
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
     }
-    return part;
-  });
+
+    if (token.startsWith("**") && token.endsWith("**")) {
+      // Bold
+      parts.push(<strong key={i++} className="font-semibold text-foreground">{token.slice(2, -2)}</strong>);
+    } else if ((token.startsWith("*") && token.endsWith("*")) || (token.startsWith("_") && token.endsWith("_"))) {
+      // Italic
+      parts.push(<em key={i++} className="italic">{token.slice(1, -1)}</em>);
+    } else if (token.startsWith("`") && token.endsWith("`")) {
+      // Inline code
+      parts.push(<code key={i++} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">{token.slice(1, -1)}</code>);
+    } else if (token.startsWith("[")) {
+      // Markdown link: [text](url) — URL is already validated as http/https by the regex.
+      const labelMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/);
+      if (labelMatch) {
+        const [, label, href] = labelMatch;
+        // Sanitize href with the allowlist from sanitizeHtml — since the regex already
+        // constrains to http/https, this is a belt-and-suspenders check.
+        const safeHref = /^https?:\/\//i.test(href) ? href : "";
+        parts.push(
+          <a
+            key={i++}
+            href={safeHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline underline-offset-2"
+          >
+            {label}
+          </a>
+        );
+      } else {
+        parts.push(token);
+      }
+    } else {
+      parts.push(token);
+    }
+
+    lastIndex = match.index + token.length;
+  }
+
+  // Append any remaining plain text.
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length === 1 ? parts[0] : parts;
 }
 
 const GuideDetail = () => {

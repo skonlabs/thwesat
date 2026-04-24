@@ -14,6 +14,7 @@ import PageHeader from "@/components/PageHeader";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
@@ -44,6 +45,7 @@ const EmployerApplications = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { lang } = useLanguage();
+  const { toast: toastUI } = useToast();
   const jobIdParam = searchParams.get("jobId") || undefined;
   const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
@@ -52,6 +54,9 @@ const EmployerApplications = () => {
   const [showReject, setShowReject] = useState(false);
   const [showPlacement, setShowPlacement] = useState(false);
   const [showPlacementConfirm, setShowPlacementConfirm] = useState(false);
+  const [showInterviewDate, setShowInterviewDate] = useState(false);
+  const [interviewDateTime, setInterviewDateTime] = useState("");
+  const [pendingInterviewId, setPendingInterviewId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [otherReasonText, setOtherReasonText] = useState("");
@@ -110,8 +115,35 @@ const EmployerApplications = () => {
   };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
+    // Issue #8: for interview status, collect a date/time first
+    if (newStatus === "interview") {
+      setPendingInterviewId(id);
+      // Default to tomorrow 10:00
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      d.setHours(10, 0, 0, 0);
+      setInterviewDateTime(d.toISOString().slice(0, 16));
+      setShowInterviewDate(true);
+      return;
+    }
     try {
       await updateStatus.mutateAsync({ id, status: newStatus });
+      setSelectedId(null);
+    } catch (err: any) {
+      toast.error((lang === "my" ? "အခြေအနေ ပြောင်း၍ မရပါ: " : "Failed to update status: ") + (err?.message || "unknown"));
+    }
+  };
+
+  const handleConfirmInterview = async () => {
+    if (!pendingInterviewId) return;
+    try {
+      const isoDate = interviewDateTime
+        ? new Date(interviewDateTime).toISOString()
+        : new Date().toISOString();
+      await updateStatus.mutateAsync({ id: pendingInterviewId, status: "interview", interviewDate: isoDate });
+      setShowInterviewDate(false);
+      setPendingInterviewId(null);
+      setInterviewDateTime("");
       setSelectedId(null);
     } catch (err: any) {
       toast.error((lang === "my" ? "အခြေအနေ ပြောင်း၍ မရပါ: " : "Failed to update status: ") + (err?.message || "unknown"));
@@ -138,9 +170,10 @@ const EmployerApplications = () => {
 
   const handlePlacement = async () => {
     if (!selectedId) return;
-    const salary = parseInt(placementSalary, 10);
-    if (!Number.isFinite(salary) || salary <= 0) {
-      toast.error(lang === "my" ? "လစာ မှန်ကန်စွာ ထည့်ပါ" : "Enter a valid salary");
+    // Issue #14: strict salary parser
+    const salary = Number(placementSalary);
+    if (!Number.isFinite(salary) || salary <= 0 || !placementSalary.match(/^\d+(\.\d+)?$/)) {
+      toastUI({ title: "Invalid salary", description: "Please enter a valid positive number.", variant: "destructive" });
       return;
     }
     try {
@@ -360,7 +393,7 @@ const EmployerApplications = () => {
                 <div className="flex flex-wrap gap-2">
                   {statusFlow.filter(s => s !== selectedStatus).map(s => (
                     <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
-                      onClick={() => { if (s === "placed") setShowPlacement(true); else handleStatusUpdate(selected.id, s); }}>
+                      onClick={() => { if (s === "placed") setShowPlacement(true); else if (s === "interview") handleStatusUpdate(selected.id, "interview"); else handleStatusUpdate(selected.id, s); }}>
                       {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}
                     </Button>
                   ))}
@@ -402,13 +435,17 @@ const EmployerApplications = () => {
                   {lang === "my" ? "အခြား" : "Other"}
                 </button>
                 {rejectionReason === "__other__" && (
-                  <Input
-                    autoFocus
-                    value={otherReasonText}
-                    onChange={e => setOtherReasonText(e.target.value)}
-                    placeholder={lang === "my" ? "အကြောင်းရင်း ထည့်ပါ..." : "Enter reason..."}
-                    className="h-10 rounded-xl text-xs"
-                  />
+                  <div>
+                    <Input
+                      autoFocus
+                      value={otherReasonText}
+                      onChange={e => setOtherReasonText(e.target.value)}
+                      placeholder={lang === "my" ? "အကြောင်းရင်း ထည့်ပါ..." : "Enter reason..."}
+                      className="h-10 rounded-xl text-xs"
+                      maxLength={500}
+                    />
+                    <p className="mt-1 text-right text-[10px] text-muted-foreground">{otherReasonText.length} / 500</p>
+                  </div>
                 )}
               </div>
               <div className="flex gap-3">

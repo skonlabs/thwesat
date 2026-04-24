@@ -18,6 +18,10 @@ const AppRoleGuard = ({ children, allowedRoles }: AppRoleGuardProps) => {
   const { role } = useRole();
   const effectiveRole = userRoles.includes(role) ? role : userRoles[0];
 
+  if (!allowedRoles || allowedRoles.length === 0) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">

@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const PAGE_SIZE = 20;
 
@@ -124,8 +125,10 @@ const Community = () => {
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmCommentId, setDeleteConfirmCommentId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
   const createPost = useCreatePost();
@@ -183,6 +186,22 @@ const Community = () => {
       setCommentText("");
       setReplyToId(null);
       setReplyToName(null);
+    },
+  });
+
+  // issue #36: delete comment mutation
+  const deleteComment = useMutation({
+    mutationFn: async (commentId: string) => {
+      const { error } = await supabase.from("post_comments").delete().eq("id", commentId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-comments"] });
+      queryClient.invalidateQueries({ queryKey: ["post-comment-counts"] });
+      setDeleteConfirmCommentId(null);
+    },
+    onError: () => {
+      toast.error(lang === "my" ? "မှတ်ချက် ဖျက်၍ မရပါ" : "Failed to delete comment");
     },
   });
 
@@ -255,17 +274,20 @@ const Community = () => {
   const handleNewPost = async () => {
     if (!newPostText.trim()) return;
     let imageUrl: string | undefined;
-    // Upload image to Supabase storage if selected
+    let uploadedPath: string | undefined;
+    // Upload image to Supabase storage if selected (issue #37: track uploading state)
     if (selectedFile && user) {
       const ext = selectedFile.name.split(".").pop();
       const filePath = `${user.id}/community-${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(filePath, selectedFile, { upsert: true });
+      setIsUploading(true);
+      const { error: uploadErr } = await supabase.storage.from("post-images").upload(filePath, selectedFile, { upsert: true });
+      setIsUploading(false);
       if (uploadErr) {
         toast.error(lang === "my" ? "ဓာတ်ပုံတင်၍ မရပါ" : "Failed to upload image");
         return;
       }
-
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      uploadedPath = filePath;
+      const { data: urlData } = supabase.storage.from("post-images").getPublicUrl(filePath);
       imageUrl = urlData.publicUrl;
     }
     createPost.mutate({ contentMy: newPostText, contentEn: newPostText, category: newPostCategory, imageUrl }, {
@@ -275,7 +297,11 @@ const Community = () => {
         handleRemoveImage();
         toast.success(lang === "my" ? "ပို့စ်တင်ပြီး — စစ်ဆေးပြီးမှ ဖော်ပြပါမည်" : "Post submitted — it will appear after review");
       },
-      onError: () => {
+      onError: async () => {
+        // issue #35: non-atomic image+post — clean up orphaned image if post insert fails
+        if (uploadedPath) {
+          await supabase.storage.from("post-images").remove([uploadedPath]);
+        }
         toast.error(lang === "my" ? "ပို့စ်တင်၍ မရပါ" : "Failed to create post");
       },
     });
@@ -391,8 +417,8 @@ const Community = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-                <button onClick={() => fileInputRef.current?.click()} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground active:bg-muted">
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} disabled={isUploading} />
+                <button onClick={() => !isUploading && fileInputRef.current?.click()} disabled={isUploading} className="flex h-10 w-10 items-center justify-center rounded-xl border border-border text-muted-foreground active:bg-muted disabled:opacity-40">
                   <Image className="h-5 w-5" strokeWidth={1.5} />
                 </button>
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleNewPost} disabled={!newPostText.trim() || createPost.isPending}>
@@ -575,6 +601,19 @@ const Community = () => {
                                         <AnimatePresence>
                                           {openCommentMenuId === c.id && (
                                             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute right-0 top-5 z-30 w-44 rounded-xl border border-border bg-card py-1 shadow-lg">
+                                              {/* issue #36: delete button shown only to comment owner */}
+                                              {c.author_id === user?.id && (
+                                                <button
+                                                  onClick={() => {
+                                                    setOpenCommentMenuId(null);
+                                                    setDeleteConfirmCommentId(c.id);
+                                                  }}
+                                                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted"
+                                                >
+                                                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                                                  {lang === "my" ? "မှတ်ချက် ဖျက်ရန်" : "Delete comment"}
+                                                </button>
+                                              )}
                                               <button
                                                 onClick={async () => {
                                                   setOpenCommentMenuId(null);
@@ -678,6 +717,27 @@ const Community = () => {
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={confirmDeletePost}
+            >
+              {lang === "my" ? "ဖျက်ရန်" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* issue #36: Delete Comment Confirmation */}
+      <AlertDialog open={!!deleteConfirmCommentId} onOpenChange={(open) => { if (!open) setDeleteConfirmCommentId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "မှတ်ချက် ဖျက်မည်လား?" : "Delete this comment?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။" : "This cannot be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deleteConfirmCommentId) deleteComment.mutate(deleteConfirmCommentId); }}
             >
               {lang === "my" ? "ဖျက်ရန်" : "Delete"}
             </AlertDialogAction>

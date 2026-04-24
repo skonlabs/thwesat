@@ -100,10 +100,13 @@ const CHAR_LIMIT_REQ = 2000;
   const markDirty = useCallback(<T>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
 
   const handleUrlBlur = () => {
-    if (externalUrl && !externalUrl.startsWith("http://") && !externalUrl.startsWith("https://")) {
-      setExternalUrlError("URL must start with http:// or https://");
-    } else {
+    if (!externalUrl) { setExternalUrlError(""); return; }
+    try {
+      const u = new URL(externalUrl);
+      if (!["http:", "https:"].includes(u.protocol)) throw new Error();
       setExternalUrlError("");
+    } catch {
+      setExternalUrlError("Enter a valid URL starting with http:// or https://");
     }
   };
 
@@ -131,6 +134,29 @@ const CHAR_LIMIT_REQ = 2000;
     const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
     setSaving(true);
+
+    // Issue #7: validate featured status against live subscription before saving
+    let effectiveFeatured = isFeatured;
+    if (isFeatured) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: emp } = await supabase
+          .from("employer_profiles")
+          .select("subscription_plan, subscription_expires_at")
+          .eq("user_id", user.id)
+          .single();
+        const isProActive =
+          emp?.subscription_plan === "pro" &&
+          (emp.subscription_expires_at == null ||
+            emp.subscription_expires_at > new Date().toISOString());
+        if (!isProActive) {
+          effectiveFeatured = false;
+          setIsFeatured(false);
+          toast.warning("Your Pro plan has expired. This job will be saved without featured status.");
+        }
+      }
+    }
+
     const { error } = await supabase.from("jobs").update({
       title: titleEn,
       title_my: titleMy || null,
@@ -148,7 +174,7 @@ const CHAR_LIMIT_REQ = 2000;
       requires_embassy: requiresEmbassy,
       requires_work_permit: requiresWorkPermit,
       visa_sponsorship: visaSponsorship,
-      is_featured: isFeatured,
+      is_featured: effectiveFeatured,
       application_method: applicationMethod,
       external_url: applicationMethod === "external" ? externalUrl.trim() : null,
       job_type: roleType.includes("contract") ? "contract" : "full-time",

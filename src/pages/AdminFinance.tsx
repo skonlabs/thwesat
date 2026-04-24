@@ -12,6 +12,9 @@ import { paymentTypeLabels, shortRef, formatTotals } from "@/lib/finance";
 
 type Tab = "revenue" | "payouts";
 
+// TODO: fetch this from a platform_config table in future
+const PLATFORM_CUT_PERCENT = 0.15; // 15% platform fee — update if policy changes
+
 const AdminFinance = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
@@ -63,7 +66,7 @@ const AdminFinance = () => {
 
   const platformRevenueRows = approved.flatMap((p) => {
     if (p.payment_type === "mentor_session") {
-      return [{ amount: Number(p.amount) * 0.15, currency: p.currency }];
+      return [{ amount: Number(p.amount) * PLATFORM_CUT_PERCENT, currency: p.currency }];
     }
     return [{ amount: Number(p.amount), currency: p.currency }];
   });
@@ -171,8 +174,8 @@ const AdminFinance = () => {
                 rows: approved.filter((p) => p.payment_type === "placement_fee").map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               },
               {
-                label: { my: "Mentor (ပလက်ဖောင်း ၁၅%)", en: "Mentor (15% cut)" },
-                rows: approved.filter((p) => p.payment_type === "mentor_session").map((p) => ({ amount: Number(p.amount) * 0.15, currency: p.currency })),
+                label: { my: `Mentor (ပလက်ဖောင်း ${PLATFORM_CUT_PERCENT * 100}%)`, en: `Mentor (${PLATFORM_CUT_PERCENT * 100}% cut)` },
+                rows: approved.filter((p) => p.payment_type === "mentor_session").map((p) => ({ amount: Number(p.amount) * PLATFORM_CUT_PERCENT, currency: p.currency })),
               },
             ]}
             rows={filteredPayments.map((p) => ({

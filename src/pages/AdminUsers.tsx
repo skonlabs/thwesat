@@ -40,6 +40,8 @@ interface PendingRoleChange {
   action: "add" | "remove";
 }
 
+const PAGE_SIZE = 100;
+
 const AdminUsers = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
@@ -48,16 +50,19 @@ const AdminUsers = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState("all");
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
+  const [page, setPage] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
-    queryKey: ["admin-users"],
+    queryKey: ["admin-users", page],
     queryFn: async () => {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at, skills, languages, phone")
         .order("created_at", { ascending: false })
-        .limit(1000);
+        .range(from, to);
       if (error) throw error;
       return data || [];
     },
@@ -194,6 +199,31 @@ const AdminUsers = () => {
           <p className="mb-3 text-xs text-muted-foreground">
             {filtered.length} {lang === "my" ? "ဦး" : "users"}
           </p>
+
+          {/* Pagination controls */}
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-xs"
+              disabled={page === 0 || isLoading}
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+            >
+              {lang === "my" ? "နောက်သို့" : "Previous"}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {lang === "my" ? `စာမျက်နှာ ${page + 1}` : `Page ${page + 1}`}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-xs"
+              disabled={users.length < PAGE_SIZE || isLoading}
+              onClick={() => setPage(p => p + 1)}
+            >
+              {lang === "my" ? "ရှေ့သို့" : "Next"}
+            </Button>
+          </div>
 
           {isLoading ? (
             <div className="flex justify-center py-16">
@@ -452,12 +482,24 @@ const AdminUsers = () => {
                     variant="destructive"
                     className="flex-1 rounded-xl"
                     onClick={async () => {
-                      const { error } = await supabase.from("profiles").delete().eq("id", deleteConfirmId);
-                      if (error) {
-                        toast.error(lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove user");
-                      } else {
+                      let deleted = false;
+                      try {
+                        const { error: rpcError } = await supabase.rpc("delete_user_cascade", { target_user_id: deleteConfirmId });
+                        if (rpcError) throw rpcError;
+                        deleted = true;
+                      } catch {
+                        // RPC not available — fall back to direct profile delete
+                        const { error: directError } = await supabase.from("profiles").delete().eq("id", deleteConfirmId);
+                        if (!directError) {
+                          deleted = true;
+                          toast.warning(lang === "my" ? "သတိပေးချက်: ဆက်စပ်မှတ်တမ်းများ ကိုယ်တိုင်ဖျက်ရန် လိုအပ်နိုင်သည်" : "Note: some related records may need manual cleanup.");
+                        }
+                      }
+                      if (deleted) {
                         toast.success(lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားပြီး" : "User removed");
                         queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+                      } else {
+                        toast.error(lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove user");
                       }
                       setDeleteConfirmId(null);
                     }}

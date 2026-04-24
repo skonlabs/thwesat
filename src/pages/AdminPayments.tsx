@@ -62,6 +62,8 @@ const AdminPayments = () => {
   const [adminNote, setAdminNote] = useState("");
   const [proofSignedUrl, setProofSignedUrl] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<"approved" | "rejected" | "revoked" | null>(null);
+  const [proofImageError, setProofImageError] = useState(false);
+  const [proofLoadTimeout, setProofLoadTimeout] = useState(false);
 
   // Fetch user profiles for display
   const userIds = [...new Set((payments || []).map(p => p.user_id))];
@@ -105,13 +107,32 @@ const AdminPayments = () => {
   const filtered = (payments || []).filter(p => filter === "all" || p.status === filter);
   const pendingCount = (payments || []).filter(p => p.status === "pending").length;
 
+  const fetchProofSignedUrl = async (proofUrl: string) => {
+    setProofSignedUrl(null);
+    setProofImageError(false);
+    setProofLoadTimeout(false);
+
+    const timeoutId = setTimeout(() => {
+      setProofLoadTimeout(true);
+    }, 10000);
+
+    try {
+      const url = await getPaymentProofSignedUrl(proofUrl);
+      clearTimeout(timeoutId);
+      setProofSignedUrl(url);
+    } catch {
+      clearTimeout(timeoutId);
+      setProofLoadTimeout(true);
+    }
+  };
+
   // Generate signed URL when a payment with proof is selected
   useEffect(() => {
     setProofSignedUrl(null);
+    setProofImageError(false);
+    setProofLoadTimeout(false);
     if (selectedPayment?.proof_url) {
-      getPaymentProofSignedUrl(selectedPayment.proof_url).then(url => {
-        setProofSignedUrl(url);
-      });
+      fetchProofSignedUrl(selectedPayment.proof_url);
     }
   }, [selectedPayment]);
 
@@ -334,9 +355,38 @@ const AdminPayments = () => {
               {/* Proof image - using signed URL for private bucket */}
               {selectedPayment.proof_url && (
                 <div>
-                  <p className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "ငွေလွှဲ အထောက်အထား" : "Payment Proof"}</p>
-                  {proofSignedUrl ? (
-                    <img src={proofSignedUrl} alt="proof" className="w-full rounded-xl border border-border object-contain max-h-64" />
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ငွေလွှဲ အထောက်အထား" : "Payment Proof"}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 rounded-full px-2 text-[10px]"
+                      onClick={() => selectedPayment.proof_url && fetchProofSignedUrl(selectedPayment.proof_url)}
+                    >
+                      {lang === "my" ? "လင့်ခ် ပြန်ယူ" : "Refresh link"}
+                    </Button>
+                  </div>
+                  {proofLoadTimeout ? (
+                    <div className="flex h-32 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/5 px-4 text-center">
+                      <p className="text-xs text-destructive">
+                        {lang === "my" ? "ပုံ ဖွင့်၍ မရပါ။" : "Proof image could not be loaded."}
+                      </p>
+                    </div>
+                  ) : proofImageError ? (
+                    <div className="flex h-32 items-center justify-center rounded-xl border border-warning/30 bg-warning/5 px-4 text-center">
+                      <p className="text-xs text-warning">
+                        {lang === "my"
+                          ? "ပုံ ရနိုင်ခြင်း မရှိပါ သို့မဟုတ် သက်တမ်းကုန်သည်။ လျှောက်ထားသူထံမှ လင့်ခ်အသစ် တောင်းပါ။"
+                          : "Proof image unavailable or expired. Request a new link from the applicant."}
+                      </p>
+                    </div>
+                  ) : proofSignedUrl ? (
+                    <img
+                      src={proofSignedUrl}
+                      alt="proof"
+                      className="w-full rounded-xl border border-border object-contain max-h-64"
+                      onError={() => setProofImageError(true)}
+                    />
                   ) : (
                     <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-muted">
                       <p className="text-xs text-muted-foreground">{lang === "my" ? "ပုံ ဖွင့်နေသည်..." : "Loading proof..."}</p>

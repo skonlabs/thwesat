@@ -135,18 +135,27 @@ const ModeratorDashboard = () => {
     },
   });
 
-  const handleEscalate = async (postId: string) => {
+  const handleEscalate = async (
+    itemId: string,
+    itemType: "post" | "job" | "payment" = "post"
+  ) => {
     if (adminUserIds.length === 0) {
       toast.error(lang === "my" ? "Admin မတွေ့ပါ" : "No admins found");
       return;
     }
+    const linkPathMap: Record<"post" | "job" | "payment", string> = {
+      post: "/admin",
+      job: "/admin/jobs",
+      payment: "/admin/payments",
+    };
+    const link_path = linkPathMap[itemType];
     await Promise.all(
       adminUserIds.map((adminId: string) =>
         supabase.from("notifications").insert({
           user_id: adminId,
           notification_type: "escalation_request",
-          message: `Moderator escalated post ${postId} for review`,
-          link_path: "/admin/jobs",
+          message: `Moderator escalated ${itemType} ${itemId} for review`,
+          link_path,
         })
       )
     );
@@ -197,8 +206,19 @@ const ModeratorDashboard = () => {
 
   const approveJob = useMutation({
     mutationFn: async (id: string) => {
+      // Fetch job first so we can notify the poster
+      const { data: job } = await supabase.from("jobs").select("posted_by").eq("id", id).single();
       const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", id);
       if (error) throw error;
+      // Issue #35: notify the employer who posted the job
+      if (job?.posted_by) {
+        await supabase.from("notifications").insert({
+          user_id: job.posted_by,
+          notification_type: "job_approved",
+          message: "Your job posting has been approved and is now live.",
+          link_path: "/employer/jobs",
+        });
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
   });
@@ -211,46 +231,22 @@ const ModeratorDashboard = () => {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setShowJobReject(false); setJobRejectReason(""); toast.success(lang === "my" ? "အလုပ် ပယ်ချပြီး" : "Job rejected"); },
   });
 
-  // Payment: admin can approve/reject, moderator can only add note (recommend)
+  // Issue #13: Payment approval/rejection via review_payment_request RPC
   const updatePayment = useMutation({
     mutationFn: async ({ id, status, admin_note }: { id: string; status: string; admin_note?: string }) => {
-      const updates: any = { status, reviewed_at: new Date().toISOString(), reviewed_by: user?.id };
-      if (admin_note !== undefined) updates.admin_note = admin_note;
-      const { error } = await supabase.from("payment_requests" as any).update(updates).eq("id", id);
-      if (error) throw error;
-
-      // On approval, activate premium (only admins reach here)
-      if (status === "approved") {
-        const { data: pr } = await supabase.from("payment_requests" as any).select("*").eq("id", id).single();
-        if (pr) {
-          const req = pr as any;
-          if (req.payment_type === "subscription" || req.payment_type === "employer_subscription") {
-            await supabase.from("profiles").update({ is_premium: true }).eq("id", req.user_id);
-          }
-          await supabase.from("notifications").insert({
-            user_id: req.user_id,
-            notification_type: "payment_approved",
-            title: "Payment Approved",
-            title_my: "ငွေပေးချေမှု အတည်ပြုပြီး",
-            description: "Your payment has been approved.",
-            description_my: "သင့်ငွေပေးချေမှုကို အတည်ပြုပြီးပါပြီ။",
-            link_path: "/premium",
-          });
-        }
-      }
-      if (status === "rejected") {
-        const { data: pr } = await supabase.from("payment_requests" as any).select("*").eq("id", id).single();
-        if (pr) {
-          await supabase.from("notifications").insert({
-            user_id: (pr as any).user_id,
-            notification_type: "payment_rejected",
-            title: "Payment Rejected",
-            title_my: "ငွေပေးချေမှု ပယ်ချခံရသည်",
-            description: admin_note || "Your payment was not approved.",
-            description_my: admin_note || "သင့်ငွေပေးချေမှုကို အတည်မပြုပါ။",
-            link_path: "/premium",
-          });
-        }
+      if (!user?.id) throw new Error("Not authenticated");
+      const { error } = await (supabase as any).rpc("review_payment_request", {
+        payment_id: id,
+        new_status: status,
+        admin_note: admin_note || null,
+        reviewer_id: user.id,
+      });
+      if (error) {
+        // Fall back gracefully — the RPC may not exist yet
+        toast.error(lang === "my"
+          ? "ငွေပေးချေမှု အတည်ပြုရန် Admin လုပ်ဆောင်ရပါမည် — Admin ကို ဆက်သွယ်ပါ"
+          : "Payment approval requires admin action — please contact an admin.");
+        throw error;
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-payment-requests"] }); setSelectedPaymentId(null); setPaymentNote(""); toast.success(lang === "my" ? "အပ်ဒိတ်ပြီး" : "Payment updated"); },
@@ -412,7 +408,7 @@ const ModeratorDashboard = () => {
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => approvePost.mutate(selectedPost.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
             </div>
-            <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id)}>
+            <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id, "post")}>
               <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
             </Button>
           </BottomSheet>

@@ -114,19 +114,45 @@ const AdminJobQueue = () => {
   // Bulk actions
   const handleBulkApprove = async () => {
     const ids = Array.from(selectedJobIds);
-    await Promise.all(ids.map(id => updateJob.mutateAsync({ id, status: "active" })));
+    const results = { success: 0, failed: 0 };
+    for (const id of ids) {
+      try {
+        await updateJob.mutateAsync({ id, status: "active" });
+        results.success++;
+      } catch {
+        results.failed++;
+      }
+    }
     setSelectedJobIds(new Set());
-    toast.success(lang === "my" ? `${ids.length} ခု အတည်ပြုပြီး` : `${ids.length} jobs approved`);
+    queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+    toast.success(
+      lang === "my"
+        ? `${results.success} ခု အတည်ပြုပြီး${results.failed > 0 ? `, ${results.failed} ခု မအောင်မြင်` : ""}`
+        : `Processed ${results.success} jobs${results.failed > 0 ? `, ${results.failed} failed` : ""}`
+    );
   };
 
   const handleBulkReject = async () => {
     if (!bulkRejectionReason) return;
     const ids = Array.from(selectedJobIds);
-    await Promise.all(ids.map(id => updateJob.mutateAsync({ id, status: "rejected", rejectionReason: bulkRejectionReason })));
+    const results = { success: 0, failed: 0 };
+    for (const id of ids) {
+      try {
+        await updateJob.mutateAsync({ id, status: "rejected", rejectionReason: bulkRejectionReason });
+        results.success++;
+      } catch {
+        results.failed++;
+      }
+    }
     setSelectedJobIds(new Set());
     setShowBulkReject(false);
     setBulkRejectionReason("");
-    toast.success(lang === "my" ? `${ids.length} ခု ငြင်းပယ်ပြီး` : `${ids.length} jobs rejected`);
+    queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+    toast.success(
+      lang === "my"
+        ? `${results.success} ခု ငြင်းပယ်ပြီး${results.failed > 0 ? `, ${results.failed} ခု မအောင်မြင်` : ""}`
+        : `Processed ${results.success} jobs${results.failed > 0 ? `, ${results.failed} failed` : ""}`
+    );
   };
 
   const toggleJobSelection = (id: string, e: React.MouseEvent) => {
