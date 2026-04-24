@@ -30,6 +30,8 @@ const EmployerEditCompany = () => {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  // Issue #61: dirty state tracking
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -44,10 +46,22 @@ const EmployerEditCompany = () => {
       setContactEmail(profile.contact_email || "");
       setContactPhone(profile.contact_phone || "");
       setSelectedPayments(profile.payment_methods || []);
+      // Reset dirty when profile loads
+      setIsDirty(false);
     }
   }, [profile]);
 
-  const togglePayment = (m: string) => setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]);
+  // Attach beforeunload when there are unsaved changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const markDirty = useCallback(<T>(setter: React.Dispatch<React.SetStateAction<T>>) => (val: T) => { setter(val); setIsDirty(true); }, []);
+
+  const togglePayment = (m: string) => { setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]); setIsDirty(true); };
 
   const handleSave = async () => {
     try {
@@ -57,6 +71,7 @@ const EmployerEditCompany = () => {
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: selectedPayments,
       });
+      setIsDirty(false);
       toast.success(lang === "my" ? "ကုမ္ပဏီ အချက်အလက် ပြင်ဆင်ပြီး" : "Company info updated");
       navigate("/employer/dashboard");
     } catch {
