@@ -3,16 +3,34 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { type StatusFilter } from "@/components/finance/FinanceFilters";
 import { shortRef } from "@/lib/finance";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 const MentorFinance = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
+
+  const { data: mentorProfileData } = useQuery({
+    queryKey: ["mentor-profile-finance", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("mentor_profiles")
+        .select("payment_methods")
+        .eq("id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const { data: earnings, isLoading } = useQuery({
     queryKey: ["mentor-finance", user?.id],
@@ -33,6 +51,16 @@ const MentorFinance = () => {
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
   const currencies = useMemo(() => all.map((e) => e.currency || "USD"), [all]);
 
+  const hasPaymentMethod = !!(mentorProfileData?.payment_methods && (
+    Array.isArray(mentorProfileData.payment_methods)
+      ? (mentorProfileData.payment_methods as any[]).length > 0
+      : Object.keys(mentorProfileData.payment_methods as object).length > 0
+  ));
+
+  const totalEarned = useMemo(() => all.reduce((sum, e) => sum + Number(e.amount || 0), 0), [all]);
+  const totalPending = useMemo(() => pending.reduce((sum, e) => sum + Number(e.amount || 0), 0), [pending]);
+  const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
+
   // Map status → "approved"/"pending" buckets that match the filter contract.
   const filtered = useMemo(() => {
     return all.filter((e) => {
@@ -48,6 +76,35 @@ const MentorFinance = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ဝင်ငွေ မှတ်တမ်း" : "Mentor Earnings"} showBack />
       <div className="px-5">
+        {!hasPaymentMethod && (
+          <Alert className="mb-4 border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+            <AlertDescription className="flex items-center justify-between gap-3 text-sm">
+              <span>
+                {lang === "my"
+                  ? "ပေးချေမှု ရယူနိုင်ရန် Settings တွင် payout method သတ်မှတ်ပါ။"
+                  : "Set up your payout method in Settings to receive payouts."}
+              </span>
+              <Button variant="outline" size="sm" className="shrink-0 rounded-lg text-xs" onClick={() => navigate("/settings")}>
+                {lang === "my" ? "Settings" : "Settings"}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Stat cards */}
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {[
+            { label: lang === "my" ? "စုစုပေါင်း ဝင်ငွေ" : "Total Earned", value: `$${totalEarned.toFixed(2)}`, color: "text-foreground" },
+            { label: lang === "my" ? "စောင့်ဆိုင်း" : "Pending", value: `$${totalPending.toFixed(2)}`, color: "text-amber-600 dark:text-amber-400" },
+            { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: `$${totalPaid.toFixed(2)}`, color: "text-emerald-600 dark:text-emerald-400" },
+          ].map((s, i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-3 text-center">
+              <p className={`text-base font-bold leading-tight ${s.color}`}>{s.value}</p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mb-4 rounded-xl border border-border bg-accent/10 p-3">
           <p className="text-[11px] text-muted-foreground">
             {lang === "my"
@@ -55,6 +112,12 @@ const MentorFinance = () => {
               : "You earn 85% of each paid session. Payouts are issued by an admin — no action required from you."}
           </p>
         </div>
+
+        <p className="mb-4 text-[11px] text-muted-foreground text-center">
+          {lang === "my"
+            ? "Payout များကို admin team မှ ၃-၅ လုပ်ငန်းရက်အတွင်း ဆောင်ရွက်ပေးပါသည်။"
+            : "Payouts are processed by the admin team. Allow 3–5 business days."}
+        </p>
 
         <FinanceLedger
           isLoading={isLoading}

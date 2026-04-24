@@ -397,6 +397,7 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
   const [editing, setEditing] = useState(false);
   const [goals, setGoals] = useState(currentGoals);
   const [notes, setNotes] = useState(currentNotes);
+  const [saved, setSaved] = useState(false);
   const queryClient = useQueryClient();
 
   const save = useMutation({
@@ -405,9 +406,12 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(lang === "my" ? "သိမ်းပြီး" : "Saved");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
-      setEditing(false);
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        setEditing(false);
+      }, 2000);
     },
   });
 
@@ -431,7 +435,10 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
       </div>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setEditing(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" disabled={save.isPending} onClick={() => save.mutate()}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
+        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs gap-1" disabled={save.isPending} onClick={() => save.mutate()}>
+          {saved && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
+          {lang === "my" ? "သိမ်းရန်" : "Save"}
+        </Button>
       </div>
     </div>
   );

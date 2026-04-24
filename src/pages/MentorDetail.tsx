@@ -1,12 +1,26 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Calendar, MessageCircle, Clock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
 

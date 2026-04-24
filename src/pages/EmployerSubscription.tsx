@@ -3,7 +3,12 @@ import { motion } from "framer-motion";
 import { Check, Briefcase, Crown, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
+import { useToast } from "@/hooks/use-toast";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
@@ -49,12 +54,32 @@ const tiers = [
 const EmployerSubscription = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: employerProfile } = useEmployerProfile();
   const [selected, setSelected] = useState("pro");
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
+  const hasActiveSub = employerProfile?.subscription_plan && employerProfile.subscription_plan !== "free";
   const selectedTier = tiers.find(t => t.id === selected);
 
   const t = (texts: { my: string; en: string }) => texts[lang];
+
+  const handleCancelSubscription = async () => {
+    if (!employerProfile?.id) return;
+    const { error } = await supabase
+      .from("employer_profiles")
+      .update({ subscription_plan: "free", subscription_expires_at: null } as any)
+      .eq("id", employerProfile.id);
+    if (error) {
+      toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error cancelling subscription", variant: "destructive" });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["employer-profile"] });
+      toast({ title: lang === "my" ? "အစီအစဉ် ပယ်ဖျက်ပြီး" : "Subscription cancelled", description: lang === "my" ? "လချုပ်တွင် ပိတ်သွားမည်" : "Access ends at the end of your billing period." });
+    }
+    setCancelOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -137,6 +162,65 @@ const EmployerSubscription = () => {
           referenceId={selected}
           onSuccess={() => navigate("/employer/dashboard")}
         />
+
+        {/* Feature comparison table */}
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အင်္ဂါရပ် နှိုင်းယှဉ်မှု" : "Feature Comparison"}</h3>
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="py-2 text-left font-medium text-muted-foreground">{lang === "my" ? "အင်္ဂါရပ်" : "Feature"}</th>
+                <th className="py-2 text-center font-medium text-muted-foreground">{lang === "my" ? "အခြေခံ" : "Basic"}</th>
+                <th className="py-2 text-center font-medium text-primary">{lang === "my" ? "ပရို" : "Pro"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { feature: { my: "အလုပ်ခေါ်စာ တင်ရန်", en: "Job posts" }, basic: "1/mo", pro: "∞" },
+                { feature: { my: "ထူးခြား ဖော်ပြမှု", en: "Featured listings" }, basic: false, pro: true },
+                { feature: { my: "တိုက်ရိုက် မက်ဆေ့ချ်", en: "Direct messages" }, basic: "10/mo", pro: "∞" },
+                { feature: { my: "ဒေတာဘေ့စ် ရှာဖွေ", en: "Database search" }, basic: false, pro: true },
+                { feature: { my: "ခွဲခြမ်းစိတ်ဖြာ", en: "Analytics" }, basic: "Basic", pro: "Full" },
+                { feature: { my: "ဦးစားပေး ပံ့ပိုး", en: "Priority support" }, basic: false, pro: true },
+              ].map((row, i) => (
+                <tr key={i} className="border-b border-border/50">
+                  <td className="py-2 text-foreground">{lang === "my" ? row.feature.my : row.feature.en}</td>
+                  <td className="py-2 text-center">
+                    {row.basic === false ? <span className="text-muted-foreground">✗</span> : <span className="text-foreground">{row.basic}</span>}
+                  </td>
+                  <td className="py-2 text-center">
+                    {row.pro === true ? <span className="text-emerald-600 font-bold">✓</span> : <span className="text-emerald-600 font-bold">{row.pro}</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {hasActiveSub && (
+          <Button variant="outline" size="sm" className="mt-4 w-full rounded-xl text-destructive border-destructive/30 hover:bg-destructive/5" onClick={() => setCancelOpen(true)}>
+            {lang === "my" ? "အစီအစဉ် ပယ်ဖျက်ရန်" : "Cancel Subscription"}
+          </Button>
+        )}
+
+        <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{lang === "my" ? "အစီအစဉ် ပယ်ဖျက်မည်လား?" : "Cancel your subscription?"}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {lang === "my"
+                  ? "Premium အင်္ဂါရပ်များကို သင့် ငွေပေးချေမှု ကာလ ကုန်ဆုံးသောအခါ ဆုံးရှုံးမည်ဖြစ်သည်။"
+                  : "You'll lose access to premium features at the end of your billing period."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Keep Plan"}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleCancelSubscription} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {lang === "my" ? "ပယ်ဖျက်ရန်" : "Cancel Subscription"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

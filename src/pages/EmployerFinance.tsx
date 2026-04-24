@@ -165,6 +165,23 @@ const EmployerFinance = () => {
           rows={[]}
           emptyText={{ my: "", en: "" }}
         />
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex cursor-help items-center gap-1 font-medium underline decoration-dashed underline-offset-2">
+                  {lang === "my" ? "ပေးချေရန် ဆိုသည်မှာ" : "Outstanding"}
+                  <Info className="h-3 w-3" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {lang === "my"
+                  ? "အက်မင် ငွေပေးချေမှု အတည်ပြုရန် စောင့်ဆိုင်းနေသော ပမာဏများ"
+                  : "Amounts awaiting admin payment approval"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
         <FinanceFilters
           status={status}
