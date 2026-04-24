@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -58,10 +59,14 @@ const ForgotPassword = () => {
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-md bg-background px-5 pt-6 pb-24">
-      <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
-        <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
-        <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>
-      </button>
+      <div className="mb-2 flex items-center justify-between">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
+          <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+          <span className="text-sm font-medium">{lang === "my" ? "နောက်သို့" : "Back"}</span>
+        </button>
+        <LanguageToggle />
+      </div>
+      <div className="mb-4" />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">

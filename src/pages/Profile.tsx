@@ -74,7 +74,7 @@ const Profile = () => {
   const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
-  const referralCode = profile?.referral_code || "TS-XXXXXX";
+  const referralCode = profile?.referral_code || "";
   const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
   const profileCompletionFields = [
