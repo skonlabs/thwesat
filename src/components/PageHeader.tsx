@@ -51,11 +51,14 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
     };
     animFrame.current = requestAnimationFrame(animate);
     holdTimer.current = setTimeout(() => {
-      // Panic exit: preserve user language preference, clear everything else
+      // Panic exit: preserve user language preference (and explicit flag)
+      // so post-panic login doesn't flip back to the DB default.
       const preservedLang = localStorage.getItem("thwesat_lang");
+      const preservedExplicit = localStorage.getItem("thwesat_lang_explicit");
       localStorage.clear();
       sessionStorage.clear();
       if (preservedLang) localStorage.setItem("thwesat_lang", preservedLang);
+      if (preservedExplicit) localStorage.setItem("thwesat_lang_explicit", preservedExplicit);
       navigate("/");
     }, 3000);
   }, [navigate]);
