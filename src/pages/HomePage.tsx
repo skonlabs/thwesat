@@ -29,14 +29,10 @@ const HomePage = () => {
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
 
-  // Redirect admin/moderator users to their dashboard
-  useEffect(() => {
-    if (!rolesLoading && isAdmin) {
-      navigate("/admin", { replace: true });
-    } else if (!rolesLoading && isModerator) {
-      navigate("/moderator", { replace: true });
-    }
-  }, [rolesLoading, isAdmin, isModerator, navigate]);
+  // NOTE: Admin/moderator routing is handled by HomeRedirect (which renders
+  // the right dashboard inline). HomePage only ever mounts for non-admin
+  // roles, so no redirect effect is needed here. Removing the previous
+  // navigate() avoided a flash of HomePage before redirect.
 
   const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
