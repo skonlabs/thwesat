@@ -13,7 +13,7 @@ import MentorDashboard from "./MentorDashboard";
  * which all redirect into /dashboard.
  */
 const HomeRedirect = () => {
-  const { isLoading, isAdmin, isModerator } = useUserRoles();
+  const { isLoading, isAdmin, isModerator, allowedRoles } = useUserRoles();
   const { role } = useRole();
 
   if (isLoading) {
@@ -26,8 +26,15 @@ const HomeRedirect = () => {
 
   if (isAdmin) return <AdminDashboard />;
   if (isModerator) return <ModeratorDashboard />;
-  if (role === "employer") return <EmployerDashboard />;
-  if (role === "mentor") return <MentorDashboard />;
+
+  // Fall back to the user's actual allowed roles when the persisted UI role
+  // is stale (e.g. previous session was a different account/role). Without
+  // this, a mentor whose localStorage still says "jobseeker" would land on
+  // the seeker home instead of their mentor dashboard.
+  const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0];
+
+  if (effectiveRole === "employer") return <EmployerDashboard />;
+  if (effectiveRole === "mentor") return <MentorDashboard />;
 
   return <HomePage />;
 };
