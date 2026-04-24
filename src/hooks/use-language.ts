@@ -4,21 +4,29 @@ type Language = "my" | "en";
 
 interface LanguageState {
   lang: Language;
-  setLang: (lang: Language) => void;
+  /** True once the user has explicitly chosen a language (toggle or login restore). */
+  isExplicit: boolean;
+  setLang: (lang: Language, explicit?: boolean) => void;
   toggleLang: () => void;
 }
 
+const stored = localStorage.getItem("thwesat_lang") as Language | null;
+const explicitFlag = localStorage.getItem("thwesat_lang_explicit") === "1";
+
 export const useLanguage = create<LanguageState>((set) => ({
-  lang: (localStorage.getItem("thwesat_lang") as Language) || "en",
-  setLang: (lang) => {
+  lang: stored || "en",
+  isExplicit: explicitFlag,
+  setLang: (lang, explicit = true) => {
     localStorage.setItem("thwesat_lang", lang);
-    set({ lang });
+    if (explicit) localStorage.setItem("thwesat_lang_explicit", "1");
+    set({ lang, isExplicit: explicit || explicitFlag });
   },
   toggleLang: () =>
     set((state) => {
       const next = state.lang === "my" ? "en" : "my";
       localStorage.setItem("thwesat_lang", next);
-      return { lang: next };
+      localStorage.setItem("thwesat_lang_explicit", "1");
+      return { lang: next, isExplicit: true };
     }),
 }));
 
