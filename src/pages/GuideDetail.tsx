@@ -163,7 +163,14 @@ const GuideDetail = () => {
   const langPrefKey = id ? `guide_lang_${id}` : null;
   const [translatedLang, setTranslatedLang] = useState<string | null>(() => {
     if (!langPrefKey) return null;
-    return localStorage.getItem(langPrefKey);
+    let stored = localStorage.getItem(langPrefKey);
+    // Validate the stored code against the known language list to prevent
+    // an invalid or tampered value from being applied.
+    if (stored !== null) {
+      const valid = TRANSLATE_LANGUAGES.some(l => l.code === stored);
+      if (!valid) stored = null;
+    }
+    return stored;
   });
   const [isTranslating, setIsTranslating] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);

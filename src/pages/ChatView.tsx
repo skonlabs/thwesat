@@ -25,6 +25,7 @@ const ChatView = () => {
   const [translations, setTranslations] = useState<Record<string, { lang: string; text: string }>>({});
   const [translatingId, setTranslatingId] = useState<string | null>(null);
   const [pickerForMsgId, setPickerForMsgId] = useState<string | null>(null);
+  const [failedTranslations, setFailedTranslations] = useState<Record<string, { content: string; lang: string }>>({});
 
   const CHAR_LIMIT = 2000;
 

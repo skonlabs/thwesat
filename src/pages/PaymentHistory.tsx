@@ -33,11 +33,24 @@ const PaymentHistory = () => {
   const { data: payments, isLoading } = useMyPaymentRequests();
   const [selected, setSelected] = useState<PaymentRequest | null>(null);
   const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [proofLoading, setProofLoading] = useState(false);
+  const [proofError, setProofError] = useState(false);
 
   useEffect(() => {
     setProofUrl(null);
+    setProofError(false);
     if (selected?.proof_url) {
-      getPaymentProofSignedUrl(selected.proof_url).then(setProofUrl);
+      setProofLoading(true);
+      getPaymentProofSignedUrl(selected.proof_url)
+        .then((url) => {
+          if (!url) {
+            setProofError(true);
+          } else {
+            setProofUrl(url);
+          }
+        })
+        .catch(() => setProofError(true))
+        .finally(() => setProofLoading(false));
     }
   }, [selected]);
 
@@ -146,13 +159,26 @@ const PaymentHistory = () => {
                   <p className="mb-1 text-xs font-semibold text-foreground">
                     {lang === "my" ? "ငွေလွှဲ အထောက်အထား" : "Payment Proof"}
                   </p>
-                  {proofUrl ? (
-                    <img src={proofUrl} alt="proof" className="max-h-64 w-full rounded-xl border border-border object-contain" />
-                  ) : (
+                  {proofLoading ? (
                     <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-muted">
-                      <p className="text-xs text-muted-foreground">{lang === "my" ? "ပုံ ဖွင့်နေသည်..." : "Loading..."}</p>
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     </div>
-                  )}
+                  ) : proofError ? (
+                    <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-muted px-4 text-center">
+                      <p className="text-xs text-muted-foreground">
+                        {lang === "my"
+                          ? "ငွေပေးချေမှု အထောက်အထား မရရှိနိုင်ပါ။ လင့်ခ် သက်တမ်းကုန်သွားနိုင်သည် — လိုအပ်ပါက Support ကို ဆက်သွယ်ပါ။"
+                          : "Payment proof is unavailable. The link may have expired — contact support if needed."}
+                      </p>
+                    </div>
+                  ) : proofUrl ? (
+                    <img
+                      src={proofUrl}
+                      alt="proof"
+                      className="max-h-64 w-full rounded-xl border border-border object-contain"
+                      onError={() => setProofError(true)}
+                    />
+                  ) : null}
                 </div>
               )}
             </div>

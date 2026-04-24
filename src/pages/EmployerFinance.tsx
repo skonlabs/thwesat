@@ -201,7 +201,7 @@ const EmployerFinance = () => {
         <FinanceLedger
           isLoading={isLoading}
           totals={[]}
-          rows={filtered.map((p) => ({
+          rows={pagedFiltered.map((p) => ({
             id: p.id,
             title: lang === "my"
               ? paymentTypeLabels[p.payment_type]?.my || p.payment_type
@@ -216,6 +216,21 @@ const EmployerFinance = () => {
           }))}
           emptyText={{ my: "ငွေကြေးမှတ်တမ်း မရှိသေးပါ", en: "No financial activity matches these filters" }}
         />
+        {totalFiltered > PAGE_SIZE && (
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
+              {lang === "my" ? "နောက်သို့" : "Previous"}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {lang === "my"
+                ? `${pageStart + 1}–${pageEnd} / ${totalFiltered}`
+                : `${pageStart + 1}–${pageEnd} of ${totalFiltered}`}
+            </span>
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => p + 1)} disabled={pageEnd >= totalFiltered}>
+              {lang === "my" ? "ရှေ့သို့" : "Next"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Upload proof sheet */}
