@@ -20,6 +20,28 @@ export interface PaymentRequest {
   updated_at: string;
 }
 
+const ALLOWED_PAYMENT_METHODS = [
+  "kbzpay",
+  "wavepay",
+  "ayapay",
+  "bank_transfer",
+  "payoneer",
+  "wise",
+  "manual",
+] as const;
+
+const ALLOWED_PAYMENT_TYPES = [
+  "subscription",
+  "placement_fee",
+  "mentor_session",
+] as const;
+
+const MAX_AMOUNT = 10_000_000;
+const MAX_PROOF_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+type AllowedPaymentMethod = (typeof ALLOWED_PAYMENT_METHODS)[number];
+type AllowedPaymentType = (typeof ALLOWED_PAYMENT_TYPES)[number];
+
 export function useCreatePaymentRequest() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -36,17 +58,58 @@ export function useCreatePaymentRequest() {
       if (!user) throw new Error("Not authenticated");
       if (!(req.amount > 0)) throw new Error("Amount must be greater than zero");
 
+      // Upper-bound validation
+      if (req.amount > MAX_AMOUNT) {
+        throw new Error(`Amount exceeds maximum allowed value of ${MAX_AMOUNT.toLocaleString()}`);
+      }
+
+      // Whitelist payment_method
+      if (!ALLOWED_PAYMENT_METHODS.includes(req.payment_method as AllowedPaymentMethod)) {
+        throw new Error(
+          `Invalid payment method "${req.payment_method}". Allowed: ${ALLOWED_PAYMENT_METHODS.join(", ")}`
+        );
+      }
+
+      // Whitelist payment_type
+      if (!ALLOWED_PAYMENT_TYPES.includes(req.payment_type as AllowedPaymentType)) {
+        throw new Error(
+          `Invalid payment type "${req.payment_type}". Allowed: ${ALLOWED_PAYMENT_TYPES.join(", ")}`
+        );
+      }
+
       const { error } = await supabase
         .from("payment_requests")
         .insert({ ...req, user_id: user.id } as any);
       if (error) throw error;
 
-      // If this is a mentor session payment, flip the booking to "pending payment verification"
+      // NOTE: The two-step update below (payment insert then booking status update) is
+      // intentionally non-atomic — there is no distributed transaction between the two
+      // table writes. If the booking update fails after the payment insert succeeds the
+      // database will be in an inconsistent state. A future improvement should wrap
+      // both operations in a single Postgres RPC/function to make this atomic.
       if (req.payment_type === "mentor_session" && req.booking_id) {
-        await supabase
-          .from("mentor_bookings")
-          .update({ payment_status: "pending" } as any)
-          .eq("id", req.booking_id);
+        try {
+          const { error: bookingError } = await supabase
+            .from("mentor_bookings")
+            .update({ payment_status: "pending" } as any)
+            .eq("id", req.booking_id);
+
+          if (bookingError) {
+            // Payment was already inserted — log the error and surface a warning to the
+            // caller so they can follow up, rather than silently ignoring the failure.
+            console.error(
+              "[useCreatePaymentRequest] Payment inserted but booking status update failed:",
+              bookingError
+            );
+            throw new Error(
+              "Payment was recorded but the booking status could not be updated. " +
+              "Please contact support with your booking ID: " + req.booking_id
+            );
+          }
+        } catch (err) {
+          // Re-throw so the mutation's onError handler can surface it to the user.
+          throw err;
+        }
       }
     },
     onSuccess: () => {
@@ -170,6 +233,16 @@ export function usePaymentEmployerContext(userId: string | null | undefined, pay
 }
 
 export async function uploadPaymentProof(userId: string, file: File): Promise<string> {
+  // File size check: reject files larger than 5 MB
+  if (file.size > MAX_PROOF_SIZE_BYTES) {
+    throw new Error(`File is too large. Maximum allowed size is 5 MB (file is ${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+  }
+
+  // File type check: only accept image files
+  if (!file.type.startsWith("image/")) {
+    throw new Error(`Invalid file type "${file.type}". Only image files are accepted as payment proof.`);
+  }
+
   const ext = file.name.split(".").pop();
   const path = `${userId}/${Date.now()}.${ext}`;
   const { error } = await supabase.storage

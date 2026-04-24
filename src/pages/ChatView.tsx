@@ -26,6 +26,16 @@ const ChatView = () => {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
   const [pickerForMsgId, setPickerForMsgId] = useState<string | null>(null);
 
+  const CHAR_LIMIT = 2000;
+
+  // Restore the user's last-used translation language for this conversation from localStorage.
+  // This means they don't have to re-select the language every visit.
+  const langPrefKey = conversationId ? `chat_lang_pref_${conversationId}` : null;
+  const [preferredTranslateLang, setPreferredTranslateLang] = useState<string | null>(() => {
+    if (!langPrefKey) return null;
+    return localStorage.getItem(langPrefKey);
+  });
+
   const queryClient = useQueryClient();
   const { data: messages = [], isLoading } = useMessages(conversationId);
   const sendMessage = useSendMessage();
@@ -44,13 +54,13 @@ const ChatView = () => {
     enabled: !!conversationId && !!user,
   });
 
+  // Auto-scroll to the bottom whenever new messages arrive (watches array length).
+  // First paint jumps instantly; subsequent updates animate smoothly.
   useEffect(() => {
     if (!messages.length) return;
-    // First paint: jump instantly to the bottom so the user lands at the latest message
-    // without watching a smooth scroll animation. Subsequent updates animate gently.
     bottomRef.current?.scrollIntoView({ behavior: didInitialScroll.current ? "smooth" : "auto" });
     didInitialScroll.current = true;
-  }, [messages]);
+  }, [messages.length]);
 
   // Mark messages as read whenever new messages arrive in this conversation
   useEffect(() => {
@@ -83,6 +93,12 @@ const ChatView = () => {
 
   const handleTranslateMessage = async (msgId: string, content: string, targetLang: string) => {
     setPickerForMsgId(null);
+    // Persist the chosen language so it's restored on the next visit.
+    if (langPrefKey) {
+      localStorage.setItem(langPrefKey, targetLang);
+    }
+    setPreferredTranslateLang(targetLang);
+
     const existing = translations[msgId];
     if (existing && existing.lang === targetLang) {
       setTranslations((prev) => {
@@ -144,8 +160,8 @@ const ChatView = () => {
             </p>
             <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
               {lang === "my"
-                ? "အောက်တွင် မက်ဆေ့ချ် ရိုက်ထည့်ပြီး စကားဝိုင်း စတင်ပါ။"
-                : "Type your first message below to start the conversation."}
+                ? "ပထမဆုံး မက်ဆေ့ချ် ပို့ပြီး စကားဝိုင်း စတင်ပါ။"
+                : "Send your first message to start the conversation."}
             </p>
           </div>
         ) : (
@@ -198,10 +214,10 @@ const ChatView = () => {
 
       <div className="border-t border-border bg-card px-4 py-3 pb-safe">
         <div className="flex items-end gap-2">
-          <div className="flex flex-1 items-center rounded-2xl border border-border bg-background px-4 py-2">
+          <div className="flex flex-1 flex-col rounded-2xl border border-border bg-background px-4 py-2">
             <textarea
               value={messageText}
-              onChange={e => setMessageText(e.target.value)}
+              onChange={e => setMessageText(e.target.value.slice(0, CHAR_LIMIT))}
               onKeyDown={e => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -209,11 +225,17 @@ const ChatView = () => {
                 }
               }}
               rows={1}
+              maxLength={CHAR_LIMIT}
               placeholder={lang === "my" ? "မက်ဆေ့ချ် ရေးရန်... (Shift+Enter = new line)" : "Type a message... (Shift+Enter for new line)"}
               className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground max-h-32"
             />
+            {messageText.length > 0 && (
+              <p className={`mt-1 self-end text-[10px] ${messageText.length >= CHAR_LIMIT ? "text-destructive" : "text-muted-foreground"}`}>
+                {messageText.length} / {CHAR_LIMIT}
+              </p>
+            )}
           </div>
-          <button onClick={handleSend} disabled={!messageText.trim()} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90 disabled:opacity-40">
+          <button onClick={handleSend} disabled={!messageText.trim() || messageText.length > CHAR_LIMIT} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90 disabled:opacity-40">
             <Send className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>

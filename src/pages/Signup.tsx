@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap, CheckCircle2, XCircle } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
@@ -12,6 +12,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import LanguageToggle from "@/components/LanguageToggle";
+
+const PASSWORD_MIN_LENGTH = 8;
+
+/** Returns true if password satisfies all complexity requirements */
+function passwordMeetsRequirements(pw: string) {
+  return pw.length >= PASSWORD_MIN_LENGTH && /[0-9]/.test(pw);
+}
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -25,9 +32,15 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
+  const [referralError, setReferralError] = useState<string | null>(null);
   const [showReferral, setShowReferral] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Derived password checks
+  const pwLongEnough = password.length >= PASSWORD_MIN_LENGTH;
+  const pwHasNumber = /[0-9]/.test(password);
+  const pwValid = pwLongEnough && pwHasNumber;
 
   // Auto-fill referral code from URL param
   useEffect(() => {
@@ -47,23 +60,32 @@ const Signup = () => {
       toast({ title: lang === "my" ? "အီးမေးလ် မှန်ကန်စွာ ထည့်ပါ" : "Enter a valid email", variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: lang === "my" ? "စကားဝှက် အနည်းဆုံး ၆ လုံး" : "Password must be at least 6 characters", variant: "destructive" });
+    if (!pwValid) {
+      toast({
+        title: lang === "my"
+          ? "စကားဝှက် အနည်းဆုံး ၈ လုံး နှင့် နံပါတ် တစ်လုံး ပါရမည်"
+          : "Password must be at least 8 characters and contain at least one number",
+        variant: "destructive",
+      });
       return;
     }
 
-    // Validate referral code if provided
+    // Validate referral code if provided — case-insensitive comparison
     let referrerId: string | null = null;
     if (referralCode.trim()) {
+      const normalized = referralCode.trim().toLowerCase();
       const { data: referrerProfile } = await supabase
         .from("profiles")
         .select("id")
-        .eq("referral_code", referralCode.trim())
+        .ilike("referral_code", normalized)
         .maybeSingle();
       if (!referrerProfile) {
-        toast({ title: lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code", variant: "destructive" });
+        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code";
+        setReferralError(msg);
+        toast({ title: msg, variant: "destructive" });
         return;
       }
+      setReferralError(null);
       referrerId = referrerProfile.id;
     }
 
@@ -88,12 +110,10 @@ const Signup = () => {
           status: "completed",
         });
       }
-      // Persist role to user_roles table via SECURITY DEFINER function
-      if (selectedRole === "employer") {
-        await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
-      } else if (selectedRole === "mentor") {
-        await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
-      }
+      // Persist role to user_roles table via SECURITY DEFINER function.
+      // Pass the actual selected role (jobseeker / employer / mentor) so the
+      // DB can use it for downstream logic.
+      await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: selectedRole });
     }
     setRole(selectedRole);
     navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/dashboard" : "/home");
@@ -164,24 +184,40 @@ const Signup = () => {
               <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
               <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
             </div>
+            {/* Email verification notice */}
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {lang === "my"
+                ? "အကောင့်ဖွင့်ပြီးနောက် အတည်ပြုချက် အီးမေးလ် ပေးပို့မည်"
+                : "A verification email will be sent after sign-up"}
+            </p>
           </div>
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
               <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-muted/30 pl-10 pr-10 text-sm focus-visible:ring-primary/30" />
-              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" type="button">
                 {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
-            {password && password.length < 6 && (
-              <p className="mt-1 text-[10px] text-destructive">{lang === "my" ? "အနည်းဆုံး ၆ လုံး လိုအပ်ပါသည်" : "Minimum 6 characters required"}</p>
-            )}
+            {/* Password complexity helper */}
+            <div className="mt-2 space-y-1">
+              <RequirementRow
+                met={pwLongEnough}
+                show={password.length > 0}
+                text={lang === "my" ? "အနည်းဆုံး ၈ လုံး" : "At least 8 characters"}
+              />
+              <RequirementRow
+                met={pwHasNumber}
+                show={password.length > 0}
+                text={lang === "my" ? "နံပါတ် တစ်လုံးပါရမည်" : "At least one number"}
+              />
+            </div>
           </div>
 
           {/* Referral Code */}
           {!showReferral ? (
-            <button onClick={() => setShowReferral(true)} className="flex items-center gap-2 text-xs font-semibold text-primary">
+            <button onClick={() => setShowReferral(true)} className="flex items-center gap-2 text-xs font-semibold text-primary" type="button">
               <Gift className="h-3.5 w-3.5" strokeWidth={1.5} />
               {lang === "my" ? "ညွှန်းဆိုကုဒ် ရှိပါသလား?" : "Have a referral code?"}
             </button>
@@ -190,8 +226,16 @@ const Signup = () => {
               <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ညွှန်းဆိုကုဒ် (ရွေးချယ်ပိုင်ခွင့်)" : "Referral Code (Optional)"}</Label>
               <div className="relative">
                 <Gift className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-                <Input value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())} placeholder="TS-XXXXXX" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm uppercase focus-visible:ring-primary/30" />
+                <Input
+                  value={referralCode}
+                  onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralError(null); }}
+                  placeholder="TS-XXXXXX"
+                  className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm uppercase focus-visible:ring-primary/30"
+                />
               </div>
+              {referralError && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{referralError}</p>
+              )}
             </div>
           )}
         </div>
@@ -208,7 +252,7 @@ const Signup = () => {
 
         <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
-          <button onClick={() => navigate("/login")} className="font-semibold text-primary">
+          <button onClick={() => navigate("/login")} className="font-semibold text-primary" type="button">
             {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
           </button>
         </p>
@@ -216,5 +260,20 @@ const Signup = () => {
     </div>
   );
 };
+
+/** Small inline row showing whether a password requirement is met */
+function RequirementRow({ met, show, text }: { met: boolean; show: boolean; text: string }) {
+  if (!show) return null;
+  return (
+    <div className="flex items-center gap-1.5">
+      {met ? (
+        <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-500" />
+      ) : (
+        <XCircle className="h-3 w-3 shrink-0 text-destructive" />
+      )}
+      <span className={`text-[10px] ${met ? "text-emerald-600" : "text-destructive"}`}>{text}</span>
+    </div>
+  );
+}
 
 export default Signup;

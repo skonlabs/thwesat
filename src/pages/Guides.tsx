@@ -213,6 +213,11 @@ const Guides = () => {
                                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                                     {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
                                   </p>
+                                  {guide.updated_at && (
+                                    <p className="mt-0.5 text-[10px] text-muted-foreground/70">
+                                      {lang === "my" ? "နောက်ဆုံးပြင်ဆင်:" : "Updated:"} {new Date(guide.updated_at).toLocaleDateString()}
+                                    </p>
+                                  )}
                                 </div>
                                 <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                               </motion.button>
@@ -271,8 +276,8 @@ const Guides = () => {
         {deleteGuideId && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteGuideId(null)}>
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
-              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "လမ်းညွှန်ချက် ဖျက်မည်" : "Delete Guide"}</h3>
-              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလမ်းညွှန်ချက်ကို ဖျက်မည်။ ဆက်လုပ်မည်လား?" : "This will permanently delete this guide. Continue?"}</p>
+              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ဤလမ်းညွှန်ချက်ကို ဖျက်မည်လား?" : "Delete this guide?"}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။" : "This cannot be undone."}</p>
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteGuideId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleDeleteGuide}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
@@ -300,10 +305,15 @@ function GuideCard({ guide, lang, navigate, isAdmin, onDelete }: { guide: any; l
           <h3 className="text-sm font-semibold leading-snug text-foreground">
             {lang === "my" && guide.title_my ? guide.title_my : guide.title}
           </h3>
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-1 flex items-center gap-2 flex-wrap">
             {guide.country_flag && <span className="text-xs">{guide.country_flag}</span>}
             <span className="text-[10px] text-muted-foreground">{guide.country}</span>
             <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{guide.category}</span>
+            {guide.updated_at && (
+              <span className="text-[10px] text-muted-foreground/70">
+                {lang === "my" ? "နောက်ဆုံးပြင်ဆင်:" : "Updated:"} {new Date(guide.updated_at).toLocaleDateString()}
+              </span>
+            )}
           </div>
         </div>
         <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />

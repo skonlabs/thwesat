@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
+import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil, CheckCircle2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorMentees } from "@/hooks/use-mentor-bookings";
@@ -39,6 +49,8 @@ const MentorMentees = () => {
   };
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [declineConfirmMenteeId, setDeclineConfirmMenteeId] = useState<string | null>(null);
+  const [declineConfirmName, setDeclineConfirmName] = useState<string>("");
 
   // Accept mentee: update mentor_mentees status to active
   const acceptMentee = useMutation({
@@ -95,6 +107,12 @@ const MentorMentees = () => {
           link_path: "/mentors/bookings",
         });
       }
+      // Find the mentee's display name for the toast
+      const { data: menteeProfile } = await supabase.from("profiles").select("display_name").eq("id", menteeId).maybeSingle();
+      const menteeName = menteeProfile?.display_name || (lang === "my" ? "Mentee" : "this mentee");
+      toast.success(lang === "my"
+        ? `${menteeName} ကို လမ်းညွှန်ပေးနေပြီ! မက်ဆေ့ချ်ပို့ပြီး စတင်ပါ။`
+        : `You're now mentoring ${menteeName}! Send them a message to get started.`);
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       setSelectedId(null);
@@ -251,6 +269,36 @@ const MentorMentees = () => {
         )}
       </div>
 
+      {/* Decline AlertDialog */}
+      <AlertDialog open={!!declineConfirmMenteeId} onOpenChange={open => { if (!open) setDeclineConfirmMenteeId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {lang === "my" ? `${declineConfirmName} ၏ တောင်းဆိုမှုကို ငြင်းပယ်မည်လား?` : `Decline request from ${declineConfirmName}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "ငြင်းပယ်ပါက ၎င်းတို့ထံ အကြောင်းကြားပေးပါမည်။"
+                : "They will be notified of your decision."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (declineConfirmMenteeId) {
+                  declineMentee.mutate(declineConfirmMenteeId);
+                  setDeclineConfirmMenteeId(null);
+                }
+              }}
+            >
+              {lang === "my" ? "ငြင်းပယ်မည်" : "Decline"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Detail Sheet */}
       <Sheet open={!!selectedMentee} onOpenChange={open => { if (!open) setSelectedId(null); }}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl pb-24">
@@ -317,7 +365,10 @@ const MentorMentees = () => {
                       size="sm"
                       className="flex-1 rounded-lg text-xs border-destructive text-destructive"
                       disabled={declineMentee.isPending}
-                      onClick={() => declineMentee.mutate(selectedMentee.mentee_id)}
+                      onClick={() => {
+                        setDeclineConfirmMenteeId(selectedMentee.mentee_id);
+                        setDeclineConfirmName(selectedMentee.profile?.display_name || "Mentee");
+                      }}
                     >
                       {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                     </Button>
@@ -346,6 +397,7 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
   const [editing, setEditing] = useState(false);
   const [goals, setGoals] = useState(currentGoals);
   const [notes, setNotes] = useState(currentNotes);
+  const [saved, setSaved] = useState(false);
   const queryClient = useQueryClient();
 
   const save = useMutation({
@@ -354,9 +406,12 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(lang === "my" ? "သိမ်းပြီး" : "Saved");
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
-      setEditing(false);
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        setEditing(false);
+      }, 2000);
     },
   });
 
@@ -380,7 +435,10 @@ function EditMenteeFields({ menteeRelId, currentGoals, currentNotes, lang }: { m
       </div>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="flex-1 rounded-lg text-xs" onClick={() => setEditing(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs" disabled={save.isPending} onClick={() => save.mutate()}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
+        <Button variant="default" size="sm" className="flex-1 rounded-lg text-xs gap-1" disabled={save.isPending} onClick={() => save.mutate()}>
+          {saved && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
+          {lang === "my" ? "သိမ်းရန်" : "Save"}
+        </Button>
       </div>
     </div>
   );

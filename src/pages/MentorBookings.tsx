@@ -4,6 +4,16 @@ import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useAuth } from "@/hooks/use-auth";
@@ -47,6 +57,24 @@ const MentorBookings = () => {
   const [ratingMentorId, setRatingMentorId] = useState<string | null>(null);
   const [ratingValue, setRatingValue] = useState(5);
   const [ratingText, setRatingText] = useState("");
+
+  // Cancel booking state
+  const [cancelBookingId, setCancelBookingId] = useState<string | null>(null);
+
+  const cancelBooking = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("mentor_bookings").update({ status: "cancelled" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setCancelBookingId(null);
+      queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
+      toast({ title: lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ပြီး" : "Booking cancelled", variant: "default" });
+    },
+    onError: () => {
+      toast({ title: lang === "my" ? "ပယ်ဖျက်မရပါ" : "Failed to cancel booking", variant: "destructive" });
+    },
+  });
 
   const submitReview = useMutation({
     mutationFn: async () => {
@@ -255,6 +283,20 @@ const MentorBookings = () => {
                         </div>
                       )}
 
+                      {/* Pending: cancel (mentee side) */}
+                      {booking.status === "pending" && isMentee(booking) && (
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-lg text-xs border-destructive text-destructive"
+                            onClick={() => setCancelBookingId(booking.id)}
+                          >
+                            {lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်" : "Cancel Booking"}
+                          </Button>
+                        </div>
+                      )}
+
                       {/* Confirmed: message + mark complete */}
                       {booking.status === "confirmed" && (
                         <div className="mt-3 space-y-2">
@@ -294,9 +336,17 @@ const MentorBookings = () => {
                             )}
                           </div>
                           {myCompleted && !fullyDone && (
-                            <p className="text-right text-[10px] text-emerald font-medium">
-                              ✓ {lang === "my" ? "သင် အတည်ပြုပြီးပါပြီ။ အခြားတစ်ဖက် အတည်ပြုရန် စောင့်ပါ" : "You confirmed. Waiting for the other party to confirm."}
-                            </p>
+                            <div className="text-right">
+                              <p className="text-[10px] text-emerald font-medium">
+                                ✓ {lang === "my" ? "သင် အတည်ပြုပြီးပါပြီ။ အခြားတစ်ဖက် အတည်ပြုရန် စောင့်ပါ" : "You confirmed. Waiting for the other party to confirm."}
+                              </p>
+                              <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                {lang === "my"
+                                  ? "နှစ်ဖက်လုံး ၇ ရက်အတွင်း အတည်မပြုပါက support ကို ဆက်သွယ်ပါ။ "
+                                  : "If not confirmed by both parties within 7 days, please contact support. "}
+                                <a href="mailto:support@thwesat.com" className="underline text-primary">{lang === "my" ? "Support ဆက်သွယ်" : "Contact Support"}</a>
+                              </p>
+                            </div>
                           )}
                         </div>
                       )}
@@ -379,6 +429,29 @@ const MentorBookings = () => {
         )}
       </div>
 
+      {/* Cancel Booking AlertDialog */}
+      <AlertDialog open={!!cancelBookingId} onOpenChange={open => { if (!open) setCancelBookingId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ရန်?" : "Cancel this booking?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "ဤချိန်းဆိုမှုကို ပယ်ဖျက်မည်ဆိုလျှင် Mentor ထံ အကြောင်းကြားပေးပါမည်။"
+                : "This booking will be cancelled. The mentor will be notified."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Keep Booking"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (cancelBookingId) cancelBooking.mutate(cancelBookingId); }}
+            >
+              {lang === "my" ? "ပယ်ဖျက်မည်" : "Cancel Booking"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Rating Sheet */}
       <Sheet open={!!ratingBookingId} onOpenChange={(open) => { if (!open) setRatingBookingId(null); }}>
         <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-24">
@@ -402,14 +475,14 @@ const MentorBookings = () => {
             <Textarea
               value={ratingText}
               onChange={e => setRatingText(e.target.value)}
-              placeholder={lang === "my" ? "သင်၏ အကြံပြုချက် (ရွေးချယ်ခွင့်)" : "Your feedback (optional)"}
+              placeholder={lang === "my" ? "ဤ Mentor နှင့် သင်၏ အတွေ့အကြုံကို မျှဝေပါ..." : "Share your experience with this mentor..."}
               className="min-h-[80px] rounded-xl"
             />
             <Button
               variant="default"
               size="lg"
               className="w-full rounded-xl"
-              disabled={submitReview.isPending}
+              disabled={submitReview.isPending || !ratingText || ratingText.trim() === ""}
               onClick={() => submitReview.mutate()}
             >
               {submitReview.isPending

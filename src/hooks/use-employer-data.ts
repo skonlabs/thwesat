@@ -58,9 +58,35 @@ export function useUpdateApplicationStatus() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async ({ id, status, rejectionReason, rejectionReasonMy, placementSalary, placementFee, forwardedToEmail }: {
-      id: string; status: string; rejectionReason?: string; rejectionReasonMy?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string;
+    mutationFn: async ({ id, status, rejectionReason, rejectionReasonMy, placementSalary, placementFee, forwardedToEmail, interviewDate }: {
+      id: string; status: string; rejectionReason?: string; rejectionReasonMy?: string; placementSalary?: number; placementFee?: number; forwardedToEmail?: string; interviewDate?: string;
     }) => {
+      // ── Ownership guard ──────────────────────────────────────────────────────
+      // Fetch the application's job and verify the current user is the employer.
+      if (user) {
+        const { data: appRow } = await supabase
+          .from("applications")
+          .select("job_id")
+          .eq("id", id)
+          .single();
+        if (appRow?.job_id) {
+          const { data: empProfile } = await supabase
+            .from("employer_profiles")
+            .select("id")
+            .eq("id", user.id)
+            .maybeSingle();
+          const { data: jobRow } = await supabase
+            .from("jobs")
+            .select("employer_id")
+            .eq("id", appRow.job_id)
+            .single();
+          if (jobRow && empProfile && jobRow.employer_id !== empProfile.id) {
+            throw new Error("Unauthorized: you do not own this application.");
+          }
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────────
+
       const update: any = { status };
       if (rejectionReason) {
         update.rejection_reason = rejectionReason;
@@ -71,9 +97,9 @@ export function useUpdateApplicationStatus() {
           update.rejection_reason_my = rejectionReason;
         }
       }
-      // Auto-stamp interview_date when transitioning to interview status
+      // Stamp interview_date: use caller-supplied date if provided, else now().
       if (status === "interview" || status === "interviewed") {
-        update.interview_date = new Date().toISOString();
+        update.interview_date = interviewDate ?? new Date().toISOString();
       }
       if (placementSalary !== undefined && placementSalary !== null) update.placement_salary = placementSalary;
       if (placementFee !== undefined && placementFee !== null) update.placement_fee = placementFee;

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,6 +20,8 @@ import { shareJobLink } from "@/lib/share-job";
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromSaved = searchParams.get("from") === "saved";
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -64,6 +67,7 @@ const JobDetail = () => {
   const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [parsingCvId, setParsingCvId] = useState<string | null>(null);
 
   // Fetch user's CV documents
   const { data: cvDocuments = [] } = useQuery({
@@ -117,10 +121,21 @@ const JobDetail = () => {
     enabled: !!user && showApplyModal,
   });
 
-  // A withdrawn or rejected application should NOT block the user from re-applying.
+  // Application throttle: find any application for this job
   const myApplication = id ? applications.find((a: any) => a.job_id === id) : null;
-  const applied = !!myApplication && !["withdrawn", "rejected"].includes((myApplication as any).status);
+  // "active" means NOT withdrawn/rejected — user cannot re-apply
+  const hasActiveApplication = !!myApplication && !["withdrawn", "rejected"].includes((myApplication as any)?.status);
+  // Previously applied but was withdrawn/rejected — allow re-apply with different label
+  const hadPreviousApplication = !!myApplication && ["withdrawn", "rejected"].includes((myApplication as any)?.status);
   const saved = id ? savedJobIds.includes(id) : false;
+
+  // Mutual exclusivity: clear selectedGeneratedResumeId when selectedCvId is set and vice versa
+  useEffect(() => {
+    if (selectedCvId) setSelectedGeneratedResumeId(null);
+  }, [selectedCvId]);
+  useEffect(() => {
+    if (selectedGeneratedResumeId) setSelectedCvId(null);
+  }, [selectedGeneratedResumeId]);
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
     friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
@@ -196,7 +211,7 @@ const JobDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
         <div className="px-5">
           <div className="space-y-4">
             <div className="flex items-start gap-4">
@@ -254,7 +269,7 @@ const JobDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
+        <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           {/* Job header */}
@@ -465,8 +480,8 @@ const JobDetail = () => {
                                 const storagePath = doc.file_url.split('/cv-documents/').pop();
                                 if (!storagePath) return;
 
+                                setParsingCvId(doc.id);
                                 setPreviewTitle(doc.file_name);
-                                setPreviewContent(lang === "my" ? "CV ကို ဖတ်နေသည်..." : "Loading CV...");
 
                                 try {
                                   const { data, error } = await supabase.functions.invoke("parse-cv", {
@@ -499,9 +514,18 @@ const JobDetail = () => {
                                 } catch {
                                   setPreviewContent(null);
                                   toast({ title: lang === "my" ? "CV ကို မကြည့်ရှုနိုင်ပါ" : "Could not preview CV", variant: "destructive" });
+                                } finally {
+                                  setParsingCvId(null);
                                 }
                               }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
-                                <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                {parsingCvId === doc.id ? (
+                                  <span className="flex items-center gap-1">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-[10px]">{lang === "my" ? "ဖတ်နေ..." : "Parsing..."}</span>
+                                  </span>
+                                ) : (
+                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
+                                )}
                               </button>
                             )}
                             {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
@@ -606,10 +630,32 @@ const JobDetail = () => {
                   </div>
                 )}
 
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="mt-1 block w-full">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full opacity-60 cursor-not-allowed"
+                          disabled
+                        >
+                          <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                          {lang === "my" ? "ဖန်တီးရန် (AI – မကြာမီ)" : "Generate (AI – coming soon)"}
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-center">
+                      {lang === "my"
+                        ? "AI အလုပ်လျှောက်လွှာ ဖန်တီးခြင်း မကြာမီ ရရှိမည်။ ကိုယ်တိုင် ရေးနိုင်ပါသည်။"
+                        : "AI cover letter generation is coming soon. You can still write your cover letter manually."}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-1 w-full"
+                  className="mt-2 w-full"
                   onClick={() => {
                     if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
                     else { setCoverLetterMode("manual"); }
@@ -748,13 +794,15 @@ const JobDetail = () => {
               {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
             </Button>
           )}
-          {applied ? (
+          {hasActiveApplication ? (
             <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
-              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "Applied"}
+              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "You have already applied to this job"}
             </Button>
           ) : (
             <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
-              {lang === "my" ? "လျှောက်ထားရန်" : "Apply"}
+              {hadPreviousApplication
+                ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
+                : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
             </Button>
           )}
         </div>

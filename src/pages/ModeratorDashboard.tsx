@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Briefcase, CreditCard, CalendarCheck, Eye, Pencil } from "lucide-react";
+import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Briefcase, CreditCard, CalendarCheck, Eye, Pencil, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -105,6 +105,53 @@ const ModeratorDashboard = () => {
       return (data || []).map((b: any) => ({ ...b, mentor: pMap.get(b.mentor_id), mentee: pMap.get(b.mentee_id) }));
     },
   });
+
+  // ─── TODAY'S MODERATION COUNT ───
+  const { data: todayModerationCount = 0 } = useQuery({
+    queryKey: ["moderator-today-count", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const { count } = await supabase
+        .from("community_posts")
+        .select("id", { count: "exact", head: true })
+        .eq("moderated_by", user.id)
+        .gte("updated_at", today.toISOString());
+      return count || 0;
+    },
+    enabled: !!user?.id,
+  });
+
+  // ─── ADMIN USER IDs (for escalation) ───
+  const { data: adminUserIds = [] } = useQuery({
+    queryKey: ["admin-user-ids"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+      return (data || []).map((r: any) => r.user_id);
+    },
+  });
+
+  const handleEscalate = async (postId: string) => {
+    if (adminUserIds.length === 0) {
+      toast.error(lang === "my" ? "Admin မတွေ့ပါ" : "No admins found");
+      return;
+    }
+    await Promise.all(
+      adminUserIds.map((adminId: string) =>
+        supabase.from("notifications").insert({
+          user_id: adminId,
+          notification_type: "escalation_request",
+          message: `Moderator escalated post ${postId} for review`,
+          link_path: "/admin/jobs",
+        })
+      )
+    );
+    toast.success(lang === "my" ? "Admin ထံ ပို့ပြီး" : "Escalated to admin");
+  };
 
   // ─── MUTATIONS ───
   const approvePost = useMutation({
@@ -244,6 +291,15 @@ const ModeratorDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
       <div className="px-5">
+        {/* Today's moderation count */}
+        <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
+          <p className="text-sm text-foreground">
+            <span className="font-bold text-primary">{todayModerationCount}</span>{" "}
+            {lang === "my"
+              ? `ခု စစ်ဆေးပြီး (ယနေ့)`
+              : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
+          </p>
+        </div>
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
@@ -356,6 +412,9 @@ const ModeratorDashboard = () => {
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => approvePost.mutate(selectedPost.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
             </div>
+            <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id)}>
+              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
+            </Button>
           </BottomSheet>
         )}
       </AnimatePresence>
@@ -482,6 +541,13 @@ const ModeratorDashboard = () => {
               {selectedBooking.decline_reason && <div><span className="text-muted-foreground">{lang === "my" ? "ငြင်းပယ်ချက်" : "Decline reason"}</span><p className="mt-1 text-foreground">{selectedBooking.decline_reason}</p></div>}
             </div>
             <p className="text-[10px] text-muted-foreground text-center">{lang === "my" ? "ကြည့်ရှုရန်သာ - ချိန်းဆိုမှုများကို mentor/mentee က စီမံသည်" : "View only — bookings are managed by mentor/mentee"}</p>
+            <div className="mt-3 rounded-xl border border-border bg-muted/50 p-3 text-center text-xs text-muted-foreground">
+              {lang === "my"
+                ? <>ချိန်းဆိုမှု ပယ်ဖျက်ရန် သို့မဟုတ် ပြောင်းလဲရန် Admin ကို ဆက်သွယ်ပါ —{" "}
+                  <a href="/messages" className="font-medium text-primary underline">{lang === "my" ? "မက်ဆေ့ ပေးပို့ရန်" : "Send a message"}</a></>
+                : <>To cancel or modify a booking, contact admin —{" "}
+                  <a href="/messages" className="font-medium text-primary underline">Send a message</a></>}
+            </div>
           </BottomSheet>
         )}
       </AnimatePresence>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages } from "lucide-react";
+import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -179,6 +179,18 @@ function formatPhoneDigits(digits: string): string {
   return `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7, 11)}`;
 }
 
+// --- Validation helpers ---
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+function isValidPhone(digits: string) {
+  return digits.replace(/\D/g, "").length >= 7;
+}
+function isValidWebsite(v: string) {
+  return v === "" || /^https?:\/\//i.test(v);
+}
+
 // --- Component ---
 
 const EditProfile = () => {
@@ -186,6 +198,9 @@ const EditProfile = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, refreshProfile } = useAuth();
+
+  const [isDirty, setIsDirty] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; phone?: string; website?: string }>({});
 
   const [name, setName] = useState("");
   const [headline, setHeadline] = useState("");
@@ -244,8 +259,23 @@ const EditProfile = () => {
       setHasLaptop(profile.has_laptop || false);
       setInternetStable(profile.internet_stable || false);
       setAvatarUrl(profile.avatar_url || null);
+      setIsDirty(false);
     }
   }, [profile]);
+
+  // beforeunload warning when dirty
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const markDirty = useCallback(() => setIsDirty(true), []);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -313,13 +343,14 @@ const EditProfile = () => {
   };
   const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
   const addLanguage = (l: string) => {
-    if (!languages.includes(l) && languages.length < 5) {
-      setLanguages([...languages, l]);
+    if (languages.length >= 5) {
       setLanguageSearch("");
       setShowLanguageDropdown(false);
+      return;
     }
-    if (languages.length >= 5) {
-      // Already at limit - just close
+    if (!languages.includes(l)) {
+      setLanguages([...languages, l]);
+      markDirty();
       setLanguageSearch("");
       setShowLanguageDropdown(false);
     }
@@ -361,8 +392,33 @@ const EditProfile = () => {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
       return;
     }
+    setIsDirty(false);
     await refreshProfile();
     navigate("/profile");
+  };
+
+  const handleEmailBlur = () => {
+    if (email && !isValidEmail(email)) {
+      setFieldErrors(prev => ({ ...prev, email: lang === "my" ? "အီးမေးလ် ဖော်မတ် မမှန်ကန်ပါ" : "Invalid email format" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, email: undefined }));
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (phoneNumber && !isValidPhone(phoneNumber)) {
+      setFieldErrors(prev => ({ ...prev, phone: lang === "my" ? "ဖုန်းနံပါတ် အနည်းဆုံး ၇ လုံး ထည့်ပါ" : "Phone must have at least 7 digits" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, phone: undefined }));
+    }
+  };
+
+  const handleWebsiteBlur = () => {
+    if (!isValidWebsite(website)) {
+      setFieldErrors(prev => ({ ...prev, website: lang === "my" ? "ဝဘ်ဆိုက် http:// သို့မဟုတ် https:// ဖြင့် စတင်ရမည်" : "Website must start with http:// or https://" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, website: undefined }));
+    }
   };
 
   const initial = name ? name.charAt(0).toUpperCase() : "?";
@@ -370,6 +426,17 @@ const EditProfile = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} backPath="/profile" />
+      {isDirty && (
+        <div className="mx-5 mt-2 flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-50/80 px-3 py-2.5 dark:bg-amber-900/20">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
+          <p className="flex-1 text-xs font-medium text-amber-800 dark:text-amber-300">
+            {lang === "my" ? "သိမ်းမထားသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
+          </p>
+          <button onClick={() => setIsDirty(false)} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
+            <X className="h-3.5 w-3.5" strokeWidth={2} />
+          </button>
+        </div>
+      )}
       <div className="px-5 space-y-4">
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pt-4 pb-2 flex flex-col items-center">
@@ -400,19 +467,25 @@ const EditProfile = () => {
           </div>
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
-            <Input value={name} onChange={e => setName(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            <Input value={name} onChange={e => { setName(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
           </div>
           <div>
-            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ရာထူး" : "Headline"}</Label>
-            <Input value={headline} onChange={e => setHeadline(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            <div className="mb-1.5 flex items-center justify-between">
+              <Label className="text-xs font-medium text-muted-foreground">{lang === "my" ? "ရာထူး" : "Headline"}</Label>
+              <span className="text-[10px] text-muted-foreground">{headline.length}/120</span>
+            </div>
+            <Input value={headline} onChange={e => { setHeadline(e.target.value.slice(0, 120)); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" maxLength={120} />
           </div>
           <div>
-            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "Bio"}</Label>
-            <Textarea value={bio} onChange={e => setBio(e.target.value)} className="min-h-[80px] rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            <div className="mb-1.5 flex items-center justify-between">
+              <Label className="text-xs font-medium text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "Bio"}</Label>
+              <span className="text-[10px] text-muted-foreground">{bio.length}/500</span>
+            </div>
+            <Textarea value={bio} onChange={e => { setBio(e.target.value.slice(0, 500)); markDirty(); }} className="min-h-[80px] rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" maxLength={500} />
           </div>
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
-            <Input value={experience} onChange={e => setExperience(e.target.value)} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            <Input value={experience} onChange={e => { setExperience(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
           </div>
         </motion.div>
 
@@ -498,8 +571,15 @@ const EditProfile = () => {
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+              <Input
+                value={email}
+                onChange={e => { setEmail(e.target.value); markDirty(); }}
+                onBlur={handleEmailBlur}
+                type="email"
+                className={`h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30 ${fieldErrors.email ? "border-destructive" : ""}`}
+              />
             </div>
+            {fieldErrors.email && <p className="mt-1 text-[10px] text-destructive">{fieldErrors.email}</p>}
           </div>
 
           {/* Phone with country code */}
@@ -528,11 +608,13 @@ const EditProfile = () => {
               </div>
               <Input
                 value={formatPhoneDigits(phoneNumber)}
-                onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                onChange={e => { setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 11)); markDirty(); }}
+                onBlur={handlePhoneBlur}
                 placeholder="xxx xxxx xxxx"
-                className="h-11 flex-1 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30"
+                className={`h-11 flex-1 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30 ${fieldErrors.phone ? "border-destructive" : ""}`}
               />
             </div>
+            {fieldErrors.phone && <p className="mt-1 text-[10px] text-destructive">{fieldErrors.phone}</p>}
           </div>
 
           {/* Website */}
@@ -540,8 +622,15 @@ const EditProfile = () => {
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ဝဘ်ဆိုက်" : "Website"}</Label>
             <div className="relative">
               <Globe className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-              <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" className="h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+              <Input
+                value={website}
+                onChange={e => { setWebsite(e.target.value); markDirty(); }}
+                onBlur={handleWebsiteBlur}
+                placeholder="https://"
+                className={`h-11 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30 ${fieldErrors.website ? "border-destructive" : ""}`}
+              />
             </div>
+            {fieldErrors.website && <p className="mt-1 text-[10px] text-destructive">{fieldErrors.website}</p>}
           </div>
         </motion.div>
 
@@ -597,17 +686,24 @@ const EditProfile = () => {
               ))}
             </div>
           )}
+          {skills.length >= 28 && (
+            <p className={`mb-2 text-[11px] font-semibold ${skills.length >= 30 ? "text-destructive" : "text-amber-600 dark:text-amber-400"}`}>
+              {skills.length}/30 {lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ပြီး" : "skills added"}
+              {skills.length >= 30 && (lang === "my" ? " — အများဆုံး ရောက်နေပြီ" : " — limit reached")}
+            </p>
+          )}
           <div ref={skillRef} className="relative">
             <div className="flex gap-2">
               <Input
                 value={newSkill}
                 onChange={e => { setNewSkill(e.target.value); setShowSkillSuggestions(true); }}
-                onFocus={() => setShowSkillSuggestions(true)}
+                onFocus={() => { if (skills.length < 30) setShowSkillSuggestions(true); }}
                 onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
-                placeholder={lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ရန်..." : "Add a skill..."}
-                className="h-10 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30"
+                placeholder={skills.length >= 30 ? (lang === "my" ? "အများဆုံး ရောက်နေပြီ" : "Skill limit reached") : (lang === "my" ? "ကျွမ်းကျင်မှု ထည့်ရန်..." : "Add a skill...")}
+                disabled={skills.length >= 30}
+                className="h-10 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30 disabled:opacity-50"
               />
-              <Button variant="outline" size="sm" className="h-10 w-10 rounded-xl border-border p-0" onClick={() => addSkill()}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
+              <Button variant="outline" size="sm" className="h-10 w-10 rounded-xl border-border p-0" disabled={skills.length >= 30} onClick={() => addSkill()}><Plus className="h-4 w-4" strokeWidth={1.5} /></Button>
             </div>
             {showSkillSuggestions && filteredSkillSuggestions.length > 0 && (
               <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
@@ -643,18 +739,24 @@ const EditProfile = () => {
               ))}
             </div>
           )}
+          {languages.length >= 5 && (
+            <p className="mb-2 text-[11px] font-semibold text-destructive">
+              5/5 {lang === "my" ? "ဘာသာစကား — အများဆုံး ရောက်နေပြီ" : "languages — limit reached"}
+            </p>
+          )}
           <div ref={langRef} className="relative">
             <div className="relative">
               <Input
                 value={languageSearch}
-                onChange={e => { setLanguageSearch(e.target.value); setShowLanguageDropdown(true); }}
-                onFocus={() => setShowLanguageDropdown(true)}
-                placeholder={lang === "my" ? "ဘာသာစကား ရှာပါ..." : "Search language..."}
-                className="h-10 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30"
+                onChange={e => { if (languages.length < 5) { setLanguageSearch(e.target.value); setShowLanguageDropdown(true); } }}
+                onFocus={() => { if (languages.length < 5) setShowLanguageDropdown(true); }}
+                placeholder={languages.length >= 5 ? (lang === "my" ? "အများဆုံး ရောက်နေပြီ" : "Language limit reached") : (lang === "my" ? "ဘာသာစကား ရှာပါ..." : "Search language...")}
+                disabled={languages.length >= 5}
+                className="h-10 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30 disabled:opacity-50"
               />
               <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </div>
-            {showLanguageDropdown && filteredLanguages.length > 0 && (
+            {showLanguageDropdown && filteredLanguages.length > 0 && languages.length < 5 && (
               <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
                 {filteredLanguages.map(l => (
                   <button key={l} onClick={() => addLanguage(l)} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-foreground hover:bg-muted">

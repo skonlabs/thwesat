@@ -65,10 +65,12 @@ import EmployerEditCompany from "./pages/EmployerEditCompany";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import SiteGate from "./components/SiteGate";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <ErrorBoundary>
   <SiteGate>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -163,6 +165,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
   </SiteGate>
+  </ErrorBoundary>
 );
 
 export default App;

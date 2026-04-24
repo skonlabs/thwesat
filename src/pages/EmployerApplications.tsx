@@ -4,6 +4,8 @@ import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
@@ -49,8 +51,10 @@ const EmployerApplications = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPlacement, setShowPlacement] = useState(false);
+  const [showPlacementConfirm, setShowPlacementConfirm] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [otherReasonText, setOtherReasonText] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") || "all");
 
@@ -72,8 +76,8 @@ const EmployerApplications = () => {
   const apps = applications || [];
   const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
   const filtered = apps.filter((a: any) => {
-    // Placed applications belong on the dedicated Placements tab, never here
-    if (a.status === "placed") return false;
+    // Placed applications only appear on the "placed" filter tab
+    if (a.status === "placed" && filter !== "placed") return false;
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
     if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
@@ -116,16 +120,17 @@ const EmployerApplications = () => {
 
   const handleReject = async () => {
     if (!selectedId) return;
+    const effectiveReason = rejectionReason === "__other__" ? otherReasonText.trim() : rejectionReason;
     try {
       // Look up the matching Burmese mirror from preset list (so applicant sees localized reason)
       const preset = rejectionReasons.find(r => r.en === rejectionReason);
       await updateStatus.mutateAsync({
         id: selectedId,
         status: "rejected",
-        rejectionReason,
+        rejectionReason: effectiveReason,
         rejectionReasonMy: preset?.my,
       });
-      setShowReject(false); setSelectedId(null); setRejectionReason("");
+      setShowReject(false); setSelectedId(null); setRejectionReason(""); setOtherReasonText("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ငြင်းပယ်၍ မရပါ: " : "Failed to reject: ") + (err?.message || "unknown"));
     }
@@ -169,13 +174,23 @@ const EmployerApplications = () => {
           </div>
         )}
 
-        <div className="mb-4 grid grid-cols-5 gap-2">
+        <div className="mb-4 grid grid-cols-3 gap-2">
           {[
             { label: lang === "my" ? "အားလုံး" : "Total", count: apps.filter((a: any) => a.status !== "placed").length, color: "text-foreground", filterVal: "all" },
             { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
             { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
+          ].map((s) => (
+            <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
+              <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
+              <p className="text-[9px] text-muted-foreground">{s.label}</p>
+            </button>
+          ))}
+        </div>
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {[
             { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "interview" },
             { label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: apps.filter((a: any) => a.status === "offered").length, color: "text-emerald", filterVal: "offered" },
+            { label: lang === "my" ? "ခန့်အပ်ပြီး" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
           ].map((s) => (
             <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
               <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
@@ -379,14 +394,26 @@ const EmployerApplications = () => {
               <h3 className="mb-3 text-base font-bold text-foreground">{lang === "my" ? "ငြင်းပယ်ရသည့် အကြောင်းရင်း" : "Rejection Reason"}</h3>
               <div className="mb-3 space-y-2">
                 {rejectionReasons.map(r => (
-                  <button key={r.en} onClick={() => setRejectionReason(r.en)} className={`w-full rounded-xl border p-3 text-left text-xs transition-colors ${rejectionReason === r.en ? "border-primary bg-primary/5" : "border-border"}`}>
+                  <button key={r.en} onClick={() => { setRejectionReason(r.en); setOtherReasonText(""); }} className={`w-full rounded-xl border p-3 text-left text-xs transition-colors ${rejectionReason === r.en ? "border-primary bg-primary/5" : "border-border"}`}>
                     {lang === "my" ? r.my : r.en}
                   </button>
                 ))}
+                <button onClick={() => setRejectionReason("__other__")} className={`w-full rounded-xl border p-3 text-left text-xs transition-colors ${rejectionReason === "__other__" ? "border-primary bg-primary/5" : "border-border"}`}>
+                  {lang === "my" ? "အခြား" : "Other"}
+                </button>
+                {rejectionReason === "__other__" && (
+                  <Input
+                    autoFocus
+                    value={otherReasonText}
+                    onChange={e => setOtherReasonText(e.target.value)}
+                    placeholder={lang === "my" ? "အကြောင်းရင်း ထည့်ပါ..." : "Enter reason..."}
+                    className="h-10 rounded-xl text-xs"
+                  />
+                )}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowReject(false); setRejectionReason(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={!rejectionReason || updateStatus.isPending}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
+                <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowReject(false); setRejectionReason(""); setOtherReasonText(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleReject} disabled={(!rejectionReason || (rejectionReason === "__other__" && !otherReasonText.trim())) || updateStatus.isPending}>{lang === "my" ? "ငြင်းပယ်ရန်" : "Reject"}</Button>
               </div>
             </motion.div>
           </motion.div>
@@ -414,14 +441,35 @@ const EmployerApplications = () => {
               {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={handlePlacement} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
-                  {updateStatus.isPending ? (lang === "my" ? "လုပ်ဆောင်နေ..." : "Saving...") : (lang === "my" ? "အတည်ပြုရန်" : "Confirm")}
+                <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={() => { if (!placementSalary || parseInt(placementSalary) <= 0) return; setShowPlacementConfirm(true); }} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
+                  {lang === "my" ? "အတည်ပြုရန်" : "Confirm Placement"}
                 </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AlertDialog open={showPlacementConfirm} onOpenChange={setShowPlacementConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ခန့်အပ်မှု အတည်ပြုမည်" : "Confirm Placement"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — $${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
+                : `This will record a placement. An 8% placement fee of $${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} applies. Confirm?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowPlacementConfirm(false)}>
+              {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowPlacementConfirm(false); handlePlacement(); }} disabled={updateStatus.isPending}>
+              {lang === "my" ? "အတည်ပြုရန်" : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

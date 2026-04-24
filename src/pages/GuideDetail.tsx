@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2, ChevronDown } from "lucide-react";
+import { Clock, CheckCircle, ThumbsUp, ThumbsDown, Share2, Languages, Loader2, ChevronDown, Printer } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -98,7 +98,12 @@ const GuideDetail = () => {
   const { data: counts } = useGuideFeedbackCounts(id);
   const { data: userFeedback } = useUserGuideFeedback(id, user?.id);
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
-  const [translatedLang, setTranslatedLang] = useState<string | null>(null);
+  // Restore the previously selected language for this guide from localStorage.
+  const langPrefKey = id ? `guide_lang_${id}` : null;
+  const [translatedLang, setTranslatedLang] = useState<string | null>(() => {
+    if (!langPrefKey) return null;
+    return localStorage.getItem(langPrefKey);
+  });
   const [isTranslating, setIsTranslating] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -132,6 +137,10 @@ const GuideDetail = () => {
   const handleTranslate = async (langCode: string) => {
     setPickerOpen(false);
     if (!guide) return;
+    // Persist the chosen language so it's restored on the next visit.
+    if (langPrefKey) {
+      localStorage.setItem(langPrefKey, langCode);
+    }
     // If we already translated to this language, just toggle visibility
     if (translatedContent && translatedLang === langCode) {
       setShowTranslation(true);
@@ -193,7 +202,7 @@ const GuideDetail = () => {
             {lang === "my" && guide.title_my ? guide.title_my : guide.title}
           </h1>
 
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
             {guide.is_verified && (
               <span className="flex items-center gap-1 rounded-full bg-emerald/10 px-2.5 py-1 text-[10px] font-medium text-emerald">
                 <CheckCircle className="h-3 w-3" /> {guide.verified_by ? `${lang === "my" ? "အတည်ပြု" : "Verified by"} ${guide.verified_by}` : (lang === "my" ? "အတည်ပြုပြီး" : "Verified")}
@@ -204,6 +213,19 @@ const GuideDetail = () => {
                 <Clock className="h-3 w-3" /> {guide.read_time_minutes} {lang === "my" ? "မိနစ်" : "min read"}
               </span>
             )}
+            {guide.updated_at && (
+              <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[10px] text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                {lang === "my" ? "နောက်ဆုံးပြင်ဆင်:" : "Last updated:"} {new Date(guide.updated_at).toLocaleDateString()}
+              </span>
+            )}
+            <button
+              onClick={() => window.print()}
+              className="ml-auto flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[10px] font-medium text-muted-foreground active:bg-muted"
+            >
+              <Printer className="h-3 w-3" strokeWidth={1.5} />
+              {lang === "my" ? "ပုံနှိပ်ရန်" : "Print"}
+            </button>
           </div>
 
           {/* Translate controls */}

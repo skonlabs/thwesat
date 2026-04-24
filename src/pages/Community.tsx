@@ -3,6 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
@@ -10,6 +20,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+
+const PAGE_SIZE = 20;
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -96,6 +108,7 @@ const Community = () => {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("All");
+  const handleCategoryChange = (cat: string) => { setActiveCategory(cat); setVisibleCount(PAGE_SIZE); };
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostText, setNewPostText] = useState("");
@@ -111,6 +124,8 @@ const Community = () => {
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
   const createPost = useCreatePost();
@@ -212,11 +227,20 @@ const Community = () => {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setSelectedImage(url);
-      setSelectedFile(file);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error(lang === "my" ? "ဓာတ်ပုံဖိုင်သာ ရွေးချယ်နိုင်ပါသည်" : "Please select an image file.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(lang === "my" ? "ဓာတ်ပုံဖိုင် ၅MB ထက် မကျော်ရပါ" : "Image must be smaller than 5 MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setSelectedImage(url);
+    setSelectedFile(file);
   };
 
   const handleRemoveImage = () => {
@@ -312,7 +336,7 @@ const Community = () => {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex gap-2 overflow-x-auto scrollbar-none">
             {categories.map((cat) => (
-              <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+              <button key={cat.en} onClick={() => handleCategoryChange(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
                 {lang === "my" ? cat.my : cat.en}
               </button>
             ))}
@@ -394,7 +418,7 @@ const Community = () => {
             </Button>
           </div>
         ) : (
-          posts.map((post, i) => {
+          posts.slice(0, visibleCount).map((post, i) => {
             const isOwn = post.author_id === user?.id;
             const likeCount = likesData?.counts[post.id] || 0;
             const isLiked = likesData?.userLikes.has(post.id) || false;
@@ -544,6 +568,41 @@ const Community = () => {
                                       <button onClick={() => { setReplyToId(c.id); setReplyToName(c.author?.display_name || "User"); }} className="text-[10px] font-medium text-primary">
                                         {lang === "my" ? "ပြန်ဖြေ" : "Reply"}
                                       </button>
+                                      <div className="relative ml-auto">
+                                        <button onClick={() => setOpenCommentMenuId(openCommentMenuId === c.id ? null : c.id)} className="rounded p-0.5 text-muted-foreground active:bg-muted">
+                                          <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                        </button>
+                                        <AnimatePresence>
+                                          {openCommentMenuId === c.id && (
+                                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute right-0 top-5 z-30 w-44 rounded-xl border border-border bg-card py-1 shadow-lg">
+                                              <button
+                                                onClick={async () => {
+                                                  setOpenCommentMenuId(null);
+                                                  if (!user) return;
+                                                  const { error } = await supabase.from("notifications").insert({
+                                                    user_id: c.author_id,
+                                                    notification_type: "comment_report",
+                                                    title: "Comment reported",
+                                                    title_my: "မှတ်ချက် တိုင်ကြားခံရသည်",
+                                                    description: `A comment has been reported: "${c.content?.slice(0, 80)}"`,
+                                                    description_my: `မှတ်ချက်တစ်ခု တိုင်ကြားခံရသည်: "${c.content?.slice(0, 80)}"`,
+                                                    link_path: "/moderator",
+                                                  });
+                                                  if (error) {
+                                                    toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
+                                                  } else {
+                                                    toast.success(lang === "my" ? "တိုင်ကြားမှု တင်ပြပြီး" : "Report submitted");
+                                                  }
+                                                }}
+                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs text-destructive active:bg-muted"
+                                              >
+                                                <Flag className="h-4 w-4" strokeWidth={1.5} />
+                                                {lang === "my" ? "မှတ်ချက် တိုင်ကြားရန်" : "Report comment"}
+                                              </button>
+                                            </motion.div>
+                                          )}
+                                        </AnimatePresence>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -592,24 +651,39 @@ const Community = () => {
             );
           })
         )}
+        {/* Load more pagination */}
+        {posts.length > visibleCount && (
+          <div className="flex justify-center py-4">
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setVisibleCount(v => v + PAGE_SIZE)}>
+              {lang === "my" ? "ထပ်မံတင်မည်" : "Load more"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {openMenuId && <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />}
+      {openCommentMenuId && <div className="fixed inset-0 z-10" onClick={() => setOpenCommentMenuId(null)} />}
 
-      <AnimatePresence>
-        {deleteConfirmId && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
-              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "ပို့စ် ဖျက်မည်" : "Delete Post"}</h3>
-              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။ ဆက်လုပ်မည်လား?" : "This action cannot be undone. Continue?"}</p>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" className="flex-1 rounded-xl" onClick={confirmDeletePost} disabled={deletePost.isPending}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Delete Post Confirmation — using AlertDialog for accessible confirmation */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ပို့စ် ဖျက်မည်လား?" : "Delete this post?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။" : "This cannot be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDeletePost}
+            >
+              {lang === "my" ? "ဖျက်ရန်" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

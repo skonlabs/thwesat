@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
 
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_SECONDS = 30;
+
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -19,25 +22,80 @@ const Login = () => {
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberDevice, setRememberDevice] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Rate-limiting state
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown ticker when locked out
+  useEffect(() => {
+    if (lockedUntil !== null) {
+      const tick = () => {
+        const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+        if (remaining <= 0) {
+          setCountdown(0);
+          setLockedUntil(null);
+          setFailedAttempts(0);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        } else {
+          setCountdown(remaining);
+        }
+      };
+      tick();
+      intervalRef.current = setInterval(tick, 1000);
+      return () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    }
+  }, [lockedUntil]);
+
+  const isLockedOut = lockedUntil !== null && Date.now() < lockedUntil;
 
   const handleLogin = async () => {
+    if (isLockedOut) return;
+
+    setLoginError(null);
+
     if (!email.trim() || !email.includes("@")) {
-      toast({ title: lang === "my" ? "အီးမေးလ် ထည့်ပါ" : "Enter your email", variant: "destructive" });
+      setLoginError(lang === "my" ? "အီးမေးလ် ထည့်ပါ" : "Enter your email");
       return;
     }
     if (!password) {
-      toast({ title: lang === "my" ? "စကားဝှက် ထည့်ပါ" : "Enter your password", variant: "destructive" });
+      setLoginError(lang === "my" ? "စကားဝှက် ထည့်ပါ" : "Enter your password");
       return;
     }
+
     setIsLoading(true);
     const { error } = await signIn(email, password);
     setIsLoading(false);
+
     if (error) {
-      toast({ title: lang === "my" ? "ဝင်ရောက်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
+      const next = failedAttempts + 1;
+      setFailedAttempts(next);
+
+      // User-friendly error message
+      let msg = lang === "my" ? "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ကန်ပါ" : "Incorrect email or password. Please try again.";
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
+      }
+
+      if (next >= MAX_ATTEMPTS) {
+        const until = Date.now() + LOCKOUT_SECONDS * 1000;
+        setLockedUntil(until);
+        setLoginError(null); // lockout message shown separately
+      } else {
+        setLoginError(msg);
+      }
+
+      // Also show toast for accessibility
+      toast({ title: msg, variant: "destructive" });
       return;
     }
+
     navigate("/home");
   };
 
@@ -62,43 +120,71 @@ const Login = () => {
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-              <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+              <Input
+                value={email}
+                onChange={e => { setEmail(e.target.value); setLoginError(null); }}
+                type="email"
+                placeholder="example@email.com"
+                className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30"
+                disabled={isLockedOut}
+                autoComplete="email"
+              />
             </div>
           </div>
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "စကားဝှက်" : "Password"}</Label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-              <Input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-border bg-muted/30 pl-10 pr-10 text-sm focus-visible:ring-primary/30" />
-              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Input
+                value={password}
+                onChange={e => { setPassword(e.target.value); setLoginError(null); }}
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="h-12 rounded-xl border-border bg-muted/30 pl-10 pr-10 text-sm focus-visible:ring-primary/30"
+                disabled={isLockedOut}
+                autoComplete="current-password"
+              />
+              <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" type="button">
                 {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <button
-            onClick={() => setRememberDevice(!rememberDevice)}
-            className="flex items-center gap-2"
-          >
-            <div className={`h-5 w-9 rounded-full transition-colors ${rememberDevice ? "bg-primary" : "bg-muted-foreground/25"}`}>
-              <div className={`h-4 w-4 rounded-full bg-card shadow-sm transition-transform mt-0.5 ${rememberDevice ? "translate-x-4" : "translate-x-0.5"}`} />
-            </div>
-            <span className="text-xs text-muted-foreground">{lang === "my" ? "ဤစက်ကို မှတ်ထားရန်" : "Remember this device"}</span>
-          </button>
-          <button onClick={() => navigate("/forgot-password")} className="text-xs font-semibold text-primary">
+        {/* Inline error / lockout feedback */}
+        {isLockedOut ? (
+          <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+            {lang === "my"
+              ? `ကြိုးစားမှု အကြိမ်အရေ ကျော်လွန်သွားပါပြီ။ ${countdown} စက္ကန့် ကြာမြင့်ပြီးမှ ထပ်ကြိုးစားပါ`
+              : `Too many failed attempts. Please wait ${countdown}s before trying again.`}
+          </p>
+        ) : loginError ? (
+          <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+            {loginError}
+          </p>
+        ) : null}
+
+        <div className="mt-4 flex items-center justify-end">
+          {/* TODO: "Remember this device" toggle needs backend session/token wiring before it can be re-enabled.
+              Storing a flag in localStorage without backend support is misleading, so the toggle is hidden for now. */}
+          <button onClick={() => navigate("/forgot-password")} className="text-xs font-semibold text-primary" type="button">
             {lang === "my" ? "စကားဝှက် မေ့နေပါသလား?" : "Forgot password?"}
           </button>
         </div>
 
-        <Button variant="default" size="lg" className="mt-8 w-full rounded-2xl shadow-navy" onClick={handleLogin} disabled={isLoading}>
+        <Button
+          variant="default"
+          size="lg"
+          className="mt-8 w-full rounded-2xl shadow-navy"
+          onClick={handleLogin}
+          disabled={isLoading || isLockedOut}
+        >
           {isLoading ? (lang === "my" ? "ဝင်ရောက်နေသည်..." : "Signing in...") : (lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In")}
         </Button>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်မရှိသေးဘူးလား?" : "Don't have an account?"}{" "}
-          <button onClick={() => navigate("/signup")} className="font-semibold text-primary">
+          <button onClick={() => navigate("/signup")} className="font-semibold text-primary" type="button">
             {lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up"}
           </button>
         </p>

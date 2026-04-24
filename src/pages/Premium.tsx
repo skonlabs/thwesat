@@ -2,7 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Crown, Gift, Sparkles, Shield, Zap, CalendarClock, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { addMonths } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
@@ -89,10 +91,7 @@ const PlanCard = ({
   // Projected new end if user stacks this plan onto an active subscription
   const projectedEnd =
     !isFree && !isCurrent && isPremium && activeEndDate && plan.duration_months
-      ? new Date(
-          activeEndDate.getTime() +
-            plan.duration_months * 30 * 24 * 60 * 60 * 1000,
-        )
+      ? addMonths(activeEndDate, plan.duration_months)
       : null;
 
   return (
@@ -235,10 +234,7 @@ const Premium = () => {
   const isExtension = !!isPremium && !!activeEndDate && effectiveSelected !== "free";
   const projectedNewEnd =
     isExtension && selectedPlan?.duration_months && activeEndDate
-      ? new Date(
-          activeEndDate.getTime() +
-            selectedPlan.duration_months * 30 * 24 * 60 * 60 * 1000,
-        )
+      ? addMonths(activeEndDate, selectedPlan.duration_months)
       : null;
 
   return (
@@ -492,6 +488,50 @@ const Premium = () => {
               ? "KBZPay, WaveMoney, PromptPay, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
               : "Accepts KBZPay, WaveMoney, PromptPay, Wise & Payoneer · Cancel anytime"}
           </p>
+
+          {/* FAQ */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75 }}
+            className="mt-6 rounded-2xl border border-border bg-card px-4"
+          >
+            <p className="pb-1 pt-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              {lang === "my" ? "မေးလေ့ရှိသောမေးခွန်းများ" : "Frequently Asked Questions"}
+            </p>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="faq-1">
+                <AccordionTrigger className="text-left text-xs font-semibold text-foreground hover:no-underline">
+                  {lang === "my" ? "အစီအစဉ် ကုန်ဆုံးသွားသောအခါ ဘာဖြစ်မည်နည်း?" : "What happens when my plan expires?"}
+                </AccordionTrigger>
+                <AccordionContent className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "အခမဲ့ အစီအစဉ်သို့ ပြန်သွားပါမည်။ သင့်ဒေတာများ ထိန်းသိမ်းထားပါသည်။"
+                    : "You'll revert to the free plan. Your data is preserved."}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq-2">
+                <AccordionTrigger className="text-left text-xs font-semibold text-foreground hover:no-underline">
+                  {lang === "my" ? "အချိန်မရွေး ပယ်ဖျက်နိုင်ပါသလား?" : "Can I cancel anytime?"}
+                </AccordionTrigger>
+                <AccordionContent className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "ဟုတ်ပါသည်။ Support ကို ဆက်သွယ်ပါ သို့မဟုတ် Settings မှ ပယ်ဖျက်ပါ။"
+                    : "Yes. Contact support or use Settings to cancel your subscription."}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq-3" className="border-b-0">
+                <AccordionTrigger className="text-left text-xs font-semibold text-foreground hover:no-underline">
+                  {lang === "my" ? "မည်သည့် ငွေပေးချေနည်းများ လက်ခံသည်နည်း?" : "What payment methods are accepted?"}
+                </AccordionTrigger>
+                <AccordionContent className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "KBZPay, Wave Pay, Aya Pay, ဘဏ်လွှဲ, Payoneer နှင့် Wise တို့ဖြင့် ငွေပေးချေနိုင်ပါသည်။"
+                    : "KBZPay, Wave Pay, Aya Pay, bank transfer, Payoneer, and Wise."}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </motion.div>
         </motion.div>
       </div>
 

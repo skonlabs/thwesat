@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2, RotateCcw, FileText } from "lucide-react";
+import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2, RotateCcw, FileText, Info } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageHeader from "@/components/PageHeader";
 import { useSavedJobs } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
@@ -33,6 +34,8 @@ const CoverLetterGenerator = () => {
   const { data: savedJobs, isLoading: loadingSavedJobs } = useSavedJobs();
   const [parsing, setParsing] = useState(false);
   const [cvParsed, setCvParsed] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [downloadingDocx, setDownloadingDocx] = useState(false);
 
   const { data: userCvs = [] } = useQuery({
     queryKey: ["user-cvs", session?.user?.id],
@@ -145,40 +148,50 @@ const CoverLetterGenerator = () => {
   };
 
   const handleDownloadPdf = async () => {
-    if (!generatedLetter) return;
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const margin = 20;
-    const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
-    let y = 25;
+    if (!generatedLetter || downloadingPdf) return;
+    setDownloadingPdf(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const margin = 20;
+      const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+      let y = 25;
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(generatedLetter, maxWidth);
-    for (const line of lines) {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.text(line, margin, y);
-      y += 5;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      const lines = doc.splitTextToSize(generatedLetter, maxWidth);
+      for (const line of lines) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(line, margin, y);
+        y += 5;
+      }
+      doc.save(`cover-letter-${form.company || "draft"}.pdf`);
+    } finally {
+      setDownloadingPdf(false);
     }
-    doc.save(`cover-letter-${form.company || "draft"}.pdf`);
   };
 
   const handleDownloadDocx = async () => {
-    if (!generatedLetter) return;
-    const { Document, Packer, Paragraph, TextRun } = await import("docx");
+    if (!generatedLetter || downloadingDocx) return;
+    setDownloadingDocx(true);
+    try {
+      const { Document, Packer, Paragraph, TextRun } = await import("docx");
 
-    const paragraphs = generatedLetter.split("\n").map(
-      (line) => new Paragraph({ children: [new TextRun({ text: line, size: 22 })] })
-    );
+      const paragraphs = generatedLetter.split("\n").map(
+        (line) => new Paragraph({ children: [new TextRun({ text: line, size: 22 })] })
+      );
 
-    const doc = new Document({ sections: [{ children: paragraphs }] });
-    const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `cover-letter-${form.company || "draft"}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const doc = new Document({ sections: [{ children: paragraphs }] });
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cover-letter-${form.company || "draft"}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloadingDocx(false);
+    }
   };
 
   return (
@@ -340,8 +353,11 @@ const CoverLetterGenerator = () => {
                     <input value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - TechCorp" : "e.g. TechCorp"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်ဖော်ပြချက်" : "Job Description (optional)"}</label>
-                    <textarea value={form.jobDescription} onChange={e => setForm({ ...form, jobDescription: e.target.value })} rows={2} placeholder={lang === "my" ? "အလုပ်၏ အဓိက လိုအပ်ချက်များ..." : "Key requirements from the job posting..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                    <div className="mb-1 flex items-center justify-between">
+                      <label className="text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်ဖော်ပြချက်" : "Job Description (optional)"}</label>
+                      <span className="text-[10px] text-muted-foreground">{form.jobDescription.length}/1000</span>
+                    </div>
+                    <textarea value={form.jobDescription} onChange={e => setForm({ ...form, jobDescription: e.target.value.slice(0, 1000) })} rows={2} maxLength={1000} placeholder={lang === "my" ? "အလုပ်၏ အဓိက လိုအပ်ချက်များ..." : "Key requirements from the job posting..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
                   </div>
                 </div>
               </div>
@@ -360,8 +376,11 @@ const CoverLetterGenerator = () => {
                     <input value={form.yourName} onChange={e => setForm({ ...form, yourName: e.target.value })} placeholder={lang === "my" ? "ဥပမာ - မောင်မောင်" : "e.g. Maung Maung"} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အတွေ့အကြုံ" : "Your Experience"}</label>
-                    <textarea value={form.yourExperience} onChange={e => setForm({ ...form, yourExperience: e.target.value })} rows={2} placeholder={lang === "my" ? "သင့်အတွေ့အကြုံကို အကျဉ်းချုပ် ဖော်ပြပါ..." : "Briefly describe your experience..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
+                    <div className="mb-1 flex items-center justify-between">
+                      <label className="text-xs font-medium text-foreground">{lang === "my" ? "အတွေ့အကြုံ" : "Your Experience"}</label>
+                      <span className="text-[10px] text-muted-foreground">{form.yourExperience.length}/800</span>
+                    </div>
+                    <textarea value={form.yourExperience} onChange={e => setForm({ ...form, yourExperience: e.target.value.slice(0, 800) })} rows={2} maxLength={800} placeholder={lang === "my" ? "သင့်အတွေ့အကြုံကို အကျဉ်းချုပ် ဖော်ပြပါ..." : "Briefly describe your experience..."} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary" />
                   </div>
                 </div>
               </div>
@@ -378,6 +397,14 @@ const CoverLetterGenerator = () => {
                 </div>
               </div>
 
+              <Alert className="border-primary/20 bg-primary/5">
+                <Info className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-xs text-foreground/80">
+                  {lang === "my"
+                    ? "AI ဖန်တီးမှုသည် ကြိုစမ်းကြည့်ရင်းဆောင်မှုဖြစ်သည်။ ရလဒ်များကို ပြင်ဆင်ရန် လိုအပ်နိုင်သည်။"
+                    : "AI generation is in preview. Results may require editing."}
+                </AlertDescription>
+              </Alert>
               <Button onClick={handleGenerate} disabled={generating} className="w-full">
                 {generating ? (
                   <span className="flex items-center gap-2">
@@ -385,7 +412,7 @@ const CoverLetterGenerator = () => {
                     {lang === "my" ? "ဖန်တီးနေသည်..." : "Generating..."}
                   </span>
                 ) : (
-                  <>{lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန်" : "Generate Cover Letter"} <ChevronRight className="h-4 w-4" /></>
+                  <>{lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရန် (ကြိုစမ်းကြည့်ရင်း)" : "Generate Cover Letter (Preview)"} <ChevronRight className="h-4 w-4" /></>
                 )}
               </Button>
             </motion.div>
@@ -414,12 +441,12 @@ const CoverLetterGenerator = () => {
 
               {/* Download buttons */}
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleDownloadPdf} className="flex-1">
-                  <Download className="h-4 w-4" />
+                <Button variant="outline" onClick={handleDownloadPdf} disabled={downloadingPdf} className="flex-1">
+                  {downloadingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                   PDF
                 </Button>
-                <Button variant="outline" onClick={handleDownloadDocx} className="flex-1">
-                  <Download className="h-4 w-4" />
+                <Button variant="outline" onClick={handleDownloadDocx} disabled={downloadingDocx} className="flex-1">
+                  {downloadingDocx ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                   DOCX
                 </Button>
               </div>
@@ -447,6 +474,19 @@ const CoverLetterGenerator = () => {
                     metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
                   });
                   setSaved(true);
+                  toast({
+                    title: lang === "my" ? "ပရိုဖိုင်သို့ သိမ်းပြီးပါပြီ" : "Cover letter saved to your profile",
+                    description: (
+                      <span>
+                        <button
+                          className="underline text-primary"
+                          onClick={() => navigate("/profile")}
+                        >
+                          {lang === "my" ? "သိမ်းထားသော အလုပ်လျှောက်လွှာများ ကြည့်ရန်" : "View saved cover letters"}
+                        </button>
+                      </span>
+                    ) as any,
+                  });
                 }}
                 className="w-full"
                 disabled={saved}

@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users, Pencil, Trash2 } from "lucide-react";
+import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users, Pencil, Trash2, Briefcase } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,6 +127,26 @@ const AdminEmployers = () => {
     setSelectedId(null);
   };
 
+  // Fetch active job counts for all employers
+  const employerIds = employers.map((e: any) => e.id);
+  const { data: jobCountsRaw = [] } = useQuery({
+    queryKey: ["employer-job-counts", employerIds],
+    queryFn: async () => {
+      if (employerIds.length === 0) return [];
+      const { data } = await supabase
+        .from("jobs")
+        .select("employer_id")
+        .in("employer_id", employerIds)
+        .eq("status", "active");
+      return data || [];
+    },
+    enabled: employerIds.length > 0,
+  });
+  const jobCountMap = new Map<string, number>();
+  (jobCountsRaw as any[]).forEach((row: any) => {
+    jobCountMap.set(row.employer_id, (jobCountMap.get(row.employer_id) || 0) + 1);
+  });
+
   const filtered = employers.filter((e: any) => {
     const status = e.verification_status || "pending";
     const matchesTab = tab === "all" 
@@ -168,6 +198,10 @@ const AdminEmployers = () => {
                   <div className="flex-1 min-w-0">
                     <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || "Unnamed Company"}</h3>
                     <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.display_name} · {emp.industry || "—"}</p>
+                    <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                      <Briefcase className="h-3 w-3" strokeWidth={1.5} />
+                      {jobCountMap.get(emp.id) || 0} {lang === "my" ? "တက်ကြွသောအလုပ်" : "active jobs"}
+                    </p>
                   </div>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${st.color}`}>
                     {lang === "my" ? st.label.my : st.label.en}
@@ -267,28 +301,35 @@ const AdminEmployers = () => {
               <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder={lang === "my" ? "အကြောင်းပြချက် ရေးပါ..." : "Enter reason..."} className="mb-4 rounded-xl" rows={3} />
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setRejecting(false)} className="flex-1 rounded-xl" size="sm">{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" onClick={handleReject} className="flex-1 rounded-xl" size="sm" disabled={updateStatus.isPending}>{lang === "my" ? "ပယ်ချ" : "Reject"}</Button>
+                <Button variant="destructive" onClick={handleReject} className="flex-1 rounded-xl" size="sm" disabled={updateStatus.isPending || !rejectReason || rejectReason.trim() === ""}>{lang === "my" ? "ပယ်ချ" : "Reject"}</Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation */}
-      <AnimatePresence>
-        {deleteConfirmId && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
-              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ရှင် ဖျက်မည်" : "Delete Employer"}</h3>
-              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤအလုပ်ရှင်ပရိုဖိုင်ကို ဖျက်မည်။ ဆက်လုပ်မည်လား?" : "This will permanently delete the employer profile. Continue?"}</p>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
-                <Button variant="destructive" className="flex-1 rounded-xl" onClick={() => handleDeleteEmployer(deleteConfirmId)}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Delete Confirmation AlertDialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "အလုပ်ရှင် ဖျက်မည်" : "Delete Employer"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my" ? "ဤအလုပ်ရှင်ပရိုဖိုင်ကို ဖျက်မည်။ ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။" : "This will permanently delete the employer profile. This action cannot be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmId(null)}>
+              {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteConfirmId && handleDeleteEmployer(deleteConfirmId)}
+            >
+              {lang === "my" ? "ဖျက်ရန်" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

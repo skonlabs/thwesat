@@ -15,6 +15,7 @@ export interface Guide {
   is_verified: boolean | null;
   verified_by: string | null;
   created_at: string | null;
+  updated_at: string | null;
 }
 
 export function useGuides() {

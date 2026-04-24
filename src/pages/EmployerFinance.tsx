@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileCheck2, FileClock, FileWarning } from "lucide-react";
+import { Upload, FileCheck2, FileClock, FileWarning, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,6 +11,7 @@ import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { applyFinanceFilters, type StatusFilter } from "@/components/finance/FinanceFilters";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 import { uploadPaymentProof } from "@/hooks/use-payment";
 
@@ -164,6 +165,23 @@ const EmployerFinance = () => {
           rows={[]}
           emptyText={{ my: "", en: "" }}
         />
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex cursor-help items-center gap-1 font-medium underline decoration-dashed underline-offset-2">
+                  {lang === "my" ? "ပေးချေရန် ဆိုသည်မှာ" : "Outstanding"}
+                  <Info className="h-3 w-3" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {lang === "my"
+                  ? "အက်မင် ငွေပေးချေမှု အတည်ပြုရန် စောင့်ဆိုင်းနေသော ပမာဏများ"
+                  : "Amounts awaiting admin payment approval"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
 
         <FinanceFilters
           status={status}
@@ -217,7 +235,22 @@ const EmployerFinance = () => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  if (f) {
+                    if (f.size > 5 * 1024 * 1024) {
+                      toast.error("File too large — maximum file size is 5MB.");
+                      e.target.value = "";
+                      return;
+                    }
+                    if (!f.type.startsWith("image/")) {
+                      toast.error("Invalid file type — only image files are accepted.");
+                      e.target.value = "";
+                      return;
+                    }
+                  }
+                  setFile(f);
+                }}
                 className="block w-full text-xs"
               />
               <Button

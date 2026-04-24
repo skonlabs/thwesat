@@ -14,6 +14,9 @@ import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
 
+const CHAR_LIMIT_DESC = 3000;
+const CHAR_LIMIT_REQ = 2000;
+
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
   { value: "remote_contract", label: { my: "Remote ကန်ထရိုက်", en: "Remote Contract" } },
@@ -54,6 +57,10 @@ const EmployerPostJob = () => {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
+  const [externalUrlError, setExternalUrlError] = useState("");
+  const [salaryMinError, setSalaryMinError] = useState("");
+  const [salaryMaxError, setSalaryMaxError] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
@@ -61,6 +68,37 @@ const EmployerPostJob = () => {
   const isContract = roleType === "remote_contract";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+
+  const handleUrlBlur = () => {
+    if (externalUrl && !externalUrl.startsWith("http://") && !externalUrl.startsWith("https://")) {
+      setExternalUrlError("URL must start with http:// or https://");
+    } else {
+      setExternalUrlError("");
+    }
+  };
+
+  const handleSalaryMinChange = (v: string) => {
+    if (v === "" || Number(v) >= 0) setSalaryMin(v);
+    if (v !== "" && Number(v) < 1) {
+      setSalaryMinError("Minimum salary must be at least $1");
+    } else {
+      setSalaryMinError("");
+    }
+    if (salaryMax && v && Number(v) > Number(salaryMax)) {
+      setSalaryMaxError("Max salary must be greater than min salary");
+    } else if (salaryMax) {
+      setSalaryMaxError("");
+    }
+  };
+
+  const handleSalaryMaxChange = (v: string) => {
+    if (v === "" || Number(v) >= 0) setSalaryMax(v);
+    if (salaryMin && v && Number(v) < Number(salaryMin)) {
+      setSalaryMaxError("Max salary must be greater than min salary");
+    } else {
+      setSalaryMaxError("");
+    }
+  };
 
   const handleSubmit = async () => {
     const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
@@ -128,27 +166,33 @@ const EmployerPostJob = () => {
               onMyChange={setTitleMy}
               lang={lang}
             />
-            <BilingualField
-              label={lang === "my" ? "ဖော်ပြချက်" : "Description"}
-              required
-              multiline
-              minHeight={100}
-              enValue={descEn}
-              myValue={descMy}
-              onEnChange={setDescEn}
-              onMyChange={setDescMy}
-              lang={lang}
-            />
-            <BilingualField
-              label={lang === "my" ? "လိုအပ်ချက်" : "Requirements"}
-              multiline
-              minHeight={80}
-              enValue={requirementsEn}
-              myValue={requirementsMy}
-              onEnChange={setRequirementsEn}
-              onMyChange={setRequirementsMy}
-              lang={lang}
-            />
+            <div>
+              <BilingualField
+                label={lang === "my" ? "ဖော်ပြချက်" : "Description"}
+                required
+                multiline
+                minHeight={100}
+                enValue={descEn}
+                myValue={descMy}
+                onEnChange={setDescEn}
+                onMyChange={setDescMy}
+                lang={lang}
+              />
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">{descEn.length}/{CHAR_LIMIT_DESC}</p>
+            </div>
+            <div>
+              <BilingualField
+                label={lang === "my" ? "လိုအပ်ချက် *" : "Requirements *"}
+                multiline
+                minHeight={80}
+                enValue={requirementsEn}
+                myValue={requirementsMy}
+                onEnChange={setRequirementsEn}
+                onMyChange={setRequirementsMy}
+                lang={lang}
+              />
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">{requirementsEn.length}/{CHAR_LIMIT_REQ}</p>
+            </div>
             <div>
               <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "အလုပ်အမျိုးအစား *" : "Role Type *"}</label>
               <div className="flex flex-wrap gap-2">
@@ -177,12 +221,14 @@ const EmployerPostJob = () => {
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လစာ၊ ငွေပေးချေ + လုံခြုံရေး" : "Salary, Payment & Safety"}</h2>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD)" : "Min Salary (USD)"}</label>
-                <Input type="number" min="0" value={salaryMin} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMin(v); }} placeholder="1000" className="h-11 rounded-xl" />
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD) *" : "Min Salary (USD) *"}</label>
+                <Input type="number" min="0" value={salaryMin} onChange={e => handleSalaryMinChange(e.target.value)} placeholder="1000" className={`h-11 rounded-xl ${salaryMinError ? "border-destructive" : ""}`} />
+                {salaryMinError && <p className="mt-1 text-[11px] text-destructive">{salaryMinError}</p>}
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD)" : "Max Salary (USD)"}</label>
-                <Input type="number" min="0" value={salaryMax} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) setSalaryMax(v); }} placeholder="5000" className="h-11 rounded-xl" />
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD) *" : "Max Salary (USD) *"}</label>
+                <Input type="number" min="0" value={salaryMax} onChange={e => handleSalaryMaxChange(e.target.value)} placeholder="5000" className={`h-11 rounded-xl ${salaryMaxError ? "border-destructive" : ""}`} />
+                {salaryMaxError && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
               </div>
             </div>
             {(roleType === "hybrid" || roleType === "onsite") && (
@@ -278,7 +324,21 @@ const EmployerPostJob = () => {
               </div>
             </div>
             {applicationMethod === "external" && (
-              <Input value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." className="h-11 rounded-xl" />
+              <div>
+                <Input
+                  value={externalUrl}
+                  onChange={e => { setExternalUrl(e.target.value); if (externalUrlError) setExternalUrlError(""); }}
+                  onBlur={handleUrlBlur}
+                  placeholder="https://..."
+                  className={`h-11 rounded-xl ${externalUrlError ? "border-destructive" : ""}`}
+                />
+                {externalUrlError && (
+                  <p className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
+                    <AlertTriangle className="h-3 w-3" />
+                    {externalUrlError}
+                  </p>
+                )}
+              </div>
             )}
             {requiresEmbassy && (
               <div className="flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3">
@@ -286,15 +346,34 @@ const EmployerPostJob = () => {
                 <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed"}</p>
               </div>
             )}
-            <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
+            <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSubmit} disabled={createJob.isPending}>
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={createJob.isPending}>
                 {createJob.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်ရန်" : "Submit")}
               </Button>
             </div>
           </motion.div>
         )}
       </div>
+
+      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>{lang === "my" ? "အလုပ်ခေါ်စာ ကြိုကြည့်ရှုမှု" : "Job Preview"}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 space-y-2">
+            <h3 className="text-base font-bold text-foreground">{titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>
+            <p className="text-xs text-muted-foreground font-medium">{employerProfile?.company_name || ""}</p>
+            <div className="flex flex-wrap gap-2 text-[11px]">
+              {roleType && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{roleTypes.find(r => r.value === roleType)?.[lang === "my" ? "label" : "label"]?.[lang] || roleType}</span>}
+              {salaryMin && salaryMax && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">${salaryMin}–${salaryMax}/mo</span>}
+              {locationCountry && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{locationCountry}</span>}
+            </div>
+            {descEn && <p className="text-xs text-foreground/80 leading-relaxed">{descEn.slice(0, 150)}{descEn.length > 150 ? "…" : ""}</p>}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Sheet open={upgradeOpen} onOpenChange={setUpgradeOpen}>
         <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">

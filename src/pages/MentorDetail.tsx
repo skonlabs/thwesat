@@ -1,12 +1,26 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Calendar, MessageCircle, Clock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
 
@@ -16,6 +30,9 @@ const MentorDetail = () => {
   const { lang } = useLanguage();
   const { startConversation } = useStartConversation();
   const { data: mentor, isLoading } = useMentorProfile(id);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Fetch next available slot
   const { data: nextSlot } = useQuery({
@@ -69,6 +86,37 @@ const MentorDetail = () => {
     enabled: !!id,
   });
 
+  const handleSubmitReport = async () => {
+    if (!reportReason.trim() || !id) return;
+    setReportSubmitting(true);
+    try {
+      // Try to send to admin users via user_roles; fall back to null user_id
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      const targets = adminRoles && adminRoles.length > 0 ? adminRoles : [{ user_id: null }];
+      await Promise.all(
+        targets.map((t: { user_id: string | null }) =>
+          supabase.from("notifications").insert({
+            user_id: t.user_id,
+            notification_type: "profile_report",
+            message: `Profile report for user ${id}: ${reportReason}`,
+            link_path: "/admin/users",
+          })
+        )
+      );
+      toast.success(lang === "my" ? "Report တင်ပြီးပါပြီ" : "Report submitted. Thank you.");
+      setReportOpen(false);
+      setReportReason("");
+    } catch {
+      toast.error(lang === "my" ? "Report တင်မရပါ" : "Failed to submit report");
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
   }
@@ -100,7 +148,22 @@ const MentorDetail = () => {
                   <span className="text-sm font-bold text-foreground">{mentor.rating_avg}</span>
                 </div>
               ) : (
-                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">{lang === "my" ? "အသစ် Mentor" : "New Mentor"}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-default rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+                        {lang === "my" ? "အသစ် Mentor" : "New Mentor"}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-[200px] text-xs">
+                        {lang === "my"
+                          ? "ဤ Mentor သည် Platform တွင် အသစ်ဝင်ရောက်ကာ track record တည်ဆောက်နေပါသည်။"
+                          : "This mentor is new to the platform and building their track record."}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
               <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set")}</span>
             </div>
@@ -140,7 +203,14 @@ const MentorDetail = () => {
           )}
 
           <div className="mt-5">
-            <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "နောက်ရရှိနိုင်ချိန်" : "Next Available Slot"}</h2>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "နောက်ရရှိနိုင်ချိန်" : "Next Available Slot"}</h2>
+              <span className="text-[10px] text-muted-foreground">
+                {lang === "my"
+                  ? `Times in ${(mentor as any)?.timezone || "mentor's local time"}`
+                  : `Times in ${(mentor as any)?.timezone || "mentor's local time"}`}
+              </span>
+            </div>
             {nextSlot ? (
               <div className="rounded-xl border border-border bg-card p-3.5">
                 <div className="flex items-center gap-2">
@@ -196,8 +266,47 @@ const MentorDetail = () => {
               </div>
             </div>
           )}
+          <div className="mt-8 pb-2 text-center">
+            <button
+              onClick={() => setReportOpen(true)}
+              className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              {lang === "my" ? "ဤပရိုဖိုင်ကို တိုင်ကြားရန်" : "Report this profile"}
+            </button>
+          </div>
         </motion.div>
       </div>
+
+      {/* Report AlertDialog */}
+      <AlertDialog open={reportOpen} onOpenChange={setReportOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ပရိုဖိုင် တိုင်ကြားရန်" : "Report this profile"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "တိုင်ကြားမှု အကြောင်းရင်း ဖော်ပြပါ။ Admin team မှ စစ်ဆေးပေးပါမည်။"
+                : "Describe the reason for this report. Our admin team will review it."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Textarea
+            value={reportReason}
+            onChange={e => setReportReason(e.target.value)}
+            placeholder={lang === "my" ? "တိုင်ကြားမှု အကြောင်းရင်း..." : "Reason for reporting..."}
+            className="min-h-[80px] rounded-xl"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setReportReason("")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!reportReason.trim() || reportSubmitting}
+              onClick={(e) => { e.preventDefault(); handleSubmitReport(); }}
+            >
+              {reportSubmitting
+                ? (lang === "my" ? "တင်နေသည်..." : "Submitting...")
+                : (lang === "my" ? "တိုင်ကြားမည်" : "Submit Report")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex w-full max-w-md gap-3">
