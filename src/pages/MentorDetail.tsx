@@ -266,8 +266,47 @@ const MentorDetail = () => {
               </div>
             </div>
           )}
+          <div className="mt-8 pb-2 text-center">
+            <button
+              onClick={() => setReportOpen(true)}
+              className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              {lang === "my" ? "ဤပရိုဖိုင်ကို တိုင်ကြားရန်" : "Report this profile"}
+            </button>
+          </div>
         </motion.div>
       </div>
+
+      {/* Report AlertDialog */}
+      <AlertDialog open={reportOpen} onOpenChange={setReportOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ပရိုဖိုင် တိုင်ကြားရန်" : "Report this profile"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "တိုင်ကြားမှု အကြောင်းရင်း ဖော်ပြပါ။ Admin team မှ စစ်ဆေးပေးပါမည်။"
+                : "Describe the reason for this report. Our admin team will review it."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Textarea
+            value={reportReason}
+            onChange={e => setReportReason(e.target.value)}
+            placeholder={lang === "my" ? "တိုင်ကြားမှု အကြောင်းရင်း..." : "Reason for reporting..."}
+            className="min-h-[80px] rounded-xl"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setReportReason("")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!reportReason.trim() || reportSubmitting}
+              onClick={(e) => { e.preventDefault(); handleSubmitReport(); }}
+            >
+              {reportSubmitting
+                ? (lang === "my" ? "တင်နေသည်..." : "Submitting...")
+                : (lang === "my" ? "တိုင်ကြားမည်" : "Submit Report")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
         <div className="mx-auto flex w-full max-w-md gap-3">
