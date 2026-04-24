@@ -14,6 +14,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +61,7 @@ const AdminPayments = () => {
   const [selectedPayment, setSelectedPayment] = useState<PaymentRequest | null>(null);
   const [adminNote, setAdminNote] = useState("");
   const [proofSignedUrl, setProofSignedUrl] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"approved" | "rejected" | "revoked" | null>(null);
 
   // Fetch user profiles for display
   const userIds = [...new Set((payments || []).map(p => p.user_id))];

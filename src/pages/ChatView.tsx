@@ -93,6 +93,12 @@ const ChatView = () => {
 
   const handleTranslateMessage = async (msgId: string, content: string, targetLang: string) => {
     setPickerForMsgId(null);
+    // Persist the chosen language so it's restored on the next visit.
+    if (langPrefKey) {
+      localStorage.setItem(langPrefKey, targetLang);
+    }
+    setPreferredTranslateLang(targetLang);
+
     const existing = translations[msgId];
     if (existing && existing.lang === targetLang) {
       setTranslations((prev) => {
@@ -154,8 +160,8 @@ const ChatView = () => {
             </p>
             <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
               {lang === "my"
-                ? "အောက်တွင် မက်ဆေ့ချ် ရိုက်ထည့်ပြီး စကားဝိုင်း စတင်ပါ။"
-                : "Type your first message below to start the conversation."}
+                ? "ပထမဆုံး မက်ဆေ့ချ် ပို့ပြီး စကားဝိုင်း စတင်ပါ။"
+                : "Send your first message to start the conversation."}
             </p>
           </div>
         ) : (
@@ -208,10 +214,10 @@ const ChatView = () => {
 
       <div className="border-t border-border bg-card px-4 py-3 pb-safe">
         <div className="flex items-end gap-2">
-          <div className="flex flex-1 items-center rounded-2xl border border-border bg-background px-4 py-2">
+          <div className="flex flex-1 flex-col rounded-2xl border border-border bg-background px-4 py-2">
             <textarea
               value={messageText}
-              onChange={e => setMessageText(e.target.value)}
+              onChange={e => setMessageText(e.target.value.slice(0, CHAR_LIMIT))}
               onKeyDown={e => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -219,11 +225,17 @@ const ChatView = () => {
                 }
               }}
               rows={1}
+              maxLength={CHAR_LIMIT}
               placeholder={lang === "my" ? "မက်ဆေ့ချ် ရေးရန်... (Shift+Enter = new line)" : "Type a message... (Shift+Enter for new line)"}
               className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground max-h-32"
             />
+            {messageText.length > 0 && (
+              <p className={`mt-1 self-end text-[10px] ${messageText.length >= CHAR_LIMIT ? "text-destructive" : "text-muted-foreground"}`}>
+                {messageText.length} / {CHAR_LIMIT}
+              </p>
+            )}
           </div>
-          <button onClick={handleSend} disabled={!messageText.trim()} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90 disabled:opacity-40">
+          <button onClick={handleSend} disabled={!messageText.trim() || messageText.length > CHAR_LIMIT} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground active:bg-primary/90 disabled:opacity-40">
             <Send className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>

@@ -3,6 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Heart, Share2, MoreHorizontal, Send, Image, Plus, Clock, X, Flag, Link2, Bookmark, BookmarkCheck, Trash2, Copy, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCommunityPosts, useCreatePost, useDeletePost } from "@/hooks/use-community-posts";
@@ -10,6 +20,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+
+const PAGE_SIZE = 20;
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -96,6 +108,7 @@ const Community = () => {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("All");
+  const handleCategoryChange = (cat: string) => { setActiveCategory(cat); setVisibleCount(PAGE_SIZE); };
   const [sharePostId, setSharePostId] = useState<string | null>(null);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPostText, setNewPostText] = useState("");
@@ -111,6 +124,8 @@ const Community = () => {
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
 
   const { data: posts = [], isLoading } = useCommunityPosts(activeCategory);
   const createPost = useCreatePost();
@@ -212,11 +227,20 @@ const Community = () => {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setSelectedImage(url);
-      setSelectedFile(file);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error(lang === "my" ? "ဓာတ်ပုံဖိုင်သာ ရွေးချယ်နိုင်ပါသည်" : "Please select an image file.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(lang === "my" ? "ဓာတ်ပုံဖိုင် ၅MB ထက် မကျော်ရပါ" : "Image must be smaller than 5 MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setSelectedImage(url);
+    setSelectedFile(file);
   };
 
   const handleRemoveImage = () => {

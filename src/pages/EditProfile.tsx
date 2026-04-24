@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages } from "lucide-react";
+import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -179,6 +179,18 @@ function formatPhoneDigits(digits: string): string {
   return `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7, 11)}`;
 }
 
+// --- Validation helpers ---
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+function isValidPhone(digits: string) {
+  return digits.replace(/\D/g, "").length >= 7;
+}
+function isValidWebsite(v: string) {
+  return v === "" || /^https?:\/\//i.test(v);
+}
+
 // --- Component ---
 
 const EditProfile = () => {
@@ -186,6 +198,9 @@ const EditProfile = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, refreshProfile } = useAuth();
+
+  const [isDirty, setIsDirty] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; phone?: string; website?: string }>({});
 
   const [name, setName] = useState("");
   const [headline, setHeadline] = useState("");
@@ -244,8 +259,23 @@ const EditProfile = () => {
       setHasLaptop(profile.has_laptop || false);
       setInternetStable(profile.internet_stable || false);
       setAvatarUrl(profile.avatar_url || null);
+      setIsDirty(false);
     }
   }, [profile]);
+
+  // beforeunload warning when dirty
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  const markDirty = useCallback(() => setIsDirty(true), []);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -313,13 +343,14 @@ const EditProfile = () => {
   };
   const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
   const addLanguage = (l: string) => {
-    if (!languages.includes(l) && languages.length < 5) {
-      setLanguages([...languages, l]);
+    if (languages.length >= 5) {
       setLanguageSearch("");
       setShowLanguageDropdown(false);
+      return;
     }
-    if (languages.length >= 5) {
-      // Already at limit - just close
+    if (!languages.includes(l)) {
+      setLanguages([...languages, l]);
+      markDirty();
       setLanguageSearch("");
       setShowLanguageDropdown(false);
     }
@@ -361,8 +392,33 @@ const EditProfile = () => {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
       return;
     }
+    setIsDirty(false);
     await refreshProfile();
     navigate("/profile");
+  };
+
+  const handleEmailBlur = () => {
+    if (email && !isValidEmail(email)) {
+      setFieldErrors(prev => ({ ...prev, email: lang === "my" ? "အီးမေးလ် ဖော်မတ် မမှန်ကန်ပါ" : "Invalid email format" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, email: undefined }));
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (phoneNumber && !isValidPhone(phoneNumber)) {
+      setFieldErrors(prev => ({ ...prev, phone: lang === "my" ? "ဖုန်းနံပါတ် အနည်းဆုံး ၇ လုံး ထည့်ပါ" : "Phone must have at least 7 digits" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, phone: undefined }));
+    }
+  };
+
+  const handleWebsiteBlur = () => {
+    if (!isValidWebsite(website)) {
+      setFieldErrors(prev => ({ ...prev, website: lang === "my" ? "ဝဘ်ဆိုက် http:// သို့မဟုတ် https:// ဖြင့် စတင်ရမည်" : "Website must start with http:// or https://" }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, website: undefined }));
+    }
   };
 
   const initial = name ? name.charAt(0).toUpperCase() : "?";
