@@ -49,6 +49,8 @@ const MentorMentees = () => {
   };
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [declineConfirmMenteeId, setDeclineConfirmMenteeId] = useState<string | null>(null);
+  const [declineConfirmName, setDeclineConfirmName] = useState<string>("");
 
   // Accept mentee: update mentor_mentees status to active
   const acceptMentee = useMutation({
@@ -105,6 +107,12 @@ const MentorMentees = () => {
           link_path: "/mentors/bookings",
         });
       }
+      // Find the mentee's display name for the toast
+      const { data: menteeProfile } = await supabase.from("profiles").select("display_name").eq("id", menteeId).maybeSingle();
+      const menteeName = menteeProfile?.display_name || (lang === "my" ? "Mentee" : "this mentee");
+      toast.success(lang === "my"
+        ? `${menteeName} ကို လမ်းညွှန်ပေးနေပြီ! မက်ဆေ့ချ်ပို့ပြီး စတင်ပါ။`
+        : `You're now mentoring ${menteeName}! Send them a message to get started.`);
       queryClient.invalidateQueries({ queryKey: ["mentor-mentees"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       setSelectedId(null);
@@ -261,6 +269,36 @@ const MentorMentees = () => {
         )}
       </div>
 
+      {/* Decline AlertDialog */}
+      <AlertDialog open={!!declineConfirmMenteeId} onOpenChange={open => { if (!open) setDeclineConfirmMenteeId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {lang === "my" ? `${declineConfirmName} ၏ တောင်းဆိုမှုကို ငြင်းပယ်မည်လား?` : `Decline request from ${declineConfirmName}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "ငြင်းပယ်ပါက ၎င်းတို့ထံ အကြောင်းကြားပေးပါမည်။"
+                : "They will be notified of your decision."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (declineConfirmMenteeId) {
+                  declineMentee.mutate(declineConfirmMenteeId);
+                  setDeclineConfirmMenteeId(null);
+                }
+              }}
+            >
+              {lang === "my" ? "ငြင်းပယ်မည်" : "Decline"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Detail Sheet */}
       <Sheet open={!!selectedMentee} onOpenChange={open => { if (!open) setSelectedId(null); }}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl pb-24">
@@ -327,7 +365,10 @@ const MentorMentees = () => {
                       size="sm"
                       className="flex-1 rounded-lg text-xs border-destructive text-destructive"
                       disabled={declineMentee.isPending}
-                      onClick={() => declineMentee.mutate(selectedMentee.mentee_id)}
+                      onClick={() => {
+                        setDeclineConfirmMenteeId(selectedMentee.mentee_id);
+                        setDeclineConfirmName(selectedMentee.profile?.display_name || "Mentee");
+                      }}
                     >
                       {lang === "my" ? "ငြင်းပယ်" : "Decline"}
                     </Button>

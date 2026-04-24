@@ -32,8 +32,32 @@ const EmployerOnboarding = () => {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  const [emailError, setEmailError] = useState("");
+  const [companyNameWarning, setCompanyNameWarning] = useState("");
 
   const togglePayment = (m: string) => setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]);
+
+  const handleEmailBlur = () => {
+    if (contactEmail && (!contactEmail.includes("@") || !contactEmail.includes("."))) {
+      setEmailError(lang === "my" ? "မှန်ကန်သော အီးမေးလ် ထည့်ပါ" : "Enter a valid email address");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handleCompanyNameBlur = async () => {
+    if (!companyName.trim()) return;
+    const { data } = await supabase
+      .from("employer_profiles")
+      .select("id")
+      .ilike("company_name", companyName)
+      .maybeSingle();
+    if (data) {
+      setCompanyNameWarning(lang === "my" ? "ဤအမည်ဖြင့် ကုမ္ပဏီတစ်ခု ရှိပြီးသားဖြစ်ပါသည်" : "A company with this name already exists.");
+    } else {
+      setCompanyNameWarning("");
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -58,7 +82,12 @@ const EmployerOnboarding = () => {
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
           </motion.div>
           <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "စာရင်းသွင်းပြီးပါပြီ!" : "Registration Complete!"}</h1>
-          <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "စစ်ဆေးအတည်ပြုဆဲ ဖြစ်ပါသည်" : "Pending verification"}</p>
+          <p className="mb-2 text-sm text-muted-foreground">{lang === "my" ? "စစ်ဆေးအတည်ပြုဆဲ ဖြစ်ပါသည်" : "Pending verification"}</p>
+          <p className="mb-6 text-xs text-muted-foreground rounded-xl border border-border bg-muted/50 px-4 py-3">
+            {lang === "my"
+              ? "သင့် အကောင့်ကို စစ်ဆေးနေဆဲ ဖြစ်ပါသည်။ ၂ ရက်အတွင်း အကြောင်းကြားပါမည်။"
+              : "Your account is pending verification. You will be notified within 2 business days."}
+          </p>
           <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit} disabled={upsert.isPending}>
             {lang === "my" ? "Dashboard သို့ သွားရန်" : "Go to Dashboard"} <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
@@ -77,7 +106,11 @@ const EmployerOnboarding = () => {
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ကုမ္ပဏီ အချက်အလက်" : "Company Information"}</h2>
-            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label><Input value={companyName} onChange={e => setCompanyName(e.target.value)} className="h-11 rounded-xl" /></div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label>
+              <Input value={companyName} onChange={e => { setCompanyName(e.target.value); setCompanyNameWarning(""); }} onBlur={handleCompanyNameBlur} className="h-11 rounded-xl" />
+              {companyNameWarning && <p className="mt-1 text-[11px] text-yellow-600 dark:text-yellow-400">{companyNameWarning}</p>}
+            </div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝဘ်ဆိုဒ် *" : "Website *"}</label><Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." className="h-11 rounded-xl" /></div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">LinkedIn</label><Input value={linkedin} onChange={e => setLinkedin(e.target.value)} className="h-11 rounded-xl" /></div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ ဖော်ပြချက်" : "Description"}</label><Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[80px] rounded-xl" /></div>
@@ -97,7 +130,11 @@ const EmployerOnboarding = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် + ငွေပေးချေမှု" : "Contact & Payment"}</h2>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အမည် *" : "Contact Name *"}</label><Input value={contactName} onChange={e => setContactName(e.target.value)} className="h-11 rounded-xl" /></div>
-            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ် *" : "Contact Email *"}</label><Input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} className="h-11 rounded-xl" /></div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ် *" : "Contact Email *"}</label>
+              <Input type="email" value={contactEmail} onChange={e => { setContactEmail(e.target.value); if (emailError) setEmailError(""); }} onBlur={handleEmailBlur} className={`h-11 rounded-xl ${emailError ? "border-destructive" : ""}`} />
+              {emailError && <p className="mt-1 text-[11px] text-destructive">{emailError}</p>}
+            </div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
             <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
               <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (<button key={m} onClick={() => togglePayment(m)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(m) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{m}</button>))}</div>
