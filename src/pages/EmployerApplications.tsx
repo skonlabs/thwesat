@@ -487,6 +487,34 @@ const EmployerApplications = () => {
         )}
       </AnimatePresence>
 
+      {/* Issue #8: Interview date picker dialog */}
+      <AlertDialog open={showInterviewDate} onOpenChange={(v) => { if (!v) { setShowInterviewDate(false); setPendingInterviewId(null); } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "အင်တာဗျူး ချိန်းဆိုရန်" : "Schedule Interview"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my" ? "အင်တာဗျူး ရက်နှင့် အချိန် ရွေးပါ" : "Select the interview date and time."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <input
+              type="datetime-local"
+              value={interviewDateTime}
+              onChange={e => setInterviewDateTime(e.target.value)}
+              className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setShowInterviewDate(false); setPendingInterviewId(null); }}>
+              {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmInterview} disabled={!interviewDateTime || updateStatus.isPending}>
+              {lang === "my" ? "အတည်ပြု" : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AlertDialog open={showPlacementConfirm} onOpenChange={setShowPlacementConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>

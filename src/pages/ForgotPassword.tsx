@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,16 +10,70 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageToggle from "@/components/LanguageToggle";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RATE_LIMIT_SECONDS = 60;
+const RATE_LIMIT_KEY = "thwesat_forgot_pw_sent_at";
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Restore rate-limit state from sessionStorage on mount
+  useEffect(() => {
+    const storedAt = sessionStorage.getItem(RATE_LIMIT_KEY);
+    if (storedAt) {
+      const sentAt = parseInt(storedAt, 10);
+      const elapsed = Math.floor((Date.now() - sentAt) / 1000);
+      const remaining = RATE_LIMIT_SECONDS - elapsed;
+      if (remaining > 0) {
+        startCountdown(remaining);
+      } else {
+        sessionStorage.removeItem(RATE_LIMIT_KEY);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startCountdown = (from: number) => {
+    setResendCountdown(from);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setResendCountdown((prev) => {
+        if (prev <= 1) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          sessionStorage.removeItem(RATE_LIMIT_KEY);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   const handleSubmit = async () => {
     if (!email.trim()) return;
+
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setEmailError("Enter a valid email address");
+      return;
+    }
+    setEmailError(null);
+
+    if (resendCountdown > 0) return;
+
     setIsLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -29,6 +83,8 @@ const ForgotPassword = () => {
       toast({ title: error.message, variant: "destructive" });
       return;
     }
+    sessionStorage.setItem(RATE_LIMIT_KEY, String(Date.now()));
+    startCountdown(RATE_LIMIT_SECONDS);
     setSent(true);
   };
 
@@ -49,8 +105,14 @@ const ForgotPassword = () => {
           <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => navigate("/login")}>
             {lang === "my" ? "ဝင်ရောက်ရန် သို့ ပြန်သွားရန်" : "Back to Sign In"}
           </Button>
-          <button onClick={() => setSent(false)} className="mt-4 text-xs font-medium text-primary">
-            {lang === "my" ? "အခြား အီးမေးလ် ဖြင့် ထပ်စမ်းကြည့်ရန်" : "Try a different email"}
+          <button
+            onClick={() => setSent(false)}
+            disabled={resendCountdown > 0}
+            className="mt-4 text-xs font-medium text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {resendCountdown > 0
+              ? `Resend available in ${resendCountdown}s`
+              : (lang === "my" ? "အခြား အီးမေးလ် ဖြင့် ထပ်စမ်းကြည့်ရန်" : "Try a different email")}
           </button>
         </motion.div>
       </div>
@@ -81,12 +143,31 @@ const ForgotPassword = () => {
           <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
           <div className="relative">
             <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-            <Input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@email.com" className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30" />
+            <Input
+              value={email}
+              onChange={e => { setEmail(e.target.value); setEmailError(null); }}
+              type="email"
+              placeholder="example@email.com"
+              className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm focus-visible:ring-primary/30"
+            />
           </div>
+          {emailError && (
+            <p className="mt-1.5 text-xs font-medium text-destructive">{emailError}</p>
+          )}
         </div>
 
-        <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSubmit} disabled={!email.trim() || isLoading}>
-          {isLoading ? (lang === "my" ? "ပို့နေသည်..." : "Sending...") : (lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link")}
+        <Button
+          variant="default"
+          size="lg"
+          className="w-full rounded-2xl shadow-navy"
+          onClick={handleSubmit}
+          disabled={!email.trim() || isLoading || resendCountdown > 0}
+        >
+          {isLoading
+            ? (lang === "my" ? "ပို့နေသည်..." : "Sending...")
+            : resendCountdown > 0
+              ? `Resend available in ${resendCountdown}s`
+              : (lang === "my" ? "လင့်ခ် ပို့ရန်" : "Send Reset Link")}
         </Button>
       </motion.div>
     </div>

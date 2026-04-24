@@ -11,6 +11,11 @@ const GATE_PASS = import.meta.env.VITE_SITE_GATE_PASS as string | undefined;
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 60;
 
+// Read/write helpers that persist rate-limit data to sessionStorage so that
+// a page refresh cannot be used to bypass the lockout.
+const getAttempts = () => parseInt(sessionStorage.getItem("gate_attempts") || "0");
+const getLocked = () => parseInt(sessionStorage.getItem("gate_locked_until") || "0");
+
 const SiteGate = ({ children }: { children: React.ReactNode }) => {
   const { lang } = useLanguage();
   const [passed, setPassed] = useState(() => sessionStorage.getItem(GATE_KEY) === "1");
@@ -18,8 +23,12 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  // Initialise from sessionStorage so lockout survives page refreshes.
+  const [failedAttempts, setFailedAttempts] = useState(() => getAttempts());
+  const [lockedUntil, setLockedUntil] = useState<number | null>(() => {
+    const until = getLocked();
+    return until && Date.now() < until ? until : null;
+  });
   const [countdown, setCountdown] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -32,6 +41,8 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
           setCountdown(0);
           setLockedUntil(null);
           setFailedAttempts(0);
+          sessionStorage.removeItem("gate_attempts");
+          sessionStorage.removeItem("gate_locked_until");
           if (intervalRef.current) clearInterval(intervalRef.current);
         } else {
           setCountdown(remaining);
@@ -82,16 +93,20 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
 
     if (username === GATE_USER && password === GATE_PASS) {
       sessionStorage.setItem(GATE_KEY, "1");
+      sessionStorage.removeItem("gate_attempts");
+      sessionStorage.removeItem("gate_locked_until");
       setPassed(true);
     } else {
       const next = failedAttempts + 1;
       setFailedAttempts(next);
+      sessionStorage.setItem("gate_attempts", String(next));
       setError(true);
       triggerShake();
 
       if (next >= MAX_ATTEMPTS) {
         const until = Date.now() + LOCKOUT_SECONDS * 1000;
         setLockedUntil(until);
+        sessionStorage.setItem("gate_locked_until", String(until));
       }
     }
   };

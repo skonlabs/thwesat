@@ -11,6 +11,26 @@ const EXPIRY_MS: Record<string, number> = {
 
 const STORAGE_KEY = "thwesat:last_activity_at";
 
+// localStorage availability check — falls back to a no-op in-memory shim
+// (e.g. private browsing mode, storage quota exceeded, or sandboxed iframes).
+const storage = (() => {
+  try {
+    localStorage.setItem("__test__", "1");
+    localStorage.removeItem("__test__");
+    return localStorage;
+  } catch {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    } as unknown as Storage;
+  }
+})();
+
+// Module-level variable shared across all hook instances (e.g. StrictMode double-mount).
+// Prevents multiple concurrent writes to storage within the same JS process.
+let _lastExpiryUpdate = 0;
+
 /**
  * Enforces user-selected session expiry by tracking last activity time.
  * If the gap between now and last activity exceeds the chosen window,
@@ -34,16 +54,20 @@ export const useSessionExpiry = () => {
     // On mount/resume: check if last activity exceeded window — if so, sign out.
     if (!checkedRef.current) {
       checkedRef.current = true;
-      const last = Number(localStorage.getItem(STORAGE_KEY) || 0);
+      const last = Number(storage.getItem(STORAGE_KEY) || 0);
       if (last && Date.now() - last > windowMs) {
-        localStorage.removeItem(STORAGE_KEY);
+        storage.removeItem(STORAGE_KEY);
         signOut();
         return;
       }
     }
 
     const stamp = () => {
-      localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      const now = Date.now();
+      // Global throttle: skip if another instance already wrote recently
+      if (now - _lastExpiryUpdate < 60_000) return;
+      _lastExpiryUpdate = now;
+      storage.setItem(STORAGE_KEY, String(now));
     };
     stamp();
 
@@ -59,18 +83,18 @@ export const useSessionExpiry = () => {
 
     // Periodic idle check every minute
     const interval = window.setInterval(() => {
-      const last = Number(localStorage.getItem(STORAGE_KEY) || 0);
+      const last = Number(storage.getItem(STORAGE_KEY) || 0);
       if (last && Date.now() - last > windowMs) {
-        localStorage.removeItem(STORAGE_KEY);
+        storage.removeItem(STORAGE_KEY);
         signOut();
       }
     }, 60_000);
 
     const onVisibility = () => {
       if (document.visibilityState === "visible") {
-        const last = Number(localStorage.getItem(STORAGE_KEY) || 0);
+        const last = Number(storage.getItem(STORAGE_KEY) || 0);
         if (last && Date.now() - last > windowMs) {
-          localStorage.removeItem(STORAGE_KEY);
+          storage.removeItem(STORAGE_KEY);
           signOut();
         } else {
           stamp();

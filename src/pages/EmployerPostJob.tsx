@@ -70,10 +70,13 @@ const EmployerPostJob = () => {
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
   const handleUrlBlur = () => {
-    if (externalUrl && !externalUrl.startsWith("http://") && !externalUrl.startsWith("https://")) {
-      setExternalUrlError("URL must start with http:// or https://");
-    } else {
+    if (!externalUrl) { setExternalUrlError(""); return; }
+    try {
+      const u = new URL(externalUrl);
+      if (!["http:", "https:"].includes(u.protocol)) throw new Error();
       setExternalUrlError("");
+    } catch {
+      setExternalUrlError("Enter a valid URL starting with http:// or https://");
     }
   };
 

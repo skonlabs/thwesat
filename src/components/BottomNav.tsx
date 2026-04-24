@@ -18,8 +18,8 @@ const BottomNav = () => {
 
   // If current role isn't allowed (and not a system role), reset to the first allowed role
   useEffect(() => {
-    if (!isLoading && !isSystemRole && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-      setRole(allowedRoles[0]);
+    if (!isLoading && !isSystemRole && !allowedRoles.includes(role)) {
+      if (allowedRoles && allowedRoles.length > 0) setRole(allowedRoles[0]);
     }
   }, [isLoading, allowedRoles, role, setRole, isSystemRole]);
 

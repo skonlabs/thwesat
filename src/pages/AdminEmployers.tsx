@@ -115,19 +115,32 @@ const AdminEmployers = () => {
   };
 
   const handleDeleteEmployer = async (id: string) => {
-    const { error } = await supabase.from("employer_profiles").delete().eq("id", id);
-    if (error) {
-      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete employer");
-    } else {
+    const employerToDelete = employers.find((e: any) => e.id === id);
+    try {
+      // Delete associated jobs first
+      const { error: jobsError } = await supabase.from("jobs").delete().eq("employer_id", id);
+      if (jobsError) throw jobsError;
+
+      // Delete associated notifications
+      const userId = employerToDelete?.user_id || id;
+      const { error: notifError } = await supabase.from("notifications").delete().eq("user_id", userId);
+      if (notifError) throw notifError;
+
+      // Delete employer profile
+      const { error: profileError } = await supabase.from("employer_profiles").delete().eq("id", id);
+      if (profileError) throw profileError;
+
       toast.success(lang === "my" ? "အလုပ်ရှင် ဖျက်ပြီး" : "Employer deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+    } catch (err: any) {
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : `Failed to delete employer: ${err?.message || "unknown error"}`);
     }
     setDeleteConfirmId(null);
     setSelectedId(null);
   };
 
-  // Fetch active job counts for all employers
+  // Fetch total job counts for all employers (all statuses)
   const employerIds = employers.map((e: any) => e.id);
   const { data: jobCountsRaw = [] } = useQuery({
     queryKey: ["employer-job-counts", employerIds],
@@ -136,8 +149,7 @@ const AdminEmployers = () => {
       const { data } = await supabase
         .from("jobs")
         .select("employer_id")
-        .in("employer_id", employerIds)
-        .eq("status", "active");
+        .in("employer_id", employerIds);
       return data || [];
     },
     enabled: employerIds.length > 0,
@@ -200,7 +212,7 @@ const AdminEmployers = () => {
                     <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.display_name} · {emp.industry || "—"}</p>
                     <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                       <Briefcase className="h-3 w-3" strokeWidth={1.5} />
-                      {jobCountMap.get(emp.id) || 0} {lang === "my" ? "တက်ကြွသောအလုပ်" : "active jobs"}
+                      {jobCountMap.get(emp.id) || 0} {lang === "my" ? "စုစုပေါင်းအလုပ်" : "total jobs"}
                     </p>
                   </div>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${st.color}`}>

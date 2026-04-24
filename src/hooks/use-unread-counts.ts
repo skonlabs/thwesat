@@ -9,6 +9,9 @@ export function useUnreadMessageCount() {
     queryKey: ["unread-messages", user?.id],
     queryFn: async () => {
       if (!user) return 0;
+      // TODO: Replace with a single RPC call: get_unread_counts(user_id)
+      // that returns the total unread count directly, eliminating the two-step
+      // join through conversation_participants.
       const { data: parts } = await supabase
         .from("conversation_participants")
         .select("conversation_id")

@@ -2,14 +2,40 @@ import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { sanitizeText } from "@/lib/sanitize";
+
+/**
+ * SECURITY NOTE — XSS prevention for message content:
+ *
+ * Message content stored in state or returned from this hook MUST be rendered
+ * via React's safe JSX text interpolation (e.g. `{message.content}`), NOT via
+ * `dangerouslySetInnerHTML`. React automatically HTML-escapes text node content,
+ * preventing XSS. Never pass raw message content to `dangerouslySetInnerHTML`.
+ *
+ * If message content must ever be processed for display outside of React's
+ * templating (e.g. for notifications, clipboard, or native UI), use
+ * `sanitizeText(content)` from `@/lib/sanitize` to strip all HTML and return
+ * plain text only.
+ *
+ * Example safe usage:    <p>{message.content}</p>
+ * Example unsafe usage:  <p dangerouslySetInnerHTML={{ __html: message.content }} />
+ */
 
 /**
  * Returns all conversations for the current user with last-message and unread counts.
  *
- * NOTE: This function has an N+1 query pattern — it fires separate Supabase queries
- * per conversation to fetch the last message and unread count. In a future iteration
- * this should be refactored into a single Postgres RPC call (e.g. `get_conversations`)
- * that returns all data in one round-trip.
+ * N+1 QUERY PATTERN — NOTE FOR FUTURE IMPROVEMENT:
+ * For each conversation, this function fires two additional Supabase queries:
+ *   1. Fetch the last message (messages ORDER BY created_at DESC LIMIT 1)
+ *   2. Fetch the unread count (COUNT WHERE is_read=false AND sender_id!=user)
+ *
+ * These are currently batched with Promise.all to run in parallel, but they still
+ * result in 2N+3 round-trips for N conversations. The proper fix is a single Postgres
+ * RPC or view, e.g.:
+ *   CREATE OR REPLACE FUNCTION get_conversations(p_user_id uuid)
+ *   that JOINs conversations with last-message and unread counts in one query.
+ *
+ * TODO: Replace with a single RPC call: get_conversations(user_id)
  */
 export function useConversations() {
   const { user } = useAuth();
@@ -72,9 +98,16 @@ export function useConversations() {
           );
           const otherProfile = otherParticipant ? profileMap.get(otherParticipant.user_id) : null;
 
+          // Sanitize the last-message content preview to plain text so it is
+          // safe to use in any rendering context (notifications, list previews, etc.)
+          const rawLastMsg = msgs?.[0] || null;
+          const lastMessage = rawLastMsg
+            ? { ...rawLastMsg, content: sanitizeText(rawLastMsg.content ?? "") }
+            : null;
+
           return {
             ...conv,
-            lastMessage: msgs?.[0] || null,
+            lastMessage,
             unreadCount: unreadCount || 0,
             otherProfile,
           };
@@ -92,6 +125,27 @@ export function useConversations() {
 
 export function useMessages(conversationId: string | undefined) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Supabase Realtime subscription — pushes live message inserts so the UI
+  // updates instantly without waiting for the polling fallback.
+  useEffect(() => {
+    if (!conversationId || !user) return;
+    const channel = supabase
+      .channel("messages_realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (_payload) => {
+          queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId, user, queryClient]);
+
   return useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
@@ -105,10 +159,9 @@ export function useMessages(conversationId: string | undefined) {
       return data || [];
     },
     enabled: !!conversationId && !!user,
-    // Polling every 30 s is a temporary workaround. The proper solution is to subscribe
-    // to Supabase Realtime (postgres_changes on the messages table filtered by
-    // conversation_id) so new messages are pushed in real time without polling.
-    refetchInterval: 30000,
+    // Polling at 60 s as a fallback in case the Realtime subscription misses an
+    // event. The subscription above handles the common path so 60 s is acceptable.
+    refetchInterval: 60000,
   });
 }
 

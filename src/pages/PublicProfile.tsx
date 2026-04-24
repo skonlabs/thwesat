@@ -110,7 +110,6 @@ const PublicProfile = () => {
     }
 
     if (visibility === "employers") {
-      const viewerRole = (profile as any)?.primary_role;
       const isEmployerOrSystem =
         hasRole("employer") || hasRole("admin") || hasRole("moderator");
       if (!isEmployerOrSystem) {

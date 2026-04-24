@@ -99,16 +99,27 @@ const Signup = () => {
     // Get the new user and persist role + referral
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
-      // Save referral code and create referral record
+      // Save referral code and create referral record — non-blocking, errors are swallowed
       if (referralCode.trim() && referrerId) {
-        await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
-        // Create referral record with 'completed' status (user signed up successfully)
-        await supabase.from("referrals").insert({
-          referrer_id: referrerId,
-          referred_id: newUser.id,
-          referral_code: referralCode.trim(),
-          status: "completed",
-        });
+        try {
+          await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
+          // Create referral record with 'completed' status (user signed up successfully)
+          const { error: referralInsertError } = await supabase.from("referrals").insert({
+            referrer_id: referrerId,
+            referred_id: newUser.id,
+            referral_code: referralCode.trim(),
+            status: "completed",
+          });
+          if (referralInsertError) {
+            throw referralInsertError;
+          }
+        } catch (referralErr) {
+          console.error("Referral record could not be created:", referralErr);
+          toast({
+            title: "Note: your referral code could not be recorded. Please contact support.",
+            variant: "destructive",
+          });
+        }
       }
       // Persist role to user_roles table via SECURITY DEFINER function.
       // Pass the actual selected role (jobseeker / employer / mentor) so the

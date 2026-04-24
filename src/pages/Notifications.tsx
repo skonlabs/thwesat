@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Bell, Briefcase, Users, MessageCircle, Star, Shield, CheckCircle, Trash2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -98,6 +99,36 @@ const Notifications = () => {
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Issue #40: email notification preference — load from user_settings first, fall back to localStorage
+  const [emailNotifications, setEmailNotifications] = useState<boolean>(() => {
+    return localStorage.getItem("email_notifications_enabled") !== "false";
+  });
+
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase
+      .from("user_settings" as any)
+      .select("email_notifications")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && typeof (data as any).email_notifications === "boolean") {
+          setEmailNotifications((data as any).email_notifications);
+        }
+      });
+  }, [user?.id]);
+
+  const handleEmailNotificationToggle = async () => {
+    const newValue = !emailNotifications;
+    setEmailNotifications(newValue);
+    localStorage.setItem("email_notifications_enabled", String(newValue));
+    if (user?.id) {
+      await supabase
+        .from("user_settings" as any)
+        .upsert({ user_id: user.id, email_notifications: newValue } as any);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
   const filteredNotifs = filter === "unread" ? notifications.filter(n => !n.is_read) : notifications;
 
@@ -110,8 +141,14 @@ const Notifications = () => {
 
   const handleDeleteNotification = async (notifId: string) => {
     setDeletingId(notifId);
-    await supabase.from("notifications").delete().eq("id", notifId);
+    const { error } = await supabase.from("notifications").delete().eq("id", notifId);
     setDeletingId(null);
+    if (error) {
+      toast.error(lang === "my"
+        ? "အကြောင်းကြားချက် ဖျက်၍ မရပါ။ ထပ်မံ ကြိုးစားပါ။"
+        : "Failed to delete notification. Please try again.");
+      return;
+    }
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
   };
 
@@ -163,7 +200,17 @@ const Notifications = () => {
           </div>
           <div className="flex items-center gap-3">
             {unreadCount > 0 && (
-              <button onClick={() => markAllRead.mutate()} disabled={markAllRead.isPending} className="text-xs font-medium text-primary disabled:opacity-50">
+              <button
+                onClick={() => markAllRead.mutate(undefined, {
+                  onError: () => {
+                    toast.error(lang === "my"
+                      ? "အကြောင်းကြားချက်များကို ဖတ်ပြီးအဖြစ် မမှတ်နိုင်ပါ။"
+                      : "Failed to mark notifications as read.");
+                  },
+                })}
+                disabled={markAllRead.isPending}
+                className="text-xs font-medium text-primary disabled:opacity-50"
+              >
                 {lang === "my" ? "အားလုံးဖတ်ပြီး" : "Mark all read"}
               </button>
             )}
@@ -173,6 +220,27 @@ const Notifications = () => {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Issue #40: Email notification preference — synced to user_settings */}
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+          <div>
+            <p className="text-sm text-foreground">
+              {lang === "my" ? "အီးမေးလ် အကြောင်းကြားချက်" : "Email Notifications"}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {lang === "my"
+                ? "လျှောက်လွှာ / မက်ဆေ့ / ချိန်းဆိုမှု အတွက် အီးမေးလ် ပို့ပါ"
+                : "Email me for applications, messages & bookings"}
+            </p>
+          </div>
+          <button
+            onClick={handleEmailNotificationToggle}
+            className={`h-6 w-11 rounded-full transition-colors ${emailNotifications ? "bg-primary" : "bg-muted-foreground/30"}`}
+            aria-label={lang === "my" ? "အီးမေးလ် အကြောင်းကြားချက် ဖွင့်/ပိတ်" : "Toggle email notifications"}
+          >
+            <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${emailNotifications ? "translate-x-5" : "translate-x-0.5"}`} />
+          </button>
         </div>
       </div>
 

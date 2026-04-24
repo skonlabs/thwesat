@@ -186,8 +186,8 @@ const Settings = () => {
       toast({ title: lang === "my" ? "စကားဝှက် မှားနေပါသည်" : "Password incorrect", variant: "destructive" });
       return;
     }
-    // Schedule deletion N days out instead of immediately scrubbing.
-    // User can sign back in within the grace window to cancel.
+    // Issue #41: wrap the two update calls with error handling and retry logic.
+    // Step 1 — schedule deletion on the profiles row.
     const scheduledAt = new Date(Date.now() + DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
     const { error: scheduleError } = await supabase.from("profiles").update({
       deletion_requested_at: new Date().toISOString(),
@@ -197,11 +197,36 @@ const Settings = () => {
       toast({ title: lang === "my" ? "မအောင်မြင်ပါ" : "Could not schedule deletion", variant: "destructive" });
       return;
     }
+
+    // Step 2 — sign out. If this fails, retry once before surfacing a partial-error message.
     setShowDeleteConfirm(false);
     setDeleteText("");
     setDeletePassword("");
-    // Immediately sign out so the user is logged out after scheduling deletion.
-    await supabase.auth.signOut();
+    let signOutError = null;
+    try {
+      const { error } = await supabase.auth.signOut();
+      signOutError = error;
+    } catch (e) {
+      signOutError = e;
+    }
+    if (signOutError) {
+      // Retry once
+      try {
+        await supabase.auth.signOut();
+        signOutError = null;
+      } catch {
+        // ignore retry error — fall through to partial error message
+      }
+    }
+    if (signOutError) {
+      toast({
+        title: lang === "my"
+          ? "တစ်စိတ်တစ်ဒေသ အမှား — ကျေးဇူးပြု၍ Support ကို ဆက်သွယ်ပါ"
+          : "Partial error — please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
       title: lang === "my"
         ? "အကောင့်ကို ဖျက်ရန် စီစဉ်ပြီး။ Sign Out ပြုလုပ်ပြီးပါပြီ။"
@@ -359,7 +384,7 @@ const Settings = () => {
           </motion.div>
         ))}
 
-        {/* Security note — active sessions & delegate token read-only notice */}
+        {/* Security note — active sessions & delegate token permissions notice (issue #57) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4 space-y-2">
           <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
             <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
@@ -369,14 +394,40 @@ const Settings = () => {
                 : "For security, changing your password signs out all devices."}
             </p>
           </div>
-          {activeToken && (!activeToken.permissions || activeToken.permissions.length === 0) && (
+          {activeToken && (
             <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
               <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <p className="text-[11px] text-muted-foreground">
-                {lang === "my"
-                  ? "Delegate Token များသည် ယခုအချိန်တွင် ဖတ်ရှုရုံသာ ဝင်ရောက်ခွင့် ရရှိမည်ဖြစ်သည်။"
-                  : "Delegate tokens currently provide read-only access."}
-              </p>
+              <div className="flex-1">
+                <p className="text-[11px] font-medium text-foreground mb-1">
+                  {lang === "my" ? "Delegate Token ခွင့်ပြုချက်များ" : "Delegate token permissions"}
+                </p>
+                {activeToken.permissions && activeToken.permissions.length > 0 ? (
+                  <ul className="space-y-0.5">
+                    {activeToken.permissions.map((perm) => {
+                      const permissionLabels: Record<string, { en: string; my: string }> = {
+                        read_profile:   { en: "View your profile",          my: "သင့်ပရိုဖိုင် ကြည့်ရှုခွင့်" },
+                        read_jobs:      { en: "View your job applications",  my: "အလုပ်လျှောက်ထားမှုများ ကြည့်ရှုခွင့်" },
+                        profile_edit:   { en: "Edit your profile",           my: "သင့်ပရိုဖိုင် ပြင်ဆင်ခွင့်" },
+                        read_messages:  { en: "Read your messages",          my: "မက်ဆေ့ချ်များ ဖတ်ရှုခွင့်" },
+                        send_messages:  { en: "Send messages on your behalf",my: "မက်ဆေ့ချ် ပေးပို့ခွင့်" },
+                        manage_bookings:{ en: "Manage your bookings",        my: "ချိန်းဆိုမှုများ စီမံခန့်ခွဲခွင့်" },
+                      };
+                      const label = permissionLabels[perm];
+                      return (
+                        <li key={perm} className="text-[11px] text-muted-foreground">
+                          • {label ? (lang === "my" ? label.my : label.en) : perm}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my"
+                      ? "Delegate Token များသည် ယခုအချိန်တွင် ဖတ်ရှုရုံသာ ဝင်ရောက်ခွင့် ရရှိမည်ဖြစ်သည်။"
+                      : "Delegate tokens currently provide read-only access."}
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </motion.div>

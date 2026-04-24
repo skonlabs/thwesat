@@ -60,6 +60,22 @@ const EmployerOnboarding = () => {
   };
 
   const handleSubmit = async () => {
+    // Issue #18: server-side uniqueness check to prevent race condition
+    const { data: existing } = await supabase
+      .from("employer_profiles")
+      .select("id")
+      .ilike("company_name", companyName.trim())
+      .maybeSingle();
+    if (existing) {
+      toast({
+        title: lang === "my" ? "ကုမ္ပဏီအမည် ထပ်နေသည်" : "Company name already taken",
+        description: lang === "my"
+          ? "ဤအမည်ဖြင့် ကုမ္ပဏီတစ်ခု ရှိပြီးသားဖြစ်ပါသည်"
+          : "A company with this name already exists. Please choose a different name.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       await upsert.mutateAsync({
         company_name: companyName, company_website: website, company_linkedin: linkedin,

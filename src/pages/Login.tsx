@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ const LOCKOUT_SECONDS = 30;
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const { lang } = useLanguage();
   const { toast } = useToast();
@@ -77,8 +78,10 @@ const Login = () => {
       const next = failedAttempts + 1;
       setFailedAttempts(next);
 
-      // User-friendly error message
-      let msg = lang === "my" ? "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ကန်ပါ" : "Incorrect email or password. Please try again.";
+      // Always use a generic message to prevent email enumeration.
+      // The only exception is "email not confirmed" which doesn't reveal
+      // whether an account exists (it only shows after a successful password match).
+      let msg = lang === "my" ? "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ကန်ပါ" : "Incorrect email or password.";
       if (error.message?.toLowerCase().includes("email not confirmed")) {
         msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
       }
@@ -96,7 +99,8 @@ const Login = () => {
       return;
     }
 
-    navigate("/home");
+    const from = (location.state as { from?: string } | null)?.from || "/dashboard";
+    navigate(from, { replace: true });
   };
 
   return (

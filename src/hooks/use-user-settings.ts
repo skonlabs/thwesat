@@ -27,11 +27,13 @@ export function useUserSettings() {
         .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
-      // Auto-create row if trigger missed it
+      // Auto-create row if trigger missed it.
+      // UPSERT prevents a duplicate-key error from concurrent requests (race condition
+      // that could occur when multiple tabs or StrictMode double-mounts fire simultaneously).
       if (!data) {
         const { data: created } = await supabase
           .from("user_settings")
-          .insert({ user_id: user.id })
+          .upsert({ user_id: user.id }, { onConflict: "user_id" })
           .select("*")
           .single();
         return created as UserSettings;

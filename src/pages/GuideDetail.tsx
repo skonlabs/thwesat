@@ -369,9 +369,11 @@ const GuideDetail = () => {
           </Sheet>
 
 
-          {/* Formatted content */}
+          {/* Formatted content — sanitizeHtml strips any injected HTML from external
+              translated content before the markdown parser processes it. The parser
+              itself emits safe React JSX, not dangerouslySetInnerHTML. */}
           <div className="max-w-none">
-            {renderGuideContent(displayContent)}
+            {renderGuideContent(sanitizeHtml(displayContent))}
           </div>
 
           {/* Feedback section */}

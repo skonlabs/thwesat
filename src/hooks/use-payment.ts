@@ -253,19 +253,42 @@ export async function uploadPaymentProof(userId: string, file: File): Promise<st
   return path;
 }
 
+/**
+ * Extracts the storage object path from a full Supabase storage URL.
+ * Handles both public (/object/public/) and authenticated (/object/authenticated/)
+ * URL formats. If the input is already a bare path (not a URL), it is returned as-is.
+ */
+const getStoragePath = (urlOrPath: string): string => {
+  if (!urlOrPath.startsWith("http")) return urlOrPath; // already a path
+  try {
+    const url = new URL(urlOrPath);
+    const publicMarker = "/object/public/";
+    const idx = url.pathname.indexOf(publicMarker);
+    if (idx !== -1) {
+      // Strip the bucket prefix too — return just the object path within the bucket
+      const afterMarker = url.pathname.slice(idx + publicMarker.length);
+      const slashIdx = afterMarker.indexOf("/");
+      return slashIdx !== -1 ? afterMarker.slice(slashIdx + 1) : afterMarker;
+    }
+    const privateMarker = "/object/authenticated/";
+    const idx2 = url.pathname.indexOf(privateMarker);
+    if (idx2 !== -1) {
+      const afterMarker = url.pathname.slice(idx2 + privateMarker.length);
+      const slashIdx = afterMarker.indexOf("/");
+      return slashIdx !== -1 ? afterMarker.slice(slashIdx + 1) : afterMarker;
+    }
+  } catch { /* fall through */ }
+  return urlOrPath;
+};
+
 // Helper to get a signed URL for viewing payment proofs
 export async function getPaymentProofSignedUrl(proofPath: string): Promise<string | null> {
   if (!proofPath) return null;
-  // Handle legacy full URLs - extract path
-  let path = proofPath;
-  if (proofPath.includes("/storage/v1/object/")) {
-    const match = proofPath.match(/payment-proofs\/(.+)$/);
-    if (match) path = match[1];
-    else return proofPath; // fallback to raw URL
-  }
+  // Normalise legacy full URLs to a bare storage path
+  const path = getStoragePath(proofPath);
   const { data, error } = await supabase.storage
     .from("payment-proofs")
-    .createSignedUrl(path, 3600); // 1 hour expiry
+    .createSignedUrl(path, 86400); // 24 hour expiry
   if (error || !data?.signedUrl) return null;
   return data.signedUrl;
 }

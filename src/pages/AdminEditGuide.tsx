@@ -32,6 +32,7 @@ const AdminEditGuide = () => {
   const [readTime, setReadTime] = useState("5");
   const [showPreview, setShowPreview] = useState(false);
   const [draftBanner, setDraftBanner] = useState(false);
+  const [lastAutoSaved, setLastAutoSaved] = useState<Date | null>(null);
   const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const draftKey = `guide_draft_${id || "new"}`;
@@ -83,6 +84,7 @@ const AdminEditGuide = () => {
     autoSaveRef.current = setInterval(() => {
       const formValues = { title, titleMy, category, country, countryFlag, content, contentMy, readTime };
       localStorage.setItem(draftKey, JSON.stringify(formValues));
+      setLastAutoSaved(new Date());
     }, 30000);
     return () => {
       if (autoSaveRef.current) clearInterval(autoSaveRef.current);
@@ -135,6 +137,9 @@ const AdminEditGuide = () => {
       }
       toast.success(lang === "my" ? "လမ်းညွှန်ချက် ပြင်ဆင်ပြီး" : "Guide updated");
     }
+
+    // Clear draft after successful save
+    localStorage.removeItem("guide_draft_" + (id || "new"));
 
     queryClient.invalidateQueries({ queryKey: ["guides"] });
     queryClient.invalidateQueries({ queryKey: ["guide", id] });
@@ -213,6 +218,14 @@ const AdminEditGuide = () => {
           <Textarea value={contentMy} onChange={e => setContentMy(e.target.value)} className="min-h-[160px] rounded-xl text-sm" />
           <p className="mt-1 text-right text-[10px] text-muted-foreground">{contentMy.length} characters</p>
         </div>
+
+        {lastAutoSaved && (
+          <p className="text-[10px] text-muted-foreground text-right">
+            {lang === "my"
+              ? `မူကြမ်း အလိုအလျောက် သိမ်းပြီး: ${lastAutoSaved.toLocaleTimeString()}`
+              : `Draft auto-saved at ${lastAutoSaved.toLocaleTimeString()}`}
+          </p>
+        )}
 
         <div className="flex gap-3 pt-2">
           <Button variant="outline" className="flex-1 rounded-xl" onClick={() => navigate("/guides")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>

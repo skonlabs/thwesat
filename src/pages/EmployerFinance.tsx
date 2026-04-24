@@ -37,6 +37,8 @@ function ProofStatusChip({ p, lang }: { p: any; lang: "my" | "en" }) {
   );
 }
 
+const PAGE_SIZE = 20;
+
 const EmployerFinance = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
@@ -49,6 +51,7 @@ const EmployerFinance = () => {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
   const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "subs">("all");
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,6 +101,10 @@ const EmployerFinance = () => {
 
   const filtered = useMemo(() => applyFinanceFilters(kpiScoped, status, currency), [kpiScoped, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
+  const totalFiltered = filtered.length;
+  const pageStart = page * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);
+  const pagedFiltered = filtered.slice(pageStart, pageEnd);
 
   const handleUpload = async () => {
     if (!proofFor || !file || !user) return;

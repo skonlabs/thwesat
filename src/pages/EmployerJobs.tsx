@@ -22,6 +22,8 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   })
 );
 
+const PAGE_SIZE = 20;
+
 const EmployerJobs = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,6 +31,7 @@ const EmployerJobs = () => {
   const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useEmployerJobs();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
+  const [page, setPage] = useState(0);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [sharingId, setSharingId] = useState<string | null>(null);
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
@@ -73,10 +76,15 @@ const EmployerJobs = () => {
     if (next === "all") params.delete("status");
     else params.set("status", next);
     setSearchParams(params, { replace: true });
+    setPage(0);
   };
 
   const listings = jobs || [];
   const filtered = filter === "all" ? listings : listings.filter(l => l.status === filter);
+  const totalFiltered = filtered.length;
+  const pageStart = page * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);
+  const pagedFiltered = filtered.slice(pageStart, pageEnd);
 
   const handleDeleteJob = async (jobId: string) => {
     try {
@@ -133,7 +141,15 @@ const EmployerJobs = () => {
               </Button>
             </div>
           ) : (
-            filtered.map((listing, i) => {
+            <>
+            {totalFiltered > PAGE_SIZE && (
+              <p className="mb-2 text-xs text-muted-foreground">
+                {lang === "my"
+                  ? `${pageStart + 1}–${pageEnd} / ${totalFiltered} ဖော်ပြနေသည်`
+                  : `Showing ${pageStart + 1}–${pageEnd} of ${totalFiltered} jobs`}
+              </p>
+            )}
+            {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
               return (
                 <motion.div
@@ -222,7 +238,19 @@ const EmployerJobs = () => {
                   </div>
                 </motion.div>
               );
-            })
+            })}
+            {totalFiltered > PAGE_SIZE && (
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
+                  {lang === "my" ? "နောက်သို့" : "Previous"}
+                </Button>
+                <span className="text-xs text-muted-foreground">{page + 1} / {Math.ceil(totalFiltered / PAGE_SIZE)}</span>
+                <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => p + 1)} disabled={pageEnd >= totalFiltered}>
+                  {lang === "my" ? "ရှေ့သို့" : "Next"}
+                </Button>
+              </div>
+            )}
+            </>
           )}
         </div>
       </div>
