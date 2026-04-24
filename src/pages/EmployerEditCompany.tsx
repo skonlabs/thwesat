@@ -91,21 +91,26 @@ const EmployerEditCompany = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ကုမ္ပဏီ ပြင်ဆင်ရန်" : "Edit Company Info"} backPath="/employer/dashboard" />
-      <div className="px-5 space-y-4">
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label><Input value={companyName} onChange={e => setCompanyName(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝဘ်ဆိုဒ်" : "Website"}</label><Input value={website} onChange={e => setWebsite(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">LinkedIn</label><Input value={linkedin} onChange={e => setLinkedin(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ ဖော်ပြချက်" : "Description"}</label><Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[80px] rounded-xl" /></div>
+      {isDirty && (
+        <div className="mx-5 mt-3 rounded-xl border border-yellow-400 bg-yellow-50 px-4 py-2.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+          {lang === "my" ? "မသိမ်းရသေးသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
+        </div>
+      )}
+      <div className="px-5 space-y-4 mt-4">
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label><Input value={companyName} onChange={e => markDirty(setCompanyName)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝဘ်ဆိုဒ်" : "Website"}</label><Input value={website} onChange={e => markDirty(setWebsite)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">LinkedIn</label><Input value={linkedin} onChange={e => markDirty(setLinkedin)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ ဖော်ပြချက်" : "Description"}</label><Textarea value={description} onChange={e => markDirty(setDescription)(e.target.value)} className="min-h-[80px] rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လုပ်ငန်းအမျိုးအစား" : "Industry"}</label>
-          <div className="flex flex-wrap gap-2">{industries.map(i => (<button key={i} onClick={() => setIndustry(i)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${industry === i ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{i}</button>))}</div>
+          <div className="flex flex-wrap gap-2">{industries.map(i => (<button key={i} onClick={() => markDirty(setIndustry)(i)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${industry === i ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{i}</button>))}</div>
         </div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအရွယ်အစား" : "Company Size"}</label>
-          <div className="flex flex-wrap gap-2">{companySizes.map(s => (<button key={s} onClick={() => setCompanySize(s)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${companySize === s ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{s}</button>))}</div>
+          <div className="flex flex-wrap gap-2">{companySizes.map(s => (<button key={s} onClick={() => markDirty(setCompanySize)(s)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${companySize === s ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{s}</button>))}</div>
         </div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရုံးချုပ်တိုင်းပြည်" : "HQ Country"}</label><Input value={hqCountry} onChange={e => setHqCountry(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အမည်" : "Contact Name"}</label><Input value={contactName} onChange={e => setContactName(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ်" : "Contact Email"}</label><Input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရုံးချုပ်တိုင်းပြည်" : "HQ Country"}</label><Input value={hqCountry} onChange={e => markDirty(setHqCountry)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အမည်" : "Contact Name"}</label><Input value={contactName} onChange={e => markDirty(setContactName)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ်" : "Contact Email"}</label><Input type="email" value={contactEmail} onChange={e => markDirty(setContactEmail)(e.target.value)} className="h-11 rounded-xl" /></div>
+        <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => markDirty(setContactPhone)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
           <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (<button key={m} onClick={() => togglePayment(m)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(m) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{m}</button>))}</div>
         </div>
