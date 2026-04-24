@@ -11,7 +11,7 @@ const LanguageToggle = () => {
       aria-label={lang === "my" ? "ဘာသာစကား ပြောင်းရန်" : "Toggle language"}
     >
       <Globe className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
-      <span className={lang === "my" ? "text-xs" : "text-[13px] leading-[1.6]"}>{lang === "my" ? "EN" : "မြန်မာ"}</span>
+      <span className={lang === "my" ? "text-xs" : "text-sm leading-[1.8] inline-block"} style={lang === "my" ? undefined : { fontFamily: "'Padauk', 'Myanmar Text', sans-serif" }}>{lang === "my" ? "EN" : "မြန်မာ"}</span>
     </button>
   );
 };
