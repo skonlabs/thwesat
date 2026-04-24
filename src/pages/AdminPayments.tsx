@@ -132,10 +132,13 @@ const AdminPayments = () => {
       });
       setSelectedPayment(null);
       setAdminNote("");
+      setConfirmAction(null);
     } catch (err: any) {
       toast({ title: lang === "my" ? "အမှား" : "Error", description: err?.message || "Failed to update payment", variant: "destructive" });
     }
   };
+
+  const selectedPaymentProfile = selectedPayment ? profileMap.get(selectedPayment.user_id) : null;
 
   const filters: { id: FilterType; label: { my: string; en: string } }[] = [
     { id: "all", label: { my: "အားလုံး", en: "All" } },
@@ -351,6 +354,18 @@ const AdminPayments = () => {
                 </div>
               )}
 
+              {/* Reviewed by info */}
+              {(selectedPayment.reviewed_by || selectedPayment.reviewed_at) && (
+                <div className="rounded-lg bg-muted/60 px-3 py-2 text-[11px] text-muted-foreground">
+                  {lang === "my" ? "စစ်ဆေးသူ" : "Reviewed by"}{" "}
+                  <span className="font-medium text-foreground">{(selectedPayment as any).reviewed_by_name || selectedPayment.reviewed_by || "Admin"}</span>
+                  {selectedPayment.reviewed_at && (
+                    <> {lang === "my" ? "မှာ" : "on"}{" "}
+                    <span className="font-medium text-foreground">{new Date((selectedPayment as any).reviewed_at).toLocaleDateString()}</span></>
+                  )}
+                </div>
+              )}
+
               {/* Admin note */}
               {(selectedPayment.status === "pending" || selectedPayment.status === "approved") && (
                 <Textarea
@@ -368,7 +383,7 @@ const AdminPayments = () => {
                     variant="default"
                     className="flex-1 rounded-xl"
                     disabled={updatePayment.isPending}
-                    onClick={() => handleAction("approved")}
+                    onClick={() => setConfirmAction("approved")}
                   >
                     <CheckCircle className="mr-1.5 h-4 w-4" />
                     {lang === "my" ? "အတည်ပြုရန်" : "Approve"}
@@ -376,8 +391,8 @@ const AdminPayments = () => {
                   <Button
                     variant="destructive"
                     className="flex-1 rounded-xl"
-                    disabled={updatePayment.isPending}
-                    onClick={() => handleAction("rejected")}
+                    disabled={updatePayment.isPending || !adminNote || adminNote.trim() === ""}
+                    onClick={() => setConfirmAction("rejected")}
                   >
                     <XCircle className="mr-1.5 h-4 w-4" />
                     {lang === "my" ? "ပယ်ချရန်" : "Reject"}
@@ -391,7 +406,7 @@ const AdminPayments = () => {
                   variant="destructive"
                   className="w-full rounded-xl"
                   disabled={updatePayment.isPending}
-                  onClick={() => handleAction("revoked")}
+                  onClick={() => setConfirmAction("revoked")}
                 >
                   <RotateCcw className="mr-1.5 h-4 w-4" />
                   {lang === "my" ? "အတည်ပြုမှုကို ရုပ်သိမ်းရန်" : "Revoke / Refund"}
@@ -408,6 +423,43 @@ const AdminPayments = () => {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Confirmation AlertDialog */}
+      <AlertDialog open={!!confirmAction} onOpenChange={(open) => { if (!open) setConfirmAction(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction === "approved"
+                ? (lang === "my" ? "ငွေပေးချေမှု အတည်ပြုမည်" : "Approve Payment")
+                : confirmAction === "revoked"
+                ? (lang === "my" ? "ငွေပေးချေမှု ရုပ်သိမ်းမည်" : "Revoke Payment")
+                : (lang === "my" ? "ငွေပေးချေမှု ပယ်ချမည်" : "Reject Payment")}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-1 text-sm">
+                {selectedPayment && (
+                  <>
+                    <p><span className="font-medium">{lang === "my" ? "ပမာဏ" : "Amount"}:</span> {selectedPayment.currency === "MMK" ? `${selectedPayment.amount.toLocaleString()} ကျပ်` : `$${selectedPayment.amount}`}</p>
+                    <p><span className="font-medium">{lang === "my" ? "အသုံးပြုသူ" : "User"}:</span> {selectedPaymentProfile?.display_name || "—"}</p>
+                    <p><span className="font-medium">{lang === "my" ? "ပေးချေနည်း" : "Method"}:</span> {methodLabels[selectedPayment.payment_method] || selectedPayment.payment_method}</p>
+                  </>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmAction(null)}>
+              {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => confirmAction && handleAction(confirmAction)}
+              className={confirmAction !== "approved" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+            >
+              {lang === "my" ? "အတည်ပြုရန်" : "Confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

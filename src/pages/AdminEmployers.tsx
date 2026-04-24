@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users, Pencil, Trash2 } from "lucide-react";
+import { Search, Building2, CheckCircle, XCircle, Clock, ExternalLink, Globe, Mail, Phone, Users, Pencil, Trash2, Briefcase } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,6 +127,26 @@ const AdminEmployers = () => {
     setSelectedId(null);
   };
 
+  // Fetch active job counts for all employers
+  const employerIds = employers.map((e: any) => e.id);
+  const { data: jobCountsRaw = [] } = useQuery({
+    queryKey: ["employer-job-counts", employerIds],
+    queryFn: async () => {
+      if (employerIds.length === 0) return [];
+      const { data } = await supabase
+        .from("jobs")
+        .select("employer_id")
+        .in("employer_id", employerIds)
+        .eq("status", "active");
+      return data || [];
+    },
+    enabled: employerIds.length > 0,
+  });
+  const jobCountMap = new Map<string, number>();
+  (jobCountsRaw as any[]).forEach((row: any) => {
+    jobCountMap.set(row.employer_id, (jobCountMap.get(row.employer_id) || 0) + 1);
+  });
+
   const filtered = employers.filter((e: any) => {
     const status = e.verification_status || "pending";
     const matchesTab = tab === "all" 
@@ -168,6 +198,10 @@ const AdminEmployers = () => {
                   <div className="flex-1 min-w-0">
                     <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || "Unnamed Company"}</h3>
                     <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.display_name} · {emp.industry || "—"}</p>
+                    <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                      <Briefcase className="h-3 w-3" strokeWidth={1.5} />
+                      {jobCountMap.get(emp.id) || 0} {lang === "my" ? "တက်ကြွသောအလုပ်" : "active jobs"}
+                    </p>
                   </div>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${st.color}`}>
                     {lang === "my" ? st.label.my : st.label.en}
