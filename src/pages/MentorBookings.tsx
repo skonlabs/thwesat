@@ -429,6 +429,29 @@ const MentorBookings = () => {
         )}
       </div>
 
+      {/* Cancel Booking AlertDialog */}
+      <AlertDialog open={!!cancelBookingId} onOpenChange={open => { if (!open) setCancelBookingId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ရန်?" : "Cancel this booking?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {lang === "my"
+                ? "ဤချိန်းဆိုမှုကို ပယ်ဖျက်မည်ဆိုလျှင် Mentor ထံ အကြောင်းကြားပေးပါမည်။"
+                : "This booking will be cancelled. The mentor will be notified."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{lang === "my" ? "မလုပ်တော့" : "Keep Booking"}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (cancelBookingId) cancelBooking.mutate(cancelBookingId); }}
+            >
+              {lang === "my" ? "ပယ်ဖျက်မည်" : "Cancel Booking"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Rating Sheet */}
       <Sheet open={!!ratingBookingId} onOpenChange={(open) => { if (!open) setRatingBookingId(null); }}>
         <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-24">

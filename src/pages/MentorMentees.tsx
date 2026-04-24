@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil } from "lucide-react";
+import { Users, MessageCircle, Calendar, Search, MapPin, BookOpen, ChevronRight, Pencil, CheckCircle2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useMentorMentees } from "@/hooks/use-mentor-bookings";

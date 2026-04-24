@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useUpsertEmployerProfile } from "@/hooks/use-employer-data";
+import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Construction", "Agriculture", "Other"];

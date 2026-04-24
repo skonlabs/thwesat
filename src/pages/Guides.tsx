@@ -213,6 +213,11 @@ const Guides = () => {
                                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                                     {guide.read_time_minutes || 5} {lang === "my" ? "မိနစ် ဖတ်ရန်" : "min read"} · {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}
                                   </p>
+                                  {guide.updated_at && (
+                                    <p className="mt-0.5 text-[10px] text-muted-foreground/70">
+                                      {lang === "my" ? "နောက်ဆုံးပြင်ဆင်:" : "Updated:"} {new Date(guide.updated_at).toLocaleDateString()}
+                                    </p>
+                                  )}
                                 </div>
                                 <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                               </motion.button>
