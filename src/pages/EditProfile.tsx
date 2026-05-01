@@ -236,31 +236,36 @@ const EditProfile = () => {
   const skillRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
+  // Hydrate form state from profile ONCE on initial load.
+  // Re-running on every `profile` reference change (e.g., after refreshProfile
+  // following an avatar upload) would wipe in-progress edits — that was the
+  // root cause of the "previous data gets lost" bug.
+  const hydratedRef = useRef(false);
   useEffect(() => {
-    if (profile) {
-      setName(profile.display_name || "");
-      setHeadline(profile.headline || "");
-      setBio(profile.bio || "");
-      setLocation(profile.location || "");
-      setLocationSearch(profile.location || "");
-      setEmail(profile.email || "");
-      const parsed = parsePhone(profile.phone || "");
-      setPhoneCountryCode(parsed.countryCode);
-      setPhoneNumber(parsed.number);
-      setWebsite(profile.website || "");
-      setSkills(profile.skills || []);
-      setLanguages(profile.languages || []);
-      setExperience(profile.experience || "");
-      setVisibility(profile.visibility || "members");
-      setPreferredWorkTypes(profile.preferred_work_types || []);
-      setHasPayoneer(profile.has_payoneer || false);
-      setHasWise(profile.has_wise || false);
-      setHasUpwork(profile.has_upwork || false);
-      setHasLaptop(profile.has_laptop || false);
-      setInternetStable(profile.internet_stable || false);
-      setAvatarUrl(profile.avatar_url || null);
-      setIsDirty(false);
-    }
+    if (!profile || hydratedRef.current) return;
+    hydratedRef.current = true;
+    setName(profile.display_name || "");
+    setHeadline(profile.headline || "");
+    setBio(profile.bio || "");
+    setLocation(profile.location || "");
+    setLocationSearch(profile.location || "");
+    setEmail(profile.email || "");
+    const parsed = parsePhone(profile.phone || "");
+    setPhoneCountryCode(parsed.countryCode);
+    setPhoneNumber(parsed.number);
+    setWebsite(profile.website || "");
+    setSkills(profile.skills || []);
+    setLanguages(profile.languages || []);
+    setExperience(profile.experience || "");
+    setVisibility(profile.visibility || "members");
+    setPreferredWorkTypes(profile.preferred_work_types || []);
+    setHasPayoneer(profile.has_payoneer || false);
+    setHasWise(profile.has_wise || false);
+    setHasUpwork(profile.has_upwork || false);
+    setHasLaptop(profile.has_laptop || false);
+    setInternetStable(profile.internet_stable || false);
+    setAvatarUrl(profile.avatar_url || null);
+    setIsDirty(false);
   }, [profile]);
 
   // beforeunload warning when dirty
@@ -298,7 +303,10 @@ const EditProfile = () => {
       const url = `${publicUrl}?t=${Date.now()}`;
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
       setAvatarUrl(url);
-      await refreshProfile();
+      // Intentionally do NOT call refreshProfile() here — it would re-fetch
+      // the profile and (even with the one-shot hydration guard) we want to
+      // avoid any churn that could disrupt in-progress form edits. The global
+      // profile refreshes on Save.
     } catch (err: any) {
       toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
     } finally {
@@ -339,9 +347,10 @@ const EditProfile = () => {
       setSkills([...skills, s]);
       setNewSkill("");
       setShowSkillSuggestions(false);
+      markDirty();
     }
   };
-  const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
+  const removeSkill = (skill: string) => { setSkills(skills.filter(s => s !== skill)); markDirty(); };
   const addLanguage = (l: string) => {
     if (languages.length >= 5) {
       setLanguageSearch("");
@@ -355,8 +364,8 @@ const EditProfile = () => {
       setShowLanguageDropdown(false);
     }
   };
-  const removeLanguage = (l: string) => setLanguages(languages.filter(x => x !== l));
-  const toggleWorkType = (type: string) => setPreferredWorkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  const removeLanguage = (l: string) => { setLanguages(languages.filter(x => x !== l)); markDirty(); };
+  const toggleWorkType = (type: string) => { setPreferredWorkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]); markDirty(); };
 
   const handleSave = async () => {
     if (!profile) return;
@@ -499,7 +508,7 @@ const EditProfile = () => {
           </div>
           <div className="space-y-2">
             {VISIBILITY_OPTIONS.map(opt => (
-              <button key={opt.value} onClick={() => setVisibility(opt.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${visibility === opt.value ? "border-primary/40 bg-primary/5 shadow-sm" : "border-border hover:border-border/80 active:bg-muted"}`}>
+              <button key={opt.value} onClick={() => { setVisibility(opt.value); markDirty(); }} className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${visibility === opt.value ? "border-primary/40 bg-primary/5 shadow-sm" : "border-border hover:border-border/80 active:bg-muted"}`}>
                 <div className={`flex h-9 w-9 items-center justify-center rounded-full ${visibility === opt.value ? "bg-primary/15" : "bg-muted"}`}>
                   <opt.icon className={`h-4 w-4 ${visibility === opt.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
@@ -557,7 +566,7 @@ const EditProfile = () => {
                 {filteredLocations.length === 0 ? (
                   <div className="px-3 py-2 text-xs text-muted-foreground">{lang === "my" ? "ရလဒ် မရှိပါ" : "No results"}</div>
                 ) : filteredLocations.map(loc => (
-                  <button key={loc} onClick={() => { setLocation(loc); setLocationSearch(loc); setShowLocationDropdown(false); }} className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${location === loc ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
+                  <button key={loc} onClick={() => { setLocation(loc); setLocationSearch(loc); setShowLocationDropdown(false); markDirty(); }} className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${location === loc ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
                     <MapPin className="h-3 w-3 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                     {loc}
                   </button>
@@ -598,7 +607,7 @@ const EditProfile = () => {
                 {showCountryCodePicker && (
                   <div className="absolute z-50 mt-1 max-h-48 w-56 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
                     {COUNTRY_CODES.map(cc => (
-                      <button key={cc.code} onClick={() => { setPhoneCountryCode(cc.code); setShowCountryCodePicker(false); }}
+                      <button key={cc.code} onClick={() => { setPhoneCountryCode(cc.code); setShowCountryCodePicker(false); markDirty(); }}
                         className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${phoneCountryCode === cc.code ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
                         {cc.label}
                       </button>
@@ -644,11 +653,11 @@ const EditProfile = () => {
           </div>
           <div className="space-y-1.5">
             {[
-              { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => setHasLaptop(!hasLaptop) },
-              { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => setInternetStable(!internetStable) },
-              { label: "Payoneer", icon: CreditCard, value: hasPayoneer, toggle: () => setHasPayoneer(!hasPayoneer) },
-              { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => setHasWise(!hasWise) },
-              { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => setHasUpwork(!hasUpwork) },
+              { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => { setHasLaptop(!hasLaptop); markDirty(); } },
+              { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => { setInternetStable(!internetStable); markDirty(); } },
+              { label: "Payoneer", icon: CreditCard, value: hasPayoneer, toggle: () => { setHasPayoneer(!hasPayoneer); markDirty(); } },
+              { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => { setHasWise(!hasWise); markDirty(); } },
+              { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => { setHasUpwork(!hasUpwork); markDirty(); } },
             ].map((item, i) => (
               <button key={i} onClick={item.toggle} className={`flex w-full items-center justify-between rounded-xl p-3.5 transition-all ${item.value ? "bg-primary/5" : "bg-muted/30 hover:bg-muted/50"}`}>
                 <div className="flex items-center gap-3">
