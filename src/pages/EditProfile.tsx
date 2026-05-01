@@ -508,7 +508,7 @@ const EditProfile = () => {
           </div>
           <div className="space-y-2">
             {VISIBILITY_OPTIONS.map(opt => (
-              <button key={opt.value} onClick={() => setVisibility(opt.value)} className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${visibility === opt.value ? "border-primary/40 bg-primary/5 shadow-sm" : "border-border hover:border-border/80 active:bg-muted"}`}>
+              <button key={opt.value} onClick={() => { setVisibility(opt.value); markDirty(); }} className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${visibility === opt.value ? "border-primary/40 bg-primary/5 shadow-sm" : "border-border hover:border-border/80 active:bg-muted"}`}>
                 <div className={`flex h-9 w-9 items-center justify-center rounded-full ${visibility === opt.value ? "bg-primary/15" : "bg-muted"}`}>
                   <opt.icon className={`h-4 w-4 ${visibility === opt.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
