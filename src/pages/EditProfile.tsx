@@ -554,7 +554,15 @@ const EditProfile = () => {
             <div className="relative">
               <Input
                 value={locationSearch}
-                onChange={e => { setLocationSearch(e.target.value); setShowLocationDropdown(true); }}
+                onChange={e => {
+                  // Keep `location` in sync with the freeform input so users
+                  // who type a city without picking from the dropdown still
+                  // get their value saved.
+                  setLocationSearch(e.target.value);
+                  setLocation(e.target.value);
+                  setShowLocationDropdown(true);
+                  markDirty();
+                }}
                 onFocus={() => setShowLocationDropdown(true)}
                 placeholder={lang === "my" ? "မြို့နာမည် ရိုက်ထည့်ပါ..." : "Search city..."}
                 className="h-11 rounded-xl border-border bg-muted/30 pr-8 text-sm focus-visible:ring-primary/30"
