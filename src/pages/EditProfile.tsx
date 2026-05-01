@@ -216,6 +216,16 @@ type ProfileDraft = {
   avatarUrl: string | null;
 };
 
+function readProfileDraft(key: string): Partial<ProfileDraft> | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) as Partial<ProfileDraft> : null;
+  } catch {
+    sessionStorage.removeItem(key);
+    return null;
+  }
+}
+
 // --- Component ---
 
 const EditProfile = () => {
@@ -272,8 +282,7 @@ const EditProfile = () => {
   useEffect(() => {
     if (!profile || hydratedRef.current) return;
     hydratedRef.current = true;
-    const savedDraft = draftKey ? sessionStorage.getItem(draftKey) : null;
-    const draft = savedDraft ? JSON.parse(savedDraft) as Partial<ProfileDraft> : null;
+    const draft = draftKey ? readProfileDraft(draftKey) : null;
     setName(draft?.name ?? profile.display_name ?? "");
     setHeadline(draft?.headline ?? profile.headline ?? "");
     setBio(draft?.bio ?? profile.bio ?? "");
