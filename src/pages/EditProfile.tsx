@@ -566,7 +566,7 @@ const EditProfile = () => {
                 {filteredLocations.length === 0 ? (
                   <div className="px-3 py-2 text-xs text-muted-foreground">{lang === "my" ? "ရလဒ် မရှိပါ" : "No results"}</div>
                 ) : filteredLocations.map(loc => (
-                  <button key={loc} onClick={() => { setLocation(loc); setLocationSearch(loc); setShowLocationDropdown(false); }} className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${location === loc ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
+                  <button key={loc} onClick={() => { setLocation(loc); setLocationSearch(loc); setShowLocationDropdown(false); markDirty(); }} className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${location === loc ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
                     <MapPin className="h-3 w-3 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
                     {loc}
                   </button>
