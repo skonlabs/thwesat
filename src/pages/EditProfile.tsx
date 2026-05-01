@@ -232,6 +232,7 @@ const EditProfile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const pendingAvatarFileRef = useRef<File | null>(null);
+  const tempAvatarPreviewRef = useRef<string | null>(null);
 
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
@@ -297,6 +298,12 @@ const EditProfile = () => {
     }
   }, [blocker, lang, toast]);
 
+  useEffect(() => {
+    return () => {
+      if (tempAvatarPreviewRef.current) URL.revokeObjectURL(tempAvatarPreviewRef.current);
+    };
+  }, []);
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
@@ -308,25 +315,13 @@ const EditProfile = () => {
       toast({ title: lang === "my" ? "ဖိုင်အရွယ်အစား 5MB ထက်မကျော်ရ" : "File must be under 5MB", variant: "destructive" });
       return;
     }
-    setUploadingAvatar(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${profile.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      const url = `${publicUrl}?t=${Date.now()}`;
-      await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
-      setAvatarUrl(url);
-      // Intentionally do NOT call refreshProfile() here — it would re-fetch
-      // the profile and (even with the one-shot hydration guard) we want to
-      // avoid any churn that could disrupt in-progress form edits. The global
-      // profile refreshes on Save.
-    } catch (err: any) {
-      toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
-    } finally {
-      setUploadingAvatar(false);
-    }
+    if (tempAvatarPreviewRef.current) URL.revokeObjectURL(tempAvatarPreviewRef.current);
+    const previewUrl = URL.createObjectURL(file);
+    tempAvatarPreviewRef.current = previewUrl;
+    pendingAvatarFileRef.current = file;
+    setAvatarUrl(previewUrl);
+    markDirty();
+    e.currentTarget.value = "";
   };
 
   // Close dropdowns on outside click
