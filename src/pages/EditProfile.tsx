@@ -502,6 +502,7 @@ const EditProfile = () => {
       }
       if (savedAvatarUrl) setAvatarUrl(savedAvatarUrl);
       setIsDirty(false);
+      if (draftKey) sessionStorage.removeItem(draftKey);
       await refreshProfile();
       navigate("/profile");
     } catch {
