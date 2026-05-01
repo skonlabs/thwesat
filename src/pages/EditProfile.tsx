@@ -191,6 +191,41 @@ function isValidWebsite(v: string) {
   return v === "" || /^https?:\/\//i.test(v);
 }
 
+const EDIT_PROFILE_DRAFT_PREFIX = "thwesat_edit_profile_draft:";
+
+type ProfileDraft = {
+  name: string;
+  headline: string;
+  bio: string;
+  location: string;
+  locationSearch: string;
+  email: string;
+  phoneCountryCode: string;
+  phoneNumber: string;
+  website: string;
+  skills: string[];
+  languages: string[];
+  experience: string;
+  visibility: string;
+  preferredWorkTypes: string[];
+  hasPayoneer: boolean;
+  hasWise: boolean;
+  hasUpwork: boolean;
+  hasLaptop: boolean;
+  internetStable: boolean;
+  avatarUrl: string | null;
+};
+
+function readProfileDraft(key: string): Partial<ProfileDraft> | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) as Partial<ProfileDraft> : null;
+  } catch {
+    sessionStorage.removeItem(key);
+    return null;
+  }
+}
+
 // --- Component ---
 
 const EditProfile = () => {
@@ -231,10 +266,13 @@ const EditProfile = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const pendingAvatarFileRef = useRef<File | null>(null);
+  const tempAvatarPreviewRef = useRef<string | null>(null);
 
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
+  const draftKey = profile?.id ? `${EDIT_PROFILE_DRAFT_PREFIX}${profile.id}` : null;
 
   // Hydrate form state from profile ONCE on initial load.
   // Re-running on every `profile` reference change (e.g., after refreshProfile
@@ -244,29 +282,30 @@ const EditProfile = () => {
   useEffect(() => {
     if (!profile || hydratedRef.current) return;
     hydratedRef.current = true;
-    setName(profile.display_name || "");
-    setHeadline(profile.headline || "");
-    setBio(profile.bio || "");
-    setLocation(profile.location || "");
-    setLocationSearch(profile.location || "");
-    setEmail(profile.email || "");
+    const draft = draftKey ? readProfileDraft(draftKey) : null;
+    setName(draft?.name ?? profile.display_name ?? "");
+    setHeadline(draft?.headline ?? profile.headline ?? "");
+    setBio(draft?.bio ?? profile.bio ?? "");
+    setLocation(draft?.location ?? profile.location ?? "");
+    setLocationSearch(draft?.locationSearch ?? draft?.location ?? profile.location ?? "");
+    setEmail(draft?.email ?? profile.email ?? "");
     const parsed = parsePhone(profile.phone || "");
-    setPhoneCountryCode(parsed.countryCode);
-    setPhoneNumber(parsed.number);
-    setWebsite(profile.website || "");
-    setSkills(profile.skills || []);
-    setLanguages(profile.languages || []);
-    setExperience(profile.experience || "");
-    setVisibility(profile.visibility || "members");
-    setPreferredWorkTypes(profile.preferred_work_types || []);
-    setHasPayoneer(profile.has_payoneer || false);
-    setHasWise(profile.has_wise || false);
-    setHasUpwork(profile.has_upwork || false);
-    setHasLaptop(profile.has_laptop || false);
-    setInternetStable(profile.internet_stable || false);
-    setAvatarUrl(profile.avatar_url || null);
-    setIsDirty(false);
-  }, [profile]);
+    setPhoneCountryCode(draft?.phoneCountryCode ?? parsed.countryCode);
+    setPhoneNumber(draft?.phoneNumber ?? parsed.number);
+    setWebsite(draft?.website ?? profile.website ?? "");
+    setSkills(draft?.skills ?? profile.skills ?? []);
+    setLanguages(draft?.languages ?? profile.languages ?? []);
+    setExperience(draft?.experience ?? profile.experience ?? "");
+    setVisibility(draft?.visibility ?? profile.visibility ?? "members");
+    setPreferredWorkTypes(draft?.preferredWorkTypes ?? profile.preferred_work_types ?? []);
+    setHasPayoneer(draft?.hasPayoneer ?? profile.has_payoneer ?? false);
+    setHasWise(draft?.hasWise ?? profile.has_wise ?? false);
+    setHasUpwork(draft?.hasUpwork ?? profile.has_upwork ?? false);
+    setHasLaptop(draft?.hasLaptop ?? profile.has_laptop ?? false);
+    setInternetStable(draft?.internetStable ?? profile.internet_stable ?? false);
+    setAvatarUrl(draft?.avatarUrl ?? profile.avatar_url ?? null);
+    setIsDirty(!!draft);
+  }, [profile, draftKey]);
 
   // beforeunload warning when dirty
   useEffect(() => {
@@ -280,7 +319,39 @@ const EditProfile = () => {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
+  useEffect(() => {
+    if (!draftKey || !hydratedRef.current || !isDirty) return;
+    const draft: ProfileDraft = {
+      name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
+      skills, languages, experience, visibility, preferredWorkTypes,
+      hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+      avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
+    };
+    sessionStorage.setItem(draftKey, JSON.stringify(draft));
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+
+  useEffect(() => {
+    const persistOnHide = () => {
+      if (!draftKey || !hydratedRef.current || !isDirty || document.visibilityState !== "hidden") return;
+      const draft: ProfileDraft = {
+        name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
+        skills, languages, experience, visibility, preferredWorkTypes,
+        hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+        avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
+      };
+      sessionStorage.setItem(draftKey, JSON.stringify(draft));
+    };
+    document.addEventListener("visibilitychange", persistOnHide);
+    return () => document.removeEventListener("visibilitychange", persistOnHide);
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+
   const markDirty = useCallback(() => setIsDirty(true), []);
+
+  useEffect(() => {
+    return () => {
+      if (tempAvatarPreviewRef.current) URL.revokeObjectURL(tempAvatarPreviewRef.current);
+    };
+  }, []);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -293,25 +364,13 @@ const EditProfile = () => {
       toast({ title: lang === "my" ? "ဖိုင်အရွယ်အစား 5MB ထက်မကျော်ရ" : "File must be under 5MB", variant: "destructive" });
       return;
     }
-    setUploadingAvatar(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${profile.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      const url = `${publicUrl}?t=${Date.now()}`;
-      await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
-      setAvatarUrl(url);
-      // Intentionally do NOT call refreshProfile() here — it would re-fetch
-      // the profile and (even with the one-shot hydration guard) we want to
-      // avoid any churn that could disrupt in-progress form edits. The global
-      // profile refreshes on Save.
-    } catch (err: any) {
-      toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
-    } finally {
-      setUploadingAvatar(false);
-    }
+    if (tempAvatarPreviewRef.current) URL.revokeObjectURL(tempAvatarPreviewRef.current);
+    const previewUrl = URL.createObjectURL(file);
+    tempAvatarPreviewRef.current = previewUrl;
+    pendingAvatarFileRef.current = file;
+    setAvatarUrl(previewUrl);
+    markDirty();
+    e.currentTarget.value = "";
   };
 
   // Close dropdowns on outside click
@@ -393,40 +452,65 @@ const EditProfile = () => {
     }
 
     setSaving(true);
-    const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
-    const { error } = await supabase.from("profiles").update({
-      display_name: name, headline, bio, location, email, phone: fullPhone, website,
-      skills, languages, experience, visibility, preferred_work_types: preferredWorkTypes,
-      has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
-      has_laptop: hasLaptop, internet_stable: internetStable,
-      remote_ready: hasLaptop && internetStable,
-    }).eq("id", profile.id);
-
-    // Sync mentor_profiles if user is a mentor
-    if (profile.primary_role === "mentor") {
-      const { data: mentorExists } = await supabase
-        .from("mentor_profiles")
-        .select("id")
-        .eq("id", profile.id)
-        .maybeSingle();
-      if (mentorExists) {
-        await supabase.from("mentor_profiles").update({
-          title: headline || "",
-          bio: bio || "",
-          expertise: skills || [],
-          location: location || "",
-        }).eq("id", profile.id);
+    try {
+      let savedAvatarUrl = avatarUrl;
+      const pendingAvatar = pendingAvatarFileRef.current;
+      if (pendingAvatar) {
+        setUploadingAvatar(true);
+        const ext = pendingAvatar.name.split(".").pop() || "jpg";
+        const filePath = `${profile.id}/avatar.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, pendingAvatar, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        savedAvatarUrl = `${publicUrl}?t=${Date.now()}`;
       }
-    }
 
-    setSaving(false);
-    if (error) {
+      const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
+      const { error } = await supabase.from("profiles").update({
+        display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
+        avatar_url: savedAvatarUrl,
+        skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
+        has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
+        has_laptop: hasLaptop, internet_stable: internetStable,
+        remote_ready: hasLaptop && internetStable,
+      }).eq("id", profile.id);
+      if (error) throw error;
+
+      // Sync mentor_profiles if user is a mentor
+      if (profile.primary_role === "mentor") {
+        const { data: mentorExists, error: mentorLookupError } = await supabase
+          .from("mentor_profiles")
+          .select("id")
+          .eq("id", profile.id)
+          .maybeSingle();
+        if (mentorLookupError) throw mentorLookupError;
+        if (mentorExists) {
+          const { error: mentorUpdateError } = await supabase.from("mentor_profiles").update({
+            title: headline.trim(),
+            bio: bio.trim(),
+            expertise: skills,
+            location: location.trim(),
+          }).eq("id", profile.id);
+          if (mentorUpdateError) throw mentorUpdateError;
+        }
+      }
+
+      pendingAvatarFileRef.current = null;
+      if (tempAvatarPreviewRef.current) {
+        URL.revokeObjectURL(tempAvatarPreviewRef.current);
+        tempAvatarPreviewRef.current = null;
+      }
+      if (savedAvatarUrl) setAvatarUrl(savedAvatarUrl);
+      setIsDirty(false);
+      if (draftKey) sessionStorage.removeItem(draftKey);
+      await refreshProfile();
+      navigate("/profile");
+    } catch {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
-      return;
+    } finally {
+      setUploadingAvatar(false);
+      setSaving(false);
     }
-    setIsDirty(false);
-    await refreshProfile();
-    navigate("/profile");
   };
 
   const handleEmailBlur = () => {
@@ -464,7 +548,7 @@ const EditProfile = () => {
           <p className="flex-1 text-xs font-medium text-amber-800 dark:text-amber-300">
             {lang === "my" ? "သိမ်းမထားသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
           </p>
-          <button onClick={() => setIsDirty(false)} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
+          <button onClick={() => { setIsDirty(false); if (draftKey) sessionStorage.removeItem(draftKey); }} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
             <X className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
         </div>
