@@ -235,18 +235,22 @@ function readProfileDraft(key: string): Partial<ProfileDraft> | null {
   }
 }
 
+function hasDraftKey(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft) {
+  return !!draft && Object.prototype.hasOwnProperty.call(draft, key);
+}
+
 function draftText(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: string) {
-  const value = draft?.[key];
-  return typeof value === "string" && value.trim() !== "" ? value : fallback;
+  const value = hasDraftKey(draft, key) ? draft?.[key] : undefined;
+  return typeof value === "string" ? value : fallback;
 }
 
 function draftArray(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: string[]) {
-  const value = draft?.[key];
-  return Array.isArray(value) && (value.length > 0 || fallback.length === 0) ? value : fallback;
+  const value = hasDraftKey(draft, key) ? draft?.[key] : undefined;
+  return Array.isArray(value) ? value : fallback;
 }
 
 function draftBool(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: boolean) {
-  const value = draft?.[key];
+  const value = hasDraftKey(draft, key) ? draft?.[key] : undefined;
   return typeof value === "boolean" ? value : fallback;
 }
 
