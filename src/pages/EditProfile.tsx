@@ -236,31 +236,36 @@ const EditProfile = () => {
   const skillRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
+  // Hydrate form state from profile ONCE on initial load.
+  // Re-running on every `profile` reference change (e.g., after refreshProfile
+  // following an avatar upload) would wipe in-progress edits — that was the
+  // root cause of the "previous data gets lost" bug.
+  const hydratedRef = useRef(false);
   useEffect(() => {
-    if (profile) {
-      setName(profile.display_name || "");
-      setHeadline(profile.headline || "");
-      setBio(profile.bio || "");
-      setLocation(profile.location || "");
-      setLocationSearch(profile.location || "");
-      setEmail(profile.email || "");
-      const parsed = parsePhone(profile.phone || "");
-      setPhoneCountryCode(parsed.countryCode);
-      setPhoneNumber(parsed.number);
-      setWebsite(profile.website || "");
-      setSkills(profile.skills || []);
-      setLanguages(profile.languages || []);
-      setExperience(profile.experience || "");
-      setVisibility(profile.visibility || "members");
-      setPreferredWorkTypes(profile.preferred_work_types || []);
-      setHasPayoneer(profile.has_payoneer || false);
-      setHasWise(profile.has_wise || false);
-      setHasUpwork(profile.has_upwork || false);
-      setHasLaptop(profile.has_laptop || false);
-      setInternetStable(profile.internet_stable || false);
-      setAvatarUrl(profile.avatar_url || null);
-      setIsDirty(false);
-    }
+    if (!profile || hydratedRef.current) return;
+    hydratedRef.current = true;
+    setName(profile.display_name || "");
+    setHeadline(profile.headline || "");
+    setBio(profile.bio || "");
+    setLocation(profile.location || "");
+    setLocationSearch(profile.location || "");
+    setEmail(profile.email || "");
+    const parsed = parsePhone(profile.phone || "");
+    setPhoneCountryCode(parsed.countryCode);
+    setPhoneNumber(parsed.number);
+    setWebsite(profile.website || "");
+    setSkills(profile.skills || []);
+    setLanguages(profile.languages || []);
+    setExperience(profile.experience || "");
+    setVisibility(profile.visibility || "members");
+    setPreferredWorkTypes(profile.preferred_work_types || []);
+    setHasPayoneer(profile.has_payoneer || false);
+    setHasWise(profile.has_wise || false);
+    setHasUpwork(profile.has_upwork || false);
+    setHasLaptop(profile.has_laptop || false);
+    setInternetStable(profile.internet_stable || false);
+    setAvatarUrl(profile.avatar_url || null);
+    setIsDirty(false);
   }, [profile]);
 
   // beforeunload warning when dirty
