@@ -607,7 +607,7 @@ const EditProfile = () => {
                 {showCountryCodePicker && (
                   <div className="absolute z-50 mt-1 max-h-48 w-56 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg">
                     {COUNTRY_CODES.map(cc => (
-                      <button key={cc.code} onClick={() => { setPhoneCountryCode(cc.code); setShowCountryCodePicker(false); }}
+                      <button key={cc.code} onClick={() => { setPhoneCountryCode(cc.code); setShowCountryCodePicker(false); markDirty(); }}
                         className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted ${phoneCountryCode === cc.code ? "bg-primary/5 text-primary font-medium" : "text-foreground"}`}>
                         {cc.label}
                       </button>
