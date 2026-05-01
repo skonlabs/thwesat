@@ -319,6 +319,32 @@ const EditProfile = () => {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
+  useEffect(() => {
+    if (!draftKey || !hydratedRef.current || !isDirty) return;
+    const draft: ProfileDraft = {
+      name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
+      skills, languages, experience, visibility, preferredWorkTypes,
+      hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+      avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
+    };
+    sessionStorage.setItem(draftKey, JSON.stringify(draft));
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+
+  useEffect(() => {
+    const persistOnHide = () => {
+      if (!draftKey || !hydratedRef.current || !isDirty || document.visibilityState !== "hidden") return;
+      const draft: ProfileDraft = {
+        name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
+        skills, languages, experience, visibility, preferredWorkTypes,
+        hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+        avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
+      };
+      sessionStorage.setItem(draftKey, JSON.stringify(draft));
+    };
+    document.addEventListener("visibilitychange", persistOnHide);
+    return () => document.removeEventListener("visibilitychange", persistOnHide);
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+
   const markDirty = useCallback(() => setIsDirty(true), []);
 
   useEffect(() => {
