@@ -369,6 +369,29 @@ const EditProfile = () => {
 
   const handleSave = async () => {
     if (!profile) return;
+
+    // Re-validate on save so users can't bypass field-level errors by simply
+    // never blurring the input. Block save and surface a destructive toast
+    // pointing them at the offending field.
+    const errs: { email?: string; phone?: string; website?: string } = {};
+    if (email && !isValidEmail(email)) {
+      errs.email = lang === "my" ? "အီးမေးလ် ဖော်မတ် မမှန်ကန်ပါ" : "Invalid email format";
+    }
+    if (phoneNumber && !isValidPhone(phoneNumber)) {
+      errs.phone = lang === "my" ? "ဖုန်းနံပါတ် အနည်းဆုံး ၇ လုံး ထည့်ပါ" : "Phone must have at least 7 digits";
+    }
+    if (!isValidWebsite(website)) {
+      errs.website = lang === "my" ? "ဝဘ်ဆိုက် http:// သို့မဟုတ် https:// ဖြင့် စတင်ရမည်" : "Website must start with http:// or https://";
+    }
+    if (errs.email || errs.phone || errs.website) {
+      setFieldErrors(errs);
+      toast({
+        title: lang === "my" ? "ဖော်မတ်အမှားရှိသည်" : "Please fix the highlighted fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
     const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
     const { error } = await supabase.from("profiles").update({
