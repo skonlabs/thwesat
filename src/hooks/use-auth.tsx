@@ -49,12 +49,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
   const mountedRef = useRef(true);
-  const fetchingProfileRef = useRef(false);
+  const fetchingProfileRef = useRef<Promise<void> | null>(null);
 
   const fetchProfile = async (userId: string) => {
-    if (fetchingProfileRef.current) return;
-    fetchingProfileRef.current = true;
-    try {
+    if (fetchingProfileRef.current) return fetchingProfileRef.current;
+    const request = (async () => {
       const { data } = await supabase
         .from("profiles")
         .select("*")
@@ -62,9 +61,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
       if (!mountedRef.current) return;
       if (data) setProfile(data as Profile);
-    } finally {
-      fetchingProfileRef.current = false;
-    }
+    })().finally(() => {
+      if (fetchingProfileRef.current === request) fetchingProfileRef.current = null;
+    });
+    fetchingProfileRef.current = request;
+    return request;
   };
 
   const refreshProfile = async () => {
