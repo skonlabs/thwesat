@@ -547,7 +547,7 @@ const EditProfile = () => {
           <p className="flex-1 text-xs font-medium text-amber-800 dark:text-amber-300">
             {lang === "my" ? "သိမ်းမထားသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
           </p>
-          <button onClick={() => setIsDirty(false)} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
+          <button onClick={() => { setIsDirty(false); if (draftKey) sessionStorage.removeItem(draftKey); }} className="text-amber-600 dark:text-amber-400 hover:text-amber-800">
             <X className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
         </div>
