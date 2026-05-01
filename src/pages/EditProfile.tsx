@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages, AlertTriangle } from "lucide-react";
-import { useNavigate, useBlocker } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -190,6 +190,31 @@ function isValidPhone(digits: string) {
 function isValidWebsite(v: string) {
   return v === "" || /^https?:\/\//i.test(v);
 }
+
+const EDIT_PROFILE_DRAFT_PREFIX = "thwesat_edit_profile_draft:";
+
+type ProfileDraft = {
+  name: string;
+  headline: string;
+  bio: string;
+  location: string;
+  locationSearch: string;
+  email: string;
+  phoneCountryCode: string;
+  phoneNumber: string;
+  website: string;
+  skills: string[];
+  languages: string[];
+  experience: string;
+  visibility: string;
+  preferredWorkTypes: string[];
+  hasPayoneer: boolean;
+  hasWise: boolean;
+  hasUpwork: boolean;
+  hasLaptop: boolean;
+  internetStable: boolean;
+  avatarUrl: string | null;
+};
 
 // --- Component ---
 
