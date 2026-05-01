@@ -262,6 +262,7 @@ const EditProfile = () => {
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
+  const draftKey = profile?.id ? `${EDIT_PROFILE_DRAFT_PREFIX}${profile.id}` : null;
 
   // Hydrate form state from profile ONCE on initial load.
   // Re-running on every `profile` reference change (e.g., after refreshProfile
@@ -271,29 +272,31 @@ const EditProfile = () => {
   useEffect(() => {
     if (!profile || hydratedRef.current) return;
     hydratedRef.current = true;
-    setName(profile.display_name || "");
-    setHeadline(profile.headline || "");
-    setBio(profile.bio || "");
-    setLocation(profile.location || "");
-    setLocationSearch(profile.location || "");
-    setEmail(profile.email || "");
+    const savedDraft = draftKey ? sessionStorage.getItem(draftKey) : null;
+    const draft = savedDraft ? JSON.parse(savedDraft) as Partial<ProfileDraft> : null;
+    setName(draft?.name ?? profile.display_name ?? "");
+    setHeadline(draft?.headline ?? profile.headline ?? "");
+    setBio(draft?.bio ?? profile.bio ?? "");
+    setLocation(draft?.location ?? profile.location ?? "");
+    setLocationSearch(draft?.locationSearch ?? draft?.location ?? profile.location ?? "");
+    setEmail(draft?.email ?? profile.email ?? "");
     const parsed = parsePhone(profile.phone || "");
-    setPhoneCountryCode(parsed.countryCode);
-    setPhoneNumber(parsed.number);
-    setWebsite(profile.website || "");
-    setSkills(profile.skills || []);
-    setLanguages(profile.languages || []);
-    setExperience(profile.experience || "");
-    setVisibility(profile.visibility || "members");
-    setPreferredWorkTypes(profile.preferred_work_types || []);
-    setHasPayoneer(profile.has_payoneer || false);
-    setHasWise(profile.has_wise || false);
-    setHasUpwork(profile.has_upwork || false);
-    setHasLaptop(profile.has_laptop || false);
-    setInternetStable(profile.internet_stable || false);
-    setAvatarUrl(profile.avatar_url || null);
-    setIsDirty(false);
-  }, [profile]);
+    setPhoneCountryCode(draft?.phoneCountryCode ?? parsed.countryCode);
+    setPhoneNumber(draft?.phoneNumber ?? parsed.number);
+    setWebsite(draft?.website ?? profile.website ?? "");
+    setSkills(draft?.skills ?? profile.skills ?? []);
+    setLanguages(draft?.languages ?? profile.languages ?? []);
+    setExperience(draft?.experience ?? profile.experience ?? "");
+    setVisibility(draft?.visibility ?? profile.visibility ?? "members");
+    setPreferredWorkTypes(draft?.preferredWorkTypes ?? profile.preferred_work_types ?? []);
+    setHasPayoneer(draft?.hasPayoneer ?? profile.has_payoneer ?? false);
+    setHasWise(draft?.hasWise ?? profile.has_wise ?? false);
+    setHasUpwork(draft?.hasUpwork ?? profile.has_upwork ?? false);
+    setHasLaptop(draft?.hasLaptop ?? profile.has_laptop ?? false);
+    setInternetStable(draft?.internetStable ?? profile.internet_stable ?? false);
+    setAvatarUrl(draft?.avatarUrl ?? profile.avatar_url ?? null);
+    setIsDirty(!!draft);
+  }, [profile, draftKey]);
 
   // beforeunload warning when dirty
   useEffect(() => {
