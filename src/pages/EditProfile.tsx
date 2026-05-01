@@ -303,7 +303,10 @@ const EditProfile = () => {
       const url = `${publicUrl}?t=${Date.now()}`;
       await supabase.from("profiles").update({ avatar_url: url }).eq("id", profile.id);
       setAvatarUrl(url);
-      await refreshProfile();
+      // Intentionally do NOT call refreshProfile() here — it would re-fetch
+      // the profile and (even with the one-shot hydration guard) we want to
+      // avoid any churn that could disrupt in-progress form edits. The global
+      // profile refreshes on Save.
     } catch (err: any) {
       toast({ title: lang === "my" ? "ဓာတ်ပုံတင်ရာတွင် အမှားဖြစ်ပါသည်" : "Failed to upload photo", variant: "destructive" });
     } finally {
