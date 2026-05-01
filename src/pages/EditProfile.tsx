@@ -192,8 +192,11 @@ function isValidWebsite(v: string) {
 }
 
 const EDIT_PROFILE_DRAFT_PREFIX = "thwesat_edit_profile_draft:";
+const EDIT_PROFILE_DRAFT_VERSION = 2;
 
 type ProfileDraft = {
+  _version: number;
+  savedAt: number;
   name: string;
   headline: string;
   bio: string;
@@ -219,11 +222,32 @@ type ProfileDraft = {
 function readProfileDraft(key: string): Partial<ProfileDraft> | null {
   try {
     const raw = sessionStorage.getItem(key);
-    return raw ? JSON.parse(raw) as Partial<ProfileDraft> : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ProfileDraft>;
+    if (parsed._version !== EDIT_PROFILE_DRAFT_VERSION) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    return parsed;
   } catch {
     sessionStorage.removeItem(key);
     return null;
   }
+}
+
+function draftText(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: string) {
+  const value = draft?.[key];
+  return typeof value === "string" && value.trim() !== "" ? value : fallback;
+}
+
+function draftArray(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: string[]) {
+  const value = draft?.[key];
+  return Array.isArray(value) && (value.length > 0 || fallback.length === 0) ? value : fallback;
+}
+
+function draftBool(draft: Partial<ProfileDraft> | null, key: keyof ProfileDraft, fallback: boolean) {
+  const value = draft?.[key];
+  return typeof value === "boolean" ? value : fallback;
 }
 
 // --- Component ---
