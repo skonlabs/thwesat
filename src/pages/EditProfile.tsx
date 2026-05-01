@@ -311,27 +311,28 @@ const EditProfile = () => {
     if (!profile || hydratedRef.current) return;
     hydratedRef.current = true;
     const draft = draftKey ? readProfileDraft(draftKey) : null;
-    setName(draft?.name ?? profile.display_name ?? "");
-    setHeadline(draft?.headline ?? profile.headline ?? "");
-    setBio(draft?.bio ?? profile.bio ?? "");
-    setLocation(draft?.location ?? profile.location ?? "");
-    setLocationSearch(draft?.locationSearch ?? draft?.location ?? profile.location ?? "");
-    setEmail(draft?.email ?? profile.email ?? "");
+    const savedLocation = profile.location ?? "";
+    setName(draftText(draft, "name", profile.display_name ?? ""));
+    setHeadline(draftText(draft, "headline", profile.headline ?? ""));
+    setBio(draftText(draft, "bio", profile.bio ?? ""));
+    setLocation(draftText(draft, "location", savedLocation));
+    setLocationSearch(draftText(draft, "locationSearch", draftText(draft, "location", savedLocation)));
+    setEmail(draftText(draft, "email", profile.email ?? ""));
     const parsed = parsePhone(profile.phone || "");
-    setPhoneCountryCode(draft?.phoneCountryCode ?? parsed.countryCode);
-    setPhoneNumber(draft?.phoneNumber ?? parsed.number);
-    setWebsite(draft?.website ?? profile.website ?? "");
-    setSkills(draft?.skills ?? profile.skills ?? []);
-    setLanguages(draft?.languages ?? profile.languages ?? []);
-    setExperience(draft?.experience ?? profile.experience ?? "");
-    setVisibility(draft?.visibility ?? profile.visibility ?? "members");
-    setPreferredWorkTypes(draft?.preferredWorkTypes ?? profile.preferred_work_types ?? []);
-    setHasPayoneer(draft?.hasPayoneer ?? profile.has_payoneer ?? false);
-    setHasWise(draft?.hasWise ?? profile.has_wise ?? false);
-    setHasUpwork(draft?.hasUpwork ?? profile.has_upwork ?? false);
-    setHasLaptop(draft?.hasLaptop ?? profile.has_laptop ?? false);
-    setInternetStable(draft?.internetStable ?? profile.internet_stable ?? false);
-    setAvatarUrl(draft?.avatarUrl ?? profile.avatar_url ?? null);
+    setPhoneCountryCode(draftText(draft, "phoneCountryCode", parsed.countryCode));
+    setPhoneNumber(draftText(draft, "phoneNumber", parsed.number));
+    setWebsite(draftText(draft, "website", profile.website ?? ""));
+    setSkills(draftArray(draft, "skills", profile.skills ?? []));
+    setLanguages(draftArray(draft, "languages", profile.languages ?? []));
+    setExperience(draftText(draft, "experience", profile.experience ?? ""));
+    setVisibility(draftText(draft, "visibility", profile.visibility ?? "members"));
+    setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
+    setHasPayoneer(draftBool(draft, "hasPayoneer", profile.has_payoneer ?? false));
+    setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
+    setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));
+    setHasLaptop(draftBool(draft, "hasLaptop", profile.has_laptop ?? false));
+    setInternetStable(draftBool(draft, "internetStable", profile.internet_stable ?? false));
+    setAvatarUrl(draftText(draft, "avatarUrl", profile.avatar_url ?? "") || null);
     setIsDirty(!!draft);
   }, [profile, draftKey]);
 
@@ -350,6 +351,8 @@ const EditProfile = () => {
   useEffect(() => {
     if (!draftKey || !hydratedRef.current || !isDirty) return;
     const draft: ProfileDraft = {
+      _version: EDIT_PROFILE_DRAFT_VERSION,
+      savedAt: Date.now(),
       name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
       skills, languages, experience, visibility, preferredWorkTypes,
       hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
@@ -362,6 +365,8 @@ const EditProfile = () => {
     const persistOnHide = () => {
       if (!draftKey || !hydratedRef.current || !isDirty || document.visibilityState !== "hidden") return;
       const draft: ProfileDraft = {
+        _version: EDIT_PROFILE_DRAFT_VERSION,
+        savedAt: Date.now(),
         name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
         skills, languages, experience, visibility, preferredWorkTypes,
         hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
