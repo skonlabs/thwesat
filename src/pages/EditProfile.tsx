@@ -403,40 +403,64 @@ const EditProfile = () => {
     }
 
     setSaving(true);
-    const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
-    const { error } = await supabase.from("profiles").update({
-      display_name: name, headline, bio, location, email, phone: fullPhone, website,
-      skills, languages, experience, visibility, preferred_work_types: preferredWorkTypes,
-      has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
-      has_laptop: hasLaptop, internet_stable: internetStable,
-      remote_ready: hasLaptop && internetStable,
-    }).eq("id", profile.id);
-
-    // Sync mentor_profiles if user is a mentor
-    if (profile.primary_role === "mentor") {
-      const { data: mentorExists } = await supabase
-        .from("mentor_profiles")
-        .select("id")
-        .eq("id", profile.id)
-        .maybeSingle();
-      if (mentorExists) {
-        await supabase.from("mentor_profiles").update({
-          title: headline || "",
-          bio: bio || "",
-          expertise: skills || [],
-          location: location || "",
-        }).eq("id", profile.id);
+    try {
+      let savedAvatarUrl = avatarUrl;
+      const pendingAvatar = pendingAvatarFileRef.current;
+      if (pendingAvatar) {
+        setUploadingAvatar(true);
+        const ext = pendingAvatar.name.split(".").pop() || "jpg";
+        const filePath = `${profile.id}/avatar.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, pendingAvatar, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        savedAvatarUrl = `${publicUrl}?t=${Date.now()}`;
       }
-    }
 
-    setSaving(false);
-    if (error) {
+      const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
+      const { error } = await supabase.from("profiles").update({
+        display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
+        avatar_url: savedAvatarUrl,
+        skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
+        has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
+        has_laptop: hasLaptop, internet_stable: internetStable,
+        remote_ready: hasLaptop && internetStable,
+      }).eq("id", profile.id);
+      if (error) throw error;
+
+      // Sync mentor_profiles if user is a mentor
+      if (profile.primary_role === "mentor") {
+        const { data: mentorExists, error: mentorLookupError } = await supabase
+          .from("mentor_profiles")
+          .select("id")
+          .eq("id", profile.id)
+          .maybeSingle();
+        if (mentorLookupError) throw mentorLookupError;
+        if (mentorExists) {
+          const { error: mentorUpdateError } = await supabase.from("mentor_profiles").update({
+            title: headline.trim(),
+            bio: bio.trim(),
+            expertise: skills,
+            location: location.trim(),
+          }).eq("id", profile.id);
+          if (mentorUpdateError) throw mentorUpdateError;
+        }
+      }
+
+      pendingAvatarFileRef.current = null;
+      if (tempAvatarPreviewRef.current) {
+        URL.revokeObjectURL(tempAvatarPreviewRef.current);
+        tempAvatarPreviewRef.current = null;
+      }
+      if (savedAvatarUrl) setAvatarUrl(savedAvatarUrl);
+      setIsDirty(false);
+      await refreshProfile();
+      navigate("/profile");
+    } catch (err: any) {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
-      return;
+    } finally {
+      setUploadingAvatar(false);
+      setSaving(false);
     }
-    setIsDirty(false);
-    await refreshProfile();
-    navigate("/profile");
   };
 
   const handleEmailBlur = () => {
