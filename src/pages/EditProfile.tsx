@@ -455,7 +455,7 @@ const EditProfile = () => {
       setIsDirty(false);
       await refreshProfile();
       navigate("/profile");
-    } catch (err: any) {
+    } catch {
       toast({ title: lang === "my" ? "အမှား ဖြစ်ပါသည်" : "Error saving", variant: "destructive" });
     } finally {
       setUploadingAvatar(false);
