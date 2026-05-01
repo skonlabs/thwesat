@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { X, Plus, MapPin, Globe, Mail, Phone, Save, Briefcase, CreditCard, Laptop, Wifi, ChevronDown, Search, Check, Eye, EyeOff, Users, Lock, Camera, Loader2, User, MessageSquare, Clock, Sparkles, Languages, AlertTriangle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useBlocker } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -231,6 +231,7 @@ const EditProfile = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const pendingAvatarFileRef = useRef<File | null>(null);
 
   const locationRef = useRef<HTMLDivElement>(null);
   const skillRef = useRef<HTMLDivElement>(null);
@@ -281,6 +282,20 @@ const EditProfile = () => {
   }, [isDirty]);
 
   const markDirty = useCallback(() => setIsDirty(true), []);
+
+  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
+    isDirty && !saving && currentLocation.pathname !== nextLocation.pathname,
+  );
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      blocker.reset();
+      toast({
+        title: lang === "my" ? "သိမ်းမထားသော ပြောင်းလဲမှုများ ရှိသည်" : "Save your changes before leaving",
+        variant: "destructive",
+      });
+    }
+  }, [blocker, lang, toast]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
