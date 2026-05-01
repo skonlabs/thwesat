@@ -309,20 +309,6 @@ const EditProfile = () => {
 
   const markDirty = useCallback(() => setIsDirty(true), []);
 
-  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
-    isDirty && !saving && currentLocation.pathname !== nextLocation.pathname,
-  );
-
-  useEffect(() => {
-    if (blocker.state === "blocked") {
-      blocker.reset();
-      toast({
-        title: lang === "my" ? "သိမ်းမထားသော ပြောင်းလဲမှုများ ရှိသည်" : "Save your changes before leaving",
-        variant: "destructive",
-      });
-    }
-  }, [blocker, lang, toast]);
-
   useEffect(() => {
     return () => {
       if (tempAvatarPreviewRef.current) URL.revokeObjectURL(tempAvatarPreviewRef.current);
