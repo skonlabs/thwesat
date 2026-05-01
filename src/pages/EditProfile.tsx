@@ -347,9 +347,10 @@ const EditProfile = () => {
       setSkills([...skills, s]);
       setNewSkill("");
       setShowSkillSuggestions(false);
+      markDirty();
     }
   };
-  const removeSkill = (skill: string) => setSkills(skills.filter(s => s !== skill));
+  const removeSkill = (skill: string) => { setSkills(skills.filter(s => s !== skill)); markDirty(); };
   const addLanguage = (l: string) => {
     if (languages.length >= 5) {
       setLanguageSearch("");
@@ -363,8 +364,8 @@ const EditProfile = () => {
       setShowLanguageDropdown(false);
     }
   };
-  const removeLanguage = (l: string) => setLanguages(languages.filter(x => x !== l));
-  const toggleWorkType = (type: string) => setPreferredWorkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  const removeLanguage = (l: string) => { setLanguages(languages.filter(x => x !== l)); markDirty(); };
+  const toggleWorkType = (type: string) => { setPreferredWorkTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]); markDirty(); };
 
   const handleSave = async () => {
     if (!profile) return;
