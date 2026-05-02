@@ -794,17 +794,51 @@ const JobDetail = () => {
               {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
             </Button>
           )}
-          {hasActiveApplication ? (
-            <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
-              <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "You have already applied to this job"}
-            </Button>
-          ) : (
-            <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
-              {hadPreviousApplication
-                ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
-                : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
-            </Button>
-          )}
+          {(() => {
+            const method = ((job as any).application_method || "platform") as "platform" | "external" | "email";
+            const externalUrl = ((job as any).external_url || "").trim();
+            // External / Email jobs: route the seeker off-platform; do NOT create internal application
+            if (method === "external" && externalUrl) {
+              return (
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="flex-1 rounded-xl"
+                  onClick={() => window.open(externalUrl, "_blank", "noopener,noreferrer")}
+                >
+                  <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                  {lang === "my" ? "ပြင်ပလင့်ခ်တွင် လျှောက်ထားရန်" : "Apply on external site"}
+                </Button>
+              );
+            }
+            if (method === "email" && externalUrl) {
+              return (
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="flex-1 rounded-xl"
+                  onClick={() => { window.location.href = `mailto:${externalUrl}?subject=${encodeURIComponent(`Application: ${displayTitle}`)}`; }}
+                >
+                  <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                  {lang === "my" ? "အီးမေးလ်ဖြင့် လျှောက်ထားရန်" : "Apply via email"}
+                </Button>
+              );
+            }
+            if (hasActiveApplication) {
+              return (
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
+                  <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "You have already applied to this job"}
+                </Button>
+              );
+            }
+            return (
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
+                {hadPreviousApplication
+                  ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
+                  : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
+              </Button>
+            );
+          })()}
         </div>
       </div>
     </div>
