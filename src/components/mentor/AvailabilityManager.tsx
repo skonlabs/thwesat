@@ -179,7 +179,7 @@ export default function AvailabilityManager() {
 
     setIsAdding(true);
     const timesArr = Array.from(selectedTimes).sort();
-    let added = 0;
+    const rowsToInsert: { mentor_id: string; slot_date: string; day_of_week: string; start_time: string; end_time: string }[] = [];
     let skipped = 0;
 
     for (const date of selectedDates) {
@@ -193,11 +193,33 @@ export default function AvailabilityManager() {
           skipped++;
           continue;
         }
-        const endTime = addMinutes(time, 60);
-        const { error } = await supabase
-          .from("mentor_availability_slots")
-          .insert({ mentor_id: user!.id, slot_date: dateStr, day_of_week: dayKey, start_time: time, end_time: endTime } as any);
-        if (!error) added++;
+        rowsToInsert.push({
+          mentor_id: user!.id,
+          slot_date: dateStr,
+          day_of_week: dayKey,
+          start_time: time,
+          end_time: addMinutes(time, 60),
+        });
+      }
+    }
+
+    let added = 0;
+    let failed = 0;
+    if (rowsToInsert.length > 0) {
+      // Single batch insert — atomic and fast
+      const { data, error } = await supabase
+        .from("mentor_availability_slots")
+        .insert(rowsToInsert as any)
+        .select("id");
+      if (error) {
+        // Likely unique-constraint conflict from a concurrent insert — fall back to per-row
+        const results = await Promise.all(rowsToInsert.map(row =>
+          supabase.from("mentor_availability_slots").insert(row as any)
+        ));
+        added = results.filter(r => !r.error).length;
+        failed = results.filter(r => !!r.error).length;
+      } else {
+        added = data?.length ?? rowsToInsert.length;
       }
     }
 
@@ -205,11 +227,13 @@ export default function AvailabilityManager() {
     setSelectedDates([]);
     setSelectedTimes(new Set());
 
-    // Invalidate queries
+    const parts: string[] = [];
+    if (added > 0) parts.push(lang === "my" ? `${added} ခု ထည့်ပြီး` : `Added ${added}`);
+    if (skipped > 0) parts.push(lang === "my" ? `${skipped} ခု ရှိပြီးသား` : `${skipped} already existed`);
+    if (failed > 0) parts.push(lang === "my" ? `${failed} ခု ပျက်ကွက်` : `${failed} failed`);
     toast({
-      title: lang === "my"
-        ? `${added} ခု ထည့်ပြီး${skipped > 0 ? ` (${skipped} ခု ရှိပြီးသား)` : ""}`
-        : `Added ${added} slot${added !== 1 ? "s" : ""}${skipped > 0 ? ` (${skipped} already existed)` : ""}`,
+      title: parts.join(" · ") || (lang === "my" ? "ပြောင်းလဲမှု မရှိပါ" : "No changes"),
+      variant: failed > 0 ? "destructive" : "default",
     });
 
     queryClient.invalidateQueries({ queryKey: ["mentor-availability"] });
