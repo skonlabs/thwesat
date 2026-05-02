@@ -81,7 +81,12 @@ export function useDeleteAvailabilitySlot() {
         .from("mentor_availability_slots")
         .delete()
         .eq("id", id);
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes("cannot_delete_booked_slot")) {
+          throw new Error("This slot has an active booking. Cancel the booking first.");
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mentor-availability"] });
