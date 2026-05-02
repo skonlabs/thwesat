@@ -54,13 +54,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchProfile = async (userId: string) => {
     if (fetchingProfileRef.current) return fetchingProfileRef.current;
     const request = (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+      // email/phone are restricted at the column level for non-owners.
+      // Fetch the row (without those columns) and merge owner-only contact
+      // info from the SECURITY DEFINER RPC.
+      const [{ data }, { data: contact }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).single(),
+        supabase.rpc("get_my_contact_info"),
+      ]);
       if (!mountedRef.current) return;
-      if (data) setProfile(data as Profile);
+      if (data) {
+        const contactRow = Array.isArray(contact) ? contact[0] : contact;
+        setProfile({
+          ...(data as Profile),
+          email: contactRow?.email ?? (data as Profile).email ?? null,
+          phone: contactRow?.phone ?? (data as Profile).phone ?? "",
+        });
+      }
     })().finally(() => {
       if (fetchingProfileRef.current === request) fetchingProfileRef.current = null;
     });
