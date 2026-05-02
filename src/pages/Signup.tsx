@@ -99,15 +99,19 @@ const Signup = () => {
     // Get the new user and persist role + referral
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
-      // Save referral code and create referral record — non-blocking, errors are swallowed
+      // Save referral code and create referral record — non-blocking, errors are swallowed.
+      // Always store the canonical UPPERCASE code so it matches profiles.referral_code.
       if (referralCode.trim() && referrerId) {
+        const canonicalCode = referralCode.trim().toUpperCase();
         try {
-          await supabase.from("profiles").update({ referred_by: referralCode.trim() }).eq("id", newUser.id);
-          // Create referral record with 'completed' status (user signed up successfully)
+          await supabase.from("profiles").update({ referred_by: canonicalCode }).eq("id", newUser.id);
+          // Create referral record with 'completed' status (user signed up successfully).
+          // The on_referral_completed trigger fires on INSERT and grants the referrer
+          // a free Premium month once they have 5 completed referrals.
           const { error: referralInsertError } = await supabase.from("referrals").insert({
             referrer_id: referrerId,
             referred_id: newUser.id,
-            referral_code: referralCode.trim(),
+            referral_code: canonicalCode,
             status: "completed",
           });
           if (referralInsertError) {

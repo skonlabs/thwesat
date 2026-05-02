@@ -227,8 +227,21 @@ const ModeratorDashboard = () => {
 
   const rejectJob = useMutation({
     mutationFn: async (id: string) => {
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).single();
       const { error } = await supabase.from("jobs").update({ status: "rejected", rejection_reason: jobRejectReason }).eq("id", id);
       if (error) throw error;
+      // Notify employer with the rejection reason
+      if (job) {
+        await supabase.from("notifications").insert({
+          user_id: job.employer_id,
+          notification_type: "job_rejected",
+          title: `Your job "${job.title}" was rejected`,
+          title_my: `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ ငြင်းပယ်ခံရပြီ`,
+          description: jobRejectReason || "Your job listing did not meet our guidelines.",
+          description_my: jobRejectReason || "သင့်အလုပ်ကြော်ငြာသည် လမ်းညွှန်ချက်များနှင့် ကိုက်ညီမှု မရှိပါ။",
+          link_path: "/employer/jobs",
+        });
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setShowJobReject(false); setJobRejectReason(""); toast.success(lang === "my" ? "အလုပ် ပယ်ချပြီး" : "Job rejected"); },
   });
