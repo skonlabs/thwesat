@@ -1679,6 +1679,13 @@ export type Database = {
     }
     Functions: {
       expire_referral_premium: { Args: never; Returns: undefined }
+      get_my_contact_info: {
+        Args: never
+        Returns: {
+          email: string
+          phone: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
