@@ -16,8 +16,8 @@ const tiers = [
   {
     id: "basic",
     name: { my: "အခြေခံ", en: "Basic" },
-    priceMonthly: 5,
-    priceYearly: 60,
+    priceMonthly: 15000,
+    priceYearly: 180000,
     icon: Briefcase,
     features: [
       { my: "အလုပ်ခေါ်စာ ၁ ခု / လ", en: "1 job post per month" },
