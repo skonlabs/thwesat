@@ -557,7 +557,7 @@ const ModeratorDashboard = () => {
                 ? <>ချိန်းဆိုမှု ပယ်ဖျက်ရန် သို့မဟုတ် ပြောင်းလဲရန် Admin ကို ဆက်သွယ်ပါ —{" "}
                   <a href="/messages" className="font-medium text-primary underline">{lang === "my" ? "မက်ဆေ့ ပေးပို့ရန်" : "Send a message"}</a></>
                 : <>To cancel or modify a booking, contact admin —{" "}
-                  <a href="/messages" className="font-medium text-primary underline">Send a message</a></>}
+                  <a href="/messages" className="font-medium text-primary underline">send a message</a>.</>}
             </div>
           </BottomSheet>
         )}

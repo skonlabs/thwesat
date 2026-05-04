@@ -123,7 +123,7 @@ const PlanCard = ({
         </span>
       )}
       {isCurrent && (
-        <span className="absolute -top-2.5 left-4 rounded-full bg-emerald px-3 py-0.5 text-[10px] font-bold text-white">
+        <span className="absolute -top-2.5 left-4 rounded-full bg-emerald px-3 py-0.5 text-[10px] font-bold text-emerald-foreground">
           {lang === "my" ? "✓ လက်ရှိ အစီအစဉ်" : "✓ Your current plan"}
         </span>
       )}
