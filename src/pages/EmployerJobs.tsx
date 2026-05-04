@@ -289,6 +289,20 @@ const EmployerJobs = () => {
         recordId={historyJob?.id || null}
         subtitle={historyJob?.title}
       />
+
+      <SpendConfirmSheet
+        open={!!featureJobId}
+        onOpenChange={(o) => { if (!o) setFeatureJobId(null); }}
+        actionKey="feature_job"
+        targetType="job"
+        targetId={featureJobId || undefined}
+        idempotencyKey={featureJobId ? `feature_job:${featureJobId}:${Date.now()}` : undefined}
+        onSuccess={() => {
+          setFeatureJobId(null);
+          queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+          queryClient.invalidateQueries({ queryKey: ["jobs"] });
+        }}
+      />
     </div>
   );
 };
