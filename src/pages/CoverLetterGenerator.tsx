@@ -246,6 +246,12 @@ const CoverLetterGenerator = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
+        {jobIdParam && (form.jobTitle || form.company) && (
+          <div className="mb-3 rounded-xl border border-emerald/30 bg-emerald/5 px-3 py-2 text-xs text-foreground/90">
+            <span className="font-medium text-emerald">{lang === "my" ? "အလုပ်အတွက် ပြင်ဆင်နေသည်: " : "Tailoring for: "}</span>
+            {form.jobTitle}{form.company ? ` · ${form.company}` : ""}
+          </div>
+        )}
         {/* Progress */}
         <div className="mb-5 flex gap-2">
           {[lang === "my" ? "အချက်အလက်" : "Details", lang === "my" ? "ရလဒ်" : "Result"].map((label, i) => (
