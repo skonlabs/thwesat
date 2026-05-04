@@ -481,6 +481,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
+          employer_type: string
           hq_country: string | null
           id: string
           industry: string | null
@@ -501,6 +502,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          employer_type?: string
           hq_country?: string | null
           id: string
           industry?: string | null
@@ -521,6 +523,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          employer_type?: string
           hq_country?: string | null
           id?: string
           industry?: string | null
@@ -759,6 +762,7 @@ export type Database = {
           description: string | null
           description_my: string | null
           employer_id: string
+          employer_type: string
           external_url: string | null
           id: string
           is_diaspora_safe: boolean | null
@@ -796,6 +800,7 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id: string
+          employer_type?: string
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
@@ -833,6 +838,7 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id?: string
+          employer_type?: string
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
