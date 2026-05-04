@@ -178,7 +178,7 @@ const Profile = () => {
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/finance" },
-    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
