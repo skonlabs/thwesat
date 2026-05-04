@@ -817,23 +817,33 @@ const ProfileBuilder = () => {
                   await supabase.from("generated_documents").insert({
                     user_id: session.user.id,
                     doc_type: "resume",
-                    title: `${platform} Profile — ${name || title || "Untitled"}`,
+                    title: `${platform} Profile — ${name || title || "Untitled"}${jobContext ? ` (for ${jobContext.title})` : ""}`,
                     content: fullText,
-                    metadata: { platform, name, headline: generatedProfile.headline },
+                    metadata: { platform, name, headline: generatedProfile.headline, jobId: jobIdParam || null },
                   });
                   setSaved(true);
+                  if (returnTo) {
+                    navigate(returnTo);
+                  }
                 }}
                 className="w-full"
                 disabled={saved}
               >
                 {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : returnTo ? (lang === "my" ? "သိမ်း၍ လျှောက်လွှာသို့ ပြန်သွားမည်" : "Save & return to application") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
               </Button>
 
-              <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
-                <ChevronLeft className="h-4 w-4" />
-                {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
-              </Button>
+              {returnTo ? (
+                <Button variant="outline" onClick={() => navigate(returnTo)} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "လျှောက်လွှာ စခရင်သို့ ပြန်သွားမည်" : "Back to application"}
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
+                </Button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
