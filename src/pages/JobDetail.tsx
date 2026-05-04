@@ -761,11 +761,18 @@ const JobDetail = () => {
                   <Sparkles className="h-4 w-4" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-semibold text-foreground">
-                    {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-xs font-semibold text-foreground">
+                      {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
+                    </p>
+                    {priorityPrice && (
+                      <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold">
+                        {priorityPrice.price_credits.toLocaleString()} {lang === "my" ? "credits" : "credits"}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည်" : "Pin to top of employer's list"}
+                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည် · အခပေး ဝန်ဆောင်မှု" : "Pin to top of employer's list · Paid feature"}
                   </p>
                 </div>
                 <div className={`h-5 w-9 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>
