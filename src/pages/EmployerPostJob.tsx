@@ -66,7 +66,13 @@ const EmployerPostJob = () => {
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
-  const isPro = employerProfile?.subscription_tier === "pro";
+  const spend = useSpendCredits();
+  const postPrice = useActionPrice("job_post");
+  const featurePrice = useActionPrice("feature_job_upgrade");
+  const { data: wallet } = useWallet();
+  const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
+  const balance = wallet?.balance_credits ?? 0;
+  const insufficient = balance < totalCost;
   const isContract = roleType === "remote_contract";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
