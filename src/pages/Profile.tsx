@@ -15,6 +15,9 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { Sparkles as SparklesIcon } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
