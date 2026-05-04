@@ -35,8 +35,8 @@ const tiers = [
   {
     id: "pro",
     name: { my: "ပရို", en: "Pro" },
-    priceMonthly: 25,
-    priceYearly: 300,
+    priceMonthly: 75000,
+    priceYearly: 900000,
     icon: Crown,
     popular: true,
     features: [
