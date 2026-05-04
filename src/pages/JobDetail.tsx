@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
+import { useActionPrice } from "@/hooks/use-wallet";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
@@ -71,6 +72,9 @@ const JobDetail = () => {
   const [parsingCvId, setParsingCvId] = useState<string | null>(null);
   const [priorityApply, setPriorityApply] = useState(false);
   const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
+  const priorityPrice = useActionPrice("priority_application");
+  const cvRewritePrice = useActionPrice("cv_rewrite");
+  const coverLetterPrice = useActionPrice("cover_letter");
 
   // Fetch user's CV documents
   const { data: cvDocuments = [] } = useQuery({
@@ -474,17 +478,17 @@ const JobDetail = () => {
                       return (
                         <div
                           key={doc.id}
-                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
-                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          className={`flex items-center justify-between rounded-xl border-2 p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
                           }`}
                           onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-muted"}`}>
-                              <Upload className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-emerald/20" : "bg-muted"}`}>
+                              <Upload className={`h-4 w-4 ${isSelected ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0">
-                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.file_name}</p>
                               <p className="text-[10px] text-muted-foreground">
                                 {lang === "my" ? "တင်ထားသော CV" : "Original CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
@@ -545,7 +549,7 @@ const JobDetail = () => {
                                 )}
                               </button>
                             )}
-                            {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
+                            {isSelected && <CheckCircle className="h-4 w-4 text-emerald flex-shrink-0" strokeWidth={2} />}
                           </div>
                         </div>
                       );
@@ -558,17 +562,17 @@ const JobDetail = () => {
                       return (
                         <div
                           key={doc.id}
-                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
-                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          className={`flex items-center justify-between rounded-xl border-2 p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
                           }`}
                           onClick={() => { setSelectedGeneratedResumeId(isSelected ? null : doc.id); setSelectedCvId(null); }}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
-                              <Sparkles className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-emerald/20" : "bg-emerald/10"}`}>
+                              <Sparkles className={`h-4 w-4 ${isSelected ? "text-emerald" : "text-emerald"}`} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0">
-                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.title}</p>
                               <p className="text-[10px] text-muted-foreground">
                                 {lang === "my" ? "ဖန်တီးထားသော ပရိုဖိုင်" : "Generated Profile"}{meta?.platform ? ` · ${meta.platform}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
@@ -578,7 +582,7 @@ const JobDetail = () => {
                             <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                               <Eye className="h-4 w-4" strokeWidth={1.5} />
                             </button>
-                            {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
+                            {isSelected && <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={2} />}
                           </div>
                         </div>
                       );
@@ -596,6 +600,18 @@ const JobDetail = () => {
                     </Button>
                   </div>
                 )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 w-full"
+                  onClick={() => navigate("/ai-tools/profile-builder")}
+                >
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  {lang === "my"
+                    ? `Resume ဖန်တီးရန်${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`
+                    : `Generate resume${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`}
+                </Button>
               </div>
 
               {/* Cover Letter Section */}
@@ -614,8 +630,8 @@ const JobDetail = () => {
                       return (
                         <div
                           key={doc.id}
-                          className={`cursor-pointer rounded-xl border p-3 transition-colors ${
-                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          className={`cursor-pointer rounded-xl border-2 p-3 transition-colors ${
+                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
                           }`}
                           onClick={() => {
                             if (isSelected) { setCoverLetter(""); setCoverLetterMode("none"); }
@@ -624,11 +640,11 @@ const JobDetail = () => {
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
-                                <PenLine className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-emerald/20" : "bg-emerald/10"}`}>
+                                <PenLine className={`h-4 w-4 text-emerald`} strokeWidth={1.5} />
                               </div>
                               <div className="min-w-0">
-                                <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                                <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.title}</p>
                                 <p className="text-[10px] text-muted-foreground">
                                   {meta?.tone ? `${lang === "my" ? (toneLabels[meta.tone]?.my || meta.tone) : (toneLabels[meta.tone]?.en || meta.tone)} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                                 </p>
@@ -638,7 +654,7 @@ const JobDetail = () => {
                               <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
-                              {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
+                              {isSelected && <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={2} />}
                             </div>
                           </div>
                         </div>
@@ -660,7 +676,9 @@ const JobDetail = () => {
                   }}
                 >
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {lang === "my" ? "ဖန်တီးရန်" : "Generate cover letter"}
+                  {lang === "my"
+                    ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
+                    : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`}
                 </Button>
                 <Button
                   variant="outline"
@@ -743,11 +761,18 @@ const JobDetail = () => {
                   <Sparkles className="h-4 w-4" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-semibold text-foreground">
-                    {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-xs font-semibold text-foreground">
+                      {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
+                    </p>
+                    {priorityPrice && (
+                      <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold">
+                        {priorityPrice.price_credits.toLocaleString()} {lang === "my" ? "credits" : "credits"}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည်" : "Pin to top of employer's list"}
+                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည် · အခပေး ဝန်ဆောင်မှု" : "Pin to top of employer's list · Paid feature"}
                   </p>
                 </div>
                 <div className={`h-5 w-9 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>
