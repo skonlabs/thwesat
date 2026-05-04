@@ -458,8 +458,13 @@ const MentorBooking = () => {
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic || createBooking.isPending} onClick={handleConfirm}>
-              {createBooking.isPending ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...") : (lang === "my" ? "ချိန်းဆိုမှု အတည်ပြုရန်" : "Confirm Booking")}
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic || createBooking.isPending || insufficient} onClick={handleConfirm}>
+              <Coins className="mr-1.5 h-4 w-4" />
+              {insufficient
+                ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more credits`)
+                : createBooking.isPending
+                  ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
+                  : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ ဘွတ်ကင်ပြုမည်` : `Book for ${sessionCredits.toLocaleString()} credits`)}
             </Button>
           )}
         </div>
