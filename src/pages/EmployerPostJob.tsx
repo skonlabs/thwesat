@@ -91,7 +91,7 @@ const EmployerPostJob = () => {
   const handleSalaryMinChange = (v: string) => {
     if (v === "" || Number(v) >= 0) setSalaryMin(v);
     if (v !== "" && Number(v) < 1) {
-      setSalaryMinError("Minimum salary must be at least $1");
+      setSalaryMinError("Minimum salary must be at least 1");
     } else {
       setSalaryMinError("");
     }
@@ -241,12 +241,12 @@ const EmployerPostJob = () => {
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လစာ၊ ငွေပေးချေ + လုံခြုံရေး" : "Salary, Payment & Safety"}</h2>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (USD) *" : "Min Salary (USD) *"}</label>
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (MMK) *" : "Min Salary (MMK) *"}</label>
                 <Input type="number" min="0" value={salaryMin} onChange={e => handleSalaryMinChange(e.target.value)} placeholder="1000" className={`h-11 rounded-xl ${salaryMinError ? "border-destructive" : ""}`} />
                 {salaryMinError && <p className="mt-1 text-[11px] text-destructive">{salaryMinError}</p>}
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (USD) *" : "Max Salary (USD) *"}</label>
+                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (MMK) *" : "Max Salary (MMK) *"}</label>
                 <Input type="number" min="0" value={salaryMax} onChange={e => handleSalaryMaxChange(e.target.value)} placeholder="5000" className={`h-11 rounded-xl ${salaryMaxError ? "border-destructive" : ""}`} />
                 {salaryMaxError && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
               </div>
