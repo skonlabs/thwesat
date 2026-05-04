@@ -63,16 +63,30 @@ const MentorBookings = () => {
 
   const cancelBooking = useMutation({
     mutationFn: async (id: string) => {
+      // Try refund first if escrow exists; ignore "no escrow" errors
+      const { data: escrow } = await (supabase as any)
+        .from("mentor_session_escrow")
+        .select("status")
+        .eq("booking_id", id)
+        .maybeSingle();
+      if (escrow && escrow.status === "held") {
+        const { error: refundErr } = await (supabase as any).rpc("mentor_session_refund", {
+          _booking_id: id,
+          _reason: "Cancelled by mentee",
+        });
+        if (refundErr) throw refundErr;
+      }
       const { error } = await supabase.from("mentor_bookings").update({ status: "cancelled" }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       setCancelBookingId(null);
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
-      toast({ title: lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ပြီး" : "Booking cancelled", variant: "default" });
+      queryClient.invalidateQueries({ queryKey: ["wallet"] });
+      toast({ title: lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ပြီး၊ Credit ပြန်အမ်းပြီး" : "Cancelled. Credits refunded if held.", variant: "default" });
     },
-    onError: () => {
-      toast({ title: lang === "my" ? "ပယ်ဖျက်မရပါ" : "Failed to cancel booking", variant: "destructive" });
+    onError: (e: any) => {
+      toast({ title: e?.message || (lang === "my" ? "ပယ်ဖျက်မရပါ" : "Failed to cancel booking"), variant: "destructive" });
     },
   });
 
