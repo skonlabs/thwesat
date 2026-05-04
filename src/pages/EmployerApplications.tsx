@@ -580,6 +580,19 @@ const EmployerApplications = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <SpendConfirmSheet
+        open={!!contactUnlockApplicantId}
+        onOpenChange={(o) => { if (!o) setContactUnlockApplicantId(null); }}
+        actionKey="unlock_contact"
+        targetType="applicant"
+        targetId={contactUnlockApplicantId || undefined}
+        idempotencyKey={contactUnlockApplicantId ? `unlock_contact:${contactUnlockApplicantId}` : undefined}
+        onSuccess={() => {
+          setContactUnlockApplicantId(null);
+          queryClient.invalidateQueries({ queryKey: ["feature-unlocks"] });
+          queryClient.invalidateQueries({ queryKey: ["unlocked-contact"] });
+        }}
+      />
     </div>
   );
 };
