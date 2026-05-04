@@ -146,7 +146,7 @@ Rules:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
+        max_tokens: 8192,
         system: systemPrompt,
         messages: [{ role: "user", content: contentParts }],
         temperature: 0.1,
@@ -168,9 +168,15 @@ Rules:
     // Parse JSON from response
     let parsed;
     try {
-      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      let cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      // Extract JSON object if there's surrounding text
+      const firstBrace = cleaned.indexOf("{");
+      const lastBrace = cleaned.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+      }
       parsed = JSON.parse(cleaned);
-    } catch {
+    } catch (e) {
       console.error("Failed to parse AI response:", content);
       return new Response(
         JSON.stringify({ error: "Failed to parse CV data", raw: content }),
