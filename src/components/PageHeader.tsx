@@ -29,6 +29,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
   const { allowedRoles } = useUserRoles();
   const { data: notifications = [] } = useNotifications();
   const { data: conversations = [] } = useConversations();
+  const { data: wallet } = useWallet();
   const unreadNotifCount = notifications.filter((n: any) => !n.is_read).length;
   const unreadMsgCount = conversations.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
   const [logoOpacity, setLogoOpacity] = useState(1);
