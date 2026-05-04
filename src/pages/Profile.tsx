@@ -196,7 +196,7 @@ const Profile = () => {
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/mentor/finance" },
-    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
