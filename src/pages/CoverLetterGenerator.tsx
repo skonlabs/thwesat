@@ -123,8 +123,16 @@ const CoverLetterGenerator = () => {
     }
   };
 
+  const [paidForKey, setPaidForKey] = useState<string | null>(null);
+  const currentPayKey = `${form.company}::${form.jobTitle}`;
+
   const handleGenerate = async () => {
     if (!form.jobTitle && !form.company) return;
+    // Already paid for this job — regenerate freely
+    if (paidForKey === currentPayKey) {
+      runGenerate();
+      return;
+    }
     setSpendOpen(true);
   };
 
