@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History, Lock, Phone, Mail } from "lucide-react";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { toast } from "sonner";
