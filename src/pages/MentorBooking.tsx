@@ -18,7 +18,8 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
+import { useWallet, useActionPrice } from "@/hooks/use-wallet";
+import { Coins } from "lucide-react";
 
 const topics = [
   { my: "အသက်မွေးမှု လမ်းညွှန်", en: "Career Coaching" },
