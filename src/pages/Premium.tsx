@@ -539,7 +539,7 @@ const Premium = () => {
         open={paymentOpen}
         onOpenChange={setPaymentOpen}
         amount={selectedPlan?.price || 0}
-        currency={selectedPlan?.currency || "USD"}
+        currency={selectedPlan?.currency || "MMK"}
         paymentType="subscription"
         referenceId={selectedPlan?.plan_id}
         onSuccess={() => navigate("/home")}
