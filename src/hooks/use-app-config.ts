@@ -9,10 +9,9 @@ export interface PaymentAccountInfo {
 
 export interface PaymentAccountsConfig {
   kbzpay: PaymentAccountInfo;
-  wave: PaymentAccountInfo;
-  promptpay: PaymentAccountInfo;
-  wise: PaymentAccountInfo;
-  payoneer: PaymentAccountInfo;
+  cbpay: PaymentAccountInfo;
+  wavepay: PaymentAccountInfo;
+  ayapay: PaymentAccountInfo;
 }
 
 export interface TelegramBotConfig {
@@ -23,10 +22,9 @@ export interface TelegramBotConfig {
 const DEFAULTS: Record<string, any> = {
   payment_accounts: {
     kbzpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
-    wave: { account_name: "ThweSat", account_number: "09-000-000-000" },
-    promptpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
-    wise: { account_name: "ThweSat", account_email: "payments@thwesat.com" },
-    payoneer: { account_name: "ThweSat", account_email: "payments@thwesat.com" },
+    cbpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
+    wavepay: { account_name: "ThweSat", account_number: "09-000-000-000" },
+    ayapay: { account_name: "ThweSat", account_number: "09-000-000-000" },
   },
   telegram_bot: { username: "ThweSatBot", url: "https://t.me/ThweSatBot" },
 };
