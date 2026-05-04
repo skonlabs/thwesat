@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useSavedJobs } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
 
@@ -36,6 +37,7 @@ const CoverLetterGenerator = () => {
   const [cvParsed, setCvParsed] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingDocx, setDownloadingDocx] = useState(false);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   const { data: userCvs = [] } = useQuery({
     queryKey: ["user-cvs", session?.user?.id],
@@ -112,9 +114,11 @@ const CoverLetterGenerator = () => {
   };
 
   const handleGenerate = async () => {
-    if (!form.jobTitle && !form.company) {
-      return;
-    }
+    if (!form.jobTitle && !form.company) return;
+    setSpendOpen(true);
+  };
+
+  const runGenerate = async () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
@@ -503,6 +507,13 @@ const CoverLetterGenerator = () => {
           )}
         </AnimatePresence>
       </div>
+      <SpendConfirmSheet
+        open={spendOpen}
+        onOpenChange={setSpendOpen}
+        actionKey="cover_letter"
+        idempotencyKey={`cover_letter:${form.company}:${form.jobTitle}:${Date.now()}`}
+        onSuccess={() => runGenerate()}
+      />
     </div>
   );
 };

@@ -42,6 +42,7 @@ export function useJobs() {
         .from("jobs")
         .select("*")
         .eq("status", "active")
+        .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Job[];
