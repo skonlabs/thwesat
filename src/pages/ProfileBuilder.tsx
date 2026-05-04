@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 
 const SUGGESTED_SKILLS = [
   "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java", "PHP", "HTML/CSS", "SQL", "WordPress",
