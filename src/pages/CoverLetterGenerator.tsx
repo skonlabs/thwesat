@@ -519,9 +519,13 @@ const CoverLetterGenerator = () => {
                     doc_type: "cover_letter",
                     title: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${form.jobTitle || ""} at ${form.company || ""}`,
                     content: generatedLetter,
-                    metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
+                    metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone, jobId: jobIdParam || null },
                   });
                   setSaved(true);
+                  if (returnTo) {
+                    navigate(returnTo);
+                    return;
+                  }
                   toast({
                     title: lang === "my" ? "ပရိုဖိုင်သို့ သိမ်းပြီးပါပြီ" : "Cover letter saved to your profile",
                     description: (
@@ -540,8 +544,15 @@ const CoverLetterGenerator = () => {
                 disabled={saved}
               >
                 {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : returnTo ? (lang === "my" ? "သိမ်း၍ လျှောက်လွှာသို့ ပြန်သွားမည်" : "Save & return to application") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
               </Button>
+
+              {returnTo && (
+                <Button variant="outline" onClick={() => navigate(returnTo)} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "လျှောက်လွှာ စခရင်သို့ ပြန်သွားမည်" : "Back to application"}
+                </Button>
+              )}
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />
