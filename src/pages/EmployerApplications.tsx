@@ -66,6 +66,9 @@ const EmployerApplications = () => {
   const [otherReasonText, setOtherReasonText] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") || "all");
+  const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
+  const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
+  const queryClient = useQueryClient();
 
   // Keep local filter state in sync when URL changes (back/forward, deep links)
   useEffect(() => {
