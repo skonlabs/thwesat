@@ -59,14 +59,24 @@ const CoverLetterGenerator = () => {
     enabled: !!session?.user?.id,
   });
 
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
-    jobTitle: "",
-    company: "",
+    jobTitle: searchParams.get("jobTitle") || "",
+    company: searchParams.get("company") || "",
     jobDescription: "",
     yourName: profile?.display_name || "",
     yourExperience: "",
     tone: "professional",
   });
+
+  useEffect(() => {
+    const jt = searchParams.get("jobTitle");
+    const co = searchParams.get("company");
+    if (jt || co) {
+      setForm((f) => ({ ...f, jobTitle: jt || f.jobTitle, company: co || f.company }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Parse CV if file path was passed from Career Tools
   const cvFilePath = (location.state as any)?.cvFilePath;
