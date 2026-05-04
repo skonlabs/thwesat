@@ -41,6 +41,7 @@ import MentorFinance from "./pages/MentorFinance";
 import AdminFinance from "./pages/AdminFinance";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
+import CareerTracks from "./pages/CareerTracks";
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
