@@ -514,13 +514,13 @@ const EmployerApplications = () => {
               )}
               <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% ကောက်ခံပါမည်" : "8% placement fee will apply"}</p>
               <div className="mb-3">
-                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (USD/လ) *" : "Monthly Salary (USD) *"}</label>
+                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (ကျပ်/လ) *" : "Monthly Salary (MMK) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
                   const val = e.target.value;
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
-                }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="3000" />
+                }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="500000" />
               </div>
-              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">${Math.round(parseInt(placementSalary) * 0.08)}</span></p>}
+              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">{Math.round(parseInt(placementSalary) * 0.08).toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={() => { if (!placementSalary || parseInt(placementSalary) <= 0) return; setShowPlacementConfirm(true); }} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
