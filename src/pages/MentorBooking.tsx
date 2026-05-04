@@ -405,9 +405,7 @@ const MentorBooking = () => {
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ရက်:" : "Date:"}</span> {selectedDateDisplay}</p>
                 {selectedTime && <p><span className="font-medium text-foreground">{lang === "my" ? "အချိန်:" : "Time:"}</span> {selectedTime}</p>}
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ကြာချိန်:" : "Duration:"}</span> {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
-                {sessionAmount > 0 && (
-                  <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {currency} {sessionAmount.toFixed(2)}</p>
-                )}
+                <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {sessionCredits.toLocaleString()} credits</p>
                 <p className="text-[10px] text-muted-foreground/70">
                   {lang === "my"
                     ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
