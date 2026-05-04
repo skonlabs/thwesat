@@ -494,6 +494,14 @@ const Profile = () => {
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>
       </div>
+      <SpendConfirmSheet
+        open={boostOpen}
+        onOpenChange={setBoostOpen}
+        actionKey="profile_boost"
+        targetType="profile"
+        targetId={profile?.id || undefined}
+        idempotencyKey={`profile_boost:${profile?.id}:${Date.now()}`}
+      />
     </div>
   );
 };
