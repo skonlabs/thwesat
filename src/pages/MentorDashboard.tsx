@@ -76,7 +76,7 @@ const MentorDashboard = () => {
   };
   const [hourlyRate, setHourlyRate] = useState("30");
   const [rateError, setRateError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("MMK");
   const [timezone, setTimezone] = useState("Asia/Yangon");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
@@ -99,7 +99,7 @@ const MentorDashboard = () => {
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
-      setCurrency(mentorProfile.currency || "USD");
+      setCurrency(mentorProfile.currency || "MMK");
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
