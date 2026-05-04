@@ -5,6 +5,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -72,6 +73,7 @@ const JobDetail = () => {
   const [parsingCvId, setParsingCvId] = useState<string | null>(null);
   const [priorityApply, setPriorityApply] = useState(false);
   const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
+  const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
   const priorityPrice = useActionPrice("priority_application");
   const cvRewritePrice = useActionPrice("cv_rewrite");
   const coverLetterPrice = useActionPrice("cover_letter");
@@ -201,6 +203,11 @@ const JobDetail = () => {
       });
       return;
     }
+    setSubmitConfirmOpen(true);
+  };
+
+  const confirmAndSubmit = () => {
+    setSubmitConfirmOpen(false);
     if (priorityApply) {
       setPriorityConfirmOpen(true);
       return;
@@ -907,6 +914,62 @@ const JobDetail = () => {
         idempotencyKey={`priority_application:${id}:${Date.now()}`}
         onSuccess={() => submitApplication()}
       />
+      <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
+        <AlertDialogContent className="max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {lang === "my" ? "လျှောက်လွှာ တင်မည်လား?" : "Submit application?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 pt-1">
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "ကျေးဇူးပြု၍ ကုန်ကျစရိတ်ကို စစ်ဆေးပါ။"
+                    : "Please review the cost before submitting."}
+                </p>
+                <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground">
+                      {lang === "my" ? "လျှောက်လွှာ ပေးပို့ခ" : "Application submission"}
+                    </span>
+                    <span className="font-semibold text-emerald">
+                      {lang === "my" ? "အခမဲ့" : "Free"}
+                    </span>
+                  </div>
+                  {priorityApply && priorityPrice && (
+                    <div className="flex items-center justify-between border-t border-border pt-2">
+                      <span className="text-foreground">
+                        {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
+                      </span>
+                      <span className="font-semibold text-gold">
+                        {priorityPrice.price_credits.toLocaleString()} credits
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between border-t border-border pt-2 text-base font-bold">
+                    <span>{lang === "my" ? "စုစုပေါင်း" : "Total"}</span>
+                    <span className={priorityApply && priorityPrice ? "text-gold" : "text-emerald"}>
+                      {priorityApply && priorityPrice
+                        ? `${priorityPrice.price_credits.toLocaleString()} credits`
+                        : lang === "my" ? "အခမဲ့" : "Free"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">
+              {lang === "my" ? "မလုပ်တော့ပါ" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmAndSubmit} className="rounded-xl">
+              {priorityApply && priorityPrice
+                ? (lang === "my" ? "အတည်ပြု၍ ပေးချေမည်" : "Confirm & pay")
+                : (lang === "my" ? "အတည်ပြု၍ တင်မည်" : "Confirm & submit")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
