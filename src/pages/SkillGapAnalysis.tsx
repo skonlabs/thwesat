@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 
 const targetRoles = [
   { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
@@ -109,6 +110,7 @@ const SkillGapAnalysis = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<SavedAnalysis | null>(null);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   // Load saved analysis on mount
   useEffect(() => {
@@ -129,8 +131,12 @@ const SkillGapAnalysis = () => {
 
   const handleAnalyze = () => {
     if (!selectedRole) return;
+    setSpendOpen(true);
+  };
+
+  const runAnalysis = () => {
     setAnalyzing(true);
-    setTimeout(() => { setAnalyzing(false); setStep(3); }, 2000);
+    setTimeout(() => { setAnalyzing(false); setStep(3); }, 800);
   };
 
   const getAnalysis = () => {

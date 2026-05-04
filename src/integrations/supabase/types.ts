@@ -2131,12 +2131,24 @@ export type Database = {
       }
     }
     Functions: {
+      _mentor_session_release_internal: {
+        Args: { _booking_id: string }
+        Returns: undefined
+      }
       _wallet_apply: {
         Args: { _delta: number; _topup_mmk?: number; _user: string }
         Returns: undefined
       }
       enroll_career_track: { Args: { _track_id: string }; Returns: Json }
       expire_referral_premium: { Args: never; Returns: undefined }
+      get_applicant_contact: {
+        Args: { _applicant_id: string }
+        Returns: {
+          email: string
+          phone: string
+          unlocked: boolean
+        }[]
+      }
       get_my_contact_info: {
         Args: never
         Returns: {
