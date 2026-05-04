@@ -249,11 +249,11 @@ const MentorDashboard = () => {
                 onChange={e => setCurrency(e.target.value)}
                 className="h-10 rounded-xl border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value="USD">USD ($)</option>
                 <option value="MMK">MMK (ကျပ်)</option>
-                <option value="SGD">SGD (S$)</option>
-                <option value="THB">THB (฿)</option>
-                <option value="MYR">MYR (RM)</option>
+                <option value="USD">USD</option>
+                <option value="SGD">SGD</option>
+                <option value="THB">THB</option>
+                <option value="MYR">MYR</option>
               </select>
               <Input
                 type="number"
