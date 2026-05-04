@@ -478,7 +478,7 @@ const CoverLetterGenerator = () => {
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? (lang === "my" ? "ကူးပြီး" : "Copied") : (lang === "my" ? "ကူးယူရန်" : "Copy")}
                 </Button>
-                <Button onClick={() => { setStep(1); setGeneratedLetter(null); setSaved(false); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: profile?.display_name || "", yourExperience: profile?.experience || "", tone: "professional" }); }} className="flex-1">
+                <Button onClick={() => { setStep(1); setGeneratedLetter(null); setSaved(false); setPaidForKey(null); setForm({ jobTitle: "", company: "", jobDescription: "", yourName: profile?.display_name || "", yourExperience: profile?.experience || "", tone: "professional" }); }} className="flex-1">
                   <PenLine className="h-4 w-4" />
                   {lang === "my" ? "အသစ်ဖန်တီးရန်" : "Create New"}
                 </Button>
