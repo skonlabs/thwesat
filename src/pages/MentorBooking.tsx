@@ -82,12 +82,17 @@ const MentorBooking = () => {
   const [selectedDuration, setSelectedDuration] = useState(60);
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
-  const [paymentOpen, setPaymentOpen] = useState(false);
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
-
+  const { data: wallet } = useWallet();
+  const sessionPrice = useActionPrice("mentor_session");
+  const baseCredits = sessionPrice?.price_credits ?? 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
-  const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
-  const currency = mentorProfile?.currency || "USD";
+  // Mentor's hourly rate (in MMK if set), otherwise fall back to base price.
+  const sessionCredits = (hourlyRate > 0 ? Math.round((hourlyRate * selectedDuration) / 60) : baseCredits);
+  const sessionAmount = sessionCredits;
+  const currency = "MMK";
+  const balance = wallet?.balance_credits ?? 0;
+  const insufficient = balance < sessionCredits;
 
   // Dates that have available slots
   const availableDates = useMemo(() => {
