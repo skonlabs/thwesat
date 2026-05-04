@@ -2135,6 +2135,7 @@ export type Database = {
         Args: { _delta: number; _topup_mmk?: number; _user: string }
         Returns: undefined
       }
+      enroll_career_track: { Args: { _track_id: string }; Returns: Json }
       expire_referral_premium: { Args: never; Returns: undefined }
       get_my_contact_info: {
         Args: never
