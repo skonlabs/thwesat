@@ -5,6 +5,7 @@ type Language = "my" | "en";
 type SalaryLike = {
   salary_min?: number | null;
   salary_max?: number | null;
+  currency?: string | null;
 };
 
 const titleMap: Record<string, string> = {
