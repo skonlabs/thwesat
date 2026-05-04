@@ -374,6 +374,12 @@ const ProfileBuilder = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
+        {jobContext && (
+          <div className="mb-3 rounded-xl border border-emerald/30 bg-emerald/5 px-3 py-2 text-xs text-foreground/90">
+            <span className="font-medium text-emerald">{lang === "my" ? "အလုပ်အတွက် ပြင်ဆင်နေသည်: " : "Tailoring for: "}</span>
+            {jobContext.title}{jobContext.company ? ` · ${jobContext.company}` : ""}
+          </div>
+        )}
         {/* Progress */}
         <div className="mb-5 flex items-center gap-2">
           {stepLabels.map((label, i) => (
