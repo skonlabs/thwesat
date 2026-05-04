@@ -318,6 +318,34 @@ const Profile = () => {
           </div>
         </motion.div>
 
+        {/* Profile Boost */}
+        {effectiveRole === "jobseeker" && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-50 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/10 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                <SparklesIcon className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် Boost" : "Profile Boost"}</p>
+                {activeBoost ? (
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်" : "Get seen by employers first"}
+                  </p>
+                )}
+              </div>
+              {!activeBoost && (
+                <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
+                  {lang === "my" ? "Boost ပေးရန်" : "Boost"}
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Referral Programme */}
         {!isSystemRole && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
