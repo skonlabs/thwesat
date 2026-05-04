@@ -38,6 +38,7 @@ const EmployerJobs = () => {
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [historyJob, setHistoryJob] = useState<{ id: string; title: string } | null>(null);
+  const [featureJobId, setFeatureJobId] = useState<string | null>(null);
 
   const handleStatusChange = async (jobId: string, newStatus: "active" | "paused" | "closed") => {
     setUpdatingId(jobId);
