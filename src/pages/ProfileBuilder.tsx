@@ -238,7 +238,7 @@ const ProfileBuilder = () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-profile", {
-        body: { name, title, summary, experiences, educations, skills, otherInfo, platform },
+        body: { name, title, summary, experiences, educations, skills, otherInfo, platform, jobContext },
       });
       if (error) throw error;
       const result = data?.data;
