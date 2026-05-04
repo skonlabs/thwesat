@@ -549,7 +549,7 @@ const JobDetail = () => {
                                 )}
                               </button>
                             )}
-                            {isSelected && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={2} />}
+                            {isSelected && <CheckCircle className="h-4 w-4 text-emerald flex-shrink-0" strokeWidth={2} />}
                           </div>
                         </div>
                       );
