@@ -157,6 +157,21 @@ const JobDetail = () => {
       setSelectedGeneratedResumeId((generatedResumes as any[])[0].id);
     }
   }, [showApplyModal, cvDocuments, generatedResumes, selectedCvId, selectedGeneratedResumeId]);
+
+  // Auto-open apply modal when returning from generators (?openApply=1) and refresh generated docs
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (searchParams.get("openApply") === "1" && user) {
+      setShowApplyModal(true);
+      queryClient.invalidateQueries({ queryKey: ["generated-resumes", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["generated-cover-letters", user.id] });
+      // Clean the param so refresh doesn't re-open
+      const next = new URLSearchParams(searchParams);
+      next.delete("openApply");
+      navigate(`/jobs/${id}${next.toString() ? `?${next.toString()}` : ""}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
     friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
