@@ -868,6 +868,15 @@ const JobDetail = () => {
           })()}
         </div>
       </div>
+      <SpendConfirmSheet
+        open={priorityConfirmOpen}
+        onOpenChange={setPriorityConfirmOpen}
+        actionKey="priority_apply"
+        targetType="job"
+        targetId={id}
+        idempotencyKey={`priority_apply:${id}:${Date.now()}`}
+        onSuccess={() => submitApplication()}
+      />
     </div>
   );
 };
