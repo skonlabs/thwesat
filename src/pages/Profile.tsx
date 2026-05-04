@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
-  Gift, Copy, Shield, Check,
+  Gift, Copy, Shield, Check, FileText, Download, Eye,
   Users, ArrowLeftRight, GraduationCap, Search, Wallet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,57 @@ const Profile = () => {
     },
     enabled: !!profile?.id,
   });
+
+  // Fetch CV documents for this user
+  const { data: cvDocuments = [], refetch: refetchCvs } = useQuery({
+    queryKey: ["cv-documents", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data } = await supabase
+        .from("cv_documents")
+        .select("*")
+        .eq("user_id", profile.id)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!profile?.id && effectiveRole === "jobseeker",
+  });
+
+  const getCvStoragePath = (fileUrl: string) => {
+    if (!fileUrl) return "";
+    if (fileUrl.includes("/cv-documents/")) return fileUrl.split("/cv-documents/").pop() || "";
+    return fileUrl;
+  };
+
+  const openCv = async (fileUrl: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("cv-documents").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) return;
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const downloadCv = async (fileUrl: string, fileName: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("cv-documents").download(path);
+    if (error || !data) return;
+    const url = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName || "cv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const deleteCv = async (id: string, fileUrl: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (path) await supabase.storage.from("cv-documents").remove([path]);
+    await supabase.from("cv_documents").delete().eq("id", id);
+    refetchCvs();
+  };
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
   const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
@@ -350,6 +401,44 @@ const Profile = () => {
             </>
           )}
         </motion.div>
+        )}
+
+        {/* CV Documents (Job Seekers) */}
+        {effectiveRole === "jobseeker" && cvDocuments.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="mt-3 rounded-xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />
+              <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွန်ုပ်၏ CV များ" : "My CVs"}</h3>
+            </div>
+            <div className="space-y-2">
+              {cvDocuments.map((cv: any) => (
+                <div key={cv.id} className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+                  <FileText className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium text-foreground">{cv.file_name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {cv.file_size_bytes ? `${(cv.file_size_bytes / 1024).toFixed(0)} KB · ` : ""}
+                      {cv.created_at ? new Date(cv.created_at).toLocaleDateString() : ""}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => openCv(cv.file_url)}
+                    className="rounded-md p-1.5 text-muted-foreground hover:bg-background hover:text-foreground"
+                    aria-label={lang === "my" ? "ကြည့်ရန်" : "View"}
+                  >
+                    <Eye className="h-4 w-4" strokeWidth={1.5} />
+                  </button>
+                  <button
+                    onClick={() => downloadCv(cv.file_url, cv.file_name)}
+                    className="rounded-md p-1.5 text-muted-foreground hover:bg-background hover:text-foreground"
+                    aria-label={lang === "my" ? "ဒေါင်းလုဒ်" : "Download"}
+                  >
+                    <Download className="h-4 w-4" strokeWidth={1.5} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         )}
 
         {/* Menu */}
