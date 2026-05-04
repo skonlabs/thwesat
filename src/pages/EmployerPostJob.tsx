@@ -13,6 +13,8 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
+import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
+import { Coins } from "lucide-react";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
