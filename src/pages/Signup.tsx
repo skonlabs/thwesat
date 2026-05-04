@@ -34,7 +34,8 @@ const Signup = () => {
   const [referralCode, setReferralCode] = useState("");
   const [referralError, setReferralError] = useState<string | null>(null);
   const [showReferral, setShowReferral] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
+  type SignupChoice = "jobseeker" | "employer" | "agent" | "mentor";
+  const [selectedRole, setSelectedRole] = useState<SignupChoice>("jobseeker");
   const [isLoading, setIsLoading] = useState(false);
 
   // Derived password checks
