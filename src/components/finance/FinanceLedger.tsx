@@ -68,14 +68,16 @@ export default function FinanceLedger({ totals, rows, isLoading, emptyText }: Fi
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <div className="mt-12 text-center">
-          <DollarSign className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground">
-            {lang === "my"
-              ? emptyText?.my || "မှတ်တမ်း မရှိသေးပါ"
-              : emptyText?.en || "No records yet"}
-          </p>
-        </div>
+        (emptyText?.en === "" && emptyText?.my === "") ? null : (
+          <div className="mt-12 text-center">
+            <DollarSign className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
+            <p className="text-sm text-muted-foreground">
+              {lang === "my"
+                ? emptyText?.my || "မှတ်တမ်း မရှိသေးပါ"
+                : emptyText?.en || "No records yet"}
+            </p>
+          </div>
+        )
       ) : (
         <div className="space-y-2">
           {rows.map((r, i) => {
