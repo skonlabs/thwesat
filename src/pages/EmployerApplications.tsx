@@ -406,6 +406,33 @@ const EmployerApplications = () => {
               </div>
 
 
+              {/* Contact unlock */}
+              <div className="mb-4 rounded-xl border border-border bg-muted/40 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
+                  <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အချက်အလက်" : "Contact Information"}</p>
+                </div>
+                {isContactUnlocked && unlockedContact ? (
+                  <div className="space-y-1.5 text-xs">
+                    {unlockedContact.email && (
+                      <a href={`mailto:${unlockedContact.email}`} className="flex items-center gap-2 text-primary"><Mail className="h-3.5 w-3.5" strokeWidth={1.5} /> {unlockedContact.email}</a>
+                    )}
+                    {unlockedContact.phone && (
+                      <a href={`tel:${unlockedContact.phone}`} className="flex items-center gap-2 text-primary"><Phone className="h-3.5 w-3.5" strokeWidth={1.5} /> {unlockedContact.phone}</a>
+                    )}
+                    {!unlockedContact.email && !unlockedContact.phone && (
+                      <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သုံးစွဲသူက ဆက်သွယ်ရန် မပေးထားပါ" : "Applicant has not provided contact info"}</p>
+                    )}
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" className="w-full rounded-lg" onClick={() => setContactUnlockApplicantId(selected.applicant_id)}>
+                    <Lock className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                    {lang === "my" ? "ဆက်သွယ်ရန် ဖွင့်ရန် (2,000 credits)" : "Unlock contact (2,000 credits)"}
+                  </Button>
+                )}
+              </div>
+
+
               <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
