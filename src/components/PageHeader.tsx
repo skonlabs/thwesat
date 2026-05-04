@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, forwardRef } from "react";
 import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -20,7 +20,7 @@ interface PageHeaderProps {
   showBack?: boolean;
 }
 
-const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
+const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPath, onBack, showBack }, _ref) => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
@@ -173,6 +173,7 @@ const PageHeader = ({ title, backPath, onBack, showBack }: PageHeaderProps) => {
       </div>
     </>
   );
-};
+});
+PageHeader.displayName = "PageHeader";
 
 export default PageHeader;
