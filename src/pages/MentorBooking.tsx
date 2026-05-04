@@ -145,6 +145,11 @@ const MentorBooking = () => {
       }
     }
 
+    if (insufficient) {
+      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
+      navigate("/wallet");
+      return;
+    }
     try {
       const result = await createBooking.mutateAsync({
         mentor_id: mentorId,
@@ -156,12 +161,18 @@ const MentorBooking = () => {
         goals,
         booked_by: "mentee",
       });
+      // Hold credits in escrow
+      const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
+        _booking_id: result.id,
+        _credits: sessionCredits,
+      });
+      if (holdErr) throw holdErr;
       setCreatedBookingId(result.id);
       setStep(3);
-    } catch {
+    } catch (e: any) {
       toast({
         title: lang === "my" ? "အမှား" : "Error",
-        description: lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking",
+        description: e?.message || (lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking"),
         variant: "destructive",
       });
     }
