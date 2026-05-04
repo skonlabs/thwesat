@@ -820,8 +820,8 @@ const ProfileBuilder = () => {
         onOpenChange={setSpendOpen}
         actionKey="cv_rewrite"
         targetType="profile"
-        idempotencyKey={`cv_rewrite:${Date.now()}`}
-        onSuccess={() => runGeneration()}
+        idempotencyKey={`cv_rewrite:${session?.user?.id}:${Date.now()}`}
+        onSuccess={() => { setPaidForGeneration(true); runGeneration(); }}
       />
     </div>
   );
