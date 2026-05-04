@@ -647,28 +647,21 @@ const JobDetail = () => {
                   </div>
                 )}
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="mt-1 block w-full">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full opacity-60 cursor-not-allowed"
-                          disabled
-                        >
-                          <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                          {lang === "my" ? "ဖန်တီးရန် (AI – မကြာမီ)" : "Generate (AI – coming soon)"}
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs text-center">
-                      {lang === "my"
-                        ? "AI အလုပ်လျှောက်လွှာ ဖန်တီးခြင်း မကြာမီ ရရှိမည်။ ကိုယ်တိုင် ရေးနိုင်ပါသည်။"
-                        : "AI cover letter generation is coming soon. You can still write your cover letter manually."}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 w-full"
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (job?.title) params.set("jobTitle", job.title);
+                    if ((job as any)?.companies?.name || (job as any)?.company) params.set("company", (job as any)?.companies?.name || (job as any)?.company || "");
+                    if (job?.id) params.set("jobId", job.id);
+                    navigate(`/ai-tools/cover-letter?${params.toString()}`);
+                  }}
+                >
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  {lang === "my" ? "ဖန်တီးရန်" : "Generate cover letter"}
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
