@@ -676,7 +676,9 @@ const JobDetail = () => {
                   }}
                 >
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {lang === "my" ? "ဖန်တီးရန်" : "Generate cover letter"}
+                  {lang === "my"
+                    ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
+                    : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`}
                 </Button>
                 <Button
                   variant="outline"
