@@ -165,14 +165,14 @@ const EmployerSubscription = () => {
         <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
           {lang === "my"
             ? `${t(selectedTier?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
-            : `Start ${selectedTier?.name.en} Plan — $${selectedTier?.priceYearly}/yr`}
+            : `Start ${selectedTier?.name.en} Plan — ${selectedTier?.priceYearly.toLocaleString()} MMK/yr`}
         </Button>
 
         <PaymentMethodSheet
           open={paymentOpen}
           onOpenChange={setPaymentOpen}
           amount={selectedTier?.priceYearly || 0}
-          currency="USD"
+          currency="MMK"
           paymentType="employer_subscription"
           referenceId={selected}
           onSuccess={() => navigate("/employer/dashboard")}
