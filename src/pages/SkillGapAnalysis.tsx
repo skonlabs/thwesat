@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 
 const targetRoles = [
   { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
