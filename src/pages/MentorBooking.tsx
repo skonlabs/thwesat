@@ -387,13 +387,11 @@ const MentorBooking = () => {
                 </button>
               ))}
             </div>
-            {hourlyRate > 0 && (
-              <p className="mb-5 text-xs text-muted-foreground text-center">
-                {lang === "my"
-                  ? `Session ကြေး: ${currency} ${sessionAmount.toFixed(2)}`
-                  : `Session fee: ${currency} ${sessionAmount.toFixed(2)}`}
-              </p>
-            )}
+            <p className="mb-5 text-xs text-muted-foreground text-center">
+              {lang === "my"
+                ? `Session ကြေး: ${sessionCredits.toLocaleString()} credits`
+                : `Session fee: ${sessionCredits.toLocaleString()} credits`}
+            </p>
           </motion.div>
         )}
 
