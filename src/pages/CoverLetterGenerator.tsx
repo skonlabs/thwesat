@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PenLine, Briefcase, User, ChevronRight, ChevronLeft, Copy, Check, Download, Loader2, Sparkles, Bookmark, MapPin, Building2, RotateCcw, FileText, Info } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -59,14 +59,24 @@ const CoverLetterGenerator = () => {
     enabled: !!session?.user?.id,
   });
 
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
-    jobTitle: "",
-    company: "",
+    jobTitle: searchParams.get("jobTitle") || "",
+    company: searchParams.get("company") || "",
     jobDescription: "",
     yourName: profile?.display_name || "",
     yourExperience: "",
     tone: "professional",
   });
+
+  useEffect(() => {
+    const jt = searchParams.get("jobTitle");
+    const co = searchParams.get("company");
+    if (jt || co) {
+      setForm((f) => ({ ...f, jobTitle: jt || f.jobTitle, company: co || f.company }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Parse CV if file path was passed from Career Tools
   const cvFilePath = (location.state as any)?.cvFilePath;
