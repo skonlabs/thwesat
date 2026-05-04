@@ -481,6 +481,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
+          employer_type: string
           hq_country: string | null
           id: string
           industry: string | null
@@ -501,6 +502,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          employer_type?: string
           hq_country?: string | null
           id: string
           industry?: string | null
@@ -521,6 +523,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          employer_type?: string
           hq_country?: string | null
           id?: string
           industry?: string | null
