@@ -404,6 +404,15 @@ const SkillGapAnalysis = () => {
           })()}
         </AnimatePresence>
       </div>
+      <SpendConfirmSheet
+        open={spendOpen}
+        onOpenChange={setSpendOpen}
+        actionKey="skill_gap"
+        targetType="role"
+        targetId={selectedRole}
+        idempotencyKey={`skill_gap:${selectedRole}:${Date.now()}`}
+        onSuccess={() => runAnalysis()}
+      />
     </div>
   );
 };
