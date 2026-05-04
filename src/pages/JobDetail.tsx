@@ -139,6 +139,18 @@ const JobDetail = () => {
   useEffect(() => {
     if (selectedGeneratedResumeId) setSelectedCvId(null);
   }, [selectedGeneratedResumeId]);
+
+  // Auto-select a resume when the apply modal opens (primary CV → most recent CV → most recent generated)
+  useEffect(() => {
+    if (!showApplyModal) return;
+    if (selectedCvId || selectedGeneratedResumeId) return;
+    if (cvDocuments.length > 0) {
+      const primary = (cvDocuments as any[]).find((d) => d.is_primary) ?? cvDocuments[0];
+      setSelectedCvId(primary.id);
+    } else if (generatedResumes.length > 0) {
+      setSelectedGeneratedResumeId((generatedResumes as any[])[0].id);
+    }
+  }, [showApplyModal, cvDocuments, generatedResumes, selectedCvId, selectedGeneratedResumeId]);
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
     friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
