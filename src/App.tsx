@@ -39,6 +39,8 @@ import SeekerFinance from "./pages/SeekerFinance";
 import EmployerFinance from "./pages/EmployerFinance";
 import MentorFinance from "./pages/MentorFinance";
 import AdminFinance from "./pages/AdminFinance";
+import Wallet from "./pages/Wallet";
+import AdminWallet from "./pages/AdminWallet";
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -117,6 +119,8 @@ const App = () => (
               <Route path="/premium" element={<Premium />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/finance" element={<SeekerFinance />} />
+              <Route path="/wallet" element={<Wallet />} />
+              <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/become-mentor" element={<BecomeMentor />} />
               <Route path="/settings" element={<Settings />} />
 
