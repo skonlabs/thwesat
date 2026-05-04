@@ -79,9 +79,10 @@ const ProfileBuilder = () => {
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
   const [platform, setPlatform] = useState("Upwork");
 
-  // Pre-populate from profile
+  // Pre-populate from profile (only once on first load to avoid wiping user edits)
+  const [prefilled, setPrefilled] = useState(false);
   useEffect(() => {
-    if (profile) {
+    if (profile && !prefilled) {
       setName(profile.display_name || "");
       setTitle(profile.headline || "");
       if (profile.skills && profile.skills.length > 0) {
@@ -90,8 +91,9 @@ const ProfileBuilder = () => {
       if (profile.experience) {
         setExperiences([{ company: "", role: "", duration: "", description: profile.experience }]);
       }
+      setPrefilled(true);
     }
-  }, [profile]);
+  }, [profile, prefilled]);
 
   // Parse CV if file path was passed from Career Tools
   const cvFilePath = (location.state as any)?.cvFilePath;
