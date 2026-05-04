@@ -114,9 +114,11 @@ const CoverLetterGenerator = () => {
   };
 
   const handleGenerate = async () => {
-    if (!form.jobTitle && !form.company) {
-      return;
-    }
+    if (!form.jobTitle && !form.company) return;
+    setSpendOpen(true);
+  };
+
+  const runGenerate = async () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
