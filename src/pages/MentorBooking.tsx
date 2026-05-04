@@ -301,7 +301,7 @@ const MentorBooking = () => {
               <Star className="h-3 w-3 fill-primary text-primary" />
               <span className="text-[11px] font-medium text-foreground">{mentorProfile?.rating_avg || 0}</span>
               <span className="text-[10px] text-muted-foreground">({mentorProfile?.total_sessions || 0})</span>
-              {hourlyRate > 0 && <span className="ml-1 text-[10px] text-primary font-medium">{currency} {hourlyRate}/hr</span>}
+              <span className="ml-1 text-[10px] text-primary font-medium">{sessionCredits.toLocaleString()} cr</span>
             </div>
           </div>
         </motion.div>
