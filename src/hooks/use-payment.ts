@@ -26,7 +26,7 @@ const ALLOWED_PAYMENT_METHODS = [
   "wavepay",
   "ayapay",
   "promptpay",
-  "bank_transfer",
+  
   "payoneer",
   "wise",
   "manual",
