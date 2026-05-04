@@ -630,8 +630,8 @@ const JobDetail = () => {
                       return (
                         <div
                           key={doc.id}
-                          className={`cursor-pointer rounded-xl border p-3 transition-colors ${
-                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          className={`cursor-pointer rounded-xl border-2 p-3 transition-colors ${
+                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
                           }`}
                           onClick={() => {
                             if (isSelected) { setCoverLetter(""); setCoverLetterMode("none"); }
@@ -640,11 +640,11 @@ const JobDetail = () => {
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-primary/10" : "bg-emerald/10"}`}>
-                                <PenLine className={`h-4 w-4 ${isSelected ? "text-primary" : "text-emerald"}`} strokeWidth={1.5} />
+                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-emerald/20" : "bg-emerald/10"}`}>
+                                <PenLine className={`h-4 w-4 text-emerald`} strokeWidth={1.5} />
                               </div>
                               <div className="min-w-0">
-                                <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.title}</p>
+                                <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.title}</p>
                                 <p className="text-[10px] text-muted-foreground">
                                   {meta?.tone ? `${lang === "my" ? (toneLabels[meta.tone]?.my || meta.tone) : (toneLabels[meta.tone]?.en || meta.tone)} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                                 </p>
@@ -654,7 +654,7 @@ const JobDetail = () => {
                               <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
                                 <Eye className="h-4 w-4" strokeWidth={1.5} />
                               </button>
-                              {isSelected && <CheckCircle className="h-4 w-4 text-primary" strokeWidth={2} />}
+                              {isSelected && <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={2} />}
                             </div>
                           </div>
                         </div>
