@@ -96,6 +96,17 @@ const EmployerApplications = () => {
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedId);
+  const isContactUnlocked = !!selected && contactUnlocks.some((u: any) => u.target_id === selected.applicant_id);
+  const { data: unlockedContact } = useQuery({
+    queryKey: ["unlocked-contact", selected?.applicant_id],
+    queryFn: async () => {
+      if (!selected?.applicant_id) return null;
+      const { data, error } = await (supabase as any).rpc("get_applicant_contact", { _applicant_id: selected.applicant_id });
+      if (error) return null;
+      return Array.isArray(data) ? data[0] : data;
+    },
+    enabled: !!selected?.applicant_id && isContactUnlocked,
+  });
 
   // Auto-mark application as "viewed" when the employer opens it
   useEffect(() => {
