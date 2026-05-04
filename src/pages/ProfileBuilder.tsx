@@ -194,11 +194,16 @@ const ProfileBuilder = () => {
     skills: string[];
     sections: { title: string; content: string }[];
   } | null>(null);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   const handleGenerate = async () => {
     if (!name && !title) {
       return;
     }
+    setSpendOpen(true);
+  };
+
+  const runGeneration = async () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-profile", {
