@@ -762,6 +762,7 @@ export type Database = {
           description: string | null
           description_my: string | null
           employer_id: string
+          employer_type: string
           external_url: string | null
           id: string
           is_diaspora_safe: boolean | null
@@ -799,6 +800,7 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id: string
+          employer_type?: string
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
@@ -836,6 +838,7 @@ export type Database = {
           description?: string | null
           description_my?: string | null
           employer_id?: string
+          employer_type?: string
           external_url?: string | null
           id?: string
           is_diaspora_safe?: boolean | null
