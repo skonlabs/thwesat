@@ -230,39 +230,24 @@ const MentorBooking = () => {
   }
 
   if (step === 3) {
-    const requiresPayment = sessionAmount > 0;
     return (
       <div className="bg-background pb-10">
         <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} onBack={() => navigate("/mentors")} />
         <div className="flex flex-col items-center px-5 pt-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex w-full max-w-sm flex-col items-center text-center">
-            <div className={`mb-5 flex h-20 w-20 items-center justify-center rounded-full ${requiresPayment ? "bg-accent/10" : "bg-emerald/10"}`}>
-              {requiresPayment
-                ? <CreditCard className="h-10 w-10 text-accent" strokeWidth={1.5} />
-                : <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />}
+            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
+              <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
             </div>
             <h1 className="mb-2 text-xl font-bold text-foreground">
-              {requiresPayment
-                ? (lang === "my" ? "ငွေပေးချေမှု လိုအပ်သည်" : "Payment Required")
-                : (lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!")}
+              {lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}
             </h1>
             <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? `${mentorName} နှင့် ချိန်းဆိုမှု` : `Session with ${mentorName}`}</p>
             <p className="mb-1 text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime}</p>
             <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
             <p className="mb-3 text-xs text-muted-foreground">
               {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
-              {sessionAmount > 0 && ` · ${currency} ${sessionAmount.toFixed(2)}`}
+              {` · ${sessionCredits.toLocaleString()} credits`}
             </p>
-
-            {requiresPayment && (
-              <div className="mb-4 w-full rounded-xl border border-accent/30 bg-accent/5 p-3 text-left">
-                <p className="text-[11px] leading-relaxed text-foreground/80">
-                  {lang === "my"
-                    ? "သင့်ချိန်းဆိုမှုသည် ငွေပေးချေပြီးမှသာ Mentor ထံသို့ အတည်ပြုရန် ပို့ပေးပါမည်။ ငွေမပေးချေမီ Mentor မှ မြင်ရမည်မဟုတ်ပါ။"
-                    : "Your booking is held until payment is submitted. The mentor will not see this request until payment proof is uploaded."}
-                </p>
-              </div>
-            )}
 
             {goals && (
               <div className="mb-4 w-full rounded-lg bg-muted p-3">
@@ -274,39 +259,26 @@ const MentorBooking = () => {
             <div className="mb-4 w-full rounded-xl border border-border bg-card p-4">
               <div className="mb-2 flex items-center justify-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ငွေပေးချေမှု အာမခံ" : "Payment Protection"}</p>
+                <p className="text-xs font-semibold text-foreground">{lang === "my" ? "Escrow အကာအကွယ်" : "Escrow Protection"}</p>
               </div>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {lang === "my"
-                  ? "သင့်ငွေကို Mentor နှင့် Mentee နှစ်ဦးစလုံး Session ပြီးဆုံးကြောင်း အတည်ပြုပြီးမှသာ Mentor ထံသို့ လွှဲပြောင်းပေးပါမည်။"
-                  : "Your payment will only be transferred to the mentor after both mentor and mentee confirm the session is completed."}
+                  ? "သင့် Credits ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
+                  : "Your credits are held in escrow and only released to the mentor (85%) after the session is completed."}
               </p>
             </div>
 
-            {requiresPayment && (
-              <>
-                <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
-                  <CreditCard className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                  {lang === "my" ? `${currency} ${sessionAmount.toFixed(2)} ပေးချေရန်` : `Pay ${currency} ${sessionAmount.toFixed(2)}`}
-                </Button>
-                <PaymentMethodSheet
-                  open={paymentOpen}
-                  onOpenChange={setPaymentOpen}
-                  amount={sessionAmount}
-                  currency={currency}
-                  paymentType="mentor_session"
-                  referenceId={createdBookingId || mentorId || undefined}
-                  bookingId={createdBookingId || undefined}
-                  onSuccess={() => setPaymentOpen(false)}
-                />
-              </>
-            )}
-
-            {!requiresPayment && (
-              <p className="mb-6 text-xs text-muted-foreground">
-                {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation has been sent to the mentor"}
-              </p>
-            )}
+            <Button variant="outline" size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
+              <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
+            </Button>
+            <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors/bookings")}>
+              {lang === "my" ? "Bookings သို့" : "Go to My Bookings"}
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
             <Button variant={requiresPayment ? "outline" : "default"} size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
               <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
             </Button>
