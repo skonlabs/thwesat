@@ -203,6 +203,11 @@ const JobDetail = () => {
       });
       return;
     }
+    setSubmitConfirmOpen(true);
+  };
+
+  const confirmAndSubmit = () => {
+    setSubmitConfirmOpen(false);
     if (priorityApply) {
       setPriorityConfirmOpen(true);
       return;
