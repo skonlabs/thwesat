@@ -807,6 +807,14 @@ const ProfileBuilder = () => {
           )}
         </AnimatePresence>
       </div>
+      <SpendConfirmSheet
+        open={spendOpen}
+        onOpenChange={setSpendOpen}
+        actionKey="cv_rewrite"
+        targetType="profile"
+        idempotencyKey={`cv_rewrite:${Date.now()}`}
+        onSuccess={() => runGeneration()}
+      />
     </div>
   );
 };
