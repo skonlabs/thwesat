@@ -131,8 +131,12 @@ const SkillGapAnalysis = () => {
 
   const handleAnalyze = () => {
     if (!selectedRole) return;
+    setSpendOpen(true);
+  };
+
+  const runAnalysis = () => {
     setAnalyzing(true);
-    setTimeout(() => { setAnalyzing(false); setStep(3); }, 2000);
+    setTimeout(() => { setAnalyzing(false); setStep(3); }, 800);
   };
 
   const getAnalysis = () => {
