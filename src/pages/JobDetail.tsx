@@ -600,6 +600,18 @@ const JobDetail = () => {
                     </Button>
                   </div>
                 )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 w-full"
+                  onClick={() => navigate("/ai-tools/profile-builder")}
+                >
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  {lang === "my"
+                    ? `Resume ဖန်တီးရန်${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`
+                    : `Generate resume${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`}
+                </Button>
               </div>
 
               {/* Cover Letter Section */}
