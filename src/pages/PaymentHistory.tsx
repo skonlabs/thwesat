@@ -99,7 +99,7 @@ const PaymentHistory = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-foreground">
-                      {p.currency === "MMK" ? `${p.amount.toLocaleString()} ကျပ်` : `$${p.amount}`}
+                      {p.currency === "MMK" ? `${p.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}` : `${p.amount.toLocaleString()} ${p.currency || "MMK"}`}
                     </p>
                     <p className={`text-[10px] font-medium ${sc.color.split(" ")[1]}`}>
                       {lang === "my" ? sc.label.my : sc.label.en}
