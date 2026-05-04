@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_prices: {
+        Row: {
+          action_key: string
+          description_en: string
+          description_my: string
+          duration_days: number | null
+          is_active: boolean
+          label_en: string
+          label_my: string
+          price_credits: number
+          updated_at: string
+        }
+        Insert: {
+          action_key: string
+          description_en?: string
+          description_my?: string
+          duration_days?: number | null
+          is_active?: boolean
+          label_en: string
+          label_my?: string
+          price_credits: number
+          updated_at?: string
+        }
+        Update: {
+          action_key?: string
+          description_en?: string
+          description_my?: string
+          duration_days?: number | null
+          is_active?: boolean
+          label_en?: string
+          label_my?: string
+          price_credits?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       app_config: {
         Row: {
           key: string
@@ -142,6 +178,92 @@ export type Database = {
           },
         ]
       }
+      career_track_enrollments: {
+        Row: {
+          completed_at: string | null
+          credits_paid: number
+          enrolled_at: string
+          id: string
+          sessions_completed: number
+          status: string
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          credits_paid: number
+          enrolled_at?: string
+          id?: string
+          sessions_completed?: number
+          status?: string
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          credits_paid?: number
+          enrolled_at?: string
+          id?: string
+          sessions_completed?: number
+          status?: string
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_track_enrollments_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "career_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      career_tracks: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description_en: string
+          description_my: string
+          id: string
+          is_active: boolean
+          mentor_id: string
+          price_credits: number
+          title_en: string
+          title_my: string
+          total_sessions: number
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description_en?: string
+          description_my?: string
+          id?: string
+          is_active?: boolean
+          mentor_id: string
+          price_credits: number
+          title_en: string
+          title_my?: string
+          total_sessions?: number
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description_en?: string
+          description_my?: string
+          id?: string
+          is_active?: boolean
+          mentor_id?: string
+          price_credits?: number
+          title_en?: string
+          title_my?: string
+          total_sessions?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       community_posts: {
         Row: {
           author_id: string
@@ -234,6 +356,51 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      credit_packages: {
+        Row: {
+          badge_en: string | null
+          badge_my: string | null
+          bonus_credits: number
+          created_at: string
+          credits: number
+          id: string
+          is_active: boolean
+          name_en: string
+          name_my: string
+          price_mmk: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          badge_en?: string | null
+          badge_my?: string | null
+          bonus_credits?: number
+          created_at?: string
+          credits: number
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_my?: string
+          price_mmk: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          badge_en?: string | null
+          badge_my?: string | null
+          bonus_credits?: number
+          created_at?: string
+          credits?: number
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_my?: string
+          price_mmk?: number
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -365,6 +532,59 @@ export type Database = {
           verification_status?: string | null
         }
         Relationships: []
+      }
+      feature_unlocks: {
+        Row: {
+          created_at: string
+          credits_spent: number
+          expires_at: string | null
+          feature_key: string
+          id: string
+          is_active: boolean
+          metadata: Json
+          starts_at: string
+          target_id: string | null
+          target_type: string | null
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_spent: number
+          expires_at?: string | null
+          feature_key: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          starts_at?: string
+          target_id?: string | null
+          target_type?: string | null
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_spent?: number
+          expires_at?: string | null
+          feature_key?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          starts_at?: string
+          target_id?: string | null
+          target_type?: string | null
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_unlocks_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       generated_documents: {
         Row: {
@@ -925,6 +1145,67 @@ export type Database = {
           },
         ]
       }
+      mentor_session_escrow: {
+        Row: {
+          booking_id: string
+          created_at: string
+          credits_held: number
+          hold_tx_id: string | null
+          mentee_id: string
+          mentor_id: string
+          refund_tx_id: string | null
+          release_tx_id: string | null
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          credits_held: number
+          hold_tx_id?: string | null
+          mentee_id: string
+          mentor_id: string
+          refund_tx_id?: string | null
+          release_tx_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          credits_held?: number
+          hold_tx_id?: string | null
+          mentee_id?: string
+          mentor_id?: string
+          refund_tx_id?: string | null
+          release_tx_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_session_escrow_hold_tx_id_fkey"
+            columns: ["hold_tx_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_session_escrow_refund_tx_id_fkey"
+            columns: ["refund_tx_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentor_session_escrow_release_tx_id_fkey"
+            columns: ["release_tx_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -1452,6 +1733,65 @@ export type Database = {
         }
         Relationships: []
       }
+      topup_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          credits_to_grant: number
+          id: string
+          mmk_amount: number
+          package_id: string | null
+          payment_method: string
+          proof_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_reference: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          credits_to_grant: number
+          id?: string
+          mmk_amount: number
+          package_id?: string | null
+          payment_method: string
+          proof_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          credits_to_grant?: number
+          id?: string
+          mmk_amount?: number
+          package_id?: string | null
+          payment_method?: string
+          proof_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topup_requests_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -1517,6 +1857,81 @@ export type Database = {
           telegram_linked_at?: string | null
           telegram_username?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          credits: number
+          id: string
+          idempotency_key: string | null
+          kind: string
+          metadata: Json
+          mmk_amount: number | null
+          note: string | null
+          ref_id: string | null
+          ref_type: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          credits: number
+          id?: string
+          idempotency_key?: string | null
+          kind: string
+          metadata?: Json
+          mmk_amount?: number | null
+          note?: string | null
+          ref_id?: string | null
+          ref_type?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          credits?: number
+          id?: string
+          idempotency_key?: string | null
+          kind?: string
+          metadata?: Json
+          mmk_amount?: number | null
+          note?: string | null
+          ref_id?: string | null
+          ref_type?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance_credits: number
+          created_at: string
+          lifetime_spent_credits: number
+          lifetime_topup_mmk: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_credits?: number
+          created_at?: string
+          lifetime_spent_credits?: number
+          lifetime_topup_mmk?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_credits?: number
+          created_at?: string
+          lifetime_spent_credits?: number
+          lifetime_topup_mmk?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1678,6 +2093,10 @@ export type Database = {
       }
     }
     Functions: {
+      _wallet_apply: {
+        Args: { _delta: number; _topup_mmk?: number; _user: string }
+        Returns: undefined
+      }
       expire_referral_premium: { Args: never; Returns: undefined }
       get_my_contact_info: {
         Args: never
@@ -1693,6 +2112,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      mentor_book_with_credits: {
+        Args: { _booking_id: string; _credits: number }
+        Returns: Json
+      }
+      mentor_session_refund: {
+        Args: { _booking_id: string; _reason?: string }
+        Returns: Json
+      }
+      mentor_session_release: { Args: { _booking_id: string }; Returns: Json }
       process_referral_reward: {
         Args: { _referrer_id: string }
         Returns: undefined
@@ -1716,6 +2144,32 @@ export type Database = {
           owner_id: string
           permissions: string[]
         }[]
+      }
+      wallet_adjust: {
+        Args: { _delta: number; _note: string; _user_id: string }
+        Returns: Json
+      }
+      wallet_refund_transaction: {
+        Args: { _reason?: string; _tx_id: string }
+        Returns: Json
+      }
+      wallet_spend: {
+        Args: {
+          _action_key: string
+          _idempotency_key?: string
+          _metadata?: Json
+          _target_id?: string
+          _target_type?: string
+        }
+        Returns: Json
+      }
+      wallet_topup_approve: {
+        Args: { _admin_note?: string; _topup_id: string }
+        Returns: Json
+      }
+      wallet_topup_reject: {
+        Args: { _admin_note?: string; _topup_id: string }
+        Returns: Json
       }
     }
     Enums: {
