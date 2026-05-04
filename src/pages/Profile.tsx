@@ -70,6 +70,57 @@ const Profile = () => {
     enabled: !!profile?.id,
   });
 
+  // Fetch CV documents for this user
+  const { data: cvDocuments = [], refetch: refetchCvs } = useQuery({
+    queryKey: ["cv-documents", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data } = await supabase
+        .from("cv_documents")
+        .select("*")
+        .eq("user_id", profile.id)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!profile?.id && effectiveRole === "jobseeker",
+  });
+
+  const getCvStoragePath = (fileUrl: string) => {
+    if (!fileUrl) return "";
+    if (fileUrl.includes("/cv-documents/")) return fileUrl.split("/cv-documents/").pop() || "";
+    return fileUrl;
+  };
+
+  const openCv = async (fileUrl: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("cv-documents").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) return;
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const downloadCv = async (fileUrl: string, fileName: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("cv-documents").download(path);
+    if (error || !data) return;
+    const url = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName || "cv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const deleteCv = async (id: string, fileUrl: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (path) await supabase.storage.from("cv-documents").remove([path]);
+    await supabase.from("cv_documents").delete().eq("id", id);
+    refetchCvs();
+  };
+
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
   const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
