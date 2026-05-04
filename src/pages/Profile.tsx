@@ -15,6 +15,9 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { Sparkles as SparklesIcon } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -26,6 +29,9 @@ const Profile = () => {
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showReferredList, setShowReferredList] = useState(false);
+  const [boostOpen, setBoostOpen] = useState(false);
+  const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
+  const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
 
   // Fetch referral count
   const { data: referralCount = 0 } = useQuery({
@@ -178,7 +184,7 @@ const Profile = () => {
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "My Applications", path: "/applications" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/finance" },
-    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -187,7 +193,7 @@ const Profile = () => {
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/employer/finance" },
-    { icon: Star, label: lang === "my" ? "စာရင်းသွင်းမှုကို စီမံရန်" : "Manage Subscription", path: "/employer/subscription" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -196,7 +202,7 @@ const Profile = () => {
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
     { icon: Sparkles, label: lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Tools", path: "/ai-tools" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/mentor/finance" },
-    { icon: Star, label: lang === "my" ? "ပရီမီယံသို့ အဆင့်မြှင့်ရန်" : "Upgrade to Premium", highlight: true, path: "/premium" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -311,6 +317,34 @@ const Profile = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Profile Boost */}
+        {effectiveRole === "jobseeker" && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-50 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/10 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                <SparklesIcon className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် Boost" : "Profile Boost"}</p>
+                {activeBoost ? (
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်" : "Get seen by employers first"}
+                  </p>
+                )}
+              </div>
+              {!activeBoost && (
+                <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
+                  {lang === "my" ? "Boost ပေးရန်" : "Boost"}
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        )}
 
         {/* Referral Programme */}
         {!isSystemRole && (
@@ -460,6 +494,14 @@ const Profile = () => {
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>
       </div>
+      <SpendConfirmSheet
+        open={boostOpen}
+        onOpenChange={setBoostOpen}
+        actionKey="profile_boost"
+        targetType="profile"
+        targetId={profile?.id || undefined}
+        idempotencyKey={`profile_boost:${profile?.id}:${Date.now()}`}
+      />
     </div>
   );
 };

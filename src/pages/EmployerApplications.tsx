@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History, Lock, Phone, Mail } from "lucide-react";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { toast } from "sonner";
@@ -62,6 +66,9 @@ const EmployerApplications = () => {
   const [otherReasonText, setOtherReasonText] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
   const [filter, setFilter] = useState(searchParams.get("filter") || "all");
+  const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
+  const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
+  const queryClient = useQueryClient();
 
   // Keep local filter state in sync when URL changes (back/forward, deep links)
   useEffect(() => {
@@ -89,6 +96,17 @@ const EmployerApplications = () => {
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedId);
+  const isContactUnlocked = !!selected && contactUnlocks.some((u: any) => u.target_id === selected.applicant_id);
+  const { data: unlockedContact } = useQuery({
+    queryKey: ["unlocked-contact", selected?.applicant_id],
+    queryFn: async () => {
+      if (!selected?.applicant_id) return null;
+      const { data, error } = await (supabase as any).rpc("get_applicant_contact", { _applicant_id: selected.applicant_id });
+      if (error) return null;
+      return Array.isArray(data) ? data[0] : data;
+    },
+    enabled: !!selected?.applicant_id && isContactUnlocked,
+  });
 
   // Auto-mark application as "viewed" when the employer opens it
   useEffect(() => {
@@ -388,6 +406,33 @@ const EmployerApplications = () => {
               </div>
 
 
+              {/* Contact unlock */}
+              <div className="mb-4 rounded-xl border border-border bg-muted/40 p-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
+                  <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အချက်အလက်" : "Contact Information"}</p>
+                </div>
+                {isContactUnlocked && unlockedContact ? (
+                  <div className="space-y-1.5 text-xs">
+                    {unlockedContact.email && (
+                      <a href={`mailto:${unlockedContact.email}`} className="flex items-center gap-2 text-primary"><Mail className="h-3.5 w-3.5" strokeWidth={1.5} /> {unlockedContact.email}</a>
+                    )}
+                    {unlockedContact.phone && (
+                      <a href={`tel:${unlockedContact.phone}`} className="flex items-center gap-2 text-primary"><Phone className="h-3.5 w-3.5" strokeWidth={1.5} /> {unlockedContact.phone}</a>
+                    )}
+                    {!unlockedContact.email && !unlockedContact.phone && (
+                      <p className="text-[11px] text-muted-foreground">{lang === "my" ? "သုံးစွဲသူက ဆက်သွယ်ရန် မပေးထားပါ" : "Applicant has not provided contact info"}</p>
+                    )}
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" className="w-full rounded-lg" onClick={() => setContactUnlockApplicantId(selected.applicant_id)}>
+                    <Lock className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                    {lang === "my" ? "ဆက်သွယ်ရန် ဖွင့်ရန်" : "Unlock contact"}
+                  </Button>
+                )}
+              </div>
+
+
               <div className="border-t border-border pt-4">
                 <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
                 <div className="flex flex-wrap gap-2">
@@ -535,6 +580,19 @@ const EmployerApplications = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <SpendConfirmSheet
+        open={!!contactUnlockApplicantId}
+        onOpenChange={(o) => { if (!o) setContactUnlockApplicantId(null); }}
+        actionKey="unlock_contact"
+        targetType="applicant"
+        targetId={contactUnlockApplicantId || undefined}
+        idempotencyKey={contactUnlockApplicantId ? `unlock_contact:${contactUnlockApplicantId}` : undefined}
+        onSuccess={() => {
+          setContactUnlockApplicantId(null);
+          queryClient.invalidateQueries({ queryKey: ["feature-unlocks"] });
+          queryClient.invalidateQueries({ queryKey: ["unlocked-contact"] });
+        }}
+      />
     </div>
   );
 };

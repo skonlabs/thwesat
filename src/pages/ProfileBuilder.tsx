@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
+import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 
 const SUGGESTED_SKILLS = [
   "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java", "PHP", "HTML/CSS", "SQL", "WordPress",
@@ -193,11 +194,16 @@ const ProfileBuilder = () => {
     skills: string[];
     sections: { title: string; content: string }[];
   } | null>(null);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   const handleGenerate = async () => {
     if (!name && !title) {
       return;
     }
+    setSpendOpen(true);
+  };
+
+  const runGeneration = async () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-profile", {
@@ -801,6 +807,14 @@ const ProfileBuilder = () => {
           )}
         </AnimatePresence>
       </div>
+      <SpendConfirmSheet
+        open={spendOpen}
+        onOpenChange={setSpendOpen}
+        actionKey="cv_rewrite"
+        targetType="profile"
+        idempotencyKey={`cv_rewrite:${Date.now()}`}
+        onSuccess={() => runGeneration()}
+      />
     </div>
   );
 };
