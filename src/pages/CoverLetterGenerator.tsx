@@ -78,6 +78,32 @@ const CoverLetterGenerator = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // If a jobId was passed (came from Apply screen), fetch and prefill job description + requirements
+  const jobIdParam = searchParams.get("jobId");
+  const returnTo = searchParams.get("returnTo");
+  useEffect(() => {
+    if (!jobIdParam) return;
+    (async () => {
+      const { data } = await supabase
+        .from("jobs")
+        .select("title, company, description, requirements")
+        .eq("id", jobIdParam)
+        .maybeSingle();
+      if (data) {
+        const desc = [data.description || "", data.requirements ? `Requirements: ${data.requirements}` : ""]
+          .filter(Boolean).join("\n").substring(0, 1000);
+        setForm((f) => ({
+          ...f,
+          jobTitle: data.title || f.jobTitle,
+          company: data.company || f.company,
+          jobDescription: desc || f.jobDescription,
+        }));
+        setSelectedJobId(jobIdParam);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobIdParam]);
+
   // Parse CV if file path was passed from Career Tools
   const cvFilePath = (location.state as any)?.cvFilePath;
 
