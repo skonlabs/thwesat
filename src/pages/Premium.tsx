@@ -15,12 +15,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
 
 const formatPrice = (price: number, currency: string, lang: string) => {
-  if (price === 0) return lang === "my" ? "အခမဲ့" : "$0";
-  if (currency === "MMK") {
+  if (price === 0) return lang === "my" ? "အခမဲ့" : "Free";
+  if (currency === "MMK" || !currency) {
     const rounded = Math.round(price / 100) * 100;
-    return `${rounded.toLocaleString()} ကျပ်`;
+    return `${rounded.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
   }
-  return `$${price.toFixed(2)}`;
+  return `${price.toLocaleString()} ${currency}`;
 };
 
 const formatTotal = (price: number, currency: string, lang: string) => {
