@@ -78,6 +78,32 @@ const CoverLetterGenerator = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // If a jobId was passed (came from Apply screen), fetch and prefill job description + requirements
+  const jobIdParam = searchParams.get("jobId");
+  const returnTo = searchParams.get("returnTo");
+  useEffect(() => {
+    if (!jobIdParam) return;
+    (async () => {
+      const { data } = await supabase
+        .from("jobs")
+        .select("title, company, description, requirements")
+        .eq("id", jobIdParam)
+        .maybeSingle();
+      if (data) {
+        const desc = [data.description || "", data.requirements ? `Requirements: ${data.requirements}` : ""]
+          .filter(Boolean).join("\n").substring(0, 1000);
+        setForm((f) => ({
+          ...f,
+          jobTitle: data.title || f.jobTitle,
+          company: data.company || f.company,
+          jobDescription: desc || f.jobDescription,
+        }));
+        setSelectedJobId(jobIdParam);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobIdParam]);
+
   // Parse CV if file path was passed from Career Tools
   const cvFilePath = (location.state as any)?.cvFilePath;
 
@@ -220,6 +246,12 @@ const CoverLetterGenerator = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်လျှောက်လွှာ ဖန်တီးရေး" : "Cover Letter"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
+        {jobIdParam && (form.jobTitle || form.company) && (
+          <div className="mb-3 rounded-xl border border-emerald/30 bg-emerald/5 px-3 py-2 text-xs text-foreground/90">
+            <span className="font-medium text-emerald">{lang === "my" ? "အလုပ်အတွက် ပြင်ဆင်နေသည်: " : "Tailoring for: "}</span>
+            {form.jobTitle}{form.company ? ` · ${form.company}` : ""}
+          </div>
+        )}
         {/* Progress */}
         <div className="mb-5 flex gap-2">
           {[lang === "my" ? "အချက်အလက်" : "Details", lang === "my" ? "ရလဒ်" : "Result"].map((label, i) => (
@@ -493,9 +525,13 @@ const CoverLetterGenerator = () => {
                     doc_type: "cover_letter",
                     title: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${form.jobTitle || ""} at ${form.company || ""}`,
                     content: generatedLetter,
-                    metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone },
+                    metadata: { jobTitle: form.jobTitle, company: form.company, tone: form.tone, jobId: jobIdParam || null },
                   });
                   setSaved(true);
+                  if (returnTo) {
+                    navigate(returnTo);
+                    return;
+                  }
                   toast({
                     title: lang === "my" ? "ပရိုဖိုင်သို့ သိမ်းပြီးပါပြီ" : "Cover letter saved to your profile",
                     description: (
@@ -514,8 +550,15 @@ const CoverLetterGenerator = () => {
                 disabled={saved}
               >
                 {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : returnTo ? (lang === "my" ? "သိမ်း၍ လျှောက်လွှာသို့ ပြန်သွားမည်" : "Save & return to application") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
               </Button>
+
+              {returnTo && (
+                <Button variant="outline" onClick={() => navigate(returnTo)} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "လျှောက်လွှာ စခရင်သို့ ပြန်သွားမည်" : "Back to application"}
+                </Button>
+              )}
 
               <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
                 <ChevronLeft className="h-4 w-4" />

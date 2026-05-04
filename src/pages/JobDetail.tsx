@@ -15,7 +15,7 @@ import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
 import { useActionPrice } from "@/hooks/use-wallet";
 import { useStartConversation } from "@/hooks/use-start-conversation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 import { pickLocalized } from "@/lib/i18n";
 import { shareJobLink } from "@/lib/share-job";
@@ -157,6 +157,21 @@ const JobDetail = () => {
       setSelectedGeneratedResumeId((generatedResumes as any[])[0].id);
     }
   }, [showApplyModal, cvDocuments, generatedResumes, selectedCvId, selectedGeneratedResumeId]);
+
+  // Auto-open apply modal when returning from generators (?openApply=1) and refresh generated docs
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (searchParams.get("openApply") === "1" && user) {
+      setShowApplyModal(true);
+      queryClient.invalidateQueries({ queryKey: ["generated-resumes", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["generated-cover-letters", user.id] });
+      // Clean the param so refresh doesn't re-open
+      const next = new URLSearchParams(searchParams);
+      next.delete("openApply");
+      navigate(`/jobs/${id}${next.toString() ? `?${next.toString()}` : ""}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
   const toneLabels: Record<string, { my: string; en: string }> = {
     professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
     friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
@@ -612,7 +627,15 @@ const JobDetail = () => {
                   variant="outline"
                   size="sm"
                   className="mt-2 w-full"
-                  onClick={() => navigate("/ai-tools/profile-builder")}
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (job?.id) params.set("jobId", job.id);
+                    if (job?.title) params.set("jobTitle", job.title);
+                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+                    if (companyName) params.set("company", companyName);
+                    params.set("returnTo", `/jobs/${id}?openApply=1`);
+                    navigate(`/ai-tools/profile-builder?${params.toString()}`);
+                  }}
                 >
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
                   {lang === "my"
@@ -677,8 +700,10 @@ const JobDetail = () => {
                   onClick={() => {
                     const params = new URLSearchParams();
                     if (job?.title) params.set("jobTitle", job.title);
-                    if ((job as any)?.companies?.name || (job as any)?.company) params.set("company", (job as any)?.companies?.name || (job as any)?.company || "");
+                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+                    if (companyName) params.set("company", companyName);
                     if (job?.id) params.set("jobId", job.id);
+                    params.set("returnTo", `/jobs/${id}?openApply=1`);
                     navigate(`/ai-tools/cover-letter?${params.toString()}`);
                   }}
                 >

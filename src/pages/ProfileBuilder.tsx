@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, User, Briefcase, GraduationCap, Award, ChevronRight, ChevronLeft, Copy, Check, Globe, Plus, X, Trash2, Loader2, Sparkles, MoreHorizontal, Download, Bookmark, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,6 +38,29 @@ interface ExperienceEntry {
 const ProfileBuilder = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const jobIdParam = searchParams.get("jobId");
+  const returnTo = searchParams.get("returnTo");
+  const [jobContext, setJobContext] = useState<{ title: string; company: string; description: string; requirements: string } | null>(null);
+
+  useEffect(() => {
+    if (!jobIdParam) return;
+    (async () => {
+      const { data } = await supabase
+        .from("jobs")
+        .select("title, company, description, requirements")
+        .eq("id", jobIdParam)
+        .maybeSingle();
+      if (data) {
+        setJobContext({
+          title: data.title || "",
+          company: data.company || "",
+          description: data.description || "",
+          requirements: data.requirements || "",
+        });
+      }
+    })();
+  }, [jobIdParam]);
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, session } = useAuth();
@@ -215,7 +238,7 @@ const ProfileBuilder = () => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-profile", {
-        body: { name, title, summary, experiences, educations, skills, otherInfo, platform },
+        body: { name, title, summary, experiences, educations, skills, otherInfo, platform, jobContext },
       });
       if (error) throw error;
       const result = data?.data;
@@ -351,6 +374,12 @@ const ProfileBuilder = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် တည်ဆောက်ရန်" : "Profile Builder"} onBack={() => step > 1 ? setStep(s => s - 1) : navigate("/ai-tools")} />
       <div className="px-5 pt-4">
+        {jobContext && (
+          <div className="mb-3 rounded-xl border border-emerald/30 bg-emerald/5 px-3 py-2 text-xs text-foreground/90">
+            <span className="font-medium text-emerald">{lang === "my" ? "အလုပ်အတွက် ပြင်ဆင်နေသည်: " : "Tailoring for: "}</span>
+            {jobContext.title}{jobContext.company ? ` · ${jobContext.company}` : ""}
+          </div>
+        )}
         {/* Progress */}
         <div className="mb-5 flex items-center gap-2">
           {stepLabels.map((label, i) => (
@@ -794,23 +823,33 @@ const ProfileBuilder = () => {
                   await supabase.from("generated_documents").insert({
                     user_id: session.user.id,
                     doc_type: "resume",
-                    title: `${platform} Profile — ${name || title || "Untitled"}`,
+                    title: `${platform} Profile — ${name || title || "Untitled"}${jobContext ? ` (for ${jobContext.title})` : ""}`,
                     content: fullText,
-                    metadata: { platform, name, headline: generatedProfile.headline },
+                    metadata: { platform, name, headline: generatedProfile.headline, jobId: jobIdParam || null },
                   });
                   setSaved(true);
+                  if (returnTo) {
+                    navigate(returnTo);
+                  }
                 }}
                 className="w-full"
                 disabled={saved}
               >
                 {saved ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
+                {saved ? (lang === "my" ? "သိမ်းဆည်းပြီး" : "Saved") : returnTo ? (lang === "my" ? "သိမ်း၍ လျှောက်လွှာသို့ ပြန်သွားမည်" : "Save & return to application") : (lang === "my" ? "နောင်အတွက် သိမ်းဆည်းရန်" : "Save for Future Use")}
               </Button>
 
-              <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
-                <ChevronLeft className="h-4 w-4" />
-                {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
-              </Button>
+              {returnTo ? (
+                <Button variant="outline" onClick={() => navigate(returnTo)} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "လျှောက်လွှာ စခရင်သို့ ပြန်သွားမည်" : "Back to application"}
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => navigate("/ai-tools")} className="w-full">
+                  <ChevronLeft className="h-4 w-4" />
+                  {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
+                </Button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

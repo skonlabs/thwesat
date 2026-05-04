@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { name, title, summary, experiences, educations, skills, otherInfo, platform } = await req.json();
+    const { name, title, summary, experiences, educations, skills, otherInfo, platform, jobContext } = await req.json();
 
     if (!platform) {
       return new Response(JSON.stringify({ error: "Platform is required" }), {
@@ -63,7 +63,11 @@ Deno.serve(async (req) => {
 
     const skillsList = (skills || []).join(", ");
 
-    const userPrompt = `Generate a professional ${platform} profile for the following person. The output must be in English, polished, and optimized specifically for ${platform}.
+    const jobBlock = jobContext && (jobContext.title || jobContext.description || jobContext.requirements)
+      ? `\n\nTARGET JOB (tailor the profile to match this role):\n- Title: ${jobContext.title || "N/A"}\n- Company: ${jobContext.company || "N/A"}\n- Description: ${jobContext.description || "N/A"}\n- Requirements: ${jobContext.requirements || "N/A"}\n\nIMPORTANT: Emphasize skills, experience and keywords from this job. Re-order and rewrite the summary/sections so they directly speak to the requirements above. Do NOT fabricate experience the candidate doesn't have — only re-frame what they provided.`
+      : "";
+
+    const userPrompt = `Generate a professional ${platform} profile for the following person. The output must be in English, polished, and optimized specifically for ${platform}.${jobBlock}
 
 Name: ${name || "Not provided"}
 Job Title / Specialty: ${title || "Not provided"}
