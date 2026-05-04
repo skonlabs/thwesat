@@ -73,6 +73,7 @@ const JobDetail = () => {
   const [parsingCvId, setParsingCvId] = useState<string | null>(null);
   const [priorityApply, setPriorityApply] = useState(false);
   const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
+  const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
   const priorityPrice = useActionPrice("priority_application");
   const cvRewritePrice = useActionPrice("cv_rewrite");
   const coverLetterPrice = useActionPrice("cover_letter");
