@@ -118,25 +118,25 @@ const EmployerPostJob = () => {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
       return;
     }
+    if (insufficient) {
+      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
+      navigate("/wallet");
+      return;
+    }
     try {
-      await createJob.mutateAsync({
-        title: titleEn,
-        title_my: titleMy || null,
-        description: descEn,
-        description_my: descMy || null,
-        requirements: requirementsEn,
-        requirements_my: requirementsMy || null,
-        role_type: roleType,
-        category: categories[0] || null,
-        categories,
-        salary_min: minVal,
-        salary_max: maxVal,
-        location: locationCountry || "Remote",
+      // Spend job_post first
+      await spend.mutateAsync({ action_key: "job_post", idempotency_key: `job_post:${Date.now()}` });
+      const { data: jobRow, error: jobErr } = await (await import("@/integrations/supabase/client")).supabase
+        .from("jobs").insert({
+        employer_id: (await (await import("@/integrations/supabase/client")).supabase.auth.getUser()).data.user?.id,
+        title: titleEn, title_my: titleMy || null,
+        description: descEn, description_my: descMy || null,
+        requirements: requirementsEn, requirements_my: requirementsMy || null,
+        role_type: roleType, category: categories[0] || null, categories,
+        salary_min: minVal, salary_max: maxVal, location: locationCountry || "Remote",
         payment_methods: selectedPayments,
-        requires_embassy: requiresEmbassy,
-        requires_work_permit: requiresWorkPermit,
-        visa_sponsorship: visaSponsorship,
-        is_featured: isFeatured,
+        requires_embassy: requiresEmbassy, requires_work_permit: requiresWorkPermit,
+        visa_sponsorship: visaSponsorship, is_featured: isFeatured,
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
@@ -145,10 +145,19 @@ const EmployerPostJob = () => {
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         company: employerProfile?.company_name || "",
         status: "pending",
-      });
+      } as any).select("id").single();
+      if (jobErr) throw jobErr;
+      if (isFeatured && jobRow?.id) {
+        await spend.mutateAsync({ action_key: "feature_job_upgrade", target_type: "job", target_id: jobRow.id });
+      }
       navigate("/employer/dashboard");
-    } catch {
-      toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", variant: "destructive" });
+    } catch (e: any) {
+      const msg = e?.message || "";
+      if (msg.includes("insufficient_balance")) {
+        toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
+      } else {
+        toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
+      }
     }
   };
 
