@@ -69,6 +69,8 @@ const JobDetail = () => {
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
   const [parsingCvId, setParsingCvId] = useState<string | null>(null);
+  const [priorityApply, setPriorityApply] = useState(false);
+  const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
 
   // Fetch user's CV documents
   const { data: cvDocuments = [] } = useQuery({
