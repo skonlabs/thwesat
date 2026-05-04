@@ -2,14 +2,14 @@
 // MMK is rounded to nearest 1000 (project rule from memory).
 export function formatCurrency(amount: number | null | undefined, currency: string | null | undefined, lang: "my" | "en" = "en"): string {
   if (amount == null || isNaN(amount)) return lang === "my" ? "ညှိနှိုင်း" : "Negotiable";
-  const cur = (currency || "USD").toUpperCase();
+  const cur = (currency || "MMK").toUpperCase();
   if (cur === "MMK") {
     const rounded = Math.round(amount / 1000) * 1000;
     return `${rounded.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
   }
-  if (cur === "USD") return `$${amount.toLocaleString()}`;
-  if (cur === "THB") return `฿${amount.toLocaleString()}`;
-  if (cur === "SGD") return `S$${amount.toLocaleString()}`;
+  if (cur === "THB") return `${amount.toLocaleString()} THB`;
+  if (cur === "SGD") return `${amount.toLocaleString()} SGD`;
+  if (cur === "USD") return `${amount.toLocaleString()} USD`;
   return `${amount.toLocaleString()} ${cur}`;
 }
 
