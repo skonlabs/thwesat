@@ -118,6 +118,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
               <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
               <span className="tabular-nums">{(wallet?.balance_credits ?? 0).toLocaleString()}</span>
             </button>
+            <button
               onClick={() => navigate("/notifications")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
               aria-label={lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications"}
