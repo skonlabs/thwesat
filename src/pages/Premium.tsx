@@ -526,8 +526,8 @@ const Premium = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-xs text-muted-foreground">
                   {lang === "my"
-                    ? "KBZPay, Wave Pay, Aya Pay, ဘဏ်လွှဲ, Payoneer နှင့် Wise တို့ဖြင့် ငွေပေးချေနိုင်ပါသည်။"
-                    : "KBZPay, Wave Pay, Aya Pay, bank transfer, Payoneer, and Wise."}
+                    ? "KBZPay, Wave Pay, Aya Pay, Payoneer နှင့် Wise တို့ဖြင့် ငွေပေးချေနိုင်ပါသည်။"
+                    : "KBZPay, Wave Pay, Aya Pay, Payoneer, and Wise."}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
