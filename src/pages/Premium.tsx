@@ -310,7 +310,7 @@ const Premium = () => {
 
           <div className="mb-5 flex items-center justify-center gap-4">
             {[
-              { icon: Zap, label: lang === "my" ? "AI ကိရိယာ" : "AI Tools" },
+              { icon: Zap, label: lang === "my" ? "ကိရိယာများ" : "Career Tools" },
               { icon: Shield, label: lang === "my" ? "ကုဒ်ဝှက်" : "Encrypted" },
               { icon: Sparkles, label: lang === "my" ? "လမ်းညွှန်" : "Mentors" },
             ].map((item, i) => (
