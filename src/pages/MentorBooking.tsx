@@ -279,19 +279,6 @@ const MentorBooking = () => {
       </div>
     );
   }
-            <Button variant={requiresPayment ? "outline" : "default"} size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
-              <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
-            </Button>
-            <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate(requiresPayment ? "/mentors/bookings" : "/mentors")}>
-              {requiresPayment
-                ? (lang === "my" ? "Bookings သို့" : "Go to My Bookings")
-                : (lang === "my" ? "Mentors သို့ ပြန်သွားရန်" : "Back to Mentors")}
-            </Button>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-background pb-40">
