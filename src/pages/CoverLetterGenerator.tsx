@@ -37,6 +37,7 @@ const CoverLetterGenerator = () => {
   const [cvParsed, setCvParsed] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingDocx, setDownloadingDocx] = useState(false);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   const { data: userCvs = [] } = useQuery({
     queryKey: ["user-cvs", session?.user?.id],
