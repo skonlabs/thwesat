@@ -529,8 +529,8 @@ const CoverLetterGenerator = () => {
         open={spendOpen}
         onOpenChange={setSpendOpen}
         actionKey="cover_letter"
-        idempotencyKey={`cover_letter:${form.company}:${form.jobTitle}:${Date.now()}`}
-        onSuccess={() => runGenerate()}
+        idempotencyKey={`cover_letter:${session?.user?.id}:${form.company}:${form.jobTitle}:${Date.now()}`}
+        onSuccess={() => { setPaidForKey(currentPayKey); runGenerate(); }}
       />
     </div>
   );
