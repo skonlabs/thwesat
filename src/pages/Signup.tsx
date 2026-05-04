@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap, CheckCircle2, XCircle } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap, CheckCircle2, XCircle, Building2 } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
@@ -34,7 +34,8 @@ const Signup = () => {
   const [referralCode, setReferralCode] = useState("");
   const [referralError, setReferralError] = useState<string | null>(null);
   const [showReferral, setShowReferral] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>("jobseeker");
+  type SignupChoice = "jobseeker" | "employer" | "agent" | "mentor";
+  const [selectedRole, setSelectedRole] = useState<SignupChoice>("jobseeker");
   const [isLoading, setIsLoading] = useState(false);
 
   // Derived password checks
@@ -89,8 +90,12 @@ const Signup = () => {
       referrerId = referrerProfile.id;
     }
 
+    // Map signup choice to underlying app role. "agent" is an employer with a flag.
+    const appRole: UserRole = selectedRole === "agent" ? "employer" : selectedRole;
+    const employerType: "direct" | "agent" = selectedRole === "agent" ? "agent" : "direct";
+
     setIsLoading(true);
-    const { error } = await signUp(email, password, name, selectedRole);
+    const { error } = await signUp(email, password, name, appRole);
     setIsLoading(false);
     if (error) {
       toast({ title: lang === "my" ? "အကောင့်ဖွင့်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
@@ -99,24 +104,17 @@ const Signup = () => {
     // Get the new user and persist role + referral
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
-      // Save referral code and create referral record — non-blocking, errors are swallowed.
-      // Always store the canonical UPPERCASE code so it matches profiles.referral_code.
       if (referralCode.trim() && referrerId) {
         const canonicalCode = referralCode.trim().toUpperCase();
         try {
           await supabase.from("profiles").update({ referred_by: canonicalCode }).eq("id", newUser.id);
-          // Create referral record with 'completed' status (user signed up successfully).
-          // The on_referral_completed trigger fires on INSERT and grants the referrer
-          // a free Premium month once they have 5 completed referrals.
           const { error: referralInsertError } = await supabase.from("referrals").insert({
             referrer_id: referrerId,
             referred_id: newUser.id,
             referral_code: canonicalCode,
             status: "completed",
           });
-          if (referralInsertError) {
-            throw referralInsertError;
-          }
+          if (referralInsertError) throw referralInsertError;
         } catch (referralErr) {
           console.error("Referral record could not be created:", referralErr);
           toast({
@@ -125,22 +123,22 @@ const Signup = () => {
           });
         }
       }
-      // Persist role to user_roles table via SECURITY DEFINER function.
-      // Pass the actual selected role (jobseeker / employer / mentor) so the
-      // DB can use it for downstream logic.
-      // selectedRole is an app-level role (jobseeker/employer/mentor); the
-      // user_roles table only stores system roles (admin/moderator/user).
-      // New signups are always assigned 'user'.
       await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
+
+      // Pre-seed employer_profiles row with employer_type so onboarding picks it up.
+      if (appRole === "employer") {
+        await supabase.from("employer_profiles").upsert({ id: newUser.id, employer_type: employerType } as any);
+      }
     }
-    setRole(selectedRole);
-    navigate(selectedRole === "employer" ? "/employer/onboarding" : selectedRole === "mentor" ? "/mentors/dashboard" : "/home");
+    setRole(appRole);
+    navigate(appRole === "employer" ? "/employer/onboarding" : appRole === "mentor" ? "/mentors/dashboard" : "/home");
   };
 
-  const roles: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
-    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
-    { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
-    { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
+  const roles: { value: SignupChoice; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
+    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်", en: "Find jobs, build CV" } },
+    { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "ကိုယ်ပိုင်ဝန်ထမ်းခေါ်ရန်", en: "Hire directly" } },
+    { value: "agent", icon: Building2, label: { my: "ခေါ်ယူရေး အေဂျင့်", en: "Recruiting Agent" }, desc: { my: "အခြားကုမ္ပဏီအတွက် ခေါ်ယူ", en: "Recruit for clients" } },
+    { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေ", en: "Share & earn" } },
   ];
 
   return (
@@ -162,7 +160,7 @@ const Signup = () => {
         {/* Role Selection */}
         <div className="mb-6">
           <Label className="mb-2.5 block text-xs font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
