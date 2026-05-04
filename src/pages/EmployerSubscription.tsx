@@ -131,10 +131,10 @@ const EmployerSubscription = () => {
                   <h3 className="text-base font-bold text-foreground">{t(tier.name)}</h3>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-foreground">${tier.priceMonthly}</span>
-                  <span className="text-xs text-muted-foreground">/{lang === "my" ? "လ" : "mo"}</span>
+                  <span className="text-2xl font-bold text-foreground">{tier.priceMonthly.toLocaleString()}</span>
+                  <span className="text-xs text-muted-foreground"> {lang === "my" ? "ကျပ်" : "MMK"}/{lang === "my" ? "လ" : "mo"}</span>
                   <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? `စုစုပေါင်း $${tier.priceYearly}/နှစ်` : `$${tier.priceYearly}/year total`}
+                    {lang === "my" ? `စုစုပေါင်း ${tier.priceYearly.toLocaleString()} ကျပ်/နှစ်` : `${tier.priceYearly.toLocaleString()} MMK/year total`}
                   </p>
                 </div>
               </div>
