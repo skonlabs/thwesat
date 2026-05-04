@@ -197,9 +197,15 @@ const ProfileBuilder = () => {
     sections: { title: string; content: string }[];
   } | null>(null);
   const [spendOpen, setSpendOpen] = useState(false);
+  const [paidForGeneration, setPaidForGeneration] = useState(false);
 
   const handleGenerate = async () => {
     if (!name && !title) {
+      return;
+    }
+    // Already paid in this session — regenerate without re-charging
+    if (paidForGeneration) {
+      runGeneration();
       return;
     }
     setSpendOpen(true);
@@ -814,8 +820,8 @@ const ProfileBuilder = () => {
         onOpenChange={setSpendOpen}
         actionKey="cv_rewrite"
         targetType="profile"
-        idempotencyKey={`cv_rewrite:${Date.now()}`}
-        onSuccess={() => runGeneration()}
+        idempotencyKey={`cv_rewrite:${session?.user?.id}:${Date.now()}`}
+        onSuccess={() => { setPaidForGeneration(true); runGeneration(); }}
       />
     </div>
   );
