@@ -2091,6 +2091,44 @@ export type Database = {
         }
         Relationships: []
       }
+      v_active_unlocks: {
+        Row: {
+          expires_at: string | null
+          feature_key: string | null
+          starts_at: string | null
+          target_id: string | null
+          target_type: string | null
+          transaction_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          expires_at?: string | null
+          feature_key?: string | null
+          starts_at?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          transaction_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          expires_at?: string | null
+          feature_key?: string | null
+          starts_at?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          transaction_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_unlocks_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _wallet_apply: {
@@ -2125,6 +2163,7 @@ export type Database = {
         Args: { _referrer_id: string }
         Returns: undefined
       }
+      refresh_job_featured: { Args: { _job_id: string }; Returns: undefined }
       review_payment_request: {
         Args: { _admin_note?: string; _new_status: string; _payment_id: string }
         Returns: Json
