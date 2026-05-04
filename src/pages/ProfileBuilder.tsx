@@ -38,6 +38,29 @@ interface ExperienceEntry {
 const ProfileBuilder = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const jobIdParam = searchParams.get("jobId");
+  const returnTo = searchParams.get("returnTo");
+  const [jobContext, setJobContext] = useState<{ title: string; company: string; description: string; requirements: string } | null>(null);
+
+  useEffect(() => {
+    if (!jobIdParam) return;
+    (async () => {
+      const { data } = await supabase
+        .from("jobs")
+        .select("title, company, description, requirements")
+        .eq("id", jobIdParam)
+        .maybeSingle();
+      if (data) {
+        setJobContext({
+          title: data.title || "",
+          company: data.company || "",
+          description: data.description || "",
+          requirements: data.requirements || "",
+        });
+      }
+    })();
+  }, [jobIdParam]);
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, session } = useAuth();
