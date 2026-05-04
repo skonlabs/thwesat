@@ -566,8 +566,8 @@ const EmployerApplications = () => {
             <AlertDialogTitle>{lang === "my" ? "ခန့်အပ်မှု အတည်ပြုမည်" : "Confirm Placement"}</AlertDialogTitle>
             <AlertDialogDescription>
               {lang === "my"
-                ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — $${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
-                : `This will record a placement. An 8% placement fee of $${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} applies. Confirm?`}
+                ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ် — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
+                : `This will record a placement. An 8% placement fee of ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK applies. Confirm?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
