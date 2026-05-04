@@ -5,6 +5,7 @@ type Language = "my" | "en";
 type SalaryLike = {
   salary_min?: number | null;
   salary_max?: number | null;
+  currency?: string | null;
 };
 
 const titleMap: Record<string, string> = {
@@ -138,12 +139,20 @@ export function translatePaymentMethods(methods: string[] | null | undefined, la
 export function formatJobSalary(job: SalaryLike, lang: Language): string {
   const min = job.salary_min;
   const max = job.salary_max;
+  const cur = (job.currency || "MMK").toUpperCase();
 
   if (!min && !max) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
 
   const unit = lang === "my" ? "လ" : "mo";
+  const fmt = (n: number) => {
+    if (cur === "MMK") {
+      const r = Math.round(n / 1000) * 1000;
+      return `${r.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
+    }
+    return `${n.toLocaleString()} ${cur}`;
+  };
 
-  if (min && max) return `$${min.toLocaleString()}–$${max.toLocaleString()}/${unit}`;
-  if (min) return `$${min.toLocaleString()}+/${unit}`;
-  return `${lang === "my" ? "အများဆုံး" : "Up to"} $${max?.toLocaleString()}/${unit}`;
+  if (min && max) return `${fmt(min)}–${fmt(max)}/${unit}`;
+  if (min) return `${fmt(min)}+/${unit}`;
+  return `${lang === "my" ? "အများဆုံး" : "Up to"} ${fmt(max!)}/${unit}`;
 }

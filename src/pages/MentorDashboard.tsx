@@ -76,7 +76,7 @@ const MentorDashboard = () => {
   };
   const [hourlyRate, setHourlyRate] = useState("30");
   const [rateError, setRateError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("MMK");
   const [timezone, setTimezone] = useState("Asia/Yangon");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
@@ -99,7 +99,7 @@ const MentorDashboard = () => {
   useEffect(() => {
     if (mentorProfile) {
       setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
-      setCurrency(mentorProfile.currency || "USD");
+      setCurrency(mentorProfile.currency || "MMK");
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
@@ -249,11 +249,11 @@ const MentorDashboard = () => {
                 onChange={e => setCurrency(e.target.value)}
                 className="h-10 rounded-xl border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value="USD">USD ($)</option>
                 <option value="MMK">MMK (ကျပ်)</option>
-                <option value="SGD">SGD (S$)</option>
-                <option value="THB">THB (฿)</option>
-                <option value="MYR">MYR (RM)</option>
+                <option value="USD">USD</option>
+                <option value="SGD">SGD</option>
+                <option value="THB">THB</option>
+                <option value="MYR">MYR</option>
               </select>
               <Input
                 type="number"

@@ -16,8 +16,8 @@ const tiers = [
   {
     id: "basic",
     name: { my: "အခြေခံ", en: "Basic" },
-    priceMonthly: 5,
-    priceYearly: 60,
+    priceMonthly: 15000,
+    priceYearly: 180000,
     icon: Briefcase,
     features: [
       { my: "အလုပ်ခေါ်စာ ၁ ခု / လ", en: "1 job post per month" },
@@ -35,8 +35,8 @@ const tiers = [
   {
     id: "pro",
     name: { my: "ပရို", en: "Pro" },
-    priceMonthly: 25,
-    priceYearly: 300,
+    priceMonthly: 75000,
+    priceYearly: 900000,
     icon: Crown,
     popular: true,
     features: [
@@ -131,10 +131,10 @@ const EmployerSubscription = () => {
                   <h3 className="text-base font-bold text-foreground">{t(tier.name)}</h3>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-foreground">${tier.priceMonthly}</span>
-                  <span className="text-xs text-muted-foreground">/{lang === "my" ? "လ" : "mo"}</span>
+                  <span className="text-2xl font-bold text-foreground">{tier.priceMonthly.toLocaleString()}</span>
+                  <span className="text-xs text-muted-foreground"> {lang === "my" ? "ကျပ်" : "MMK"}/{lang === "my" ? "လ" : "mo"}</span>
                   <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? `စုစုပေါင်း $${tier.priceYearly}/နှစ်` : `$${tier.priceYearly}/year total`}
+                    {lang === "my" ? `စုစုပေါင်း ${tier.priceYearly.toLocaleString()} ကျပ်/နှစ်` : `${tier.priceYearly.toLocaleString()} MMK/year total`}
                   </p>
                 </div>
               </div>
@@ -165,14 +165,14 @@ const EmployerSubscription = () => {
         <Button variant="default" size="lg" className="mt-5 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
           {lang === "my"
             ? `${t(selectedTier?.name ?? { my: "", en: "" })} အစီအစဉ်ဖြင့် စတင်ရန်`
-            : `Start ${selectedTier?.name.en} Plan — $${selectedTier?.priceYearly}/yr`}
+            : `Start ${selectedTier?.name.en} Plan — ${selectedTier?.priceYearly.toLocaleString()} MMK/yr`}
         </Button>
 
         <PaymentMethodSheet
           open={paymentOpen}
           onOpenChange={setPaymentOpen}
           amount={selectedTier?.priceYearly || 0}
-          currency="USD"
+          currency="MMK"
           paymentType="employer_subscription"
           referenceId={selected}
           onSuccess={() => navigate("/employer/dashboard")}
