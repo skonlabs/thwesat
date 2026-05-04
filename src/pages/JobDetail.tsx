@@ -146,30 +146,8 @@ const JobDetail = () => {
     enthusiastic: { my: "စိတ်အားထက်သန်သော", en: "Enthusiastic" },
   };
 
-  const handleApply = () => {
+  const submitApplication = () => {
     if (!id) return;
-    if (!selectedCvId && !selectedGeneratedResumeId) {
-      toast({
-        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း လိုအပ်ပါသည်" : "Resume required",
-        description:
-          lang === "my"
-            ? "လျှောက်ထားရန် ကိုယ်ရေးမှတ်တမ်း တင်ထားပါ သို့မဟုတ် ရွေးချယ်ပါ။"
-            : "Please upload or select a resume before applying.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (coverLetterMode === "manual" && coverLetter.trim().length < 30) {
-      toast({
-        title: lang === "my" ? "အလုပ်လျှောက်လွှာ တိုသည်" : "Cover letter too short",
-        description:
-          lang === "my"
-            ? "အနည်းဆုံး စာလုံး ၃၀ ထည့်ပါ သို့မဟုတ် ဖျက်ပြီး ပိတ်ပါ။"
-            : "Please write at least 30 characters or cancel the cover letter.",
-        variant: "destructive",
-      });
-      return;
-    }
     applyMutation.mutate(
       {
         jobId: id,
@@ -183,11 +161,35 @@ const JobDetail = () => {
           setCoverLetterMode("none");
           setSelectedCvId(null);
           setSelectedGeneratedResumeId(null);
-        },
-        onError: (error: any) => {
+          setPriorityApply(false);
         },
       }
     );
+  };
+
+  const handleApply = () => {
+    if (!id) return;
+    if (!selectedCvId && !selectedGeneratedResumeId) {
+      toast({
+        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း လိုအပ်ပါသည်" : "Resume required",
+        description: lang === "my" ? "လျှောက်ထားရန် ကိုယ်ရေးမှတ်တမ်း တင်ထားပါ သို့မဟုတ် ရွေးချယ်ပါ။" : "Please upload or select a resume before applying.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (coverLetterMode === "manual" && coverLetter.trim().length < 30) {
+      toast({
+        title: lang === "my" ? "အလုပ်လျှောက်လွှာ တိုသည်" : "Cover letter too short",
+        description: lang === "my" ? "အနည်းဆုံး စာလုံး ၃၀ ထည့်ပါ သို့မဟုတ် ဖျက်ပြီး ပိတ်ပါ။" : "Please write at least 30 characters or cancel the cover letter.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (priorityApply) {
+      setPriorityConfirmOpen(true);
+      return;
+    }
+    submitApplication();
   };
 
   const [isSharing, setIsSharing] = useState(false);
