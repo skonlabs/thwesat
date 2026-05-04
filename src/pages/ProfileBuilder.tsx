@@ -197,9 +197,15 @@ const ProfileBuilder = () => {
     sections: { title: string; content: string }[];
   } | null>(null);
   const [spendOpen, setSpendOpen] = useState(false);
+  const [paidForGeneration, setPaidForGeneration] = useState(false);
 
   const handleGenerate = async () => {
     if (!name && !title) {
+      return;
+    }
+    // Already paid in this session — regenerate without re-charging
+    if (paidForGeneration) {
+      runGeneration();
       return;
     }
     setSpendOpen(true);
