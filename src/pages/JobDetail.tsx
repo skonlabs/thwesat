@@ -728,6 +728,28 @@ const JobDetail = () => {
                 </div>
               </div>
 
+              {/* Priority Application toggle */}
+              <button
+                type="button"
+                onClick={() => setPriorityApply(v => !v)}
+                className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${priorityApply ? "border-primary bg-primary/5" : "border-border"}`}
+              >
+                <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${priorityApply ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  <Sparkles className="h-4 w-4" strokeWidth={1.5} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-foreground">
+                    {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည် (1,000 credits)" : "Pin to top of employer's list (1,000 credits)"}
+                  </p>
+                </div>
+                <div className={`h-5 w-9 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>
+                  <div className={`h-5 w-5 rounded-full bg-background shadow transition-transform ${priorityApply ? "translate-x-4" : ""}`} />
+                </div>
+              </button>
+
               {/* Submit */}
               {!selectedCvId && !selectedGeneratedResumeId && (
                 <p className="text-xs text-destructive text-center">
