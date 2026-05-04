@@ -5,11 +5,10 @@
 export type Money = { amount: number; currency: string };
 
 export function formatMoney(amount: number, currency: string, lang: "my" | "en" = "en") {
-  const c = (currency || "USD").toUpperCase();
+  const c = (currency || "MMK").toUpperCase();
   if (c === "MMK") {
     return `${Math.round(amount).toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
   }
-  if (c === "USD") return `$${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
   return `${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${c}`;
 }
 
@@ -18,7 +17,7 @@ export function sumByCurrency(rows: Money[]): Money[] {
   const map = new Map<string, number>();
   for (const r of rows) {
     if (!r || !r.amount) continue;
-    const c = (r.currency || "USD").toUpperCase();
+    const c = (r.currency || "MMK").toUpperCase();
     map.set(c, (map.get(c) || 0) + Number(r.amount));
   }
   return Array.from(map.entries()).map(([currency, amount]) => ({ currency, amount }));
@@ -26,7 +25,7 @@ export function sumByCurrency(rows: Money[]): Money[] {
 
 export function formatTotals(rows: Money[], lang: "my" | "en" = "en"): string {
   const totals = sumByCurrency(rows);
-  if (totals.length === 0) return formatMoney(0, "USD", lang);
+  if (totals.length === 0) return formatMoney(0, "MMK", lang);
   return totals.map((t) => formatMoney(t.amount, t.currency, lang)).join(" + ");
 }
 
