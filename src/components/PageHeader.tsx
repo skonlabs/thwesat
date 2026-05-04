@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, forwardRef } from "react";
-import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
+import { MessageSquare, Bell, ChevronLeft, Coins } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -7,6 +7,7 @@ import { useRole } from "@/hooks/use-role";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useNotifications } from "@/hooks/use-notifications-data";
 import { useConversations } from "@/hooks/use-messages-data";
+import { useWallet } from "@/hooks/use-wallet";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
@@ -28,6 +29,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
   const { allowedRoles } = useUserRoles();
   const { data: notifications = [] } = useNotifications();
   const { data: conversations = [] } = useConversations();
+  const { data: wallet } = useWallet();
   const unreadNotifCount = notifications.filter((n: any) => !n.is_read).length;
   const unreadMsgCount = conversations.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
   const [logoOpacity, setLogoOpacity] = useState(1);
@@ -108,6 +110,14 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />
+            <button
+              onClick={() => navigate("/wallet")}
+              className="relative flex h-8 items-center gap-1 rounded-full bg-accent/15 px-2 text-[11px] font-bold text-accent-foreground transition-colors active:bg-accent/25"
+              aria-label={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"}
+            >
+              <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+              <span className="tabular-nums">{(wallet?.balance_credits ?? 0).toLocaleString()}</span>
+            </button>
             <button
               onClick={() => navigate("/notifications")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"

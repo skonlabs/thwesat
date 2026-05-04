@@ -18,7 +18,8 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import PaymentMethodSheet from "@/components/payment/PaymentMethodSheet";
+import { useWallet, useActionPrice } from "@/hooks/use-wallet";
+import { Coins } from "lucide-react";
 
 const topics = [
   { my: "အသက်မွေးမှု လမ်းညွှန်", en: "Career Coaching" },
@@ -81,12 +82,17 @@ const MentorBooking = () => {
   const [selectedDuration, setSelectedDuration] = useState(60);
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
-  const [paymentOpen, setPaymentOpen] = useState(false);
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
-
+  const { data: wallet } = useWallet();
+  const sessionPrice = useActionPrice("mentor_session");
+  const baseCredits = sessionPrice?.price_credits ?? 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
-  const sessionAmount = hourlyRate > 0 ? (hourlyRate * selectedDuration) / 60 : 0;
-  const currency = mentorProfile?.currency || "USD";
+  // Mentor's hourly rate (in MMK if set), otherwise fall back to base price.
+  const sessionCredits = (hourlyRate > 0 ? Math.round((hourlyRate * selectedDuration) / 60) : baseCredits);
+  const sessionAmount = sessionCredits;
+  const currency = "MMK";
+  const balance = wallet?.balance_credits ?? 0;
+  const insufficient = balance < sessionCredits;
 
   // Dates that have available slots
   const availableDates = useMemo(() => {
@@ -139,6 +145,11 @@ const MentorBooking = () => {
       }
     }
 
+    if (insufficient) {
+      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
+      navigate("/wallet");
+      return;
+    }
     try {
       const result = await createBooking.mutateAsync({
         mentor_id: mentorId,
@@ -150,12 +161,18 @@ const MentorBooking = () => {
         goals,
         booked_by: "mentee",
       });
+      // Hold credits in escrow
+      const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
+        _booking_id: result.id,
+        _credits: sessionCredits,
+      });
+      if (holdErr) throw holdErr;
       setCreatedBookingId(result.id);
       setStep(3);
-    } catch {
+    } catch (e: any) {
       toast({
         title: lang === "my" ? "အမှား" : "Error",
-        description: lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking",
+        description: e?.message || (lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking"),
         variant: "destructive",
       });
     }
@@ -213,39 +230,24 @@ const MentorBooking = () => {
   }
 
   if (step === 3) {
-    const requiresPayment = sessionAmount > 0;
     return (
       <div className="bg-background pb-10">
         <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} onBack={() => navigate("/mentors")} />
         <div className="flex flex-col items-center px-5 pt-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex w-full max-w-sm flex-col items-center text-center">
-            <div className={`mb-5 flex h-20 w-20 items-center justify-center rounded-full ${requiresPayment ? "bg-accent/10" : "bg-emerald/10"}`}>
-              {requiresPayment
-                ? <CreditCard className="h-10 w-10 text-accent" strokeWidth={1.5} />
-                : <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />}
+            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
+              <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
             </div>
             <h1 className="mb-2 text-xl font-bold text-foreground">
-              {requiresPayment
-                ? (lang === "my" ? "ငွေပေးချေမှု လိုအပ်သည်" : "Payment Required")
-                : (lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!")}
+              {lang === "my" ? "ချိန်းဆိုပြီးပါပြီ!" : "Booking Confirmed!"}
             </h1>
             <p className="mb-1 text-sm text-muted-foreground">{lang === "my" ? `${mentorName} နှင့် ချိန်းဆိုမှု` : `Session with ${mentorName}`}</p>
             <p className="mb-1 text-sm font-semibold text-foreground">{selectedDateDisplay} · {selectedTime}</p>
             <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
             <p className="mb-3 text-xs text-muted-foreground">
               {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
-              {sessionAmount > 0 && ` · ${currency} ${sessionAmount.toFixed(2)}`}
+              {` · ${sessionCredits.toLocaleString()} credits`}
             </p>
-
-            {requiresPayment && (
-              <div className="mb-4 w-full rounded-xl border border-accent/30 bg-accent/5 p-3 text-left">
-                <p className="text-[11px] leading-relaxed text-foreground/80">
-                  {lang === "my"
-                    ? "သင့်ချိန်းဆိုမှုသည် ငွေပေးချေပြီးမှသာ Mentor ထံသို့ အတည်ပြုရန် ပို့ပေးပါမည်။ ငွေမပေးချေမီ Mentor မှ မြင်ရမည်မဟုတ်ပါ။"
-                    : "Your booking is held until payment is submitted. The mentor will not see this request until payment proof is uploaded."}
-                </p>
-              </div>
-            )}
 
             {goals && (
               <div className="mb-4 w-full rounded-lg bg-muted p-3">
@@ -257,46 +259,20 @@ const MentorBooking = () => {
             <div className="mb-4 w-full rounded-xl border border-border bg-card p-4">
               <div className="mb-2 flex items-center justify-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ငွေပေးချေမှု အာမခံ" : "Payment Protection"}</p>
+                <p className="text-xs font-semibold text-foreground">{lang === "my" ? "Escrow အကာအကွယ်" : "Escrow Protection"}</p>
               </div>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {lang === "my"
-                  ? "သင့်ငွေကို Mentor နှင့် Mentee နှစ်ဦးစလုံး Session ပြီးဆုံးကြောင်း အတည်ပြုပြီးမှသာ Mentor ထံသို့ လွှဲပြောင်းပေးပါမည်။"
-                  : "Your payment will only be transferred to the mentor after both mentor and mentee confirm the session is completed."}
+                  ? "သင့် Credits ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
+                  : "Your credits are held in escrow and only released to the mentor (85%) after the session is completed."}
               </p>
             </div>
 
-            {requiresPayment && (
-              <>
-                <Button variant="default" size="lg" className="mb-3 w-full rounded-xl" onClick={() => setPaymentOpen(true)}>
-                  <CreditCard className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                  {lang === "my" ? `${currency} ${sessionAmount.toFixed(2)} ပေးချေရန်` : `Pay ${currency} ${sessionAmount.toFixed(2)}`}
-                </Button>
-                <PaymentMethodSheet
-                  open={paymentOpen}
-                  onOpenChange={setPaymentOpen}
-                  amount={sessionAmount}
-                  currency={currency}
-                  paymentType="mentor_session"
-                  referenceId={createdBookingId || mentorId || undefined}
-                  bookingId={createdBookingId || undefined}
-                  onSuccess={() => setPaymentOpen(false)}
-                />
-              </>
-            )}
-
-            {!requiresPayment && (
-              <p className="mb-6 text-xs text-muted-foreground">
-                {lang === "my" ? "အတည်ပြုချက် အီးမေးလ် ပို့ပြီးပါပြီ" : "Confirmation has been sent to the mentor"}
-              </p>
-            )}
-            <Button variant={requiresPayment ? "outline" : "default"} size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
+            <Button variant="outline" size="lg" className="mb-3 w-full rounded-xl" onClick={() => mentorId && startConversation(mentorId)}>
               <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "Mentor ကို မက်ဆေ့ချ် ပို့ရန်" : "Message Mentor"}
             </Button>
-            <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={() => navigate(requiresPayment ? "/mentors/bookings" : "/mentors")}>
-              {requiresPayment
-                ? (lang === "my" ? "Bookings သို့" : "Go to My Bookings")
-                : (lang === "my" ? "Mentors သို့ ပြန်သွားရန်" : "Back to Mentors")}
+            <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => navigate("/mentors/bookings")}>
+              {lang === "my" ? "Bookings သို့" : "Go to My Bookings"}
             </Button>
           </motion.div>
         </div>
@@ -325,7 +301,7 @@ const MentorBooking = () => {
               <Star className="h-3 w-3 fill-primary text-primary" />
               <span className="text-[11px] font-medium text-foreground">{mentorProfile?.rating_avg || 0}</span>
               <span className="text-[10px] text-muted-foreground">({mentorProfile?.total_sessions || 0})</span>
-              {hourlyRate > 0 && <span className="ml-1 text-[10px] text-primary font-medium">{currency} {hourlyRate}/hr</span>}
+              <span className="ml-1 text-[10px] text-primary font-medium">{sessionCredits.toLocaleString()} cr</span>
             </div>
           </div>
         </motion.div>
@@ -411,13 +387,11 @@ const MentorBooking = () => {
                 </button>
               ))}
             </div>
-            {hourlyRate > 0 && (
-              <p className="mb-5 text-xs text-muted-foreground text-center">
-                {lang === "my"
-                  ? `Session ကြေး: ${currency} ${sessionAmount.toFixed(2)}`
-                  : `Session fee: ${currency} ${sessionAmount.toFixed(2)}`}
-              </p>
-            )}
+            <p className="mb-5 text-xs text-muted-foreground text-center">
+              {lang === "my"
+                ? `Session ကြေး: ${sessionCredits.toLocaleString()} credits`
+                : `Session fee: ${sessionCredits.toLocaleString()} credits`}
+            </p>
           </motion.div>
         )}
 
@@ -431,9 +405,7 @@ const MentorBooking = () => {
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ရက်:" : "Date:"}</span> {selectedDateDisplay}</p>
                 {selectedTime && <p><span className="font-medium text-foreground">{lang === "my" ? "အချိန်:" : "Time:"}</span> {selectedTime}</p>}
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ကြာချိန်:" : "Duration:"}</span> {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
-                {sessionAmount > 0 && (
-                  <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {currency} {sessionAmount.toFixed(2)}</p>
-                )}
+                <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {sessionCredits.toLocaleString()} credits</p>
                 <p className="text-[10px] text-muted-foreground/70">
                   {lang === "my"
                     ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
@@ -486,8 +458,13 @@ const MentorBooking = () => {
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
           ) : (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic || createBooking.isPending} onClick={handleConfirm}>
-              {createBooking.isPending ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...") : (lang === "my" ? "ချိန်းဆိုမှု အတည်ပြုရန်" : "Confirm Booking")}
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic || createBooking.isPending || insufficient} onClick={handleConfirm}>
+              <Coins className="mr-1.5 h-4 w-4" />
+              {insufficient
+                ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more credits`)
+                : createBooking.isPending
+                  ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
+                  : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ ဘွတ်ကင်ပြုမည်` : `Book for ${sessionCredits.toLocaleString()} credits`)}
             </Button>
           )}
         </div>

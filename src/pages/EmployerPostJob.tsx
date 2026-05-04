@@ -13,6 +13,8 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
+import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
+import { Coins } from "lucide-react";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
@@ -64,7 +66,13 @@ const EmployerPostJob = () => {
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
-  const isPro = employerProfile?.subscription_tier === "pro";
+  const spend = useSpendCredits();
+  const postPrice = useActionPrice("job_post");
+  const featurePrice = useActionPrice("feature_job_upgrade");
+  const { data: wallet } = useWallet();
+  const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
+  const balance = wallet?.balance_credits ?? 0;
+  const insufficient = balance < totalCost;
   const isContract = roleType === "remote_contract";
 
   const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
@@ -110,25 +118,25 @@ const EmployerPostJob = () => {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
       return;
     }
+    if (insufficient) {
+      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
+      navigate("/wallet");
+      return;
+    }
     try {
-      await createJob.mutateAsync({
-        title: titleEn,
-        title_my: titleMy || null,
-        description: descEn,
-        description_my: descMy || null,
-        requirements: requirementsEn,
-        requirements_my: requirementsMy || null,
-        role_type: roleType,
-        category: categories[0] || null,
-        categories,
-        salary_min: minVal,
-        salary_max: maxVal,
-        location: locationCountry || "Remote",
+      // Spend job_post first
+      await spend.mutateAsync({ action_key: "job_post", idempotency_key: `job_post:${Date.now()}` });
+      const { data: jobRow, error: jobErr } = await (await import("@/integrations/supabase/client")).supabase
+        .from("jobs").insert({
+        employer_id: (await (await import("@/integrations/supabase/client")).supabase.auth.getUser()).data.user?.id,
+        title: titleEn, title_my: titleMy || null,
+        description: descEn, description_my: descMy || null,
+        requirements: requirementsEn, requirements_my: requirementsMy || null,
+        role_type: roleType, category: categories[0] || null, categories,
+        salary_min: minVal, salary_max: maxVal, location: locationCountry || "Remote",
         payment_methods: selectedPayments,
-        requires_embassy: requiresEmbassy,
-        requires_work_permit: requiresWorkPermit,
-        visa_sponsorship: visaSponsorship,
-        is_featured: isFeatured,
+        requires_embassy: requiresEmbassy, requires_work_permit: requiresWorkPermit,
+        visa_sponsorship: visaSponsorship, is_featured: isFeatured,
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
@@ -137,10 +145,19 @@ const EmployerPostJob = () => {
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         company: employerProfile?.company_name || "",
         status: "pending",
-      });
+      } as any).select("id").single();
+      if (jobErr) throw jobErr;
+      if (isFeatured && jobRow?.id) {
+        await spend.mutateAsync({ action_key: "feature_job_upgrade", target_type: "job", target_id: jobRow.id });
+      }
       navigate("/employer/dashboard");
-    } catch {
-      toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", variant: "destructive" });
+    } catch (e: any) {
+      const msg = e?.message || "";
+      if (msg.includes("insufficient_balance")) {
+        toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
+      } else {
+        toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
+      }
     }
   };
 
@@ -286,29 +303,21 @@ const EmployerPostJob = () => {
                 <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
               </label>
             </div>
-            <div className={`rounded-xl border p-4 ${isPro ? "border-accent/30 bg-accent/5" : "border-border bg-muted/30"}`}>
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
               <label className="flex items-start gap-3">
                 <Checkbox
                   checked={isFeatured}
-                  onCheckedChange={(v) => {
-                    if (!isPro) {
-                      setUpgradeOpen(true);
-                      return;
-                    }
-                    setIsFeatured(!!v);
-                  }}
+                  onCheckedChange={(v) => setIsFeatured(!!v)}
                   className="mt-0.5"
                 />
                 <div>
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-                    {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
-                    {!isPro && (
-                      <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent">Pro</span>
-                    )}
+                    {lang === "my" ? "Featured အဆင့်တင်" : "Mark as Featured"}
+                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{(featurePrice?.price_credits ?? 0).toLocaleString()} cr</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည် (Pro အစီအစဉ် လိုအပ်သည်)" : "Highlighted on home screen (requires Pro plan)"}
+                    {lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days."}
                   </p>
                 </div>
               </label>
@@ -352,9 +361,16 @@ const EmployerPostJob = () => {
             <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={createJob.isPending}>
-                {createJob.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်ရန်" : "Submit")}
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={spend.isPending}>
+                <Coins className="mr-1.5 h-4 w-4" />
+                {spend.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} credits ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} credits`)}
               </Button>
+              {insufficient && (
+                <p className="mt-2 w-full text-center text-[11px] text-destructive">
+                  {lang === "my" ? `${(totalCost - balance).toLocaleString()} credits လို အပ်သည်။ ` : `Need ${(totalCost - balance).toLocaleString()} more credits. `}
+                  <button type="button" className="underline" onClick={() => navigate("/wallet")}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
+                </p>
+              )}
             </div>
           </motion.div>
         )}
