@@ -612,7 +612,15 @@ const JobDetail = () => {
                   variant="outline"
                   size="sm"
                   className="mt-2 w-full"
-                  onClick={() => navigate("/ai-tools/profile-builder")}
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (job?.id) params.set("jobId", job.id);
+                    if (job?.title) params.set("jobTitle", job.title);
+                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+                    if (companyName) params.set("company", companyName);
+                    params.set("returnTo", `/jobs/${id}?openApply=1`);
+                    navigate(`/ai-tools/profile-builder?${params.toString()}`);
+                  }}
                 >
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
                   {lang === "my"
