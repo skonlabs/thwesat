@@ -225,11 +225,7 @@ const PaymentMethodSheet = ({
                     <div className="flex-1">
                       <h3 className="text-sm font-semibold text-foreground">{c.name}</h3>
                       <p className="text-[10px] text-muted-foreground">
-                        {m === "kbzpay" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment")}
-                        {m === "wave" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile money")}
-                        {m === "promptpay" && (lang === "my" ? "ထိုင်း မိုဘိုင်း ငွေပေးချေမှု" : "Thai mobile payment")}
-                        {m === "wise" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
-                        {m === "payoneer" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
+                        {lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment"}
                       </p>
                     </div>
                   </motion.button>
