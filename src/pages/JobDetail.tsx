@@ -742,7 +742,7 @@ const JobDetail = () => {
                     {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည် (1,000 credits)" : "Pin to top of employer's list (1,000 credits)"}
+                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည်" : "Pin to top of employer's list"}
                   </p>
                 </div>
                 <div className={`h-5 w-9 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>

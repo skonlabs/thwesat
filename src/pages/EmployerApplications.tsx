@@ -427,7 +427,7 @@ const EmployerApplications = () => {
                 ) : (
                   <Button variant="outline" size="sm" className="w-full rounded-lg" onClick={() => setContactUnlockApplicantId(selected.applicant_id)}>
                     <Lock className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                    {lang === "my" ? "ဆက်သွယ်ရန် ဖွင့်ရန် (2,000 credits)" : "Unlock contact (2,000 credits)"}
+                    {lang === "my" ? "ဆက်သွယ်ရန် ဖွင့်ရန်" : "Unlock contact"}
                   </Button>
                 )}
               </div>
