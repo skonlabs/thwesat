@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, forwardRef } from "react";
-import { MessageSquare, Bell, ChevronLeft } from "lucide-react";
+import { MessageSquare, Bell, ChevronLeft, Coins } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -7,6 +7,7 @@ import { useRole } from "@/hooks/use-role";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useNotifications } from "@/hooks/use-notifications-data";
 import { useConversations } from "@/hooks/use-messages-data";
+import { useWallet } from "@/hooks/use-wallet";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 
