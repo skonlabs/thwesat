@@ -685,8 +685,10 @@ const JobDetail = () => {
                   onClick={() => {
                     const params = new URLSearchParams();
                     if (job?.title) params.set("jobTitle", job.title);
-                    if ((job as any)?.companies?.name || (job as any)?.company) params.set("company", (job as any)?.companies?.name || (job as any)?.company || "");
+                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+                    if (companyName) params.set("company", companyName);
                     if (job?.id) params.set("jobId", job.id);
+                    params.set("returnTo", `/jobs/${id}?openApply=1`);
                     navigate(`/ai-tools/cover-letter?${params.toString()}`);
                   }}
                 >
