@@ -478,17 +478,17 @@ const JobDetail = () => {
                       return (
                         <div
                           key={doc.id}
-                          className={`flex items-center justify-between rounded-xl border p-3 transition-colors cursor-pointer ${
-                            isSelected ? "border-primary bg-primary/5" : "border-border active:bg-muted"
+                          className={`flex items-center justify-between rounded-xl border-2 p-3 transition-colors cursor-pointer ${
+                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
                           }`}
                           onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-primary/10" : "bg-muted"}`}>
-                              <Upload className={`h-4 w-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-emerald/20" : "bg-muted"}`}>
+                              <Upload className={`h-4 w-4 ${isSelected ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
                             </div>
                             <div className="min-w-0">
-                              <p className={`text-xs font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>{doc.file_name}</p>
+                              <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.file_name}</p>
                               <p className="text-[10px] text-muted-foreground">
                                 {lang === "my" ? "တင်ထားသော CV" : "Original CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
                               </p>
