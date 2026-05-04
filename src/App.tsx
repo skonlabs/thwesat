@@ -116,6 +116,7 @@ const App = () => (
               <Route path="/ai-tools/profile-builder" element={<ProfileBuilder />} />
               <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
               <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
+              <Route path="/career-tracks" element={<CareerTracks />} />
               <Route path="/premium" element={<Navigate to="/wallet" replace />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/finance" element={<SeekerFinance />} />
