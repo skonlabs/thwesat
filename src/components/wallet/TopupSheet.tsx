@@ -22,7 +22,7 @@ const METHODS: Array<{ key: string; label: string }> = [
   { key: "wavepay", label: "WavePay" },
   { key: "cbpay", label: "CB Pay" },
   { key: "ayapay", label: "AYA Pay" },
-  { key: "bank_transfer", label: "Bank Transfer" },
+  
 ];
 
 const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => {
