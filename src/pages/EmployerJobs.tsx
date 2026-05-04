@@ -233,6 +233,16 @@ const EmployerJobs = () => {
                           )}
                         </div>
                       )}
+                      {listing.status === "active" && !listing.is_featured && (
+                        <button onClick={() => setFeatureJobId(listing.id)} className="flex h-9 items-center gap-1 rounded-lg bg-amber-100 px-2 text-[10px] font-semibold text-amber-900 active:bg-amber-200 dark:bg-amber-950 dark:text-amber-100" title={lang === "my" ? "ထိပ်တန်း ပြသရန်" : "Feature this job"}>
+                          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်း" : "Feature"}
+                        </button>
+                      )}
+                      {listing.is_featured && (
+                        <span className="flex h-9 items-center gap-1 rounded-lg bg-amber-50 px-2 text-[10px] font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-200" title={lang === "my" ? "ထိပ်တန်း" : "Featured"}>
+                          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်း" : "Featured"}
+                        </span>
+                      )}
                       <button onClick={() => setDeleteConfirmId(listing.id)} className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
                         <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                       </button>
