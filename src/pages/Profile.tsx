@@ -28,6 +28,7 @@ const Profile = () => {
   const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0] || role;
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
+  const [showReferredList, setShowReferredList] = useState(false);
   const [boostOpen, setBoostOpen] = useState(false);
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
