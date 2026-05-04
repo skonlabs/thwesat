@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { name, title, summary, experiences, educations, skills, otherInfo, platform } = await req.json();
+    const { name, title, summary, experiences, educations, skills, otherInfo, platform, jobContext } = await req.json();
 
     if (!platform) {
       return new Response(JSON.stringify({ error: "Platform is required" }), {
