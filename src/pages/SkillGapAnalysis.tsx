@@ -110,6 +110,7 @@ const SkillGapAnalysis = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<SavedAnalysis | null>(null);
+  const [spendOpen, setSpendOpen] = useState(false);
 
   // Load saved analysis on mount
   useEffect(() => {
