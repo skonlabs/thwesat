@@ -485,8 +485,8 @@ const Premium = () => {
 
           <p className="mb-2 mt-4 text-center text-[10px] text-muted-foreground">
             {lang === "my"
-              ? "KBZPay, WaveMoney, PromptPay, Wise, Payoneer ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
-              : "Accepts KBZPay, WaveMoney, PromptPay, Wise & Payoneer · Cancel anytime"}
+              ? "KBZPay, CB Pay, Wave Pay, AYA Pay ဖြင့် ငွေပေးချေနိုင်ပါသည် · အချိန်မရွေး ပယ်ဖျက်နိုင်သည်"
+              : "Accepts KBZPay, CB Pay, Wave Pay & AYA Pay · Cancel anytime"}
           </p>
 
           {/* FAQ */}
@@ -526,8 +526,8 @@ const Premium = () => {
                 </AccordionTrigger>
                 <AccordionContent className="text-xs text-muted-foreground">
                   {lang === "my"
-                    ? "KBZPay, Wave Pay, Aya Pay, Payoneer နှင့် Wise တို့ဖြင့် ငွေပေးချေနိုင်ပါသည်။"
-                    : "KBZPay, Wave Pay, Aya Pay, Payoneer, and Wise."}
+                    ? "KBZPay, CB Pay, Wave Pay နှင့် AYA Pay တို့ဖြင့် ငွေပေးချေနိုင်ပါသည်။"
+                    : "KBZPay, CB Pay, Wave Pay, and AYA Pay."}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

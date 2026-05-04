@@ -22,10 +22,9 @@ const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof
 
 const methodLabels: Record<string, string> = {
   kbzpay: "KBZPay",
-  wave: "WaveMoney",
-  promptpay: "PromptPay",
-  wise: "Wise",
-  payoneer: "Payoneer",
+  cbpay: "CB Pay",
+  wavepay: "Wave Pay",
+  ayapay: "AYA Pay",
 };
 
 const PaymentHistory = () => {

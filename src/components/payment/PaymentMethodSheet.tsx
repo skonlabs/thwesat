@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
 
-export type PaymentMethod = "kbzpay" | "wave" | "promptpay" | "wise" | "payoneer";
+export type PaymentMethod = "kbzpay" | "cbpay" | "wavepay" | "ayapay";
 
 interface PaymentMethodSheetProps {
   open: boolean;
@@ -40,49 +40,39 @@ const methodMeta: Record<PaymentMethod, MethodMeta> = {
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
-  wave: {
-    name: "Wave Money",
-    logo: "📱",
-    color: "bg-warning/10 text-warning",
+  cbpay: {
+    name: "CB Pay",
+    logo: "🏦",
+    color: "bg-emerald-500/10 text-emerald-600",
     instructions: [
-      { en: "Open Wave Money app", my: "Wave Money အက်ပ်ကို ဖွင့်ပါ" },
+      { en: "Open CB Pay app", my: "CB Pay အက်ပ်ကို ဖွင့်ပါ" },
       { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
-  promptpay: {
-    name: "PromptPay",
-    logo: "🇹🇭",
-    color: "bg-indigo-500/10 text-indigo-600",
+  wavepay: {
+    name: "Wave Pay",
+    logo: "📱",
+    color: "bg-warning/10 text-warning",
     instructions: [
-      { en: "Open your Thai banking app", my: "ထိုင်း ဘဏ်အက်ပ်ကို ဖွင့်ပါ" },
-      { en: "Scan PromptPay or transfer to the number below", my: "PromptPay နံပါတ်သို့ ငွေလွှဲပါ" },
+      { en: "Open Wave Pay app", my: "Wave Pay အက်ပ်ကို ဖွင့်ပါ" },
+      { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },
       { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
-  wise: {
-    name: "Wise",
-    logo: "🌍",
-    color: "bg-green-500/10 text-green-600",
-    instructions: [
-      { en: "Log in to your Wise account", my: "Wise အကောင့်သို့ ဝင်ပါ" },
-      { en: "Send money to the account below", my: "အောက်ပါ အကောင့်သို့ ငွေလွှဲပါ" },
-      { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
-    ],
-  },
-  payoneer: {
-    name: "Payoneer",
+  ayapay: {
+    name: "AYA Pay",
     logo: "💰",
     color: "bg-orange-500/10 text-orange-600",
     instructions: [
-      { en: "Log in to your Payoneer account", my: "Payoneer အကောင့်သို့ ဝင်ပါ" },
-      { en: "Make a payment to the email below", my: "အောက်ပါ အီးမေးလ်သို့ ငွေလွှဲပါ" },
-      { en: "Upload transaction confirmation as proof", my: "ငွေလွှဲပြီးကြောင်း အထောက်အထားကို တင်ပါ" },
+      { en: "Open AYA Pay app", my: "AYA Pay အက်ပ်ကို ဖွင့်ပါ" },
+      { en: "Transfer to the account below", my: "အောက်ပါ အကောင့်သို့ လွှဲပါ" },
+      { en: "Upload payment screenshot as proof", my: "ငွေလွှဲပြီးကြောင်း screenshot ကို တင်ပါ" },
     ],
   },
 };
 
-const allMethods: PaymentMethod[] = ["kbzpay", "wave", "promptpay", "wise", "payoneer"];
+const allMethods: PaymentMethod[] = ["kbzpay", "cbpay", "wavepay", "ayapay"];
 
 const buildAccountInfo = (
   method: PaymentMethod,
@@ -235,11 +225,7 @@ const PaymentMethodSheet = ({
                     <div className="flex-1">
                       <h3 className="text-sm font-semibold text-foreground">{c.name}</h3>
                       <p className="text-[10px] text-muted-foreground">
-                        {m === "kbzpay" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment")}
-                        {m === "wave" && (lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile money")}
-                        {m === "promptpay" && (lang === "my" ? "ထိုင်း မိုဘိုင်း ငွေပေးချေမှု" : "Thai mobile payment")}
-                        {m === "wise" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
-                        {m === "payoneer" && (lang === "my" ? "နိုင်ငံတကာ ငွေလွှဲ" : "International transfer")}
+                        {lang === "my" ? "မြန်မာ မိုဘိုင်း ငွေပေးချေမှု" : "Myanmar mobile payment"}
                       </p>
                     </div>
                   </motion.button>

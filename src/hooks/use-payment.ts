@@ -22,14 +22,9 @@ export interface PaymentRequest {
 
 const ALLOWED_PAYMENT_METHODS = [
   "kbzpay",
-  "wave",
+  "cbpay",
   "wavepay",
   "ayapay",
-  "promptpay",
-  
-  "payoneer",
-  "wise",
-  "manual",
 ] as const;
 
 const ALLOWED_PAYMENT_TYPES = [
