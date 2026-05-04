@@ -507,6 +507,13 @@ const CoverLetterGenerator = () => {
           )}
         </AnimatePresence>
       </div>
+      <SpendConfirmSheet
+        open={spendOpen}
+        onOpenChange={setSpendOpen}
+        actionKey="cover_letter"
+        idempotencyKey={`cover_letter:${form.company}:${form.jobTitle}:${Date.now()}`}
+        onSuccess={() => runGenerate()}
+      />
     </div>
   );
 };
