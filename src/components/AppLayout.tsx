@@ -42,25 +42,18 @@ const AppLayout = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
 
-  // Cross-device language sync. Rule:
-  //   - If the user has made an explicit choice (toggle), that wins and we
-  //     push it up to the DB so other devices stay in sync.
-  //   - Otherwise (no explicit choice yet this device), adopt the saved DB
-  //     preference. This avoids the bug where logging in on the English
-  //     screen flipped the UI to Burmese because the DB default is "my".
+  // Language sync rule: the user's choice is the source of truth and must
+  // NEVER be overwritten silently. We only push the local choice up to the
+  // DB so other devices stay in sync — we do not pull from the DB.
   const { data: userSettings } = useUserSettings();
-  const { lang, isExplicit, setLang } = useLanguage();
+  const { lang, isExplicit } = useLanguage();
   const { mutate: updateSettings } = useUpdateUserSettings();
   useEffect(() => {
+    if (!isExplicit) return;
     const saved = userSettings?.language;
-    if (!saved) return;
-    if (isExplicit) {
-      if (saved !== lang) updateSettings({ language: lang });
-    } else if ((saved === "my" || saved === "en") && saved !== lang) {
-      setLang(saved, false);
-    }
+    if (saved && saved !== lang) updateSettings({ language: lang });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSettings?.language, isExplicit]);
+  }, [userSettings?.language, isExplicit, lang]);
 
   // Apply Myanmar render-font preference. CSS rules in index.css respond
   // to `data-myanmar-font` on the <html> element. Defaults to "system".
