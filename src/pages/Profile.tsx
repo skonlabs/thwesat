@@ -229,7 +229,7 @@ const Profile = () => {
     ? adminMenu
     : isModerator
       ? moderatorMenu
-        : effectiveRole === "employer"
+        : effectiveRole === "employer" || effectiveRole === "agent"
         ? employerMenu
           : effectiveRole === "mentor"
           ? mentorMenu
