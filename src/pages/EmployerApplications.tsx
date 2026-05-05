@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
