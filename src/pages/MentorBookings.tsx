@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck } from "lucide-react";
+import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck, ThumbsDown, ThumbsUp, Heart } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
