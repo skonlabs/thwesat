@@ -6,6 +6,7 @@ import { addMonths } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/hooks/use-language";
+import { useReferralRewards } from "@/hooks/use-app-config";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
 import { useQuery } from "@tanstack/react-query";
@@ -188,6 +189,9 @@ const PlanCard = ({
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { data: referralRewards } = useReferralRewards();
+  const refFriends = referralRewards?.friends_required ?? 5;
+  const refCredits = referralRewards?.reward_credits ?? 5000;
   const { profile, user } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
@@ -472,12 +476,12 @@ const Premium = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-foreground">
-                  {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါ" : "Refer 5 friends"}
+                  {lang === "my" ? `သူငယ်ချင်း ${refFriends} ဦး ညွှန်းဆိုပါ` : `Refer ${refFriends} friends`}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {lang === "my"
-                    ? "Credits ၅,၀၀၀ ရယူပါ"
-                    : "Earn 5,000 credits"}
+                    ? `Credits ${refCredits.toLocaleString()} ရယူပါ`
+                    : `Earn ${refCredits.toLocaleString()} credits`}
                 </p>
               </div>
             </div>
