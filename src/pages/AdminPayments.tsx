@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, DollarSign, Briefcase, GraduationCap, Crown, RotateCcw, Calendar } from "lucide-react";
+import { CheckCircle, XCircle, Clock, DollarSign, GraduationCap, RotateCcw, Calendar, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import {
   useAllPaymentRequests,
   useUpdatePaymentRequest,
   getPaymentProofSignedUrl,
   usePaymentBookingContext,
-  usePaymentEmployerContext,
 } from "@/hooks/use-payment";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,10 +44,9 @@ const methodLabels: Record<string, string> = {
   ayapay: "AYA Pay",
 };
 
-const typeLabels: Record<string, { my: string; en: string; icon: typeof Crown }> = {
-  subscription: { my: "အသုံးပြုသူ ပရီမီယံ", en: "User Premium", icon: Crown },
+const typeLabels: Record<string, { my: string; en: string; icon: typeof CheckCircle }> = {
   mentor_session: { my: "Mentor Session", en: "Mentor Session", icon: GraduationCap },
-  employer_subscription: { my: "အလုပ်ရှင် အစီအစဉ်", en: "Employer Plan", icon: Briefcase },
+  placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee", icon: Briefcase },
 };
 
 const AdminPayments = () => {
@@ -83,10 +81,6 @@ const AdminPayments = () => {
 
   // Context data for selected payment
   const { data: bookingContext } = usePaymentBookingContext(selectedPayment?.booking_id);
-  const { data: employerContext } = usePaymentEmployerContext(
-    selectedPayment?.user_id,
-    selectedPayment?.payment_type || ""
-  );
 
   // Mentor profile for booking context
   const { data: mentorProfile } = useQuery({
@@ -335,21 +329,6 @@ const AdminPayments = () => {
                 </div>
               )}
 
-              {/* Employer context */}
-              {selectedPayment.payment_type === "employer_subscription" && employerContext && (
-                <div className="rounded-lg border border-border bg-card p-3">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {lang === "my" ? "ကုမ္ပဏီ" : "Company"}
-                  </p>
-                  <p className="text-sm font-semibold text-foreground">{employerContext.company_name || "—"}</p>
-                  {employerContext.subscription_tier && (
-                    <p className="text-[11px] text-muted-foreground">
-                      {lang === "my" ? "လက်ရှိ အစီအစဉ်:" : "Current tier:"} <span className="font-medium text-foreground">{employerContext.subscription_tier}</span>
-                      {employerContext.subscription_expires_at && ` (${lang === "my" ? "သက်တမ်းကုန်:" : "expires"} ${new Date(employerContext.subscription_expires_at).toLocaleDateString()})`}
-                    </p>
-                  )}
-                </div>
-              )}
 
               {/* Proof image - using signed URL for private bucket */}
               {selectedPayment.proof_url && (

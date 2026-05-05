@@ -282,9 +282,6 @@ const AdminUsers = () => {
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.jobseeker}`}>
                         {selected.primary_role}
                       </span>
-                      {selected.is_premium && (
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">Premium</span>
-                      )}
                       {selectedSystemRoles.includes("admin") && (
                         <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Admin</span>
                       )}

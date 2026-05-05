@@ -156,7 +156,7 @@ export function useAdminStats() {
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const [profiles, jobs, mentors, pendingJobs, pendingPosts, scamReports] = await Promise.all([
-        supabase.from("profiles").select("id, is_premium", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),

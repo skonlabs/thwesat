@@ -28,8 +28,6 @@ const ALLOWED_PAYMENT_METHODS = [
 ] as const;
 
 const ALLOWED_PAYMENT_TYPES = [
-  "subscription",
-  "employer_subscription",
   "placement_fee",
   "mentor_session",
 ] as const;
@@ -182,7 +180,6 @@ export function useUpdatePaymentRequest() {
       queryClient.invalidateQueries({ queryKey: ["payment-requests"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
       queryClient.invalidateQueries({ queryKey: ["payment-user-profiles"] });
-      queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       queryClient.invalidateQueries({ queryKey: ["mentor-earnings"] });
       queryClient.invalidateQueries({ queryKey: ["employer-profile"] });
@@ -192,9 +189,7 @@ export function useUpdatePaymentRequest() {
 }
 
 /**
- * Lookup helpers for the admin payment sheet — gives the admin context
- * before approving (booking details for mentor sessions, company name for
- * employer subscriptions).
+ * Lookup helper for mentor booking context in the admin payment sheet.
  */
 export function usePaymentBookingContext(bookingId: string | null | undefined) {
   return useQuery({
@@ -210,23 +205,6 @@ export function usePaymentBookingContext(bookingId: string | null | undefined) {
       return data;
     },
     enabled: !!bookingId,
-  });
-}
-
-export function usePaymentEmployerContext(userId: string | null | undefined, paymentType: string) {
-  return useQuery({
-    queryKey: ["payment-employer-context", userId],
-    queryFn: async () => {
-      if (!userId) return null;
-      const { data, error } = await supabase
-        .from("employer_profiles")
-        .select("id, company_name, subscription_tier, subscription_expires_at")
-        .eq("id", userId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!userId && paymentType === "employer_subscription",
   });
 }
 

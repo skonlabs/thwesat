@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RotateCcw, Crown, Briefcase, GraduationCap, DollarSign } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RotateCcw, GraduationCap, DollarSign, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useMyPaymentRequests, getPaymentProofSignedUrl, type PaymentRequest } from "@/hooks/use-payment";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -14,10 +14,9 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },
 };
 
-const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof Crown }> = {
-  subscription: { label: { my: "ပရီမီယံ စာရင်းသွင်းခြင်း", en: "Premium Subscription" }, icon: Crown },
-  employer_subscription: { label: { my: "အလုပ်ရှင် အစီအစဉ်", en: "Employer Plan" }, icon: Briefcase },
+const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof DollarSign }> = {
   mentor_session: { label: { my: "Mentor Session", en: "Mentor Session" }, icon: GraduationCap },
+  placement_fee: { label: { my: "ခန့်အပ်ခ", en: "Placement Fee" }, icon: Briefcase },
 };
 
 const methodLabels: Record<string, string> = {

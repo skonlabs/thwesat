@@ -487,8 +487,6 @@ export type Database = {
           industry: string | null
           is_verified: boolean | null
           payment_methods: string[] | null
-          subscription_expires_at: string | null
-          subscription_tier: string | null
           updated_at: string | null
           verification_status: string | null
         }
@@ -508,8 +506,6 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
-          subscription_expires_at?: string | null
-          subscription_tier?: string | null
           updated_at?: string | null
           verification_status?: string | null
         }
@@ -529,8 +525,6 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
-          subscription_expires_at?: string | null
-          subscription_tier?: string | null
           updated_at?: string | null
           verification_status?: string | null
         }
@@ -1634,57 +1628,6 @@ export type Database = {
         }
         Relationships: []
       }
-      subscriptions: {
-        Row: {
-          billing_cycle: string | null
-          created_at: string | null
-          currency: string | null
-          current_period_end: string | null
-          current_period_start: string | null
-          id: string
-          plan_type: string
-          price_cents: number | null
-          status: string | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          trial_ends_at: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          billing_cycle?: string | null
-          created_at?: string | null
-          currency?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          plan_type: string
-          price_cents?: number | null
-          status?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_ends_at?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          billing_cycle?: string | null
-          created_at?: string | null
-          currency?: string | null
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          plan_type?: string
-          price_cents?: number | null
-          status?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_ends_at?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       topup_requests: {
         Row: {
           admin_note: string | null
@@ -1906,8 +1849,6 @@ export type Database = {
           industry: string | null
           is_verified: boolean | null
           payment_methods: string[] | null
-          subscription_expires_at: string | null
-          subscription_tier: string | null
           updated_at: string | null
           verification_status: string | null
         }
@@ -1926,8 +1867,6 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
-          subscription_expires_at?: never
-          subscription_tier?: never
           updated_at?: string | null
           verification_status?: string | null
         }
@@ -1946,8 +1885,6 @@ export type Database = {
           industry?: string | null
           is_verified?: boolean | null
           payment_methods?: string[] | null
-          subscription_expires_at?: never
-          subscription_tier?: never
           updated_at?: string | null
           verification_status?: string | null
         }
