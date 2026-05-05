@@ -308,8 +308,8 @@ const Applications = () => {
               </p>
               <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-xs text-foreground/80">
                 {lang === "my"
-                  ? "သင် လက်ခံခြင်းဖြင့် ခန့်အပ်မှုကို အတည်ပြုပါသည်။ သင့်အလုပ်ရှင်သည် သဘောတူထားသော လစာ၏ ၈% ခန့်အပ်ကြေ မှတ်တမ်းတင်ပါမည်။"
-                  : "Your employer will record an 8% placement fee on your agreed salary."}
+                  ? "သင် လက်ခံခြင်းဖြင့် ခန့်အပ်မှုကို အတည်ပြုပါသည်။"
+                  : "By accepting, you confirm the placement with this employer."}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
