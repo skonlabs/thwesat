@@ -16,6 +16,7 @@ import { applicationMethodOptions, getApplicationMethodLabel, isValidUrl } from 
 import BilingualField from "@/components/employer/BilingualField";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
+import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -24,7 +25,7 @@ const roleTypes = [
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
 
-const paymentOptions = ["Wise"];
+const paymentOptions = SUPPORTED_JOB_PAYMENT_METHODS;
 
 const EmployerEditJob = () => {
   const { id } = useParams<{ id: string }>();
@@ -77,7 +78,7 @@ const CHAR_LIMIT_REQ = 2000;
       setSalaryMin(job.salary_min?.toString() || "");
       setSalaryMax(job.salary_max?.toString() || "");
       setLocationCountry(job.location || "");
-      setSelectedPayments(job.payment_methods || []);
+      setSelectedPayments(sanitizeJobPaymentMethods(job.payment_methods));
       setRequiresEmbassy(job.requires_embassy || false);
       setRequiresWorkPermit(job.requires_work_permit || false);
       setVisaSponsorship(job.visa_sponsorship || false);
@@ -148,7 +149,7 @@ const CHAR_LIMIT_REQ = 2000;
       salary_min: minVal,
       salary_max: maxVal,
       location: locationCountry || "Remote",
-      payment_methods: selectedPayments,
+      payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       requires_embassy: requiresEmbassy,
       requires_work_permit: requiresWorkPermit,
       visa_sponsorship: visaSponsorship,
