@@ -99,6 +99,7 @@ const AdminUsers = () => {
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
+  const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
 
   /** Called when the admin clicks a role Switch — shows a confirmation dialog instead of acting immediately */
