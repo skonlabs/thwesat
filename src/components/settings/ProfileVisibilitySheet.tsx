@@ -54,7 +54,7 @@ const ProfileVisibilitySheet = ({ open, onClose, value, onChange }: ProfileVisib
             }}
             className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
               value === opt.id
-                ? "border-primary bg-primary/10"
+                ? "border-emerald bg-emerald/10 text-emerald"
                 : "border-border bg-card active:bg-muted"
             }`}
           >

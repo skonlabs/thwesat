@@ -261,7 +261,7 @@ const SkillGapAnalysis = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {allSkills.map(skill => (
-                    <button key={skill} onClick={() => toggleSkill(skill)} className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${selectedSkills.includes(skill) ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground active:bg-muted"}`}>
+                    <button key={skill} onClick={() => toggleSkill(skill)} className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${selectedSkills.includes(skill) ? "border-emerald bg-emerald/10 text-emerald" : "border-border text-foreground active:bg-muted"}`}>
                       {skill}
                     </button>
                   ))}

@@ -30,7 +30,7 @@ export function PaymentMethodChip({ method, selected, onClick, type }: { method:
       aria-label={m.label}
       className={cn(
         "flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-        selected ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground",
+        selected ? "border-emerald bg-emerald/10 text-emerald" : "border-border bg-card text-muted-foreground",
       )}
     >
       <PaymentMethodIcon method={method} />
