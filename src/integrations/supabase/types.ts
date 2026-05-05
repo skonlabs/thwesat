@@ -904,7 +904,9 @@ export type Database = {
         Row: {
           booked_by: string | null
           created_at: string | null
+          credits_charged: number | null
           decline_reason: string | null
+          duration_minutes: number
           goals: string | null
           id: string
           mentee_completed_at: string | null
@@ -925,7 +927,9 @@ export type Database = {
         Insert: {
           booked_by?: string | null
           created_at?: string | null
+          credits_charged?: number | null
           decline_reason?: string | null
+          duration_minutes?: number
           goals?: string | null
           id?: string
           mentee_completed_at?: string | null
@@ -946,7 +950,9 @@ export type Database = {
         Update: {
           booked_by?: string | null
           created_at?: string | null
+          credits_charged?: number | null
           decline_reason?: string | null
+          duration_minutes?: number
           goals?: string | null
           id?: string
           mentee_completed_at?: string | null

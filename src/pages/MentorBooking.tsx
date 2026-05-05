@@ -32,6 +32,7 @@ const topics = [
 ];
 
 const durationOptions = [
+  { minutes: 15, labelEn: "15 min", labelMy: "၁၅ မိနစ်" },
   { minutes: 30, labelEn: "30 min", labelMy: "၃၀ မိနစ်" },
   { minutes: 60, labelEn: "1 hour", labelMy: "၁ နာရီ" },
   { minutes: 90, labelEn: "1.5 hours", labelMy: "၁.၅ နာရီ" },
@@ -160,6 +161,8 @@ const MentorBooking = () => {
         message,
         goals,
         booked_by: "mentee",
+        duration_minutes: selectedDuration,
+        credits_charged: sessionCredits,
       });
       // Hold credits in escrow
       const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
@@ -380,12 +383,18 @@ const MentorBooking = () => {
               <Timer className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
               {lang === "my" ? "ကြာချိန် ရွေးချယ်ပါ" : "Select Duration"}
             </h2>
-            <div className="mb-2 grid grid-cols-4 gap-2">
-              {durationOptions.map(opt => (
-                <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-3 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
-                  <p className="text-xs font-medium">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                </button>
-              ))}
+            <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
+              {durationOptions.map(opt => {
+                const optCredits = hourlyRate > 0
+                  ? Math.round((hourlyRate * opt.minutes) / 60)
+                  : Math.round((baseCredits * opt.minutes) / 60);
+                return (
+                  <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-2.5 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
+                    <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
+                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                  </button>
+                );
+              })}
             </div>
             <p className="mb-5 text-xs text-muted-foreground text-center">
               {lang === "my"

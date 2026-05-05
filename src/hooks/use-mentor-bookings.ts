@@ -299,6 +299,7 @@ export function useCreateBooking() {
     mutationFn: async (booking: {
       mentor_id: string; mentee_id: string; scheduled_date: string; scheduled_time: string;
       topic?: string; message?: string; goals?: string; booked_by?: string;
+      duration_minutes?: number; credits_charged?: number;
     }): Promise<{ id: string }> => {
       if (!user) throw new Error("Not authenticated");
       const { data, error } = await supabase
