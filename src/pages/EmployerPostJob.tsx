@@ -56,7 +56,6 @@ const EmployerPostJob = () => {
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [applicationMethod, setApplicationMethod] = useState("platform");
   const [externalUrl, setExternalUrl] = useState("");
   const [externalUrlError, setExternalUrlError] = useState("");
