@@ -62,19 +62,19 @@ const Applications = () => {
   // Resolve whether the offering employer is a recruiting agent (placement fee applies to seeker)
   const offerEmployerId = selected?.jobs?.employer_id;
   const { data: offerEmployer } = useQuery({
-    queryKey: ["offer-employer-type", offerEmployerId],
+    queryKey: ["offer-employer-role", offerEmployerId],
     queryFn: async () => {
       if (!offerEmployerId) return null;
       const { data } = await supabase
-        .from("employer_profiles")
-        .select("employer_type")
+        .from("profiles")
+        .select("primary_role")
         .eq("id", offerEmployerId)
         .maybeSingle();
       return data;
     },
     enabled: !!offerEmployerId && confirmAccept,
   });
-  const isAgentOffer = offerEmployer?.employer_type === "agent";
+  const isAgentOffer = offerEmployer?.primary_role === "agent";
   const offerSalary = Number(selected?.jobs?.salary_max || selected?.jobs?.salary_min || 0);
   const offerFee = isAgentOffer && offerSalary > 0 ? Math.round(offerSalary * 0.08) : 0;
 
