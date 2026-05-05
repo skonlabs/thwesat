@@ -137,19 +137,14 @@ const EmployerOnboarding = () => {
         {step === 2 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် + ငွေပေးချေမှု" : "Contact & Payment"}</h2>
-            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အမည် *" : "Contact Name *"}</label><Input value={contactName} onChange={e => setContactName(e.target.value)} className="h-11 rounded-xl" /></div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ် *" : "Contact Email *"}</label>
-              <Input type="email" value={contactEmail} onChange={e => { setContactEmail(e.target.value); if (emailError) setEmailError(""); }} onBlur={handleEmailBlur} className={`h-11 rounded-xl ${emailError ? "border-destructive" : ""}`} />
-              {emailError && <p className="mt-1 text-[11px] text-destructive">{emailError}</p>}
-            </div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
-            <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
+            <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
               <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (<button key={m} onClick={() => togglePayment(m)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(m) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{m}</button>))}</div>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "လောလောဆယ် Wise ကိုသာ ပံ့ပိုးထားပါသည်" : "Currently only Wise is supported"}</p>
             </div>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={!contactName || !contactEmail}>{lang === "my" ? "စာရင်းသွင်းရန်" : "Register"}</Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={selectedPayments.length === 0}>{lang === "my" ? "စာရင်းသွင်းရန်" : "Register"}</Button>
             </div>
           </motion.div>
         )}
