@@ -69,9 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data) {
         const contactRow = Array.isArray(contact) ? contact[0] : contact;
         setProfile({
-          ...(data as Profile),
-          email: contactRow?.email ?? (data as Profile).email ?? null,
-          phone: contactRow?.phone ?? (data as Profile).phone ?? "",
+          ...(data as unknown as Profile),
+          email: contactRow?.email ?? null,
+          phone: contactRow?.phone ?? "",
         });
       }
     })().finally(() => {
