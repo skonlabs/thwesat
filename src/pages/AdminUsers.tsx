@@ -232,8 +232,6 @@ const AdminUsers = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
-                            {user.display_name || "User"}</h3>
-                            </>}
                             {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
                             {isModUser && <ShieldCheck className="h-3 w-3 shrink-0 text-emerald" />}
                           </div>
