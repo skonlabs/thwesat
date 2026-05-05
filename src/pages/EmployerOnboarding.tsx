@@ -93,7 +93,7 @@ const EmployerOnboarding = () => {
   if (step === 3) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "အလုပ်ရှင် စာရင်းသွင်းခြင်း" : "Employer Setup"} showBack />
+        <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
         <div className="flex flex-col items-center px-5 pt-10 text-center">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
@@ -115,7 +115,7 @@ const EmployerOnboarding = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် စာရင်းသွင်းခြင်း" : "Employer Setup"} showBack />
+      <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">
           {[1, 2].map(s => (<div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`} />))}

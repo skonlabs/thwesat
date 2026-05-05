@@ -54,7 +54,7 @@ const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
+      <PageHeader title={empProfile?.employer_type === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard") : (lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard")} />
       <div className="px-5">
         {/* Company info */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4 shadow-card">
