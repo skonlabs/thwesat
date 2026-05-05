@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck } from "lucide-react";
+import { Calendar, Clock, CheckCircle, XCircle, MessageCircle, Star, ShieldCheck, ThumbsDown, ThumbsUp, Heart } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -476,15 +476,30 @@ const MentorBookings = () => {
             </SheetDescription>
           </SheetHeader>
           <div className="mt-4 space-y-4">
-            <div className="flex justify-center gap-2">
-              {[1, 2, 3, 4, 5].map(v => (
-                <button key={v} onClick={() => setRatingValue(v)}>
-                  <Star
-                    className={`h-8 w-8 transition-colors ${v <= ratingValue ? "fill-accent text-accent" : "text-muted-foreground"}`}
-                    strokeWidth={1.5}
-                  />
-                </button>
-              ))}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { value: 1, icon: ThumbsDown, en: "Don't Like", my: "မကြိုက်ပါ" },
+                { value: 3, icon: ThumbsUp, en: "Like It", my: "ကြိုက်ပါတယ်" },
+                { value: 5, icon: Heart, en: "Love It", my: "အရမ်းကြိုက်" },
+              ].map(opt => {
+                const Icon = opt.icon;
+                const selected = ratingValue === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setRatingValue(opt.value)}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${selected ? "border-primary bg-primary/5" : "border-border bg-card active:bg-muted"}`}
+                  >
+                    <Icon
+                      className={`h-6 w-6 ${selected ? (opt.value === 1 ? "fill-destructive/20 text-destructive" : opt.value === 5 ? "fill-accent text-accent" : "fill-primary/20 text-primary") : "text-muted-foreground"}`}
+                      strokeWidth={1.5}
+                    />
+                    <span className={`text-[11px] font-medium ${selected ? "text-foreground" : "text-muted-foreground"}`}>
+                      {lang === "my" ? opt.my : opt.en}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
             <Textarea
               value={ratingText}
@@ -496,7 +511,7 @@ const MentorBookings = () => {
               variant="default"
               size="lg"
               className="w-full rounded-xl"
-              disabled={submitReview.isPending || !ratingText || ratingText.trim() === ""}
+              disabled={submitReview.isPending}
               onClick={() => submitReview.mutate()}
             >
               {submitReview.isPending
