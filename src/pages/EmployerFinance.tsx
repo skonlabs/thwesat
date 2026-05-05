@@ -157,12 +157,12 @@ const EmployerFinance = () => {
               onClick: () => setKpiFilter(kpiFilter === "due" ? "all" : "due"),
               active: kpiFilter === "due",
             },
-            {
+            ...(isAgent ? [{
               label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" },
               rows: placementInvoices.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               onClick: () => setKpiFilter(kpiFilter === "placement" ? "all" : "placement"),
               active: kpiFilter === "placement",
-            },
+            }] : []),
           ]}
           rows={[]}
           emptyText={{ my: "", en: "" }}
