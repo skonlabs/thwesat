@@ -11,6 +11,7 @@ import { useUpsertEmployerProfile } from "@/hooks/use-employer-data";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { HQ_COUNTRIES } from "@/lib/countries";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Hotel & Resort", "Restaurant & F&B", "Retail", "Pharmacy", "Logistics & Warehousing", "Import/Export", "Construction", "Agriculture", "Garment & Textile", "Domestic & Caregiving", "Cleaning & Facilities", "Security Services", "Transportation & Driving", "Beauty & Wellness", "Automotive", "Other"];
 const companySizes = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
@@ -128,7 +129,12 @@ const EmployerOnboarding = () => {
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအရွယ်အစား" : "Company Size"}</label>
               <div className="flex flex-wrap gap-2">{companySizes.map(s => (<button key={s} onClick={() => setCompanySize(s)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${companySize === s ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{s}</button>))}</div>
             </div>
-            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရုံးချုပ်တိုင်းပြည်" : "HQ Country"}</label><Input value={hqCountry} onChange={e => setHqCountry(e.target.value)} className="h-11 rounded-xl" /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရုံးချုပ်တိုင်းပြည်" : "HQ Country"}</label>
+              <select value={hqCountry} onChange={e => setHqCountry(e.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm">
+                <option value="">{lang === "my" ? "ရွေးချယ်ပါ" : "Select country"}</option>
+                {HQ_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
             <Button variant="default" size="lg" className="mt-2 w-full rounded-xl" onClick={() => setStep(2)} disabled={!companyName || !website}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
