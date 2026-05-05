@@ -5,7 +5,7 @@ export type StatusFilter = "all" | "approved" | "pending";
 interface FinanceFiltersProps {
   status: StatusFilter;
   onStatusChange: (s: StatusFilter) => void;
-  currency: string; // "all" | "USD" | "MMK" | ...
+  currency: string; // "all" | "MMK"
   onCurrencyChange: (c: string) => void;
   availableCurrencies: string[];
 }
