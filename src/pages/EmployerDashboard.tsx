@@ -50,12 +50,12 @@ const EmployerDashboard = () => {
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
   const placedCount = placementSummary?.count || 0;
   const placedFees = placementSummary?.totalFee || 0;
-  const isAgent = empProfile?.employer_type === "agent";
+  const isAgent = profile?.primary_role === "agent";
 
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={empProfile?.employer_type === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard") : (lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard")} />
+      <PageHeader title={isAgent ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard") : (lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard")} />
       <div className="px-5">
         {/* Company info */}
         <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onClick={() => navigate("/employer/edit-company")} className="mb-4 w-full rounded-xl border border-border bg-card p-4 text-left shadow-card transition-colors active:bg-muted/30">
