@@ -111,7 +111,7 @@ const AdminAnalytics = () => {
       (paymentsRange.data || [])
         .filter((p) => p.status === "approved")
         .forEach((p) => {
-          const cur = (p.currency || "USD").toUpperCase();
+          const cur = (p.currency || "MMK").toUpperCase();
           approvedByCurrency[cur] = (approvedByCurrency[cur] || 0) + Number(p.amount || 0);
         });
       const approvedSum = Object.values(approvedByCurrency).reduce((a, b) => a + b, 0);

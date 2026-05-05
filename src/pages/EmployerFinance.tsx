@@ -98,7 +98,7 @@ const EmployerFinance = () => {
   }, [kpiFilter, all, paid, due, placementInvoices]);
 
   const filtered = useMemo(() => applyFinanceFilters(kpiScoped, status, currency), [kpiScoped, status, currency]);
-  const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
+  const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
   const totalFiltered = filtered.length;
   const pageStart = page * PAGE_SIZE;
   const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);

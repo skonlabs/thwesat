@@ -76,8 +76,8 @@ const AdminFinance = () => {
   const paidOutTotal = allEarnings.filter((e) => e.status === "paid" || e.paid_out_at);
 
   // Filtering
-  const paymentCurrencies = useMemo(() => allPayments.map((p) => p.currency || "USD"), [allPayments]);
-  const earningsCurrencies = useMemo(() => allEarnings.map((e) => e.currency || "USD"), [allEarnings]);
+  const paymentCurrencies = useMemo(() => allPayments.map((p) => p.currency || "MMK"), [allPayments]);
+  const earningsCurrencies = useMemo(() => allEarnings.map((e) => e.currency || "MMK"), [allEarnings]);
   const filteredPayments = useMemo(
     () => applyFinanceFilters(allPayments, status, currency),
     [allPayments, status, currency],
@@ -87,7 +87,7 @@ const AdminFinance = () => {
       const isPaid = e.status === "paid" || !!e.paid_out_at;
       const effective = isPaid ? "approved" : "pending";
       if (status !== "all" && effective !== status) return false;
-      if (currency !== "all" && (e.currency || "USD").toUpperCase() !== currency) return false;
+      if (currency !== "all" && (e.currency || "MMK").toUpperCase() !== currency) return false;
       return true;
     });
   }, [allEarnings, status, currency]);

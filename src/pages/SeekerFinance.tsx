@@ -34,7 +34,7 @@ const SeekerFinance = () => {
   const approved = all.filter((p) => p.status === "approved");
   const pending = all.filter((p) => p.status === "pending");
   const filtered = useMemo(() => applyFinanceFilters(all, status, currency), [all, status, currency]);
-  const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
+  const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
 
   return (
     <div className="min-h-screen bg-background pb-24">

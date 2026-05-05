@@ -49,7 +49,7 @@ const MentorFinance = () => {
   const all = earnings || [];
   const pending = all.filter((e) => e.status === "pending" && !e.paid_out_at);
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
-  const currencies = useMemo(() => all.map((e) => e.currency || "USD"), [all]);
+  const currencies = useMemo(() => all.map((e) => e.currency || "MMK"), [all]);
 
   // mentor_profiles has no payment_methods column in the current schema.
   // Treat any mentor as having a payment method configured for now; replace
@@ -66,7 +66,7 @@ const MentorFinance = () => {
       const isPaid = e.status === "paid" || !!e.paid_out_at;
       const effective = isPaid ? "approved" : "pending";
       if (status !== "all" && effective !== status) return false;
-      if (currency !== "all" && (e.currency || "USD").toUpperCase() !== currency) return false;
+      if (currency !== "all" && (e.currency || "MMK").toUpperCase() !== currency) return false;
       return true;
     });
   }, [all, status, currency]);
