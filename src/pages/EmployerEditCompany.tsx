@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile, useUpsertEmployerProfile } from "@/hooks/use-employer-data";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
