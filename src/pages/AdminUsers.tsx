@@ -30,6 +30,7 @@ import PageHeader from "@/components/PageHeader";
 const roleColors: Record<string, string> = {
   jobseeker: "bg-muted text-muted-foreground",
   employer: "bg-primary/10 text-primary",
+  agent: "bg-accent/15 text-accent-foreground",
   mentor: "bg-emerald/10 text-emerald",
 };
 
