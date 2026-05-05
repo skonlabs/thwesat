@@ -56,7 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Fetch the row (without those columns) and merge owner-only contact
       // info from the SECURITY DEFINER RPC.
       const [{ data }, { data: contact }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
+        supabase
+          .from("profiles")
+          .select(
+            "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"
+          )
+          .eq("id", userId)
+          .single(),
         supabase.rpc("get_my_contact_info"),
       ]);
       if (!mountedRef.current) return;
