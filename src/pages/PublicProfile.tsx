@@ -33,7 +33,7 @@ const PublicProfile = () => {
     enabled: !!id,
   });
 
-  const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer");
+  const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer") || hasRole("agent");
   const canMessage = currentUserCanMessageAnyone || !!targetIsMessageable;
 
   const { data: profile, isLoading } = useQuery({

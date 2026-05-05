@@ -59,7 +59,7 @@ export function useStartConversation() {
       // Gating for NEW conversations:
       // - Mentors and employers can message anyone.
       // - Everyone else can only message users who are mentors or employers.
-      const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer");
+      const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer") || hasRole("agent");
       if (!currentUserCanMessageAnyone) {
         const [mentorRes, employerRes] = await Promise.all([
           supabase
