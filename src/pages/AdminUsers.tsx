@@ -150,10 +150,11 @@ const AdminUsers = () => {
         <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
         <div className="px-5">
           {/* Summary */}
-          <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="mb-4 grid grid-cols-4 gap-2">
             {[
               { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
+              { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
             ].map(s => (
               <button
