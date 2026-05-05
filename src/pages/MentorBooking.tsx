@@ -171,7 +171,7 @@ const MentorBooking = () => {
       });
       if (holdErr) throw holdErr;
       setCreatedBookingId(result.id);
-      setStep(3);
+      setStep(4);
     } catch (e: any) {
       toast({
         title: lang === "my" ? "အမှား" : "Error",
