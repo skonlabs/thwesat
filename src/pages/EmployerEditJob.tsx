@@ -285,17 +285,11 @@ const CHAR_LIMIT_REQ = 2000;
             <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
           </label>
         </div>
-        <div className={`rounded-xl border p-4 ${isPro ? "border-accent/30 bg-accent/5" : "border-border bg-muted/30"}`}>
+        <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
           <label className="flex items-start gap-3">
             <Checkbox
               checked={isFeatured}
-              onCheckedChange={(v) => {
-                if (!isPro) {
-                  setUpgradeOpen(true);
-                  return;
-                }
-                setIsFeatured(!!v);
-              }}
+              onCheckedChange={(v) => setIsFeatured(!!v)}
               className="mt-0.5"
             />
             <div className="flex-1">
@@ -303,9 +297,6 @@ const CHAR_LIMIT_REQ = 2000;
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                   <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
                   {lang === "my" ? "ထူးခြား အလုပ်ခေါ်စာအဖြစ် ဖော်ပြရန်" : "Mark as Featured Job"}
-                  {!isPro && (
-                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent">Pro</span>
-                  )}
                 </p>
                 <button
                   type="button"
@@ -317,13 +308,12 @@ const CHAR_LIMIT_REQ = 2000;
                 </button>
               </div>
               <p className="mt-0.5 text-[10px] text-muted-foreground">
-                {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည် (Pro အစီအစဉ် လိုအပ်သည်)" : "Highlighted on home screen (requires Pro plan)"}
+                {lang === "my" ? "ပင်မစာမျက်နှာတွင် ဦးစားပေး ဖော်ပြပါမည်" : "Highlighted on home screen"}
               </p>
               {showFeaturedInfo && (
                 <div className="mt-2 rounded-lg border border-accent/30 bg-background p-2.5 text-[11px] leading-relaxed text-foreground">
                   <p className="font-medium">{lang === "my" ? "Featured အကြောင်း" : "About Featured"}</p>
                   <ul className="mt-1 list-disc space-y-1 pl-4 text-muted-foreground">
-                    <li>{lang === "my" ? "Pro အစီအစဉ်ရှိမှသာ Featured အဖြစ်ဖော်ပြနိုင်ပါမည်" : "Featured placement requires an active Pro plan."}</li>
                     <li>{lang === "my" ? "ပိတ်လိုက်ပါက အလုပ်ခေါ်စာသည် ပုံမှန်စာရင်းသို့ ပြန်ရောက်မည်" : "Turning Featured off moves the listing back to standard placement."}</li>
                     <li>{lang === "my" ? "လျှောက်ထားသူများနှင့် မက်ဆေ့ချ်များ ဆုံးရှုံးမည်မဟုတ်ပါ" : "No applicants or messages are lost when toggling."}</li>
                   </ul>
