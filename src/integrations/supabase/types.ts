@@ -1312,7 +1312,7 @@ export type Database = {
           currency?: string
           id?: string
           payment_method?: string
-          payment_type?: string
+          payment_type: string
           proof_url?: string | null
           reference_id?: string | null
           reviewed_at?: string | null
