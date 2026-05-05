@@ -8,6 +8,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
+import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
 import { toast } from "sonner";
 
 interface Props {
