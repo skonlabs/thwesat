@@ -1,4 +1,5 @@
 import { getCategoryLabel } from "@/lib/job-categories";
+import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 type Language = "my" | "en";
 
@@ -74,10 +75,7 @@ const tagMap: Record<string, string> = {
   accounting: "စာရင်းကိုင်",
 };
 
-const paymentMethodMap: Record<string, string> = {
-  "bank transfer": "ဘဏ်လွှဲ",
-  cash: "ငွေသား",
-};
+const paymentMethodMap: Record<string, string> = {};
 
 function normalize(value: string): string {
   return value.trim().toLowerCase();
@@ -133,7 +131,7 @@ export function translateJobTags(tags: string[] | null | undefined, lang: Langua
 }
 
 export function translatePaymentMethods(methods: string[] | null | undefined, lang: Language): string[] {
-  return (methods || []).map((method) => translateFromMap(method, paymentMethodMap, lang));
+  return sanitizeJobPaymentMethods(methods).map((method) => translateFromMap(method, paymentMethodMap, lang));
 }
 
 export function formatJobSalary(job: SalaryLike, lang: Language): string {
