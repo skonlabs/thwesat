@@ -90,9 +90,8 @@ const Signup = () => {
       referrerId = referrerProfile.id;
     }
 
-    // "agent" is now a distinct app role, but it shares employer screens & onboarding.
+    // "agent" is a distinct app role that shares employer screens & onboarding.
     const appRole: UserRole = selectedRole;
-    const employerType: "direct" | "agent" = selectedRole === "agent" ? "agent" : "direct";
     const needsEmployerProfile = selectedRole === "employer" || selectedRole === "agent";
 
     setIsLoading(true);
@@ -128,7 +127,7 @@ const Signup = () => {
 
       // Pre-seed employer_profiles row for employers and agents (shared screens).
       if (needsEmployerProfile) {
-        await supabase.from("employer_profiles").upsert({ id: newUser.id, employer_type: employerType } as any);
+        await supabase.from("employer_profiles").upsert({ id: newUser.id } as any);
       }
     }
     setRole(appRole);

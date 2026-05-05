@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 import { uploadPaymentProof } from "@/hooks/use-payment";
-import { useEmployerProfile } from "@/hooks/use-employer-data";
+
 
 /** Visual proof status for a placement-fee row. */
 function ProofStatusChip({ p, lang }: { p: any; lang: "my" | "en" }) {
@@ -42,9 +42,8 @@ const PAGE_SIZE = 20;
 
 const EmployerFinance = () => {
   const { lang } = useLanguage();
-  const { user } = useAuth();
-  const { data: empProfile } = useEmployerProfile();
-  const isAgent = empProfile?.employer_type === "agent";
+  const { user, profile } = useAuth();
+  const isAgent = profile?.primary_role === "agent";
   const navigate = useNavigate();
   const [proofFor, setProofFor] = useState<any | null>(null);
   const [detailFor, setDetailFor] = useState<any | null>(null);

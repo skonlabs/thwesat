@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.propagate_employer_type() CASCADE;

@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
-import { useEmployerProfile } from "@/hooks/use-employer-data";
+import { useAuth } from "@/hooks/use-auth";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
@@ -54,8 +54,8 @@ const EmployerApplications = () => {
   const jobIdParam = searchParams.get("jobId") || undefined;
   const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
-  const { data: empProfile } = useEmployerProfile();
-  const isAgent = empProfile?.employer_type === "agent";
+  const { profile } = useAuth();
+  const isAgent = profile?.primary_role === "agent";
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
