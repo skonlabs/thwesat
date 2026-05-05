@@ -78,9 +78,11 @@ const BottomNav = () => {
       ? moderatorNav
       : role === "employer"
         ? employerNav
-        : role === "mentor"
-          ? mentorNav
-          : jobseekerNav;
+        : role === "agent"
+          ? agentNav
+          : role === "mentor"
+            ? mentorNav
+            : jobseekerNav;
 
   const getBadge = (key?: "messages" | "notifications") => {
     if (key === "messages") return unreadMessages;
