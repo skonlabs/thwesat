@@ -56,16 +56,19 @@ export function useUserRoleFlags(userId: string | undefined) {
   return useQuery({
     queryKey: ["user-role-flags", userId],
     queryFn: async () => {
-      if (!userId) return { isMentor: false, isAdmin: false, isModerator: false, isEmployer: false };
+      if (!userId) return { isMentor: false, isAdmin: false, isModerator: false, isEmployer: false, isAgent: false };
       const [m, e, r] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
-        supabase.from("employer_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
+        supabase.from("employer_profiles").select("id, employer_type").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
       ]);
       const roles = (r.data || []).map((x) => x.role);
+      const isAgent = e.data?.employer_type === "agent";
+      const isEmployer = !!e.data && !isAgent;
       return {
         isMentor: (m.count ?? 0) > 0,
-        isEmployer: (e.count ?? 0) > 0,
+        isEmployer,
+        isAgent,
         isAdmin: roles.includes("admin"),
         isModerator: roles.includes("moderator"),
       };
@@ -84,6 +87,7 @@ export function UserRoleBadges({ userId }: { userId: string | undefined }) {
       {data.isModerator && !data.isAdmin && <RoleBadge type="moderator" />}
       {data.isMentor && <RoleBadge type="mentor" />}
       {data.isEmployer && <RoleBadge type="employer" />}
+      {data.isAgent && <RoleBadge type="agent" />}
     </>
   );
 }
