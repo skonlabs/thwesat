@@ -50,6 +50,7 @@ const EmployerDashboard = () => {
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
   const placedCount = placementSummary?.count || 0;
   const placedFees = placementSummary?.totalFee || 0;
+  const isAgent = empProfile?.employer_type === "agent";
 
 
   return (
