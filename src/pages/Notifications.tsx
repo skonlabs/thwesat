@@ -40,7 +40,7 @@ const typeColors: Record<string, string> = {
   mentor: "bg-gold/10 text-gold-dark",
   message: "bg-accent/10 text-accent",
   guide: "bg-secondary text-secondary-foreground",
-  premium: "bg-primary/10 text-primary",
+  
   payment_approved: "bg-emerald/10 text-emerald",
   payment_rejected: "bg-destructive/10 text-destructive",
   referral_reward: "bg-gold/10 text-gold-dark",
