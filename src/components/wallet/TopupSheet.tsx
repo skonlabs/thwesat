@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
 import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
+import { SUPPORTED_PAYMENT_METHODS, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 import { toast } from "sonner";
 
 interface Props {
@@ -18,13 +19,10 @@ interface Props {
   packages: CreditPackage[];
 }
 
-const METHODS: Array<{ key: string; label: string }> = [
-  { key: "kbzpay", label: "KBZPay" },
-  { key: "wavepay", label: "WavePay" },
-  { key: "cbpay", label: "CB Pay" },
-  { key: "ayapay", label: "AYA Pay" },
-  
-];
+const METHODS: Array<{ key: string; label: string }> = SUPPORTED_PAYMENT_METHODS.map((k) => ({
+  key: k,
+  label: getPlatformPaymentMethodLabel(k),
+}));
 
 const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => {
   const { lang } = useLanguage();
