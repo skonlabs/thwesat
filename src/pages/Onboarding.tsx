@@ -9,23 +9,23 @@ import LanguageToggle from "@/components/LanguageToggle";
 const steps = [
   {
     icon: Globe,
-    titleMm: "မြန်မာ့ပြည်ပရောက်များအတွက်", titleEn: "Built for Myanmar's Diaspora",
+    titleMm: "ကမ္ဘာတစ်ဝှမ်း ပရော်ဖက်ရှင်နယ်များအတွက်", titleEn: "Built for Global Professionals",
     descMm: "အလုပ်ရှာဖွေသူ၊ အလုပ်ရှင်နှင့် လမ်းညွှန်သူများအားလုံးအတွက် တစ်နေရာတည်း ပလက်ဖောင်း",
-    descEn: "One platform for job seekers, employers, and mentors — connecting Myanmar talent worldwide",
+    descEn: "One platform for job seekers, employers, and mentors — connecting talent worldwide",
     color: "bg-primary/10 text-primary",
   },
   {
     icon: Briefcase,
     titleMm: "အလုပ်ရှာဖွေ · ကျွမ်းကျင်သူရှာဖွေ", titleEn: "Find Jobs · Find Talent",
-    descMm: "အလုပ်ရှာဖွေသူများ — အတည်ပြုထားသော အဝေးထိန်းအလုပ်များ ရှာပါ။ အလုပ်ရှင်များ — ကမ္ဘာတစ်ဝှမ်းရှိ မြန်မာကျွမ်းကျင်သူများကို ရှာဖွေပါ",
-    descEn: "Job seekers — discover verified remote jobs. Employers — find skilled Myanmar professionals globally",
+    descMm: "အလုပ်ရှာဖွေသူများ — အတည်ပြုထားသော အဝေးထိန်းအလုပ်များ ရှာပါ။ အလုပ်ရှင်များ — ကမ္ဘာတစ်ဝှမ်းရှိ ကျွမ်းကျင်သူများကို ရှာဖွေပါ",
+    descEn: "Job seekers — discover verified remote jobs. Employers — find skilled professionals globally",
     color: "bg-gold/10 text-gold-dark",
   },
   {
     icon: Users,
     titleMm: "လမ်းညွှန်ပေးပါ · လမ်းညွှန်ခံပါ", titleEn: "Mentor & Be Mentored",
     descMm: "လမ်းညွှန်သူအဖြစ် သင့်အတွေ့အကြုံမျှဝေပါ သို့မဟုတ် အတွေ့အကြုံရှိသူများထံမှ တစ်ဦးချင်း လမ်းညွှန်မှုရယူပါ",
-    descEn: "Share your expertise as a mentor or get 1:1 guidance from experienced Myanmar professionals",
+    descEn: "Share your expertise as a mentor or get 1:1 guidance from experienced professionals",
     color: "bg-emerald/10 text-emerald",
   },
   {
