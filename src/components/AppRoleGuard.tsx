@@ -35,7 +35,7 @@ const AppRoleGuard = ({ children, allowedRoles }: AppRoleGuardProps) => {
   if (!hasAccess) {
     // Redirect to the appropriate home for their actual role
     const fallback =
-      effectiveRole === "employer" && userRoles.includes("employer")
+      (effectiveRole === "employer" || effectiveRole === "agent") && (userRoles.includes("employer") || userRoles.includes("agent"))
         ? "/employer/dashboard"
         : effectiveRole === "mentor" && userRoles.includes("mentor")
           ? "/mentors/dashboard"
