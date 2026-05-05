@@ -161,6 +161,8 @@ const MentorBooking = () => {
         message,
         goals,
         booked_by: "mentee",
+        duration_minutes: selectedDuration,
+        credits_charged: sessionCredits,
       });
       // Hold credits in escrow
       const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
