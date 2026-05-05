@@ -26,7 +26,7 @@ const roleTypes = [
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
 
-const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
+const paymentOptions = ["Wise"];
 const applicationMethods = [
   { value: "platform", label: { my: "ThweSat မှ", en: "Via Platform" } },
   { value: "external", label: { my: "ပြင်ပလင့်ခ်", en: "External URL" } },

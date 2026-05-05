@@ -24,7 +24,7 @@ const roleTypes = [
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
 
-const paymentOptions = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
+const paymentOptions = ["Wise"];
 
 const EmployerEditJob = () => {
   const { id } = useParams<{ id: string }>();

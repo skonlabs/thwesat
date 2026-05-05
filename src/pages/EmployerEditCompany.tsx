@@ -11,7 +11,7 @@ import PageHeader from "@/components/PageHeader";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Construction", "Agriculture", "Other"];
 const companySizes = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
-const paymentMethods = ["Payoneer", "Wise", "Bank Transfer", "Crypto"];
+const paymentMethods = ["Wise"];
 
 const EmployerEditCompany = () => {
   const navigate = useNavigate();
