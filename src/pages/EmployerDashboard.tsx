@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Briefcase, Users, Plus, CheckCircle, Building2, UserSearch, Settings, Crown, CreditCard } from "lucide-react";
+import { Briefcase, Users, Plus, CheckCircle, Building2, UserSearch, Settings, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
@@ -27,25 +27,6 @@ const EmployerDashboard = () => {
   const { data: empProfile } = useEmployerProfile();
   const { data: jobs } = useEmployerJobs();
 
-  // Fetch employer subscription
-  const { data: subscription } = useQuery({
-    queryKey: ["employer-subscription", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) return null;
-      return data;
-    },
-    enabled: !!user,
-  });
-
   // Fetch placement summary (count + total fees) across employer's jobs
   const { data: placementSummary } = useQuery({
     queryKey: ["employer-placements", user?.id],
@@ -70,8 +51,6 @@ const EmployerDashboard = () => {
   const placedCount = placementSummary?.count || 0;
   const placedFees = placementSummary?.totalFee || 0;
 
-  const planLabel = subscription?.plan_type?.toLowerCase().includes("pro") ? "Pro" : subscription?.plan_type ? "Basic" : null;
-  const planExpiry = subscription?.current_period_end ? new Date(subscription.current_period_end).toLocaleDateString() : null;
 
   return (
     <div className="min-h-screen bg-background pb-24">
