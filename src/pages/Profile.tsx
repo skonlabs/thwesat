@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
+import { useReferralRewards } from "@/hooks/use-app-config";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserRoles } from "@/hooks/use-user-roles";
