@@ -27,7 +27,7 @@ const typeIcons: Record<string, typeof Briefcase> = {
   mentor: Users,
   message: MessageCircle,
   guide: Shield,
-  premium: Star,
+  
   payment_approved: CheckCircle,
   payment_rejected: Shield,
   referral_reward: Star,
