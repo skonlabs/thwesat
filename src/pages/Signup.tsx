@@ -127,7 +127,7 @@ const Signup = () => {
 
       // Pre-seed employer_profiles row for employers and agents (shared screens).
       if (needsEmployerProfile) {
-        await supabase.from("employer_profiles").upsert({ id: newUser.id, employer_type: employerType } as any);
+        await supabase.from("employer_profiles").upsert({ id: newUser.id } as any);
       }
     }
     setRole(appRole);
