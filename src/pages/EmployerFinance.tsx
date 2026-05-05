@@ -43,6 +43,8 @@ const PAGE_SIZE = 20;
 const EmployerFinance = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { data: empProfile } = useEmployerProfile();
+  const isAgent = empProfile?.employer_type === "agent";
   const navigate = useNavigate();
   const [proofFor, setProofFor] = useState<any | null>(null);
   const [detailFor, setDetailFor] = useState<any | null>(null);
