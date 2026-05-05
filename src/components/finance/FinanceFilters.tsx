@@ -71,7 +71,7 @@ export function applyFinanceFilters<T extends { status?: string; currency?: stri
 ): T[] {
   return rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
-    if (currency !== "all" && (r.currency || "USD").toUpperCase() !== currency) return false;
+    if (currency !== "all" && (r.currency || "MMK").toUpperCase() !== currency) return false;
     return true;
   });
 }
