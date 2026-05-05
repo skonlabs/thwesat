@@ -19,6 +19,11 @@ export interface TelegramBotConfig {
   url: string;
 }
 
+export interface ReferralRewardsConfig {
+  friends_required: number;
+  reward_credits: number;
+}
+
 const DEFAULTS: Record<string, any> = {
   payment_accounts: {
     kbzpay: { account_name: "ThweSat", account_number: "09-000-000-000" },
@@ -27,6 +32,7 @@ const DEFAULTS: Record<string, any> = {
     ayapay: { account_name: "ThweSat", account_number: "09-000-000-000" },
   },
   telegram_bot: { username: "ThweSatBot", url: "https://t.me/ThweSatBot" },
+  referral_rewards: { friends_required: 5, reward_credits: 5000 },
 };
 
 export function useAppConfig<T = any>(key: string) {
@@ -51,4 +57,8 @@ export function usePaymentAccounts() {
 
 export function useTelegramBot() {
   return useAppConfig<TelegramBotConfig>("telegram_bot");
+}
+
+export function useReferralRewards() {
+  return useAppConfig<ReferralRewardsConfig>("referral_rewards");
 }
