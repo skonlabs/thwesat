@@ -5,7 +5,7 @@ export type StatusFilter = "all" | "approved" | "pending";
 interface FinanceFiltersProps {
   status: StatusFilter;
   onStatusChange: (s: StatusFilter) => void;
-  currency: string; // "all" | "USD" | "MMK" | ...
+  currency: string; // "all" | "MMK"
   onCurrencyChange: (c: string) => void;
   availableCurrencies: string[];
 }
@@ -71,7 +71,7 @@ export function applyFinanceFilters<T extends { status?: string; currency?: stri
 ): T[] {
   return rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
-    if (currency !== "all" && (r.currency || "USD").toUpperCase() !== currency) return false;
+    if (currency !== "all" && (r.currency || "MMK").toUpperCase() !== currency) return false;
     return true;
   });
 }

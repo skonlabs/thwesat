@@ -111,7 +111,7 @@ const AdminAnalytics = () => {
       (paymentsRange.data || [])
         .filter((p) => p.status === "approved")
         .forEach((p) => {
-          const cur = (p.currency || "USD").toUpperCase();
+          const cur = (p.currency || "MMK").toUpperCase();
           approvedByCurrency[cur] = (approvedByCurrency[cur] || 0) + Number(p.amount || 0);
         });
       const approvedSum = Object.values(approvedByCurrency).reduce((a, b) => a + b, 0);
@@ -281,12 +281,12 @@ const AdminAnalytics = () => {
                 <div className="mt-1 space-y-0.5">
                   {Object.entries(trends.approvedByCurrency).map(([cur, amt]) => (
                     <p key={cur} className="text-base font-bold text-foreground leading-tight">
-                      {cur === "MMK" ? `${amt.toLocaleString()} ကျပ်` : `${cur}: $${amt.toLocaleString()}`}
+                      {`${amt.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
                     </p>
                   ))}
                 </div>
               ) : (
-                <p className="mt-1 text-2xl font-bold text-foreground">$0</p>
+                <p className="mt-1 text-2xl font-bold text-foreground">0 {lang === "my" ? "ကျပ်" : "MMK"}</p>
               )}
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော ကာလအတွင်း" : `In selected ${days}-day window`}</p>
               <div className="mt-3 h-24">

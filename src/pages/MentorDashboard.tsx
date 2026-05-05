@@ -244,17 +244,9 @@ const MentorDashboard = () => {
           <div>
             <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={currency}
-                onChange={e => setCurrency(e.target.value)}
-                className="h-10 rounded-xl border border-border bg-background px-2 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="MMK">MMK (ကျပ်)</option>
-                <option value="USD">USD</option>
-                <option value="SGD">SGD</option>
-                <option value="THB">THB</option>
-                <option value="MYR">MYR</option>
-              </select>
+              <span className="inline-flex h-10 items-center rounded-xl border border-border bg-muted px-3 text-xs font-medium text-foreground">
+                {lang === "my" ? "ကျပ်" : "MMK"}
+              </span>
               <Input
                 type="number"
                 min={1}
