@@ -93,7 +93,7 @@ const EmployerOnboarding = () => {
   if (step === 3) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "အလုပ်ရှင် စာရင်းသွင်းခြင်း" : "Employer Setup"} showBack />
+        <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
         <div className="flex flex-col items-center px-5 pt-10 text-center">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
             <CheckCircle className="h-10 w-10 text-emerald" strokeWidth={1.5} />
