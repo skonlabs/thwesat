@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
-import { useUpsertEmployerProfile } from "@/hooks/use-employer-data";
+import { useUpsertEmployerProfile, useEmployerProfile } from "@/hooks/use-employer-data";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
@@ -23,6 +23,8 @@ const EmployerOnboarding = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const upsert = useUpsertEmployerProfile();
+  const { data: empProfile } = useEmployerProfile();
+  const isAgent = empProfile?.employer_type === "agent";
   const [step, setStep] = useState(1);
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
@@ -145,15 +147,17 @@ const EmployerOnboarding = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် + ငွေပေးချေမှု" : "Contact & Payment"}</h2>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
-            <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
-              <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
-                <PaymentMethodChip key={m} method={m} selected={selectedPayments.includes(m)} onClick={() => togglePayment(m)} />
-              ))}</div>
-              <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees"}</p>
-            </div>
+            {isAgent && (
+              <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
+                <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
+                  <PaymentMethodChip key={m} method={m} selected={selectedPayments.includes(m)} onClick={() => togglePayment(m)} />
+                ))}</div>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees"}</p>
+              </div>
+            )}
             <div className="flex gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={selectedPayments.length === 0}>{lang === "my" ? "စာရင်းသွင်းရန်" : "Register"}</Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(3)} disabled={isAgent && selectedPayments.length === 0}>{lang === "my" ? "စာရင်းသွင်းရန်" : "Register"}</Button>
             </div>
           </motion.div>
         )}

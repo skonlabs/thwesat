@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from "@/hooks/use-language";
 import { useEmployerApplications } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
@@ -53,6 +54,8 @@ const EmployerApplications = () => {
   const jobIdParam = searchParams.get("jobId") || undefined;
   const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
+  const { data: empProfile } = useEmployerProfile();
+  const isAgent = empProfile?.employer_type === "agent";
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
@@ -195,7 +198,7 @@ const EmployerApplications = () => {
       return;
     }
     try {
-      const fee = Math.round(salary * 0.08);
+      const fee = isAgent ? Math.round(salary * 0.08) : 0;
       await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
@@ -512,7 +515,7 @@ const EmployerApplications = () => {
                   {selected.applicant_profile?.display_name || "Applicant"} · {selected.jobs?.title || "Job"}
                 </p>
               )}
-              <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% ကောက်ခံပါမည်" : "8% placement fee will apply"}</p>
+              {isAgent && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% ကောက်ခံပါမည်" : "8% placement fee will apply"}</p>}
               <div className="mb-3">
                 <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (ကျပ်/လ) *" : "Monthly Salary (MMK) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
@@ -520,7 +523,7 @@ const EmployerApplications = () => {
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
                 }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="500000" />
               </div>
-              {placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">{Math.round(parseInt(placementSalary) * 0.08).toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>}
+              {isAgent && placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">{Math.round(parseInt(placementSalary) * 0.08).toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={() => { if (!placementSalary || parseInt(placementSalary) <= 0) return; setShowPlacementConfirm(true); }} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
@@ -565,9 +568,11 @@ const EmployerApplications = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>{lang === "my" ? "ခန့်အပ်မှု အတည်ပြုမည်" : "Confirm Placement"}</AlertDialogTitle>
             <AlertDialogDescription>
-              {lang === "my"
-                ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ် — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
-                : `This will record a placement. An 8% placement fee of ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK applies. Confirm?`}
+              {isAgent
+                ? (lang === "my"
+                    ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ် — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
+                    : `This will record a placement. An 8% placement fee of ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK applies. Confirm?`)
+                : (lang === "my" ? "ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?" : "This will record a placement. Confirm?")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

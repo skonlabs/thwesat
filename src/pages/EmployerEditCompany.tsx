@@ -119,12 +119,14 @@ const EmployerEditCompany = () => {
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အမည်" : "Contact Name"}</label><Input value={contactName} onChange={e => markDirty(setContactName)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ်" : "Contact Email"}</label><Input type="email" value={contactEmail} onChange={e => markDirty(setContactEmail)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => markDirty(setContactPhone)(e.target.value)} className="h-11 rounded-xl" /></div>
-        <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
-          <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
-            <PaymentMethodChip key={m} method={m} selected={selectedPayments.includes(m)} onClick={() => togglePayment(m)} />
-          ))}</div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees"}</p>
-        </div>
+        {profile?.employer_type === "agent" && (
+          <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
+            <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
+              <PaymentMethodChip key={m} method={m} selected={selectedPayments.includes(m)} onClick={() => togglePayment(m)} />
+            ))}</div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees"}</p>
+          </div>
+        )}
         <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/employer/dashboard")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
           <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={handleSave} disabled={upsert.isPending || !companyName}>
