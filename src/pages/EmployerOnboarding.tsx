@@ -115,7 +115,7 @@ const EmployerOnboarding = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် စာရင်းသွင်းခြင်း" : "Employer Setup"} showBack />
+      <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">
           {[1, 2].map(s => (<div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`} />))}
