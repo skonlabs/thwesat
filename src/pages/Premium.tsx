@@ -6,6 +6,7 @@ import { addMonths } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from "@/hooks/use-language";
+import { useReferralRewards } from "@/hooks/use-app-config";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscriptionPlans, SubscriptionPlan } from "@/hooks/use-subscription-plans";
 import { useQuery } from "@tanstack/react-query";

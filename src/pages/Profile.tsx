@@ -23,6 +23,9 @@ import { Sparkles as SparklesIcon } from "lucide-react";
 const Profile = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { data: referralRewards } = useReferralRewards();
+  const refFriends = referralRewards?.friends_required ?? 5;
+  const refCredits = referralRewards?.reward_credits ?? 5000;
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
   const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
@@ -355,7 +358,9 @@ const Profile = () => {
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
           </div>
           <p className="mb-2 text-xs text-muted-foreground">
-            {lang === "my" ? "သူငယ်ချင်း ၅ ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ၅,၀၀၀ ရရှိမည်" : "Refer 5 friends = 5,000 credits"}
+            {lang === "my"
+              ? `သူငယ်ချင်း ${refFriends} ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ${refCredits.toLocaleString()} ရရှိမည်`
+              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} credits`}
           </p>
 
           {/* How it works */}
