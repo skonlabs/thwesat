@@ -22,6 +22,8 @@ const EmployerEditCompany = () => {
   const { lang } = useLanguage();
   const { data: profile, isLoading } = useEmployerProfile();
   const upsert = useUpsertEmployerProfile();
+  const { profile: userProfile } = useAuth();
+  const isAgent = userProfile?.primary_role === "agent";
 
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
