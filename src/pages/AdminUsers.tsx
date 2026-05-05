@@ -311,21 +311,6 @@ const AdminUsers = () => {
                   )}
                 </div>
 
-                {/* Premium toggle */}
-                <div className="mb-4 rounded-xl border border-border p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium text-foreground">
-                        {lang === "my" ? "ပရီမီယံ အခြေအနေ" : "Premium Status"}
-                      </span>
-                    </div>
-                    <Switch
-                      checked={selected.is_premium || false}
-                      onCheckedChange={() => handleTogglePremium(selected.id, selected.is_premium || false)}
-                    />
-                  </div>
-                </div>
 
                 {/* System role management — changes require confirmation */}
                 <h3 className="mb-2 text-xs font-semibold text-foreground">
