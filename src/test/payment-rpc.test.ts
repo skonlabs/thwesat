@@ -105,7 +105,7 @@ describe("useCreatePaymentRequest → validation", () => {
         payment_method: "kbzpay",
         payment_type: "mentor_session",
         amount: 0,
-        currency: "USD",
+        currency: "MMK",
       })
     ).rejects.toThrow(/Amount must be greater than zero/);
     expect(fromMock).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("useCreatePaymentRequest → validation", () => {
       payment_method: "kbzpay",
       payment_type: "mentor_session",
       amount: 25,
-      currency: "USD",
+      currency: "MMK",
       booking_id: "bk-1",
     });
 
