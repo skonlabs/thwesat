@@ -189,6 +189,9 @@ const PlanCard = ({
 const Premium = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  const { data: referralRewards } = useReferralRewards();
+  const refFriends = referralRewards?.friends_required ?? 5;
+  const refCredits = referralRewards?.reward_credits ?? 5000;
   const { profile, user } = useAuth();
   const [selected, setSelected] = useState<string | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
