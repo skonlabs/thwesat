@@ -8,6 +8,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
+import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
 import { toast } from "sonner";
 
 interface Props {
@@ -112,11 +113,12 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
 
               <div>
                 <Label className="text-xs">{lang === "my" ? "ပေးချေနည်း" : "Payment method"}</Label>
-                <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                   {METHODS.map((m) => (
-                    <button key={m.key} onClick={() => setMethod(m.key)}
-                      className={`rounded-lg border px-2 py-1.5 text-[11px] font-semibold ${method === m.key ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"}`}>
-                      {m.label}
+                    <button key={m.key} type="button" onClick={() => setMethod(m.key)}
+                      className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${method === m.key ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground"}`}>
+                      <PaymentMethodIcon method={m.key} />
+                      <span>{m.label}</span>
                     </button>
                   ))}
                 </div>

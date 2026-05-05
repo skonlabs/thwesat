@@ -9,6 +9,7 @@ import { useEmployerProfile, useUpsertEmployerProfile } from "@/hooks/use-employ
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
+import { PaymentMethodChip } from "@/components/payment/PaymentMethodIcon";
 import { HQ_COUNTRIES } from "@/lib/countries";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Hotel & Resort", "Restaurant & F&B", "Retail", "Pharmacy", "Logistics & Warehousing", "Import/Export", "Construction", "Agriculture", "Garment & Textile", "Domestic & Caregiving", "Cleaning & Facilities", "Security Services", "Transportation & Driving", "Beauty & Wellness", "Automotive", "Other"];
@@ -119,8 +120,10 @@ const EmployerEditCompany = () => {
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် အီးမေးလ်" : "Contact Email"}</label><Input type="email" value={contactEmail} onChange={e => markDirty(setContactEmail)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => markDirty(setContactPhone)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
-          <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (<button key={m} type="button" onClick={() => togglePayment(m)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(m) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{getPlatformPaymentMethodLabel(m)}</button>))}</div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees
+          <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
+            <PaymentMethodChip key={m} method={m} selected={selectedPayments.includes(m)} onClick={() => togglePayment(m)} />
+          ))}</div>
+          <p className="mt-1.5 text-[11px] text-muted-foreground">{lang === "my" ? "ခန့်ထားခ ပေးချေနိုင်သော နည်းလမ်းများကို ရွေးပါ" : "Select the methods you can use to pay placement fees"}</p>
         </div>
         <div className="mx-auto flex w-full max-w-md gap-3 pt-2">
           <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => navigate("/employer/dashboard")}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
