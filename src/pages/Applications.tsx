@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrencyRange } from "@/lib/currency";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
