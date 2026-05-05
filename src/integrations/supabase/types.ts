@@ -2065,6 +2065,14 @@ export type Database = {
           phone: string
         }[]
       }
+      get_user_contacts_admin: {
+        Args: { _ids: string[] }
+        Returns: {
+          email: string
+          id: string
+          phone: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
