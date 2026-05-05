@@ -198,7 +198,7 @@ const EmployerApplications = () => {
       return;
     }
     try {
-      const fee = Math.round(salary * 0.08);
+      const fee = isAgent ? Math.round(salary * 0.08) : 0;
       await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
