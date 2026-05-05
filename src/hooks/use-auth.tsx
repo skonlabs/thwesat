@@ -29,7 +29,6 @@ interface Profile {
   languages: string[];
   experience: string;
   visibility: string;
-  is_premium: boolean;
   remote_ready: boolean;
   has_laptop: boolean;
   internet_stable: boolean;

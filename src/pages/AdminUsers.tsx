@@ -60,7 +60,7 @@ const AdminUsers = () => {
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, headline, bio, location, primary_role, is_premium, email, created_at, skills, languages, phone")
+        .select("id, display_name, avatar_url, headline, bio, location, primary_role, email, created_at, skills, languages, phone")
         .order("created_at", { ascending: false })
         .range(from, to);
       if (error) throw error;
@@ -91,35 +91,15 @@ const AdminUsers = () => {
       (u.email || "").toLowerCase().includes(search.toLowerCase());
     const matchesRole =
       roleFilter === "all" ||
-      u.primary_role === roleFilter ||
-      (roleFilter === "premium" && u.is_premium);
+      u.primary_role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const selected = users.find((u: any) => u.id === selectedId);
+  const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
-  const premiumCount = users.filter((u: any) => u.is_premium).length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
-
-  const handleTogglePremium = async (userId: string, currentPremium: boolean) => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_premium: !currentPremium })
-      .eq("id", userId);
-    if (error) {
-      toast.error(lang === "my" ? "ပရီမီယံ ပြောင်း၍ မရပါ" : "Failed to toggle premium");
-    } else {
-      toast.success(
-        !currentPremium
-          ? (lang === "my" ? "ပရီမီယံ ဖွင့်ပြီး" : "Premium activated")
-          : (lang === "my" ? "ပရီမီယံ ပိတ်ပြီး" : "Premium deactivated")
-      );
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
-    }
-  };
 
   /** Called when the admin clicks a role Switch — shows a confirmation dialog instead of acting immediately */
   const requestRoleChange = (
@@ -169,10 +149,9 @@ const AdminUsers = () => {
         <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
         <div className="px-5">
           {/* Summary */}
-          <div className="mb-4 grid grid-cols-4 gap-2">
+          <div className="mb-4 grid grid-cols-3 gap-2">
             {[
               { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
-              { label: lang === "my" ? "ပရီမီယံ" : "Premium", count: premiumCount, filterVal: "premium" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
             ].map(s => (
@@ -253,7 +232,8 @@ const AdminUsers = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
-                            {user.is_premium && <Crown className="h-3 w-3 shrink-0 text-primary" />}
+                            {user.display_name || "User"}</h3>
+                            </>}
                             {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
                             {isModUser && <ShieldCheck className="h-3 w-3 shrink-0 text-emerald" />}
                           </div>
