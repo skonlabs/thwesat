@@ -149,9 +149,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    clearRole();
+    // Clear React state immediately so route guards redirect to /login even
+    // if the network call below is slow or fails.
     setProfile(null);
+    setUser(null);
+    setSession(null);
+    clearRole();
+
+    // Best-effort global revoke (invalidates refresh tokens server-side).
+    try {
+      await supabase.auth.signOut({ scope: "global" });
+    } catch {
+      // ignore — we still clear local storage below
+    }
+    // Always force a local sign-out so the refresh token cannot silently
+    // restore the session on the next page load / in another tab.
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore
+    }
+
+    // Defensive cleanup: remove any leftover Supabase auth keys from
+    // localStorage (covers cases where signOut bailed before clearing them).
+    try {
+      const keys: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith("sb-") || k.includes("supabase.auth"))) keys.push(k);
+      }
+      keys.forEach((k) => localStorage.removeItem(k));
+    } catch {
+      // ignore storage access errors
+    }
   };
 
   return (
