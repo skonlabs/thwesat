@@ -56,7 +56,7 @@ const typeGroupLabel = (type: string, lang: string): string => {
     mentor:           { en: "Mentors",      my: "Mentor" },
     message:          { en: "Messages",     my: "မက်ဆေ့ချ်" },
     guide:            { en: "Guides",       my: "လမ်းညွှန်" },
-    premium:          { en: "Premium",      my: "Premium" },
+    
     payment_approved: { en: "Payments",     my: "ငွေပေးချေမှု" },
     payment_rejected: { en: "Payments",     my: "ငွေပေးချေမှု" },
     referral_reward:  { en: "Rewards",      my: "ဆုကြေး" },
