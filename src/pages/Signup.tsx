@@ -90,9 +90,10 @@ const Signup = () => {
       referrerId = referrerProfile.id;
     }
 
-    // Map signup choice to underlying app role. "agent" is an employer with a flag.
-    const appRole: UserRole = selectedRole === "agent" ? "employer" : selectedRole;
+    // "agent" is now a distinct app role, but it shares employer screens & onboarding.
+    const appRole: UserRole = selectedRole;
     const employerType: "direct" | "agent" = selectedRole === "agent" ? "agent" : "direct";
+    const needsEmployerProfile = selectedRole === "employer" || selectedRole === "agent";
 
     setIsLoading(true);
     const { error } = await signUp(email, password, name, appRole);
