@@ -48,12 +48,7 @@ const AiProfileBuilder = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleToolClick = (path: string, rawStatus: string) => {
-    // Beta tools are accessible to all users; Premium tools require subscription
-    if (rawStatus === "Premium" && !profile?.is_premium) {
-      navigate("/premium");
-      return;
-    }
+  const handleToolClick = (path: string) => {
     // Pass uploaded CV file path to tools so they can parse it
     navigate(path, { state: { cvFilePath: uploadedFile?.filePath } });
   };

@@ -164,11 +164,6 @@ const PublicProfile = () => {
                     {lang === "my" ? "ရနိုင်" : "Available"}
                   </span>
                 )}
-                {profile.is_premium && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                    <Star className="mr-0.5 inline h-3 w-3" /> Premium
-                  </span>
-                )}
               </div>
             </div>
           </div>

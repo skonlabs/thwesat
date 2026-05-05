@@ -33,7 +33,7 @@ import AiProfileBuilder from "./pages/AiProfileBuilder";
 import ProfileBuilder from "./pages/ProfileBuilder";
 import CoverLetterGenerator from "./pages/CoverLetterGenerator";
 import SkillGapAnalysis from "./pages/SkillGapAnalysis";
-import Premium from "./pages/Premium";
+
 import PaymentHistory from "./pages/PaymentHistory";
 import SeekerFinance from "./pages/SeekerFinance";
 import EmployerFinance from "./pages/EmployerFinance";
