@@ -459,23 +459,149 @@ const MentorBooking = () => {
             <p className="text-right text-[10px] text-muted-foreground">{message.length} / 500</p>
           </motion.div>
         )}
+
+        {step === 3 && (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+            <h2 className="mb-3 text-sm font-semibold text-foreground">
+              {lang === "my" ? "ပြန်စစ်ပြီး အတည်ပြုပါ" : "Review & Confirm"}
+            </h2>
+
+            {/* Booking details */}
+            <div className="mb-4 overflow-hidden rounded-xl border border-border bg-card">
+              <div className="border-b border-border px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "Session အသေးစိတ်" : "Session Details"}
+                </p>
+              </div>
+              <div className="divide-y divide-border text-xs">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">{lang === "my" ? "Mentor" : "Mentor"}</span>
+                  <span className="font-medium text-foreground">{mentorName}</span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">{lang === "my" ? "ရက်စွဲ" : "Date"}</span>
+                  <span className="font-medium text-foreground">{selectedDateDisplay}</span>
+                </div>
+                {selectedTime && (
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <span className="text-muted-foreground">{lang === "my" ? "အချိန်" : "Time"}</span>
+                    <span className="font-medium text-foreground">{selectedTime} <span className="text-[10px] text-muted-foreground">({mentorTz})</span></span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">{lang === "my" ? "ကြာချိန်" : "Duration"}</span>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                    <Timer className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
+                    {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">{lang === "my" ? "အကြောင်းအရာ" : "Topic"}</span>
+                  <span className="font-medium text-foreground">{selectedTopic}</span>
+                </div>
+                <div className="flex items-center justify-between bg-primary/5 px-4 py-3">
+                  <span className="font-semibold text-foreground">{lang === "my" ? "စုစုပေါင်း ကုန်ကျမည်" : "Total Charged"}</span>
+                  <span className="inline-flex items-center gap-1 text-base font-bold text-primary">
+                    <Coins className="h-4 w-4" strokeWidth={2} />
+                    {sessionCredits.toLocaleString()} <span className="text-xs font-medium">credits</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Escrow Timeline */}
+            <div className="mb-4 rounded-xl border border-border bg-card p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                <p className="text-xs font-semibold text-foreground">
+                  {lang === "my" ? "Escrow လုပ်ငန်းစဉ်" : "Escrow Timeline"}
+                </p>
+              </div>
+              <ol className="space-y-3">
+                {[
+                  {
+                    en: `Now — ${sessionCredits.toLocaleString()} credits held in escrow from your wallet`,
+                    my: `ယခု — ${sessionCredits.toLocaleString()} credits ကို သင့် Wallet မှ Escrow တွင် ထိန်းသိမ်းပါမည်`,
+                  },
+                  {
+                    en: "Mentor confirms or proposes a new time",
+                    my: "Mentor က အတည်ပြုသည် (သို့) အချိန်အသစ် အဆိုပြုသည်",
+                  },
+                  {
+                    en: "Session takes place at the scheduled time",
+                    my: "ချိန်းဆိုထားသော အချိန်တွင် Session ပြုလုပ်သည်",
+                  },
+                  {
+                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) released to mentor, 15% platform fee`,
+                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
+                  },
+                  {
+                    en: "If mentor declines or cancels → full refund to your wallet",
+                    my: "Mentor ငြင်းပယ်/ပယ်ဖျက်ပါက → သင့် Wallet သို့ ပြည့်ပြည့်ဝဝ ပြန်အမ်းပါမည်",
+                  },
+                ].map((s, i) => (
+                  <li key={i} className="flex gap-3">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                      {i + 1}
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                      {lang === "my" ? s.my : s.en}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Cancellation policy */}
+            <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+              <p className="text-[11px] leading-relaxed text-destructive/90">
+                {lang === "my"
+                  ? "Session မတိုင်မီ ၂၄ နာရီအတွင်း ပယ်ဖျက်လျှင် ငွေပြန်အမ်းမည် မဟုတ်ပါ။"
+                  : "Cancellations less than 24 hours before the session are non-refundable."}
+              </p>
+            </div>
+
+            {/* Wallet snapshot */}
+            <div className="mb-2 flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-[11px]">
+              <span className="text-muted-foreground">{lang === "my" ? "Wallet လက်ကျန်" : "Wallet balance"}</span>
+              <span className="font-semibold text-foreground">{balance.toLocaleString()} credits</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-[11px]">
+              <span className="text-muted-foreground">{lang === "my" ? "Booking ပြီးနောက်" : "After this booking"}</span>
+              <span className={`font-semibold ${insufficient ? "text-destructive" : "text-foreground"}`}>
+                {(balance - sessionCredits).toLocaleString()} credits
+              </span>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
-        <div className="mx-auto w-full max-w-md">
-          {step === 1 ? (
+        <div className="mx-auto flex w-full max-w-md gap-2">
+          {step === 1 && (
             <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || (availableDates.size > 0 && !selectedTime)} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
             </Button>
-          ) : (
-            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic || createBooking.isPending || insufficient} onClick={handleConfirm}>
-              <Coins className="mr-1.5 h-4 w-4" />
-              {insufficient
-                ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more credits`)
-                : createBooking.isPending
-                  ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                  : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ ဘွတ်ကင်ပြုမည်` : `Book for ${sessionCredits.toLocaleString()} credits`)}
+          )}
+          {step === 2 && (
+            <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedTopic} onClick={() => setStep(3)}>
+              {lang === "my" ? "ပြန်စစ်ရန်" : "Review Booking"}
             </Button>
+          )}
+          {step === 3 && (
+            <>
+              <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
+                {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
+              </Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending || insufficient} onClick={handleConfirm}>
+                <Coins className="mr-1.5 h-4 w-4" />
+                {insufficient
+                  ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more`)
+                  : createBooking.isPending
+                    ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
+                    : (lang === "my" ? `${sessionCredits.toLocaleString()} cr ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} cr`)}
+              </Button>
+            </>
           )}
         </div>
       </div>
