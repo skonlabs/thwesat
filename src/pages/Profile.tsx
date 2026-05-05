@@ -367,8 +367,8 @@ const Profile = () => {
           <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
             <p className="text-[11px] leading-relaxed text-muted-foreground">
               {lang === "my"
-                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အမှတ်ရရှိပါမည်။"
-                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn credit toward free Premium."}
+                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အခမဲ့ credits ရရှိပါမည်။"
+                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn free credits."}
             </p>
           </div>
 
