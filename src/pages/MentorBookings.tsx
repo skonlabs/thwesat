@@ -511,7 +511,7 @@ const MentorBookings = () => {
               variant="default"
               size="lg"
               className="w-full rounded-xl"
-              disabled={submitReview.isPending || !ratingText || ratingText.trim() === ""}
+              disabled={submitReview.isPending}
               onClick={() => submitReview.mutate()}
             >
               {submitReview.isPending
