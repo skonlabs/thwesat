@@ -41,6 +41,14 @@ const BottomNav = () => {
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
+  const agentNav: NavItem[] = [
+    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
+    { icon: Briefcase, labelMy: "ခေါ်ယူမှု", labelEn: "Postings", path: "/employer/jobs" },
+    { icon: Users, labelMy: "ကိုယ်စားလှယ်", labelEn: "Candidates", path: "/employer/applications" },
+    { icon: CheckCircle, labelMy: "ခန့်အပ်မှု", labelEn: "Placements", path: "/employer/applications?filter=placed" },
+    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
+  ];
+
   const mentorNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Calendar, labelMy: "ဘွတ်ကင်", labelEn: "Bookings", path: "/mentors/bookings" },
