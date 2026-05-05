@@ -354,7 +354,7 @@ const Profile = () => {
             <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
           </div>
           <p className="mb-2 text-xs text-muted-foreground">
-            {lang === "my" ? "သူငယ်ချင်း ၅ ဦးကို ဖိတ်ခေါ်နိုင်ပါက ပရီမီယံ ၁ လ အခမဲ့ရရှိမည်" : "Refer 5 friends = 1 free month of Premium"}
+            {lang === "my" ? "သူငယ်ချင်း ၅ ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ၅,၀၀၀ ရရှိမည်" : "Refer 5 friends = 5,000 credits"}
           </p>
 
           {/* How it works */}
