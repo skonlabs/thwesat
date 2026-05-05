@@ -30,8 +30,6 @@ export function formatTotals(rows: Money[], lang: "my" | "en" = "en"): string {
 }
 
 export const paymentTypeLabels: Record<string, { my: string; en: string }> = {
-  subscription: { my: "ပရီမီယံ စာရင်းသွင်းခြင်း", en: "Premium Subscription" },
-  employer_subscription: { my: "အလုပ်ရှင် အစီအစဉ်", en: "Employer Plan" },
   mentor_session: { my: "Mentor Session", en: "Mentor Session" },
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee" },
 };

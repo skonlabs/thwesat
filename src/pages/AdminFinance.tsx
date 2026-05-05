@@ -162,14 +162,6 @@ const AdminFinance = () => {
             isLoading={loadingPayments}
             totals={[
               {
-                label: { my: "ပရီမီယံ", en: "Premium" },
-                rows: approved.filter((p) => p.payment_type === "subscription").map((p) => ({ amount: Number(p.amount), currency: p.currency })),
-              },
-              {
-                label: { my: "အလုပ်ရှင်", en: "Employer Plans" },
-                rows: approved.filter((p) => p.payment_type === "employer_subscription").map((p) => ({ amount: Number(p.amount), currency: p.currency })),
-              },
-              {
                 label: { my: "ခန့်အပ်ခ", en: "Placement Fees" },
                 rows: approved.filter((p) => p.payment_type === "placement_fee").map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               },

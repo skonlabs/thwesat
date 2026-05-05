@@ -33,7 +33,7 @@ const EmployerEditJob = () => {
   const queryClient = useQueryClient();
   const { data: job, isLoading } = useJob(id);
   const { data: employerProfile } = useEmployerProfile();
-  const isPro = employerProfile?.subscription_tier === "pro";
+  const isPro = true;
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [showFeaturedInfo, setShowFeaturedInfo] = useState(false);
@@ -135,27 +135,7 @@ const CHAR_LIMIT_REQ = 2000;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
     setSaving(true);
 
-    // Issue #7: validate featured status against live subscription before saving
     let effectiveFeatured = isFeatured;
-    if (isFeatured) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: emp } = await supabase
-          .from("employer_profiles")
-          .select("subscription_tier, subscription_expires_at")
-          .eq("id", user.id)
-          .single();
-        const isProActive =
-          emp?.subscription_tier === "pro" &&
-          (emp.subscription_expires_at == null ||
-            emp.subscription_expires_at > new Date().toISOString());
-        if (!isProActive) {
-          effectiveFeatured = false;
-          setIsFeatured(false);
-          toast.warning("Your Pro plan has expired. This job will be saved without featured status.");
-        }
-      }
-    }
 
     const { error } = await supabase.from("jobs").update({
       title: titleEn,

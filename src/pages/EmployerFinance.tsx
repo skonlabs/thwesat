@@ -50,7 +50,7 @@ const EmployerFinance = () => {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
-  const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "subs">("all");
+  const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement">("all");
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -87,7 +87,6 @@ const EmployerFinance = () => {
 
   const all = payments || [];
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
-  const subs = all.filter((p) => p.payment_type === "employer_subscription");
   const due = all.filter((p) => p.status === "pending");
   const paid = all.filter((p) => p.status === "approved");
 
@@ -95,9 +94,8 @@ const EmployerFinance = () => {
     if (kpiFilter === "paid") return paid;
     if (kpiFilter === "due") return due;
     if (kpiFilter === "placement") return placementInvoices;
-    if (kpiFilter === "subs") return subs;
     return all;
-  }, [kpiFilter, all, paid, due, placementInvoices, subs]);
+  }, [kpiFilter, all, paid, due, placementInvoices]);
 
   const filtered = useMemo(() => applyFinanceFilters(kpiScoped, status, currency), [kpiScoped, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "USD"), [all]);
@@ -161,12 +159,6 @@ const EmployerFinance = () => {
               rows: placementInvoices.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               onClick: () => setKpiFilter(kpiFilter === "placement" ? "all" : "placement"),
               active: kpiFilter === "placement",
-            },
-            {
-              label: { my: "အစီအစဉ် ကုန်ကျ", en: "Plan Spend" },
-              rows: subs.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
-              onClick: () => setKpiFilter(kpiFilter === "subs" ? "all" : "subs"),
-              active: kpiFilter === "subs",
             },
           ]}
           rows={[]}

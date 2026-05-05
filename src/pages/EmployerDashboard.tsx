@@ -56,7 +56,7 @@ const EmployerDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
-        {/* Company info + subscription */}
+        {/* Company info */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4 shadow-card">
           <div className="flex items-start gap-3">
             <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
@@ -66,26 +66,7 @@ const EmployerDashboard = () => {
                 {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ" : "Pending Verification")}
               </p>
             </div>
-            {/* Subscription badge */}
-            <button onClick={() => navigate("/employer/subscription")} className="flex items-center gap-1.5 rounded-full bg-accent/20 px-2.5 py-1">
-              {planLabel ? (
-                <>
-                  <Crown className="h-3 w-3 text-gold-dark" strokeWidth={2} />
-                  <span className="text-[10px] font-bold text-gold-dark">{planLabel}</span>
-                </>
-              ) : (
-                <>
-                  <CreditCard className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
-                  <span className="text-[10px] font-bold text-muted-foreground">{lang === "my" ? "အဆင့်မြှင့်" : "Upgrade"}</span>
-                </>
-              )}
-            </button>
           </div>
-          {planLabel && planExpiry && (
-            <p className="mt-2 text-[10px] text-muted-foreground">
-              {lang === "my" ? `${planLabel} အစီအစဉ် · ${planExpiry} ထိ` : `${planLabel} Plan · Expires ${planExpiry}`}
-            </p>
-          )}
         </motion.div>
 
         {/* Onboarding checklist (dismissible, hides when complete) */}

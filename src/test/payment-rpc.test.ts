@@ -103,7 +103,7 @@ describe("useCreatePaymentRequest → validation", () => {
     await expect(
       result.current.mutateAsync({
         payment_method: "kbzpay",
-        payment_type: "subscription",
+        payment_type: "mentor_session",
         amount: 0,
         currency: "USD",
       })
