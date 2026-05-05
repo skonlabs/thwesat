@@ -23,7 +23,7 @@ const quickActions = [
 const EmployerDashboard = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { data: empProfile } = useEmployerProfile();
   const { data: jobs } = useEmployerJobs();
 
