@@ -32,6 +32,7 @@ const topics = [
 ];
 
 const durationOptions = [
+  { minutes: 15, labelEn: "15 min", labelMy: "၁၅ မိနစ်" },
   { minutes: 30, labelEn: "30 min", labelMy: "၃၀ မိနစ်" },
   { minutes: 60, labelEn: "1 hour", labelMy: "၁ နာရီ" },
   { minutes: 90, labelEn: "1.5 hours", labelMy: "၁.၅ နာရီ" },
