@@ -127,11 +127,7 @@ const AdminUsers = () => {
         queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
       }
     } else {
-      const { error } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId)
-        .eq("role", role);
+      const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: userId, _role: role });
       if (error) {
         toast.error(lang === "my" ? "Role ဖယ်ရှား၍ မရပါ" : `Failed to remove ${role} role`);
       } else {
