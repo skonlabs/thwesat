@@ -1463,7 +1463,6 @@ export type Database = {
           headline: string | null
           id: string
           internet_stable: boolean | null
-          is_premium: boolean | null
           languages: string[] | null
           last_seen_at: string | null
           location: string | null
@@ -1495,7 +1494,6 @@ export type Database = {
           headline?: string | null
           id: string
           internet_stable?: boolean | null
-          is_premium?: boolean | null
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
@@ -1527,7 +1525,6 @@ export type Database = {
           headline?: string | null
           id?: string
           internet_stable?: boolean | null
-          is_premium?: boolean | null
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
@@ -1633,63 +1630,6 @@ export type Database = {
           reported_entity_type?: string
           reporter_id?: string | null
           status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      subscription_plans: {
-        Row: {
-          badge_en: string | null
-          badge_my: string | null
-          country: string
-          created_at: string | null
-          currency: string
-          duration_months: number | null
-          id: string
-          is_active: boolean
-          name_en: string
-          name_my: string
-          plan_id: string
-          price: number
-          save_label_en: string | null
-          save_label_my: string | null
-          sort_order: number
-          updated_at: string | null
-        }
-        Insert: {
-          badge_en?: string | null
-          badge_my?: string | null
-          country?: string
-          created_at?: string | null
-          currency?: string
-          duration_months?: number | null
-          id?: string
-          is_active?: boolean
-          name_en?: string
-          name_my?: string
-          plan_id: string
-          price?: number
-          save_label_en?: string | null
-          save_label_my?: string | null
-          sort_order?: number
-          updated_at?: string | null
-        }
-        Update: {
-          badge_en?: string | null
-          badge_my?: string | null
-          country?: string
-          created_at?: string | null
-          currency?: string
-          duration_months?: number | null
-          id?: string
-          is_active?: boolean
-          name_en?: string
-          name_my?: string
-          plan_id?: string
-          price?: number
-          save_label_en?: string | null
-          save_label_my?: string | null
-          sort_order?: number
           updated_at?: string | null
         }
         Relationships: []
@@ -2028,7 +1968,6 @@ export type Database = {
           headline: string | null
           id: string | null
           internet_stable: boolean | null
-          is_premium: boolean | null
           languages: string[] | null
           last_seen_at: string | null
           location: string | null
@@ -2057,7 +1996,6 @@ export type Database = {
           headline?: string | null
           id?: string | null
           internet_stable?: boolean | null
-          is_premium?: boolean | null
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
@@ -2086,7 +2024,6 @@ export type Database = {
           headline?: string | null
           id?: string | null
           internet_stable?: boolean | null
-          is_premium?: boolean | null
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
@@ -2152,7 +2089,6 @@ export type Database = {
         Returns: undefined
       }
       enroll_career_track: { Args: { _track_id: string }; Returns: Json }
-      expire_referral_premium: { Args: never; Returns: undefined }
       get_applicant_contact: {
         Args: { _applicant_id: string }
         Returns: {
