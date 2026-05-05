@@ -61,11 +61,21 @@ const AdminUsers = () => {
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, headline, bio, location, primary_role, email, created_at, skills, languages, phone")
+        .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages")
         .order("created_at", { ascending: false })
         .range(from, to);
       if (error) throw error;
-      return data || [];
+      const ids = (data || []).map((u: any) => u.id);
+      let contactMap = new Map<string, { email: string | null; phone: string | null }>();
+      if (ids.length) {
+        const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
+        contactMap = new Map((contacts || []).map((c: any) => [c.id, { email: c.email, phone: c.phone }]));
+      }
+      return (data || []).map((u: any) => ({
+        ...u,
+        email: contactMap.get(u.id)?.email ?? null,
+        phone: contactMap.get(u.id)?.phone ?? null,
+      }));
     },
   });
 

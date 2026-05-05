@@ -64,9 +64,11 @@ const AdminPayments = () => {
       if (userIds.length === 0) return [];
       const { data } = await supabase
         .from("profiles")
-        .select("id, display_name, email, avatar_url")
+        .select("id, display_name, avatar_url")
         .in("id", userIds);
-      return data || [];
+      const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds });
+      const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
+      return (data || []).map((p) => ({ ...p, email: contactMap.get(p.id) ?? null }));
     },
     enabled: userIds.length > 0,
   });
