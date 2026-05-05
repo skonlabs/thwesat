@@ -232,7 +232,7 @@ const MentorBooking = () => {
     );
   }
 
-  if (step === 3) {
+  if (step === 4) {
     return (
       <div className="bg-background pb-10">
         <PageHeader title={lang === "my" ? "အတည်ပြုချက်" : "Confirmation"} onBack={() => navigate("/mentors")} />
