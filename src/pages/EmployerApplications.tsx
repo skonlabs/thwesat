@@ -54,8 +54,8 @@ const EmployerApplications = () => {
   const jobIdParam = searchParams.get("jobId") || undefined;
   const { data: applications, isLoading } = useEmployerApplications(jobIdParam);
   const updateStatus = useUpdateApplicationStatus();
-  const { data: empProfile } = useEmployerProfile();
-  const isAgent = empProfile?.employer_type === "agent";
+  const { profile } = useAuth();
+  const isAgent = profile?.primary_role === "agent";
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
