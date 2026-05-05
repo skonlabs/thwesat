@@ -1,8 +1,8 @@
-import { GraduationCap, Shield, Building2 } from "lucide-react";
+import { GraduationCap, Shield, Building2, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-type RoleType = "mentor" | "admin" | "moderator" | "employer";
+type RoleType = "mentor" | "admin" | "moderator" | "employer" | "agent";
 
 interface RoleBadgeProps {
   type: RoleType;
@@ -28,6 +28,11 @@ const config: Record<RoleType, { label: string; icon: typeof GraduationCap; clas
   employer: {
     label: "Employer",
     icon: Building2,
+    className: "bg-muted text-foreground border-border",
+  },
+  agent: {
+    label: "Agent",
+    icon: Briefcase,
     className: "bg-muted text-foreground border-border",
   },
 };
