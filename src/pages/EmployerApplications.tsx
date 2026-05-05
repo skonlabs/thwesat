@@ -515,7 +515,7 @@ const EmployerApplications = () => {
                   {selected.applicant_profile?.display_name || "Applicant"} · {selected.jobs?.title || "Job"}
                 </p>
               )}
-              {isAgent && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% ကောက်ခံပါမည်" : "8% placement fee will apply"}</p>}
+              {isAgent && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% — ဝန်ထမ်းမှ ပေးချေရပါမည်" : "8% placement fee — paid by the job seeker"}</p>}
               <div className="mb-3">
                 <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (ကျပ်/လ) *" : "Monthly Salary (MMK) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
@@ -523,7 +523,18 @@ const EmployerApplications = () => {
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
                 }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="500000" />
               </div>
-              {isAgent && placementSalary && parseInt(placementSalary) > 0 && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ကောက်ခံမည့်ခ" : "Fee"}: <span className="font-bold text-primary">{Math.round(parseInt(placementSalary) * 0.08).toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>}
+              {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
+                const fee = Math.round(parseInt(placementSalary) * 0.08);
+                const commission = Math.round(fee * 0.10);
+                const net = fee - commission;
+                return (
+                  <div className="mb-4 space-y-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                    <p className="flex justify-between"><span>{lang === "my" ? "ခန့်အပ်ခ (ဝန်ထမ်းပေးချေ)" : "Placement fee (paid by seeker)"}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                    <p className="flex justify-between"><span>{lang === "my" ? "ပလက်ဖောင်း ၁၀% ကော်မရှင်" : "Platform 10% commission"}</span><span>−{commission.toLocaleString()}</span></p>
+                    <p className="flex justify-between border-t border-border/60 pt-1"><span>{lang === "my" ? "သင် ရရှိမည်" : "You receive"}</span><span className="font-bold text-emerald">{net.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                  </div>
+                );
+              })()}
               <div className="flex gap-3">
                 <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => { setShowPlacement(false); setPlacementSalary(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="default" size="default" className="flex-1 rounded-xl" onClick={() => { if (!placementSalary || parseInt(placementSalary) <= 0) return; setShowPlacementConfirm(true); }} disabled={!placementSalary || parseInt(placementSalary) <= 0 || updateStatus.isPending}>
@@ -570,8 +581,8 @@ const EmployerApplications = () => {
             <AlertDialogDescription>
               {isAgent
                 ? (lang === "my"
-                    ? `ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ လစာ၏ ၈% ခန့်အပ်ခ — ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ် — ကောက်ခံပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?`
-                    : `This will record a placement. An 8% placement fee of ${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK applies. Confirm?`)
+                    ? `ခန့်အပ်ခ ၈% (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
+                    : `An 8% placement fee (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
                 : (lang === "my" ? "ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?" : "This will record a placement. Confirm?")}
             </AlertDialogDescription>
           </AlertDialogHeader>

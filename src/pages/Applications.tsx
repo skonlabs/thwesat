@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrencyRange } from "@/lib/currency";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -58,6 +58,25 @@ const Applications = () => {
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedApp);
+
+  // Resolve whether the offering employer is a recruiting agent (placement fee applies to seeker)
+  const offerEmployerId = selected?.jobs?.employer_id;
+  const { data: offerEmployer } = useQuery({
+    queryKey: ["offer-employer-type", offerEmployerId],
+    queryFn: async () => {
+      if (!offerEmployerId) return null;
+      const { data } = await supabase
+        .from("employer_profiles")
+        .select("employer_type")
+        .eq("id", offerEmployerId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!offerEmployerId && confirmAccept,
+  });
+  const isAgentOffer = offerEmployer?.employer_type === "agent";
+  const offerSalary = Number(selected?.jobs?.salary_max || selected?.jobs?.salary_min || 0);
+  const offerFee = isAgentOffer && offerSalary > 0 ? Math.round(offerSalary * 0.08) : 0;
 
   const statusCounts = {
     total: apps.length,
@@ -307,9 +326,20 @@ const Applications = () => {
                   : "Once accepted, the application status will be marked as Placed."}
               </p>
               <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-xs text-foreground/80">
-                {lang === "my"
-                  ? "သင် လက်ခံခြင်းဖြင့် ခန့်အပ်မှုကို အတည်ပြုပါသည်။"
-                  : "By accepting, you confirm the placement with this employer."}
+                {isAgentOffer ? (
+                  <>
+                    <p className="mb-1 font-semibold text-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈%" : "8% placement fee"}</p>
+                    <p>
+                      {lang === "my"
+                        ? `ဤကမ်းလှမ်းမှုသည် ခေါ်ယူရေး အေဂျင့်မှ ဖြစ်ပါသည်။ လက်ခံပါက သဘောတူထားသော လစာ၏ ၈% ${offerFee > 0 ? `(${offerFee.toLocaleString()} ကျပ်) ` : ""}ကို အေဂျင့်သို့ ပေးချေရပါမည်။`
+                        : `This offer is from a recruiting agent. By accepting, you agree to pay the agent 8%${offerFee > 0 ? ` (${offerFee.toLocaleString()} MMK)` : ""} of your agreed salary as a placement fee.`}
+                    </p>
+                  </>
+                ) : (
+                  lang === "my"
+                    ? "သင် လက်ခံခြင်းဖြင့် ခန့်အပ်မှုကို အတည်ပြုပါသည်။"
+                    : "By accepting, you confirm the placement with this employer."
+                )}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setConfirmAccept(false)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
