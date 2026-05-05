@@ -476,8 +476,8 @@ const Premium = () => {
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {lang === "my"
-                    ? "ပရီမီယံ ၁ လ အခမဲ့ ရယူပါ"
-                    : "Get 1 free month of Premium"}
+                    ? "Credits ၅,၀၀၀ ရယူပါ"
+                    : "Earn 5,000 credits"}
                 </p>
               </div>
             </div>
