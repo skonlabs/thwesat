@@ -33,18 +33,9 @@ const EmployerOnboarding = () => {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
-  const [emailError, setEmailError] = useState("");
   const [companyNameWarning, setCompanyNameWarning] = useState("");
 
   const togglePayment = (m: string) => setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]);
-
-  const handleEmailBlur = () => {
-    if (contactEmail && (!contactEmail.includes("@") || !contactEmail.includes("."))) {
-      setEmailError(lang === "my" ? "မှန်ကန်သော အီးမေးလ် ထည့်ပါ" : "Enter a valid email address");
-    } else {
-      setEmailError("");
-    }
-  };
 
   const handleCompanyNameBlur = async () => {
     if (!companyName.trim()) return;
