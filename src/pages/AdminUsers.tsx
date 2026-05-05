@@ -30,6 +30,7 @@ import PageHeader from "@/components/PageHeader";
 const roleColors: Record<string, string> = {
   jobseeker: "bg-muted text-muted-foreground",
   employer: "bg-primary/10 text-primary",
+  agent: "bg-accent/15 text-accent-foreground",
   mentor: "bg-emerald/10 text-emerald",
 };
 
@@ -99,6 +100,7 @@ const AdminUsers = () => {
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
+  const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
 
   /** Called when the admin clicks a role Switch — shows a confirmation dialog instead of acting immediately */
@@ -149,10 +151,11 @@ const AdminUsers = () => {
         <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
         <div className="px-5">
           {/* Summary */}
-          <div className="mb-4 grid grid-cols-3 gap-2">
+          <div className="mb-4 grid grid-cols-4 gap-2">
             {[
               { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
+              { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
             ].map(s => (
               <button

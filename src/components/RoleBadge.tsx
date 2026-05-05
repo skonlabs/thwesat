@@ -1,8 +1,8 @@
-import { GraduationCap, Shield, Building2 } from "lucide-react";
+import { GraduationCap, Shield, Building2, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-type RoleType = "mentor" | "admin" | "moderator" | "employer";
+type RoleType = "mentor" | "admin" | "moderator" | "employer" | "agent";
 
 interface RoleBadgeProps {
   type: RoleType;
@@ -30,6 +30,11 @@ const config: Record<RoleType, { label: string; icon: typeof GraduationCap; clas
     icon: Building2,
     className: "bg-muted text-foreground border-border",
   },
+  agent: {
+    label: "Agent",
+    icon: Briefcase,
+    className: "bg-muted text-foreground border-border",
+  },
 };
 
 export function RoleBadge({ type, size = "sm" }: RoleBadgeProps) {
@@ -51,16 +56,19 @@ export function useUserRoleFlags(userId: string | undefined) {
   return useQuery({
     queryKey: ["user-role-flags", userId],
     queryFn: async () => {
-      if (!userId) return { isMentor: false, isAdmin: false, isModerator: false, isEmployer: false };
+      if (!userId) return { isMentor: false, isAdmin: false, isModerator: false, isEmployer: false, isAgent: false };
       const [m, e, r] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
-        supabase.from("employer_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
+        supabase.from("employer_profiles").select("id, employer_type").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
       ]);
       const roles = (r.data || []).map((x) => x.role);
+      const isAgent = e.data?.employer_type === "agent";
+      const isEmployer = !!e.data && !isAgent;
       return {
         isMentor: (m.count ?? 0) > 0,
-        isEmployer: (e.count ?? 0) > 0,
+        isEmployer,
+        isAgent,
         isAdmin: roles.includes("admin"),
         isModerator: roles.includes("moderator"),
       };
@@ -79,6 +87,7 @@ export function UserRoleBadges({ userId }: { userId: string | undefined }) {
       {data.isModerator && !data.isAdmin && <RoleBadge type="moderator" />}
       {data.isMentor && <RoleBadge type="mentor" />}
       {data.isEmployer && <RoleBadge type="employer" />}
+      {data.isAgent && <RoleBadge type="agent" />}
     </>
   );
 }
