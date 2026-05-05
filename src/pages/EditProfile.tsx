@@ -500,7 +500,7 @@ const EditProfile = () => {
         display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
         avatar_url: savedAvatarUrl,
         skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
-        has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
+        has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
         has_laptop: hasLaptop, internet_stable: internetStable,
         remote_ready: hasLaptop && internetStable,
       }).eq("id", profile.id);
@@ -800,7 +800,6 @@ const EditProfile = () => {
             {[
               { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => { setHasLaptop(!hasLaptop); markDirty(); } },
               { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => { setInternetStable(!internetStable); markDirty(); } },
-              { label: "Payoneer", icon: CreditCard, value: hasPayoneer, toggle: () => { setHasPayoneer(!hasPayoneer); markDirty(); } },
               { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => { setHasWise(!hasWise); markDirty(); } },
               { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => { setHasUpwork(!hasUpwork); markDirty(); } },
             ].map((item, i) => (
