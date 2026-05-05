@@ -27,7 +27,7 @@ const typeIcons: Record<string, typeof Briefcase> = {
   mentor: Users,
   message: MessageCircle,
   guide: Shield,
-  premium: Star,
+  
   payment_approved: CheckCircle,
   payment_rejected: Shield,
   referral_reward: Star,
@@ -40,7 +40,7 @@ const typeColors: Record<string, string> = {
   mentor: "bg-gold/10 text-gold-dark",
   message: "bg-accent/10 text-accent",
   guide: "bg-secondary text-secondary-foreground",
-  premium: "bg-primary/10 text-primary",
+  
   payment_approved: "bg-emerald/10 text-emerald",
   payment_rejected: "bg-destructive/10 text-destructive",
   referral_reward: "bg-gold/10 text-gold-dark",
@@ -56,7 +56,7 @@ const typeGroupLabel = (type: string, lang: string): string => {
     mentor:           { en: "Mentors",      my: "Mentor" },
     message:          { en: "Messages",     my: "မက်ဆေ့ချ်" },
     guide:            { en: "Guides",       my: "လမ်းညွှန်" },
-    premium:          { en: "Premium",      my: "Premium" },
+    
     payment_approved: { en: "Payments",     my: "ငွေပေးချေမှု" },
     payment_rejected: { en: "Payments",     my: "ငွေပေးချေမှု" },
     referral_reward:  { en: "Rewards",      my: "ဆုကြေး" },

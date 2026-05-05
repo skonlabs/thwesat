@@ -151,10 +151,9 @@ export function useAllPaymentRequests() {
 /**
  * Approve / reject / revoke a payment request.
  *
- * All side-effects (subscription extension, employer tier, booking payment
- * status, mentor earnings, notifications) are handled atomically inside the
- * `review_payment_request` Postgres function. The function is idempotent and
- * validates the amount against the matching subscription plan when known.
+ * All side-effects (booking payment status, mentor earnings, placement-fee
+ * confirmation, notifications) are handled atomically inside the
+ * `review_payment_request` Postgres function. The function is idempotent.
  */
 export function useUpdatePaymentRequest() {
   const queryClient = useQueryClient();
