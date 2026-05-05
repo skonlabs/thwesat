@@ -8,10 +8,11 @@ import { useLanguage } from "@/hooks/use-language";
 import { useEmployerProfile, useUpsertEmployerProfile } from "@/hooks/use-employer-data";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Construction", "Agriculture", "Other"];
 const companySizes = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
-const paymentMethods = ["Wise"];
+const paymentMethods = SUPPORTED_JOB_PAYMENT_METHODS;
 
 const EmployerEditCompany = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const EmployerEditCompany = () => {
       setContactName(profile.contact_name || "");
       setContactEmail(profile.contact_email || "");
       setContactPhone(profile.contact_phone || "");
-      setSelectedPayments(profile.payment_methods || []);
+      setSelectedPayments(sanitizeJobPaymentMethods(profile.payment_methods));
       // Reset dirty when profile loads
       setIsDirty(false);
     }
@@ -69,7 +70,7 @@ const EmployerEditCompany = () => {
         company_name: companyName, company_website: website, company_linkedin: linkedin,
         company_description: description, industry, company_size: companySize, hq_country: hqCountry,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
-        payment_methods: selectedPayments,
+        payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
       setIsDirty(false);
       toast.success(lang === "my" ? "ကုမ္ပဏီ အချက်အလက် ပြင်ဆင်ပြီး" : "Company info updated");

@@ -21,13 +21,12 @@ export interface ProfileData {
   has_laptop: boolean | null;
   internet_stable: boolean | null;
   has_wise: boolean | null;
-  has_payoneer: boolean | null;
   has_upwork: boolean | null;
   referral_code: string | null;
   preferred_work_types: string[] | null;
 }
 
-const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, has_laptop, internet_stable, has_wise, has_payoneer, has_upwork, referral_code, preferred_work_types, created_at";
+const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, has_laptop, internet_stable, has_wise, has_upwork, referral_code, preferred_work_types, created_at";
 
 // Profile-visibility enforcement (client-side):
 // - "public"  : visible to anyone

@@ -10,10 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useUpsertEmployerProfile } from "@/hooks/use-employer-data";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Construction", "Agriculture", "Other"];
 const companySizes = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
-const paymentMethods = ["Wise"];
+const paymentMethods = SUPPORTED_JOB_PAYMENT_METHODS;
 
 const EmployerOnboarding = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const EmployerOnboarding = () => {
         company_name: companyName, company_website: website, company_linkedin: linkedin,
         company_description: description, industry, company_size: companySize, hq_country: hqCountry,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
-        payment_methods: selectedPayments,
+        payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
       navigate("/employer/dashboard");
     } catch {

@@ -6,6 +6,7 @@ import { useMyPaymentRequests, getPaymentProofSignedUrl, type PaymentRequest } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   pending: { label: { my: "စစ်ဆေးနေသည်", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
@@ -17,13 +18,6 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof DollarSign }> = {
   mentor_session: { label: { my: "Mentor Session", en: "Mentor Session" }, icon: GraduationCap },
   placement_fee: { label: { my: "ခန့်အပ်ခ", en: "Placement Fee" }, icon: Briefcase },
-};
-
-const methodLabels: Record<string, string> = {
-  kbzpay: "KBZPay",
-  cbpay: "CB Pay",
-  wavepay: "Wave Pay",
-  ayapay: "AYA Pay",
 };
 
 const PaymentHistory = () => {
@@ -93,7 +87,7 @@ const PaymentHistory = () => {
                       </p>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      {methodLabels[p.payment_method] || p.payment_method} · {new Date(p.created_at).toLocaleDateString()}
+                      {getPlatformPaymentMethodLabel(p.payment_method)} · {new Date(p.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="text-right">
@@ -135,7 +129,7 @@ const PaymentHistory = () => {
                 </div>
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပေးချေနည်း" : "Method"}</p>
-                  <p className="text-sm font-semibold text-foreground">{methodLabels[selected.payment_method]}</p>
+                  <p className="text-sm font-semibold text-foreground">{getPlatformPaymentMethodLabel(selected.payment_method)}</p>
                 </div>
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ရက်စွဲ" : "Submitted"}</p>

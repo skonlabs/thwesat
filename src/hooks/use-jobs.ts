@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 export interface Job {
   id: string;
@@ -45,7 +46,10 @@ export function useJobs() {
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Job[];
+      return (data || []).map((job) => ({
+        ...job,
+        payment_methods: sanitizeJobPaymentMethods((job as Job).payment_methods),
+      })) as Job[];
     },
   });
 }
@@ -61,7 +65,10 @@ export function useJob(id: string | undefined) {
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data as Job | null;
+      return data ? ({
+        ...data,
+        payment_methods: sanitizeJobPaymentMethods((data as Job).payment_methods),
+      } as Job) : null;
     },
     enabled: !!id,
   });
@@ -79,7 +86,13 @@ export function useSavedJobs() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return (data || []).map((saved: any) => ({
+        ...saved,
+        jobs: saved.jobs ? {
+          ...saved.jobs,
+          payment_methods: sanitizeJobPaymentMethods(saved.jobs.payment_methods),
+        } : saved.jobs,
+      }));
     },
     enabled: !!user,
   });

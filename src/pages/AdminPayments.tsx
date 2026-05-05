@@ -27,6 +27,7 @@ import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import type { PaymentRequest } from "@/hooks/use-payment";
+import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 
 type FilterType = "all" | "pending" | "approved" | "rejected" | "revoked";
 
@@ -35,13 +36,6 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   approved: { label: { my: "အတည်ပြုပြီး", en: "Approved" }, color: "bg-emerald/10 text-emerald", icon: CheckCircle },
   rejected: { label: { my: "ပယ်ချပြီး", en: "Rejected" }, color: "bg-destructive/10 text-destructive", icon: XCircle },
   revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },
-};
-
-const methodLabels: Record<string, string> = {
-  kbzpay: "KBZPay",
-  cbpay: "CB Pay",
-  wavepay: "Wave Pay",
-  ayapay: "AYA Pay",
 };
 
 const typeLabels: Record<string, { my: string; en: string; icon: typeof CheckCircle }> = {
@@ -238,7 +232,7 @@ const AdminPayments = () => {
                       </p>
                     </div>
                     <p className="text-[10px] text-muted-foreground truncate">
-                      {methodLabels[p.payment_method] || p.payment_method} · {lang === "my" ? tl.my : tl.en}
+                      {getPlatformPaymentMethodLabel(p.payment_method)} · {lang === "my" ? tl.my : tl.en}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
@@ -269,7 +263,7 @@ const AdminPayments = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပေးချေနည်း" : "Method"}</p>
-                  <p className="text-sm font-semibold text-foreground">{methodLabels[selectedPayment.payment_method]}</p>
+                  <p className="text-sm font-semibold text-foreground">{getPlatformPaymentMethodLabel(selectedPayment.payment_method)}</p>
                 </div>
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပမာဏ" : "Amount"}</p>
@@ -469,7 +463,7 @@ const AdminPayments = () => {
                   <>
                     <p><span className="font-medium">{lang === "my" ? "ပမာဏ" : "Amount"}:</span> {selectedPayment.currency === "MMK" ? `${selectedPayment.amount.toLocaleString()} ကျပ်` : `$${selectedPayment.amount}`}</p>
                     <p><span className="font-medium">{lang === "my" ? "အသုံးပြုသူ" : "User"}:</span> {selectedPaymentProfile?.display_name || "—"}</p>
-                    <p><span className="font-medium">{lang === "my" ? "ပေးချေနည်း" : "Method"}:</span> {methodLabels[selectedPayment.payment_method] || selectedPayment.payment_method}</p>
+                    <p><span className="font-medium">{lang === "my" ? "ပေးချေနည်း" : "Method"}:</span> {getPlatformPaymentMethodLabel(selectedPayment.payment_method)}</p>
                   </>
                 )}
               </div>

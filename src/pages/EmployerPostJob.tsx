@@ -15,6 +15,7 @@ import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
 import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
 import { Coins } from "lucide-react";
+import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
@@ -26,7 +27,7 @@ const roleTypes = [
   { value: "onsite", label: { my: "လူကိုယ်တိုင်", en: "On-site" } },
 ];
 
-const paymentOptions = ["Wise"];
+const paymentOptions = SUPPORTED_JOB_PAYMENT_METHODS;
 const applicationMethods = [
   { value: "platform", label: { my: "ThweSat မှ", en: "Via Platform" } },
   { value: "external", label: { my: "ပြင်ပလင့်ခ်", en: "External URL" } },
@@ -133,7 +134,7 @@ const EmployerPostJob = () => {
         requirements: requirementsEn, requirements_my: requirementsMy || null,
         role_type: roleType, category: categories[0] || null, categories,
         salary_min: minVal, salary_max: maxVal, location: locationCountry || "Remote",
-        payment_methods: selectedPayments,
+        payment_methods: sanitizeJobPaymentMethods(selectedPayments),
         requires_embassy: requiresEmbassy, requires_work_permit: requiresWorkPermit,
         visa_sponsorship: visaSponsorship, is_featured: isFeatured,
         application_method: applicationMethod,

@@ -211,7 +211,6 @@ type ProfileDraft = {
   experience: string;
   visibility: string;
   preferredWorkTypes: string[];
-  hasPayoneer: boolean;
   hasWise: boolean;
   hasUpwork: boolean;
   hasLaptop: boolean;
@@ -285,7 +284,6 @@ const EditProfile = () => {
   const [experience, setExperience] = useState("");
   const [visibility, setVisibility] = useState("members");
   const [preferredWorkTypes, setPreferredWorkTypes] = useState<string[]>([]);
-  const [hasPayoneer, setHasPayoneer] = useState(false);
   const [hasWise, setHasWise] = useState(false);
   const [hasUpwork, setHasUpwork] = useState(false);
   const [hasLaptop, setHasLaptop] = useState(false);
@@ -327,7 +325,6 @@ const EditProfile = () => {
     setExperience(draftText(draft, "experience", profile.experience ?? ""));
     setVisibility(draftText(draft, "visibility", profile.visibility ?? "members"));
     setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
-    setHasPayoneer(draftBool(draft, "hasPayoneer", profile.has_payoneer ?? false));
     setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
     setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));
     setHasLaptop(draftBool(draft, "hasLaptop", profile.has_laptop ?? false));
@@ -355,11 +352,11 @@ const EditProfile = () => {
       savedAt: Date.now(),
       name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
       skills, languages, experience, visibility, preferredWorkTypes,
-      hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+      hasWise, hasUpwork, hasLaptop, internetStable,
       avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
     };
     sessionStorage.setItem(draftKey, JSON.stringify(draft));
-  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
 
   useEffect(() => {
     const persistOnHide = () => {
@@ -369,14 +366,14 @@ const EditProfile = () => {
         savedAt: Date.now(),
         name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
         skills, languages, experience, visibility, preferredWorkTypes,
-        hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable,
+        hasWise, hasUpwork, hasLaptop, internetStable,
         avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
       };
       sessionStorage.setItem(draftKey, JSON.stringify(draft));
     };
     document.addEventListener("visibilitychange", persistOnHide);
     return () => document.removeEventListener("visibilitychange", persistOnHide);
-  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasPayoneer, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
+  }, [draftKey, isDirty, name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website, skills, languages, experience, visibility, preferredWorkTypes, hasWise, hasUpwork, hasLaptop, internetStable, avatarUrl]);
 
   const markDirty = useCallback(() => setIsDirty(true), []);
 
@@ -503,7 +500,7 @@ const EditProfile = () => {
         display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
         avatar_url: savedAvatarUrl,
         skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
-        has_payoneer: hasPayoneer, has_wise: hasWise, has_upwork: hasUpwork,
+        has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
         has_laptop: hasLaptop, internet_stable: internetStable,
         remote_ready: hasLaptop && internetStable,
       }).eq("id", profile.id);
@@ -803,7 +800,6 @@ const EditProfile = () => {
             {[
               { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => { setHasLaptop(!hasLaptop); markDirty(); } },
               { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => { setInternetStable(!internetStable); markDirty(); } },
-              { label: "Payoneer", icon: CreditCard, value: hasPayoneer, toggle: () => { setHasPayoneer(!hasPayoneer); markDirty(); } },
               { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => { setHasWise(!hasWise); markDirty(); } },
               { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => { setHasUpwork(!hasUpwork); markDirty(); } },
             ].map((item, i) => (
