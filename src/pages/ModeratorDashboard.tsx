@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import { toast } from "sonner";
+import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 
 const removalReasons = [
   { my: "အလိမ်/စပမ်", en: "Scam/Spam" },
@@ -373,7 +374,7 @@ const ModeratorDashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{pr.payment_method}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{getPlatformPaymentMethodLabel(pr.payment_method)}</span>
                       <span className="text-xs font-medium text-foreground">{pr.amount} {pr.currency}</span>
                       <span className="text-[10px] text-muted-foreground">{pr.payment_type}</span>
                     </div>
@@ -503,7 +504,7 @@ const ModeratorDashboard = () => {
             <p className="text-xs text-muted-foreground mb-1">{selectedPayment.profile?.email}</p>
             <div className="my-3 grid grid-cols-2 gap-2 text-xs">
               <div className="rounded-lg bg-muted p-2"><span className="text-muted-foreground">{lang === "my" ? "ပမာဏ" : "Amount"}</span><p className="font-semibold text-foreground">{selectedPayment.amount} {selectedPayment.currency}</p></div>
-              <div className="rounded-lg bg-muted p-2"><span className="text-muted-foreground">{lang === "my" ? "နည်းလမ်း" : "Method"}</span><p className="font-semibold text-foreground">{selectedPayment.payment_method}</p></div>
+              <div className="rounded-lg bg-muted p-2"><span className="text-muted-foreground">{lang === "my" ? "နည်းလမ်း" : "Method"}</span><p className="font-semibold text-foreground">{getPlatformPaymentMethodLabel(selectedPayment.payment_method)}</p></div>
               <div className="rounded-lg bg-muted p-2"><span className="text-muted-foreground">{lang === "my" ? "အမျိုးအစား" : "Type"}</span><p className="font-semibold text-foreground">{selectedPayment.payment_type}</p></div>
               <div className="rounded-lg bg-muted p-2"><span className="text-muted-foreground">{lang === "my" ? "အခြေအနေ" : "Status"}</span><div className="mt-0.5">{statusBadge(selectedPayment.status)}</div></div>
             </div>
