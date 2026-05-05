@@ -32,8 +32,8 @@ const benefits = [
     icon: DollarSign,
     titleEn: "Earn From Your Expertise",
     titleMy: "သင့်ကျွမ်းကျင်မှုဖြင့် ဝင်ငွေရယူပါ",
-    descEn: "Set your own hourly rate and get paid for mentoring sessions via Wise or Payoneer.",
-    descMy: "သင့်နာရီခနှုန်းကို သတ်မှတ်ပြီး Wise သို့မဟုတ် Payoneer ဖြင့် ငွေရယူပါ။",
+    descEn: "Set your own hourly rate and get paid for mentoring sessions via supported payout methods.",
+    descMy: "သင့်နာရီခနှုန်းကို သတ်မှတ်ပြီး ပံ့ပိုးထားသော ငွေပေးချေနည်းများဖြင့် ငွေရယူပါ။",
   },
   {
     icon: Calendar,
