@@ -169,16 +169,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Defensive cleanup: remove any leftover Supabase auth keys from
-    // localStorage (covers cases where signOut bailed before clearing them).
+    // localStorage AND sessionStorage (covers cases where signOut bailed
+    // before clearing them, or other tabs/storages).
     try {
-      const keys: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && (k.startsWith("sb-") || k.includes("supabase.auth"))) keys.push(k);
+      const isAuthKey = (k: string | null) =>
+        !!k && (k.startsWith("sb-") || k.includes("supabase.auth") || k.startsWith("thwesat_"));
+      for (const storage of [localStorage, sessionStorage]) {
+        const keys: string[] = [];
+        for (let i = 0; i < storage.length; i++) {
+          const k = storage.key(i);
+          if (isAuthKey(k)) keys.push(k as string);
+        }
+        keys.forEach((k) => storage.removeItem(k));
       }
-      keys.forEach((k) => localStorage.removeItem(k));
     } catch {
       // ignore storage access errors
+    }
+
+    // Clear any auth-related cookies on the current domain (Supabase usually
+    // uses localStorage, but third-party / custom-domain setups may write
+    // cookies — wipe anything that looks auth-related).
+    try {
+      const cookies = document.cookie ? document.cookie.split(";") : [];
+      for (const c of cookies) {
+        const name = c.split("=")[0]?.trim();
+        if (!name) continue;
+        if (name.startsWith("sb-") || name.includes("supabase") || name.startsWith("thwesat_")) {
+          const host = window.location.hostname;
+          const paths = ["/", window.location.pathname];
+          const domains = ["", host, `.${host}`, `.${host.split(".").slice(-2).join(".")}`];
+          for (const path of paths) {
+            for (const domain of domains) {
+              document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domain ? `; domain=${domain}` : ""}`;
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // Drop any cached query data so a different account can't see stale rows.
+    try {
+      const { QueryClient } = await import("@tanstack/react-query");
+      // Access the singleton via window if available — otherwise no-op.
+      const qc = (window as any).__APP_QUERY_CLIENT__ as InstanceType<typeof QueryClient> | undefined;
+      qc?.clear();
+    } catch {
+      // ignore
+    }
+
+    // Force a hard reload to /login so every in-memory store, hook, and
+    // service worker cache is reset.
+    try {
+      window.location.replace("/login");
+    } catch {
+      // ignore
     }
   };
 

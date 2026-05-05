@@ -72,6 +72,9 @@ import SiteGate from "./components/SiteGate";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
+if (typeof window !== "undefined") {
+  (window as any).__APP_QUERY_CLIENT__ = queryClient;
+}
 
 const App = () => (
   <ErrorBoundary>
