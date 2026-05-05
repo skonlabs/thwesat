@@ -52,6 +52,8 @@ export function useUserRoles() {
     // Base role from signup
     if (primaryRole === "employer") {
       allowedRoles.push("employer");
+    } else if (primaryRole === "agent") {
+      allowedRoles.push("agent");
     } else {
       allowedRoles.push("jobseeker");
     }

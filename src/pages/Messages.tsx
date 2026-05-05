@@ -37,11 +37,12 @@ const Messages = () => {
     );
   });
 
-  const discoverPath = role === "employer" ? "/employer/search" : "/mentors";
-  const discoverLabel = role === "employer"
+  const isHiringRole = role === "employer" || role === "agent";
+  const discoverPath = isHiringRole ? "/employer/search" : "/mentors";
+  const discoverLabel = isHiringRole
     ? (lang === "my" ? "ဝန်ထမ်းရှာဖွေရန်" : "Find Talent")
     : (lang === "my" ? "Mentor ရှာဖွေရန်" : "Find Mentors");
-  const DiscoverIcon = role === "employer" ? Briefcase : Users;
+  const DiscoverIcon = isHiringRole ? Briefcase : Users;
 
   return (
     <div className="min-h-screen bg-background pb-24">

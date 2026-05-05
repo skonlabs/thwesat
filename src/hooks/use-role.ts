@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
-export type UserRole = "jobseeker" | "employer" | "mentor";
+export type UserRole = "jobseeker" | "employer" | "agent" | "mentor";
 
 const ROLE_KEY = "thwesat_role";
-const VALID_ROLES: UserRole[] = ["jobseeker", "employer", "mentor"];
+const VALID_ROLES: UserRole[] = ["jobseeker", "employer", "agent", "mentor"];
 
 function getStoredRole(): UserRole {
   const stored = localStorage.getItem(ROLE_KEY);

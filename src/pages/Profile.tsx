@@ -132,7 +132,7 @@ const Profile = () => {
   };
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
+  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့်" : "Recruiting Agent") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const referralCode = profile?.referral_code || "";
@@ -163,6 +163,7 @@ const Profile = () => {
   const allRoleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
     { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
+    { value: "agent", icon: Briefcase, label: { my: "ခေါ်ယူရေး အေဂျင့်", en: "Recruiting Agent" }, desc: { my: "အခြားကုမ္ပဏီအတွက် ခေါ်ယူ", en: "Recruit for clients" } },
     { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
   ];
 
@@ -228,7 +229,7 @@ const Profile = () => {
     ? adminMenu
     : isModerator
       ? moderatorMenu
-        : effectiveRole === "employer"
+        : effectiveRole === "employer" || effectiveRole === "agent"
         ? employerMenu
           : effectiveRole === "mentor"
           ? mentorMenu

@@ -90,9 +90,10 @@ const Signup = () => {
       referrerId = referrerProfile.id;
     }
 
-    // Map signup choice to underlying app role. "agent" is an employer with a flag.
-    const appRole: UserRole = selectedRole === "agent" ? "employer" : selectedRole;
+    // "agent" is now a distinct app role, but it shares employer screens & onboarding.
+    const appRole: UserRole = selectedRole;
     const employerType: "direct" | "agent" = selectedRole === "agent" ? "agent" : "direct";
+    const needsEmployerProfile = selectedRole === "employer" || selectedRole === "agent";
 
     setIsLoading(true);
     const { error } = await signUp(email, password, name, appRole);
@@ -125,13 +126,13 @@ const Signup = () => {
       }
       await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
 
-      // Pre-seed employer_profiles row with employer_type so onboarding picks it up.
-      if (appRole === "employer") {
+      // Pre-seed employer_profiles row for employers and agents (shared screens).
+      if (needsEmployerProfile) {
         await supabase.from("employer_profiles").upsert({ id: newUser.id, employer_type: employerType } as any);
       }
     }
     setRole(appRole);
-    navigate(appRole === "employer" ? "/employer/onboarding" : appRole === "mentor" ? "/mentors/dashboard" : "/home");
+    navigate(needsEmployerProfile ? "/employer/onboarding" : appRole === "mentor" ? "/mentors/dashboard" : "/home");
   };
 
   const roles: { value: SignupChoice; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
