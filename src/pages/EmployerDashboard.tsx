@@ -57,17 +57,18 @@ const EmployerDashboard = () => {
       <PageHeader title={empProfile?.employer_type === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard") : (lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard")} />
       <div className="px-5">
         {/* Company info */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-border bg-card p-4 shadow-card">
+        <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onClick={() => navigate("/employer/edit-company")} className="mb-4 w-full rounded-xl border border-border bg-card p-4 text-left shadow-card transition-colors active:bg-muted/30">
           <div className="flex items-start gap-3">
             <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
               <p className="text-xs font-bold text-foreground">{empProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီအမည်" : "Company")}</p>
               <p className={`text-[11px] font-medium ${empProfile?.is_verified ? "text-emerald" : "text-muted-foreground"}`}>
-                {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ" : "Pending Verification")}
+                {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ — အပြည့်အစုံ ဖြည့်ရန် နှိပ်ပါ" : "Pending Verification — tap to complete profile")}
               </p>
             </div>
           </div>
-        </motion.div>
+        </motion.button>
+
 
         {/* Onboarding checklist (dismissible, hides when complete) */}
         <EmployerOnboardingChecklist
