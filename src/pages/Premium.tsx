@@ -476,12 +476,12 @@ const Premium = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-foreground">
-                  {lang === "my" ? "သူငယ်ချင်း ၅ ဦး ညွှန်းဆိုပါ" : "Refer 5 friends"}
+                  {lang === "my" ? `သူငယ်ချင်း ${refFriends} ဦး ညွှန်းဆိုပါ` : `Refer ${refFriends} friends`}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {lang === "my"
-                    ? "Credits ၅,၀၀၀ ရယူပါ"
-                    : "Earn 5,000 credits"}
+                    ? `Credits ${refCredits.toLocaleString()} ရယူပါ`
+                    : `Earn ${refCredits.toLocaleString()} credits`}
                 </p>
               </div>
             </div>
