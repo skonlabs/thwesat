@@ -33,7 +33,7 @@ const HomeRedirect = () => {
   // the seeker home instead of their mentor dashboard.
   const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0];
 
-  if (effectiveRole === "employer") return <EmployerDashboard />;
+  if (effectiveRole === "employer" || effectiveRole === "agent") return <EmployerDashboard />;
   if (effectiveRole === "mentor") return <MentorDashboard />;
 
   return <HomePage />;
