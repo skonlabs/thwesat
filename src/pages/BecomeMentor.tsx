@@ -68,14 +68,14 @@ const BecomeMentor = () => {
     setLoading(true);
     try {
       // Only update primary_role if the user is a jobseeker.
-      // Employers keep their primary_role — they just ADD mentor capability.
+      // Employers/Agents keep their primary_role — they just ADD mentor capability.
       const { data: currentProfile } = await supabase
         .from("profiles")
         .select("primary_role")
         .eq("id", user.id)
         .single();
 
-      if (currentProfile?.primary_role !== "employer") {
+      if (currentProfile?.primary_role !== "employer" && currentProfile?.primary_role !== "agent") {
         await supabase.from("profiles").update({ primary_role: "mentor" }).eq("id", user.id);
       }
 
