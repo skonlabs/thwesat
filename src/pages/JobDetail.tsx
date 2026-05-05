@@ -874,7 +874,7 @@ const JobDetail = () => {
           </button>
           <button
             onClick={handleSave}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${saved ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"} active:bg-muted`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${saved ? "border-emerald bg-emerald/10 text-emerald" : "border-border bg-card text-muted-foreground"} active:bg-muted`}
             title={lang === "my" ? "သိမ်းရန်" : "Save"}
             aria-label={lang === "my" ? "သိမ်းရန်" : "Save"}
           >

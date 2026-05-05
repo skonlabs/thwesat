@@ -303,7 +303,7 @@ const GuideDetail = () => {
               disabled={isTranslating}
               className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-medium transition-colors ${
                 showTranslation
-                  ? "border-primary bg-primary/10 text-primary"
+                  ? "border-emerald bg-emerald/10 text-emerald"
                   : "border-border bg-card text-muted-foreground active:bg-muted"
               }`}
             >

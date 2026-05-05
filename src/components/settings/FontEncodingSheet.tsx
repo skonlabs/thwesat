@@ -50,7 +50,7 @@ const FontEncodingSheet = ({ open, onClose }: FontEncodingSheetProps) => {
               key={opt.id}
               onClick={() => select(opt.id)}
               className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all ${
-                active ? "border-primary bg-primary/10" : "border-border bg-card active:bg-muted"
+                active ? "border-emerald bg-emerald/10 text-emerald" : "border-border bg-card active:bg-muted"
               }`}
             >
               <div className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-primary/20" : "bg-muted"}`}>

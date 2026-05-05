@@ -116,7 +116,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                   {METHODS.map((m) => (
                     <button key={m.key} type="button" onClick={() => setMethod(m.key)}
-                      className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${method === m.key ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground"}`}>
+                      className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${method === m.key ? "border-emerald bg-emerald/10 text-emerald" : "border-border bg-card text-muted-foreground"}`}>
                       <PaymentMethodIcon method={m.key} />
                       <span>{m.label}</span>
                     </button>
