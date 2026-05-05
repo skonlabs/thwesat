@@ -388,7 +388,7 @@ const Profile = () => {
             </div>
             {referralCount >= 5 && (
               <p className="mt-1.5 text-[10px] font-semibold text-primary">
-                🎉 {lang === "my" ? "ပရီမီယံ ဆုလာဘ် ရရှိပြီး!" : "Premium reward earned!"}
+                🎉 {lang === "my" ? "ဆုလာဘ် credits ရရှိပြီး!" : "Bonus credits earned!"}
               </p>
             )}
           </div>
