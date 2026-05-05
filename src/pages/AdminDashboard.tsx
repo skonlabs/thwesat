@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Users, Briefcase, Shield, TrendingUp, AlertTriangle, MessageCircle, DollarSign, ChevronRight, Clock, CheckCircle, Crown, CreditCard, Building2, BookOpen, BarChart3 } from "lucide-react";
+import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, DollarSign, ChevronRight, CreditCard, Building2, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
@@ -13,14 +13,13 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, premiumUsers, pendingPayments, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, totalEmployers, mentors] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_premium", true),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
@@ -32,7 +31,6 @@ const AdminDashboard = () => {
         pendingPosts: pendingPosts.count || 0,
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
-        premiumUsers: premiumUsers.count || 0,
         pendingPayments: (pendingPayments as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
@@ -45,8 +43,8 @@ const AdminDashboard = () => {
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
     { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs" },
-    { icon: Crown, label: { my: "Premium", en: "Premium" }, value: counts?.premiumUsers?.toString() || "0", color: "text-gold-dark bg-accent/15", path: "/admin/users" },
     { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/employers" },
+    { icon: Shield, label: { my: "လမ်းညွှန်", en: "Mentors" }, value: counts?.totalMentors?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors" },
   ];
 
   const pendingItems = [

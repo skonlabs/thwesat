@@ -290,7 +290,7 @@ const AiProfileBuilder = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => handleToolClick(f.path, f.rawStatus)}
+                onClick={() => handleToolClick(f.path)}
                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted"
               >
                 <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${f.iconBg}`}>

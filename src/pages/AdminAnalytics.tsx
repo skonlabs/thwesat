@@ -54,9 +54,8 @@ const AdminAnalytics = () => {
   const { data: metrics } = useQuery({
     queryKey: ["admin-analytics-overview"],
     queryFn: async () => {
-      const [users, premiumUsers, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
+      const [users, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_premium", true),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("is_verified", true),
         supabase.from("jobs").select("id", { count: "exact", head: true }),
@@ -74,7 +73,6 @@ const AdminAnalytics = () => {
       ]);
       return {
         totalUsers: users.count || 0,
-        premiumUsers: premiumUsers.count || 0,
         totalEmployers: employers.count || 0,
         verifiedEmployers: verifiedEmployers.count || 0,
         totalJobs: jobs.count || 0,
@@ -135,7 +133,6 @@ const AdminAnalytics = () => {
       title: { my: "အဖွဲ့ဝင်များ", en: "Members" },
       items: [
         { label: { my: "စုစုပေါင်း", en: "Total Users" }, value: metrics?.totalUsers?.toLocaleString() || "0", path: "/admin/users" },
-        { label: { my: "Premium", en: "Premium" }, value: metrics?.premiumUsers?.toString() || "0", path: "/admin/users" },
         { label: { my: "အလုပ်ရှင်", en: "Employers" }, value: metrics?.totalEmployers?.toString() || "0", path: "/admin/employers" },
         { label: { my: "Mentors", en: "Mentors" }, value: metrics?.totalMentors?.toString() || "0", path: "/mentors" },
       ],
