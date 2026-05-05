@@ -29,7 +29,10 @@ const Profile = () => {
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
   const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
-  const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0] || role;
+  const profileRole = (profile?.primary_role as UserRole) || undefined;
+  const effectiveRole = allowedRoles.includes(role)
+    ? role
+    : (profileRole && allowedRoles.includes(profileRole) ? profileRole : (allowedRoles[0] || profileRole || role));
   const [referralCopied, setReferralCopied] = useState(false);
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showReferredList, setShowReferredList] = useState(false);
