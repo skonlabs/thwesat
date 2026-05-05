@@ -303,9 +303,10 @@ const MentorDetail = () => {
                     <p className="text-xs leading-relaxed text-foreground/80">{lang === "my" ? (r.review_text_my || r.review_text) : (r.review_text || r.review_text_my)}</p>
                   </div>
                 ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
           <div className="mt-8 pb-2 text-center">
             <button
               onClick={() => setReportOpen(true)}
