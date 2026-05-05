@@ -9,6 +9,7 @@ import { useEmployerProfile, useUpsertEmployerProfile } from "@/hooks/use-employ
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
+import { PaymentMethodChip } from "@/components/payment/PaymentMethodIcon";
 import { HQ_COUNTRIES } from "@/lib/countries";
 
 const industries = ["Technology", "NGO", "Manufacturing", "Finance", "Education", "Healthcare", "Hospitality", "Hotel & Resort", "Restaurant & F&B", "Retail", "Pharmacy", "Logistics & Warehousing", "Import/Export", "Construction", "Agriculture", "Garment & Textile", "Domestic & Caregiving", "Cleaning & Facilities", "Security Services", "Transportation & Driving", "Beauty & Wellness", "Automotive", "Other"];
