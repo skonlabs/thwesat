@@ -23,6 +23,8 @@ const EmployerOnboarding = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const upsert = useUpsertEmployerProfile();
+  const { data: empProfile } = useEmployerProfile();
+  const isAgent = empProfile?.employer_type === "agent";
   const [step, setStep] = useState(1);
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
