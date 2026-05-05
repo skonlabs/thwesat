@@ -9,6 +9,7 @@ import { useJobs, useSavedJobIds, useToggleSaveJob, useApplications, type Job } 
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTitle, translateJobType } from "@/lib/job-localization";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import ListSkeleton from "@/components/ListSkeleton";
+import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -266,6 +267,7 @@ const Jobs = () => {
             const status = application?.status;
             const statusMeta = status ? (applicationStatusLabel[status] || applicationStatusLabel.applied) : null;
             const postedAgo = formatTimeAgo(job.created_at);
+            const visiblePaymentMethods = sanitizeJobPaymentMethods(job.payment_methods);
 
             return (
               <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
@@ -320,9 +322,9 @@ const Jobs = () => {
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-muted-foreground">{lang === "my" ? `${postedAgo.my} အကြာက` : `${postedAgo.en} ago`}</span>
-                    {(job.payment_methods || []).length > 0 && (
+                    {visiblePaymentMethods.length > 0 && (
                       <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                        <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {(job.payment_methods || []).join(", ")}
+                        <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {visiblePaymentMethods.join(", ")}
                       </span>
                     )}
                   </div>
