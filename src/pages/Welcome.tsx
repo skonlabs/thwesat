@@ -35,8 +35,8 @@ const Welcome = () => {
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }} className="mb-8 max-w-xs text-sm text-muted-foreground">
           {lang === "my"
-            ? "မြန်မာ့ကျွမ်းကျင်ပညာရှင်များအတွက် အလုပ်အကိုင်နှင့် အခွင့်အလမ်းများ ချိတ်ဆက်ပေးသည့် ပလက်ဖောင်း"
-            : "A platform connecting Myanmar's scattered talent with remote work opportunities and career resources"}
+            ? "ကျွမ်းကျင်ပညာရှင်များအတွက် အလုပ်အကိုင်နှင့် အခွင့်အလမ်းများ ချိတ်ဆက်ပေးသည့် ပလက်ဖောင်း"
+            : "A platform connecting talent with remote work opportunities and career resources"}
         </motion.p>
 
       </div>
