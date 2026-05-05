@@ -16,7 +16,7 @@ interface PaymentMethodSheetProps {
   onOpenChange: (open: boolean) => void;
   amount: number;
   currency: string;
-  paymentType: "subscription" | "mentor_session" | "employer_subscription";
+  paymentType: "mentor_session" | "placement_fee";
   referenceId?: string;
   bookingId?: string;
   onSuccess?: () => void;
