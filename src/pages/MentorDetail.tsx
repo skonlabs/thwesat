@@ -247,10 +247,49 @@ const MentorDetail = () => {
             )}
           </div>
 
-          {reviews.length > 0 && (
-            <div className="mt-5">
-              <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "သုံးသပ်ချက်များ" : "Reviews"}</h2>
-              <div className="space-y-3">
+          {reviews.length > 0 && (() => {
+            const total = reviews.length;
+            const dislike = reviews.filter((r: any) => r.rating <= 2).length;
+            const like = reviews.filter((r: any) => r.rating === 3 || r.rating === 4).length;
+            const love = reviews.filter((r: any) => r.rating >= 5).length;
+            const avg = (reviews.reduce((s: number, r: any) => s + (r.rating || 0), 0) / total).toFixed(1);
+            const pct = (n: number) => total ? Math.round((n / total) * 100) : 0;
+            const buckets = [
+              { key: "love", label_en: "Love it", label_my: "အရမ်းကြိုက်", count: love, Icon: Heart, color: "text-accent", fill: "fill-accent", bar: "bg-accent" },
+              { key: "like", label_en: "Like it", label_my: "ကြိုက်ပါတယ်", count: like, Icon: ThumbsUp, color: "text-primary", fill: "fill-primary/30", bar: "bg-primary" },
+              { key: "dislike", label_en: "Don't like", label_my: "မကြိုက်ပါ", count: dislike, Icon: ThumbsDown, color: "text-destructive", fill: "fill-destructive/20", bar: "bg-destructive" },
+            ];
+            return (
+              <div className="mt-5">
+                <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "သုံးသပ်ချက်များ" : "Reviews"}</h2>
+                <div className="mb-4 rounded-xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-foreground leading-none">{avg}</p>
+                      <div className="mt-1 flex items-center justify-center gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`h-3 w-3 ${i < Math.round(Number(avg)) ? "fill-accent text-accent" : "text-muted-foreground/40"}`} />
+                        ))}
+                      </div>
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {total} {lang === "my" ? "သုံးသပ်ချက်" : total === 1 ? "review" : "reviews"}
+                      </p>
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      {buckets.map(b => (
+                        <div key={b.key} className="flex items-center gap-2">
+                          <b.Icon className={`h-3.5 w-3.5 shrink-0 ${b.color} ${b.count > 0 ? b.fill : ""}`} strokeWidth={1.5} />
+                          <span className="w-16 text-[10px] font-medium text-foreground">{lang === "my" ? b.label_my : b.label_en}</span>
+                          <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                            <div className={`h-full ${b.bar} transition-all`} style={{ width: `${pct(b.count)}%` }} />
+                          </div>
+                          <span className="w-10 text-right text-[10px] tabular-nums text-muted-foreground">{b.count} · {pct(b.count)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
                 {reviews.map((r: any) => (
                   <div key={r.id} className="rounded-xl border border-border bg-card p-3.5">
                     <div className="mb-1 flex items-center justify-between">
