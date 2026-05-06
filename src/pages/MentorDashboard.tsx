@@ -107,7 +107,7 @@ const MentorDashboard = () => {
 
   useEffect(() => {
     if (mentorProfile) {
-      setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
+      setHourlyRate(mentorProfile.hourly_rate?.toString() || "100");
       setCurrency(mentorProfile.currency || "MMK");
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
