@@ -110,7 +110,7 @@ export function useUpdateApplicationStatus() {
       // Send notification to applicant about status change
       const { data: app } = await supabase.from("applications").select("applicant_id, job_id").eq("id", id).single();
       if (app) {
-        const { data: job } = await supabase.from("jobs").select("title, title_my").eq("id", app.job_id).single();
+        const { data: job } = await supabase.from("jobs").select("title, title_my, company").eq("id", app.job_id).single();
         const jobTitle = job?.title || "Job";
         const jobTitleMy = job?.title_my || jobTitle;
         
@@ -134,6 +134,22 @@ export function useUpdateApplicationStatus() {
             description: notif.desc,
             description_my: notif.descMy,
             link_path: "/applications",
+          });
+        }
+
+        // Email applicant for major status changes
+        if (["shortlisted", "interview", "interviewed", "offered", "placed", "rejected"].includes(status)) {
+          const { sendAppEmail } = await import("@/lib/send-app-email");
+          sendAppEmail({
+            templateName: "application-status",
+            recipientUserId: app.applicant_id,
+            idempotencyKey: `app-status-${id}-${status}`,
+            templateData: {
+              jobTitle,
+              company: job?.company,
+              status,
+              reason: rejectionReason,
+            },
           });
         }
       }
