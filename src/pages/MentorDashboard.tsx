@@ -383,6 +383,10 @@ const MentorDashboard = () => {
             </div>
           )}
         </div>
+
+        <div className="mt-5">
+          <InviteFriendsCard />
+        </div>
       </div>
 
       {/* Decline / Counter-Proposal Modal */}
