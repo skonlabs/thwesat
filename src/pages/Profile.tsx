@@ -387,34 +387,86 @@ const Profile = () => {
             </p>
           </div>
 
-          {/* Progress bar */}
-          <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-xs font-medium text-foreground">
-                {lang === "my" ? "ညွှန်းဆိုမှု တိုးတက်မှု" : "Referral Progress"}
-              </span>
-              <span className="text-xs font-bold text-primary">{Math.min(referralCount, 5)}/5</span>
+          {/* Progress bar — repeating every refFriends redemptions */}
+          {(() => {
+            const progress = referralCount % refFriends;
+            const cycle = Math.floor(referralCount / refFriends);
+            return (
+              <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="text-xs font-medium text-foreground">
+                    {lang === "my" ? "နောက်ဆုလာဘ်အထိ" : "Next reward"}
+                  </span>
+                  <span className="text-xs font-bold text-primary">{progress}/{refFriends}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-border">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${(progress / refFriends) * 100}%` }}
+                  />
+                </div>
+                {cycle > 0 && (
+                  <p className="mt-1.5 text-[10px] font-semibold text-primary">
+                    🎉 {lang === "my"
+                      ? `ဆုလာဘ် ${cycle} ကြိမ် ရရှိပြီးပါပြီ`
+                      : `${cycle} reward${cycle > 1 ? "s" : ""} earned so far`}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* My referral codes (one-time use) */}
+          <div className="mb-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-foreground">
+                {lang === "my"
+                  ? `သင့်ကုဒ်များ (${unusedCodes.length} မသုံးရသေး၊ ${usedCodesCount} သုံးပြီး)`
+                  : `Your codes (${unusedCodes.length} unused · ${usedCodesCount} used)`}
+              </p>
+              {unusedCodes.length === 0 && (
+                <button
+                  onClick={generateMoreCodes}
+                  className="text-[11px] font-semibold text-primary"
+                  type="button"
+                >
+                  {lang === "my" ? "ထပ်ထုတ်မည်" : "Generate more"}
+                </button>
+              )}
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
-                style={{ width: `${Math.min((referralCount / 5) * 100, 100)}%` }}
-              />
-            </div>
-            {referralCount >= 5 && (
-              <p className="mt-1.5 text-[10px] font-semibold text-primary">
-                🎉 {lang === "my" ? "ဆုလာဘ် credits ရရှိပြီး!" : "Bonus credits earned!"}
+            {(showAllCodes ? unusedCodes : unusedCodes.slice(0, 3)).map((c: any) => (
+              <div key={c.code} className="flex items-center gap-2">
+                <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">
+                  {c.code}
+                </div>
+                <Button variant="outline" size="sm" className="rounded-lg" onClick={() => copyCode(c.code)}>
+                  {copiedCode === c.code ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                </Button>
+              </div>
+            ))}
+            {unusedCodes.length === 0 && myCodes.length === 0 && (
+              <p className="text-[11px] text-muted-foreground">
+                {lang === "my" ? "ထုတ်ပေးနေသည်..." : "Generating…"}
               </p>
             )}
-          </div>
-
-          <div className="mb-3 flex items-center gap-2">
-            <div className="flex-1 rounded-lg bg-card px-3 py-2 text-xs font-mono font-semibold text-foreground">
-              {referralCode || (lang === "my" ? "ထုတ်ပေးနေသည်..." : "Generating…")}
-            </div>
-            <Button variant="outline" size="sm" className="rounded-lg" onClick={copyReferral} disabled={!referralCode}>
-              {referralCopied ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
-            </Button>
+            {unusedCodes.length === 0 && myCodes.length > 0 && (
+              <p className="text-[11px] text-muted-foreground">
+                {lang === "my"
+                  ? "ကုဒ်အားလုံး အသုံးပြုပြီးပါပြီ။ ထပ်ထုတ်ပါ။"
+                  : "All codes used. Generate more above."}
+              </p>
+            )}
+            {unusedCodes.length > 3 && (
+              <button
+                onClick={() => setShowAllCodes(!showAllCodes)}
+                className="text-[11px] font-semibold text-primary"
+                type="button"
+              >
+                {showAllCodes
+                  ? (lang === "my" ? "လျှော့ပြ" : "Show less")
+                  : (lang === "my" ? `ကျန် ${unusedCodes.length - 3} ခု ပြ` : `Show ${unusedCodes.length - 3} more`)}
+              </button>
+            )}
           </div>
 
           {/* Referred friends list */}
