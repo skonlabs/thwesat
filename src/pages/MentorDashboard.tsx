@@ -169,12 +169,18 @@ const MentorDashboard = () => {
       .from("mentor_profiles")
       .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
       .eq("id", user.id);
-    if (error) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ languages: spokenLanguages })
+      .eq("id", user.id);
+    if (error || profileError) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
     } else {
       toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
     }
   };
+
+  const toggleLanguage = (l: string) => setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
