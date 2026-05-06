@@ -287,6 +287,7 @@ async function handleWebhook(req: Request): Promise<Response> {
         purpose: 'transactional',
         label: emailType,
         idempotency_key: idempotencyKey,
+        unsubscribe_token: `auth-${crypto.randomUUID()}`,
       },
       { apiKey }
     )
