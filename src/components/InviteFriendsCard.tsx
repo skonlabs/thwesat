@@ -21,6 +21,7 @@ const InviteFriendsCard = () => {
   const refCredits = referralRewards?.reward_credits ?? 5000;
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showAllCodes, setShowAllCodes] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const { data: myCodes = [], refetch: refetchCodes } = useQuery({
     queryKey: ["my-referral-codes", profile?.id],
