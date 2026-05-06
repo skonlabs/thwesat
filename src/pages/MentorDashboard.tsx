@@ -151,8 +151,8 @@ const MentorDashboard = () => {
   const handleSaveRate = async () => {
     if (!user) return;
     const rate = Number(hourlyRate);
-    if (rate < 1 || rate > 10000) {
-      setRateError(lang === "my" ? "နှုန်းထား 1 မှ 10000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 1 and 10,000");
+    if (!Number.isFinite(rate) || rate < 100 || rate > 50000) {
+      setRateError(lang === "my" ? "နှုန်းထား 100 မှ 50,000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 100 and 50,000");
       return;
     }
     setRateError(null);
@@ -250,8 +250,9 @@ const MentorDashboard = () => {
               </span>
               <Input
                 type="number"
-                min={1}
-                max={10000}
+                min={100}
+                max={50000}
+                step={100}
                 value={hourlyRate}
                 onChange={e => {
                   setHourlyRate(e.target.value);
