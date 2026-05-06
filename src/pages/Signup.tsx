@@ -74,20 +74,15 @@ const Signup = () => {
     // Validate referral code if provided — case-insensitive comparison
     let referrerId: string | null = null;
     if (referralCode.trim()) {
-      const normalized = referralCode.trim().toLowerCase();
-      const { data: referrerProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .ilike("referral_code", normalized)
-        .maybeSingle();
-      if (!referrerProfile) {
+      const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
+      if (!refId) {
         const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code";
         setReferralError(msg);
         toast({ title: msg, variant: "destructive" });
         return;
       }
       setReferralError(null);
-      referrerId = referrerProfile.id;
+      referrerId = refId as string;
     }
 
     // "agent" is a distinct app role that shares employer screens & onboarding.
