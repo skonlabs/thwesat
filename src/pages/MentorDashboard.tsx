@@ -250,8 +250,9 @@ const MentorDashboard = () => {
               </span>
               <Input
                 type="number"
-                min={1}
-                max={10000}
+                min={100}
+                max={50000}
+                step={100}
                 value={hourlyRate}
                 onChange={e => {
                   setHourlyRate(e.target.value);
