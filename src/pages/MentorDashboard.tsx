@@ -293,6 +293,33 @@ const MentorDashboard = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="mt-3">
+            <label className="mb-1.5 block text-xs font-medium text-foreground">
+              {lang === "my" ? "ပြောတတ်သော ဘာသာစကားများ" : "Spoken Languages"}
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {SPOKEN_LANGUAGES.map(l => {
+                const active = spokenLanguages.includes(l);
+                return (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => toggleLanguage(l)}
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border bg-card text-muted-foreground active:bg-muted"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-[10px] text-muted-foreground">
+              {lang === "my" ? "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပို၍ ရွေးနိုင်သည်။ Save ကို နှိပ်ပါ" : "Select one or more, then tap Save"}
+            </p>
+          </div>
         </motion.div>
 
         {/* Availability Calendar */}
