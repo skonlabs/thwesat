@@ -599,7 +599,7 @@ const MentorBooking = () => {
                   ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more`)
                   : createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                    : (lang === "my" ? `${sessionCredits.toLocaleString()} cr ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} cr`)}
+                    : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} credits`)}
               </Button>
             </>
           )}
