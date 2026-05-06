@@ -31,6 +31,13 @@ const TIMEZONES = [
   "America/Los_Angeles",
 ];
 
+const SPOKEN_LANGUAGES = [
+  "Burmese (Myanmar)", "English", "Thai", "Malay", "Japanese", "Korean",
+  "Chinese (Mandarin)", "Chinese (Cantonese)", "Hindi", "Arabic", "French",
+  "German", "Spanish", "Vietnamese", "Indonesian", "Tagalog", "Bengali",
+  "Nepali", "Shan", "Karen", "Kachin", "Mon", "Chin",
+];
+
 function formatReceivedAgo(createdAt: string): string {
   const diffMs = Date.now() - new Date(createdAt).getTime();
   const diffMins = Math.floor(diffMs / 60000);
@@ -81,6 +88,7 @@ const MentorDashboard = () => {
   const [timezone, setTimezone] = useState("Asia/Yangon");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
+  const [spokenLanguages, setSpokenLanguages] = useState<string[]>([]);
   const [showMentorSetupAlert, setShowMentorSetupAlert] = useState(false);
 
   // Decline with counter-proposal state
@@ -104,6 +112,7 @@ const MentorDashboard = () => {
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
+      setSpokenLanguages(mentorProfile.profile?.languages || []);
     }
   }, [mentorProfile]);
 
@@ -160,12 +169,18 @@ const MentorDashboard = () => {
       .from("mentor_profiles")
       .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
       .eq("id", user.id);
-    if (error) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ languages: spokenLanguages })
+      .eq("id", user.id);
+    if (error || profileError) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
     } else {
       toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
     }
   };
+
+  const toggleLanguage = (l: string) => setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
 
   const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
@@ -277,6 +292,33 @@ const MentorDashboard = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="mt-3">
+            <label className="mb-1.5 block text-xs font-medium text-foreground">
+              {lang === "my" ? "ပြောတတ်သော ဘာသာစကားများ" : "Spoken Languages"}
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {SPOKEN_LANGUAGES.map(l => {
+                const active = spokenLanguages.includes(l);
+                return (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => toggleLanguage(l)}
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border bg-card text-muted-foreground active:bg-muted"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-[10px] text-muted-foreground">
+              {lang === "my" ? "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပို၍ ရွေးနိုင်သည်။ Save ကို နှိပ်ပါ" : "Select one or more, then tap Save"}
+            </p>
           </div>
         </motion.div>
 
