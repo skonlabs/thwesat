@@ -800,8 +800,6 @@ const EditProfile = () => {
             {[
               { label: lang === "my" ? "Laptop ရှိ" : "Has Laptop", icon: Laptop, value: hasLaptop, toggle: () => { setHasLaptop(!hasLaptop); markDirty(); } },
               { label: lang === "my" ? "Internet တည်ငြိမ်" : "Stable Internet", icon: Wifi, value: internetStable, toggle: () => { setInternetStable(!internetStable); markDirty(); } },
-              { label: "Wise", icon: CreditCard, value: hasWise, toggle: () => { setHasWise(!hasWise); markDirty(); } },
-              { label: "Upwork", icon: Briefcase, value: hasUpwork, toggle: () => { setHasUpwork(!hasUpwork); markDirty(); } },
             ].map((item, i) => (
               <button key={i} onClick={item.toggle} className={`flex w-full items-center justify-between rounded-xl p-3.5 transition-all ${item.value ? "bg-primary/5" : "bg-muted/30 hover:bg-muted/50"}`}>
                 <div className="flex items-center gap-3">
