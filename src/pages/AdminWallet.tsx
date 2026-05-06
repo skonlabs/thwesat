@@ -41,9 +41,35 @@ const AdminWallet = () => {
 
   const review = useMutation({
     mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
+      const { data: tr } = await (supabase as any)
+        .from("topup_requests")
+        .select("user_id, credits_to_grant, mmk_amount")
+        .eq("id", id)
+        .maybeSingle();
       const fn = approve ? "wallet_topup_approve" : "wallet_topup_reject";
       const { error } = await (supabase as any).rpc(fn, { _topup_id: id, _admin_note: note ?? null });
       if (error) throw error;
+      if (tr) {
+        const { sendAppEmail } = await import("@/lib/send-app-email");
+        if (approve) {
+          sendAppEmail({
+            templateName: "topup-approved",
+            recipientUserId: tr.user_id,
+            idempotencyKey: `topup-approved-${id}`,
+            templateData: {
+              credits: tr.credits_to_grant?.toLocaleString?.() ?? tr.credits_to_grant,
+              mmkAmount: tr.mmk_amount?.toLocaleString?.() ?? tr.mmk_amount,
+            },
+          });
+        } else {
+          sendAppEmail({
+            templateName: "payment-rejected",
+            recipientUserId: tr.user_id,
+            idempotencyKey: `topup-rejected-${id}`,
+            templateData: { reason: note, paymentType: "topup", linkPath: "/wallet" },
+          });
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-topups"] });
