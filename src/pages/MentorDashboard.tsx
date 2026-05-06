@@ -88,6 +88,7 @@ const MentorDashboard = () => {
   const [timezone, setTimezone] = useState("Asia/Yangon");
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
+  const [spokenLanguages, setSpokenLanguages] = useState<string[]>([]);
   const [showMentorSetupAlert, setShowMentorSetupAlert] = useState(false);
 
   // Decline with counter-proposal state
