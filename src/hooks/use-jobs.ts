@@ -220,13 +220,21 @@ export function useApplyToJob() {
           templateData: { applicantName, jobTitle: job.title, company: job.company },
         });
 
-        // Welcome bonus: try after applicant has applied (DB trigger may have just granted it)
-        sendAppEmail({
-          templateName: "welcome-bonus",
-          recipientUserId: user.id,
-          idempotencyKey: `welcome-bonus-${user.id}`,
-          templateData: { name: applicantName },
-        });
+        // Welcome bonus email — only if the DB trigger actually granted it.
+        const { data: bonusTx } = await supabase
+          .from("wallet_transactions")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("ref_type", "signup_bonus")
+          .maybeSingle();
+        if (bonusTx) {
+          sendAppEmail({
+            templateName: "welcome-bonus",
+            recipientUserId: user.id,
+            idempotencyKey: `welcome-bonus-${user.id}`,
+            templateData: { name: applicantName },
+          });
+        }
       }
     },
     onSuccess: (_data, vars) => {
