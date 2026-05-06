@@ -145,7 +145,6 @@ const Profile = () => {
   const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့်" : "Recruiting Agent") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
-  const referralCode = profile?.referral_code || "";
   const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
   const profileCompletionFields = [
@@ -163,11 +162,16 @@ const Profile = () => {
   const filledCount = profileCompletionFields.filter(Boolean).length;
   const completionPct = Math.round((filledCount / profileCompletionFields.length) * 100);
 
-  const copyReferral = () => {
-    if (!referralCode) return;
-    navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${referralCode}`);
-    setReferralCopied(true);
-    setTimeout(() => setReferralCopied(false), 2000);
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${code}`);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const generateMoreCodes = async () => {
+    if (!profile?.id) return;
+    await supabase.rpc("mint_referral_codes", { _owner_id: profile.id, _count: 10 });
+    refetchCodes();
   };
 
   const allRoleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
