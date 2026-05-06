@@ -82,7 +82,7 @@ const MentorDashboard = () => {
     if (next === "all") p.delete("bookingFilter"); else p.set("bookingFilter", next);
     setSearchParams(p, { replace: true });
   };
-  const [hourlyRate, setHourlyRate] = useState("30");
+  const [hourlyRate, setHourlyRate] = useState("100");
   const [rateError, setRateError] = useState<string | null>(null);
   const [currency, setCurrency] = useState("MMK");
   const [timezone, setTimezone] = useState("Asia/Yangon");
@@ -107,7 +107,7 @@ const MentorDashboard = () => {
 
   useEffect(() => {
     if (mentorProfile) {
-      setHourlyRate(mentorProfile.hourly_rate?.toString() || "30");
+      setHourlyRate(mentorProfile.hourly_rate?.toString() || "100");
       setCurrency(mentorProfile.currency || "MMK");
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
