@@ -31,6 +31,13 @@ const TIMEZONES = [
   "America/Los_Angeles",
 ];
 
+const SPOKEN_LANGUAGES = [
+  "Burmese (Myanmar)", "English", "Thai", "Malay", "Japanese", "Korean",
+  "Chinese (Mandarin)", "Chinese (Cantonese)", "Hindi", "Arabic", "French",
+  "German", "Spanish", "Vietnamese", "Indonesian", "Tagalog", "Bengali",
+  "Nepali", "Shan", "Karen", "Kachin", "Mon", "Chin",
+];
+
 function formatReceivedAgo(createdAt: string): string {
   const diffMs = Date.now() - new Date(createdAt).getTime();
   const diffMins = Math.floor(diffMs / 60000);
