@@ -2,32 +2,38 @@
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Html, Preview, Text } from 'npm:@react-email/components@0.0.22'
 
-interface MagicLinkEmailProps { siteName: string; confirmationUrl: string }
+interface MagicLinkEmailProps { siteName: string; confirmationUrl: string; lang?: 'en' | 'my' | 'both' }
 
-export const MagicLinkEmail = ({ siteName, confirmationUrl }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your login link for {siteName} / သင့် login link</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brand}>Thwe<span style={accent}>Sone</span></Text>
-        <div style={card}>
-          <Heading style={h1}>Your login link</Heading>
-          <Text style={text}>Click below to log in to <strong>{siteName}</strong>. This link expires shortly.</Text>
-          <Button style={button} href={confirmationUrl}>Log in</Button>
-          <Text style={footer}>If you didn't request this link, you can safely ignore this email.</Text>
-
-          <hr style={divider} />
-
-          <Heading style={h1}>သင့် login link</Heading>
-          <Text style={text}><strong>{siteName}</strong> သို့ ဝင်ရောက်ရန် အောက်ပါခလုတ်ကို နှိပ်ပါ။ ဤ link သည် မကြာမီ သက်တမ်းကုန်ဆုံးပါမည်။</Text>
-          <Button style={button} href={confirmationUrl}>ဝင်ရောက်မည်</Button>
-          <Text style={footer}>သင်ကိုယ်တိုင် မတောင်းဆိုခဲ့ပါက ဤအီးမေးလ်ကို လျစ်လျူရှုနိုင်ပါသည်။</Text>
-        </div>
-      </Container>
-    </Body>
-  </Html>
-)
+export const MagicLinkEmail = ({ siteName, confirmationUrl, lang = 'both' }: MagicLinkEmailProps) => {
+  const showEn = lang === 'en' || lang === 'both'
+  const showMy = lang === 'my' || lang === 'both'
+  return (
+    <Html lang={lang === 'my' ? 'my' : 'en'} dir="ltr">
+      <Head />
+      <Preview>{lang === 'my' ? `${siteName} အတွက် login link` : `Your login link for ${siteName}`}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Text style={brand}>Thwe<span style={accent}>Sone</span></Text>
+          <div style={card}>
+            {showEn && (<>
+              <Heading style={h1}>Your login link</Heading>
+              <Text style={text}>Click below to log in to <strong>{siteName}</strong>. This link expires shortly.</Text>
+              <Button style={button} href={confirmationUrl}>Log in</Button>
+              <Text style={footer}>If you didn't request this link, you can safely ignore this email.</Text>
+            </>)}
+            {showEn && showMy && <hr style={divider} />}
+            {showMy && (<>
+              <Heading style={h1}>သင့် login link</Heading>
+              <Text style={text}><strong>{siteName}</strong> သို့ ဝင်ရောက်ရန် အောက်ပါခလုတ်ကို နှိပ်ပါ။ ဤ link သည် မကြာမီ သက်တမ်းကုန်ဆုံးပါမည်။</Text>
+              <Button style={button} href={confirmationUrl}>ဝင်ရောက်မည်</Button>
+              <Text style={footer}>သင်ကိုယ်တိုင် မတောင်းဆိုခဲ့ပါက ဤအီးမေးလ်ကို လျစ်လျူရှုနိုင်ပါသည်။</Text>
+            </>)}
+          </div>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 export default MagicLinkEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "Padauk", "Noto Sans Myanmar", sans-serif', margin: 0, padding: 0 }
