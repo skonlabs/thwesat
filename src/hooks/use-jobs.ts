@@ -197,7 +197,7 @@ export function useApplyToJob() {
       }
 
       // Notify employer about new application
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", jobId).single();
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my, company").eq("id", jobId).single();
       const { data: applicantProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
       const applicantName = applicantProfile?.display_name || "Someone";
       if (job) {
@@ -209,6 +209,23 @@ export function useApplyToJob() {
           description: `${applicantName} applied for ${job.title}`,
           description_my: `${applicantName} သည် ${job.title_my || job.title} အတွက် လျှောက်ထားပါပြီ`,
           link_path: "/employer/applications",
+        });
+
+        // Email employer
+        const { sendAppEmail } = await import("@/lib/send-app-email");
+        sendAppEmail({
+          templateName: "application-received",
+          recipientUserId: job.employer_id,
+          idempotencyKey: `app-received-${user.id}-${jobId}`,
+          templateData: { applicantName, jobTitle: job.title, company: job.company },
+        });
+
+        // Welcome bonus: try after applicant has applied (DB trigger may have just granted it)
+        sendAppEmail({
+          templateName: "welcome-bonus",
+          recipientUserId: user.id,
+          idempotencyKey: `welcome-bonus-${user.id}`,
+          templateData: { name: applicantName },
         });
       }
     },
