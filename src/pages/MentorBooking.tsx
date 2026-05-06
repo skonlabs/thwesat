@@ -392,7 +392,7 @@ const MentorBooking = () => {
                 return (
                   <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-2.5 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
                     <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} credits</p>
                   </button>
                 );
               })}
