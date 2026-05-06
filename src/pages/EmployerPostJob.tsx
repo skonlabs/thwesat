@@ -314,7 +314,7 @@ const EmployerPostJob = () => {
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
                     {lang === "my" ? "Featured အဆင့်တင်" : "Mark as Featured"}
-                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{(featurePrice?.price_credits ?? 0).toLocaleString()} cr</span>
+                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{(featurePrice?.price_credits ?? 0).toLocaleString()} credits</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
                     {lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days."}
