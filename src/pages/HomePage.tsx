@@ -61,7 +61,14 @@ const HomePage = () => {
 
       <div className="px-5 pt-5">
         {showCompletionBar && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-5 rounded-xl border border-border bg-card p-4 shadow-card">
+          <motion.button
+            type="button"
+            onClick={() => navigate("/profile/edit")}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-5 w-full text-left rounded-xl border border-border bg-card p-4 shadow-card transition-colors active:bg-muted/30"
+          >
             <div className="mb-2 flex items-center justify-between">
               <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
               <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
@@ -69,10 +76,10 @@ const HomePage = () => {
             <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
               <motion.div initial={{ width: 0 }} animate={{ width: `${completionPct}%` }} transition={{ delay: 0.3, duration: 0.6 }} className="h-full rounded-full bg-gradient-gold" />
             </div>
-            <button onClick={() => navigate("/profile/edit")} className="mt-2 text-xs font-semibold text-accent">
+            <span className="mt-2 inline-block text-xs font-semibold text-accent">
               {lang === "my" ? "ယခု ဖြည့်စွက်ရန်" : "Complete now"} →
-            </button>
-          </motion.div>
+            </span>
+          </motion.button>
         )}
 
         <div className="grid grid-cols-3 gap-3">
