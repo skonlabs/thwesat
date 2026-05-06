@@ -199,6 +199,27 @@ export function useUpdateBookingStatus() {
             bookingDate: booking.scheduled_date,
             bookingTime: booking.scheduled_time,
           });
+
+          // Email both parties about the confirmed session
+          const { sendAppEmail } = await import("@/lib/send-app-email");
+          const [{ data: mentorProfile }, { data: menteeProfile }] = await Promise.all([
+            supabase.from("profiles").select("display_name").eq("id", booking.mentor_id).maybeSingle(),
+            supabase.from("profiles").select("display_name").eq("id", booking.mentee_id).maybeSingle(),
+          ]);
+          const mentorName = mentorProfile?.display_name || "Mentor";
+          const menteeName = menteeProfile?.display_name || "Mentee";
+          sendAppEmail({
+            templateName: "mentor-booking-confirmed",
+            recipientUserId: booking.mentee_id,
+            idempotencyKey: `booking-confirmed-mentee-${id}`,
+            templateData: { mentorName, menteeName, scheduledDate: booking.scheduled_date, scheduledTime: booking.scheduled_time, isMentor: false },
+          });
+          sendAppEmail({
+            templateName: "mentor-booking-confirmed",
+            recipientUserId: booking.mentor_id,
+            idempotencyKey: `booking-confirmed-mentor-${id}`,
+            templateData: { mentorName, menteeName, scheduledDate: booking.scheduled_date, scheduledTime: booking.scheduled_time, isMentor: true },
+          });
         } else if (status === "cancelled" && proposedDate && proposedTime) {
           await sendBookingNotification({
             recipientId,
