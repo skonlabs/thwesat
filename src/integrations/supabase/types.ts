@@ -1560,6 +1560,36 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          owner_id: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           created_at: string | null
@@ -2090,9 +2120,17 @@ export type Database = {
         Returns: Json
       }
       mentor_session_release: { Args: { _booking_id: string }; Returns: Json }
+      mint_referral_codes: {
+        Args: { _count?: number; _owner_id: string }
+        Returns: number
+      }
       process_referral_reward: {
         Args: { _referrer_id: string }
         Returns: undefined
+      }
+      redeem_referral_code: {
+        Args: { _code: string; _new_user_id: string }
+        Returns: Json
       }
       refresh_job_featured: { Args: { _job_id: string }; Returns: undefined }
       review_payment_request: {

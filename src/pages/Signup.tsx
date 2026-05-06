@@ -71,18 +71,16 @@ const Signup = () => {
       return;
     }
 
-    // Validate referral code if provided — case-insensitive comparison
-    let referrerId: string | null = null;
+    // Pre-validate referral code if provided (must exist AND be unused)
     if (referralCode.trim()) {
       const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
       if (!refId) {
-        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code";
+        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ သို့မဟုတ် အသုံးပြုပြီးသား ဖြစ်နေပါသည်" : "Invalid or already-used referral code";
         setReferralError(msg);
         toast({ title: msg, variant: "destructive" });
         return;
       }
       setReferralError(null);
-      referrerId = refId as string;
     }
 
     // "agent" is a distinct app role that shares employer screens & onboarding.
@@ -99,21 +97,17 @@ const Signup = () => {
     // Get the new user and persist role + referral
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
-      if (referralCode.trim() && referrerId) {
-        const canonicalCode = referralCode.trim().toUpperCase();
-        try {
-          await supabase.from("profiles").update({ referred_by: canonicalCode }).eq("id", newUser.id);
-          const { error: referralInsertError } = await supabase.from("referrals").insert({
-            referrer_id: referrerId,
-            referred_id: newUser.id,
-            referral_code: canonicalCode,
-            status: "completed",
-          });
-          if (referralInsertError) throw referralInsertError;
-        } catch (referralErr) {
-          console.error("Referral record could not be created:", referralErr);
+      if (referralCode.trim()) {
+        const { error: redeemError } = await supabase.rpc("redeem_referral_code", {
+          _code: referralCode.trim(),
+          _new_user_id: newUser.id,
+        });
+        if (redeemError) {
+          console.error("Referral redeem failed:", redeemError);
           toast({
-            title: "Note: your referral code could not be recorded. Please contact support.",
+            title: lang === "my"
+              ? "ညွှန်းဆိုကုဒ် မှတ်တမ်းတင်၍ မရပါ။ Support ထံ ဆက်သွယ်ပါ။"
+              : "Your referral code could not be recorded. Please contact support.",
             variant: "destructive",
           });
         }
