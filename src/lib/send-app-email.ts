@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Fire-and-forget helper to send a transactional email.
- * Looks up the recipient's email from `profiles` if only a userId is given.
+ * Looks up the recipient's email + language preference from `profiles` / `user_settings`.
  * Failures are logged but never thrown — emails are non-critical.
  */
 export async function sendAppEmail(opts: {
@@ -14,21 +14,29 @@ export async function sendAppEmail(opts: {
 }) {
   try {
     let to = opts.recipientEmail || null;
-    if (!to && opts.recipientUserId) {
-      const { data } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("id", opts.recipientUserId)
-        .maybeSingle();
-      to = (data as any)?.email || null;
+    let lang: "en" | "my" = "en";
+
+    if (opts.recipientUserId) {
+      // Fetch email (if needed) and language in parallel
+      const [profileRes, settingsRes] = await Promise.all([
+        !to
+          ? supabase.from("profiles").select("email").eq("id", opts.recipientUserId).maybeSingle()
+          : Promise.resolve({ data: null }),
+        supabase.from("user_settings").select("language").eq("user_id", opts.recipientUserId).maybeSingle(),
+      ]);
+      if (!to) to = (profileRes.data as any)?.email || null;
+      const settingLang = (settingsRes.data as any)?.language;
+      if (settingLang === "my" || settingLang === "en") lang = settingLang;
     }
+
     if (!to) return;
+
     await supabase.functions.invoke("send-transactional-email", {
       body: {
         templateName: opts.templateName,
         recipientEmail: to,
         idempotencyKey: opts.idempotencyKey,
-        templateData: opts.templateData ?? {},
+        templateData: { lang, ...(opts.templateData ?? {}) },
       },
     });
   } catch (err) {
