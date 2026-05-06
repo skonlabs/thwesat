@@ -532,8 +532,8 @@ const MentorBooking = () => {
                     my: "ချိန်းဆိုထားသော အချိန်တွင် Session ပြုလုပ်သည်",
                   },
                   {
-                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) released to mentor, 15% platform fee`,
-                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
+                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} credits) released to mentor, 15% platform fee`,
+                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} credits) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
                   },
                   {
                     en: "If mentor declines or cancels → full refund to your wallet",
