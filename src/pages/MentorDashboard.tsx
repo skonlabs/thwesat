@@ -112,6 +112,7 @@ const MentorDashboard = () => {
       setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
       setIsAvailable(mentorProfile.is_available ?? true);
       setActiveDays(mentorProfile.available_days || []);
+      setSpokenLanguages(mentorProfile.profile?.languages || []);
     }
   }, [mentorProfile]);
 
