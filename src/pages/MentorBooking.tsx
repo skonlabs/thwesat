@@ -305,7 +305,7 @@ const MentorBooking = () => {
               <Star className="h-3 w-3 fill-primary text-primary" />
               <span className="text-[11px] font-medium text-foreground">{mentorProfile?.rating_avg || 0}</span>
               <span className="text-[10px] text-muted-foreground">({mentorProfile?.total_sessions || 0})</span>
-              <span className="ml-1 text-[10px] text-primary font-medium">{sessionCredits.toLocaleString()} cr</span>
+              <span className="ml-1 text-[10px] text-primary font-medium">{sessionCredits.toLocaleString()} credits</span>
             </div>
           </div>
         </motion.div>
@@ -392,7 +392,7 @@ const MentorBooking = () => {
                 return (
                   <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-2.5 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
                     <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} credits</p>
                   </button>
                 );
               })}
@@ -532,8 +532,8 @@ const MentorBooking = () => {
                     my: "ချိန်းဆိုထားသော အချိန်တွင် Session ပြုလုပ်သည်",
                   },
                   {
-                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) released to mentor, 15% platform fee`,
-                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} cr) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
+                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} credits) released to mentor, 15% platform fee`,
+                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} credits) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
                   },
                   {
                     en: "If mentor declines or cancels → full refund to your wallet",
@@ -599,7 +599,7 @@ const MentorBooking = () => {
                   ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more`)
                   : createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                    : (lang === "my" ? `${sessionCredits.toLocaleString()} cr ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} cr`)}
+                    : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} credits`)}
               </Button>
             </>
           )}
