@@ -71,18 +71,16 @@ const Signup = () => {
       return;
     }
 
-    // Validate referral code if provided — case-insensitive comparison
-    let referrerId: string | null = null;
+    // Pre-validate referral code if provided (must exist AND be unused)
     if (referralCode.trim()) {
       const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
       if (!refId) {
-        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ" : "Invalid referral code";
+        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ သို့မဟုတ် အသုံးပြုပြီးသား ဖြစ်နေပါသည်" : "Invalid or already-used referral code";
         setReferralError(msg);
         toast({ title: msg, variant: "destructive" });
         return;
       }
       setReferralError(null);
-      referrerId = refId as string;
     }
 
     // "agent" is a distinct app role that shares employer screens & onboarding.
