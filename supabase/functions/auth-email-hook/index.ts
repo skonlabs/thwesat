@@ -17,12 +17,12 @@ const corsHeaders = {
 }
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Confirm your email / သင့်အီးမေးလ် အတည်ပြုပါ',
+  invite: "You've been invited / ဖိတ်ခေါ်ခံရပါသည်",
+  magiclink: 'Your login link / သင့် login link',
+  recovery: 'Reset your password / စကားဝှက် ပြန်လည်သတ်မှတ်ပါ',
+  email_change: 'Confirm your new email / အီးမေးလ်အသစ် အတည်ပြုပါ',
+  reauthentication: 'Your verification code / သင့်အတည်ပြုကုဒ်',
 }
 
 // Template mapping
