@@ -2110,6 +2110,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mentor_book_with_credits: {
         Args: { _booking_id: string; _credits: number }
@@ -2151,6 +2152,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
       validate_delegate_token: {
         Args: { _token: string }
