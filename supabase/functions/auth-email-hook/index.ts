@@ -104,7 +104,7 @@ function buildConfirmationUrl(payload: SupabaseEmailPayload) {
   if (!tokenHash) return redirectTo
 
   const verifyUrl = new URL('/auth/v1/verify', Deno.env.get('SUPABASE_URL'))
-  verifyUrl.searchParams.set('token_hash', tokenHash)
+  verifyUrl.searchParams.set('token', tokenHash)
   verifyUrl.searchParams.set('type', type)
   verifyUrl.searchParams.set('redirect_to', redirectTo)
   return verifyUrl.toString()
