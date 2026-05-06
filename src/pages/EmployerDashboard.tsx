@@ -110,6 +110,9 @@ const EmployerDashboard = () => {
           ))}
         </div>
 
+        <div className="mt-5">
+          <InviteFriendsCard />
+        </div>
       </div>
     </div>
   );
