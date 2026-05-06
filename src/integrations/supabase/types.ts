@@ -2080,6 +2080,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mentor_book_with_credits: {
         Args: { _booking_id: string; _credits: number }
         Returns: Json
