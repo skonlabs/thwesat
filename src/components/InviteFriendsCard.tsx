@@ -145,6 +145,7 @@ const InviteFriendsCard = () => {
           </button>
         )}
       </div>
+      )}
     </motion.div>
   );
 };
