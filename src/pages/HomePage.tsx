@@ -148,6 +148,10 @@ const HomePage = () => {
             ))}
           </div>
         </motion.div>
+
+        <div className="mb-6">
+          <InviteFriendsCard />
+        </div>
       </div>
     </div>
   );
