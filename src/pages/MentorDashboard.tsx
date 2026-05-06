@@ -16,6 +16,7 @@ import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { toast } from "sonner";
 
 const TIMEZONES = [
@@ -381,6 +382,10 @@ const MentorDashboard = () => {
               )}
             </div>
           )}
+        </div>
+
+        <div className="mt-5">
+          <InviteFriendsCard />
         </div>
       </div>
 

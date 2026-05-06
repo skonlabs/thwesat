@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
+import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { employerLabels as L } from "@/lib/employer-labels";
 
 const quickActions = [
@@ -109,6 +110,9 @@ const EmployerDashboard = () => {
           ))}
         </div>
 
+        <div className="mt-5">
+          <InviteFriendsCard />
+        </div>
       </div>
     </div>
   );

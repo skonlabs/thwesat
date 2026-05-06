@@ -9,6 +9,7 @@ import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
+import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
@@ -147,6 +148,10 @@ const HomePage = () => {
             ))}
           </div>
         </motion.div>
+
+        <div className="mb-6">
+          <InviteFriendsCard />
+        </div>
       </div>
     </div>
   );
