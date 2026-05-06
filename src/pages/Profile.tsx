@@ -326,7 +326,11 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          <div className="mt-4 rounded-lg bg-muted p-3">
+          <button
+            type="button"
+            onClick={() => navigate("/profile/edit")}
+            className="mt-4 w-full rounded-lg bg-muted p-3 text-left transition-colors active:bg-muted/70"
+          >
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</span>
               <span className="text-xs font-bold text-primary">{completionPct}%</span>
@@ -334,7 +338,7 @@ const Profile = () => {
             <div className="h-1.5 overflow-hidden rounded-full bg-border">
               <div className="h-full rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
             </div>
-          </div>
+          </button>
         </motion.div>
 
         {/* Profile Boost */}
