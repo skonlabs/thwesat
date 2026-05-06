@@ -154,7 +154,7 @@ export function useMyTopupRequests() {
 
 export async function uploadTopupProof(userId: string, file: File): Promise<string> {
   const ext = file.name.split(".").pop() || "jpg";
-  const path = `topup/${userId}/${Date.now()}.${ext}`;
+  const path = `${userId}/topup/${Date.now()}.${ext}`;
   const { error } = await supabase.storage.from("payment-proofs").upload(path, file, { upsert: false });
   if (error) throw error;
   return path;
