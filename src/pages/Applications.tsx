@@ -117,6 +117,16 @@ const Applications = () => {
       toast.error(lang === "my" ? "လက်ခံ၍ မရပါ" : "Failed to accept offer");
       return;
     }
+    // Notify employer that the candidate accepted
+    if (selected.jobs?.employer_id) {
+      const { sendAppEmail } = await import("@/lib/send-app-email");
+      sendAppEmail({
+        templateName: "application-status",
+        recipientUserId: selected.jobs.employer_id,
+        idempotencyKey: `app-status-${selected.id}-placed`,
+        templateData: { jobTitle: selected.jobs?.title, company: selected.jobs?.company, status: "placed" },
+      });
+    }
     invalidate();
     setConfirmAccept(false);
     setSelectedApp(null);
@@ -132,6 +142,15 @@ const Applications = () => {
     if (error) {
       toast.error(lang === "my" ? "ငြင်းပယ်၍ မရပါ" : "Failed to decline offer");
       return;
+    }
+    if (selected.jobs?.employer_id) {
+      const { sendAppEmail } = await import("@/lib/send-app-email");
+      sendAppEmail({
+        templateName: "application-status",
+        recipientUserId: selected.jobs.employer_id,
+        idempotencyKey: `app-status-${selected.id}-declined`,
+        templateData: { jobTitle: selected.jobs?.title, company: selected.jobs?.company, status: "rejected", reason },
+      });
     }
     invalidate();
     setConfirmDecline(false);
