@@ -41,21 +41,27 @@ const Profile = () => {
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
 
-  // Fetch referral count
-  const { data: referralCount = 0 } = useQuery({
-    queryKey: ["referral-count", profile?.id],
+  // Fetch one-time-use referral codes for this user
+  const { data: myCodes = [], refetch: refetchCodes } = useQuery({
+    queryKey: ["my-referral-codes", profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return 0;
-      const { count, error } = await supabase
-        .from("referrals")
-        .select("id", { count: "exact", head: true })
-        .eq("referrer_id", profile.id)
-        .eq("status", "completed");
-      if (error) return 0;
-      return count || 0;
+      if (!profile?.id) return [];
+      const { data } = await supabase
+        .from("referral_codes")
+        .select("code, status, used_by, used_at, created_at")
+        .eq("owner_id", profile.id)
+        .order("status", { ascending: true })
+        .order("created_at", { ascending: true });
+      return data || [];
     },
     enabled: !!profile?.id,
   });
+
+  const unusedCodes = myCodes.filter((c: any) => c.status === "unused");
+  const usedCodesCount = myCodes.length - unusedCodes.length;
+
+  // Referral count = number of used codes (kept for friends list compatibility)
+  const referralCount = usedCodesCount;
 
   // Fetch referred friends with their profile info
   const { data: referredFriends = [] } = useQuery({
