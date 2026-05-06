@@ -167,12 +167,34 @@ export function useUpdatePaymentRequest() {
       status: "approved" | "rejected" | "revoked";
       admin_note?: string;
     }) => {
+      const { data: pr } = await (supabase as any)
+        .from("payment_requests")
+        .select("user_id, amount, currency, payment_type")
+        .eq("id", id)
+        .maybeSingle();
       const { data, error } = await (supabase as any).rpc("review_payment_request", {
         _payment_id: id,
         _new_status: status,
         _admin_note: admin_note ?? null,
       });
       if (error) throw new Error(error.message || "Failed to review payment");
+      if (pr && (status === "approved" || status === "rejected")) {
+        const { sendAppEmail } = await import("@/lib/send-app-email");
+        const linkPath = pr.payment_type === "placement_fee" ? "/employer/finance"
+          : pr.payment_type === "mentor_session" ? "/mentors/bookings" : "/finance";
+        sendAppEmail({
+          templateName: status === "approved" ? "payment-approved" : "payment-rejected",
+          recipientUserId: pr.user_id,
+          idempotencyKey: `payment-${status}-${id}`,
+          templateData: {
+            amount: pr.amount?.toLocaleString?.() ?? pr.amount,
+            currency: pr.currency,
+            paymentType: pr.payment_type,
+            linkPath,
+            reason: admin_note,
+          },
+        });
+      }
       return data as { ok: boolean; status: string; noop?: boolean };
     },
     onSuccess: () => {
