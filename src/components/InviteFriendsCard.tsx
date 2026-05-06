@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Gift, Copy, Check, Users, ChevronRight } from "lucide-react";
+import { Gift, Copy, Check, Users, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ const InviteFriendsCard = () => {
   const refCredits = referralRewards?.reward_credits ?? 5000;
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showAllCodes, setShowAllCodes] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const { data: myCodes = [], refetch: refetchCodes } = useQuery({
     queryKey: ["my-referral-codes", profile?.id],
@@ -59,15 +60,25 @@ const InviteFriendsCard = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-      <div className="mb-2 flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setExpanded(e => !e)}
+        className="flex w-full items-center gap-2 text-left"
+      >
         <Gift className="h-4 w-4 text-primary" strokeWidth={1.5} />
-        <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
-      </div>
-      <p className="mb-3 text-xs text-muted-foreground">
-        {lang === "my"
-          ? `သူငယ်ချင်း ${refFriends} ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ${refCredits.toLocaleString()} ရရှိမည်`
-          : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} credits`}
-      </p>
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
+          <p className="text-[11px] text-muted-foreground">
+            {lang === "my"
+              ? `သူငယ်ချင်း ${refFriends} ဦး ဖိတ်လျှင် Credits ${refCredits.toLocaleString()} • ${progress}/${refFriends}`
+              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} credits • ${progress}/${refFriends}`}
+          </p>
+        </div>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} strokeWidth={1.5} />
+      </button>
+
+      {expanded && (
+      <div className="mt-3">
 
       {/* Progress bar */}
       <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
@@ -134,6 +145,8 @@ const InviteFriendsCard = () => {
           </button>
         )}
       </div>
+      </div>
+      )}
     </motion.div>
   );
 };
