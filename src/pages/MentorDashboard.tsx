@@ -82,7 +82,7 @@ const MentorDashboard = () => {
     if (next === "all") p.delete("bookingFilter"); else p.set("bookingFilter", next);
     setSearchParams(p, { replace: true });
   };
-  const [hourlyRate, setHourlyRate] = useState("30");
+  const [hourlyRate, setHourlyRate] = useState("100");
   const [rateError, setRateError] = useState<string | null>(null);
   const [currency, setCurrency] = useState("MMK");
   const [timezone, setTimezone] = useState("Asia/Yangon");
