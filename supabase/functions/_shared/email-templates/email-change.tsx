@@ -1,55 +1,92 @@
 /// <reference types="npm:@types/react@18.3.1" />
+
 import * as React from 'npm:react@18.3.1'
-import { Body, Button, Container, Head, Heading, Html, Link, Preview, Text } from 'npm:@react-email/components@0.0.22'
+
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Link,
+  Preview,
+  Text,
+} from 'npm:@react-email/components@0.0.22'
 
 interface EmailChangeEmailProps {
   siteName: string
+  // oldEmail is the user's current address (HookData.OldEmail). For the
+  // NEW-recipient half of a secure email_change fanout, `email` equals the
+  // recipient (NEW), so the "from" line must render oldEmail to read
+  // "from OLD to NEW" instead of "from NEW to NEW".
   oldEmail: string
   email: string
   newEmail: string
   confirmationUrl: string
 }
 
-export const EmailChangeEmail = ({ siteName, oldEmail, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
+export const EmailChangeEmail = ({
+  siteName,
+  oldEmail,
+  newEmail,
+  confirmationUrl,
+}: EmailChangeEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirm your email change / အီးမေးလ်ပြောင်းခြင်း အတည်ပြုပါ</Preview>
+    <Preview>Confirm your email change for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Text style={brand}>Thwe<span style={accent}>Sone</span></Text>
-        <div style={card}>
-          <Heading style={h1}>Confirm your email change</Heading>
-          <Text style={text}>
-            You requested to change your <strong>{siteName}</strong> email from{' '}
-            <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link> to{' '}
-            <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
-          </Text>
-          <Button style={button} href={confirmationUrl}>Confirm email change</Button>
-          <Text style={footer}>If you didn't request this, please secure your account immediately.</Text>
-
-          <hr style={divider} />
-
-          <Heading style={h1}>အီးမေးလ်ပြောင်းခြင်း အတည်ပြုပါ</Heading>
-          <Text style={text}>
-            သင့် <strong>{siteName}</strong> အီးမေးလ်ကို <strong>{oldEmail}</strong> မှ <strong>{newEmail}</strong> သို့ ပြောင်းရန် တောင်းဆိုထားပါသည်။
-          </Text>
-          <Button style={button} href={confirmationUrl}>အီးမေးလ်ပြောင်းခြင်း အတည်ပြုမည်</Button>
-          <Text style={footer}>သင်ကိုယ်တိုင် မတောင်းဆိုခဲ့ပါက သင့်အကောင့်ကို ချက်ချင်း လုံခြုံအောင် ပြုလုပ်ပါ။</Text>
-        </div>
+        <Heading style={h1}>Confirm your email change</Heading>
+        <Text style={text}>
+          You requested to change your email address for {siteName} from{' '}
+          <Link href={`mailto:${oldEmail}`} style={link}>
+            {oldEmail}
+          </Link>{' '}
+          to{' '}
+          <Link href={`mailto:${newEmail}`} style={link}>
+            {newEmail}
+          </Link>
+          .
+        </Text>
+        <Text style={text}>
+          Click the button below to confirm this change:
+        </Text>
+        <Button style={button} href={confirmationUrl}>
+          Confirm Email Change
+        </Button>
+        <Text style={footer}>
+          If you didn't request this change, please secure your account
+          immediately.
+        </Text>
       </Container>
     </Body>
   </Html>
 )
+
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "Padauk", "Noto Sans Myanmar", sans-serif', margin: 0, padding: 0 }
-const container = { maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }
-const brand = { fontSize: '20px', fontWeight: 700 as const, color: '#1B1740', margin: '0 0 24px' }
-const accent = { color: '#FFBE5C' }
-const card = { border: '1px solid #ECEAF5', borderRadius: '12px', padding: '28px 24px', backgroundColor: '#ffffff' }
-const h1 = { fontSize: '20px', fontWeight: 700 as const, color: '#1B1740', margin: '0 0 16px', lineHeight: 1.4 }
-const text = { fontSize: '15px', color: '#3A3550', lineHeight: 1.7, margin: '0 0 20px' }
-const link = { color: '#1B1740', textDecoration: 'underline' }
-const button = { backgroundColor: '#1B1740', color: '#ffffff', fontSize: '15px', fontWeight: 600 as const, borderRadius: '8px', padding: '12px 22px', textDecoration: 'none', display: 'inline-block' }
-const footer = { fontSize: '12px', color: '#9A95B0', margin: '20px 0 0', lineHeight: 1.6 }
-const divider = { border: 'none', borderTop: '1px solid #ECEAF5', margin: '28px 0' }
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '20px 25px' }
+const h1 = {
+  fontSize: '22px',
+  fontWeight: 'bold' as const,
+  color: '#000000',
+  margin: '0 0 20px',
+}
+const text = {
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
+}
+const link = { color: 'inherit', textDecoration: 'underline' }
+const button = {
+  backgroundColor: '#000000',
+  color: '#ffffff',
+  fontSize: '14px',
+  borderRadius: '8px',
+  padding: '12px 20px',
+  textDecoration: 'none',
+}
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
