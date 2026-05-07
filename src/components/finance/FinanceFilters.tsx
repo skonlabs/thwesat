@@ -24,7 +24,7 @@ export default function FinanceFilters({
   availableCurrencies,
 }: FinanceFiltersProps) {
   const { lang } = useLanguage();
-  const currencies = ["all", ...Array.from(new Set(availableCurrencies.map((c) => c.toUpperCase())))];
+  const currencies = ["all", ...Array.from(new Set(availableCurrencies.map(() => "MMK")))];
 
   return (
     <div className="mb-4 -mx-1 flex flex-wrap items-center gap-1.5 px-1">
@@ -71,7 +71,7 @@ export function applyFinanceFilters<T extends { status?: string; currency?: stri
 ): T[] {
   return rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
-    if (currency !== "all" && (r.currency || "MMK").toUpperCase() !== currency) return false;
+    if (currency !== "all" && currency !== "MMK") return false;
     return true;
   });
 }

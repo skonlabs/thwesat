@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, BarChart3, CreditCard, Bell, CheckCircle, FileText, DollarSign } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, CreditCard, CheckCircle, FileText, WalletCards } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -60,7 +60,7 @@ const BottomNav = () => {
   const adminNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
-    { icon: DollarSign, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
+    { icon: WalletCards, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
     { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];

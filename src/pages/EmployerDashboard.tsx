@@ -11,6 +11,7 @@ import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { employerLabels as L } from "@/lib/employer-labels";
+import { formatMoney } from "@/lib/finance";
 
 const quickActions = [
   { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
@@ -84,7 +85,7 @@ const EmployerDashboard = () => {
             { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => navigate("/employer/jobs?listingFilter=active") },
             { icon: Users, label: L.applications, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
             { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
-            ...(isAgent ? [{ icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: `$${placedFees.toLocaleString()}`, color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") }] : []),
+            ...(isAgent ? [{ icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: formatMoney(placedFees, "MMK", lang), color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") }] : []),
           ].map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
               <div className="flex items-center gap-2.5">

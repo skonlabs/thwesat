@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, DollarSign, ChevronRight, CreditCard, Building2, BarChart3 } from "lucide-react";
+import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, WalletCards, ChevronRight, CreditCard, Building2, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
@@ -59,7 +59,7 @@ const AdminDashboard = () => {
     { label: { my: "အသုံးပြုသူများ", en: "Users" }, path: "/admin/users", icon: Users, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "အလုပ်ရှင်များ", en: "Employers" }, path: "/admin/employers", icon: Building2, desc: { my: "စစ်ဆေး", en: "Verify" } },
     { label: { my: "ငွေပေးချေမှု", en: "Payments" }, path: "/admin/payments", icon: CreditCard, desc: { my: "စစ်ဆေး", en: "Review" } },
-    { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: DollarSign, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
+    { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: WalletCards, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
     { label: { my: "အလုပ်များ", en: "Jobs" }, path: "/admin/jobs", icon: Briefcase, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "စစ်ဆေးရေး", en: "Moderation" }, path: "/moderator", icon: Shield, desc: { my: "ပို့စ်/Report", en: "Posts & Reports" } },
     { label: { my: "ခွဲခြမ်းစိတ်ဖြာ", en: "Analytics" }, path: "/admin/analytics", icon: BarChart3, desc: { my: "ကြည့်ရှု", en: "View" } },

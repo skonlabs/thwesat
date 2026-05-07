@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, DollarSign, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
+import { Calendar, Clock, WalletCards, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/finance";
 
 const TIMEZONES = [
   "UTC",
@@ -55,7 +56,7 @@ const availabilityDays = [
 
 const quickActions = [
   { icon: Users, label: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: DollarSign, label: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: WalletCards, label: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Eye, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
 ];
 
@@ -190,7 +191,7 @@ const MentorDashboard = () => {
   const stats = [
     { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10", path: "/mentors/bookings" },
     { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors/dashboard" },
-    { icon: DollarSign, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: `$${thisMonthEarnings}`, color: "text-gold-dark bg-accent/15", path: "/mentors/dashboard" },
+    { icon: WalletCards, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: formatMoney(thisMonthEarnings, "MMK", lang), color: "text-gold-dark bg-accent/15", path: "/mentors/dashboard" },
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
