@@ -76,6 +76,12 @@ const MentorFinance = () => {
   // with a real check once the column exists.
   const hasPaymentMethod = true;
 
+  const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
+  const totalPendingApproval = useMemo(
+    () => (pendingApprovalRows || []).reduce((sum, p) => sum + Number(p.amount || 0), 0),
+    [pendingApprovalRows]
+  );
+
   // Map status → "approved"/"pending" buckets that match the filter contract.
   const filtered = useMemo(() => {
     return all.filter((e) => {
