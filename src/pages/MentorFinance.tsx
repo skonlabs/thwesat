@@ -79,6 +79,10 @@ const MentorFinance = () => {
   const totalEarned = useMemo(() => all.reduce((sum, e) => sum + Number(e.amount || 0), 0), [all]);
   const totalPending = useMemo(() => pending.reduce((sum, e) => sum + Number(e.amount || 0), 0), [pending]);
   const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
+  const totalPendingApproval = useMemo(
+    () => (pendingApprovalRows || []).reduce((sum, p) => sum + Number(p.amount || 0), 0),
+    [pendingApprovalRows]
+  );
 
   // Map status → "approved"/"pending" buckets that match the filter contract.
   const filtered = useMemo(() => {
