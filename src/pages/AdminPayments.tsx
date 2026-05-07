@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, DollarSign, GraduationCap, RotateCcw, Calendar, Briefcase } from "lucide-react";
+import { CheckCircle, XCircle, Clock, WalletCards, GraduationCap, RotateCcw, Calendar, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import {
   useAllPaymentRequests,
@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import type { PaymentRequest } from "@/hooks/use-payment";
 import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
+import { formatMoney } from "@/lib/finance";
 
 type FilterType = "all" | "pending" | "approved" | "rejected" | "revoked";
 
@@ -165,7 +166,7 @@ const AdminPayments = () => {
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-3">
           <button onClick={() => setFilter("all")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "all" ? "border-primary" : "border-border"}`}>
-            <DollarSign className="mx-auto mb-1 h-5 w-5 text-primary" strokeWidth={1.5} />
+            <WalletCards className="mx-auto mb-1 h-5 w-5 text-primary" strokeWidth={1.5} />
             <p className="text-lg font-bold text-foreground">{payments?.length || 0}</p>
             <p className="text-[10px] text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "Total"}</p>
           </button>
@@ -204,7 +205,7 @@ const AdminPayments = () => {
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="mb-2 h-20 w-full rounded-xl" />)
         ) : filtered.length === 0 ? (
           <div className="mt-10 text-center">
-            <DollarSign className="mx-auto mb-2 h-10 w-10 text-muted-foreground/30" />
+            <WalletCards className="mx-auto mb-2 h-10 w-10 text-muted-foreground/30" />
             <p className="text-sm text-muted-foreground">{lang === "my" ? "ငွေပေးချေမှု မရှိပါ" : "No payments found"}</p>
           </div>
         ) : (
@@ -212,7 +213,7 @@ const AdminPayments = () => {
             {filtered.map((p, i) => {
               const sc = statusConfig[p.status] || statusConfig.pending;
               const profile = profileMap.get(p.user_id);
-              const tl = typeLabels[p.payment_type] || { my: p.payment_type, en: p.payment_type, icon: DollarSign };
+              const tl = typeLabels[p.payment_type] || { my: p.payment_type, en: p.payment_type, icon: WalletCards };
               const TypeIcon = tl.icon;
               return (
                 <motion.button
