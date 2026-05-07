@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import { Save } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -33,6 +35,7 @@ const MentorPreferencesSection = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { data: mentorProfile } = useMentorProfile(user?.id);
+  const queryClient = useQueryClient();
 
   const [hourlyRate, setHourlyRate] = useState("100");
   const [rateError, setRateError] = useState<string | null>(null);
@@ -41,6 +44,7 @@ const MentorPreferencesSection = () => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
   const [spokenLanguages, setSpokenLanguages] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (mentorProfile) {
@@ -76,21 +80,29 @@ const MentorPreferencesSection = () => {
     setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || saving) return;
     const rate = Number(hourlyRate);
     if (!Number.isFinite(rate) || rate < 100 || rate > 50000) {
       setRateError(lang === "my" ? "နှုန်းထား 100 မှ 50,000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 100 and 50,000");
       return;
     }
     setRateError(null);
-    const { error } = await supabase
-      .from("mentor_profiles")
-      .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
-      .eq("id", user.id);
-    const { error: profileError } = await supabase
-      .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
-    if (error || profileError) {
-      toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("mentor_profiles")
+        .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
+        .eq("id", user.id);
+      const { error: profileError } = await supabase
+        .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
+      if (error || profileError) {
+        toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+        return;
+      }
+      await queryClient.invalidateQueries({ queryKey: ["mentor-profile", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -166,11 +178,12 @@ const MentorPreferencesSection = () => {
         {/* Calendar */}
         <AvailabilityManager />
 
-        {/* Save button — inline, only when dirty */}
+        {/* Save button — matches EditProfile pattern */}
         {isDirty && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-            <Button variant="gold" onClick={handleSave} className="h-11 w-full rounded-xl text-sm font-semibold">
-              {lang === "my" ? "Mentor အပြောင်းအလဲများ သိမ်းရန်" : "Save Mentor Changes"}
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pt-2">
+            <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSave} disabled={saving}>
+              <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
+              {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes")}
             </Button>
           </motion.div>
         )}
