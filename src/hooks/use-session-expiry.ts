@@ -48,8 +48,8 @@ export const useSessionExpiry = () => {
       checkedRef.current = false;
       return;
     }
-    const expiryKey = settings?.session_expiry || "24h";
-    const windowMs = EXPIRY_MS[expiryKey] ?? EXPIRY_MS["24h"];
+    const expiryKey = settings?.session_expiry || "7d";
+    const windowMs = EXPIRY_MS[expiryKey] ?? EXPIRY_MS["7d"];
 
     // On mount/resume: check if last activity exceeded window — if so, sign out.
     if (!checkedRef.current) {
