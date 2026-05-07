@@ -178,11 +178,12 @@ const MentorPreferencesSection = () => {
         {/* Calendar */}
         <AvailabilityManager />
 
-        {/* Save button — inline, only when dirty */}
+        {/* Save button — matches EditProfile pattern */}
         {isDirty && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-            <Button variant="gold" onClick={handleSave} className="h-11 w-full rounded-xl text-sm font-semibold">
-              {lang === "my" ? "Mentor အပြောင်းအလဲများ သိမ်းရန်" : "Save Mentor Changes"}
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pt-2">
+            <Button variant="default" size="lg" className="w-full rounded-2xl shadow-navy" onClick={handleSave} disabled={saving}>
+              <Save className="mr-2 h-5 w-5" strokeWidth={1.5} />
+              {saving ? (lang === "my" ? "သိမ်းနေသည်..." : "Saving...") : (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းဆည်းရန်" : "Save Changes")}
             </Button>
           </motion.div>
         )}
