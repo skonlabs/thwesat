@@ -11,8 +11,8 @@ interface SessionExpirySheetProps {
 
 const options = [
   { id: "1h", label: { my: "၁ နာရီ", en: "1 hour" }, desc: { my: "အလုံခြုံဆုံး - မကြာခဏ Login ပြန်ဝင်ရန် လိုပါမည်", en: "Most secure — requires frequent re-login" } },
-  { id: "24h", label: { my: "၂၄ နာရီ", en: "24 hours" }, desc: { my: "အကြံပြုထားသော ပုံမှန်အချိန်", en: "Recommended default duration" } },
-  { id: "7d", label: { my: "၇ ရက်", en: "7 days" }, desc: { my: "တစ်ပတ်တစ်ကြိမ် Login ပြန်ဝင်ရပါမည်", en: "Re-login required once a week" } },
+  { id: "24h", label: { my: "၂၄ နာရီ", en: "24 hours" }, desc: { my: "နေ့စဉ် Login ပြန်ဝင်ရပါမည်", en: "Re-login required daily" } },
+  { id: "7d", label: { my: "၇ ရက်", en: "7 days" }, desc: { my: "အကြံပြုထားသော ပုံမှန်အချိန်", en: "Recommended default duration" } },
   { id: "30d", label: { my: "၃၀ ရက်", en: "30 days" }, desc: { my: "အဆင်ပြေဆုံး - လုံခြုံရေး နည်းပါသည်", en: "Most convenient — less secure" } },
 ];
 
