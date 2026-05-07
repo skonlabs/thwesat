@@ -119,17 +119,17 @@ const App = () => (
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/chat" element={<ChatView />} />
               <Route path="/notifications" element={<Notifications />} />
-              <Route path="/ai-tools" element={<AiProfileBuilder />} />
-              <Route path="/ai-tools/profile-builder" element={<ProfileBuilder />} />
-              <Route path="/ai-tools/cover-letter" element={<CoverLetterGenerator />} />
-              <Route path="/ai-tools/skill-gap" element={<SkillGapAnalysis />} />
-              <Route path="/career-tracks" element={<CareerTracks />} />
+              <Route path="/ai-tools" element={<AppRoleGuard allowedRoles={["jobseeker"]}><AiProfileBuilder /></AppRoleGuard>} />
+              <Route path="/ai-tools/profile-builder" element={<AppRoleGuard allowedRoles={["jobseeker"]}><ProfileBuilder /></AppRoleGuard>} />
+              <Route path="/ai-tools/cover-letter" element={<AppRoleGuard allowedRoles={["jobseeker"]}><CoverLetterGenerator /></AppRoleGuard>} />
+              <Route path="/ai-tools/skill-gap" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SkillGapAnalysis /></AppRoleGuard>} />
+              <Route path="/career-tracks" element={<AppRoleGuard allowedRoles={["jobseeker"]}><CareerTracks /></AppRoleGuard>} />
               <Route path="/premium" element={<Navigate to="/wallet" replace />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
-              <Route path="/finance" element={<SeekerFinance />} />
+              <Route path="/finance" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SeekerFinance /></AppRoleGuard>} />
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
-              <Route path="/become-mentor" element={<BecomeMentor />} />
+              <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["jobseeker"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
 
               {/* Unified dashboard — every role-specific dashboard URL redirects here.
