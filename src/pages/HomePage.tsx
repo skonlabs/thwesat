@@ -18,7 +18,7 @@ const jobseekerActions = [
   { icon: Users, label: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: Shield, label: "ဥပဒေ", labelEn: "Guides", path: "/guides", bg: "bg-primary/8", fg: "text-primary" },
   { icon: Sparkles, label: "ကိရိယာများ", labelEn: "Career Tools", path: "/ai-tools", bg: "bg-accent/15", fg: "text-gold-dark" },
-  { icon: Wallet, label: "ငွေကြေး", labelEn: "Finance", path: "/finance", bg: "bg-emerald/10", fg: "text-emerald" },
+  { icon: Wallet, label: "ဝင်ငွေ", labelEn: "Earnings", path: "/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   { icon: TrendingUp, label: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications", bg: "bg-primary/8", fg: "text-primary" },
 ];
 
