@@ -1,11 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import useDirtyState from "@/hooks/use-dirty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import PageHeader from "@/components/PageHeader";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -31,7 +29,7 @@ const DAYS = [
   { day: "Thu", my: "ကြာသပတေး" }, { day: "Fri", my: "သောကြာ" }, { day: "Sat", my: "စနေ" }, { day: "Sun", my: "တနင်္ဂနွေ" },
 ];
 
-const MentorSettings = () => {
+const MentorPreferencesSection = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { data: mentorProfile } = useMentorProfile(user?.id);
@@ -72,9 +70,6 @@ const MentorSettings = () => {
     [...activeDays].sort().join("|") !== baseline.activeDays ||
     [...spokenLanguages].sort().join("|") !== baseline.languages;
 
-  const { setDirty, markClean } = useDirtyState(false);
-  useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
-
   const toggleLanguage = (l: string) =>
     setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
   const toggleDay = (day: string) =>
@@ -96,28 +91,28 @@ const MentorSettings = () => {
       .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
     if (error || profileError) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
-    } else {
-      markClean();
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32">
-      <PageHeader title={lang === "my" ? "Mentor ဆက်တင်" : "Mentor Settings"} showBack />
-      <div className="space-y-4 px-5">
-        {/* Availability toggle */}
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
-          <div>
+    <div className="mb-4">
+      <h2 className="mb-2 px-1 text-xs font-semibold text-muted-foreground">
+        {lang === "my" ? "Mentor အခြေအနေ" : "Mentor Preferences"}
+      </h2>
+      <div className="space-y-3">
+        {/* Availability */}
+        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+          <div className="pr-3">
             <p className="text-sm font-bold text-foreground">{lang === "my" ? "Booking လက်ခံမှု" : "Accepting bookings"}</p>
             <p className="text-[11px] text-muted-foreground">
               {isAvailable ? (lang === "my" ? "Mentee များက သင့်ကို ဘွတ်ကင်လုပ်နိုင်ပါသည်" : "Mentees can book sessions with you") : (lang === "my" ? "လောလောဆယ် ခေါ်ဆိုမှု မလက်ခံပါ" : "You're paused — no new bookings")}
             </p>
           </div>
           <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
-        </motion.div>
+        </div>
 
         {/* Rate */}
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</h3>
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex h-10 items-center rounded-xl border border-border bg-muted px-3 text-xs font-medium text-foreground">{lang === "my" ? "ကျပ်" : "MMK"}</span>
@@ -125,19 +120,19 @@ const MentorSettings = () => {
             <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
           </div>
           {rateError && <p className="mt-1 text-xs text-destructive">{rateError}</p>}
-        </motion.div>
+        </div>
 
         {/* Timezone */}
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="mb-2 text-sm font-bold text-foreground">{lang === "my" ? "Timezone" : "Timezone"}</h3>
           <Select value={timezone} onValueChange={setTimezone}>
             <SelectTrigger className="h-10 rounded-xl text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>{TIMEZONES.map(tz => <SelectItem key={tz} value={tz} className="text-xs">{tz}</SelectItem>)}</SelectContent>
           </Select>
-        </motion.div>
+        </div>
 
         {/* Active days */}
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "ရနိုင်သော နေ့များ" : "Active Days"}</h3>
           <div className="flex flex-wrap gap-1.5">
             {DAYS.map(d => {
@@ -150,10 +145,10 @@ const MentorSettings = () => {
               );
             })}
           </div>
-        </motion.div>
+        </div>
 
         {/* Languages */}
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "ပြောတတ်သော ဘာသာစကားများ" : "Spoken Languages"}</h3>
           <div className="flex flex-wrap gap-1.5">
             {SPOKEN_LANGUAGES.map(l => {
@@ -166,20 +161,22 @@ const MentorSettings = () => {
               );
             })}
           </div>
-        </motion.div>
+        </div>
 
         {/* Calendar */}
         <AvailabilityManager />
-      </div>
 
-      {/* Sticky save bar */}
-      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background/95 px-5 py-3 backdrop-blur">
-        <Button variant={isDirty ? "gold" : "default"} disabled={!isDirty} onClick={handleSave} className="h-11 w-full rounded-xl text-sm font-semibold">
-          {isDirty ? (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes") : (lang === "my" ? "သိမ်းပြီး" : "All changes saved")}
-        </Button>
+        {/* Save button — inline, only when dirty */}
+        {isDirty && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+            <Button variant="gold" onClick={handleSave} className="h-11 w-full rounded-xl text-sm font-semibold">
+              {lang === "my" ? "Mentor အပြောင်းအလဲများ သိမ်းရန်" : "Save Mentor Changes"}
+            </Button>
+          </motion.div>
+        )}
       </div>
     </div>
   );
 };
 
-export default MentorSettings;
+export default MentorPreferencesSection;

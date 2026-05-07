@@ -15,6 +15,8 @@ import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-setting
 import { useActiveDelegateToken, useGenerateDelegateToken, useRevokeDelegateToken } from "@/hooks/use-delegate-token";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
+import MentorPreferencesSection from "@/components/settings/MentorPreferencesSection";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
 import SessionExpirySheet from "@/components/settings/SessionExpirySheet";
 import TelegramLinkSheet from "@/components/settings/TelegramLinkSheet";
@@ -32,6 +34,8 @@ const Settings = () => {
   const { data: activeToken } = useActiveDelegateToken();
   const generateTokenMutation = useGenerateDelegateToken();
   const revokeTokenMutation = useRevokeDelegateToken();
+  const { hasRole } = useUserRoles();
+  const isMentor = hasRole("mentor");
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -383,6 +387,8 @@ const Settings = () => {
             </div>
           </motion.div>
         ))}
+
+        {isMentor && <MentorPreferencesSection />}
 
         {/* Security note — active sessions & delegate token permissions notice (issue #57) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4 space-y-2">

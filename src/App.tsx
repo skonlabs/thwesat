@@ -55,7 +55,7 @@ import BecomeMentor from "./pages/BecomeMentor";
 import MentorDashboard from "./pages/MentorDashboard";
 import MentorMentees from "./pages/MentorMentees";
 import MentorBookings from "./pages/MentorBookings";
-import MentorSettings from "./pages/MentorSettings";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
@@ -166,7 +166,7 @@ const App = () => (
               {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
               <Route path="/mentor/mentees" element={<Navigate to="/mentors/mentees" replace />} />
-              <Route path="/mentor/settings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorSettings /></AppRoleGuard>} />
+              <Route path="/mentor/settings" element={<Navigate to="/settings" replace />} />
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
             </Route>
 

@@ -201,7 +201,7 @@ const MentorDashboard = () => {
           {[
             { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
             { icon: WalletCards, my: "ငွေကြေး", en: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-            { icon: Settings, my: "ဆက်တင်", en: "Settings", path: "/mentor/settings", bg: "bg-accent/15", fg: "text-gold-dark" },
+            { icon: Settings, my: "ဆက်တင်", en: "Settings", path: "/settings", bg: "bg-accent/15", fg: "text-gold-dark" },
           ].map((a, i) => (
             <motion.button key={a.path} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 + i * 0.04 }}
               onClick={() => navigate(a.path)}
@@ -292,7 +292,7 @@ const MentorDashboard = () => {
                   : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try another tab")}
               </p>
               {bookings.length === 0 && (
-                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/mentor/settings")}>
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/settings")}>
                   {lang === "my" ? "ဆက်တင် ဖွင့်ရန်" : "Open Settings"}
                 </Button>
               )}
