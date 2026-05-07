@@ -287,9 +287,17 @@ const MentorDashboard = () => {
         </div>
 
         {/* Availability & Rate */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5 rounded-xl border border-border bg-card p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={`mb-5 rounded-xl border bg-card p-4 transition-colors ${isDirty ? "border-gold ring-1 ring-gold/40" : "border-border"}`}>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
+              {isDirty && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold-dark">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold-dark animate-pulse" />
+                  {lang === "my" ? "မသိမ်းရသေး" : "Unsaved"}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground">{isAvailable ? (lang === "my" ? "ရနိုင်" : "Available") : (lang === "my" ? "မရနိုင်" : "Unavailable")}</span>
               <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
