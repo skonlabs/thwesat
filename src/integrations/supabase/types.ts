@@ -2110,6 +2110,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_employer_or_agent: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mentor_book_with_credits: {

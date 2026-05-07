@@ -1,4 +1,4 @@
-import { Check, Users, Globe, Lock } from "lucide-react";
+import { Check, Users, Globe, Lock, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import SettingsBottomSheet from "./SettingsBottomSheet";
 
@@ -21,6 +21,12 @@ const options = [
     icon: Globe,
     label: { my: "အားလုံးမြင်နိုင်", en: "Public" },
     desc: { my: "မည်သူမဆို သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်", en: "Anyone on the internet can see your profile" },
+  },
+  {
+    id: "employers",
+    icon: Briefcase,
+    label: { my: "အလုပ်ရှင်များသာ", en: "Employers Only" },
+    desc: { my: "အလုပ်ရှင် နှင့် ခေါ်ယူရေး အေဂျင့်များသာ မြင်နိုင်ပါသည်", en: "Only employers and recruiting agents can see your profile" },
   },
   {
     id: "private",
