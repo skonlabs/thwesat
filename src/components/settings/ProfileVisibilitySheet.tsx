@@ -1,4 +1,4 @@
-import { Check, Users, Globe, Lock } from "lucide-react";
+import { Check, Users, Globe, Lock, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import SettingsBottomSheet from "./SettingsBottomSheet";
 
