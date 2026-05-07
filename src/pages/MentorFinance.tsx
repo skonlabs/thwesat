@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { type StatusFilter } from "@/components/finance/FinanceFilters";
-import { shortRef } from "@/lib/finance";
+import { formatMoney, shortRef } from "@/lib/finance";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -117,9 +117,8 @@ const MentorFinance = () => {
         {/* Stat cards */}
         <div className="mb-4 grid grid-cols-2 gap-2">
           {[
-            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: `${Math.round(totalPendingApproval).toLocaleString()} MMK`, color: "text-amber-600 dark:text-amber-400" },
-            { label: lang === "my" ? "Payout စောင့်ဆိုင်း" : "Pending Payout", value: `$${totalPending.toFixed(2)}`, color: "text-amber-600 dark:text-amber-400" },
-            { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: `$${totalPaid.toFixed(2)}`, color: "text-emerald-600 dark:text-emerald-400" },
+            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: formatMoney(totalPendingApproval, "MMK", lang), color: "text-amber-600 dark:text-amber-400" },
+            { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: formatMoney(totalPaid, "MMK", lang), color: "text-emerald-600 dark:text-emerald-400" },
           ].map((s, i) => (
             <div key={i} className="rounded-xl border border-border bg-card p-3 text-center">
               <p className={`text-base font-bold leading-tight ${s.color}`}>{s.value}</p>
