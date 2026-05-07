@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, XCircle, RotateCcw, DollarSign, type LucideIcon } from "lucide-react";
+import { CheckCircle, Clock, XCircle, RotateCcw, WalletCards, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { formatMoney, formatTotals, paymentStatusLabels, type Money } from "@/lib/finance";
 
@@ -70,7 +70,7 @@ export default function FinanceLedger({ totals, rows, isLoading, emptyText }: Fi
       ) : rows.length === 0 ? (
         (emptyText?.en === "" && emptyText?.my === "") ? null : (
           <div className="mt-12 text-center">
-            <DollarSign className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
+              <WalletCards className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm text-muted-foreground">
               {lang === "my"
                 ? emptyText?.my || "မှတ်တမ်း မရှိသေးပါ"
