@@ -150,8 +150,8 @@ const DelegateAccess = () => {
     );
   }
 
-  // Token used the maximum number of times
-  if (status === "maxUsed") {
+  // Token already claimed by another device/session
+  if (status === "alreadyUsed") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
