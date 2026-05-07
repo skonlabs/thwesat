@@ -111,6 +111,20 @@ const MentorFinance = () => {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Stat cards */}
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          {[
+            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: formatMoney(totalPendingApproval, "MMK", lang), color: "text-amber-600 dark:text-amber-400" },
+            { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: formatMoney(totalPaid, "MMK", lang), color: "text-emerald-600 dark:text-emerald-400" },
+          ].map((s, i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-3 text-center">
+              <p className={`text-base font-bold leading-tight ${s.color}`}>{s.value}</p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mb-4 rounded-xl border border-border bg-accent/10 p-3">
           <p className="text-[11px] text-muted-foreground">
             {lang === "my"
