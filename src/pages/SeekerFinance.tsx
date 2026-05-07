@@ -32,7 +32,8 @@ const SeekerFinance = () => {
 
   const all = payments || [];
   const approved = all.filter((p) => p.status === "approved");
-  const pending = all.filter((p) => p.status === "pending");
+  const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
+  const pending = all.filter((p) => p.status === "pending" && !p.proof_url);
   const filtered = useMemo(() => applyFinanceFilters(all, status, currency), [all, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
 
