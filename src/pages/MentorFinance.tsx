@@ -140,12 +140,6 @@ const MentorFinance = () => {
             : "Payouts are processed by the admin team. Allow 3–5 business days."}
         </p>
 
-        <FinanceLedger
-          isLoading={isLoading}
-          totals={[]}
-          rows={[]}
-          emptyText={{ my: "", en: "" }}
-        />
 
         <FinanceFilters
           status={status}
