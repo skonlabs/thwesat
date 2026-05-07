@@ -54,6 +54,19 @@ const EmployerDashboard = () => {
   const placedFees = placementSummary?.totalFee || 0;
   const isAgent = profile?.primary_role === "agent";
 
+  const employerCompletionFields = [
+    empProfile?.company_name,
+    empProfile?.company_website,
+    empProfile?.company_description,
+    empProfile?.industry,
+    empProfile?.company_size,
+    empProfile?.hq_country,
+    empProfile?.contact_name,
+    empProfile?.contact_email,
+    empProfile?.contact_phone,
+  ];
+  const employerCompletionPct = Math.round((employerCompletionFields.filter(Boolean).length / employerCompletionFields.length) * 100);
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -64,10 +77,20 @@ const EmployerDashboard = () => {
           <div className="flex items-start gap-3">
             <Building2 className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
-              <p className="text-xs font-bold text-foreground">{empProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီအမည်" : "Company")}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold text-foreground">{empProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီအမည်" : "Company")}</p>
+                {!empProfile?.is_verified && (
+                  <span className="text-[10px] font-bold text-muted-foreground">{employerCompletionPct}%</span>
+                )}
+              </div>
               <p className={`text-[11px] font-medium ${empProfile?.is_verified ? "text-emerald" : "text-muted-foreground"}`}>
-                {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? "စစ်ဆေးဆဲ — အပြည့်အစုံ ဖြည့်ရန် နှိပ်ပါ" : "Pending Verification — tap to complete profile")}
+                {empProfile?.is_verified ? `✓ ${lang === "my" ? "အတည်ပြုပြီး" : "Verified"}` : (lang === "my" ? `စစ်ဆေးဆဲ — အပြည့်အစုံ ဖြည့်ရန် နှိပ်ပါ (${employerCompletionPct}%)` : `Pending Verification — tap to complete profile (${employerCompletionPct}%)`)}
               </p>
+              {!empProfile?.is_verified && (
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${employerCompletionPct}%` }} />
+                </div>
+              )}
             </div>
           </div>
         </motion.button>
