@@ -118,6 +118,10 @@ const MentorFinance = () => {
         <div className="mb-4 grid grid-cols-3 gap-2">
           {[
             { label: lang === "my" ? "စုစုပေါင်း ဝင်ငွေ" : "Total Earned", value: `$${totalEarned.toFixed(2)}`, color: "text-foreground" },
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          {[
+            { label: lang === "my" ? "စုစုပေါင်း ဝင်ငွေ" : "Total Earned", value: `$${totalEarned.toFixed(2)}`, color: "text-foreground" },
+            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: `${Math.round(totalPendingApproval).toLocaleString()} MMK`, color: "text-amber-600 dark:text-amber-400" },
             { label: lang === "my" ? "Payout စောင့်ဆိုင်း" : "Pending Payout", value: `$${totalPending.toFixed(2)}`, color: "text-amber-600 dark:text-amber-400" },
             { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: `$${totalPaid.toFixed(2)}`, color: "text-emerald-600 dark:text-emerald-400" },
           ].map((s, i) => (
