@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import useDirtyState from "@/hooks/use-dirty-state";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, WalletCards, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
@@ -178,9 +179,29 @@ const MentorDashboard = () => {
     if (error || profileError) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
     } else {
+      markClean();
       toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
     }
   };
+
+  // Track unsaved changes by comparing current state vs loaded mentorProfile
+  const baseline = useMemo(() => ({
+    hourlyRate: mentorProfile?.hourly_rate?.toString() || "100",
+    currency: mentorProfile?.currency || "MMK",
+    timezone: (mentorProfile as any)?.timezone || "Asia/Yangon",
+    isAvailable: mentorProfile?.is_available ?? true,
+    activeDays: [...(mentorProfile?.available_days || [])].sort().join("|"),
+    languages: [...(mentorProfile?.profile?.languages || [])].sort().join("|"),
+  }), [mentorProfile]);
+  const isDirty =
+    hourlyRate !== baseline.hourlyRate ||
+    currency !== baseline.currency ||
+    timezone !== baseline.timezone ||
+    isAvailable !== baseline.isAvailable ||
+    [...activeDays].sort().join("|") !== baseline.activeDays ||
+    [...spokenLanguages].sort().join("|") !== baseline.languages;
+  const { setDirty, markClean } = useDirtyState(false);
+  useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
 
   const toggleLanguage = (l: string) => setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
 
@@ -266,9 +287,17 @@ const MentorDashboard = () => {
         </div>
 
         {/* Availability & Rate */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-5 rounded-xl border border-border bg-card p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={`mb-5 rounded-xl border bg-card p-4 transition-colors ${isDirty ? "border-gold ring-1 ring-gold/40" : "border-border"}`}>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
+              {isDirty && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold-dark">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gold-dark animate-pulse" />
+                  {lang === "my" ? "မသိမ်းရသေး" : "Unsaved"}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground">{isAvailable ? (lang === "my" ? "ရနိုင်" : "Available") : (lang === "my" ? "မရနိုင်" : "Unavailable")}</span>
               <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
@@ -333,8 +362,15 @@ const MentorDashboard = () => {
               })}
             </div>
           </div>
-          <Button className="mt-4 h-11 w-full rounded-xl text-sm font-semibold" onClick={handleSaveRate}>
-            {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes"}
+          <Button
+            variant={isDirty ? "gold" : "default"}
+            disabled={!isDirty}
+            className="mt-4 h-11 w-full rounded-xl text-sm font-semibold"
+            onClick={handleSaveRate}
+          >
+            {isDirty
+              ? (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes")
+              : (lang === "my" ? "သိမ်းပြီး" : "All changes saved")}
           </Button>
         </motion.div>
 
