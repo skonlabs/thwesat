@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { type StatusFilter } from "@/components/finance/FinanceFilters";
-import { formatMoney, shortRef } from "@/lib/finance";
+import { shortRef } from "@/lib/finance";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -76,14 +76,6 @@ const MentorFinance = () => {
   // with a real check once the column exists.
   const hasPaymentMethod = true;
 
-  const totalEarned = useMemo(() => all.reduce((sum, e) => sum + Number(e.amount || 0), 0), [all]);
-  const totalPending = useMemo(() => pending.reduce((sum, e) => sum + Number(e.amount || 0), 0), [pending]);
-  const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
-  const totalPendingApproval = useMemo(
-    () => (pendingApprovalRows || []).reduce((sum, p) => sum + Number(p.amount || 0), 0),
-    [pendingApprovalRows]
-  );
-
   // Map status → "approved"/"pending" buckets that match the filter contract.
   const filtered = useMemo(() => {
     return all.filter((e) => {
@@ -113,20 +105,6 @@ const MentorFinance = () => {
             </AlertDescription>
           </Alert>
         )}
-
-        {/* Stat cards */}
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          {[
-            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: formatMoney(totalPendingApproval, "MMK", lang), color: "text-amber-600 dark:text-amber-400" },
-            { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: formatMoney(totalPaid, "MMK", lang), color: "text-emerald-600 dark:text-emerald-400" },
-          ].map((s, i) => (
-            <div key={i} className="rounded-xl border border-border bg-card p-3 text-center">
-              <p className={`text-base font-bold leading-tight ${s.color}`}>{s.value}</p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
         <div className="mb-4 rounded-xl border border-border bg-accent/10 p-3">
           <p className="text-[11px] text-muted-foreground">
             {lang === "my"
@@ -152,6 +130,11 @@ const MentorFinance = () => {
             {
               label: { my: "စောင့်ဆိုင်းနေသည်", en: "Pending Payout" },
               rows: pending.map((e) => ({ amount: Number(e.amount), currency: e.currency })),
+              tone: "border-warning/30",
+            },
+            {
+              label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
+              rows: (pendingApprovalRows || []).map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-warning/30",
             },
           ]}
