@@ -282,7 +282,7 @@ const EditProfile = () => {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [languageSearch, setLanguageSearch] = useState("");
   const [experience, setExperience] = useState("");
-  const [visibility, setVisibility] = useState("members");
+  const [visibility, setVisibility] = useState("public");
   const [preferredWorkTypes, setPreferredWorkTypes] = useState<string[]>([]);
   const [hasWise, setHasWise] = useState(false);
   const [hasUpwork, setHasUpwork] = useState(false);
