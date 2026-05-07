@@ -103,11 +103,11 @@ const App = () => (
               <Route path="/dashboard" element={<HomeRedirect />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/jobs/:id" element={<JobDetail />} />
-              <Route path="/jobs/saved" element={<SavedJobs />} />
-              <Route path="/applications" element={<Applications />} />
+              <Route path="/jobs/saved" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SavedJobs /></AppRoleGuard>} />
+              <Route path="/applications" element={<AppRoleGuard allowedRoles={["jobseeker"]}><Applications /></AppRoleGuard>} />
               <Route path="/mentors" element={<Mentors />} />
               <Route path="/mentors/:id" element={<MentorDetail />} />
-              <Route path="/mentors/book" element={<MentorBooking />} />
+              <Route path="/mentors/book" element={<AppRoleGuard allowedRoles={["jobseeker"]}><MentorBooking /></AppRoleGuard>} />
               <Route path="/mentors/mentees" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorMentees /></AppRoleGuard>} />
               <Route path="/mentors/bookings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorBookings /></AppRoleGuard>} />
               <Route path="/guides" element={<Guides />} />
