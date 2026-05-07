@@ -47,7 +47,7 @@ const Settings = () => {
 
   // Values
   const [profileVisibility, setProfileVisibility] = useState("members");
-  const [sessionExpiry, setSessionExpiry] = useState("24h");
+  const [sessionExpiry, setSessionExpiry] = useState("7d");
   const [telegramLinked, setTelegramLinked] = useState(false);
 
   // Hydrate from server-stored settings
