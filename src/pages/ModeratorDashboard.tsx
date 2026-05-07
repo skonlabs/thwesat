@@ -270,14 +270,30 @@ const ModeratorDashboard = () => {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-payment-requests"] }); setSelectedPaymentId(null); setPaymentNote(""); toast.success(lang === "my" ? "အပ်ဒိတ်ပြီး" : "Payment updated"); },
   });
 
-  // Moderator recommendation (just adds a note without changing status)
+  // Moderator recommendation — moderators cannot edit payment_requests directly (admin-only).
+  // Instead, send a notification to all admins flagging this payment for review.
   const recommendPayment = useMutation({
     mutationFn: async ({ id, note }: { id: string; note: string }) => {
-      const { error } = await supabase.from("payment_requests" as any).update({ admin_note: `[MOD] ${note}` } as any).eq("id", id);
+      const { data: admins, error: adminsErr } = await (supabase as any)
+        .from("user_roles").select("user_id").eq("role", "admin");
+      if (adminsErr) throw adminsErr;
+      const rows = (admins || []).map((a: any) => ({
+        user_id: a.user_id,
+        notification_type: "payment",
+        title: "Payment flagged by moderator",
+        title_my: "ငွေပေးချေမှု Moderator မှ အကြံပြု",
+        description: note,
+        description_my: note,
+        link_path: `/admin/payments?id=${id}`,
+      }));
+      if (rows.length === 0) return;
+      const { error } = await supabase.from("notifications").insert(rows as any);
       if (error) throw error;
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-payment-requests"] }); setSelectedPaymentId(null); setPaymentNote(""); toast.success(lang === "my" ? "မှတ်ချက်ထည့်ပြီး" : "Note added for admin review"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-payment-requests"] }); setSelectedPaymentId(null); setPaymentNote(""); toast.success(lang === "my" ? "Admin သို့ ပို့ပြီး" : "Sent to admin for review"); },
+    onError: (e: any) => toast.error(e?.message || "Failed to flag payment"),
   });
+
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
