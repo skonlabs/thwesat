@@ -11,7 +11,6 @@ import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { employerLabels as L } from "@/lib/employer-labels";
-import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 
 const quickActions = [
@@ -52,7 +51,6 @@ const EmployerDashboard = () => {
   const activeCount = listings.filter(l => l.status === "active").length;
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
   const placedCount = placementSummary?.count || 0;
-  const placedFees = placementSummary?.totalFee || 0;
   // Agents have their own dedicated dashboard (AgentDashboard.tsx).
 
   const { percent: employerCompletionPct } = computeProfileCompletion({
