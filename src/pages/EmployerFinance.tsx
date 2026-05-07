@@ -89,7 +89,7 @@ const EmployerFinance = () => {
 
   const all = payments || [];
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
-  const due = all.filter((p) => p.status === "pending" && !p.proof_url);
+  const due = all.filter((p) => p.status === "pending");
   const paid = all.filter((p) => p.status === "approved");
   const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
 
@@ -186,8 +186,8 @@ const EmployerFinance = () => {
               </TooltipTrigger>
               <TooltipContent>
                 {lang === "my"
-                  ? "ငွေပေးချေမှု အထောက်အထား တင်ရန် လိုအပ်သော ပမာဏများ"
-                  : "Amounts still needing payment proof"}
+                  ? "ပေးချေရန် စောင့်ဆိုင်းနေသော ပမာဏများ (အထောက်အထား မတင်ရသေး + admin အတည်ပြုရန်)"
+                  : "All outstanding amounts (no proof yet + awaiting admin approval)"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
