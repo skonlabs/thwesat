@@ -32,7 +32,8 @@ const SeekerFinance = () => {
 
   const all = payments || [];
   const approved = all.filter((p) => p.status === "approved");
-  const pending = all.filter((p) => p.status === "pending");
+  const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
+  const pending = all.filter((p) => p.status === "pending" && !p.proof_url);
   const filtered = useMemo(() => applyFinanceFilters(all, status, currency), [all, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
 
@@ -44,12 +45,17 @@ const SeekerFinance = () => {
           isLoading={isLoading}
           totals={[
             {
-              label: { my: "ပေးချေပြီး", en: "Total Paid" },
+              label: { my: "ပေးချေပြီး", en: "Paid Out" },
               rows: approved.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-emerald/30",
             },
             {
-              label: { my: "စစ်ဆေးနေသည်", en: "Pending" },
+              label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
+              rows: pendingApproval.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              tone: "border-warning/30",
+            },
+            {
+              label: { my: "ပေးချေရန်" , en: "Pending" },
               rows: pending.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-warning/30",
             },
