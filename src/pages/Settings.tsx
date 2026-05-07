@@ -388,6 +388,8 @@ const Settings = () => {
           </motion.div>
         ))}
 
+        {isMentor && <MentorPreferencesSection />}
+
         {/* Security note — active sessions & delegate token permissions notice (issue #57) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4 space-y-2">
           <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
