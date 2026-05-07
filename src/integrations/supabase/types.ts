@@ -479,6 +479,8 @@ export type Database = {
           owner_id: string
           permissions: string[] | null
           token: string
+          used_at: string | null
+          used_by_session: string | null
         }
         Insert: {
           created_at?: string | null
@@ -488,6 +490,8 @@ export type Database = {
           owner_id: string
           permissions?: string[] | null
           token: string
+          used_at?: string | null
+          used_by_session?: string | null
         }
         Update: {
           created_at?: string | null
@@ -497,6 +501,8 @@ export type Database = {
           owner_id?: string
           permissions?: string[] | null
           token?: string
+          used_at?: string | null
+          used_by_session?: string | null
         }
         Relationships: []
       }
@@ -2078,6 +2084,14 @@ export type Database = {
       _wallet_apply: {
         Args: { _delta: number; _topup_mmk?: number; _user: string }
         Returns: undefined
+      }
+      consume_delegate_token: {
+        Args: { _session_id: string; _token: string }
+        Returns: {
+          expires_at: string
+          permissions: string[]
+          status: string
+        }[]
       }
       enroll_career_track: { Args: { _track_id: string }; Returns: Json }
       get_applicant_contact: {
