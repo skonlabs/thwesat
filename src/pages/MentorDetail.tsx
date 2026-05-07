@@ -23,6 +23,7 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
+import { formatMoney } from "@/lib/finance";
 
 const MentorDetail = () => {
   const navigate = useNavigate();
@@ -174,7 +175,7 @@ const MentorDetail = () => {
             {[
               { value: mentor.total_sessions || 0, label: lang === "my" ? "ချိန်းဆိုမှု" : "Sessions" },
               { value: mentor.total_mentees || 0, label: lang === "my" ? "လူဦးရေ" : "Mentees" },
-              { value: mentor.hourly_rate ? `$${mentor.hourly_rate}/hr` : (lang === "my" ? "အခမဲ့" : "Free"), label: lang === "my" ? "နှုန်းထား" : "Rate" },
+              { value: mentor.hourly_rate ? `${formatMoney(mentor.hourly_rate, "MMK", lang)}/hr` : (lang === "my" ? "အခမဲ့" : "Free"), label: lang === "my" ? "နှုန်းထား" : "Rate" },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
                 <p className="text-lg font-bold text-primary">{s.value}</p>
