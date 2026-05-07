@@ -53,7 +53,7 @@ const EmployerDashboard = () => {
   const totalApplicants = listings.reduce((a, l) => a + (l.applicant_count || 0), 0);
   const placedCount = placementSummary?.count || 0;
   const placedFees = placementSummary?.totalFee || 0;
-  const isAgent = profile?.primary_role === "agent";
+  // Agents have their own dedicated dashboard (AgentDashboard.tsx).
 
   const { percent: employerCompletionPct } = computeProfileCompletion({
     ...(profile as any),
@@ -69,7 +69,7 @@ const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={isAgent ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard") : (lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard")} />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် ဒက်ရှ်ဘုတ်" : "Employer Dashboard"} />
       <div className="px-5">
         {/* Company info */}
         <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onClick={() => navigate("/employer/edit-company")} className="mb-4 w-full rounded-xl border border-border bg-card p-4 text-left shadow-card transition-colors active:bg-muted/30">
@@ -107,7 +107,6 @@ const EmployerDashboard = () => {
             { icon: Briefcase, label: { my: "လက်ခံနေသော အလုပ်ခေါ်စာ", en: "Active Listings" }, value: activeCount.toString(), color: "text-primary bg-primary/10", action: () => navigate("/employer/jobs?listingFilter=active") },
             { icon: Users, label: L.applications, value: totalApplicants.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications") },
             { icon: CheckCircle, label: L.placements, value: placedCount.toString(), color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
-            ...(isAgent ? [{ icon: CreditCard, label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" }, value: formatMoney(placedFees, "MMK", lang), color: "text-gold-dark bg-accent/20", action: () => navigate("/employer/applications?filter=placed") }] : []),
           ].map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={stat.action} className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
               <div className="flex items-center gap-2.5">
