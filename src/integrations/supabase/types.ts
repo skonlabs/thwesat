@@ -2117,6 +2117,10 @@ export type Database = {
         Args: { _booking_id: string; _credits: number }
         Returns: Json
       }
+      mentor_payout_mark_paid: {
+        Args: { _earning_id: string; _note?: string }
+        Returns: Json
+      }
       mentor_session_refund: {
         Args: { _booking_id: string; _reason?: string }
         Returns: Json
