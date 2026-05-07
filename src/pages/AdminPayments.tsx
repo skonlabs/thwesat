@@ -240,7 +240,7 @@ const AdminPayments = () => {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold text-foreground">
-                      {`${p.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
+                      {formatMoney(p.amount, p.currency, lang)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
                       {new Date(p.created_at).toLocaleDateString()}
@@ -271,7 +271,7 @@ const AdminPayments = () => {
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပမာဏ" : "Amount"}</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {`${selectedPayment.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
+                    {formatMoney(selectedPayment.amount, selectedPayment.currency, lang)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted p-2.5">
@@ -464,7 +464,7 @@ const AdminPayments = () => {
               <div className="space-y-1 text-sm">
                 {selectedPayment && (
                   <>
-                    <p><span className="font-medium">{lang === "my" ? "ပမာဏ" : "Amount"}:</span> {`${selectedPayment.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}</p>
+                    <p><span className="font-medium">{lang === "my" ? "ပမာဏ" : "Amount"}:</span> {formatMoney(selectedPayment.amount, selectedPayment.currency, lang)}</p>
                     <p><span className="font-medium">{lang === "my" ? "အသုံးပြုသူ" : "User"}:</span> {selectedPaymentProfile?.display_name || "—"}</p>
                     <p><span className="font-medium">{lang === "my" ? "ပေးချေနည်း" : "Method"}:</span> {getPlatformPaymentMethodLabel(selectedPayment.payment_method)}</p>
                   </>
