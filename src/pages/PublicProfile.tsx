@@ -81,7 +81,7 @@ const PublicProfile = () => {
   // - members:   authenticated users only → redirect non-auth to /login
   // - employers: only users with primary_role "employer" or system roles → show error otherwise
   // - public:    no restriction
-  const visibility = (profile.visibility || "members") as "public" | "members" | "private" | "employers";
+  const visibility = (profile.visibility || "public") as "public" | "members" | "private" | "employers";
 
   if (!isOwn) {
     if (visibility === "members" && !user) {

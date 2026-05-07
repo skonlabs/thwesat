@@ -282,7 +282,7 @@ const EditProfile = () => {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [languageSearch, setLanguageSearch] = useState("");
   const [experience, setExperience] = useState("");
-  const [visibility, setVisibility] = useState("members");
+  const [visibility, setVisibility] = useState("public");
   const [preferredWorkTypes, setPreferredWorkTypes] = useState<string[]>([]);
   const [hasWise, setHasWise] = useState(false);
   const [hasUpwork, setHasUpwork] = useState(false);
@@ -323,7 +323,7 @@ const EditProfile = () => {
     setSkills(draftArray(draft, "skills", profile.skills ?? []));
     setLanguages(draftArray(draft, "languages", profile.languages ?? []));
     setExperience(draftText(draft, "experience", profile.experience ?? ""));
-    setVisibility(draftText(draft, "visibility", profile.visibility ?? "members"));
+    setVisibility(draftText(draft, "visibility", profile.visibility ?? "public"));
     setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
     setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
     setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));

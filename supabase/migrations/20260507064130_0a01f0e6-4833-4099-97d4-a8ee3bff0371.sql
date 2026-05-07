@@ -1,0 +1,2 @@
+ALTER TABLE public.user_settings ALTER COLUMN profile_visibility SET DEFAULT 'public';
+UPDATE public.user_settings SET profile_visibility = 'public' WHERE profile_visibility = 'members' OR profile_visibility IS NULL;
