@@ -141,16 +141,16 @@ const App = () => (
               <Route path="/moderator" element={<Navigate to="/dashboard" replace />} />
               <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
 
-              {/* Employer Portal */}
-              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerOnboarding /></AppRoleGuard>} />
-              <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerPostJob /></AppRoleGuard>} />
-              <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerJobs /></AppRoleGuard>} />
-              <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerApplications /></AppRoleGuard>} />
+              {/* Employer Portal — employer role ONLY (agent has its own /agent/* namespace) */}
+              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
+              <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
+              <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
+              <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
               <Route path="/employer/subscription" element={<Navigate to="/wallet" replace />} />
-              <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><SearchTalent /></AppRoleGuard>} />
-              <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerEditJob /></AppRoleGuard>} />
-              <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerEditCompany /></AppRoleGuard>} />
-              <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer", "agent"]}><EmployerFinance /></AppRoleGuard>} />
+              <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
+              <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditJob /></AppRoleGuard>} />
+              <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />
+              <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerFinance /></AppRoleGuard>} />
 
               {/* Agent Portal — uses shared components but lives under its own URL namespace */}
               <Route path="/agent/onboarding" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerOnboarding /></AppRoleGuard>} />
