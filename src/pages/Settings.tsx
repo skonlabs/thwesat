@@ -36,6 +36,7 @@ const Settings = () => {
   const revokeTokenMutation = useRevokeDelegateToken();
   const { hasRole } = useUserRoles();
   const isMentor = hasRole("mentor");
+  const isJobSeeker = hasRole("jobseeker");
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
