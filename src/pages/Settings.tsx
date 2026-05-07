@@ -401,7 +401,7 @@ const Settings = () => {
                 : "For security, changing your password signs out all devices."}
             </p>
           </div>
-          {activeToken && (
+          {isJobSeeker && activeToken && (
             <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
               <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <div className="flex-1">
