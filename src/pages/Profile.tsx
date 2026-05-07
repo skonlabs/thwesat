@@ -558,9 +558,6 @@ const Profile = () => {
             <button key={i} onClick={() => item.path && navigate(item.path)} className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 active:bg-muted">
               <item.icon className={`h-5 w-5 ${'highlight' in item && item.highlight ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
               <p className={`flex-1 text-sm ${'highlight' in item && item.highlight ? "font-semibold text-primary" : "text-foreground"}`}>{item.label}</p>
-              {'highlight' in item && item.highlight && (
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">{lang === "my" ? "ပရို" : "PRO"}</span>
-              )}
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
           ))}
