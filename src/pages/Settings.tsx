@@ -36,6 +36,7 @@ const Settings = () => {
   const revokeTokenMutation = useRevokeDelegateToken();
   const { hasRole } = useUserRoles();
   const isMentor = hasRole("mentor");
+  const isJobSeeker = hasRole("jobseeker");
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -304,7 +305,7 @@ const Settings = () => {
         { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => {
           const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v });
         } },
-        { icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: activeToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) },
+        ...(isJobSeeker ? [{ icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: activeToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) }] : []),
       ],
     },
     {
@@ -400,7 +401,7 @@ const Settings = () => {
                 : "For security, changing your password signs out all devices."}
             </p>
           </div>
-          {activeToken && (
+          {isJobSeeker && activeToken && (
             <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
               <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <div className="flex-1">

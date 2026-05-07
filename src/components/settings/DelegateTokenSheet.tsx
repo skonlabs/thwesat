@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Key, Copy, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Key, Copy, Check, RefreshCw, AlertTriangle, Link2, Share2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import SettingsBottomSheet from "./SettingsBottomSheet";
 
 interface DelegateTokenSheetProps {
@@ -14,14 +15,43 @@ interface DelegateTokenSheetProps {
 
 const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: DelegateTokenSheetProps) => {
   const { lang } = useLanguage();
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [showRevoke, setShowRevoke] = useState(false);
+
+  const accessLink = token ? `${window.location.origin}/access/${token}` : "";
 
   const handleCopy = () => {
     if (token) {
       navigator.clipboard.writeText(token);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!accessLink) return;
+    navigator.clipboard.writeText(accessLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    if (!accessLink) return;
+    const shareTitle = lang === "my" ? "ThweSat ဝင်ရောက်ခွင့်လင့်ခ်" : "ThweSat delegate access link";
+    const shareText = lang === "my"
+      ? "ဤလင့်ခ်မှတစ်ဆင့် ကျွန်ုပ့်အကောင့်ကို ကိုယ်စားဝင်ရောက်နိုင်ပါသည်။"
+      : "Use this link to access my account on my behalf.";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, text: shareText, url: accessLink });
+      } else {
+        handleCopyLink();
+        toast({ title: lang === "my" ? "လင့်ခ် ကူးယူပြီးပါပြီ" : "Link copied to clipboard" });
+      }
+    } catch {
+      // user cancelled — no-op
     }
   };
 
@@ -87,12 +117,39 @@ const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: Dele
             </div>
           </div>
 
+          {/* Shareable access link */}
+          <div className="rounded-xl border border-border bg-muted/30 p-4">
+            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+              {lang === "my" ? "ဝင်ရောက်ခွင့် လင့်ခ်" : "Access Link"}
+            </p>
+            <p className="mb-3 text-[11px] text-muted-foreground">
+              {lang === "my"
+                ? "ယုံကြည်ရသူသို့ ဤလင့်ခ်ကို ပို့ပါ။ သူတို့သည် ဤလင့်ခ်ကို ဖွင့်ပြီး သင့်အကောင့်ကို ဝင်ရောက်ကြည့်ရှုနိုင်မည်။"
+                : "Send this link to the trusted person. Opening it lets them act on your account during the token's lifetime."}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 overflow-hidden rounded-lg border border-border bg-card px-3 py-2.5">
+                <p className="truncate font-mono text-[11px] text-foreground">{accessLink}</p>
+              </div>
+              <button onClick={handleCopyLink} className="rounded-lg border border-border bg-card p-2.5 active:bg-muted" aria-label={lang === "my" ? "လင့်ခ် ကူးယူ" : "Copy link"}>
+                {linkCopied
+                  ? <Check className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  : <Link2 className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                }
+              </button>
+            </div>
+            <Button variant="default" size="lg" className="mt-3 w-full rounded-xl gap-2" onClick={handleShare}>
+              <Share2 className="h-4 w-4" strokeWidth={1.5} />
+              {lang === "my" ? "လင့်ခ် မျှဝေမည်" : "Share Access Link"}
+            </Button>
+          </div>
+
           <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" strokeWidth={1.5} />
             <p className="text-[11px] text-foreground/80">
               {lang === "my"
-                ? "ဤ Token ကို လုံခြုံစွာ သိမ်းဆည်းပါ။ ထပ်မံ ကြည့်၍ မရပါ။"
-                : "Store this token securely. You won't be able to view it again."}
+                ? "ဤ Token ကို လုံခြုံစွာ သိမ်းဆည်းပါ။ မယုံကြည်ရသူနှင့် မမျှဝေပါနှင့်။"
+                : "Store this token securely. Only share with people you trust."}
             </p>
           </div>
 
