@@ -64,13 +64,13 @@ const AgentDashboard = () => {
   });
 
   const quickActions = [
-    { icon: UserSearch, my: "ကိုယ်စားလှယ်ရှာ", en: "Find Candidates", path: "/employer/search", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: Briefcase, my: "ခေါ်ယူမှု", en: "Open Postings", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: Plus, my: "ခေါ်စာ တင်ရန်", en: "Post Job", path: "/employer/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
-    { icon: Users, my: "ကိုယ်စားလှယ်များ", en: "Candidates", path: "/employer/applications", bg: "bg-primary/10", fg: "text-primary" },
+    { icon: UserSearch, my: "ကိုယ်စားလှယ်ရှာ", en: "Find Candidates", path: "/agent/search", bg: "bg-primary/10", fg: "text-primary" },
+    { icon: Briefcase, my: "ခေါ်ယူမှု", en: "Open Postings", path: "/agent/jobs", bg: "bg-primary/10", fg: "text-primary" },
+    { icon: Plus, my: "ခေါ်စာ တင်ရန်", en: "Post Job", path: "/agent/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
+    { icon: Users, my: "ကိုယ်စားလှယ်များ", en: "Candidates", path: "/agent/candidates", bg: "bg-primary/10", fg: "text-primary" },
     { icon: Wallet, my: "ခရက်ဒစ်", en: "Wallet", path: "/wallet", bg: "bg-accent/20", fg: "text-gold-dark" },
-    { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-    { icon: Settings, my: "ပရိုဖိုင်", en: "Profile", path: "/employer/edit-company", bg: "bg-accent/10", fg: "text-accent" },
+    { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/agent/finance", bg: "bg-emerald/10", fg: "text-emerald" },
+    { icon: Settings, my: "ပရိုဖိုင်", en: "Profile", path: "/agent/profile", bg: "bg-accent/10", fg: "text-accent" },
   ];
 
   return (
@@ -83,7 +83,7 @@ const AgentDashboard = () => {
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => navigate("/employer/edit-company")}
+            onClick={() => navigate("/agent/profile")}
             className="mb-4 w-full rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30"
           >
             <div className="flex items-center gap-3">
@@ -107,9 +107,9 @@ const AgentDashboard = () => {
         <h2 className="mb-2 text-sm font-bold text-foreground">{lang === "my" ? "Pipeline" : "Pipeline"}</h2>
         <div className="mb-5 grid grid-cols-3 gap-3">
           {[
-            { icon: Users, label: { my: "လက်ရှိ", en: "Active" }, value: stats.active, color: "text-primary bg-primary/10", action: () => navigate("/employer/applications") },
-            { icon: Briefcase, label: { my: "အင်တာဗျူး", en: "Interview" }, value: stats.interview, color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30", action: () => navigate("/employer/applications?filter=interview") },
-            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, value: stats.placed, color: "text-emerald bg-emerald/10", action: () => navigate("/employer/applications?filter=placed") },
+            { icon: Users, label: { my: "လက်ရှိ", en: "Active" }, value: stats.active, color: "text-primary bg-primary/10", action: () => navigate("/agent/candidates") },
+            { icon: Briefcase, label: { my: "အင်တာဗျူး", en: "Interview" }, value: stats.interview, color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30", action: () => navigate("/agent/candidates?filter=interview") },
+            { icon: CheckCircle, label: { my: "ခန့်အပ်ပြီး", en: "Placed" }, value: stats.placed, color: "text-emerald bg-emerald/10", action: () => navigate("/agent/candidates?filter=placed") },
           ].map((stat, i) => (
             <motion.button
               key={i}
@@ -153,7 +153,7 @@ const AgentDashboard = () => {
           <>
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "လတ်တလော ခန့်အပ်မှုများ" : "Recent Placements"}</h2>
-              <button onClick={() => navigate("/employer/applications?filter=placed")} className="text-[11px] font-semibold text-primary hover:underline">
+              <button onClick={() => navigate("/agent/candidates?filter=placed")} className="text-[11px] font-semibold text-primary hover:underline">
                 {lang === "my" ? "အားလုံး" : "View all"} →
               </button>
             </div>
@@ -161,7 +161,7 @@ const AgentDashboard = () => {
               {stats.recentPlacements.map((p: any, i: number) => (
                 <button
                   key={i}
-                  onClick={() => navigate("/employer/applications?filter=placed")}
+                  onClick={() => navigate("/agent/candidates?filter=placed")}
                   className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30"
                 >
                   <div className="min-w-0 flex-1">
@@ -180,7 +180,7 @@ const AgentDashboard = () => {
 
         {/* Finance shortcut */}
         <button
-          onClick={() => navigate("/employer/finance")}
+          onClick={() => navigate("/agent/finance")}
           className="mb-5 flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30"
         >
           <div className="flex items-center gap-3">
