@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, Clock, RotateCcw, GraduationCap, DollarSign, Briefcase } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RotateCcw, GraduationCap, WalletCards, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useMyPaymentRequests, getPaymentProofSignedUrl, type PaymentRequest } from "@/hooks/use-payment";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import PageHeader from "@/components/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
+import { formatMoney } from "@/lib/finance";
 
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
   pending: { label: { my: "စစ်ဆေးနေသည်", en: "Pending" }, color: "bg-warning/10 text-warning", icon: Clock },
@@ -15,7 +16,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   revoked: { label: { my: "ရုပ်သိမ်းပြီး", en: "Revoked" }, color: "bg-destructive/10 text-destructive", icon: RotateCcw },
 };
 
-const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof DollarSign }> = {
+const typeMeta: Record<string, { label: { my: string; en: string }; icon: typeof WalletCards }> = {
   mentor_session: { label: { my: "Mentor Session", en: "Mentor Session" }, icon: GraduationCap },
   placement_fee: { label: { my: "ခန့်အပ်ခ", en: "Placement Fee" }, icon: Briefcase },
 };
@@ -56,7 +57,7 @@ const PaymentHistory = () => {
           ))
         ) : !payments || payments.length === 0 ? (
           <div className="mt-16 text-center">
-            <DollarSign className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
+            <WalletCards className="mx-auto mb-3 h-12 w-12 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm text-muted-foreground">
               {lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း မရှိသေးပါ" : "No payment history yet"}
             </p>
@@ -65,7 +66,7 @@ const PaymentHistory = () => {
           <div className="space-y-2">
             {payments.map((p, i) => {
               const sc = statusConfig[p.status] || statusConfig.pending;
-              const tm = typeMeta[p.payment_type] || { label: { my: p.payment_type, en: p.payment_type }, icon: DollarSign };
+              const tm = typeMeta[p.payment_type] || { label: { my: p.payment_type, en: p.payment_type }, icon: WalletCards };
               const TypeIcon = tm.icon;
               return (
                 <motion.button
