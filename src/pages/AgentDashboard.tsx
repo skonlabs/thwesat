@@ -78,29 +78,6 @@ const AgentDashboard = () => {
       <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
 
       <div className="px-5">
-        {/* Earnings hero — placement fees are the agent's livelihood */}
-        <motion.button
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={() => navigate("/employer/finance")}
-          className="mb-4 w-full rounded-xl border border-accent/30 bg-gradient-to-br from-accent/15 to-primary/5 p-4 text-left transition-colors active:bg-accent/20"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium text-muted-foreground">
-                {lang === "my" ? "ခန့်အပ်ခ စုစုပေါင်း" : "Total Placement Fees"}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-foreground">{formatMoney(stats.totalFee, "MMK", lang)}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                {stats.placed} {lang === "my" ? "ခန့်အပ်ပြီး" : "placements"} · {stats.clients} {lang === "my" ? "client" : "clients"}
-              </p>
-            </div>
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/30">
-              <TrendingUp className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
-            </div>
-          </div>
-        </motion.button>
-
         {/* Profile completion (only if incomplete) */}
         {!empProfile?.is_verified && (
           <motion.button
