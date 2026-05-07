@@ -179,9 +179,29 @@ const MentorDashboard = () => {
     if (error || profileError) {
       toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
     } else {
+      markClean();
       toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
     }
   };
+
+  // Track unsaved changes by comparing current state vs loaded mentorProfile
+  const baseline = useMemo(() => ({
+    hourlyRate: mentorProfile?.hourly_rate?.toString() || "100",
+    currency: mentorProfile?.currency || "MMK",
+    timezone: (mentorProfile as any)?.timezone || "Asia/Yangon",
+    isAvailable: mentorProfile?.is_available ?? true,
+    activeDays: [...(mentorProfile?.available_days || [])].sort().join("|"),
+    languages: [...(mentorProfile?.profile?.languages || [])].sort().join("|"),
+  }), [mentorProfile]);
+  const isDirty =
+    hourlyRate !== baseline.hourlyRate ||
+    currency !== baseline.currency ||
+    timezone !== baseline.timezone ||
+    isAvailable !== baseline.isAvailable ||
+    [...activeDays].sort().join("|") !== baseline.activeDays ||
+    [...spokenLanguages].sort().join("|") !== baseline.languages;
+  const { setDirty, markClean } = useDirtyState(false);
+  useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
 
   const toggleLanguage = (l: string) => setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
 
