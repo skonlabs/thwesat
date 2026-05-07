@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { GraduationCap, Users, DollarSign, Calendar, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { GraduationCap, Users, WalletCards, Calendar, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -29,7 +29,7 @@ const benefits = [
     descMy: "ပြည်ပအလုပ်လုပ်ကိုင်ရာတွင် သင့်အတွေ့အကြုံကို မျှဝေပြီး အခြားသူများကို ကူညီပါ။",
   },
   {
-    icon: DollarSign,
+    icon: WalletCards,
     titleEn: "Earn From Your Expertise",
     titleMy: "သင့်ကျွမ်းကျင်မှုဖြင့် ဝင်ငွေရယူပါ",
     descEn: "Set your own hourly rate and get paid for mentoring sessions via supported payout methods.",
