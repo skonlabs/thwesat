@@ -147,20 +147,8 @@ const Profile = () => {
   const skills = profile?.skills || [];
   const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
-  const profileCompletionFields = [
-    profile?.display_name,
-    profile?.headline,
-    profile?.bio,
-    profile?.location,
-    profile?.email,
-    profile?.skills?.length,
-    profile?.languages?.length,
-    profile?.experience,
-    profile?.avatar_url,
-    profile?.phone,
-  ];
-  const filledCount = profileCompletionFields.filter(Boolean).length;
-  const completionPct = Math.round((filledCount / profileCompletionFields.length) * 100);
+  // Mirrors DB `is_profile_complete` — bonus eligibility depends on this match.
+  const { percent: completionPct } = computeProfileCompletion(profile as any);
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${code}`);
