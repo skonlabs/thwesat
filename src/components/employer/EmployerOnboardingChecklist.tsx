@@ -48,8 +48,8 @@ const EmployerOnboardingChecklist = ({ hasCompany, hasAnyJob, hasAnyApplication 
       done: hasAnyJob,
       title: { my: "ပထမ အလုပ်ခေါ်စာ တင်ရန်", en: "Post your first job" },
       desc: {
-        my: "Featured ဆိုသည်မှာ Pro အစီအစဉ်ဖြင့် ပင်မစာမျက်နှာတွင် ဦးစားပေးဖော်ပြမည့် တံဆိပ်ဖြစ်သည်။",
-        en: "Tip: 'Featured' is a Pro-plan badge that highlights your job on the home screen.",
+        my: "Featured ဆိုသည်မှာ ခရက်ဒစ်သုံး၍ သင့်အလုပ်ခေါ်စာကို ပင်မစာမျက်နှာတွင် ဦးစားပေးဖော်ပြရန် တံဆိပ်ဖြစ်သည်။",
+        en: "Tip: 'Featured' uses credits to highlight your job on the home screen.",
       },
       cta: { my: "အလုပ်တင်ရန်", en: "Post a Job" },
       onClick: () => navigate("/employer/post-job"),
