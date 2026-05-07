@@ -35,6 +35,7 @@ const MentorPreferencesSection = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { data: mentorProfile } = useMentorProfile(user?.id);
+  const queryClient = useQueryClient();
 
   const [hourlyRate, setHourlyRate] = useState("100");
   const [rateError, setRateError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ const MentorPreferencesSection = () => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [activeDays, setActiveDays] = useState<string[]>([]);
   const [spokenLanguages, setSpokenLanguages] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (mentorProfile) {
