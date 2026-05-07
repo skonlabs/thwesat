@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import useDirtyState from "@/hooks/use-dirty-state";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, WalletCards, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
 import AvailabilityManager from "@/components/mentor/AvailabilityManager";
