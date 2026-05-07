@@ -34,6 +34,8 @@ const Settings = () => {
   const { data: activeToken } = useActiveDelegateToken();
   const generateTokenMutation = useGenerateDelegateToken();
   const revokeTokenMutation = useRevokeDelegateToken();
+  const { hasRole } = useUserRoles();
+  const isMentor = hasRole("mentor");
 
   // Toggles
   const [pushNotifications, setPushNotifications] = useState(true);
