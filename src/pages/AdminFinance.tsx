@@ -48,10 +48,10 @@ const AdminFinance = () => {
 
   const markPaid = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("mentor_earnings")
-        .update({ status: "paid", paid_out_at: new Date().toISOString() } as any)
-        .eq("id", id);
+      const { error } = await (supabase as any).rpc("mentor_payout_mark_paid", {
+        _earning_id: id,
+        _note: null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
