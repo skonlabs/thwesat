@@ -158,6 +158,13 @@ const EmployerFinance = () => {
               onClick: () => setKpiFilter(kpiFilter === "due" ? "all" : "due"),
               active: kpiFilter === "due",
             },
+            {
+              label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
+              rows: pendingApproval.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              tone: "border-warning/30",
+              onClick: () => setKpiFilter(kpiFilter === "review" ? "all" : "review"),
+              active: kpiFilter === "review",
+            },
             ...(isAgent ? [{
               label: { my: "ခန့်အပ်ခ စုစုပေါင်း", en: "Placement Fees" },
               rows: placementInvoices.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
