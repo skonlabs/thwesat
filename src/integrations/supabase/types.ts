@@ -1280,6 +1280,7 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string | null
+          created_by_user_id: string | null
           description: string | null
           description_my: string | null
           id: string
@@ -1292,6 +1293,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by_user_id?: string | null
           description?: string | null
           description_my?: string | null
           id?: string
@@ -1304,6 +1306,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by_user_id?: string | null
           description?: string | null
           description_my?: string | null
           id?: string
@@ -2085,6 +2088,7 @@ export type Database = {
         Args: { _delta: number; _topup_mmk?: number; _user: string }
         Returns: undefined
       }
+      can_notify: { Args: { _target_user_id: string }; Returns: boolean }
       consume_delegate_token: {
         Args: { _session_id: string; _token: string }
         Returns: {
