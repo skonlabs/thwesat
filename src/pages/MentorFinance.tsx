@@ -142,23 +142,7 @@ const MentorFinance = () => {
 
         <FinanceLedger
           isLoading={isLoading}
-          totals={[
-            {
-              label: { my: "ပေးချေပြီး", en: "Paid Out" },
-              rows: paidOut.map((e) => ({ amount: Number(e.amount), currency: e.currency })),
-              tone: "border-emerald/30",
-            },
-            {
-              label: { my: "စောင့်ဆိုင်းနေသည်", en: "Pending Payout" },
-              rows: pending.map((e) => ({ amount: Number(e.amount), currency: e.currency })),
-              tone: "border-warning/30",
-            },
-            {
-              label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
-              rows: (pendingApprovalRows || []).map((p) => ({ amount: Number(p.amount), currency: p.currency })),
-              tone: "border-warning/30",
-            },
-          ]}
+          totals={[]}
           rows={[]}
           emptyText={{ my: "", en: "" }}
         />
