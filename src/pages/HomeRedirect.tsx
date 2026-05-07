@@ -4,6 +4,7 @@ import HomePage from "./HomePage";
 import AdminDashboard from "./AdminDashboard";
 import ModeratorDashboard from "./ModeratorDashboard";
 import EmployerDashboard from "./EmployerDashboard";
+import AgentDashboard from "./AgentDashboard";
 import MentorDashboard from "./MentorDashboard";
 
 /**
@@ -33,7 +34,8 @@ const HomeRedirect = () => {
   // the seeker home instead of their mentor dashboard.
   const effectiveRole = allowedRoles.includes(role) ? role : allowedRoles[0];
 
-  if (effectiveRole === "employer" || effectiveRole === "agent") return <EmployerDashboard />;
+  if (effectiveRole === "agent") return <AgentDashboard />;
+  if (effectiveRole === "employer") return <EmployerDashboard />;
   if (effectiveRole === "mentor") return <MentorDashboard />;
 
   return <HomePage />;
