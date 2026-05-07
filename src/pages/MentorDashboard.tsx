@@ -195,7 +195,17 @@ const MentorDashboard = () => {
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
-  const isProfileIncomplete = !mentorProfile?.title || !mentorProfile?.expertise?.length;
+  const mentorCompletionFields = [
+    mentorProfile?.title,
+    mentorProfile?.expertise?.length,
+    mentorProfile?.bio || mentorProfile?.bio_my,
+    mentorProfile?.location,
+    mentorProfile?.company,
+    Number(mentorProfile?.hourly_rate) > 0,
+    mentorProfile?.available_days?.length,
+  ];
+  const mentorCompletionPct = Math.round((mentorCompletionFields.filter(Boolean).length / mentorCompletionFields.length) * 100);
+  const isProfileIncomplete = mentorCompletionPct < 100;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -212,10 +222,16 @@ const MentorDashboard = () => {
         )}
         {isProfileIncomplete && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-            <p className="text-sm font-semibold text-foreground">
-              {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your mentor profile is incomplete"}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-foreground">
+                {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your mentor profile is incomplete"}
+              </p>
+              <span className="text-xs font-bold text-destructive">{mentorCompletionPct}%</span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-destructive" style={{ width: `${mentorCompletionPct}%` }} />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
               {lang === "my"
                 ? "အခြား အသုံးပြုသူများ သင့်ကို ရှာတွေ့နိုင်ရန် ခေါင်းစဉ်၊ ကျွမ်းကျင်မှုနှင့် တည်နေရာ ဖြည့်ပါ"
                 : "Add your title, expertise, and location so job seekers can find and book you"}
