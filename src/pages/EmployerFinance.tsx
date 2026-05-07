@@ -91,13 +91,15 @@ const EmployerFinance = () => {
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
   const due = all.filter((p) => p.status === "pending");
   const paid = all.filter((p) => p.status === "approved");
+  const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
 
   const kpiScoped = useMemo(() => {
     if (kpiFilter === "paid") return paid;
     if (kpiFilter === "due") return due;
     if (kpiFilter === "placement") return placementInvoices;
+    if (kpiFilter === "review") return pendingApproval;
     return all;
-  }, [kpiFilter, all, paid, due, placementInvoices]);
+  }, [kpiFilter, all, paid, due, placementInvoices, pendingApproval]);
 
   const filtered = useMemo(() => applyFinanceFilters(kpiScoped, status, currency), [kpiScoped, status, currency]);
   const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
