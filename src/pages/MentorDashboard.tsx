@@ -362,8 +362,15 @@ const MentorDashboard = () => {
               })}
             </div>
           </div>
-          <Button className="mt-4 h-11 w-full rounded-xl text-sm font-semibold" onClick={handleSaveRate}>
-            {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes"}
+          <Button
+            variant={isDirty ? "gold" : "default"}
+            disabled={!isDirty}
+            className="mt-4 h-11 w-full rounded-xl text-sm font-semibold"
+            onClick={handleSaveRate}
+          >
+            {isDirty
+              ? (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes")
+              : (lang === "my" ? "သိမ်းပြီး" : "All changes saved")}
           </Button>
         </motion.div>
 
