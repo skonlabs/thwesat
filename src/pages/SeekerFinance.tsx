@@ -45,12 +45,17 @@ const SeekerFinance = () => {
           isLoading={isLoading}
           totals={[
             {
-              label: { my: "ပေးချေပြီး", en: "Total Paid" },
+              label: { my: "ပေးချေပြီး", en: "Paid Out" },
               rows: approved.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-emerald/30",
             },
             {
-              label: { my: "စစ်ဆေးနေသည်", en: "Pending" },
+              label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
+              rows: pendingApproval.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              tone: "border-warning/30",
+            },
+            {
+              label: { my: "ပေးချေရန်" , en: "Pending" },
               rows: pending.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-warning/30",
             },
