@@ -290,10 +290,9 @@ const MentorDashboard = () => {
                   setHourlyRate(e.target.value);
                   setRateError(null);
                 }}
-                className={`h-10 w-20 rounded-xl text-center ${rateError ? "border-destructive" : ""}`}
+                className={`h-10 w-24 rounded-xl text-center ${rateError ? "border-destructive" : ""}`}
               />
               <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
-              <Button variant="outline" size="sm" className="ml-auto h-10 rounded-lg text-xs" onClick={handleSaveRate}>{lang === "my" ? "သိမ်းရန်" : "Save"}</Button>
             </div>
             {rateError && <p className="mt-1 text-xs text-destructive">{rateError}</p>}
           </div>
@@ -333,10 +332,10 @@ const MentorDashboard = () => {
                 );
               })}
             </div>
-            <p className="mt-1.5 text-[10px] text-muted-foreground">
-              {lang === "my" ? "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပို၍ ရွေးနိုင်သည်။ Save ကို နှိပ်ပါ" : "Select one or more, then tap Save"}
-            </p>
           </div>
+          <Button className="mt-4 h-11 w-full rounded-xl text-sm font-semibold" onClick={handleSaveRate}>
+            {lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes"}
+          </Button>
         </motion.div>
 
         {/* Availability Calendar */}
