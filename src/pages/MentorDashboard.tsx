@@ -327,23 +327,6 @@ const MentorDashboard = () => {
           <AvailabilityManager />
         </div>
 
-        {/* Earnings */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5 rounded-xl border border-border bg-card p-3.5">
-          <div className="mb-2.5 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "ဝင်ငွေ အကျဉ်းချုပ်" : "Earnings Summary"}</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-lg bg-muted px-3 py-2.5">
-              <p className="text-lg font-bold text-foreground leading-tight">${thisMonthEarnings}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{lang === "my" ? "ဤလ" : "This Month"}</p>
-            </div>
-            <div className="rounded-lg bg-muted px-3 py-2.5">
-              <p className="text-lg font-bold text-foreground leading-tight">${totalEarnings}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{lang === "my" ? "စုစုပေါင်း" : "All Time"}</p>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Bookings */}
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "Booking များ" : "Bookings"}</h2>
