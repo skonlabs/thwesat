@@ -55,7 +55,7 @@ import BecomeMentor from "./pages/BecomeMentor";
 import MentorDashboard from "./pages/MentorDashboard";
 import MentorMentees from "./pages/MentorMentees";
 import MentorBookings from "./pages/MentorBookings";
-import MentorSettings from "./pages/MentorSettings";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
