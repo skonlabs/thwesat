@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Key, Copy, Check, RefreshCw, AlertTriangle } from "lucide-react";
+import { Key, Copy, Check, RefreshCw, AlertTriangle, Link2, Share2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import SettingsBottomSheet from "./SettingsBottomSheet";
 
 interface DelegateTokenSheetProps {
