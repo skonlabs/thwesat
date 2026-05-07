@@ -4,6 +4,7 @@ import { Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, W
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { computeProfileCompletion } from "@/lib/profile-completion";
 import { useJobs } from "@/hooks/use-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
@@ -39,20 +40,9 @@ const HomePage = () => {
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
   
 
-  // Calculate profile completion (must mirror Profile.tsx for consistency)
-  const completionFields = [
-    profile?.display_name,
-    profile?.headline,
-    profile?.bio,
-    profile?.location,
-    profile?.email,
-    profile?.skills?.length,
-    profile?.languages?.length,
-    profile?.experience,
-    profile?.avatar_url,
-    profile?.phone,
-  ];
-  const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
+  // Profile completion — must mirror DB function `is_profile_complete` exactly,
+  // because the welcome/profile bonus is granted by the DB based on those rules.
+  const { percent: completionPct } = computeProfileCompletion(profile as any);
   const showCompletionBar = !rolesLoading && !isAdmin && !isModerator && completionPct < 100;
 
   return (
