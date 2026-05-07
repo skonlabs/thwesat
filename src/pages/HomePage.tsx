@@ -4,6 +4,7 @@ import { Briefcase, Users, Shield, TrendingUp, MapPin, ChevronRight, Sparkles, W
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { computeProfileCompletion } from "@/lib/profile-completion";
 import { useJobs } from "@/hooks/use-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
