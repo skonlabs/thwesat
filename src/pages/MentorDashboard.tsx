@@ -292,7 +292,7 @@ const MentorDashboard = () => {
                   : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try another tab")}
               </p>
               {bookings.length === 0 && (
-                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/mentor/settings")}>
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/settings")}>
                   {lang === "my" ? "ဆက်တင် ဖွင့်ရန်" : "Open Settings"}
                 </Button>
               )}
