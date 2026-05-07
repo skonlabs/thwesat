@@ -93,7 +93,7 @@ const PaymentHistory = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-foreground">
-                      {`${p.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
+                      {formatMoney(p.amount, p.currency, lang)}
                     </p>
                     <p className={`text-[10px] font-medium ${sc.color.split(" ")[1]}`}>
                       {lang === "my" ? sc.label.my : sc.label.en}
@@ -119,7 +119,7 @@ const PaymentHistory = () => {
                 <div className="rounded-lg bg-muted p-2.5">
                   <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပမာဏ" : "Amount"}</p>
                   <p className="text-sm font-semibold text-foreground">
-                    {`${selected.amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
+                    {formatMoney(selected.amount, selected.currency, lang)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-muted p-2.5">
