@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Briefcase, Building2, Globe, DollarSign, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, WalletCards, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -356,7 +356,7 @@ const JobDetail = () => {
           {/* Info grid */}
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
-              { icon: DollarSign, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
+              { icon: WalletCards, label: lang === "my" ? "လစာ" : "Salary", value: salaryText },
                 { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: translateJobLocation(job.location, lang) },
                 { icon: Clock, label: lang === "my" ? "အမျိုးအစား" : "Type", value: translateJobType(job.role_type || job.job_type, lang) },
                 { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: translatePaymentMethods(job.payment_methods, lang).join(", ") || "—" },
