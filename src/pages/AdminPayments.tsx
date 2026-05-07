@@ -290,7 +290,7 @@ const AdminPayments = () => {
               {/* Reference / plan id */}
               {selectedPayment.reference_id && (
                 <div className="rounded-lg bg-muted p-2.5">
-                  <p className="text-[10px] text-muted-foreground">{lang === "my" ? "အကိုးအကား" : "Reference / Plan"}</p>
+                  <p className="text-[10px] text-muted-foreground">{lang === "my" ? "အကိုးအကား" : "Reference"}</p>
                   <p className="text-sm font-mono text-foreground">{selectedPayment.reference_id}</p>
                 </div>
               )}
