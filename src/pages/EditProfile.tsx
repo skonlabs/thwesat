@@ -323,7 +323,7 @@ const EditProfile = () => {
     setSkills(draftArray(draft, "skills", profile.skills ?? []));
     setLanguages(draftArray(draft, "languages", profile.languages ?? []));
     setExperience(draftText(draft, "experience", profile.experience ?? ""));
-    setVisibility(draftText(draft, "visibility", profile.visibility ?? "members"));
+    setVisibility(draftText(draft, "visibility", profile.visibility ?? "public"));
     setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
     setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
     setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));
