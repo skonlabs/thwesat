@@ -262,23 +262,6 @@ export default function AvailabilityManager() {
         {lang === "my" ? "အချိန်ဇယား စီမံရန်" : "Manage Availability"}
       </h3>
 
-      {/* Timezone selector */}
-      <div className="mb-4 flex items-center gap-2">
-        <Globe className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-        <select
-          value={timezone}
-          onChange={e => setTimezone(e.target.value)}
-          className="h-8 flex-1 rounded-lg border border-border bg-background px-2 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {TIMEZONES.map(tz => (
-            <option key={tz.value} value={tz.value}>{tz.label}</option>
-          ))}
-        </select>
-        <Button variant="outline" size="sm" className="h-8 rounded-lg text-[10px] px-2" onClick={handleSaveTimezone}>
-          {lang === "my" ? "သိမ်း" : "Save"}
-        </Button>
-      </div>
-
       {/* Quick date selection */}
       <div className="mb-3">
         <label className="mb-1.5 block text-xs font-medium text-foreground">
