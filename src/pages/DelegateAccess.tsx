@@ -157,8 +157,8 @@ const DelegateAccess = () => {
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
           <Shield className="h-10 w-10 text-destructive" strokeWidth={1.5} />
         </motion.div>
-        <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "အသုံးပြုမှု အကန့်အသတ် ပြည့်ပါပြီ" : "Access limit reached"}</h1>
-        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "ဤဝင်ရောက်ခွင့်လင့်ခ်ကို အများဆုံး အကြိမ်အရေအတွက် အသုံးပြုပြီးပါပြီ။" : "This access link has been used the maximum number of times."}</p>
+        <h1 className="mb-2 text-xl font-bold text-foreground">{lang === "my" ? "လင့်ခ်ကို အသုံးပြုပြီးဖြစ်သည်" : "Link already in use"}</h1>
+        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "ဤဝင်ရောက်ခွင့်လင့်ခ်ကို အခြားစက်တစ်ခုတွင် အသုံးပြုပြီးဖြစ်ပါသည်။ ပိုင်ရှင်ထံမှ လင့်ခ်အသစ် တောင်းခံပါ။" : "This access link has already been claimed on another device. Ask the owner to issue a new link."}</p>
         <Button variant="outline" size="lg" className="w-full max-w-xs rounded-xl" onClick={() => navigate("/")}>
           {lang === "my" ? "ပင်မစာမျက်နှာ" : "Go Home"}
         </Button>
