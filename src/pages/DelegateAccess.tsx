@@ -23,11 +23,27 @@ const ALLOWED_PERMISSIONS = new Set([
  */
 const TOKEN_FORMAT_RE = /^[A-Za-z0-9_-]{20,}$/;
 
+const SESSION_KEY_PREFIX = "thwesat:delegate_session:";
+
+function getOrCreateSessionId(token: string): string {
+  const key = SESSION_KEY_PREFIX + token;
+  try {
+    let sid = localStorage.getItem(key);
+    if (!sid) {
+      sid = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      localStorage.setItem(key, sid);
+    }
+    return sid;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
 const DelegateAccess = () => {
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
   const { lang } = useLanguage();
-  const [status, setStatus] = useState<"loading" | "success" | "expired" | "invalid" | "maxUsed" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "expired" | "invalid" | "alreadyUsed" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [tokenData, setTokenData] = useState<{ permissions: string[] | null; expires_at: string } | null>(null);
 
@@ -45,26 +61,23 @@ const DelegateAccess = () => {
           return;
         }
 
-        // Use SECURITY DEFINER RPC so we don't expose the delegate_tokens
-        // table to general SELECT — only the matching row is returned.
+        const sessionId = getOrCreateSessionId(token);
+
+        // Atomically claim the token for this session. If another session has
+        // already claimed it, the function returns status='already_used'.
         const { data, error } = await supabase
-          .rpc("validate_delegate_token", { _token: token });
+          .rpc("consume_delegate_token", { _token: token, _session_id: sessionId });
 
         const row = Array.isArray(data) ? data[0] : null;
         if (error || !row) {
-          setStatus("expired");
+          setStatus("error");
           return;
         }
 
-        // Expiry check: if expires_at is in the past, block access.
-        if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
-          setStatus("expired");
-          return;
-        }
+        if (row.status === "invalid") { setStatus("invalid"); return; }
+        if (row.status === "revoked" || row.status === "expired") { setStatus("expired"); return; }
+        if (row.status === "already_used") { setStatus("alreadyUsed"); return; }
 
-        // Usage count check: not tracked in current schema; skipped.
-
-        // Permissions allowlist: filter out any unknown permission strings and warn.
         const rawPermissions: string[] = Array.isArray(row.permissions) ? row.permissions : [];
         const safePermissions = rawPermissions.filter((p) => {
           if (ALLOWED_PERMISSIONS.has(p)) return true;
