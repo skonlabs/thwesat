@@ -23,6 +23,12 @@ const options = [
     desc: { my: "မည်သူမဆို သင့်ပရိုဖိုင်ကို မြင်နိုင်ပါသည်", en: "Anyone on the internet can see your profile" },
   },
   {
+    id: "employers",
+    icon: Briefcase,
+    label: { my: "အလုပ်ရှင်များသာ", en: "Employers Only" },
+    desc: { my: "အလုပ်ရှင် နှင့် ခေါ်ယူရေး အေဂျင့်များသာ မြင်နိုင်ပါသည်", en: "Only employers and recruiting agents can see your profile" },
+  },
+  {
     id: "private",
     icon: Lock,
     label: { my: "ကိုယ်တိုင်သာ", en: "Private" },
