@@ -40,6 +40,30 @@ interface Profile {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const authProfileFallback = (authUser: User): Profile => ({
+  id: authUser.id,
+  display_name: String(authUser.user_metadata?.display_name || authUser.email?.split("@")[0] || ""),
+  email: authUser.email ?? null,
+  avatar_url: String(authUser.user_metadata?.avatar_url || "") || null,
+  headline: "",
+  bio: "",
+  location: "",
+  phone: authUser.phone || "",
+  website: "",
+  primary_role: String(authUser.user_metadata?.primary_role || "jobseeker"),
+  skills: [],
+  languages: [],
+  experience: "",
+  visibility: "public",
+  remote_ready: false,
+  has_laptop: false,
+  internet_stable: false,
+  has_wise: false,
+  has_upwork: false,
+  referral_code: null,
+  preferred_work_types: [],
+});
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -49,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const mountedRef = useRef(true);
   const fetchingProfileRef = useRef<Promise<void> | null>(null);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (authUser: User) => {
     if (fetchingProfileRef.current) return fetchingProfileRef.current;
     const request = (async () => {
       // email/phone are restricted at the column level for non-owners.
@@ -61,18 +85,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .select(
             "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"
           )
-          .eq("id", userId)
+          .eq("id", authUser.id)
           .single(),
         supabase.rpc("get_my_contact_info"),
       ]);
       if (!mountedRef.current) return;
       if (data) {
         const contactRow = Array.isArray(contact) ? contact[0] : contact;
+        const fallback = authProfileFallback(authUser);
         setProfile({
+          ...fallback,
           ...(data as unknown as Profile),
-          email: contactRow?.email ?? null,
-          phone: contactRow?.phone ?? "",
+          display_name: (data as any).display_name || fallback.display_name,
+          email: contactRow?.email ?? fallback.email,
+          phone: contactRow?.phone ?? fallback.phone,
         });
+      } else {
+        setProfile(authProfileFallback(authUser));
       }
     })().finally(() => {
       if (fetchingProfileRef.current === request) fetchingProfileRef.current = null;
@@ -82,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) await fetchProfile(user);
   };
 
   useEffect(() => {
@@ -97,8 +126,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          setProfile(authProfileFallback(session.user));
           // Use setTimeout to avoid potential deadlock with Supabase auth
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(() => fetchProfile(session.user), 0);
         } else {
           setProfile(null);
         }
@@ -116,7 +146,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        setProfile(authProfileFallback(session.user));
+        fetchProfile(session.user);
       }
       initializedRef.current = true;
       setLoading(false);

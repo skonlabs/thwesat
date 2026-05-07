@@ -19,6 +19,7 @@ import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { toast } from "sonner";
 import { formatMoney } from "@/lib/finance";
+import { computeProfileCompletion } from "@/lib/profile-completion";
 
 const TIMEZONES = [
   "UTC",
@@ -70,7 +71,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
 const MentorDashboard = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { data: mentorProfile } = useMentorProfile(user?.id);
   const { data: bookings = [] } = useMentorBookings();
   const { data: earnings } = useMentorEarnings();
@@ -195,16 +196,15 @@ const MentorDashboard = () => {
     { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
   ];
 
-  const mentorCompletionFields = [
-    mentorProfile?.title,
-    mentorProfile?.expertise?.length,
-    mentorProfile?.bio || mentorProfile?.bio_my,
-    mentorProfile?.location,
-    mentorProfile?.company,
-    Number(mentorProfile?.hourly_rate) > 0,
-    mentorProfile?.available_days?.length,
-  ];
-  const mentorCompletionPct = Math.round((mentorCompletionFields.filter(Boolean).length / mentorCompletionFields.length) * 100);
+  const { percent: mentorCompletionPct } = computeProfileCompletion({
+    ...(profile as any),
+    headline: profile?.headline || mentorProfile?.title || mentorProfile?.profile?.headline,
+    bio: profile?.bio || mentorProfile?.bio || mentorProfile?.bio_my,
+    location: profile?.location || mentorProfile?.location,
+    skills: profile?.skills?.length ? profile.skills : mentorProfile?.expertise,
+    languages: profile?.languages?.length ? profile.languages : mentorProfile?.profile?.languages,
+    avatar_url: profile?.avatar_url || mentorProfile?.profile?.avatar_url,
+  });
   const isProfileIncomplete = mentorCompletionPct < 100;
 
   return (
@@ -224,7 +224,7 @@ const MentorDashboard = () => {
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-foreground">
-                {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your mentor profile is incomplete"}
+                {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your profile is incomplete"}
               </p>
               <span className="text-xs font-bold text-destructive">{mentorCompletionPct}%</span>
             </div>

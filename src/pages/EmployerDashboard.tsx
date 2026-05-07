@@ -12,6 +12,7 @@ import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardin
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import { employerLabels as L } from "@/lib/employer-labels";
 import { formatMoney } from "@/lib/finance";
+import { computeProfileCompletion } from "@/lib/profile-completion";
 
 const quickActions = [
   { icon: Plus, label: "အလုပ်တင်", labelEn: "Post Job", path: "/employer/post-job", bg: "bg-primary/10", fg: "text-primary" },
@@ -54,18 +55,16 @@ const EmployerDashboard = () => {
   const placedFees = placementSummary?.totalFee || 0;
   const isAgent = profile?.primary_role === "agent";
 
-  const employerCompletionFields = [
-    empProfile?.company_name,
-    empProfile?.company_website,
-    empProfile?.company_description,
-    empProfile?.industry,
-    empProfile?.company_size,
-    empProfile?.hq_country,
-    empProfile?.contact_name,
-    empProfile?.contact_email,
-    empProfile?.contact_phone,
-  ];
-  const employerCompletionPct = Math.round((employerCompletionFields.filter(Boolean).length / employerCompletionFields.length) * 100);
+  const { percent: employerCompletionPct } = computeProfileCompletion({
+    ...(profile as any),
+    display_name: profile?.display_name || empProfile?.contact_name,
+    bio: profile?.bio || empProfile?.company_description,
+    location: profile?.location || empProfile?.hq_country,
+    email: profile?.email || empProfile?.contact_email,
+    phone: profile?.phone || empProfile?.contact_phone,
+    headline: profile?.headline || empProfile?.industry || empProfile?.company_name,
+    experience: profile?.experience || empProfile?.company_size,
+  });
 
 
   return (
