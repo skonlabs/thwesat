@@ -46,6 +46,26 @@ const MentorFinance = () => {
     enabled: !!user,
   });
 
+  const { data: pendingApprovalRows } = useQuery({
+    queryKey: ["mentor-pending-approval", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data: bookings } = await supabase
+        .from("mentor_bookings")
+        .select("id")
+        .eq("mentor_id", user.id);
+      const ids = (bookings || []).map((b) => b.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase
+        .from("payment_requests")
+        .select("amount,currency,status,proof_url")
+        .in("booking_id", ids)
+        .eq("status", "pending");
+      return (data || []).filter((p) => !!p.proof_url);
+    },
+    enabled: !!user,
+  });
+
   const all = earnings || [];
   const pending = all.filter((e) => e.status === "pending" && !e.paid_out_at);
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
