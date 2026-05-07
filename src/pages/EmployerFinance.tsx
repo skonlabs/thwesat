@@ -186,8 +186,8 @@ const EmployerFinance = () => {
               </TooltipTrigger>
               <TooltipContent>
                 {lang === "my"
-                  ? "ငွေပေးချေမှု အထောက်အထား တင်ရန် လိုအပ်သော ပမာဏများ"
-                  : "Amounts still needing payment proof"}
+                  ? "ပေးချေရန် စောင့်ဆိုင်းနေသော ပမာဏများ (အထောက်အထား မတင်ရသေး + admin အတည်ပြုရန်)"
+                  : "All outstanding amounts (no proof yet + awaiting admin approval)"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
