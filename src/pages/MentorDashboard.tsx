@@ -1,14 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import useDirtyState from "@/hooks/use-dirty-state";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, WalletCards, Star, Users, CheckCircle, XCircle, MessageCircle, Shield, Sparkles, Eye } from "lucide-react";
-import AvailabilityManager from "@/components/mentor/AvailabilityManager";
+import { Calendar, Clock, Star, Users, CheckCircle, XCircle, MessageCircle, Settings, WalletCards, AlertCircle, ChevronRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useStartConversation } from "@/hooks/use-start-conversation";
@@ -17,29 +13,8 @@ import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
-import InviteFriendsCard from "@/components/InviteFriendsCard";
-import { toast } from "sonner";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
-
-const TIMEZONES = [
-  "UTC",
-  "Asia/Yangon",
-  "Asia/Bangkok",
-  "Asia/Kuala_Lumpur",
-  "Asia/Singapore",
-  "Asia/Tokyo",
-  "Europe/London",
-  "America/New_York",
-  "America/Los_Angeles",
-];
-
-const SPOKEN_LANGUAGES = [
-  "Burmese (Myanmar)", "English", "Thai", "Malay", "Japanese", "Korean",
-  "Chinese (Mandarin)", "Chinese (Cantonese)", "Hindi", "Arabic", "French",
-  "German", "Spanish", "Vietnamese", "Indonesian", "Tagalog", "Bengali",
-  "Nepali", "Shan", "Karen", "Kachin", "Mon", "Chin",
-];
 
 function formatReceivedAgo(createdAt: string): string {
   const diffMs = Date.now() - new Date(createdAt).getTime();
@@ -47,23 +22,11 @@ function formatReceivedAgo(createdAt: string): string {
   if (diffMins < 60) return `${diffMins}m ago`;
   const diffHrs = Math.floor(diffMins / 60);
   if (diffHrs < 24) return `${diffHrs}h ago`;
-  const diffDays = Math.floor(diffHrs / 24);
-  return `${diffDays}d ago`;
+  return `${Math.floor(diffHrs / 24)}d ago`;
 }
 
-const availabilityDays = [
-  { day: "Mon", dayMy: "တနင်္လာ" }, { day: "Tue", dayMy: "အင်္ဂါ" }, { day: "Wed", dayMy: "ဗုဒ္ဓဟူး" },
-  { day: "Thu", dayMy: "ကြာသပတေး" }, { day: "Fri", dayMy: "သောကြာ" }, { day: "Sat", dayMy: "စနေ" }, { day: "Sun", dayMy: "တနင်္ဂနွေ" },
-];
-
-const quickActions = [
-  { icon: Users, label: "တပည့်များ", labelEn: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
-  { icon: WalletCards, label: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-  { icon: Eye, label: "ပရိုဖိုင်", labelEn: "Profile", path: "/profile", bg: "bg-primary/10", fg: "text-primary" },
-];
-
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = {
-  pending: { label: { my: "စောင့်ဆိုင်း", en: "Pending" }, color: "text-primary bg-primary/10", icon: Clock },
+  pending: { label: { my: "စောင့်ဆိုင်း", en: "Pending" }, color: "text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300", icon: Clock },
   confirmed: { label: { my: "အတည်ပြုပြီး", en: "Confirmed" }, color: "text-emerald bg-emerald/10", icon: CheckCircle },
   completed: { label: { my: "ပြီးဆုံး", en: "Completed" }, color: "text-muted-foreground bg-muted", icon: CheckCircle },
   cancelled: { label: { my: "ပယ်ဖျက်", en: "Cancelled" }, color: "text-destructive bg-destructive/10", icon: XCircle },
@@ -79,22 +42,14 @@ const MentorDashboard = () => {
   const updateStatus = useUpdateBookingStatus();
   const { startConversation } = useStartConversation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const bookingFilter = searchParams.get("bookingFilter") || "all";
+  const bookingFilter = searchParams.get("bookingFilter") || "pending";
   const setBookingFilter = (next: string) => {
     const p = new URLSearchParams(searchParams);
-    if (next === "all") p.delete("bookingFilter"); else p.set("bookingFilter", next);
+    if (next === "pending") p.delete("bookingFilter"); else p.set("bookingFilter", next);
     setSearchParams(p, { replace: true });
   };
-  const [hourlyRate, setHourlyRate] = useState("100");
-  const [rateError, setRateError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState("MMK");
-  const [timezone, setTimezone] = useState("Asia/Yangon");
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [activeDays, setActiveDays] = useState<string[]>([]);
-  const [spokenLanguages, setSpokenLanguages] = useState<string[]>([]);
-  const [showMentorSetupAlert, setShowMentorSetupAlert] = useState(false);
 
-  // Decline with counter-proposal state
+  const [showSetupAlert, setShowSetupAlert] = useState(false);
   const [declineBookingId, setDeclineBookingId] = useState<string | null>(null);
   const [declineReason, setDeclineReason] = useState("");
   const [proposedDate, setProposedDate] = useState("");
@@ -103,23 +58,12 @@ const MentorDashboard = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("mentor_setup") === "1") {
-      setShowMentorSetupAlert(true);
+      setShowSetupAlert(true);
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
 
-  useEffect(() => {
-    if (mentorProfile) {
-      setHourlyRate(mentorProfile.hourly_rate?.toString() || "100");
-      setCurrency(mentorProfile.currency || "MMK");
-      setTimezone((mentorProfile as any).timezone || "Asia/Yangon");
-      setIsAvailable(mentorProfile.is_available ?? true);
-      setActiveDays(mentorProfile.available_days || []);
-      setSpokenLanguages(mentorProfile.profile?.languages || []);
-    }
-  }, [mentorProfile]);
-
-  // Fetch mentee profiles for bookings
+  // Mentee profile lookup
   const menteeIds = [...new Set(bookings.map((b: any) => b.mentee_id))];
   const { data: menteeProfiles = [] } = useQuery({
     queryKey: ["mentee-profiles", menteeIds],
@@ -132,21 +76,20 @@ const MentorDashboard = () => {
   });
   const menteeMap = new Map(menteeProfiles.map((p: any) => [p.id, p]));
 
-  const filteredBookings = bookingFilter === "all" ? bookings : bookings.filter((b: any) => b.status === bookingFilter);
+  // Today / upcoming computations
+  const today = new Date().toISOString().slice(0, 10);
+  const pending = bookings.filter((b: any) => b.status === "pending");
+  const confirmed = bookings.filter((b: any) => b.status === "confirmed");
+  const todayConfirmed = confirmed.filter((b: any) => b.scheduled_date === today);
+  const filteredBookings = bookings.filter((b: any) => b.status === bookingFilter);
 
-  const handleConfirm = (id: string) => {
-    updateStatus.mutate({ id, status: "confirmed" }, {
-      onSuccess: () => {},
-    });
-  };
-
+  const handleConfirm = (id: string) => updateStatus.mutate({ id, status: "confirmed" });
   const handleDecline = (id: string) => {
     setDeclineBookingId(id);
     setDeclineReason("");
     setProposedDate("");
     setProposedTime("");
   };
-
   const handleSubmitDecline = () => {
     if (!declineBookingId) return;
     updateStatus.mutate({
@@ -155,69 +98,12 @@ const MentorDashboard = () => {
       declineReason: declineReason || undefined,
       proposedDate: proposedDate || undefined,
       proposedTime: proposedTime || undefined,
-    }, {
-      onSuccess: () => setDeclineBookingId(null),
-    });
+    }, { onSuccess: () => setDeclineBookingId(null) });
   };
 
-  const handleSaveRate = async () => {
-    if (!user) return;
-    const rate = Number(hourlyRate);
-    if (!Number.isFinite(rate) || rate < 100 || rate > 50000) {
-      setRateError(lang === "my" ? "နှုန်းထား 100 မှ 50,000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 100 and 50,000");
-      return;
-    }
-    setRateError(null);
-    const { error } = await supabase
-      .from("mentor_profiles")
-      .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
-      .eq("id", user.id);
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({ languages: spokenLanguages })
-      .eq("id", user.id);
-    if (error || profileError) {
-      toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
-    } else {
-      markClean();
-      toast.success(lang === "my" ? "Mentor ပရိုဖိုင် အပ်ဒိတ်ပြီးပါပြီ" : "Your mentor profile has been updated.");
-    }
-  };
-
-  // Track unsaved changes by comparing current state vs loaded mentorProfile
-  const baseline = useMemo(() => ({
-    hourlyRate: mentorProfile?.hourly_rate?.toString() || "100",
-    currency: mentorProfile?.currency || "MMK",
-    timezone: (mentorProfile as any)?.timezone || "Asia/Yangon",
-    isAvailable: mentorProfile?.is_available ?? true,
-    activeDays: [...(mentorProfile?.available_days || [])].sort().join("|"),
-    languages: [...(mentorProfile?.profile?.languages || [])].sort().join("|"),
-  }), [mentorProfile]);
-  const isDirty =
-    hourlyRate !== baseline.hourlyRate ||
-    currency !== baseline.currency ||
-    timezone !== baseline.timezone ||
-    isAvailable !== baseline.isAvailable ||
-    [...activeDays].sort().join("|") !== baseline.activeDays ||
-    [...spokenLanguages].sort().join("|") !== baseline.languages;
-  const { setDirty, markClean } = useDirtyState(false);
-  useEffect(() => { setDirty(isDirty); }, [isDirty, setDirty]);
-
-  const toggleLanguage = (l: string) => setSpokenLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
-
-  const toggleDay = (day: string) => setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
-
-  const totalEarnings = earnings?.allTime || 0;
   const thisMonthEarnings = earnings?.thisMonth || 0;
 
-  const stats = [
-    { icon: Calendar, label: { my: "စုစုပေါင်း Booking", en: "Total Bookings" }, value: bookings.length.toString(), color: "text-primary bg-primary/10", path: "/mentors/bookings" },
-    { icon: Star, label: { my: "အမှတ်", en: "Rating" }, value: mentorProfile?.rating_avg?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors/dashboard" },
-    { icon: WalletCards, label: { my: "ဤလ ဝင်ငွေ", en: "This Month" }, value: formatMoney(thisMonthEarnings, "MMK", lang), color: "text-gold-dark bg-accent/15", path: "/mentors/dashboard" },
-    { icon: Users, label: { my: "Mentee", en: "Mentees" }, value: (mentorProfile?.total_mentees || 0).toString(), color: "text-primary bg-primary/10", path: "/mentors/mentees" },
-  ];
-
-  const { percent: mentorCompletionPct } = computeProfileCompletion({
+  const { percent: completionPct } = computeProfileCompletion({
     ...(profile as any),
     headline: profile?.headline || mentorProfile?.title || mentorProfile?.profile?.headline,
     bio: profile?.bio || mentorProfile?.bio || mentorProfile?.bio_my,
@@ -226,200 +112,154 @@ const MentorDashboard = () => {
     languages: profile?.languages?.length ? profile.languages : mentorProfile?.profile?.languages,
     avatar_url: profile?.avatar_url || mentorProfile?.profile?.avatar_url,
   });
-  const isProfileIncomplete = mentorCompletionPct < 100;
+
+  const stats = [
+    { icon: Clock, value: pending.length, label: { my: "စောင့်ဆိုင်း", en: "Pending" }, color: "text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300", action: () => setBookingFilter("pending") },
+    { icon: CheckCircle, value: confirmed.length, label: { my: "လာမည့်", en: "Upcoming" }, color: "text-emerald bg-emerald/10", action: () => setBookingFilter("confirmed") },
+    { icon: WalletCards, value: formatMoney(thisMonthEarnings, "MMK", lang), label: { my: "ဤလ", en: "This month" }, color: "text-gold-dark bg-accent/15", action: () => navigate("/mentor/finance") },
+    { icon: Star, value: mentorProfile?.rating_avg?.toFixed(1) || "—", label: { my: "အမှတ်", en: "Rating" }, color: "text-primary bg-primary/10", action: () => navigate("/profile") },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="Mentor Dashboard" />
+      <PageHeader title={lang === "my" ? "Mentor ပင်မ" : "Mentor Dashboard"} />
       <div className="px-5">
-        {showMentorSetupAlert && (
+        {showSetupAlert && (
           <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
             <AlertDescription className="text-sm">
               {lang === "my"
-                ? "ကြိုဆိုပါသည်! Mentor Setup: ချိန်းဆိုမှုများ လက်ခံနိုင်ရန် အောက်တွင် နာရီချိန်နှုန်းနှင့် ရနိုင်မှုကို သတ်မှတ်ပါ။"
-                : "Welcome! Complete your mentor setup: set your hourly rate and availability below to start accepting bookings."}
+                ? "ကြိုဆိုပါသည်! ဆက်တင်တွင် နာရီနှုန်းနှင့် ရနိုင်မှု သတ်မှတ်ပါ။"
+                : "Welcome! Set your hourly rate and availability in Settings to start accepting bookings."}
             </AlertDescription>
           </Alert>
         )}
-        {isProfileIncomplete && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+
+        {/* Profile completion (only if incomplete) */}
+        {completionPct < 100 && (
+          <motion.button onClick={() => navigate("/profile/edit")} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-4 w-full rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-foreground">
-                {lang === "my" ? "⚠️ သင့်ပရိုဖိုင် မပြည့်စုံသေးပါ" : "⚠️ Your profile is incomplete"}
-              </p>
-              <span className="text-xs font-bold text-destructive">{mentorCompletionPct}%</span>
+              <p className="text-xs font-bold text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</p>
+              <span className="text-xs font-bold text-gold-dark">{completionPct}%</span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-destructive" style={{ width: `${mentorCompletionPct}%` }} />
+              <div className="h-full rounded-full bg-gradient-gold" style={{ width: `${completionPct}%` }} />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {lang === "my"
-                ? "အခြား အသုံးပြုသူများ သင့်ကို ရှာတွေ့နိုင်ရန် ခေါင်းစဉ်၊ ကျွမ်းကျင်မှုနှင့် တည်နေရာ ဖြည့်ပါ"
-                : "Add your title, expertise, and location so job seekers can find and book you"}
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              {lang === "my" ? "Mentee များ ရှာတွေ့စေရန် ဖြည့်ပါ" : "Complete to be discoverable by mentees"}
             </p>
-            <Button variant="outline" size="sm" className="mt-3 rounded-lg border-destructive/30 text-xs" onClick={() => navigate("/profile/edit")}>
-              {lang === "my" ? "ပရိုဖိုင် ဖြည့်ရန်" : "Complete Profile"}
-            </Button>
+          </motion.button>
+        )}
+
+        {/* Needs attention banner */}
+        {(pending.length > 0 || todayConfirmed.length > 0) && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3.5 dark:border-amber-700 dark:bg-amber-950">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" strokeWidth={1.75} />
+              <div className="flex-1 text-xs text-amber-900 dark:text-amber-100">
+                {pending.length > 0 && (
+                  <p className="font-semibold">
+                    {lang === "my"
+                      ? `${pending.length} ခု ဘွတ်ကင် တောင်းခံချက် စောင့်နေသည်`
+                      : `${pending.length} booking ${pending.length === 1 ? "request needs" : "requests need"} your response`}
+                  </p>
+                )}
+                {todayConfirmed.length > 0 && (
+                  <p className={pending.length > 0 ? "mt-0.5 text-[11px] opacity-90" : "font-semibold"}>
+                    {lang === "my"
+                      ? `${todayConfirmed.length} session ဒီနေ့ ရှိသည်`
+                      : `${todayConfirmed.length} session${todayConfirmed.length === 1 ? "" : "s"} scheduled today`}
+                  </p>
+                )}
+              </div>
+            </div>
           </motion.div>
         )}
+
+        {/* Stats — always 2x2 */}
         <div className="mb-5 grid grid-cols-2 gap-3">
-          {stats.map((stat, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} onClick={() => navigate(stat.path)} className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
+          {stats.map((s, i) => (
+            <motion.button key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              onClick={s.action}
+              className="rounded-xl border border-border bg-card p-3 text-left transition-colors active:bg-muted/30">
               <div className="flex items-center gap-2.5">
-                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.color}`}><stat.icon className="h-4 w-4" strokeWidth={1.5} /></div>
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${s.color}`}>
+                  <s.icon className="h-4 w-4" strokeWidth={1.5} />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-lg font-bold text-foreground leading-tight">{stat.value}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight truncate">{lang === "my" ? stat.label.my : stat.label.en}</p>
+                  <p className="text-lg font-bold text-foreground leading-tight">{s.value}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight truncate">{lang === "my" ? s.label.my : s.label.en}</p>
                 </div>
               </div>
             </motion.button>
           ))}
         </div>
 
-        <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
-        <div className="mb-5 grid grid-cols-4 gap-3">
-          {quickActions.map((action, i) => (
-            <motion.button key={action.path + action.labelEn} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => navigate(action.path)} className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 transition-colors active:bg-muted">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${action.bg}`}><action.icon className={`h-4 w-4 ${action.fg}`} strokeWidth={1.5} /></div>
-              <span className="text-[10px] font-medium text-foreground">{lang === "my" ? action.label : action.labelEn}</span>
+        {/* Quick actions row */}
+        <div className="mb-6 grid grid-cols-3 gap-3">
+          {[
+            { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
+            { icon: WalletCards, my: "ငွေကြေး", en: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
+            { icon: Settings, my: "ဆက်တင်", en: "Settings", path: "/mentor/settings", bg: "bg-accent/15", fg: "text-gold-dark" },
+          ].map((a, i) => (
+            <motion.button key={a.path} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 + i * 0.04 }}
+              onClick={() => navigate(a.path)}
+              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3.5 transition-colors active:bg-muted">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${a.bg}`}>
+                <a.icon className={`h-5 w-5 ${a.fg}`} strokeWidth={1.5} />
+              </div>
+              <span className="text-[11px] font-medium text-foreground">{lang === "my" ? a.my : a.en}</span>
             </motion.button>
           ))}
-        </div>
-
-        {/* Availability & Rate */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className={`mb-5 rounded-xl border bg-card p-4 transition-colors ${isDirty ? "border-gold ring-1 ring-gold/40" : "border-border"}`}>
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-foreground">{lang === "my" ? "နှုန်းထား & ရနိုင်မှု" : "Rate & Availability"}</h3>
-              {isDirty && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold-dark">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gold-dark animate-pulse" />
-                  {lang === "my" ? "မသိမ်းရသေး" : "Unsaved"}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground">{isAvailable ? (lang === "my" ? "ရနိုင်" : "Available") : (lang === "my" ? "မရနိုင်" : "Unavailable")}</span>
-              <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
-            </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</label>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex h-10 items-center rounded-xl border border-border bg-muted px-3 text-xs font-medium text-foreground">
-                {lang === "my" ? "ကျပ်" : "MMK"}
-              </span>
-              <Input
-                type="number"
-                min={100}
-                max={50000}
-                step={100}
-                value={hourlyRate}
-                onChange={e => {
-                  setHourlyRate(e.target.value);
-                  setRateError(null);
-                }}
-                className={`h-10 w-24 rounded-xl text-center ${rateError ? "border-destructive" : ""}`}
-              />
-              <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
-            </div>
-            {rateError && <p className="mt-1 text-xs text-destructive">{rateError}</p>}
-          </div>
-          <div className="mt-3">
-            <label className="mb-1.5 block text-xs font-medium text-foreground">{lang === "my" ? "Timezone" : "Timezone"}</label>
-            <Select value={timezone} onValueChange={setTimezone}>
-              <SelectTrigger className="h-10 rounded-xl text-xs">
-                <SelectValue placeholder="Select timezone" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIMEZONES.map(tz => (
-                  <SelectItem key={tz} value={tz} className="text-xs">{tz}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="mt-3">
-            <label className="mb-1.5 block text-xs font-medium text-foreground">
-              {lang === "my" ? "ပြောတတ်သော ဘာသာစကားများ" : "Spoken Languages"}
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {SPOKEN_LANGUAGES.map(l => {
-                const active = spokenLanguages.includes(l);
-                return (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => toggleLanguage(l)}
-                    className={`rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors ${
-                      active
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-border bg-card text-muted-foreground active:bg-muted"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <Button
-            variant={isDirty ? "gold" : "default"}
-            disabled={!isDirty}
-            className="mt-4 h-11 w-full rounded-xl text-sm font-semibold"
-            onClick={handleSaveRate}
-          >
-            {isDirty
-              ? (lang === "my" ? "ပြောင်းလဲမှုများ သိမ်းရန်" : "Save Changes")
-              : (lang === "my" ? "သိမ်းပြီး" : "All changes saved")}
-          </Button>
-        </motion.div>
-
-        {/* Availability Calendar */}
-        <div className="mb-5">
-          <AvailabilityManager />
         </div>
 
         {/* Bookings */}
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground">{lang === "my" ? "Booking များ" : "Bookings"}</h2>
+          <button onClick={() => navigate("/mentors/bookings")} className="flex items-center text-[11px] font-semibold text-primary">
+            {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "pending", "confirmed", "completed"].map(f => (
-            <button key={f} onClick={() => setBookingFilter(f)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${bookingFilter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
+          {["pending", "confirmed", "completed", "cancelled"].map(f => (
+            <button key={f} onClick={() => setBookingFilter(f)}
+              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${bookingFilter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+              {lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en}
             </button>
           ))}
         </div>
 
         <div className="space-y-3">
-          {filteredBookings.map((booking: any, i: number) => {
+          {filteredBookings.slice(0, 5).map((booking: any, i: number) => {
             const sc = statusConfig[booking.status] || statusConfig.pending;
             const mentee = menteeMap.get(booking.mentee_id);
             return (
-              <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
+              <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{mentee?.display_name?.slice(0, 2).toUpperCase() || "?"}</div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground">{mentee?.display_name || "Mentee"}</h3>
-                        <p className="text-[11px] text-muted-foreground">{booking.topic || ""}</p>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {mentee?.display_name?.slice(0, 2).toUpperCase() || "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-sm font-semibold text-foreground">{mentee?.display_name || "Mentee"}</h3>
+                        {booking.topic && <p className="truncate text-[11px] text-muted-foreground">{booking.topic}</p>}
                       </div>
-                      <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
+                      <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
                         <sc.icon className="h-3 w-3" strokeWidth={1.5} />{lang === "my" ? sc.label.my : sc.label.en}
                       </span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-3 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_date}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" strokeWidth={1.5} /> {booking.scheduled_time}</span>
+                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {booking.scheduled_date}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {booking.scheduled_time}</span>
                     </div>
                     {booking.status === "pending" && (
                       <>
                         {booking.created_at && (
                           <p className="mt-2 text-[10px] text-muted-foreground">
-                            {lang === "my"
-                              ? `လက်ခံရရှိချိန် ${formatReceivedAgo(booking.created_at)} — ၂၄ နာရီအတွင်း တုံ့ပြန်ပါ`
-                              : `Received ${formatReceivedAgo(booking.created_at)} — respond within 24h.`}
+                            {lang === "my" ? `လက်ခံရရှိ ${formatReceivedAgo(booking.created_at)} — ၂၄ နာရီအတွင်း တုံ့ပြန်ပါ` : `Received ${formatReceivedAgo(booking.created_at)} — respond within 24h`}
                           </p>
                         )}
                         <div className="mt-3 flex justify-end gap-2">
@@ -441,29 +281,23 @@ const MentorDashboard = () => {
             );
           })}
           {filteredBookings.length === 0 && (
-            <div className="flex flex-col items-center py-12 text-center">
-              <Calendar className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
+            <div className="flex flex-col items-center rounded-xl border border-dashed border-border py-10 text-center">
+              <Calendar className="mb-3 h-9 w-9 text-muted-foreground" strokeWidth={1} />
               <p className="text-sm font-medium text-foreground">
-                {bookings.length === 0
-                  ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet")
-                  : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing matches this filter")}
+                {bookings.length === 0 ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet") : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing here")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {bookings.length === 0
-                  ? (lang === "my" ? "ရနိုင်သော အချိန်များ သတ်မှတ်ထားပြီး mentee များကို စောင့်ပါ" : "Set your availability so mentees can book a session")
-                  : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try a different status")}
+                  ? (lang === "my" ? "ဆက်တင်တွင် ရနိုင်သော အချိန်များ သတ်မှတ်ပါ" : "Set your availability in Settings")
+                  : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try another tab")}
               </p>
               {bookings.length === 0 && (
-                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/profile/edit")}>
-                  {lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit profile"}
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/mentor/settings")}>
+                  {lang === "my" ? "ဆက်တင် ဖွင့်ရန်" : "Open Settings"}
                 </Button>
               )}
             </div>
           )}
-        </div>
-
-        <div className="mt-5">
-          <InviteFriendsCard />
         </div>
       </div>
 
@@ -475,30 +309,23 @@ const MentorDashboard = () => {
             <motion.div initial={{ y: 300 }} animate={{ y: 0 }} exit={{ y: 300 }} className="fixed inset-x-0 bottom-16 z-[60] mx-auto max-w-md rounded-t-2xl bg-card p-5">
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
               <h3 className="mb-1 text-sm font-semibold text-foreground">{lang === "my" ? "Booking ငြင်းပယ်ရန်" : "Decline Booking"}</h3>
-              <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အချိန်အသစ် အဆိုပြုနိုင်ပါသည် (မဖြစ်မနေမဟုတ်)" : "You can optionally propose an alternative time"}</p>
-
+              <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "အချိန်အသစ် အဆိုပြုနိုင်ပါသည်" : "You can optionally propose a new time"}</p>
               <div className="space-y-3">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အကြောင်းပြချက်" : "Reason (optional)"}</label>
-                  <Input value={declineReason} onChange={e => setDeclineReason(e.target.value)} placeholder={lang === "my" ? "ဥပမာ - ထိုအချိန် အစည်းအဝေးရှိ" : "e.g. I have a meeting at that time"} className="rounded-xl" />
+                  <Input value={declineReason} onChange={e => setDeclineReason(e.target.value)} className="rounded-xl" />
                 </div>
-
                 <div className="rounded-xl border border-border bg-background p-3">
-                  <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "📅 အချိန်အသစ် အဆိုပြုရန်" : "📅 Propose a new time"}</p>
+                  <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "📅 အချိန်အသစ်" : "📅 Propose new time"}</p>
                   <div className="flex gap-2">
                     <Input type="date" value={proposedDate} onChange={e => setProposedDate(e.target.value)} className="flex-1 rounded-xl text-xs" min={new Date().toISOString().split("T")[0]} />
                     <Input type="time" value={proposedTime} onChange={e => setProposedTime(e.target.value)} className="w-28 rounded-xl text-xs" />
                   </div>
                 </div>
-
                 <div className="flex gap-2 pt-1">
-                  <Button variant="outline" size="default" className="flex-1 rounded-xl" onClick={() => setDeclineBookingId(null)}>
-                    {lang === "my" ? "ပယ်ဖျက်" : "Cancel"}
-                  </Button>
-                  <Button variant="destructive" size="default" className="flex-1 rounded-xl" onClick={handleSubmitDecline} disabled={updateStatus.isPending}>
-                    {proposedDate && proposedTime
-                      ? (lang === "my" ? "ငြင်းပယ်ပြီး အချိန်သစ်ပေး" : "Decline & Propose")
-                      : (lang === "my" ? "ငြင်းပယ်မည်" : "Decline")}
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeclineBookingId(null)}>{lang === "my" ? "ပယ်ဖျက်" : "Cancel"}</Button>
+                  <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleSubmitDecline} disabled={updateStatus.isPending}>
+                    {proposedDate && proposedTime ? (lang === "my" ? "ငြင်းပယ်ပြီး အဆိုပြု" : "Decline & Propose") : (lang === "my" ? "ငြင်းပယ်မည်" : "Decline")}
                   </Button>
                 </div>
               </div>
