@@ -46,6 +46,26 @@ const MentorFinance = () => {
     enabled: !!user,
   });
 
+  const { data: pendingApprovalRows } = useQuery({
+    queryKey: ["mentor-pending-approval", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data: bookings } = await supabase
+        .from("mentor_bookings")
+        .select("id")
+        .eq("mentor_id", user.id);
+      const ids = (bookings || []).map((b) => b.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase
+        .from("payment_requests")
+        .select("amount,currency,status,proof_url")
+        .in("booking_id", ids)
+        .eq("status", "pending");
+      return (data || []).filter((p) => !!p.proof_url);
+    },
+    enabled: !!user,
+  });
+
   const all = earnings || [];
   const pending = all.filter((e) => e.status === "pending" && !e.paid_out_at);
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
@@ -59,6 +79,10 @@ const MentorFinance = () => {
   const totalEarned = useMemo(() => all.reduce((sum, e) => sum + Number(e.amount || 0), 0), [all]);
   const totalPending = useMemo(() => pending.reduce((sum, e) => sum + Number(e.amount || 0), 0), [pending]);
   const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
+  const totalPendingApproval = useMemo(
+    () => (pendingApprovalRows || []).reduce((sum, p) => sum + Number(p.amount || 0), 0),
+    [pendingApprovalRows]
+  );
 
   // Map status → "approved"/"pending" buckets that match the filter contract.
   const filtered = useMemo(() => {
@@ -91,10 +115,10 @@ const MentorFinance = () => {
         )}
 
         {/* Stat cards */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        <div className="mb-4 grid grid-cols-2 gap-2">
           {[
-            { label: lang === "my" ? "စုစုပေါင်း ဝင်ငွေ" : "Total Earned", value: `$${totalEarned.toFixed(2)}`, color: "text-foreground" },
-            { label: lang === "my" ? "စောင့်ဆိုင်း" : "Pending", value: `$${totalPending.toFixed(2)}`, color: "text-amber-600 dark:text-amber-400" },
+            { label: lang === "my" ? "အတည်ပြုရန် စောင့်ဆိုင်း" : "Pending Approval", value: `${Math.round(totalPendingApproval).toLocaleString()} MMK`, color: "text-amber-600 dark:text-amber-400" },
+            { label: lang === "my" ? "Payout စောင့်ဆိုင်း" : "Pending Payout", value: `$${totalPending.toFixed(2)}`, color: "text-amber-600 dark:text-amber-400" },
             { label: lang === "my" ? "ပေးချေပြီး" : "Total Paid", value: `$${totalPaid.toFixed(2)}`, color: "text-emerald-600 dark:text-emerald-400" },
           ].map((s, i) => (
             <div key={i} className="rounded-xl border border-border bg-card p-3 text-center">
