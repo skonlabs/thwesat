@@ -52,7 +52,7 @@ const EmployerFinance = () => {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
-  const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement">("all");
+  const [kpiFilter, setKpiFilter] = useState<"all" | "paid" | "due" | "placement" | "review">("all");
   const [page, setPage] = useState(0);
 
   useEffect(() => {
