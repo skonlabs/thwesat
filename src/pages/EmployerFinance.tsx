@@ -89,7 +89,7 @@ const EmployerFinance = () => {
 
   const all = payments || [];
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
-  const due = all.filter((p) => p.status === "pending");
+  const due = all.filter((p) => p.status === "pending" && !p.proof_url);
   const paid = all.filter((p) => p.status === "approved");
   const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
 
