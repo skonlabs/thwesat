@@ -80,21 +80,29 @@ const MentorPreferencesSection = () => {
     setActiveDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || saving) return;
     const rate = Number(hourlyRate);
     if (!Number.isFinite(rate) || rate < 100 || rate > 50000) {
       setRateError(lang === "my" ? "နှုန်းထား 100 မှ 50,000 အတွင်း ဖြစ်ရပါမည်" : "Rate must be between 100 and 50,000");
       return;
     }
     setRateError(null);
-    const { error } = await supabase
-      .from("mentor_profiles")
-      .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
-      .eq("id", user.id);
-    const { error: profileError } = await supabase
-      .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
-    if (error || profileError) {
-      toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("mentor_profiles")
+        .update({ hourly_rate: rate, currency, is_available: isAvailable, available_days: activeDays, timezone })
+        .eq("id", user.id);
+      const { error: profileError } = await supabase
+        .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
+      if (error || profileError) {
+        toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
+        return;
+      }
+      await queryClient.invalidateQueries({ queryKey: ["mentor-profile", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+    } finally {
+      setSaving(false);
     }
   };
 
