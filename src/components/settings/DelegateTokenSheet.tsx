@@ -15,14 +15,43 @@ interface DelegateTokenSheetProps {
 
 const DelegateTokenSheet = ({ open, onClose, token, onGenerate, onRevoke }: DelegateTokenSheetProps) => {
   const { lang } = useLanguage();
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [showRevoke, setShowRevoke] = useState(false);
+
+  const accessLink = token ? `${window.location.origin}/access/${token}` : "";
 
   const handleCopy = () => {
     if (token) {
       navigator.clipboard.writeText(token);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!accessLink) return;
+    navigator.clipboard.writeText(accessLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    if (!accessLink) return;
+    const shareTitle = lang === "my" ? "ThweSat ဝင်ရောက်ခွင့်လင့်ခ်" : "ThweSat delegate access link";
+    const shareText = lang === "my"
+      ? "ဤလင့်ခ်မှတစ်ဆင့် ကျွန်ုပ့်အကောင့်ကို ကိုယ်စားဝင်ရောက်နိုင်ပါသည်။"
+      : "Use this link to access my account on my behalf.";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shareTitle, text: shareText, url: accessLink });
+      } else {
+        handleCopyLink();
+        toast({ title: lang === "my" ? "လင့်ခ် ကူးယူပြီးပါပြီ" : "Link copied to clipboard" });
+      }
+    } catch {
+      // user cancelled — no-op
     }
   };
 
