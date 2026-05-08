@@ -120,7 +120,15 @@ const Signup = () => {
       }
     }
     setRole(appRole);
-    navigate(needsEmployerProfile ? "/employer/onboarding" : appRole === "mentor" ? "/mentors/dashboard" : "/home");
+    navigate(
+      appRole === "agent"
+        ? "/agent/onboarding"
+        : appRole === "employer"
+          ? "/employer/onboarding"
+          : appRole === "mentor"
+            ? "/mentors/dashboard"
+            : "/home"
+    );
   };
 
   const roles: { value: SignupChoice; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
