@@ -182,10 +182,40 @@ const EmployerJobs = () => {
                       </div>
                     );
                   })()}
-                  <div className="flex items-center justify-between">
-                    <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-4 text-[11px] text-muted-foreground">
-                      <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {listing.applicant_count || 0} {lang === "my" ? "လျှောက်" : "applied"}</span>
-                    </button>
+                  {(() => {
+                    const b = breakdown?.get(listing.id) || { total: listing.applicant_count || 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 };
+                    const chips: { key: string; label: string; count: number; color: string; filter?: string }[] = [
+                      { key: "new", label: lang === "my" ? "အသစ်" : "New", count: b.new, color: "bg-primary/10 text-primary", filter: "new" },
+                      { key: "shortlisted", label: lang === "my" ? "ရွေး" : "Shortlist", count: b.shortlisted, color: "bg-emerald/10 text-emerald", filter: "shortlisted" },
+                      { key: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: b.interview, color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200", filter: "interview" },
+                      { key: "offered", label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: b.offered, color: "bg-emerald/10 text-emerald", filter: "offered" },
+                      { key: "placed", label: lang === "my" ? "ခန့်အပ်" : "Placed", count: b.placed, color: "bg-emerald text-emerald-foreground", filter: "placed" },
+                    ];
+                    return (
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <button onClick={() => navigate(`/employer/applications?jobId=${listing.id}`)} className="flex items-center gap-1 text-[11px] font-semibold text-foreground">
+                          <Users className="h-3 w-3" /> {b.total} {lang === "my" ? "လျှောက်" : "total"}
+                        </button>
+                        <div className="flex flex-wrap items-center justify-end gap-1">
+                          {chips.filter(c => c.count > 0).map(c => (
+                            <button
+                              key={c.key}
+                              onClick={() => navigate(`/employer/applications?jobId=${listing.id}${c.filter ? `&filter=${c.filter}` : ""}`)}
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${c.color}`}
+                              title={c.label}
+                            >
+                              {c.count} {c.label}
+                            </button>
+                          ))}
+                          {chips.every(c => c.count === 0) && (
+                            <span className="text-[10px] text-muted-foreground">{lang === "my" ? "လျှောက်ထားသူ မရှိသေး" : "No applicants yet"}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  <div className="flex items-center justify-end">
+                    <div className="hidden">{listing.applicant_count}</div>
                     <div className="flex items-center gap-1">
                       <button onClick={() => handleShare(listing)} disabled={sharingId === listing.id} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60" title={lang === "my" ? "မျှဝေရန်" : "Share"}>
                         {sharingId === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" strokeWidth={1.5} />}
