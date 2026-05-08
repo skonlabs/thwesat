@@ -31,6 +31,12 @@ const EmployerOnboarding = () => {
   const [website, setWebsite] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [description, setDescription] = useState("");
+  const [whatWeDo, setWhatWeDo] = useState("");
+  const [mission, setMission] = useState("");
+  const [vision, setVision] = useState("");
+  const [benefitsInput, setBenefitsInput] = useState("");
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [fullAddress, setFullAddress] = useState("");
   const [industry, setIndustry] = useState("");
   const [companySize, setCompanySize] = useState("");
   const [hqCountry, setHqCountry] = useState("");
