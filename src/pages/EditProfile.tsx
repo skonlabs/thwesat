@@ -630,10 +630,12 @@ const EditProfile = () => {
             </div>
             <Textarea value={bio} onChange={e => { setBio(e.target.value.slice(0, 500)); markDirty(); }} className="min-h-[80px] rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" maxLength={500} />
           </div>
-          <div>
-            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
-            <Input value={experience} onChange={e => { setExperience(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
-          </div>
+          {!isHiringRole && (
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
+              <Input value={experience} onChange={e => { setExperience(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            </div>
+          )}
         </motion.div>
 
         {/* Profile Visibility */}
