@@ -88,7 +88,7 @@ const EmployerOnboarding = () => {
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
-      navigate("/employer/dashboard");
+      navigate("/dashboard");
     } catch {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error", variant: "destructive" });
     }
@@ -109,7 +109,7 @@ const EmployerOnboarding = () => {
               ? "သင့် အကောင့်ကို စစ်ဆေးနေဆဲ ဖြစ်ပါသည်။ ၂ ရက်အတွင်း အကြောင်းကြားပါမည်။"
               : "Your account is pending verification. You will be notified within 2 business days."}
           </p>
-          <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit} disabled={upsert.isPending}>
+            <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit} disabled={upsert.isPending}>
             {lang === "my" ? "Dashboard သို့ သွားရန်" : "Go to Dashboard"} <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
         </div>
@@ -126,7 +126,7 @@ const EmployerOnboarding = () => {
         </div>
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ကုမ္ပဏီ အချက်အလက်" : "Company Information"}</h2>
+            <h2 className="text-lg font-bold text-foreground">{isAgent ? (lang === "my" ? "အေဂျင့် / ကုမ္ပဏီ အချက်အလက်" : "Agency / Company Information") : (lang === "my" ? "ကုမ္ပဏီ အချက်အလက်" : "Company Information")}</h2>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label>
               <Input value={companyName} onChange={e => { setCompanyName(e.target.value); setCompanyNameWarning(""); }} onBlur={handleCompanyNameBlur} className="h-11 rounded-xl" />
