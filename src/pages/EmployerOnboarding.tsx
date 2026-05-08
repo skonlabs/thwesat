@@ -82,7 +82,9 @@ const EmployerOnboarding = () => {
     try {
       await upsert.mutateAsync({
         company_name: companyName, company_website: website, company_linkedin: linkedin,
-        company_description: description, industry, company_size: companySize, hq_country: hqCountry,
+        company_description: description, what_we_do: whatWeDo, mission, vision, benefits,
+        full_address: fullAddress,
+        industry, company_size: companySize, hq_country: hqCountry,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
