@@ -386,6 +386,8 @@ const SkillGapAnalysis = () => {
                   </div>
                 </div>
 
+                <MentorCoachCue variant="skill" context={selectedRole} />
+
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => { setStep(1); setSelectedSkills([]); setSelectedRole(""); }} className="flex-1">
                     <TrendingUp className="h-4 w-4" />
