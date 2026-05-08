@@ -86,6 +86,7 @@ const WelcomeTourVideoCard = ({ variant, forceOpen, onClose }: Props) => {
     }
   };
 
+  if (!roleAllowed && !forceOpen) return null;
   if (dismissed && !forceOpen) return null;
 
   return (
