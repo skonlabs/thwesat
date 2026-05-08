@@ -182,6 +182,7 @@ const Profile = () => {
   };
 
   const currentRoleLabel = allRoleOptions.find(o => o.value === effectiveRole) || allRoleOptions[0];
+  const companyEditPath = effectiveRole === "agent" ? "/agent/profile" : "/employer/edit-company";
 
   const handleSignOut = async () => {
     await signOut();
@@ -199,7 +200,7 @@ const Profile = () => {
   ];
 
   const employerMenu = [
-    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: Edit3, label: lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Company Profile", path: companyEditPath },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     { icon: Wallet, label: lang === "my" ? "ငွေကြေး" : "Finance", path: "/employer/finance" },
@@ -319,7 +320,7 @@ const Profile = () => {
           </div>
           <button
             type="button"
-            onClick={() => navigate("/profile/edit")}
+            onClick={() => navigate((effectiveRole === "employer" || effectiveRole === "agent") ? companyEditPath : "/profile/edit")}
             className="mt-4 w-full rounded-lg bg-muted p-3 text-left transition-colors active:bg-muted/70"
           >
             <div className="mb-1.5 flex items-center justify-between">
