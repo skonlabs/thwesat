@@ -465,6 +465,13 @@ const JobDetail = () => {
           <p className="mt-4 text-center text-xs text-muted-foreground">
             👥 {lang === "my" ? `လျှောက်ထားသူ ${job.applicant_count || 0} ဦး` : `${job.applicant_count || 0} applicants`}
           </p>
+
+          <div className="mt-5">
+            <MentorCoachCue
+              variant={myApplication ? "interview" : "applied"}
+              context={displayTitle}
+            />
+          </div>
         </motion.div>
       </div>
 
