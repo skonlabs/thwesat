@@ -508,6 +508,7 @@ export type Database = {
       }
       employer_profiles: {
         Row: {
+          benefits: string[] | null
           company_description: string | null
           company_linkedin: string | null
           company_name: string | null
@@ -516,16 +517,23 @@ export type Database = {
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          cover_url: string | null
           created_at: string | null
+          full_address: string | null
           hq_country: string | null
           id: string
           industry: string | null
           is_verified: boolean | null
+          logo_url: string | null
+          mission: string | null
           payment_methods: string[] | null
           updated_at: string | null
           verification_status: string | null
+          vision: string | null
+          what_we_do: string | null
         }
         Insert: {
+          benefits?: string[] | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
@@ -534,16 +542,23 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          full_address?: string | null
           hq_country?: string | null
           id: string
           industry?: string | null
           is_verified?: boolean | null
+          logo_url?: string | null
+          mission?: string | null
           payment_methods?: string[] | null
           updated_at?: string | null
           verification_status?: string | null
+          vision?: string | null
+          what_we_do?: string | null
         }
         Update: {
+          benefits?: string[] | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
@@ -552,14 +567,20 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          cover_url?: string | null
           created_at?: string | null
+          full_address?: string | null
           hq_country?: string | null
           id?: string
           industry?: string | null
           is_verified?: boolean | null
+          logo_url?: string | null
+          mission?: string | null
           payment_methods?: string[] | null
           updated_at?: string | null
           verification_status?: string | null
+          vision?: string | null
+          what_we_do?: string | null
         }
         Relationships: []
       }
