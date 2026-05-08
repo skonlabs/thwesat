@@ -356,14 +356,29 @@ const Profile = () => {
                   </p>
                 </div>
               </div>
-              {(employerProfile?.what_we_do || employerProfile?.company_description) && (
-                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                  {employerProfile?.what_we_do || employerProfile?.company_description}
-                </p>
-              )}
+              <div className="mt-3 space-y-2">
+                {(employerProfile?.what_we_do || employerProfile?.company_description) && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ကျွန်ုပ်တို့ဘာလုပ်သလဲ" : "What We Do"}</p>
+                    <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile?.what_we_do || employerProfile?.company_description}</p>
+                  </div>
+                )}
+                {employerProfile?.mission && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ရည်မှန်းချက်" : "Mission"}</p>
+                    <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile.mission}</p>
+                  </div>
+                )}
+                {employerProfile?.vision && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "မျှော်မှန်းချက်" : "Vision"}</p>
+                    <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile.vision}</p>
+                  </div>
+                )}
+              </div>
               <div className="mt-3 grid grid-cols-1 gap-1.5 text-[11px]">
                 {employerProfile?.full_address && (
-                  <div className="flex items-start gap-1.5 text-muted-foreground"><MapPin className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={1.5} /><span className="line-clamp-2">{employerProfile.full_address}</span></div>
+                  <div className="flex items-start gap-1.5 text-muted-foreground"><MapPin className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={1.5} /><span className="whitespace-pre-line">{employerProfile.full_address}</span></div>
                 )}
                 {employerProfile?.company_website && (
                   <div className="flex items-center gap-1.5 text-muted-foreground"><Globe className="h-3 w-3 shrink-0" strokeWidth={1.5} /><span className="truncate">{employerProfile.company_website.replace(/^https?:\/\//, "")}</span></div>
@@ -371,14 +386,13 @@ const Profile = () => {
               </div>
               {Array.isArray(employerProfile?.benefits) && employerProfile.benefits.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1">
-                  {employerProfile.benefits.slice(0, 4).map((b: string) => (
+                  {employerProfile.benefits.map((b: string) => (
                     <span key={b} className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">✓ {b}</span>
                   ))}
-                  {employerProfile.benefits.length > 4 && <span className="text-[10px] text-muted-foreground">+{employerProfile.benefits.length - 4}</span>}
                 </div>
               )}
               <div className="mt-3 flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate("/employer/edit-company")}>
+                <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(effectiveRole === "agent" ? "/agent/profile" : "/employer/edit-company")}>
                   <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company"}
                 </Button>
                 {employerProfile?.id && (
