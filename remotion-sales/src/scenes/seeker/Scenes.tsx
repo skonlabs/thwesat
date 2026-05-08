@@ -103,7 +103,9 @@ export const S3_Profile: React.FC = () => {
             <AppHeader title="My Profile" sub="Upload your CV — we'll extract everything" />
             <div style={{ padding: 24 }}>
               <div style={{ borderRadius: 14, border: `2px dashed ${C.gold}`, background: "#FFF7E5", padding: 22, textAlign: "center" }}>
-                <div style={{ fontSize: 30, marginBottom: 6 }}>📄</div>
+                <div style={{ width: 56, height: 70, borderRadius: 6, background: "#fff", border: `2px solid ${C.goldDeep}`, margin: "0 auto 8px", position: "relative", display: "flex", alignItems: "flex-end", padding: 6 }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: C.goldDeep, letterSpacing: 1 }}>PDF</div>
+                </div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>resume_kyaw_2026.pdf</div>
                 <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Parsing skills, roles, education…</div>
                 <div style={{ marginTop: 14, height: 8, borderRadius: 4, background: "#fff", overflow: "hidden" }}>
