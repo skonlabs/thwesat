@@ -194,6 +194,21 @@ const Applications = () => {
       </div>
 
       <div className="space-y-3 px-5 pb-24">
+        {(() => {
+          const interviewApp = apps.find((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status) || a.status === "shortlisted");
+          if (interviewApp) {
+            return (
+              <MentorCoachCue
+                variant={INTERVIEW_APPLICATION_STATUSES.includes(interviewApp.status) ? "interview" : "applied"}
+                context={interviewApp.jobs?.title}
+              />
+            );
+          }
+          if (apps.length > 0 && filter === "all") {
+            return <MentorCoachCue variant="applied" />;
+          }
+          return null;
+        })()}
         {isLoading ? (
           <ListSkeleton count={4} />
         ) : filteredApps.length === 0 ? (
