@@ -79,6 +79,7 @@ const AgentDashboard = () => {
       <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
 
       <div className="px-5">
+        <WelcomeTourVideoCard variant="agent" />
         {/* Profile completion (only if incomplete) */}
         {!empProfile?.is_verified && (
           <motion.button
