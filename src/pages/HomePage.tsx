@@ -12,6 +12,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import MentorCoachCue from "@/components/MentorCoachCue";
+import SeekerWelcomeTour from "@/components/SeekerWelcomeTour";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
