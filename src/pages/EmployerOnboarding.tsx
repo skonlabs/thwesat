@@ -31,6 +31,12 @@ const EmployerOnboarding = () => {
   const [website, setWebsite] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [description, setDescription] = useState("");
+  const [whatWeDo, setWhatWeDo] = useState("");
+  const [mission, setMission] = useState("");
+  const [vision, setVision] = useState("");
+  const [benefitsInput, setBenefitsInput] = useState("");
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [fullAddress, setFullAddress] = useState("");
   const [industry, setIndustry] = useState("");
   const [companySize, setCompanySize] = useState("");
   const [hqCountry, setHqCountry] = useState("");
@@ -76,7 +82,9 @@ const EmployerOnboarding = () => {
     try {
       await upsert.mutateAsync({
         company_name: companyName, company_website: website, company_linkedin: linkedin,
-        company_description: description, industry, company_size: companySize, hq_country: hqCountry,
+        company_description: description, what_we_do: whatWeDo, mission, vision, benefits,
+        full_address: fullAddress,
+        industry, company_size: companySize, hq_country: hqCountry,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
@@ -126,7 +134,27 @@ const EmployerOnboarding = () => {
             </div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝဘ်ဆိုဒ် *" : "Website *"}</label><Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." className="h-11 rounded-xl" /></div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">LinkedIn</label><Input value={linkedin} onChange={e => setLinkedin(e.target.value)} className="h-11 rounded-xl" /></div>
-            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ ဖော်ပြချက်" : "Description"}</label><Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[80px] rounded-xl" /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီ ဖော်ပြချက် (အကျဉ်း)" : "Short Description"}</label><Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[80px] rounded-xl" placeholder={lang === "my" ? "တစ်ကြောင်း သို့မဟုတ် နှစ်ကြောင်း" : "One or two lines"} /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကျွန်ုပ်တို့ဘာလုပ်သလဲ" : "What We Do"}</label><Textarea value={whatWeDo} onChange={e => setWhatWeDo(e.target.value)} className="min-h-[100px] rounded-xl" placeholder={lang === "my" ? "လုပ်ငန်းအသေးစိတ်" : "Describe what your company does in detail"} /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ရည်မှန်းချက် (Mission)" : "Mission"}</label><Textarea value={mission} onChange={e => setMission(e.target.value)} className="min-h-[80px] rounded-xl" placeholder={lang === "my" ? "ကုမ္ပဏီ၏ ရည်မှန်းချက်" : "What drives your company"} /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "မျှော်မှန်းချက် (Vision)" : "Vision"}</label><Textarea value={vision} onChange={e => setVision(e.target.value)} className="min-h-[80px] rounded-xl" placeholder={lang === "my" ? "ကုမ္ပဏီ၏ မျှော်မှန်းချက်" : "Where you see your company in the future"} /></div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝန်ထမ်း အကျိုးခံစားခွင့်" : "Employee Benefits"}</label>
+              <div className="flex gap-2">
+                <Input value={benefitsInput} onChange={e => setBenefitsInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const v = benefitsInput.trim(); if (v && !benefits.includes(v)) setBenefits([...benefits, v]); setBenefitsInput(""); } }} placeholder={lang === "my" ? "ဥပမာ — ကျန်းမာရေးအာမခံ" : "e.g. Health insurance"} className="h-11 rounded-xl" />
+                <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => { const v = benefitsInput.trim(); if (v && !benefits.includes(v)) setBenefits([...benefits, v]); setBenefitsInput(""); }}>{lang === "my" ? "ထည့်ရန်" : "Add"}</Button>
+              </div>
+              {benefits.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {benefits.map(b => (
+                    <span key={b} className="inline-flex items-center gap-1 rounded-full bg-emerald/10 px-2.5 py-1 text-[11px] font-medium text-emerald">
+                      ✓ {b}
+                      <button type="button" onClick={() => setBenefits(benefits.filter(x => x !== b))} className="ml-1 text-emerald/70 hover:text-emerald">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လုပ်ငန်းအမျိုးအစား" : "Industry"}</label>
               <div className="flex flex-wrap gap-2">{industries.map(i => (<button key={i} onClick={() => setIndustry(i)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${industry === i ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{i}</button>))}</div>
             </div>
@@ -148,6 +176,7 @@ const EmployerOnboarding = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် + ငွေပေးချေမှု" : "Contact & Payment"}</h2>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိပ်စာ အပြည့်အစုံ" : "Full Address"}</label><Textarea value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="min-h-[60px] rounded-xl" placeholder={lang === "my" ? "လမ်း၊ မြို့၊ ပြည်နယ်" : "Street, city, state, postal code"} /></div>
             {isAgent && (
               <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
                 <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
