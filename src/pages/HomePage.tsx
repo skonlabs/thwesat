@@ -13,6 +13,7 @@ import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import MentorCoachCue from "@/components/MentorCoachCue";
 import SeekerWelcomeTour from "@/components/SeekerWelcomeTour";
+import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
