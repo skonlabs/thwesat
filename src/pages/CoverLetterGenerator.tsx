@@ -565,6 +565,8 @@ const CoverLetterGenerator = () => {
                 <ChevronLeft className="h-4 w-4" />
                 {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
               </Button>
+
+              <MentorCoachCue variant="letter" context={form.jobTitle} />
             </motion.div>
           )}
         </AnimatePresence>
