@@ -333,6 +333,12 @@ const EmployerApplications = () => {
                       <div>
                         <h3 className="text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
                         <p className="text-[11px] text-muted-foreground">{app.jobs?.title || "Job"}</p>
+                        {INTERVIEW_APPLICATION_STATUSES.includes(app.status) && app.interview_date && (
+                          <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300">
+                            <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                            {lang === "my" ? "အင်တာဗျူး" : "Interview"}: {new Date(app.interview_date).toLocaleString(lang === "my" ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" })}
+                          </p>
+                        )}
                       </div>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
                     </div>
