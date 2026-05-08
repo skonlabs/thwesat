@@ -196,8 +196,6 @@ const AgentDashboard = () => {
           </div>
           <span className="text-xs text-muted-foreground">→</span>
         </button>
-
-        <InviteFriendsCard />
       </div>
     </div>
   );
