@@ -663,6 +663,7 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Preferred Work Type */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15">
@@ -678,6 +679,7 @@ const EditProfile = () => {
             ))}
           </div>
         </motion.div>
+        )}
 
         {/* Location & Contact */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4 rounded-2xl border border-border bg-card p-5">
