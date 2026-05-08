@@ -63,6 +63,7 @@ const CompanyProfile = () => {
   const e = data.employer as any;
   const p = data.profile as any;
   const isOwn = user?.id === id;
+  const ownEditPath = e?.contact_email && !e?.company_name ? "/agent/profile" : "/employer/edit-company";
   const logoUrl = e.logo_url || p?.avatar_url;
   const initials = (e.company_name || "C").slice(0, 2).toUpperCase();
 
@@ -133,7 +134,7 @@ const CompanyProfile = () => {
           {/* Action buttons */}
           <div className="mt-4 flex gap-2">
             {isOwn ? (
-              <Button variant="default" size="sm" className="flex-1 rounded-xl" onClick={() => navigate("/employer/edit-company")}>
+              <Button variant="default" size="sm" className="flex-1 rounded-xl" onClick={() => navigate(ownEditPath)}>
                 {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company"}
               </Button>
             ) : (
@@ -242,7 +243,7 @@ const CompanyProfile = () => {
                 {lang === "my" ? "ဤကုမ္ပဏီသည် ဖော်ပြချက် ထည့်မထားသေးပါ" : "This company hasn't added details yet"}
               </p>
               {isOwn && (
-                <Button variant="outline" size="sm" className="mt-3 rounded-xl" onClick={() => navigate("/employer/edit-company")}>
+                <Button variant="outline" size="sm" className="mt-3 rounded-xl" onClick={() => navigate(ownEditPath)}>
                   {lang === "my" ? "အချက်အလက် ဖြည့်ရန်" : "Add details"}
                 </Button>
               )}
