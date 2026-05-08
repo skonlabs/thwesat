@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 import { pickLocalized } from "@/lib/i18n";
 import { shareJobLink } from "@/lib/share-job";
+import MentorCoachCue from "@/components/MentorCoachCue";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
