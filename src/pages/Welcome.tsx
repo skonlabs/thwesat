@@ -30,13 +30,13 @@ const Welcome = () => {
         </motion.h1>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="mb-2 text-lg font-medium text-foreground">
-          {lang === "my" ? "ဘယ်နေရာမှာမဆို အလုပ်လုပ်၊ နေရာတိုင်းမှာ မိသားစုလို ခံစားပါ" : "Work Anywhere, Belong Everywhere"}
+          {lang === "my" ? "သင့်အသက်မွေးဝမ်းကျောင်း လည်ပတ်ရာ စနစ်" : "Your Career Operating System"}
         </motion.p>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }} className="mb-8 max-w-xs text-sm text-muted-foreground">
           {lang === "my"
-            ? "ကျွမ်းကျင်ပညာရှင်များအတွက် အလုပ်အကိုင်နှင့် အခွင့်အလမ်းများ ချိတ်ဆက်ပေးသည့် ပလက်ဖောင်း"
-            : "A platform connecting talent with remote work opportunities and career resources"}
+            ? "မြန်မာ့ပရော်ဖက်ရှင်နယ်များအတွက် အလုပ်ရှာဖွေရန်၊ လမ်းညွှန်ခံယူရန်နှင့် ကျွမ်းကျင်သူများ ငှားရမ်းရန် တစ်နေရာတည်း ပလက်ဖောင်း"
+            : "Where Myanmar's professionals find work, get mentored, and hire talent — all in one place"}
         </motion.p>
 
       </div>
