@@ -40,7 +40,7 @@ const AdminDashboard = () => {
     },
   });
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingTopups || 0) + (counts?.reports || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
@@ -50,6 +50,7 @@ const AdminDashboard = () => {
   ];
 
   const pendingItems = [
+    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups" }, count: counts?.pendingTopups || 0, path: "/admin/wallet", urgent: (counts?.pendingTopups || 0) > 0 },
     { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments", urgent: (counts?.pendingPayments || 0) > 0 },
     { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers", urgent: (counts?.pendingEmployers || 0) > 0 },
@@ -61,6 +62,7 @@ const AdminDashboard = () => {
     { label: { my: "အသုံးပြုသူများ", en: "Users" }, path: "/admin/users", icon: Users, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "အလုပ်ရှင်များ", en: "Employers" }, path: "/admin/employers", icon: Building2, desc: { my: "စစ်ဆေး", en: "Verify" } },
     { label: { my: "ငွေပေးချေမှု", en: "Payments" }, path: "/admin/payments", icon: CreditCard, desc: { my: "စစ်ဆေး", en: "Review" } },
+    { label: { my: "Wallet/Top-ups", en: "Wallet & Top-ups" }, path: "/admin/wallet", icon: WalletCards, desc: { my: "Credits", en: "Credits" } },
     { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: WalletCards, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
     { label: { my: "အလုပ်များ", en: "Jobs" }, path: "/admin/jobs", icon: Briefcase, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "စစ်ဆေးရေး", en: "Moderation" }, path: "/moderator", icon: Shield, desc: { my: "ပို့စ်/Report", en: "Posts & Reports" } },
