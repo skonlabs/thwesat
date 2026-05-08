@@ -149,7 +149,7 @@ export const S3_Profile: React.FC = () => {
                 { l: "Role", v: "Software Engineer" },
                 { l: "Experience", v: "4 years · Yangon → Bangkok" },
                 { l: "Skills", v: "React · Python · SQL · AWS · Docker" },
-                { l: "Languages", v: "English · မြန်မာ · ภาษาไทย" },
+                { l: "Languages", v: "English · Burmese · Thai" },
                 { l: "Visa-ready", v: "Singapore · Malaysia · Thailand" },
               ].map((row, i) => {
                 const a = fadeIn(frame, 50 + i * 7);
