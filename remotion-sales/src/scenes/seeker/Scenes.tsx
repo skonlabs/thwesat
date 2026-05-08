@@ -354,7 +354,7 @@ export const S7_Hired: React.FC = () => {
       <StageBg tone="emerald" />
       {confetti}
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: 80 }}>
-        <div style={{ transform: `scale(${big})`, fontSize: 140 }}>🎉</div>
+        <div style={{ transform: `scale(${big})`, width: 180, height: 180, borderRadius: "50%", background: C.gold, color: C.navy, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: display, fontSize: 110, fontWeight: 700, boxShadow: "0 30px 80px rgba(0,0,0,0.3)" }}>★</div>
         <div style={{ fontFamily: display, fontSize: 110, fontWeight: 700, color: C.paper, letterSpacing: -2, lineHeight: 1, opacity: interpolate(frame, [20, 40], [0, 1], { extrapolateRight: "clamp" }), marginTop: 10 }}>
           You're hired.
         </div>
