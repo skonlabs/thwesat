@@ -228,29 +228,32 @@ const EmployerApplications = () => {
           </div>
         )}
 
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        {/* Pipeline header — clear left-to-right candidate journey */}
+        <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+          {lang === "my" ? "ကိုယ်စားလှယ် Pipeline" : "Candidate Pipeline"}
+        </p>
+        <div className="mb-4 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
           {[
-            { label: lang === "my" ? "အားလုံး" : "Total", count: apps.filter((a: any) => a.status !== "placed").length, color: "text-foreground", filterVal: "all" },
-            { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "new" },
-            { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, color: "text-emerald", filterVal: "shortlisted" },
-          ].map((s) => (
-            <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
-              <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
-              <p className="text-[9px] text-muted-foreground">{s.label}</p>
-            </button>
-          ))}
-        </div>
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          {[
-            { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, color: "text-primary", filterVal: "interview" },
-            { label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: apps.filter((a: any) => a.status === "offered").length, color: "text-emerald", filterVal: "offered" },
-            { label: lang === "my" ? "ခန့်အပ်ပြီး" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, color: "text-emerald", filterVal: "placed" },
-          ].map((s) => (
-            <button key={s.label} onClick={() => updateFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
-              <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
-              <p className="text-[9px] text-muted-foreground">{s.label}</p>
-            </button>
-          ))}
+            { label: lang === "my" ? "အားလုံး" : "All", count: apps.filter((a: any) => a.status !== "placed").length, filterVal: "all", tone: "border-border" },
+            { label: lang === "my" ? "အသစ်" : "1. New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "new", tone: "border-primary/40" },
+            { label: lang === "my" ? "2. ရွေးချယ်" : "2. Shortlist", count: apps.filter((a: any) => a.status === "shortlisted").length, filterVal: "shortlisted", tone: "border-emerald/40" },
+            { label: lang === "my" ? "3. အင်တာဗျူး" : "3. Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "interview", tone: "border-amber-400" },
+            { label: lang === "my" ? "4. ကမ်းလှမ်း" : "4. Offered", count: apps.filter((a: any) => a.status === "offered").length, filterVal: "offered", tone: "border-emerald/40" },
+            { label: lang === "my" ? "5. ခန့်အပ်" : "5. Placed", count: apps.filter((a: any) => a.status === "placed").length, filterVal: "placed", tone: "border-emerald" },
+            { label: lang === "my" ? "ငြင်းပယ်" : "Rejected", count: apps.filter((a: any) => a.status === "rejected").length, filterVal: "rejected", tone: "border-destructive/40" },
+          ].map((s) => {
+            const active = filter === s.filterVal;
+            return (
+              <button
+                key={s.filterVal}
+                onClick={() => updateFilter(s.filterVal)}
+                className={`min-w-[78px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${s.tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
+              >
+                <p className="text-lg font-bold text-foreground leading-tight">{s.count}</p>
+                <p className="mt-0.5 text-[9px] font-medium text-muted-foreground leading-tight">{s.label}</p>
+              </button>
+            );
+          })}
         </div>
         {/* Show only end-state filters not represented by KPI cards above */}
         {filter === "rejected" && (
