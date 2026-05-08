@@ -68,6 +68,7 @@ import AdminEditGuide from "./pages/AdminEditGuide";
 import EmployerEditJob from "./pages/EmployerEditJob";
 import PublicProfile from "./pages/PublicProfile";
 import EmployerEditCompany from "./pages/EmployerEditCompany";
+import CompanyProfile from "./pages/CompanyProfile";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import SiteGate from "./components/SiteGate";
