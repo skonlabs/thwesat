@@ -53,6 +53,7 @@ const HomePage = () => {
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
       <div className="px-5 pt-5">
+        <WelcomeTourVideoCard variant="seeker" />
         <SeekerWelcomeTour />
         {showCompletionBar && (
           <motion.button
