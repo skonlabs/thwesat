@@ -85,6 +85,7 @@ const EmployerEditCompany = () => {
       await upsert.mutateAsync({
         company_name: companyName, company_website: website, company_linkedin: linkedin,
         company_description: description, industry, company_size: companySize, hq_country: hqCountry,
+        full_address: fullAddress, what_we_do: whatWeDo, mission, vision, benefits,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
