@@ -144,6 +144,7 @@ export const Caption: React.FC<{
           color,
           letterSpacing: -1.5,
           maxWidth: 1100,
+          whiteSpace: "pre-line",
         }}
       >
         {title}
