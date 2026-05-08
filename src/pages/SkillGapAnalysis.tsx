@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+import MentorCoachCue from "@/components/MentorCoachCue";
 
 const targetRoles = [
   { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
@@ -384,6 +385,8 @@ const SkillGapAnalysis = () => {
                     ))}
                   </div>
                 </div>
+
+                <MentorCoachCue variant="skill" context={selectedRole} />
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => { setStep(1); setSelectedSkills([]); setSelectedRole(""); }} className="flex-1">

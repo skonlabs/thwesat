@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
 import { pickLocalized } from "@/lib/i18n";
 import { shareJobLink } from "@/lib/share-job";
+import MentorCoachCue from "@/components/MentorCoachCue";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -464,6 +465,13 @@ const JobDetail = () => {
           <p className="mt-4 text-center text-xs text-muted-foreground">
             👥 {lang === "my" ? `လျှောက်ထားသူ ${job.applicant_count || 0} ဦး` : `${job.applicant_count || 0} applicants`}
           </p>
+
+          <div className="mt-5">
+            <MentorCoachCue
+              variant={myApplication ? "interview" : "applied"}
+              context={displayTitle}
+            />
+          </div>
         </motion.div>
       </div>
 

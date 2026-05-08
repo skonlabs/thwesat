@@ -11,6 +11,7 @@ import { useAllProfiles } from "@/hooks/use-profiles";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
+import MentorCoachCue from "@/components/MentorCoachCue";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
@@ -126,6 +127,10 @@ const HomePage = () => {
               <p className="py-6 text-center text-xs text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
             )}
           </div>
+        </div>
+
+        <div className="mt-6">
+          <MentorCoachCue variant={completionPct < 60 ? "profile" : "general"} />
         </div>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">

@@ -12,6 +12,7 @@ import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useSavedJobs } from "@/hooks/use-jobs";
 import { useQuery } from "@tanstack/react-query";
+import MentorCoachCue from "@/components/MentorCoachCue";
 
 const toneOptions = [
   { value: "professional", labelMy: "ပရော်ဖက်ရှင်နယ်", labelEn: "Professional" },
@@ -564,6 +565,8 @@ const CoverLetterGenerator = () => {
                 <ChevronLeft className="h-4 w-4" />
                 {lang === "my" ? "အသက်မွေးမှု ကိရိယာများသို့ ပြန်သွားရန်" : "Back to Career Tools"}
               </Button>
+
+              <MentorCoachCue variant="letter" context={form.jobTitle} />
             </motion.div>
           )}
         </AnimatePresence>
