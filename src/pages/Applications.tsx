@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { formatCurrencyRange } from "@/lib/currency";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
 import ListSkeleton from "@/components/ListSkeleton";
+import MentorCoachCue from "@/components/MentorCoachCue";
 
 const NEW_APPLICATION_STATUSES = ["applied", "submitted"];
 const INTERVIEW_APPLICATION_STATUSES = ["interview", "interviewed"];
