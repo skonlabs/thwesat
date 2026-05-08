@@ -446,17 +446,65 @@ const EmployerApplications = () => {
 
 
               <div className="border-t border-border pt-4">
-                <p className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အခြေအနေ ပြောင်းရန်" : "Update Status"}</p>
-                <div className="flex flex-wrap gap-2">
-                  {statusFlow.filter(s => s !== selectedStatus).map(s => (
-                    <Button key={s} variant="outline" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
-                      onClick={() => { if (s === "placed") setShowPlacement(true); else if (s === "interview") handleStatusUpdate(selected.id, "interview"); else handleStatusUpdate(selected.id, s); }}>
-                      {lang === "my" ? statusConfig[s]?.label.my : statusConfig[s]?.label.en}
+                <p className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "Pipeline သို့ ရွှေ့ပြောင်းရန်" : "Move through pipeline"}</p>
+                <p className="mb-3 text-[10px] text-muted-foreground">
+                  {lang === "my"
+                    ? "လက်ရှိအဆင့်ကို ရှေ့သို့/နောက်သို့ ပြောင်းနိုင်သည်"
+                    : "Move this candidate to the next stage, or step back if needed."}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Forward action — primary */}
+                  {selectedStatus !== "shortlisted" && selectedStatus !== "interview" && selectedStatus !== "offered" && selectedStatus !== "placed" && (
+                    <Button variant="default" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                      onClick={() => handleStatusUpdate(selected.id, "shortlisted")}>
+                      ✓ {lang === "my" ? "ရွေးချယ်ရန်" : "Shortlist"}
                     </Button>
-                  ))}
-                  {selected.status !== "rejected" && (
-                    <Button variant="destructive" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending} onClick={() => setShowReject(true)}>
-                      {lang === "my" ? "ငြင်းပယ်" : "Reject"}
+                  )}
+                  {selectedStatus === "shortlisted" && (
+                    <Button variant="default" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                      onClick={() => handleStatusUpdate(selected.id, "interview")}>
+                      📅 {lang === "my" ? "အင်တာဗျူး ချိန်းရန်" : "Schedule Interview"}
+                    </Button>
+                  )}
+                  {selectedStatus === "interview" && (
+                    <>
+                      <Button variant="default" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                        onClick={() => handleStatusUpdate(selected.id, "offered")}>
+                        ✉ {lang === "my" ? "ကမ်းလှမ်းရန်" : "Make Offer"}
+                      </Button>
+                      <Button variant="outline" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                        onClick={() => handleStatusUpdate(selected.id, "shortlisted")}>
+                        ← {lang === "my" ? "Interview မှ ဖယ်ရှား" : "Remove from Interview"}
+                      </Button>
+                      <Button variant="outline" size="sm" className="col-span-2 rounded-lg text-xs" disabled={updateStatus.isPending}
+                        onClick={() => handleStatusUpdate(selected.id, "interview")}>
+                        🕒 {lang === "my" ? "အင်တာဗျူး အချိန်ပြောင်း" : "Reschedule Interview"}
+                      </Button>
+                    </>
+                  )}
+                  {selectedStatus === "offered" && (
+                    <>
+                      <Button variant="default" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                        onClick={() => setShowPlacement(true)}>
+                        ✓ {lang === "my" ? "ခန့်အပ် မှတ်တမ်းတင်" : "Mark Placed"}
+                      </Button>
+                      <Button variant="outline" size="sm" className="rounded-lg text-xs" disabled={updateStatus.isPending}
+                        onClick={() => handleStatusUpdate(selected.id, "interview")}>
+                        ← {lang === "my" ? "Interview သို့ ပြန်" : "Back to Interview"}
+                      </Button>
+                    </>
+                  )}
+                  {/* Always-available steps to jump back */}
+                  {selectedStatus === "shortlisted" && (
+                    <Button variant="ghost" size="sm" className="rounded-lg text-xs text-muted-foreground" disabled={updateStatus.isPending}
+                      onClick={() => handleStatusUpdate(selected.id, "viewed")}>
+                      ← {lang === "my" ? "ပြန်ဆုတ်ရန်" : "Move back"}
+                    </Button>
+                  )}
+                  {/* Reject — destructive, always available unless already rejected/placed */}
+                  {selected.status !== "rejected" && selected.status !== "placed" && (
+                    <Button variant="destructive" size="sm" className={`rounded-lg text-xs ${selectedStatus === "interview" || selectedStatus === "offered" ? "col-span-2" : ""}`} disabled={updateStatus.isPending} onClick={() => setShowReject(true)}>
+                      ✕ {lang === "my" ? "ငြင်းပယ်" : "Reject"}
                     </Button>
                   )}
                 </div>
