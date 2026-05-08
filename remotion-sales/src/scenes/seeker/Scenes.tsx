@@ -125,7 +125,7 @@ export const S3_Profile: React.FC = () => {
           </div>
           <div style={{ marginTop: 24, display: "flex", gap: 10, flexWrap: "wrap", opacity: fadeIn(frame, 50) }}>
             <Pill bg={C.gold} fg={C.navy}>✓ 18 skills extracted</Pill>
-            <Pill bg="rgba(255,255,255,0.12)" fg={C.paper}>✓ Translated to မြန်မာ</Pill>
+            <Pill bg="rgba(255,255,255,0.12)" fg={C.paper}>✓ Translated to Burmese</Pill>
             <Pill bg="rgba(255,255,255,0.12)" fg={C.paper}>✓ ATS-optimized</Pill>
           </div>
         </div>
