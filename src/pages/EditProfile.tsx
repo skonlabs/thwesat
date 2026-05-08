@@ -929,6 +929,7 @@ const EditProfile = () => {
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Save Button */}
         <div className="mx-auto w-full max-w-md pt-2 pb-24">
