@@ -38,7 +38,7 @@ const statusConfig: Record<string, { label: { my: string; en: string }; color: s
   })
 );
 
-const statusFlow = ["shortlisted", "interview", "offered"];
+
 const rejectionReasons = [
   { my: "အတွေ့အကြုံ မလုံလောက်", en: "Not enough experience" },
   { my: "ကျွမ်းကျင်မှု မကိုက်ညီ", en: "Skills mismatch" },
