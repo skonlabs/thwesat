@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
-import InviteFriendsCard from "@/components/InviteFriendsCard";
+
 import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
@@ -196,8 +196,6 @@ const AgentDashboard = () => {
           </div>
           <span className="text-xs text-muted-foreground">→</span>
         </button>
-
-        <InviteFriendsCard />
       </div>
     </div>
   );
