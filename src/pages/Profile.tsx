@@ -360,19 +360,19 @@ const Profile = () => {
               <div className="mt-3 space-y-2">
                 {(employerProfile?.what_we_do || employerProfile?.company_description) && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ကျွန်ုပ်တို့ဘာလုပ်သလဲ" : "What We Do"}</p>
+                    <p className="text-[10px] font-semibold uppercase text-muted-foreground">{lang === "my" ? "ကျွန်ုပ်တို့ဘာလုပ်သလဲ" : "What We Do"}</p>
                     <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile?.what_we_do || employerProfile?.company_description}</p>
                   </div>
                 )}
                 {employerProfile?.mission && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ရည်မှန်းချက်" : "Mission"}</p>
+                    <p className="text-[10px] font-semibold uppercase text-muted-foreground">{lang === "my" ? "ရည်မှန်းချက်" : "Mission"}</p>
                     <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile.mission}</p>
                   </div>
                 )}
                 {employerProfile?.vision && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "မျှော်မှန်းချက်" : "Vision"}</p>
+                    <p className="text-[10px] font-semibold uppercase text-muted-foreground">{lang === "my" ? "မျှော်မှန်းချက်" : "Vision"}</p>
                     <p className="whitespace-pre-line text-xs leading-relaxed text-foreground/85">{employerProfile.vision}</p>
                   </div>
                 )}
