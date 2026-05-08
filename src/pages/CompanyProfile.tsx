@@ -16,7 +16,7 @@ const CompanyProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { startConversation } = useStartConversation();
 
   const { data, isLoading } = useQuery({
@@ -63,7 +63,7 @@ const CompanyProfile = () => {
   const e = data.employer as any;
   const p = data.profile as any;
   const isOwn = user?.id === id;
-  const ownEditPath = e?.contact_email && !e?.company_name ? "/agent/profile" : "/employer/edit-company";
+  const ownEditPath = profile?.primary_role === "agent" ? "/agent/profile" : "/employer/edit-company";
   const logoUrl = e.logo_url || p?.avatar_url;
   const initials = (e.company_name || "C").slice(0, 2).toUpperCase();
 
