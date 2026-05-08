@@ -31,6 +31,7 @@ const Profile = () => {
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
   const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
+  const { data: employerProfile } = useEmployerProfile();
   const profileRole = (profile?.primary_role as UserRole) || undefined;
   const effectiveRole = allowedRoles.includes(role)
     ? role
