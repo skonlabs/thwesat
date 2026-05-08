@@ -415,13 +415,17 @@ const JobDetail = () => {
           )}
 
           <div className="mt-5 rounded-xl border border-border bg-card p-4 shadow-card">
-            <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => job.employer_id && navigate(`/company/${job.employer_id}`)}
+              className="flex w-full items-center gap-3 text-left transition-opacity hover:opacity-80 active:opacity-60"
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8">
                 <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-sm font-semibold text-foreground">{employerCompanyName}</h3>
+                  <h3 className="text-sm font-semibold text-foreground underline-offset-4 hover:underline">{employerCompanyName}</h3>
                   {employerDetails?.employer?.is_verified && (
                     <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
                       <CheckCircle className="h-2.5 w-2.5" strokeWidth={2} />
@@ -431,7 +435,8 @@ const JobDetail = () => {
                 </div>
                 <p className="text-xs text-muted-foreground">{employerHeadline}</p>
               </div>
-            </div>
+              <span className="text-[11px] font-medium text-primary">{lang === "my" ? "ကြည့်ရန်" : "View →"}</span>
+            </button>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
               <div className="rounded-lg bg-muted/40 px-3 py-2">
