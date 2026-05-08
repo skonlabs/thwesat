@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Pause } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useUserRoles } from "@/hooks/use-user-roles";
 
 type Variant = "seeker" | "agent";
 
@@ -38,16 +37,11 @@ const storageKey = (variant: Variant, userId?: string) => `thwesat_tour_video_${
 const WelcomeTourVideoCard = ({ variant, forceOpen, onClose }: Props) => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-  const { hasRole } = useUserRoles();
   const copy = COPY[variant];
   const [dismissed, setDismissed] = useState(true);
   const [playerOpen, setPlayerOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-
-  // Hard role guard: seeker tour only for jobseekers, agent tour only for agents.
-  // Prevents the wrong tour from ever rendering on the wrong dashboard.
-  const roleAllowed = variant === "seeker" ? hasRole("jobseeker") : hasRole("agent");
 
   useEffect(() => {
     if (forceOpen) {
@@ -86,7 +80,6 @@ const WelcomeTourVideoCard = ({ variant, forceOpen, onClose }: Props) => {
     }
   };
 
-  if (!roleAllowed && !forceOpen) return null;
   if (dismissed && !forceOpen) return null;
 
   return (
