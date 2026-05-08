@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 import InviteFriendsCard from "@/components/InviteFriendsCard";
+import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 
@@ -78,6 +79,7 @@ const AgentDashboard = () => {
       <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
 
       <div className="px-5">
+        <WelcomeTourVideoCard variant="agent" />
         {/* Profile completion (only if incomplete) */}
         {!empProfile?.is_verified && (
           <motion.button
