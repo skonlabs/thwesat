@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, Pause } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 type Variant = "seeker" | "agent";
 
