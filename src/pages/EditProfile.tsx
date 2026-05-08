@@ -260,6 +260,7 @@ const EditProfile = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, refreshProfile } = useAuth();
+  const isHiringRole = profile?.primary_role === "employer" || profile?.primary_role === "agent";
 
   const [isDirty, setIsDirty] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; phone?: string; website?: string }>({});
@@ -629,10 +630,12 @@ const EditProfile = () => {
             </div>
             <Textarea value={bio} onChange={e => { setBio(e.target.value.slice(0, 500)); markDirty(); }} className="min-h-[80px] rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" maxLength={500} />
           </div>
-          <div>
-            <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
-            <Input value={experience} onChange={e => { setExperience(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
-          </div>
+          {!isHiringRole && (
+            <div>
+              <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အတွေ့အကြုံ (နှစ်)" : "Experience (years)"}</Label>
+              <Input value={experience} onChange={e => { setExperience(e.target.value); markDirty(); }} className="h-11 rounded-xl border-border bg-muted/30 text-sm focus-visible:ring-primary/30" />
+            </div>
+          )}
         </motion.div>
 
         {/* Profile Visibility */}
@@ -660,6 +663,7 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Preferred Work Type */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15">
@@ -675,6 +679,7 @@ const EditProfile = () => {
             ))}
           </div>
         </motion.div>
+        )}
 
         {/* Location & Contact */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4 rounded-2xl border border-border bg-card p-5">
@@ -789,6 +794,7 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Remote Work Readiness */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
@@ -815,8 +821,10 @@ const EditProfile = () => {
             ))}
           </div>
         </motion.div>
+        )}
 
         {/* Skills */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -868,8 +876,10 @@ const EditProfile = () => {
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Languages */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -919,6 +929,7 @@ const EditProfile = () => {
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Save Button */}
         <div className="mx-auto w-full max-w-md pt-2 pb-24">
