@@ -794,6 +794,7 @@ const EditProfile = () => {
         </motion.div>
 
         {/* Remote Work Readiness */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
