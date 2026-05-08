@@ -70,7 +70,7 @@ export const StatusBar: React.FC<{ title?: string }> = ({ title }) => (
 /** App header mock */
 export const AppHeader: React.FC<{ title: string; sub?: string }> = ({ title, sub }) => (
   <div style={{ padding: "44px 24px 12px", borderBottom: `1px solid ${C.border}` }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: 1.2 }}>ThweSone</div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, textTransform: "uppercase", letterSpacing: 1.2 }}>ThweSat</div>
     <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, marginTop: 2, fontFamily: display }}>{title}</div>
     {sub && <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{sub}</div>}
   </div>
@@ -256,6 +256,6 @@ export const Logo: React.FC<{ color?: string; size?: number }> = ({ color = C.pa
     >
       ★
     </div>
-    ThweSone
+    ThweSat
   </div>
 );
