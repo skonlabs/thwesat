@@ -4,13 +4,10 @@ import { fade } from "@remotion/transitions/fade";
 import { wipe } from "@remotion/transitions/wipe";
 import { S1_Hook, S2_Onboard, S3_Profile, S4_CareerTools, S5_BrowseJobs, S6_ApplyMentor, S7_Hired } from "./scenes/seeker/Scenes";
 
-const D = 180;       // 6s at 30fps per scene (7 scenes = 42s)
-const TR = 18;       // ~0.6s overlap
-const SCENES = 7;
-// Total frames: SCENES*D - (SCENES-1)*TR
-export const SEEKER_DURATION = SCENES * D - (SCENES - 1) * TR; // = 1260 - 108 = 1152 (~38.4s)
-// Bump first/last scenes a bit so it lands at ~42s
-export const SEEKER_TOTAL = SEEKER_DURATION + 60; // Add buffer to last scene
+const D = 180;
+const TR = 18;
+// scenes: 210 + 180 + 180 + 200 + 180 + 210 + 210 = 1370; minus 6 transitions of 18 = 1262 frames (42.07s @30fps)
+export const SEEKER_DURATION = 1262;
 
 const tr = () => ({
   presentation: fade(),
