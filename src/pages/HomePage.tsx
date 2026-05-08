@@ -129,6 +129,10 @@ const HomePage = () => {
           </div>
         </div>
 
+        <div className="mt-6">
+          <MentorCoachCue variant={completionPct < 60 ? "profile" : "general"} />
+        </div>
+
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5">
           <h3 className="mb-4 text-sm font-bold text-primary-foreground">
             {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
