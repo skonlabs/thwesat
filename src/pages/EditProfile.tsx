@@ -876,8 +876,10 @@ const EditProfile = () => {
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Languages */}
+        {!isHiringRole && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-border bg-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
