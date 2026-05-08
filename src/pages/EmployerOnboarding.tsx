@@ -176,6 +176,7 @@ const EmployerOnboarding = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "ဆက်သွယ်ရန် + ငွေပေးချေမှု" : "Contact & Payment"}</h2>
             <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</label><Input value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="h-11 rounded-xl" /></div>
+            <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "လိပ်စာ အပြည့်အစုံ" : "Full Address"}</label><Textarea value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="min-h-[60px] rounded-xl" placeholder={lang === "my" ? "လမ်း၊ မြို့၊ ပြည်နယ်" : "Street, city, state, postal code"} /></div>
             {isAgent && (
               <div><label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ *" : "Payment Methods *"}</label>
                 <div className="flex flex-wrap gap-2">{paymentMethods.map(m => (
