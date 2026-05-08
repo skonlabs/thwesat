@@ -312,6 +312,43 @@ export function useEmployerApplications(jobId?: string) {
   });
 }
 
+/**
+ * Per-job applicant breakdown for the current employer/agent.
+ * Returns a Map of jobId -> { total, new, shortlisted, interview, offered, placed, rejected }.
+ * Used by EmployerJobs to show an at-a-glance pipeline per listing.
+ */
+export function useEmployerJobApplicantBreakdown() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["employer-job-applicant-breakdown", user?.id],
+    queryFn: async () => {
+      const map = new Map<string, { total: number; new: number; shortlisted: number; interview: number; offered: number; placed: number; rejected: number }>();
+      if (!user) return map;
+      const { data, error } = await supabase
+        .from("applications")
+        .select("status, job_id, jobs!inner(employer_id)")
+        .eq("jobs.employer_id", user.id);
+      if (error) throw error;
+      for (const row of (data || []) as any[]) {
+        const id = row.job_id as string;
+        const cur = map.get(id) || { total: 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 };
+        const s = row.status as string;
+        if (s !== "withdrawn") cur.total++;
+        if (s === "applied" || s === "submitted" || s === "viewed") cur.new++;
+        else if (s === "shortlisted") cur.shortlisted++;
+        else if (s === "interview" || s === "interviewed") cur.interview++;
+        else if (s === "offered") cur.offered++;
+        else if (s === "placed") cur.placed++;
+        else if (s === "rejected") cur.rejected++;
+        map.set(id, cur);
+      }
+      return map;
+    },
+    enabled: !!user,
+    refetchInterval: 30000,
+  });
+}
+
 export function usePendingJobs() {
   return useQuery({
     queryKey: ["pending-jobs"],
