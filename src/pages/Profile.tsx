@@ -332,6 +332,65 @@ const Profile = () => {
           </button>
         </motion.div>
 
+        {/* Company Info — Employer / Agent */}
+        {(effectiveRole === "employer" || effectiveRole === "agent") && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
+            {employerProfile?.cover_url && (
+              <img src={employerProfile.cover_url} alt="" className="h-20 w-full object-cover" />
+            )}
+            <div className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
+                  {employerProfile?.logo_url ? (
+                    <img src={employerProfile.logo_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Briefcase className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-foreground">
+                    {employerProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီ မသတ်မှတ်ရသေးပါ" : "Company not set yet")}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {[employerProfile?.industry, employerProfile?.company_size && `${employerProfile.company_size} ${lang === "my" ? "ဦး" : "people"}`, employerProfile?.hq_country].filter(Boolean).join(" · ") || (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add company details")}
+                  </p>
+                </div>
+              </div>
+              {(employerProfile?.what_we_do || employerProfile?.company_description) && (
+                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  {employerProfile?.what_we_do || employerProfile?.company_description}
+                </p>
+              )}
+              <div className="mt-3 grid grid-cols-1 gap-1.5 text-[11px]">
+                {employerProfile?.full_address && (
+                  <div className="flex items-start gap-1.5 text-muted-foreground"><MapPin className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={1.5} /><span className="line-clamp-2">{employerProfile.full_address}</span></div>
+                )}
+                {employerProfile?.company_website && (
+                  <div className="flex items-center gap-1.5 text-muted-foreground"><Globe className="h-3 w-3 shrink-0" strokeWidth={1.5} /><span className="truncate">{employerProfile.company_website.replace(/^https?:\/\//, "")}</span></div>
+                )}
+              </div>
+              {Array.isArray(employerProfile?.benefits) && employerProfile.benefits.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {employerProfile.benefits.slice(0, 4).map((b: string) => (
+                    <span key={b} className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">✓ {b}</span>
+                  ))}
+                  {employerProfile.benefits.length > 4 && <span className="text-[10px] text-muted-foreground">+{employerProfile.benefits.length - 4}</span>}
+                </div>
+              )}
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate("/employer/edit-company")}>
+                  <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company"}
+                </Button>
+                {employerProfile?.id && (
+                  <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(`/company/${employerProfile.id}`)}>
+                    <Eye className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ကြည့်ရှုရန်" : "View Profile"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Profile Boost */}
         {effectiveRole === "jobseeker" && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-50 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/10 p-4">
