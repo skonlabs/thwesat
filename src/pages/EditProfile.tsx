@@ -260,6 +260,7 @@ const EditProfile = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { profile, refreshProfile } = useAuth();
+  const isHiringRole = profile?.primary_role === "employer" || profile?.primary_role === "agent";
 
   const [isDirty, setIsDirty] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; phone?: string; website?: string }>({});
