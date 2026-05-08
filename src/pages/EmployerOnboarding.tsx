@@ -62,8 +62,6 @@ const EmployerOnboarding = () => {
     }
   };
 
-  const finishPath = isAgent ? "/dashboard" : "/dashboard";
-
   const handleSubmit = async () => {
     // Issue #18: server-side uniqueness check to prevent race condition
     const { data: existing } = await supabase
@@ -90,7 +88,7 @@ const EmployerOnboarding = () => {
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
       });
-      navigate(finishPath);
+      navigate("/dashboard");
     } catch {
       toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error", variant: "destructive" });
     }
