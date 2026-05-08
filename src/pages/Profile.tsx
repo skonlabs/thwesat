@@ -12,6 +12,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useReferralRewards } from "@/hooks/use-app-config";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
+import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useQuery } from "@tanstack/react-query";
