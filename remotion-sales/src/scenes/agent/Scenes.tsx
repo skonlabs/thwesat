@@ -298,7 +298,7 @@ export const A7_Payout: React.FC = () => {
             <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, letterSpacing: 1.5, textTransform: "uppercase" }}>Payment Proof</div>
             <div style={{ fontFamily: display, fontSize: 38, fontWeight: 700, color: C.ink, marginTop: 8 }}>$1,800</div>
             <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Globe Telecom · Bank transfer</div>
-            <div style={{ marginTop: 16, height: 110, background: "#FAF7F2", borderRadius: 10, border: `1px dashed ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.muted, fontSize: 12 }}>📎 receipt.png uploaded</div>
+            <div style={{ marginTop: 16, height: 110, background: "#FAF7F2", borderRadius: 10, border: `1px dashed ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.muted, fontSize: 12 }}>◰  receipt.png uploaded</div>
             <div style={{ marginTop: 14, padding: 10, background: "#FFF7E5", color: C.goldDeep, borderRadius: 8, fontSize: 12, fontWeight: 800, textAlign: "center" }}>Pending admin verification…</div>
           </div>
 

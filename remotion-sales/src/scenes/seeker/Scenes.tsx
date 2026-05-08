@@ -283,8 +283,8 @@ export const S6_ApplyMentor: React.FC = () => {
             <div style={{ padding: 22 }}>
               <div style={{ background: "#fff", borderRadius: 12, padding: 14, border: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Attached</div>
-                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.ink }}>📄 Tailored CV.pdf</div>
-                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: C.ink }}>✉️ Cover Letter.pdf</div>
+                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.ink }}>■ Tailored CV.pdf</div>
+                <div style={{ marginTop: 4, fontSize: 13, fontWeight: 700, color: C.ink }}>■ Cover Letter.pdf</div>
               </div>
               <div style={{ marginTop: 16, padding: 16, background: C.navy, color: C.paper, borderRadius: 12, textAlign: "center", fontWeight: 800 }}>Submit Application</div>
               {frame > 50 && (

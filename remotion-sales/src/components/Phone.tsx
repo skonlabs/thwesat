@@ -254,7 +254,7 @@ export const Logo: React.FC<{ color?: string; size?: number }> = ({ color = C.pa
         fontSize: size * 0.6,
       }}
     >
-      ✦
+      ★
     </div>
     ThweSone
   </div>
