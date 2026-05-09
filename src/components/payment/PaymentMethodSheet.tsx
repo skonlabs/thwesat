@@ -7,7 +7,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
-import { usePaymentAccounts } from "@/hooks/use-app-config";
+import { useReceivingAccount } from "@/hooks/use-app-config";
 import PaymentQR from "@/components/payment/PaymentQR";
 
 export type PaymentMethod = "kbzpay" | "cbpay" | "wavepay" | "ayapay";
@@ -76,11 +76,13 @@ const methodMeta: Record<PaymentMethod, MethodMeta> = {
 const allMethods: PaymentMethod[] = ["kbzpay", "cbpay", "wavepay", "ayapay"];
 
 const buildAccountInfo = (
-  method: PaymentMethod,
-  acc: { account_name?: string; account_number?: string; account_email?: string } | undefined,
+  acc: { account_name?: string; account_number?: string; account_email?: string; method_label?: string } | undefined,
 ): { label: { en: string; my: string }; value: string }[] => {
   if (!acc) return [];
   const info: { label: { en: string; my: string }; value: string }[] = [];
+  if (acc.method_label) {
+    info.push({ label: { en: "Method", my: "နည်းလမ်း" }, value: acc.method_label });
+  }
   if (acc.account_number) {
     info.push({ label: { en: "Phone", my: "ဖုန်းနံပါတ်" }, value: acc.account_number });
   }
@@ -107,7 +109,7 @@ const PaymentMethodSheet = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const createPayment = useCreatePaymentRequest();
-  const { data: accounts } = usePaymentAccounts();
+  const { data: account } = useReceivingAccount();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<"select" | "instructions" | "upload" | "done">("select");
@@ -172,7 +174,7 @@ const PaymentMethodSheet = ({
   };
 
   const config = selected ? methodMeta[selected] : null;
-  const accountInfo = selected ? buildAccountInfo(selected, accounts?.[selected]) : [];
+  const accountInfo = selected ? buildAccountInfo(account) : [];
 
   const displayAmount = `${amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
 
@@ -259,12 +261,9 @@ const PaymentMethodSheet = ({
                 ))}
               </div>
 
-              {/* QR Code */}
-              {selected && (accounts?.[selected]?.qr_url || accounts?.[selected]?.account_number) && (
-                <PaymentQR
-                  qrUrl={accounts?.[selected]?.qr_url}
-                  value={accounts?.[selected]?.account_number}
-                />
+              {/* QR Code (single global receiving account) */}
+              {(account?.qr_url || account?.account_number) && (
+                <PaymentQR qrUrl={account?.qr_url} value={account?.account_number} />
               )}
 
               {/* Account info */}

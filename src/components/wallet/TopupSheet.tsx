@@ -7,7 +7,7 @@ import { Upload, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
-import { usePaymentAccounts } from "@/hooks/use-app-config";
+import { useReceivingAccount } from "@/hooks/use-app-config";
 import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
 import PaymentQR from "@/components/payment/PaymentQR";
 import { SUPPORTED_PAYMENT_METHODS, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
@@ -28,7 +28,7 @@ const METHODS: Array<{ key: string; label: string }> = SUPPORTED_PAYMENT_METHODS
 const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-  const { data: accounts } = usePaymentAccounts();
+  const { data: acc } = useReceivingAccount();
   const [pkg, setPkg] = useState<CreditPackage | undefined>(initialPackage);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState(false);
@@ -51,7 +51,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
     }
   }, [open, initialPackage]);
 
-  const acc = accounts?.[method as keyof typeof accounts];
+  // single global receiving account is loaded above as `acc`
 
   // Resolve effective top-up amount/credits depending on package vs custom
   const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
