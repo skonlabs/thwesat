@@ -65,3 +65,24 @@ export function useTelegramBot() {
 export function useReferralRewards() {
   return useAppConfig<ReferralRewardsConfig>("referral_rewards");
 }
+
+export function useUpdateAppConfig<T = any>(key: string) {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (value: T) => {
+      const { error } = await (supabase as any)
+        .from("app_config")
+        .upsert(
+          { key, value, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+          { onConflict: "key" },
+        );
+      if (error) throw error;
+      return value;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["app-config", key] });
+    },
+  });
+}
+
