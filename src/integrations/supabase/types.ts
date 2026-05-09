@@ -826,6 +826,7 @@ export type Database = {
           role_type: string | null
           salary_max: number | null
           salary_min: number | null
+          salary_negotiable: boolean
           skills: string[] | null
           status: string | null
           title: string
@@ -863,6 +864,7 @@ export type Database = {
           role_type?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          salary_negotiable?: boolean
           skills?: string[] | null
           status?: string | null
           title: string
@@ -900,6 +902,7 @@ export type Database = {
           role_type?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          salary_negotiable?: boolean
           skills?: string[] | null
           status?: string | null
           title?: string
