@@ -68,7 +68,7 @@ const EmployerPostJob = () => {
   const [contractDurationNote, setContractDurationNote] = useState("");
   const spend = useSpendCredits();
   const postPrice = useActionPrice("job_post");
-  const featurePrice = useActionPrice("feature_job_upgrade");
+  const featurePrice = useActionPrice("featured_job");
   const { data: wallet } = useWallet();
   const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
   const balance = wallet?.balance_credits ?? 0;
