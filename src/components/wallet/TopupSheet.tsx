@@ -51,7 +51,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
     }
   }, [open, initialPackage]);
 
-  const acc = accounts?.[method as keyof typeof accounts];
+  // single global receiving account is loaded above as `acc`
 
   // Resolve effective top-up amount/credits depending on package vs custom
   const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
