@@ -295,12 +295,25 @@ const EmployerPostJob = () => {
                 {salaryMaxError && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
               </div>
             </div>
-            {(roleType === "hybrid" || roleType === "onsite") && (
-              <div>
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Country"}</label>
-                <Input value={locationCountry} onChange={e => setLocationCountry(e.target.value)} className="h-11 rounded-xl" />
-              </div>
-            )}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">
+                {lang === "my" ? "တိုင်းပြည်" : "Country"}
+                {(roleType === "hybrid" || roleType === "onsite") ? " *" : ""}
+              </label>
+              <select
+                value={locationCountry}
+                onChange={e => setLocationCountry(e.target.value)}
+                className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground"
+              >
+                <option value="">{lang === "my" ? "ရွေးချယ်ပါ" : "Select a country"}</option>
+                {HQ_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {(roleType === "remote_full" || roleType === "remote_contract") && (
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {lang === "my" ? "Remote ဖြစ်လျှင် ရွေးချယ်ရန် မလိုပါ" : "Optional for remote roles — helps timezone matching"}
+                </p>
+              )}
+            </div>
             {isContract && (
               <div className="space-y-2 rounded-xl border border-border bg-card p-4">
                 <label className="block text-xs font-semibold text-foreground">{lang === "my" ? "ကန်ထရိုက် ကြာချိန်" : "Contract Duration"}</label>
