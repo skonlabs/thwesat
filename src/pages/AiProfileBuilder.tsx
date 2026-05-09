@@ -91,15 +91,33 @@ const AiProfileBuilder = () => {
       setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
 
       // Await parse so parsed_text/parsed_data land on the cv_documents row
-      // before the user navigates away. Without await, the request gets killed
-      // on page unmount and personalized job matching has nothing to read.
+      // before the user navigates away.
       try {
-        const { error: parseError } = await supabase.functions.invoke("parse-cv", {
+        const { data: parseData, error: parseError } = await supabase.functions.invoke("parse-cv", {
           body: { file_path: filePath },
         });
-        if (parseError) console.warn("parse-cv failed:", parseError);
-      } catch (e) {
-        console.warn("parse-cv threw:", e);
+        if (parseError) {
+          console.error("parse-cv failed:", parseError);
+          toast({
+            title: lang === "my" ? "CV ပြန်ဆန်းစစ်ရန် မအောင်မြင်ပါ" : "CV parsing failed",
+            description: parseError.message || String(parseError),
+            variant: "destructive",
+          });
+        } else if ((parseData as any)?.error) {
+          console.error("parse-cv server error:", parseData);
+          toast({
+            title: lang === "my" ? "CV ပြန်ဆန်းစစ်ရန် မအောင်မြင်ပါ" : "CV parsing failed",
+            description: (parseData as any).error,
+            variant: "destructive",
+          });
+        }
+      } catch (e: any) {
+        console.error("parse-cv threw:", e);
+        toast({
+          title: lang === "my" ? "CV ပြန်ဆန်းစစ်ရန် မအောင်မြင်ပါ" : "CV parsing failed",
+          description: e?.message || String(e),
+          variant: "destructive",
+        });
       }
     } catch (err: any) {
       toast({ title: lang === "my" ? "တင်၍ မရပါ" : "Upload failed", description: err.message, variant: "destructive" });
