@@ -242,6 +242,36 @@ const EmployerPostJob = () => {
               <CategoryCombobox values={categories} onChange={setCategories} />
               <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အနည်းဆုံး တစ်ခု ရွေးပါ — အများဆုံး ၅ ခု" : "Pick at least one — up to 5 categories."}</p>
             </div>
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="block text-xs font-medium text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</label>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{skills.length}/{MAX_SKILLS}</span>
+              </div>
+              {skills.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                  {skills.map(s => (
+                    <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
+                      {s}
+                      <button type="button" onClick={() => removeSkill(s)} aria-label={`Remove ${s}`}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <Input
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addSkill(skillInput); }
+                  else if (e.key === "Backspace" && !skillInput && skills.length) removeSkill(skills[skills.length - 1]);
+                }}
+                onBlur={() => skillInput && addSkill(skillInput)}
+                placeholder={lang === "my" ? "ဥပမာ: React, English — Enter ခလုတ် နှိပ်ပါ" : "e.g. React, English — press Enter"}
+                className="h-11 rounded-xl"
+                disabled={skills.length >= MAX_SKILLS}
+              />
+            </div>
             <div className="mx-auto w-full max-w-md pt-2">
               <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || categories.length === 0}>
                 {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
