@@ -409,6 +409,13 @@ const EmployerPostJob = () => {
                 )}
               </div>
             )}
+            {applicationMethod === "email" && (
+              <div className="rounded-xl border border-border bg-muted/30 p-3 text-[11px] text-muted-foreground">
+                {lang === "my"
+                  ? "လျှောက်လွှာများကို သင့်အကောင့် အီးမေးလ်ထံ ပို့ပေးပါမည်။"
+                  : "Applications will be sent to your account email address."}
+              </div>
+            )}
             {requiresEmbassy && (
               <div className="flex items-start gap-2.5 rounded-xl bg-destructive/5 p-3">
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" strokeWidth={1.5} />
