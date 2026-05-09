@@ -281,20 +281,12 @@ const Settings = () => {
     {
       title: lang === "my" ? "အကြောင်းကြားချက်" : "Notifications",
       items: [
-        // Push toggle is wired to user_settings but the browser Push API + service worker
-        // dispatcher is not built yet. Keep it visible so the preference is captured for
-        // when delivery ships, but make it clear via toast if the user expects immediate effect.
-        { icon: Bell, label: lang === "my" ? "တွန်းအကြောင်းကြားချက်" : "Push Notifications", toggle: true, toggleValue: pushNotifications, onToggle: () => {
-          const v = !pushNotifications; setPushNotifications(v); persist({ push_notifications: v });
-          if (v) toast({ title: lang === "my" ? "မကြာမီ ရရှိမည်" : "Coming soon", description: lang === "my" ? "ဘရောင်ဇာ Push အကြောင်းကြားချက် မထွက်ရှိသေးပါ။ ယခုအချိန်တွင် Telegram သို့မဟုတ် အီးမေးလ်မှသာ အကြောင်းကြားမည်။" : "Browser push delivery isn't shipped yet. Notifications will continue via Telegram and email." });
-        } },
         { icon: Mail, label: lang === "my" ? "အီးမေးလ် အကြောင်းကြားချက်" : "Email Notifications", description: lang === "my" ? "လျှောက်လွှာ / မက်ဆေ့ချ် / ဘွတ်ကင် ရရှိသောအခါ အီးမေးလ် ပို့ပါ" : "Email me for new applications, messages & bookings", toggle: true, toggleValue: emailNotifications, onToggle: () => {
           const v = !emailNotifications; setEmailNotifications(v);
           localStorage.setItem("email_notifications_enabled", String(v));
           persist({ email_notifications: v } as any);
         } },
-        // Telegram toggle is Coming soon — disabled with a badge indicator.
-        { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် သတိပေးချက်" : "Telegram Alerts", value: lang === "my" ? "မကြာမီ ရရှိမည်" : "Coming soon", disabled: true, action: () => {} },
+        { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် ချိတ်ဆက်" : "Telegram", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "မချိတ်ဆက်ရသေး" : "Not linked"), action: () => setShowTelegram(true) },
       ],
     },
     {
@@ -302,9 +294,6 @@ const Settings = () => {
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
         { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
-        { icon: Fingerprint, label: lang === "my" ? "စက်ကို မှတ်ထားရန်" : "Remember Device", toggle: true, toggleValue: rememberDevice, onToggle: () => {
-          const v = !rememberDevice; setRememberDevice(v); persist({ remember_device: v });
-        } },
         ...(isJobSeeker ? [{ icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: activeToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) }] : []),
       ],
     },
