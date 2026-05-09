@@ -330,9 +330,17 @@ const Jobs = () => {
       </AnimatePresence>
 
       <div className="space-y-2.5 px-5 pb-24">
+        {personalize && sortedJobs.length > 0 && (
+          <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2">
+            <Sparkles className="h-3.5 w-3.5 text-gold-dark" strokeWidth={1.5} />
+            <p className="text-[11px] text-foreground/80">
+              {lang === "my" ? "သင့်ပရိုဖိုင်နှင့် ကိုက်ညီသော အလုပ်များ ဦးစွာပြထားသည်" : "Sorted by best match for your profile & resume"}
+            </p>
+          </div>
+        )}
         {isLoading ? (
           <ListSkeleton count={5} />
-        ) : filteredJobs.length === 0 ? (
+        ) : sortedJobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
@@ -348,7 +356,7 @@ const Jobs = () => {
             )}
           </div>
         ) : (
-          filteredJobs.map((job, i) => {
+          sortedJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
             const application = applications.find((a: any) => a.job_id === job.id);
