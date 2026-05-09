@@ -76,11 +76,13 @@ const methodMeta: Record<PaymentMethod, MethodMeta> = {
 const allMethods: PaymentMethod[] = ["kbzpay", "cbpay", "wavepay", "ayapay"];
 
 const buildAccountInfo = (
-  method: PaymentMethod,
-  acc: { account_name?: string; account_number?: string; account_email?: string } | undefined,
+  acc: { account_name?: string; account_number?: string; account_email?: string; method_label?: string } | undefined,
 ): { label: { en: string; my: string }; value: string }[] => {
   if (!acc) return [];
   const info: { label: { en: string; my: string }; value: string }[] = [];
+  if (acc.method_label) {
+    info.push({ label: { en: "Method", my: "နည်းလမ်း" }, value: acc.method_label });
+  }
   if (acc.account_number) {
     info.push({ label: { en: "Phone", my: "ဖုန်းနံပါတ်" }, value: acc.account_number });
   }
