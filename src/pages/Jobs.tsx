@@ -115,6 +115,39 @@ const Jobs = () => {
   const { role } = useRole();
   const isSeeker = role === "jobseeker";
 
+  const [search, setSearch] = useSearchParamState("q", "");
+  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterType, setFilterType] = useSearchParamState("type", "all");
+  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
+  const [filterDiasporaSafe, setFilterDiasporaSafeRaw] = useSearchParamState("safe", "0");
+  const [filterVerified, setFilterVerifiedRaw] = useSearchParamState("verified", "0");
+  const [filterVisa, setFilterVisaRaw] = useSearchParamState("visa", "0");
+  const setFilterDiasporaSafe = (v: boolean) => setFilterDiasporaSafeRaw(v ? "1" : "0");
+  const setFilterVerified = (v: boolean) => setFilterVerifiedRaw(v ? "1" : "0");
+  const setFilterVisa = (v: boolean) => setFilterVisaRaw(v ? "1" : "0");
+  const diasporaOn = filterDiasporaSafe === "1";
+  const verifiedOn = filterVerified === "1";
+  const visaOn = filterVisa === "1";
+  const [showScamAlert, setShowScamAlert] = useState(true);
+
+  const activeFilterCount = [filterType !== "all", filterLocation !== "all", diasporaOn, verifiedOn, visaOn].filter(Boolean).length;
+
+  const filteredJobs = jobs.filter(job => {
+    const matchesSearch = search === "" ||
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.company.toLowerCase().includes(search.toLowerCase()) ||
+      (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
+    const jobCats = (job.categories && job.categories.length > 0) ? job.categories : (job.category ? [job.category] : []);
+    const matchesCategory = activeCategory === "All" || jobCats.some(c => c === activeCategory || c.toLowerCase() === activeCategory.toLowerCase());
+    const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
+    const matchesLocation = filterLocation === "all" || job.location === filterLocation;
+    const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
+    const matchesVerified = !verifiedOn || job.is_verified;
+    const matchesVisa = !visaOn || job.visa_sponsorship;
+    return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
+  });
+
   // Fetch the seeker's profile + latest CV filename to drive personalized matching.
   const { data: seekerSignals } = useQuery({
     queryKey: ["seeker-match-signals", user?.id],
