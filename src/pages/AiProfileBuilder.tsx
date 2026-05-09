@@ -90,11 +90,17 @@ const AiProfileBuilder = () => {
 
       setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
 
-      // Fire-and-forget: parse CV so parsed_text is stored on cv_documents
-      // for personalized job matching. Failures are silent — user can re-trigger
-      // via Profile Builder if needed.
-      supabase.functions.invoke("parse-cv", { body: { file_path: filePath } })
-        .catch((e) => console.warn("parse-cv (background) failed:", e));
+      // Await parse so parsed_text/parsed_data land on the cv_documents row
+      // before the user navigates away. Without await, the request gets killed
+      // on page unmount and personalized job matching has nothing to read.
+      try {
+        const { error: parseError } = await supabase.functions.invoke("parse-cv", {
+          body: { file_path: filePath },
+        });
+        if (parseError) console.warn("parse-cv failed:", parseError);
+      } catch (e) {
+        console.warn("parse-cv threw:", e);
+      }
     } catch (err: any) {
       toast({ title: lang === "my" ? "တင်၍ မရပါ" : "Upload failed", description: err.message, variant: "destructive" });
     } finally {
