@@ -169,8 +169,6 @@ const Login = () => {
         ) : null}
 
         <div className="mt-4 flex items-center justify-end">
-          {/* TODO: "Remember this device" toggle needs backend session/token wiring before it can be re-enabled.
-              Storing a flag in localStorage without backend support is misleading, so the toggle is hidden for now. */}
           <button onClick={() => navigate("/forgot-password")} className="text-xs font-semibold text-primary" type="button">
             {lang === "my" ? "စကားဝှက် မေ့နေပါသလား?" : "Forgot password?"}
           </button>
