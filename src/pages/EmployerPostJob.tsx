@@ -367,29 +367,24 @@ const EmployerPostJob = () => {
                 )}
               </div>
             )}
-            <div>
-              <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
-              <div className="flex flex-wrap gap-2">
-                {paymentOptions.map(p => (
-                  <button key={p} onClick={() => togglePayment(p)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${selectedPayments.includes(p) ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{p}</button>
-                ))}
+            {locationCountry && locationCountry !== "Myanmar" && (
+              <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+                <h3 className="text-xs font-semibold text-foreground">{lang === "my" ? "ဒိုင်ယာစပိုရာ လုံခြုံရေး" : "Diaspora Safety Flags"}</h3>
+                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "နိုင်ငံခြားအလုပ်များအတွက်သာ" : "For overseas roles only"}</p>
+                <label className="flex items-start gap-3">
+                  <Checkbox checked={requiresEmbassy} onCheckedChange={v => setRequiresEmbassy(!!v)} className="mt-0.5" />
+                  <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
+                </label>
+                <label className="flex items-start gap-3">
+                  <Checkbox checked={requiresWorkPermit} onCheckedChange={v => setRequiresWorkPermit(!!v)} className="mt-0.5" />
+                  <p className="text-xs text-foreground">{lang === "my" ? "Work Permit လိုအပ်" : "Requires Work Permit"}</p>
+                </label>
+                <label className="flex items-start gap-3">
+                  <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
+                  <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
+                </label>
               </div>
-            </div>
-            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
-              <h3 className="text-xs font-semibold text-foreground">{lang === "my" ? "ဒိုင်ယာစပိုရာ လုံခြုံရေး" : "Diaspora Safety Flags"}</h3>
-              <label className="flex items-start gap-3">
-                <Checkbox checked={requiresEmbassy} onCheckedChange={v => setRequiresEmbassy(!!v)} className="mt-0.5" />
-                <p className="text-xs text-foreground">{lang === "my" ? "သံရုံး စာရွက်စာတမ်း လိုအပ်" : "Requires Embassy Documents"}</p>
-              </label>
-              <label className="flex items-start gap-3">
-                <Checkbox checked={requiresWorkPermit} onCheckedChange={v => setRequiresWorkPermit(!!v)} className="mt-0.5" />
-                <p className="text-xs text-foreground">{lang === "my" ? "Work Permit လိုအပ်" : "Requires Work Permit"}</p>
-              </label>
-              <label className="flex items-start gap-3">
-                <Checkbox checked={visaSponsorship} onCheckedChange={v => setVisaSponsorship(!!v)} className="mt-0.5" />
-                <p className="text-xs text-foreground">{lang === "my" ? "ဗီဇာ ပံ့ပိုးပေး" : "Visa Sponsorship Available"}</p>
-              </label>
-            </div>
+            )}
             <div className="rounded-xl border border-accent/30 bg-accent/5 p-4">
               <label className="flex items-start gap-3">
                 <Checkbox
