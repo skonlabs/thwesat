@@ -153,23 +153,33 @@ const Jobs = () => {
     queryKey: ["seeker-match-signals", user?.id],
     enabled: !!user && isSeeker,
     queryFn: async () => {
-      const [{ data: profile }, { data: cv }, { data: docs }] = await Promise.all([
+      const [{ data: profile }, { data: cv }] = await Promise.all([
         supabase.from("profiles").select("skills, headline, bio, experience, location, preferred_work_types").eq("id", user!.id).maybeSingle(),
-        supabase.from("cv_documents").select("file_name").eq("user_id", user!.id).order("is_primary", { ascending: false }).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
-        supabase.from("generated_documents").select("content").eq("user_id", user!.id).in("doc_type", ["cv", "cv_summary", "resume"]).order("updated_at", { ascending: false }).limit(1),
+        supabase
+          .from("cv_documents")
+          .select("file_name, parsed_text, parsed_data")
+          .eq("user_id", user!.id)
+          .order("is_primary", { ascending: false })
+          .order("parsed_at", { ascending: false, nullsFirst: false })
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
-      const skillsArr = (profile?.skills || []).map((s: string) => s.toLowerCase());
-      const cvText = (docs && docs[0]?.content) || "";
+      const profileSkills = (profile?.skills || []).map((s: string) => s.toLowerCase());
+      const cvSkills = Array.isArray((cv?.parsed_data as any)?.skills)
+        ? (cv!.parsed_data as any).skills.map((s: string) => String(s).toLowerCase())
+        : [];
+      const skillsArr = Array.from(new Set([...profileSkills, ...cvSkills]));
       const keywords = new Set<string>([
         ...tokenize(profile?.headline),
         ...tokenize(profile?.bio),
         ...tokenize(profile?.experience),
         ...tokenize(cv?.file_name),
-        ...tokenize(cvText),
+        ...tokenize(cv?.parsed_text),
       ]);
       const preferredTypes = new Set<string>((profile?.preferred_work_types || []).map((s: string) => s.toLowerCase()));
       return {
-        hasProfile: skillsArr.length > 0 || !!profile?.headline,
+        hasProfile: skillsArr.length > 0 || !!profile?.headline || !!cv?.parsed_text,
         skills: new Set<string>(skillsArr),
         keywords,
         preferredTypes,

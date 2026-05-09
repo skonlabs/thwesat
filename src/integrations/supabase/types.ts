@@ -443,6 +443,9 @@ export type Database = {
           file_url: string
           id: string
           is_primary: boolean | null
+          parsed_at: string | null
+          parsed_data: Json | null
+          parsed_text: string | null
           updated_at: string | null
           user_id: string
         }
@@ -454,6 +457,9 @@ export type Database = {
           file_url?: string
           id?: string
           is_primary?: boolean | null
+          parsed_at?: string | null
+          parsed_data?: Json | null
+          parsed_text?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -465,6 +471,9 @@ export type Database = {
           file_url?: string
           id?: string
           is_primary?: boolean | null
+          parsed_at?: string | null
+          parsed_data?: Json | null
+          parsed_text?: string | null
           updated_at?: string | null
           user_id?: string
         }

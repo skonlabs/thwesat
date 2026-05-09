@@ -184,6 +184,42 @@ Rules:
       );
     }
 
+    // Build a single searchable text blob from the structured fields so the
+    // job-matching pipeline can score jobs against the actual resume content.
+    const parts: string[] = [];
+    if (parsed?.name) parts.push(String(parsed.name));
+    if (parsed?.title) parts.push(String(parsed.title));
+    if (parsed?.summary) parts.push(String(parsed.summary));
+    if (Array.isArray(parsed?.skills)) parts.push(parsed.skills.join(", "));
+    if (Array.isArray(parsed?.experiences)) {
+      for (const exp of parsed.experiences) {
+        parts.push([exp?.role, exp?.company, exp?.duration, exp?.description].filter(Boolean).join(" — "));
+      }
+    }
+    if (Array.isArray(parsed?.education)) {
+      for (const edu of parsed.education) {
+        parts.push([edu?.degree, edu?.institution, edu?.year].filter(Boolean).join(" — "));
+      }
+    }
+    if (parsed?.other) parts.push(String(parsed.other));
+    const parsedText = parts.filter(Boolean).join("\n").slice(0, 50000);
+
+    // Persist parsed result back to the cv_documents row for this file so it
+    // can drive personalized job matching without re-parsing on every load.
+    try {
+      await supabase
+        .from("cv_documents")
+        .update({
+          parsed_text: parsedText,
+          parsed_data: parsed,
+          parsed_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id)
+        .like("file_url", `%${file_path}%`);
+    } catch (persistErr) {
+      console.error("parse-cv: failed to persist parsed text", persistErr);
+    }
+
     return new Response(JSON.stringify({ data: parsed }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
