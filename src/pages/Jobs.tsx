@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -10,6 +10,51 @@ import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTi
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import ListSkeleton from "@/components/ListSkeleton";
 import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { useAuth } from "@/hooks/use-auth";
+import { useRole } from "@/hooks/use-role";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+/** Tokenize a free-text string into lowercase keywords (>=3 chars). */
+function tokenize(input: string | null | undefined): Set<string> {
+  if (!input) return new Set();
+  return new Set(
+    input
+      .toLowerCase()
+      .replace(/[^a-z0-9\s+#./-]/g, " ")
+      .split(/\s+/)
+      .filter((t) => t.length >= 3)
+  );
+}
+
+/** Score a job for the current job seeker based on profile + CV signals. Higher = better match. */
+function scoreJobForSeeker(job: Job, signals: {
+  skills: Set<string>;
+  keywords: Set<string>;
+  preferredTypes: Set<string>;
+  location: string;
+}): number {
+  let score = 0;
+  const jobSkills = (job.skills || []).map((s) => s.toLowerCase());
+  for (const s of jobSkills) {
+    if (signals.skills.has(s)) score += 10;
+    else if ([...signals.skills].some((u) => s.includes(u) || u.includes(s))) score += 5;
+  }
+  const haystack = `${job.title || ""} ${job.title_my || ""} ${job.description || ""} ${job.requirements || ""} ${(job.categories || []).join(" ")} ${job.category || ""} ${job.company || ""}`.toLowerCase();
+  for (const kw of signals.keywords) {
+    if (haystack.includes(kw)) score += 2;
+  }
+  if (signals.preferredTypes.size > 0) {
+    if (job.role_type && signals.preferredTypes.has(job.role_type.toLowerCase())) score += 6;
+    if (job.job_type && signals.preferredTypes.has(job.job_type.toLowerCase())) score += 4;
+  }
+  if (signals.location && job.location && job.location.toLowerCase().includes(signals.location.toLowerCase())) {
+    score += 4;
+  }
+  if (job.is_featured) score += 1;
+  if (job.is_verified) score += 1;
+  return score;
+}
 
 const categories = [
   { my: "အားလုံး", en: "All" },
@@ -66,6 +111,9 @@ const Jobs = () => {
   const { data: savedJobIds = [] } = useSavedJobIds();
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
+  const { user } = useAuth();
+  const { role } = useRole();
+  const isSeeker = role === "jobseeker";
 
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
@@ -99,6 +147,46 @@ const Jobs = () => {
     const matchesVisa = !visaOn || job.visa_sponsorship;
     return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
   });
+
+  // Fetch the seeker's profile + latest CV filename to drive personalized matching.
+  const { data: seekerSignals } = useQuery({
+    queryKey: ["seeker-match-signals", user?.id],
+    enabled: !!user && isSeeker,
+    queryFn: async () => {
+      const [{ data: profile }, { data: cv }, { data: docs }] = await Promise.all([
+        supabase.from("profiles").select("skills, headline, bio, experience, location, preferred_work_types").eq("id", user!.id).maybeSingle(),
+        supabase.from("cv_documents").select("file_name").eq("user_id", user!.id).order("is_primary", { ascending: false }).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+        supabase.from("generated_documents").select("content").eq("user_id", user!.id).in("doc_type", ["cv", "cv_summary", "resume"]).order("updated_at", { ascending: false }).limit(1),
+      ]);
+      const skillsArr = (profile?.skills || []).map((s: string) => s.toLowerCase());
+      const cvText = (docs && docs[0]?.content) || "";
+      const keywords = new Set<string>([
+        ...tokenize(profile?.headline),
+        ...tokenize(profile?.bio),
+        ...tokenize(profile?.experience),
+        ...tokenize(cv?.file_name),
+        ...tokenize(cvText),
+      ]);
+      const preferredTypes = new Set<string>((profile?.preferred_work_types || []).map((s: string) => s.toLowerCase()));
+      return {
+        hasProfile: skillsArr.length > 0 || !!profile?.headline,
+        skills: new Set<string>(skillsArr),
+        keywords,
+        preferredTypes,
+        location: profile?.location || "",
+      };
+    },
+  });
+
+  const userActivelyFiltering = !!search || activeCategory !== "All" || activeFilterCount > 0;
+  const personalize = isSeeker && !!seekerSignals?.hasProfile && !userActivelyFiltering;
+
+  const sortedJobs = useMemo(() => {
+    if (!personalize || !seekerSignals) return filteredJobs;
+    const scored = filteredJobs.map((j) => ({ j, s: scoreJobForSeeker(j, seekerSignals) }));
+    scored.sort((a, b) => b.s - a.s);
+    return scored.map((x) => x.j);
+  }, [filteredJobs, personalize, seekerSignals]);
 
   const clearFilters = () => {
     setFilterType("all");
@@ -242,9 +330,17 @@ const Jobs = () => {
       </AnimatePresence>
 
       <div className="space-y-2.5 px-5 pb-24">
+        {personalize && sortedJobs.length > 0 && (
+          <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2">
+            <Sparkles className="h-3.5 w-3.5 text-gold-dark" strokeWidth={1.5} />
+            <p className="text-[11px] text-foreground/80">
+              {lang === "my" ? "သင့်ပရိုဖိုင်နှင့် ကိုက်ညီသော အလုပ်များ ဦးစွာပြထားသည်" : "Sorted by best match for your profile & resume"}
+            </p>
+          </div>
+        )}
         {isLoading ? (
           <ListSkeleton count={5} />
-        ) : filteredJobs.length === 0 ? (
+        ) : sortedJobs.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
@@ -260,7 +356,7 @@ const Jobs = () => {
             )}
           </div>
         ) : (
-          filteredJobs.map((job, i) => {
+          sortedJobs.map((job, i) => {
             const featured = isFeatured(job);
             const isSaved = savedJobIds.includes(job.id);
             const application = applications.find((a: any) => a.job_id === job.id);
