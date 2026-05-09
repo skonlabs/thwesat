@@ -109,7 +109,7 @@ const PaymentMethodSheet = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const createPayment = useCreatePaymentRequest();
-  const { data: accounts } = usePaymentAccounts();
+  const { data: account } = useReceivingAccount();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<"select" | "instructions" | "upload" | "done">("select");
