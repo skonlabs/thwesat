@@ -90,7 +90,7 @@ const EmployerPostJob = () => {
   const insufficient = balance < totalCost;
   const isContract = roleType === "remote_contract";
 
-  const togglePayment = (p: string) => setSelectedPayments(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  
 
   const handleUrlBlur = () => {
     if (!externalUrl) { setExternalUrlError(""); return; }
