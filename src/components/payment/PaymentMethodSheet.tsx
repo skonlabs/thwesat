@@ -258,6 +258,14 @@ const PaymentMethodSheet = ({
                 ))}
               </div>
 
+              {/* QR Code */}
+              {selected && (accounts?.[selected]?.qr_url || accounts?.[selected]?.account_number) && (
+                <PaymentQR
+                  qrUrl={accounts?.[selected]?.qr_url}
+                  value={accounts?.[selected]?.account_number}
+                />
+              )}
+
               {/* Account info */}
               <div className="mb-4 rounded-xl border border-border bg-card p-3 space-y-2">
                 {accountInfo.map((info, i) => (
