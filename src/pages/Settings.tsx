@@ -39,8 +39,6 @@ const Settings = () => {
   const isJobSeeker = hasRole("jobseeker");
 
   // Toggles
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [rememberDevice, setRememberDevice] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(() => {
     // Persist email notification preference in localStorage until backend is wired.
     return localStorage.getItem("email_notifications_enabled") !== "false";
@@ -54,8 +52,6 @@ const Settings = () => {
   // Hydrate from server-stored settings
   useEffect(() => {
     if (!settings) return;
-    setPushNotifications(settings.push_notifications);
-    setRememberDevice(settings.remember_device);
     setProfileVisibility(settings.profile_visibility);
     setSessionExpiry(settings.session_expiry);
     setTelegramLinked(settings.telegram_linked);
