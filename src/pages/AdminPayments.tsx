@@ -164,6 +164,11 @@ const AdminPayments = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ငွေပေးချေမှု စီမံခန့်ခွဲမှု" : "Payment Management"} />
       <div className="px-5">
+        {/* Receiving payment accounts editor */}
+        <div className="mb-4">
+          <PaymentAccountsEditor />
+        </div>
+
         {/* Summary */}
         <div className="mb-4 grid grid-cols-3 gap-3">
           <button onClick={() => setFilter("all")} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === "all" ? "border-primary" : "border-border"}`}>
