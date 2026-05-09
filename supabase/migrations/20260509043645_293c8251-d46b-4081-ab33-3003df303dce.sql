@@ -1,0 +1,1 @@
+ALTER TABLE public.jobs ADD COLUMN IF NOT EXISTS salary_negotiable boolean NOT NULL DEFAULT false;
