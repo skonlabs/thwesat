@@ -280,7 +280,7 @@ const AiProfileBuilder = () => {
                   <Upload className={`h-6 w-6 ${dragActive ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
                 </div>
                 {uploading ? (
-                  <p className="text-sm font-medium text-foreground">{lang === "my" ? "တင်နေသည်..." : "Uploading..."}</p>
+                  <p className="text-sm font-medium text-foreground">{lang === "my" ? "တင်ပြီး ပြင်ဆင်နေသည်..." : "Uploading & analyzing CV..."}</p>
                 ) : (
                   <>
                     <p className="text-sm font-medium text-foreground">
