@@ -1,0 +1,1 @@
+UPDATE public.cv_documents SET file_url = file_url WHERE id = 'baf2fed2-ec16-4c4c-814b-c1e52d8d2a64';
