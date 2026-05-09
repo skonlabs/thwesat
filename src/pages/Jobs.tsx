@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Briefcase, Clock, Bookmark, Shield, CreditCard, AlertTriangle, X, Check, Send, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
@@ -10,6 +10,51 @@ import { formatJobSalary, translateJobLocation, translateJobTags, translateJobTi
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import ListSkeleton from "@/components/ListSkeleton";
 import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { useAuth } from "@/hooks/use-auth";
+import { useRole } from "@/hooks/use-role";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+/** Tokenize a free-text string into lowercase keywords (>=3 chars). */
+function tokenize(input: string | null | undefined): Set<string> {
+  if (!input) return new Set();
+  return new Set(
+    input
+      .toLowerCase()
+      .replace(/[^a-z0-9\s+#./-]/g, " ")
+      .split(/\s+/)
+      .filter((t) => t.length >= 3)
+  );
+}
+
+/** Score a job for the current job seeker based on profile + CV signals. Higher = better match. */
+function scoreJobForSeeker(job: Job, signals: {
+  skills: Set<string>;
+  keywords: Set<string>;
+  preferredTypes: Set<string>;
+  location: string;
+}): number {
+  let score = 0;
+  const jobSkills = (job.skills || []).map((s) => s.toLowerCase());
+  for (const s of jobSkills) {
+    if (signals.skills.has(s)) score += 10;
+    else if ([...signals.skills].some((u) => s.includes(u) || u.includes(s))) score += 5;
+  }
+  const haystack = `${job.title || ""} ${job.title_my || ""} ${job.description || ""} ${job.requirements || ""} ${(job.categories || []).join(" ")} ${job.category || ""} ${job.company || ""}`.toLowerCase();
+  for (const kw of signals.keywords) {
+    if (haystack.includes(kw)) score += 2;
+  }
+  if (signals.preferredTypes.size > 0) {
+    if (job.role_type && signals.preferredTypes.has(job.role_type.toLowerCase())) score += 6;
+    if (job.job_type && signals.preferredTypes.has(job.job_type.toLowerCase())) score += 4;
+  }
+  if (signals.location && job.location && job.location.toLowerCase().includes(signals.location.toLowerCase())) {
+    score += 4;
+  }
+  if (job.is_featured) score += 1;
+  if (job.is_verified) score += 1;
+  return score;
+}
 
 const categories = [
   { my: "အားလုံး", en: "All" },
