@@ -69,6 +69,16 @@ const EmployerPostJob = () => {
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+
+  const addSkill = (raw: string) => {
+    const s = raw.trim();
+    if (!s || skills.includes(s) || skills.length >= MAX_SKILLS) return;
+    setSkills([...skills, s]);
+    setSkillInput("");
+  };
+  const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const spend = useSpendCredits();
   const postPrice = useActionPrice("job_post");
   const featurePrice = useActionPrice("featured_job");
