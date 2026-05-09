@@ -16,9 +16,12 @@ import BilingualField from "@/components/employer/BilingualField";
 import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { HQ_COUNTRIES } from "@/lib/countries";
+import { X } from "lucide-react";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
+const MAX_SKILLS = 15;
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -66,6 +69,16 @@ const EmployerPostJob = () => {
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+
+  const addSkill = (raw: string) => {
+    const s = raw.trim();
+    if (!s || skills.includes(s) || skills.length >= MAX_SKILLS) return;
+    setSkills([...skills, s]);
+    setSkillInput("");
+  };
+  const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const spend = useSpendCredits();
   const postPrice = useActionPrice("job_post");
   const featurePrice = useActionPrice("featured_job");
@@ -143,6 +156,7 @@ const EmployerPostJob = () => {
         contract_duration_type: isContract ? contractDurationType : null,
         contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
+        skills: skills.length ? skills : null,
         company: employerProfile?.company_name || "",
         status: "pending",
       } as any).select("id").single();
@@ -228,6 +242,36 @@ const EmployerPostJob = () => {
               <CategoryCombobox values={categories} onChange={setCategories} />
               <p className="mt-1 text-[10px] text-muted-foreground">{lang === "my" ? "အနည်းဆုံး တစ်ခု ရွေးပါ — အများဆုံး ၅ ခု" : "Pick at least one — up to 5 categories."}</p>
             </div>
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="block text-xs font-medium text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</label>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{skills.length}/{MAX_SKILLS}</span>
+              </div>
+              {skills.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                  {skills.map(s => (
+                    <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
+                      {s}
+                      <button type="button" onClick={() => removeSkill(s)} aria-label={`Remove ${s}`}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <Input
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addSkill(skillInput); }
+                  else if (e.key === "Backspace" && !skillInput && skills.length) removeSkill(skills[skills.length - 1]);
+                }}
+                onBlur={() => skillInput && addSkill(skillInput)}
+                placeholder={lang === "my" ? "ဥပမာ: React, English — Enter ခလုတ် နှိပ်ပါ" : "e.g. React, English — press Enter"}
+                className="h-11 rounded-xl"
+                disabled={skills.length >= MAX_SKILLS}
+              />
+            </div>
             <div className="mx-auto w-full max-w-md pt-2">
               <Button variant="default" size="lg" className="w-full rounded-xl" onClick={() => setStep(2)} disabled={!titleEn || !descEn || !roleType || categories.length === 0}>
                 {lang === "my" ? "ဆက်လက်ရန်" : "Continue"} <ArrowRight className="ml-1.5 h-4 w-4" />
@@ -251,12 +295,25 @@ const EmployerPostJob = () => {
                 {salaryMaxError && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
               </div>
             </div>
-            {(roleType === "hybrid" || roleType === "onsite") && (
-              <div>
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Country"}</label>
-                <Input value={locationCountry} onChange={e => setLocationCountry(e.target.value)} className="h-11 rounded-xl" />
-              </div>
-            )}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-foreground">
+                {lang === "my" ? "တိုင်းပြည်" : "Country"}
+                {(roleType === "hybrid" || roleType === "onsite") ? " *" : ""}
+              </label>
+              <select
+                value={locationCountry}
+                onChange={e => setLocationCountry(e.target.value)}
+                className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground"
+              >
+                <option value="">{lang === "my" ? "ရွေးချယ်ပါ" : "Select a country"}</option>
+                {HQ_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {(roleType === "remote_full" || roleType === "remote_contract") && (
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {lang === "my" ? "Remote ဖြစ်လျှင် ရွေးချယ်ရန် မလိုပါ" : "Optional for remote roles — helps timezone matching"}
+                </p>
+              )}
+            </div>
             {isContract && (
               <div className="space-y-2 rounded-xl border border-border bg-card p-4">
                 <label className="block text-xs font-semibold text-foreground">{lang === "my" ? "ကန်ထရိုက် ကြာချိန်" : "Contract Duration"}</label>
@@ -350,6 +407,13 @@ const EmployerPostJob = () => {
                     {externalUrlError}
                   </p>
                 )}
+              </div>
+            )}
+            {applicationMethod === "email" && (
+              <div className="rounded-xl border border-border bg-muted/30 p-3 text-[11px] text-muted-foreground">
+                {lang === "my"
+                  ? "လျှောက်လွှာများကို သင့်အကောင့် အီးမေးလ်ထံ ပို့ပေးပါမည်။"
+                  : "Applications will be sent to your account email address."}
               </div>
             )}
             {requiresEmbassy && (
