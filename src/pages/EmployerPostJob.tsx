@@ -286,17 +286,41 @@ const EmployerPostJob = () => {
         {step === 2 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လစာ၊ ငွေပေးချေ + လုံခြုံရေး" : "Salary, Payment & Safety"}</h2>
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (MMK) *" : "Min Salary (MMK) *"}</label>
-                <Input type="number" min="0" value={salaryMin} onChange={e => handleSalaryMinChange(e.target.value)} placeholder="1000" className={`h-11 rounded-xl ${salaryMinError ? "border-destructive" : ""}`} />
-                {salaryMinError && <p className="mt-1 text-[11px] text-destructive">{salaryMinError}</p>}
+            <div className="space-y-2">
+              <div className="flex items-end gap-2">
+                <div className="w-24">
+                  <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေကြေး" : "Currency"}</label>
+                  <select
+                    value={currency}
+                    onChange={e => setCurrency(e.target.value)}
+                    className="h-11 w-full rounded-xl border border-input bg-background px-2 text-sm text-foreground"
+                  >
+                    {["MMK", "USD", "SGD", "THB", "MYR", "JPY", "KRW", "AUD", "EUR", "GBP"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    {lang === "my" ? "အနည်းဆုံး" : "Min Salary"}{!salaryNegotiable && " *"}
+                  </label>
+                  <Input type="number" min="0" value={salaryMin} onChange={e => handleSalaryMinChange(e.target.value)} placeholder="1000" disabled={salaryNegotiable} className={`h-11 rounded-xl ${salaryMinError ? "border-destructive" : ""}`} />
+                  {salaryMinError && !salaryNegotiable && <p className="mt-1 text-[11px] text-destructive">{salaryMinError}</p>}
+                </div>
+                <div className="flex-1">
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    {lang === "my" ? "အများဆုံး" : "Max Salary"}{!salaryNegotiable && " *"}
+                  </label>
+                  <Input type="number" min="0" value={salaryMax} onChange={e => handleSalaryMaxChange(e.target.value)} placeholder="5000" disabled={salaryNegotiable} className={`h-11 rounded-xl ${salaryMaxError ? "border-destructive" : ""}`} />
+                  {salaryMaxError && !salaryNegotiable && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (MMK) *" : "Max Salary (MMK) *"}</label>
-                <Input type="number" min="0" value={salaryMax} onChange={e => handleSalaryMaxChange(e.target.value)} placeholder="5000" className={`h-11 rounded-xl ${salaryMaxError ? "border-destructive" : ""}`} />
-                {salaryMaxError && <p className="mt-1 text-[11px] text-destructive">{salaryMaxError}</p>}
-              </div>
+              <label className="flex items-center gap-2 pt-1">
+                <Checkbox checked={salaryNegotiable} onCheckedChange={v => setSalaryNegotiable(!!v)} />
+                <span className="text-xs text-foreground">
+                  {lang === "my" ? "လစာ ညှိနှိုင်းနိုင် / မဖော်ပြ" : "Negotiable / Not disclosed"}
+                </span>
+              </label>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-foreground">
