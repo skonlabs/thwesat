@@ -28,7 +28,7 @@ const METHODS: Array<{ key: string; label: string }> = SUPPORTED_PAYMENT_METHODS
 const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-  const { data: accounts } = usePaymentAccounts();
+  const { data: acc } = useReceivingAccount();
   const [pkg, setPkg] = useState<CreditPackage | undefined>(initialPackage);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState(false);
