@@ -73,7 +73,8 @@ const PublicProfile = () => {
     );
   }
 
-  // TODO: Add Supabase RLS policy to enforce visibility at DB level
+  // RLS on profiles enforces visibility server-side; this client check
+  // only governs presentation (private placeholder vs full view).
   const isOwn = user?.id === profile.id;
 
   // Visibility enforcement: server-side rules applied after fetch.
