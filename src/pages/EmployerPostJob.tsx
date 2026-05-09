@@ -150,7 +150,7 @@ const EmployerPostJob = () => {
         role_type: roleType, category: categories[0] || null, categories,
         salary_min: minVal, salary_max: maxVal, currency, salary_negotiable: salaryNegotiable,
         location: locationCountry || "Remote",
-        payment_methods: sanitizeJobPaymentMethods(selectedPayments),
+        payment_methods: [],
         requires_embassy: requiresEmbassy, requires_work_permit: requiresWorkPermit,
         visa_sponsorship: visaSponsorship, is_featured: isFeatured,
         application_method: applicationMethod,
