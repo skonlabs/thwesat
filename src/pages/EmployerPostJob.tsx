@@ -156,6 +156,7 @@ const EmployerPostJob = () => {
         contract_duration_type: isContract ? contractDurationType : null,
         contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
+        skills: skills.length ? skills : null,
         company: employerProfile?.company_name || "",
         status: "pending",
       } as any).select("id").single();
