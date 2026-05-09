@@ -111,39 +111,49 @@ const Jobs = () => {
   const { data: savedJobIds = [] } = useSavedJobIds();
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
+  const { user } = useAuth();
+  const { role } = useRole();
+  const isSeeker = role === "jobseeker";
 
-  const [search, setSearch] = useSearchParamState("q", "");
-  const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterType, setFilterType] = useSearchParamState("type", "all");
-  const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
-  const [filterDiasporaSafe, setFilterDiasporaSafeRaw] = useSearchParamState("safe", "0");
-  const [filterVerified, setFilterVerifiedRaw] = useSearchParamState("verified", "0");
-  const [filterVisa, setFilterVisaRaw] = useSearchParamState("visa", "0");
-  const setFilterDiasporaSafe = (v: boolean) => setFilterDiasporaSafeRaw(v ? "1" : "0");
-  const setFilterVerified = (v: boolean) => setFilterVerifiedRaw(v ? "1" : "0");
-  const setFilterVisa = (v: boolean) => setFilterVisaRaw(v ? "1" : "0");
-  const diasporaOn = filterDiasporaSafe === "1";
-  const verifiedOn = filterVerified === "1";
-  const visaOn = filterVisa === "1";
-  const [showScamAlert, setShowScamAlert] = useState(true);
-
-  const activeFilterCount = [filterType !== "all", filterLocation !== "all", diasporaOn, verifiedOn, visaOn].filter(Boolean).length;
-
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = search === "" ||
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase()) ||
-      (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
-    const jobCats = (job.categories && job.categories.length > 0) ? job.categories : (job.category ? [job.category] : []);
-    const matchesCategory = activeCategory === "All" || jobCats.some(c => c === activeCategory || c.toLowerCase() === activeCategory.toLowerCase());
-    const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
-    const matchesLocation = filterLocation === "all" || job.location === filterLocation;
-    const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
-    const matchesVerified = !verifiedOn || job.is_verified;
-    const matchesVisa = !visaOn || job.visa_sponsorship;
-    return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
+  // Fetch the seeker's profile + latest CV filename to drive personalized matching.
+  const { data: seekerSignals } = useQuery({
+    queryKey: ["seeker-match-signals", user?.id],
+    enabled: !!user && isSeeker,
+    queryFn: async () => {
+      const [{ data: profile }, { data: cv }, { data: docs }] = await Promise.all([
+        supabase.from("profiles").select("skills, headline, bio, experience, location, preferred_work_types").eq("id", user!.id).maybeSingle(),
+        supabase.from("cv_documents").select("file_name").eq("user_id", user!.id).order("is_primary", { ascending: false }).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+        supabase.from("generated_documents").select("content").eq("user_id", user!.id).in("doc_type", ["cv", "cv_summary", "resume"]).order("updated_at", { ascending: false }).limit(1),
+      ]);
+      const skillsArr = (profile?.skills || []).map((s: string) => s.toLowerCase());
+      const cvText = (docs && docs[0]?.content) || "";
+      const keywords = new Set<string>([
+        ...tokenize(profile?.headline),
+        ...tokenize(profile?.bio),
+        ...tokenize(profile?.experience),
+        ...tokenize(cv?.file_name),
+        ...tokenize(cvText),
+      ]);
+      const preferredTypes = new Set<string>((profile?.preferred_work_types || []).map((s: string) => s.toLowerCase()));
+      return {
+        hasProfile: skillsArr.length > 0 || !!profile?.headline,
+        skills: new Set<string>(skillsArr),
+        keywords,
+        preferredTypes,
+        location: profile?.location || "",
+      };
+    },
   });
+
+  const userActivelyFiltering = !!search || activeCategory !== "All" || activeFilterCount > 0;
+  const personalize = isSeeker && !!seekerSignals?.hasProfile && !userActivelyFiltering;
+
+  const sortedJobs = useMemo(() => {
+    if (!personalize || !seekerSignals) return filteredJobs;
+    const scored = filteredJobs.map((j) => ({ j, s: scoreJobForSeeker(j, seekerSignals) }));
+    scored.sort((a, b) => b.s - a.s);
+    return scored.map((x) => x.j);
+  }, [filteredJobs, personalize, seekerSignals]);
 
   const clearFilters = () => {
     setFilterType("all");
