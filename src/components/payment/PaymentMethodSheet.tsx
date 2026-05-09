@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
+import PaymentQR from "@/components/payment/PaymentQR";
 
 export type PaymentMethod = "kbzpay" | "cbpay" | "wavepay" | "ayapay";
 
