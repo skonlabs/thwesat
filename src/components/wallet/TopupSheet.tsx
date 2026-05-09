@@ -29,6 +29,8 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   const { user } = useAuth();
   const { data: accounts } = usePaymentAccounts();
   const [pkg, setPkg] = useState<CreditPackage | undefined>(initialPackage);
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [isCustom, setIsCustom] = useState(false);
   const [method, setMethod] = useState("kbzpay");
   const [reference, setReference] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -39,6 +41,8 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   useEffect(() => {
     if (open) {
       setPkg(initialPackage);
+      setIsCustom(false);
+      setCustomAmount("");
       setMethod("kbzpay");
       setReference("");
       setProofFile(null);
@@ -48,8 +52,23 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
 
   const acc = accounts?.[method as keyof typeof accounts];
 
+  // Resolve effective top-up amount/credits depending on package vs custom
+  const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
+  const effective = isCustom
+    ? { mmk: customMmk, credits: customMmk, label: lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount" }
+    : pkg
+      ? { mmk: pkg.price_mmk, credits: pkg.credits + pkg.bonus_credits, label: lang === "my" ? pkg.name_my : pkg.name_en }
+      : null;
+
+  const MIN_CUSTOM = 5000;
+  const customValid = isCustom ? customMmk >= MIN_CUSTOM : true;
+
   const submit = async () => {
-    if (!user || !pkg) return;
+    if (!user || !effective) return;
+    if (isCustom && !customValid) {
+      toast.error(lang === "my" ? `အနည်းဆုံး ${MIN_CUSTOM.toLocaleString()} ကျပ်` : `Minimum ${MIN_CUSTOM.toLocaleString()} MMK`);
+      return;
+    }
     if (!proofFile) {
       toast.error(lang === "my" ? "ငွေပေးသွင်းပြီး screenshot တင်ပေးပါ" : "Please upload your payment screenshot");
       return;
@@ -58,9 +77,9 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
     try {
       const path = await uploadTopupProof(user.id, proofFile);
       await create.mutateAsync({
-        package_id: pkg.id,
-        mmk_amount: pkg.price_mmk,
-        credits_to_grant: pkg.credits + pkg.bonus_credits,
+        package_id: isCustom ? null : pkg!.id,
+        mmk_amount: effective.mmk,
+        credits_to_grant: effective.credits,
         payment_method: method,
         proof_url: path,
         sender_reference: reference || null,
