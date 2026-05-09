@@ -16,9 +16,12 @@ import BilingualField from "@/components/employer/BilingualField";
 import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { HQ_COUNTRIES } from "@/lib/countries";
+import { X } from "lucide-react";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
+const MAX_SKILLS = 15;
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
