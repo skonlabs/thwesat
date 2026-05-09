@@ -261,12 +261,9 @@ const PaymentMethodSheet = ({
                 ))}
               </div>
 
-              {/* QR Code */}
-              {selected && (accounts?.[selected]?.qr_url || accounts?.[selected]?.account_number) && (
-                <PaymentQR
-                  qrUrl={accounts?.[selected]?.qr_url}
-                  value={accounts?.[selected]?.account_number}
-                />
+              {/* QR Code (single global receiving account) */}
+              {(account?.qr_url || account?.account_number) && (
+                <PaymentQR qrUrl={account?.qr_url} value={account?.account_number} />
               )}
 
               {/* Account info */}
