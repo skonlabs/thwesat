@@ -56,8 +56,8 @@ const EmployerPostJob = () => {
   const [salaryMax, setSalaryMax] = useState("");
   const [currency, setCurrency] = useState("MMK");
   const [salaryNegotiable, setSalaryNegotiable] = useState(false);
-  const [locationCountry, setLocationCountry] = useState("");
-  const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  const [locationCountry, setLocationCountry] = useState("Myanmar");
+
   const [requiresEmbassy, setRequiresEmbassy] = useState(false);
   const [requiresWorkPermit, setRequiresWorkPermit] = useState(false);
   const [visaSponsorship, setVisaSponsorship] = useState(false);
