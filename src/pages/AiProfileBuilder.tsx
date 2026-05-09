@@ -89,6 +89,12 @@ const AiProfileBuilder = () => {
       });
 
       setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
+
+      // Fire-and-forget: parse CV so parsed_text is stored on cv_documents
+      // for personalized job matching. Failures are silent — user can re-trigger
+      // via Profile Builder if needed.
+      supabase.functions.invoke("parse-cv", { body: { file_path: filePath } })
+        .catch((e) => console.warn("parse-cv (background) failed:", e));
     } catch (err: any) {
       toast({ title: lang === "my" ? "တင်၍ မရပါ" : "Upload failed", description: err.message, variant: "destructive" });
     } finally {
