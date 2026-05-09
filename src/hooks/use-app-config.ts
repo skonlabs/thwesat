@@ -5,6 +5,8 @@ export interface PaymentAccountInfo {
   account_name?: string;
   account_number?: string;
   account_email?: string;
+  /** Optional admin-uploaded QR image (e.g. merchant QR). When absent, UI generates a QR from account_number. */
+  qr_url?: string;
 }
 
 export interface PaymentAccountsConfig {

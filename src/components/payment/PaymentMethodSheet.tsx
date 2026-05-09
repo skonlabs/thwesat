@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
+import PaymentQR from "@/components/payment/PaymentQR";
 
 export type PaymentMethod = "kbzpay" | "cbpay" | "wavepay" | "ayapay";
 
@@ -257,6 +258,14 @@ const PaymentMethodSheet = ({
                   </div>
                 ))}
               </div>
+
+              {/* QR Code */}
+              {selected && (accounts?.[selected]?.qr_url || accounts?.[selected]?.account_number) && (
+                <PaymentQR
+                  qrUrl={accounts?.[selected]?.qr_url}
+                  value={accounts?.[selected]?.account_number}
+                />
+              )}
 
               {/* Account info */}
               <div className="mb-4 rounded-xl border border-border bg-card p-3 space-y-2">
