@@ -108,7 +108,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "Package တစ်ခု ရွေးချယ်ပါ" : "Choose a package"}</p>
               {packages.map((p) => (
-                <button key={p.id} onClick={() => { setPkg(p); setStep("pay"); }}
+                <button key={p.id} onClick={() => { setPkg(p); setIsCustom(false); setStep("pay"); }}
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left active:scale-[0.99]">
                   <div>
                     <div className="text-sm font-bold">{(p.credits + p.bonus_credits).toLocaleString()} credits</div>
@@ -117,16 +117,52 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                   <div className="text-sm font-bold text-primary">{formatMMK(p.price_mmk, lang)}</div>
                 </button>
               ))}
+              <button
+                onClick={() => { setIsCustom(true); setPkg(undefined); setStep("pay"); }}
+                className="flex w-full items-center justify-between rounded-xl border border-dashed border-primary/50 bg-primary/5 p-3 text-left active:scale-[0.99]"
+              >
+                <div>
+                  <div className="text-sm font-bold text-primary">{lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount"}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {lang === "my" ? "1,000 ၏ ဆ — အနည်းဆုံး 5,000 ကျပ်" : "Multiples of 1,000 — min 5,000 MMK"}
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-primary">+</div>
+              </button>
             </div>
           )}
 
-          {step === "pay" && pkg && (
+          {step === "pay" && effective && (
             <div className="space-y-4">
-              <div className="rounded-xl bg-muted p-3">
-                <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
-                <div className="text-2xl font-bold text-primary">{formatMMK(pkg.price_mmk, lang)}</div>
-                <div className="mt-0.5 text-xs">→ {(pkg.credits + pkg.bonus_credits).toLocaleString()} credits</div>
-              </div>
+              {isCustom ? (
+                <div>
+                  <Label className="text-xs">{lang === "my" ? "ပမာဏ (ကျပ်)" : "Amount (MMK)"}</Label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={MIN_CUSTOM}
+                    step={1000}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                    className="mt-1 h-11 text-base font-bold"
+                    placeholder="50000"
+                  />
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    <span className="text-muted-foreground">
+                      {lang === "my" ? "1,000 ၏ ဆ ဖြစ်ရမည် (အနည်းဆုံး 5,000)" : "Rounded to nearest 1,000 (min 5,000)"}
+                    </span>
+                    {customMmk > 0 && (
+                      <span className="font-semibold text-primary">→ {customMmk.toLocaleString()} credits</span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl bg-muted p-3">
+                  <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
+                  <div className="text-2xl font-bold text-primary">{formatMMK(effective.mmk, lang)}</div>
+                  <div className="mt-0.5 text-xs">→ {effective.credits.toLocaleString()} credits</div>
+                </div>
+              )}
 
               <div>
                 <Label className="text-xs">{lang === "my" ? "ပေးချေနည်း" : "Payment method"}</Label>
