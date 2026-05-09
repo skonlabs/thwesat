@@ -286,9 +286,12 @@ const EmployerPostJob = () => {
         {step === 2 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လစာ၊ ငွေပေးချေ + လုံခြုံရေး" : "Salary, Payment & Safety"}</h2>
-            <div className="space-y-2">
-              <div className="flex items-end gap-2">
-                <div className="w-24">
+            <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
+              <div className="text-sm font-semibold text-foreground">
+                {lang === "my" ? "လစာအကွာအဝေး (လစဉ်)" : "Salary Range (per month)"}
+              </div>
+              <div className="grid grid-cols-[5rem_1fr_1fr] items-end gap-2">
+                <div>
                   <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေကြေး" : "Currency"}</label>
                   <select
                     value={currency}
