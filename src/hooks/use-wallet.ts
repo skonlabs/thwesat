@@ -165,7 +165,7 @@ export function useCreateTopupRequest() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (req: {
-      package_id: string;
+      package_id: string | null;
       mmk_amount: number;
       credits_to_grant: number;
       payment_method: string;

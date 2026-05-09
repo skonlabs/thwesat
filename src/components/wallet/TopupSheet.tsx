@@ -29,6 +29,8 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   const { user } = useAuth();
   const { data: accounts } = usePaymentAccounts();
   const [pkg, setPkg] = useState<CreditPackage | undefined>(initialPackage);
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [isCustom, setIsCustom] = useState(false);
   const [method, setMethod] = useState("kbzpay");
   const [reference, setReference] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -39,6 +41,8 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   useEffect(() => {
     if (open) {
       setPkg(initialPackage);
+      setIsCustom(false);
+      setCustomAmount("");
       setMethod("kbzpay");
       setReference("");
       setProofFile(null);
@@ -48,8 +52,23 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
 
   const acc = accounts?.[method as keyof typeof accounts];
 
+  // Resolve effective top-up amount/credits depending on package vs custom
+  const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
+  const effective = isCustom
+    ? { mmk: customMmk, credits: customMmk, label: lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount" }
+    : pkg
+      ? { mmk: pkg.price_mmk, credits: pkg.credits + pkg.bonus_credits, label: lang === "my" ? pkg.name_my : pkg.name_en }
+      : null;
+
+  const MIN_CUSTOM = 5000;
+  const customValid = isCustom ? customMmk >= MIN_CUSTOM : true;
+
   const submit = async () => {
-    if (!user || !pkg) return;
+    if (!user || !effective) return;
+    if (isCustom && !customValid) {
+      toast.error(lang === "my" ? `အနည်းဆုံး ${MIN_CUSTOM.toLocaleString()} ကျပ်` : `Minimum ${MIN_CUSTOM.toLocaleString()} MMK`);
+      return;
+    }
     if (!proofFile) {
       toast.error(lang === "my" ? "ငွေပေးသွင်းပြီး screenshot တင်ပေးပါ" : "Please upload your payment screenshot");
       return;
@@ -58,9 +77,9 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
     try {
       const path = await uploadTopupProof(user.id, proofFile);
       await create.mutateAsync({
-        package_id: pkg.id,
-        mmk_amount: pkg.price_mmk,
-        credits_to_grant: pkg.credits + pkg.bonus_credits,
+        package_id: isCustom ? null : pkg!.id,
+        mmk_amount: effective.mmk,
+        credits_to_grant: effective.credits,
         payment_method: method,
         proof_url: path,
         sender_reference: reference || null,
@@ -89,7 +108,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "Package တစ်ခု ရွေးချယ်ပါ" : "Choose a package"}</p>
               {packages.map((p) => (
-                <button key={p.id} onClick={() => { setPkg(p); setStep("pay"); }}
+                <button key={p.id} onClick={() => { setPkg(p); setIsCustom(false); setStep("pay"); }}
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left active:scale-[0.99]">
                   <div>
                     <div className="text-sm font-bold">{(p.credits + p.bonus_credits).toLocaleString()} credits</div>
@@ -98,16 +117,52 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                   <div className="text-sm font-bold text-primary">{formatMMK(p.price_mmk, lang)}</div>
                 </button>
               ))}
+              <button
+                onClick={() => { setIsCustom(true); setPkg(undefined); setStep("pay"); }}
+                className="flex w-full items-center justify-between rounded-xl border border-dashed border-primary/50 bg-primary/5 p-3 text-left active:scale-[0.99]"
+              >
+                <div>
+                  <div className="text-sm font-bold text-primary">{lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount"}</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {lang === "my" ? "1,000 ၏ ဆ — အနည်းဆုံး 5,000 ကျပ်" : "Multiples of 1,000 — min 5,000 MMK"}
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-primary">+</div>
+              </button>
             </div>
           )}
 
-          {step === "pay" && pkg && (
+          {step === "pay" && effective && (
             <div className="space-y-4">
-              <div className="rounded-xl bg-muted p-3">
-                <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
-                <div className="text-2xl font-bold text-primary">{formatMMK(pkg.price_mmk, lang)}</div>
-                <div className="mt-0.5 text-xs">→ {(pkg.credits + pkg.bonus_credits).toLocaleString()} credits</div>
-              </div>
+              {isCustom ? (
+                <div>
+                  <Label className="text-xs">{lang === "my" ? "ပမာဏ (ကျပ်)" : "Amount (MMK)"}</Label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={MIN_CUSTOM}
+                    step={1000}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                    className="mt-1 h-11 text-base font-bold"
+                    placeholder="50000"
+                  />
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    <span className="text-muted-foreground">
+                      {lang === "my" ? "1,000 ၏ ဆ ဖြစ်ရမည် (အနည်းဆုံး 5,000)" : "Rounded to nearest 1,000 (min 5,000)"}
+                    </span>
+                    {customMmk > 0 && (
+                      <span className="font-semibold text-primary">→ {customMmk.toLocaleString()} credits</span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl bg-muted p-3">
+                  <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
+                  <div className="text-2xl font-bold text-primary">{formatMMK(effective.mmk, lang)}</div>
+                  <div className="mt-0.5 text-xs">→ {effective.credits.toLocaleString()} credits</div>
+                </div>
+              )}
 
               <div>
                 <Label className="text-xs">{lang === "my" ? "ပေးချေနည်း" : "Payment method"}</Label>
@@ -144,7 +199,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 </label>
               </div>
 
-              <Button onClick={submit} disabled={uploading || !proofFile} className="w-full rounded-xl">
+              <Button onClick={submit} disabled={uploading || !proofFile || !customValid || (isCustom && customMmk < MIN_CUSTOM)} className="w-full rounded-xl">
                 {uploading ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်သွင်းမည်" : "Submit for review")}
               </Button>
             </div>
