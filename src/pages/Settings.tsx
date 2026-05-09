@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Type, Shield, Bell, Lock, Key, ChevronRight, Receipt,
-  Languages, Eye, Clock, Smartphone, AlertTriangle, Fingerprint, Trash2, LogOut, X, Check, Mail
+  Type, Shield, Lock, Key, ChevronRight, Receipt,
+  Languages, Eye, Clock, Smartphone, AlertTriangle, Trash2, LogOut, X, Check, Mail
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
