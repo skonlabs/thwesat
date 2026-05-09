@@ -337,20 +337,12 @@ const Settings = () => {
               {section.items.map((item, i) => (
                 <button
                   key={i}
-                  onClick={!('disabled' in item && item.disabled) && 'action' in item ? item.action : undefined}
-                  disabled={'disabled' in item && !!item.disabled && !('toggle' in item && item.toggle)}
-                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={'action' in item ? item.action : undefined}
+                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30"
                 >
                   <item.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-foreground">{item.label}</p>
-                      {'disabled' in item && item.disabled && !('toggle' in item && item.toggle) && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {lang === "my" ? "မကြာမီ" : "Coming soon"}
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm text-foreground">{item.label}</p>
                     {'description' in item && item.description && (
                       <p className="mt-0.5 text-[10px] text-muted-foreground">{item.description}</p>
                     )}
@@ -365,7 +357,7 @@ const Settings = () => {
                   ) : (
                     <>
                       {'value' in item && item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
-                      {!('disabled' in item && item.disabled) && <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
                     </>
                   )}
                 </button>
