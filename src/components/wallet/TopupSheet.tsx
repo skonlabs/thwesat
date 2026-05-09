@@ -199,7 +199,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 </label>
               </div>
 
-              <Button onClick={submit} disabled={uploading || !proofFile} className="w-full rounded-xl">
+              <Button onClick={submit} disabled={uploading || !proofFile || !customValid || (isCustom && customMmk < MIN_CUSTOM)} className="w-full rounded-xl">
                 {uploading ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "တင်သွင်းမည်" : "Submit for review")}
               </Button>
             </div>
