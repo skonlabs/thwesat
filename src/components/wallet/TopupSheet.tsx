@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
 import { usePaymentAccounts } from "@/hooks/use-app-config";
 import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
+import PaymentQR from "@/components/payment/PaymentQR";
 import { SUPPORTED_PAYMENT_METHODS, getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 import { toast } from "sonner";
 
