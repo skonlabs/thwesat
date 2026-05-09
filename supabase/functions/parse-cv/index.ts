@@ -228,7 +228,7 @@ Rules:
           parsed_data: parsed,
           parsed_at: new Date().toISOString(),
         })
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .like("file_url", `%${file_path}%`);
     } catch (persistErr) {
       console.error("parse-cv: failed to persist parsed text", persistErr);
