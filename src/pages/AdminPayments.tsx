@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { PaymentRequest } from "@/hooks/use-payment";
 import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 import { formatMoney } from "@/lib/finance";
+import PaymentAccountsEditor from "@/components/admin/PaymentAccountsEditor";
 
 type FilterType = "all" | "pending" | "approved" | "rejected" | "revoked";
 
