@@ -174,7 +174,7 @@ const PaymentMethodSheet = ({
   };
 
   const config = selected ? methodMeta[selected] : null;
-  const accountInfo = selected ? buildAccountInfo(selected, accounts?.[selected]) : [];
+  const accountInfo = selected ? buildAccountInfo(account) : [];
 
   const displayAmount = `${amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
 
