@@ -68,7 +68,7 @@ const EmployerPostJob = () => {
   const [contractDurationNote, setContractDurationNote] = useState("");
   const spend = useSpendCredits();
   const postPrice = useActionPrice("job_post");
-  const featurePrice = useActionPrice("feature_job_upgrade");
+  const featurePrice = useActionPrice("featured_job");
   const { data: wallet } = useWallet();
   const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
   const balance = wallet?.balance_credits ?? 0;
@@ -148,7 +148,7 @@ const EmployerPostJob = () => {
       } as any).select("id").single();
       if (jobErr) throw jobErr;
       if (isFeatured && jobRow?.id) {
-        await spend.mutateAsync({ action_key: "feature_job_upgrade", target_type: "job", target_id: jobRow.id });
+        await spend.mutateAsync({ action_key: "featured_job", target_type: "job", target_id: jobRow.id });
       }
       navigate("/employer/dashboard");
     } catch (e: any) {

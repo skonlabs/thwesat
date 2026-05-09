@@ -324,10 +324,10 @@ const EmployerJobs = () => {
       <SpendConfirmSheet
         open={!!featureJobId}
         onOpenChange={(o) => { if (!o) setFeatureJobId(null); }}
-        actionKey="feature_job_upgrade"
+        actionKey="featured_job"
         targetType="job"
         targetId={featureJobId || undefined}
-        idempotencyKey={featureJobId ? `feature_job_upgrade:${featureJobId}:${Date.now()}` : undefined}
+        idempotencyKey={featureJobId ? `featured_job:${featureJobId}:${Date.now()}` : undefined}
         onSuccess={() => {
           setFeatureJobId(null);
           queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
