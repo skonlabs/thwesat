@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Missing auth" }), {
         status: 401,
@@ -20,7 +20,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { file_path } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const file_path: string | undefined = body?.file_path;
+    const bodyUserId: string | undefined = body?.user_id;
     if (!file_path) {
       return new Response(JSON.stringify({ error: "file_path required" }), {
         status: 400,
@@ -32,21 +34,33 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify JWT
-    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY")!;
-    const anonClient = createClient(supabaseUrl, anonKey);
-    const { data: { user }, error: authError } = await anonClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Resolve user: either from JWT (client call) or from body when called
+    // server-side with the service-role key (DB trigger via pg_net).
+    let userId: string | null = null;
+    const bearer = authHeader.replace("Bearer ", "").trim();
+    if (bearer === supabaseServiceKey) {
+      if (!bodyUserId) {
+        return new Response(JSON.stringify({ error: "user_id required for service call" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = bodyUserId;
+    } else {
+      const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY")!;
+      const anonClient = createClient(supabaseUrl, anonKey);
+      const { data: { user }, error: authError } = await anonClient.auth.getUser(bearer);
+      if (authError || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = user.id;
     }
 
     // Verify file belongs to user
-    if (!file_path.startsWith(user.id + "/")) {
+    if (!file_path.startsWith(userId + "/")) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
