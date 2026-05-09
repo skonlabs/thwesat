@@ -183,6 +183,11 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "လွှဲရန် အကောင့်" : "Send to"}</div>
                   <div className="mt-0.5 text-sm font-bold">{acc.account_name}</div>
                   <div className="font-mono text-sm">{acc.account_number || acc.account_email}</div>
+                  {(acc.qr_url || acc.account_number) && (
+                    <div className="mt-3">
+                      <PaymentQR qrUrl={acc.qr_url} value={acc.account_number} size={140} />
+                    </div>
+                  )}
                 </div>
               )}
 
