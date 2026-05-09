@@ -127,9 +127,9 @@ const EmployerPostJob = () => {
   };
 
   const handleSubmit = async () => {
-    const minVal = salaryMin ? Math.max(0, parseInt(salaryMin)) : null;
-    const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
-    if (minVal !== null && maxVal !== null && minVal > maxVal) {
+    const minVal = salaryNegotiable ? null : (salaryMin ? Math.max(0, parseInt(salaryMin)) : null);
+    const maxVal = salaryNegotiable ? null : (salaryMax ? Math.max(0, parseInt(salaryMax)) : null);
+    if (!salaryNegotiable && minVal !== null && maxVal !== null && minVal > maxVal) {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
       return;
     }
@@ -148,7 +148,8 @@ const EmployerPostJob = () => {
         description: descEn, description_my: descMy || null,
         requirements: requirementsEn, requirements_my: requirementsMy || null,
         role_type: roleType, category: categories[0] || null, categories,
-        salary_min: minVal, salary_max: maxVal, location: locationCountry || "Remote",
+        salary_min: minVal, salary_max: maxVal, currency, salary_negotiable: salaryNegotiable,
+        location: locationCountry || "Remote",
         payment_methods: sanitizeJobPaymentMethods(selectedPayments),
         requires_embassy: requiresEmbassy, requires_work_permit: requiresWorkPermit,
         visa_sponsorship: visaSponsorship, is_featured: isFeatured,
