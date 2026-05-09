@@ -467,20 +467,120 @@ const EmployerPostJob = () => {
       </div>
 
       <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
-        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl max-h-[80vh] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>{lang === "my" ? "အလုပ်ခေါ်စာ ကြိုကြည့်ရှုမှု" : "Job Preview"}</SheetTitle>
+            <SheetTitle>{lang === "my" ? "အလုပ်ရှာသူ မြင်ကွင်း" : "Job Seeker Preview"}</SheetTitle>
+            <p className="text-[11px] text-muted-foreground">{lang === "my" ? "အလုပ်ရှာသူများ မြင်တွေ့မည့် ပုံစံ" : "How job seekers will see this listing"}</p>
           </SheetHeader>
-          <div className="mt-4 rounded-xl border border-border bg-card p-4 space-y-2">
-            <h3 className="text-base font-bold text-foreground">{titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>
-            <p className="text-xs text-muted-foreground font-medium">{employerProfile?.company_name || ""}</p>
-            <div className="flex flex-wrap gap-2 text-[11px]">
-              {roleType && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{roleTypes.find(r => r.value === roleType)?.[lang === "my" ? "label" : "label"]?.[lang] || roleType}</span>}
-              {salaryMin && salaryMax && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">${salaryMin}–${salaryMax}/mo</span>}
-              {locationCountry && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">{locationCountry}</span>}
-            </div>
-            {descEn && <p className="text-xs text-foreground/80 leading-relaxed">{descEn.slice(0, 150)}{descEn.length > 150 ? "…" : ""}</p>}
-          </div>
+          {(() => {
+            const previewJob = {
+              title: titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)"),
+              title_my: titleMy,
+              company: employerProfile?.company_name || (lang === "my" ? "(ကုမ္ပဏီ)" : "(Company)"),
+              location: locationCountry,
+              role_type: roleType,
+              job_type: roleType,
+              salary_min: salaryMin ? Number(salaryMin) : null,
+              salary_max: salaryMax ? Number(salaryMax) : null,
+              currency,
+              skills,
+              is_verified: false,
+              is_diaspora_safe: locationCountry && locationCountry !== "Myanmar" ? !requiresEmbassy && !requiresWorkPermit : false,
+              requires_embassy: requiresEmbassy,
+              visa_sponsorship: visaSponsorship,
+            };
+            const displayTitle = lang === "my" ? (titleMy || titleEn) : titleEn;
+            const displayDesc = lang === "my" ? (descMy || descEn) : descEn;
+            const displayReq = lang === "my" ? (requirementsMy || requirementsEn) : requirementsEn;
+            return (
+              <div className="mt-4 space-y-3 pb-6">
+                {/* List card preview */}
+                <div className={`rounded-xl border bg-card p-4 shadow-card ${isFeatured ? "border-accent/40" : "border-border"}`}>
+                  {isFeatured && (
+                    <div className="mb-2 flex items-center gap-1">
+                      <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
+                        <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">{displayTitle || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{previewJob.company}</p>
+                      </div>
+                    </div>
+                    <Bookmark className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {previewJob.is_diaspora_safe && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
+                        <Shield className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}
+                      </span>
+                    )}
+                    {previewJob.requires_embassy && (
+                      <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-medium text-destructive">
+                        <AlertTriangle className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "သံရုံးလိုအပ်" : "Embassy docs"}
+                      </span>
+                    )}
+                    {previewJob.visa_sponsorship && (
+                      <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
+                    )}
+                  </div>
+                  {skills.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {translateJobTags(skills, lang).map((tag) => (
+                        <span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(previewJob.location, lang)}</span>
+                      {roleType && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(roleType, lang)}</span>}
+                    </div>
+                    <span className="text-xs font-semibold text-gold-dark">
+                      {salaryNegotiable ? (lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable") : formatJobSalary(previewJob, lang)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Detail body preview */}
+                <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "အသေးစိတ် မြင်ကွင်း" : "Detail view"}</p>
+                  {displayDesc && (
+                    <div>
+                      <h4 className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "ဖော်ပြချက်" : "Description"}</h4>
+                      <p className="whitespace-pre-wrap text-xs text-foreground/80 leading-relaxed">{displayDesc}</p>
+                    </div>
+                  )}
+                  {displayReq && (
+                    <div>
+                      <h4 className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "လိုအပ်ချက်များ" : "Requirements"}</h4>
+                      <p className="whitespace-pre-wrap text-xs text-foreground/80 leading-relaxed">{displayReq}</p>
+                    </div>
+                  )}
+                  {categories.length > 0 && (
+                    <div>
+                      <h4 className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "အမျိုးအစား" : "Categories"}</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {categories.map(c => (
+                          <span key={c} className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{c}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {applicationMethod && (
+                    <div className="border-t border-border pt-2 text-[11px] text-muted-foreground">
+                      {lang === "my" ? "လျှောက်ထားနည်း" : "Apply via"}: {applicationMethods.find(a => a.value === applicationMethod)?.label[lang]}
+                      {applicationMethod === "external" && externalUrl && <span className="ml-1 break-all text-primary">({externalUrl})</span>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </SheetContent>
       </Sheet>
     
