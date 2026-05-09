@@ -1,0 +1,1 @@
+DELETE FROM public.action_prices WHERE action_key = 'feature_job_upgrade';
