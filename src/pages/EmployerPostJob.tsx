@@ -148,7 +148,7 @@ const EmployerPostJob = () => {
       } as any).select("id").single();
       if (jobErr) throw jobErr;
       if (isFeatured && jobRow?.id) {
-        await spend.mutateAsync({ action_key: "feature_job_upgrade", target_type: "job", target_id: jobRow.id });
+        await spend.mutateAsync({ action_key: "featured_job", target_type: "job", target_id: jobRow.id });
       }
       navigate("/employer/dashboard");
     } catch (e: any) {
