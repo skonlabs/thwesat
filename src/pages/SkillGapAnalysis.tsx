@@ -265,6 +265,19 @@ const SkillGapAnalysis = () => {
                       {selectedRole === role.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
                     </button>
                   ))}
+                  <button onClick={() => setSelectedRole(CUSTOM_ROLE)} className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors ${isCustomRole ? "border-primary bg-primary/5" : "border-border active:bg-muted"}`}>
+                    <span className={`text-sm font-medium ${isCustomRole ? "text-primary" : "text-foreground"}`}>{lang === "my" ? "အခြား (ကိုယ်တိုင် ထည့်ပါ)" : "Other (enter your own)"}</span>
+                    {isCustomRole && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
+                  </button>
+                  {isCustomRole && (
+                    <Input
+                      value={customRole}
+                      onChange={e => setCustomRole(e.target.value)}
+                      placeholder={lang === "my" ? "ဥပမာ — Marketing Manager" : "e.g. Marketing Manager"}
+                      maxLength={80}
+                      className="mt-2"
+                    />
+                  )}
                 </div>
                 {/* Last analyzed for this role */}
                 {lastAnalysis && selectedRole && lastAnalysis.role === selectedRole && (
@@ -275,7 +288,7 @@ const SkillGapAnalysis = () => {
                   </p>
                 )}
               </div>
-              <Button onClick={() => { if (!selectedRole) return; setStep(2); }} className="w-full">
+              <Button onClick={() => { if (!selectedRole) return; if (isCustomRole && !customRoleLabel) return; setStep(2); }} className="w-full">
                 {lang === "my" ? "ရှေ့ဆက်ရန်" : "Continue"} <ChevronRight className="h-4 w-4" />
               </Button>
             </motion.div>
