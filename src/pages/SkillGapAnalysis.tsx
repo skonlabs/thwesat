@@ -135,8 +135,19 @@ const SkillGapAnalysis = () => {
     setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
   };
 
+  const addCustomSkill = () => {
+    const s = customSkill.trim();
+    if (!s) return;
+    if (!selectedSkills.includes(s)) setSelectedSkills(prev => [...prev, s]);
+    setCustomSkill("");
+  };
+
+  const isCustomRole = selectedRole === CUSTOM_ROLE;
+  const customRoleLabel = customRole.trim();
+
   const handleAnalyze = () => {
     if (!selectedRole) return;
+    if (isCustomRole && !customRoleLabel) return;
     setSpendOpen(true);
   };
 
@@ -146,6 +157,24 @@ const SkillGapAnalysis = () => {
   };
 
   const getAnalysis = () => {
+    // Custom role — we don't have a known requirements list, so treat all
+    // selected skills as confirmed strengths and surface generic resources.
+    if (isCustomRole) {
+      const fallbackResources = selectedSkills.slice(0, 6).map(skill => ({
+        skill,
+        link: `https://www.coursera.org/search?query=${encodeURIComponent(skill)}`,
+        source: "Coursera",
+      }));
+      return {
+        haveRequired: selectedSkills,
+        missingRequired: [] as string[],
+        haveNice: [] as string[],
+        missingNice: [] as string[],
+        score: selectedSkills.length > 0 ? 100 : 0,
+        resources: fallbackResources,
+      };
+    }
+
     const reqs = roleRequirements[selectedRole] || roleRequirements.frontend;
     const haveRequired = reqs.required.filter(s => selectedSkills.includes(s));
     const missingRequired = reqs.required.filter(s => !selectedSkills.includes(s));
