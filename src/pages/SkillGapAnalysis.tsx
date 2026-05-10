@@ -111,7 +111,9 @@ const SkillGapAnalysis = () => {
   const { lang } = useLanguage();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState("");
+  const [customRole, setCustomRole] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [customSkill, setCustomSkill] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<SavedAnalysis | null>(null);
   const [spendOpen, setSpendOpen] = useState(false);
