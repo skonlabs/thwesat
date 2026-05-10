@@ -313,7 +313,29 @@ const SkillGapAnalysis = () => {
                       {skill}
                     </button>
                   ))}
+                  {selectedSkills.filter(s => !allSkills.includes(s)).map(skill => (
+                    <button key={skill} onClick={() => toggleSkill(skill)} className="rounded-lg border border-emerald bg-emerald/10 px-3 py-1.5 text-xs font-medium text-emerald">
+                      {skill} <X className="ml-1 inline h-3 w-3" strokeWidth={2} />
+                    </button>
+                  ))}
                 </div>
+
+                {/* Add custom skill */}
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    value={customSkill}
+                    onChange={e => setCustomSkill(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCustomSkill(); } }}
+                    placeholder={lang === "my" ? "အခြား ကျွမ်းကျင်မှု ထည့်ရန်" : "Add another skill"}
+                    maxLength={40}
+                    className="h-9 text-xs"
+                  />
+                  <Button type="button" size="sm" variant="outline" onClick={addCustomSkill} disabled={!customSkill.trim()}>
+                    <Plus className="h-4 w-4" />
+                    {lang === "my" ? "ထည့်ရန်" : "Add"}
+                  </Button>
+                </div>
+
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-[10px] text-muted-foreground">
                     {selectedSkills.length} {lang === "my" ? "ခု ရွေးချယ်ထားပါသည်" : "selected"}
