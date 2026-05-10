@@ -88,6 +88,9 @@ const AiProfileBuilder = () => {
         is_primary: true,
       });
 
+      // Mark this as a fresh upload — clear the "last parsed" marker so
+      // ProfileBuilder will re-parse and rebuild from the new CV.
+      sessionStorage.removeItem("cv-last-parsed-path");
       setUploadedFile({ name: file.name, size: file.size, url: urlData.publicUrl, filePath });
 
       // Await parse so parsed_text/parsed_data land on the cv_documents row
