@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink, Save } from "lucide-react";
+import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink, Save, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import MentorCoachCue from "@/components/MentorCoachCue";
+
+const CUSTOM_ROLE = "__custom__";
 
 const targetRoles = [
   { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
