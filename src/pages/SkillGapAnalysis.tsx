@@ -385,7 +385,7 @@ const SkillGapAnalysis = () => {
                     </svg>
                     <span className="absolute text-2xl font-bold text-foreground">{analysis.score}%</span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{lang === "my" ? roleName?.labelMy : roleName?.labelEn}</p>
+                  <p className="text-sm font-semibold text-foreground">{isCustomRole ? customRoleLabel : (lang === "my" ? roleName?.labelMy : roleName?.labelEn)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {analysis.score >= 80
                       ? (lang === "my" ? "အလွန်ကောင်းပါသည်! လျှောက်ထားရန် အသင့်ဖြစ်ပါပြီ" : "Excellent! You're ready to apply")
