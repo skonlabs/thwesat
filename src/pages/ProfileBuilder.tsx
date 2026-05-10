@@ -118,14 +118,21 @@ const ProfileBuilder = () => {
     }
   }, [profile, prefilled]);
 
-  // Parse CV if file path was passed from Career Tools
+  // Parse CV only when a NEW file path arrives (not previously consumed).
+  // This prevents re-building the form on every navigation back to this page.
   const cvFilePath = (location.state as any)?.cvFilePath;
-  
+
   useEffect(() => {
-    if (cvFilePath && session?.access_token && !cvParsed) {
-      parseCv(cvFilePath);
+    if (!cvFilePath || !session?.access_token || cvParsed) return;
+    const lastParsed = sessionStorage.getItem("cv-last-parsed-path");
+    if (lastParsed === cvFilePath) {
+      // Same CV as before — don't re-parse or overwrite the user's edits.
+      setCvParsed(true);
+      return;
     }
-  }, [cvFilePath, session?.access_token]);
+    sessionStorage.setItem("cv-last-parsed-path", cvFilePath);
+    parseCv(cvFilePath);
+  }, [cvFilePath, session?.access_token, cvParsed]);
 
   const parseCv = async (filePath: string) => {
     setParsing(true);
