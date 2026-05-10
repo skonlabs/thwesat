@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink, Save } from "lucide-react";
+import { TrendingUp, Target, ChevronRight, ChevronLeft, Check, X, BookOpen, ExternalLink, Save, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import MentorCoachCue from "@/components/MentorCoachCue";
+
+const CUSTOM_ROLE = "__custom__";
 
 const targetRoles = [
   { value: "frontend", labelMy: "ဝက်ဘ်ရှေ့ပိုင်း ဒီဗလပ်ပါ", labelEn: "Frontend Developer" },
@@ -108,7 +111,9 @@ const SkillGapAnalysis = () => {
   const { lang } = useLanguage();
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState("");
+  const [customRole, setCustomRole] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [customSkill, setCustomSkill] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<SavedAnalysis | null>(null);
   const [spendOpen, setSpendOpen] = useState(false);
@@ -130,8 +135,19 @@ const SkillGapAnalysis = () => {
     setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
   };
 
+  const addCustomSkill = () => {
+    const s = customSkill.trim();
+    if (!s) return;
+    if (!selectedSkills.includes(s)) setSelectedSkills(prev => [...prev, s]);
+    setCustomSkill("");
+  };
+
+  const isCustomRole = selectedRole === CUSTOM_ROLE;
+  const customRoleLabel = customRole.trim();
+
   const handleAnalyze = () => {
     if (!selectedRole) return;
+    if (isCustomRole && !customRoleLabel) return;
     setSpendOpen(true);
   };
 
@@ -141,6 +157,24 @@ const SkillGapAnalysis = () => {
   };
 
   const getAnalysis = () => {
+    // Custom role — we don't have a known requirements list, so treat all
+    // selected skills as confirmed strengths and surface generic resources.
+    if (isCustomRole) {
+      const fallbackResources = selectedSkills.slice(0, 6).map(skill => ({
+        skill,
+        link: `https://www.coursera.org/search?query=${encodeURIComponent(skill)}`,
+        source: "Coursera",
+      }));
+      return {
+        haveRequired: selectedSkills,
+        missingRequired: [] as string[],
+        haveNice: [] as string[],
+        missingNice: [] as string[],
+        score: selectedSkills.length > 0 ? 100 : 0,
+        resources: fallbackResources,
+      };
+    }
+
     const reqs = roleRequirements[selectedRole] || roleRequirements.frontend;
     const haveRequired = reqs.required.filter(s => selectedSkills.includes(s));
     const missingRequired = reqs.required.filter(s => !selectedSkills.includes(s));
@@ -231,6 +265,19 @@ const SkillGapAnalysis = () => {
                       {selectedRole === role.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
                     </button>
                   ))}
+                  <button onClick={() => setSelectedRole(CUSTOM_ROLE)} className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors ${isCustomRole ? "border-primary bg-primary/5" : "border-border active:bg-muted"}`}>
+                    <span className={`text-sm font-medium ${isCustomRole ? "text-primary" : "text-foreground"}`}>{lang === "my" ? "အခြား (ကိုယ်တိုင် ထည့်ပါ)" : "Other (enter your own)"}</span>
+                    {isCustomRole && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
+                  </button>
+                  {isCustomRole && (
+                    <Input
+                      value={customRole}
+                      onChange={e => setCustomRole(e.target.value)}
+                      placeholder={lang === "my" ? "ဥပမာ — Marketing Manager" : "e.g. Marketing Manager"}
+                      maxLength={80}
+                      className="mt-2"
+                    />
+                  )}
                 </div>
                 {/* Last analyzed for this role */}
                 {lastAnalysis && selectedRole && lastAnalysis.role === selectedRole && (
@@ -241,7 +288,7 @@ const SkillGapAnalysis = () => {
                   </p>
                 )}
               </div>
-              <Button onClick={() => { if (!selectedRole) return; setStep(2); }} className="w-full">
+              <Button onClick={() => { if (!selectedRole) return; if (isCustomRole && !customRoleLabel) return; setStep(2); }} className="w-full">
                 {lang === "my" ? "ရှေ့ဆက်ရန်" : "Continue"} <ChevronRight className="h-4 w-4" />
               </Button>
             </motion.div>
@@ -266,7 +313,29 @@ const SkillGapAnalysis = () => {
                       {skill}
                     </button>
                   ))}
+                  {selectedSkills.filter(s => !allSkills.includes(s)).map(skill => (
+                    <button key={skill} onClick={() => toggleSkill(skill)} className="rounded-lg border border-emerald bg-emerald/10 px-3 py-1.5 text-xs font-medium text-emerald">
+                      {skill} <X className="ml-1 inline h-3 w-3" strokeWidth={2} />
+                    </button>
+                  ))}
                 </div>
+
+                {/* Add custom skill */}
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    value={customSkill}
+                    onChange={e => setCustomSkill(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCustomSkill(); } }}
+                    placeholder={lang === "my" ? "အခြား ကျွမ်းကျင်မှု ထည့်ရန်" : "Add another skill"}
+                    maxLength={40}
+                    className="h-9 text-xs"
+                  />
+                  <Button type="button" size="sm" variant="outline" onClick={addCustomSkill} disabled={!customSkill.trim()}>
+                    <Plus className="h-4 w-4" />
+                    {lang === "my" ? "ထည့်ရန်" : "Add"}
+                  </Button>
+                </div>
+
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-[10px] text-muted-foreground">
                     {selectedSkills.length} {lang === "my" ? "ခု ရွေးချယ်ထားပါသည်" : "selected"}
@@ -316,7 +385,7 @@ const SkillGapAnalysis = () => {
                     </svg>
                     <span className="absolute text-2xl font-bold text-foreground">{analysis.score}%</span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{lang === "my" ? roleName?.labelMy : roleName?.labelEn}</p>
+                  <p className="text-sm font-semibold text-foreground">{isCustomRole ? customRoleLabel : (lang === "my" ? roleName?.labelMy : roleName?.labelEn)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {analysis.score >= 80
                       ? (lang === "my" ? "အလွန်ကောင်းပါသည်! လျှောက်ထားရန် အသင့်ဖြစ်ပါပြီ" : "Excellent! You're ready to apply")
