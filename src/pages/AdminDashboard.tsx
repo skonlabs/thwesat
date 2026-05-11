@@ -5,6 +5,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
+import DashboardHero from "@/components/DashboardHero";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -73,6 +74,15 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "စီမံခန့်ခွဲမှု" : "Admin Dashboard"} />
       <div className="px-5">
+        <DashboardHero
+          roleLabelEn="Administrator"
+          roleLabelMy="စီမံအုပ်ချုပ်သူ"
+          subtitleEn={`${totalPending} item${totalPending === 1 ? "" : "s"} need your attention`}
+          subtitleMy={`${totalPending} ခု လုပ်ဆောင်ရန် စောင့်နေသည်`}
+          ctaLabelEn={totalPending > 0 ? "Review payments" : "View analytics"}
+          ctaLabelMy={totalPending > 0 ? "ငွေပေးချေမှု စစ်ဆေးရန်" : "ခွဲခြမ်းစိတ်ဖြာမှု"}
+          ctaPath={totalPending > 0 ? "/admin/payments" : "/admin/analytics"}
+        />
         {/* Overview Stats */}
         <div className="mb-4 grid grid-cols-4 gap-2">
           {stats.map((stat, i) => (
