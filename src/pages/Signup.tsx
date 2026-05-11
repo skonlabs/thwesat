@@ -302,13 +302,6 @@ const Signup = () => {
             {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign in"}
           </button>
         </p>
-
-        <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
-          {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
-          <button onClick={() => navigate("/login")} className="font-semibold text-primary" type="button">
-            {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
-          </button>
-        </p>
       </motion.div>
     </div>
     </AuthShell>
