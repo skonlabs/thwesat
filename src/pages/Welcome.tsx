@@ -83,15 +83,22 @@ const Welcome = () => {
 
       {/* Hero with search */}
       <section className="relative overflow-hidden border-b border-shell bg-shell text-shell-foreground">
-        <div className="relative mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
+        {/* Decorative glows */}
+        <div className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-40 -left-24 h-[26rem] w-[26rem] rounded-full bg-sidebar-accent/70 blur-[100px]" />
+
+        <div className="relative mx-auto max-w-6xl px-4 py-16 md:px-8 md:py-24">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto max-w-3xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent">
+            <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               {my ? "မြန်မာပရော်ဖက်ရှင်နယ်များအတွက်" : "Built for Myanmar professionals — at home & across APAC"}
-            </p>
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-shell-foreground md:text-5xl">
-              {my ? "သင့်အတွက် သင့်တော်တဲ့ အလုပ် ရှာဖွေပါ" : "Find the job that fits your life"}
+            </div>
+            <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight text-shell-foreground md:text-6xl">
+              {my ? "သင့်အတွက် သင့်တော်တဲ့" : "Find the job that"}
+              <br />
+              <span className="text-accent">{my ? "အလုပ်ကို ရှာပါ။" : "fits your life."}</span>
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-shell-foreground/70 md:text-base">
+            <p className="mx-auto mt-5 max-w-xl text-base text-shell-foreground/75 md:text-lg">
               {my
                 ? "လုံခြုံစိတ်ချရသော အလုပ်ခေါ်စာများ၊ လမ်းညွှန်မှုနှင့် အသက်မွေးဝမ်းကျောင်း ကိရိယာများ — တစ်နေရာတည်းမှာ။"
                 : "Thousands of verified jobs, real mentors, and the career tools you need — all in one place."}
@@ -123,13 +130,23 @@ const Welcome = () => {
                 className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
               />
             </div>
-            <Button type="submit" size="lg" className="h-11 rounded-xl px-6 md:rounded-full">
+            <Button type="submit" size="lg" className="h-11 rounded-xl bg-accent px-6 text-accent-foreground hover:bg-accent/90 md:rounded-full">
               {my ? "ရှာဖွေ" : "Search"}
             </Button>
           </motion.form>
 
+          {/* Dual CTA */}
+          <div className="mx-auto mt-6 flex max-w-3xl flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" className="h-12 rounded-full bg-accent px-7 text-accent-foreground hover:bg-accent/90" onClick={() => navigate("/onboarding")}>
+              {my ? "အခမဲ့ စတင်ရန်" : "Create free account"} <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+            <Button size="lg" variant="ghost" className="h-12 rounded-full border border-shell-foreground/20 px-7 text-shell-foreground hover:bg-shell-foreground/10 hover:text-shell-foreground" onClick={() => navigate("/employer/onboarding")}>
+              {my ? "အလုပ်ခေါ်ရန်" : "I'm hiring"}
+            </Button>
+          </div>
+
           {/* Quick stats */}
-          <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-shell-foreground/65">
+          <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-shell-foreground/10 pt-6 text-xs text-shell-foreground/65">
             <span><span className="font-bold text-shell-foreground">{(jobs || []).length.toLocaleString()}+</span> {my ? "အလုပ်များ" : "open jobs"}</span>
             <span><span className="font-bold text-shell-foreground">{(allProfiles || []).length.toLocaleString()}+</span> {my ? "အဖွဲ့ဝင်များ" : "members"}</span>
             <span><span className="font-bold text-shell-foreground">{(mentors || []).length.toLocaleString()}+</span> {my ? "လမ်းညွှန်သူများ" : "mentors"}</span>
