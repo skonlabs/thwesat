@@ -87,7 +87,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border bg-card">
+      <header className="sticky top-0 z-40 border-b border-border bg-card md:hidden">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
             onClick={() => navigate("/dashboard")}
@@ -106,7 +106,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
               style={{ opacity: logoOpacity }}
               draggable={false}
             />
-            <span className="text-sm font-bold"><span className="text-primary">Thwe</span><span className="text-accent">Sat</span></span>
+            <span className="text-sm font-bold"><span className="text-foreground">Thwe</span><span className="text-accent">Sat</span></span>
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />
@@ -158,13 +158,11 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
           </div>
         </div>
       </header>
-      <div className="flex items-center px-5 pb-1 pt-3">
+      <div className="flex items-center px-5 pb-1 pt-3 md:px-8 md:pb-2 md:pt-6">
         {(backPath || onBack || showBack) && (
           <button
             onClick={() => {
               if (onBack) return onBack();
-              // Prefer browser back so the user returns exactly where they came from.
-              // Only fall back to backPath when there is no in-app history (direct link / fresh tab).
               if (window.history.length > 1) {
                 navigate(-1);
               } else if (backPath) {
@@ -174,12 +172,12 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
               }
             }}
             aria-label={lang === "my" ? "နောက်သို့" : "Back"}
-            className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted"
+            className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground active:bg-muted hover:bg-muted"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
         )}
-        <h1 className="text-lg font-bold text-foreground">{title}</h1>
+        <h1 className="text-lg font-bold text-foreground md:text-2xl md:font-semibold md:tracking-tight md:font-display">{title}</h1>
       </div>
     </>
   );
