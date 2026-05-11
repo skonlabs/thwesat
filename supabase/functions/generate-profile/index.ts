@@ -106,24 +106,26 @@ Return ONLY valid JSON with this exact structure:
 Only include sections that have meaningful content. Do not include empty sections.
 Return ONLY the JSON object, no markdown fences, no extra text.`;
 
-    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": anthropicKey,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${openaiKey}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "gpt-4o-mini",
         max_tokens: 2000,
-        system: "You are an expert career coach and professional profile writer. You specialize in creating optimized profiles for freelancing platforms and professional networks. Always output valid JSON only.",
-        messages: [{ role: "user", content: userPrompt }],
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "You are an expert career coach and professional profile writer. You specialize in creating optimized profiles for freelancing platforms and professional networks. Always output valid JSON only." },
+          { role: "user", content: userPrompt },
+        ],
       }),
     });
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
-      console.error("Anthropic API error:", errText);
+      console.error("OpenAI API error:", errText);
       return new Response(JSON.stringify({ error: "AI generation failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -131,8 +133,8 @@ Return ONLY the JSON object, no markdown fences, no extra text.`;
     }
 
     const aiData = await aiResponse.json();
-    let text = aiData.content?.[0]?.text || "";
-    
+    let text = aiData.choices?.[0]?.message?.content || "";
+
     // Strip markdown fences if present
     text = text.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
 
