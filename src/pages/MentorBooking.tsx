@@ -7,8 +7,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { format, isBefore, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
