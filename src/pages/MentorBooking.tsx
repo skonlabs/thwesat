@@ -666,18 +666,27 @@ const MentorBooking = () => {
               <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
                 {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending || insufficient} onClick={handleConfirm}>
-                <Coins className="mr-1.5 h-4 w-4" />
-                {insufficient
-                  ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more`)
-                  : createBooking.isPending
+              {insufficient ? (
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setTopupOpen(true)}>
+                  <Coins className="mr-1.5 h-4 w-4" />
+                  {lang === "my"
+                    ? `Credit ${(sessionCredits - balance).toLocaleString()} ဖြည့်ရန်`
+                    : `Top up ${(sessionCredits - balance).toLocaleString()} more`}
+                </Button>
+              ) : (
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
+                  <Coins className="mr-1.5 h-4 w-4" />
+                  {createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
                     : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} credits`)}
-              </Button>
+                </Button>
+              )}
             </>
           )}
         </div>
       </div>
+
+      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
     </div>
   );
 };
