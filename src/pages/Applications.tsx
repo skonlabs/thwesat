@@ -79,11 +79,22 @@ const Applications = () => {
   const offerSalary = Number(selected?.jobs?.salary_max || selected?.jobs?.salary_min || 0);
   const offerFee = isAgentOffer && offerSalary > 0 ? Math.round(offerSalary * 0.08) : 0;
 
+  const ACTION_STATUSES = ["offered", "interview", "interviewed"];
+  const PROGRESS_STATUSES = ["applied", "submitted", "viewed", "shortlisted"];
+  const CLOSED_STATUSES = ["rejected", "withdrawn", "placed"];
+
   const statusCounts = {
     total: apps.length,
-    viewed: apps.filter((a: any) => a.status === "viewed").length,
-    shortlisted: apps.filter((a: any) => a.status === "shortlisted").length,
+    action: apps.filter((a: any) => ACTION_STATUSES.includes(a.status)).length,
+    progress: apps.filter((a: any) => PROGRESS_STATUSES.includes(a.status)).length,
     placed: apps.filter((a: any) => a.status === "placed").length,
+  };
+
+  const countFor = (val: string) => {
+    if (val === "all") return apps.length;
+    if (val === "new") return apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length;
+    if (val === "interview") return apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length;
+    return apps.filter((a: any) => a.status === val).length;
   };
 
   const invalidate = () => {
