@@ -6,8 +6,8 @@
     </linearGradient>
   </defs>
   <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#tsBadge)"/>
-  <path d="M128 168 H384" stroke="#FFBE5C" stroke-width="36" stroke-linecap="round"/>
+  <path d="M128 168 H384" stroke="#8FB8FF" stroke-width="36" stroke-linecap="round"/>
   <path d="M256 168 V388" stroke="#F6F4FB" stroke-width="36" stroke-linecap="round"/>
   <path d="M168 300 Q256 232 344 300" fill="none" stroke="#F6F4FB" stroke-width="22" stroke-linecap="round" stroke-opacity="0.55"/>
-  <circle cx="344" cy="300" r="26" fill="#FFBE5C"/>
+  <circle cx="344" cy="300" r="26" fill="#8FB8FF"/>
 </svg>
