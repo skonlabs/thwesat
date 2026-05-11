@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Briefcase, Building2, Globe, WalletCards, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Upload, Loader2, Sparkles } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Globe, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
@@ -71,7 +70,6 @@ const JobDetail = () => {
   const [selectedGeneratedResumeId, setSelectedGeneratedResumeId] = useState<string | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
-  const [parsingCvId, setParsingCvId] = useState<string | null>(null);
   const [priorityApply, setPriorityApply] = useState(false);
   const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
   const [coverLetterSpendOpen, setCoverLetterSpendOpen] = useState(false);
@@ -175,13 +173,6 @@ const JobDetail = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
-  const toneLabels: Record<string, { my: string; en: string }> = {
-    professional: { my: "ပရော်ဖက်ရှင်နယ်", en: "Professional" },
-    friendly: { my: "ဖော်ရွေသော", en: "Friendly" },
-    confident: { my: "ယုံကြည်မှုရှိသော", en: "Confident" },
-    enthusiastic: { my: "စိတ်အားထက်သန်သော", en: "Enthusiastic" },
-  };
-
   const submitApplication = () => {
     if (!id) return;
     applyMutation.mutate(
