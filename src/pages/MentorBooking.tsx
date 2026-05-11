@@ -149,7 +149,7 @@ const MentorBooking = () => {
 
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
-      navigate("/wallet");
+      setTopupOpen(true);
       return;
     }
     try {
