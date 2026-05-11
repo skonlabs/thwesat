@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
-import { useApplications } from "@/hooks/use-jobs";
+import { useApplications, useSavedJobs } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ const Applications = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
+  const { data: savedJobs } = useSavedJobs();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [confirmAccept, setConfirmAccept] = useState(false);
@@ -52,10 +53,12 @@ const Applications = () => {
   };
 
   const apps = applications || [];
+  const PIPELINE_STATUSES_INLINE = ["applied", "submitted", "viewed", "shortlisted", "interview", "interviewed", "offered"];
   const filteredApps = apps.filter((a: any) => {
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
     if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
+    if (filter === "pipeline") return PIPELINE_STATUSES_INLINE.includes(a.status);
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedApp);
@@ -87,7 +90,10 @@ const Applications = () => {
     total: apps.length,
     action: apps.filter((a: any) => ACTION_STATUSES.includes(a.status)).length,
     progress: apps.filter((a: any) => PROGRESS_STATUSES.includes(a.status)).length,
+    pipeline: apps.filter((a: any) => PROGRESS_STATUSES.includes(a.status) || ACTION_STATUSES.includes(a.status)).length,
+    rejected: apps.filter((a: any) => a.status === "rejected").length,
     placed: apps.filter((a: any) => a.status === "placed").length,
+    saved: savedJobs?.length || 0,
   };
 
   const countFor = (val: string) => {
@@ -177,51 +183,46 @@ const Applications = () => {
         <div className="mb-4 overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-stretch divide-x divide-border">
             <button
-              onClick={() => setFilter("all")}
-              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "all" ? "bg-primary/[0.04]" : ""}`}
+              onClick={() => setFilter("pipeline")}
+              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "pipeline" ? "bg-primary/[0.04]" : ""}`}
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                {lang === "my" ? "လျှောက်လွှာစုစုပေါင်း" : "Pipeline"}
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                {lang === "my" ? "ဆောင်ရွက်ဆဲ" : "Pipeline"}
               </p>
               <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
-                {statusCounts.total}
+                {statusCounts.pipeline}
               </p>
               <p className="mt-1.5 text-[11px] text-muted-foreground">
-                {statusCounts.progress > 0
-                  ? (lang === "my" ? `${statusCounts.progress} ခု ဆောင်ရွက်ဆဲ` : `${statusCounts.progress} in progress`)
-                  : (lang === "my" ? "ဆောင်ရွက်ဆဲ မရှိ" : "None in progress")}
+                {lang === "my" ? "လျှောက်ထား / ဆောင်ရွက်ဆဲ" : "Applied & in progress"}
               </p>
             </button>
             <button
-              onClick={() => statusCounts.action > 0 && setFilter(ACTION_STATUSES.includes("offered") && apps.some((a:any)=>a.status==="offered") ? "offered" : "interview")}
-              disabled={statusCounts.action === 0}
-              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 disabled:opacity-60`}
+              onClick={() => setFilter("rejected")}
+              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "rejected" ? "bg-primary/[0.04]" : ""}`}
             >
-              <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-600 dark:text-amber-500">
-                <Sparkles className="h-3 w-3" strokeWidth={2} />
-                {lang === "my" ? "လုပ်ဆောင်ရန်" : "Action"}
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-destructive/80">
+                {lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected"}
               </p>
               <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
-                {statusCounts.action}
+                {statusCounts.rejected}
               </p>
               <p className="mt-1.5 text-[11px] text-muted-foreground">
-                {statusCounts.action > 0
-                  ? (lang === "my" ? "ကမ်းလှမ်းမှု / အင်တာဗျူး" : "Offers & interviews")
-                  : (lang === "my" ? "သင့်ဘက်က စောင့်စရာ မရှိ" : "Nothing pending")}
+                {lang === "my" ? "မအောင်မြင်သော လျှောက်လွှာ" : "Closed applications"}
               </p>
             </button>
             <button
-              onClick={() => setFilter("placed")}
-              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "placed" ? "bg-primary/[0.04]" : ""}`}
+              onClick={() => navigate("/jobs/saved")}
+              className="flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald">
-                {lang === "my" ? "အောင်မြင်" : "Placed"}
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold-dark">
+                {lang === "my" ? "သိမ်းဆည်း" : "Saved"}
               </p>
               <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
-                {statusCounts.placed}
+                {statusCounts.saved}
               </p>
-              <p className="mt-1.5 text-[11px] text-muted-foreground">
-                {lang === "my" ? "ခန့်အပ်မှုများ" : "Confirmed hires"}
+              <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                {lang === "my" ? "သိမ်းဆည်းထားသော အလုပ်" : "Saved jobs"}
+                <ChevronRight className="h-3 w-3" strokeWidth={2} />
               </p>
             </button>
           </div>
