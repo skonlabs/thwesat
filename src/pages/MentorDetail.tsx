@@ -297,6 +297,19 @@ const MentorDetail = () => {
           </section>
 
           {/* Reviews — summary + show all */}
+          {reviews.length === 0 && (
+            <section className="mt-6">
+              <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "သုံးသပ်ချက်များ" : "Reviews"}</h2>
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-4 text-center">
+                <Star className="mx-auto mb-1.5 h-5 w-5 text-muted-foreground/60" strokeWidth={1.5} />
+                <p className="text-xs text-muted-foreground">
+                  {lang === "my"
+                    ? "သုံးသပ်ချက် မရှိသေးပါ။ ပထမဆုံး session ပြီးပါက သုံးသပ်ချက် ရေးပေးနိုင်ပါသည်။"
+                    : "No reviews yet. Be the first to leave one after your session."}
+                </p>
+              </div>
+            </section>
+          )}
           {reviews.length > 0 && (() => {
             const total = reviews.length;
             const dislike = reviews.filter((r: any) => r.rating <= 2).length;
