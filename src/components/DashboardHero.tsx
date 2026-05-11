@@ -40,7 +40,7 @@ const DashboardHero = ({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-shell via-shell to-sidebar-accent/80 p-5 text-shell-foreground shadow-card-hover md:p-6"
+      className="relative mb-5 overflow-hidden rounded-2xl bg-gradient-to-br from-shell via-shell to-sidebar-accent/80 p-5 text-shell-foreground shadow-card-hover md:p-7 lg:p-8"
     >
       {/* Decorative glows */}
       <div aria-hidden className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/30 blur-3xl" />
@@ -51,11 +51,11 @@ const DashboardHero = ({
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
             {my ? roleLabelMy : roleLabelEn}
           </p>
-          <h2 className="mt-1.5 text-xl font-bold leading-tight text-shell-foreground md:text-2xl">
+          <h2 className="mt-1.5 text-xl font-bold leading-tight text-shell-foreground md:text-2xl lg:text-3xl">
             {my ? `${greetingMy}၊ ${name}` : `${greetingEn}, ${name}`}
           </h2>
           {(subtitleEn || subtitleMy) && (
-            <p className="mt-1.5 text-xs text-shell-foreground/70 md:text-sm">
+            <p className="mt-1.5 text-xs text-shell-foreground/70 md:text-sm lg:text-base lg:max-w-2xl">
               {my ? subtitleMy : subtitleEn}
             </p>
           )}
