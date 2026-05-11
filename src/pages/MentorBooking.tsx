@@ -83,7 +83,9 @@ const MentorBooking = () => {
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
+  const [topupOpen, setTopupOpen] = useState(false);
   const { data: wallet } = useWallet();
+  const { data: creditPackages = [] } = useCreditPackages();
   const sessionPrice = useActionPrice("mentor_session");
   const baseCredits = sessionPrice?.price_credits ?? 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
