@@ -875,7 +875,8 @@ const JobDetail = () => {
                       });
                       return;
                     }
-                    setCoverLetterSpendOpen(true);
+                    setShowApplyModal(false);
+                    setTimeout(() => setCoverLetterSpendOpen(true), 150);
                   }}
                 >
                   {generatingCoverLetter ? (
@@ -1051,12 +1052,18 @@ const JobDetail = () => {
       />
       <SpendConfirmSheet
         open={coverLetterSpendOpen}
-        onOpenChange={setCoverLetterSpendOpen}
+        onOpenChange={(o) => {
+          setCoverLetterSpendOpen(o);
+          if (!o) setShowApplyModal(true);
+        }}
         actionKey="cover_letter"
         targetType="job"
         targetId={id}
         idempotencyKey={`cover_letter:${user?.id}:${id}:${Date.now()}`}
-        onSuccess={() => runGenerateCoverLetter()}
+        onSuccess={() => {
+          setShowApplyModal(true);
+          runGenerateCoverLetter();
+        }}
       />
       <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
         <AlertDialogContent className="max-w-sm rounded-2xl">
