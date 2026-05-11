@@ -301,7 +301,7 @@ const MentorBooking = () => {
   ];
 
   return (
-    <div className="bg-background pb-40">
+    <div className="bg-background pb-24">
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath={`/mentors/${mentorId}`} />
 
       <div className="px-5">
@@ -646,8 +646,8 @@ const MentorBooking = () => {
         )}
       </div>
 
-      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
-        <div className="mx-auto flex w-full max-w-md gap-2">
+      <div className="px-5">
+        <div className="mt-2 flex w-full gap-2">
           {step === 1 && (
             <Button variant="default" size="lg" className="w-full rounded-xl" disabled={!selectedDate || (timeSlotsForDate.length > 0 && !selectedTime)} onClick={() => setStep(2)}>
               {lang === "my" ? "ဆက်လက်ရန်" : "Continue"}
