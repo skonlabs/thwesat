@@ -70,24 +70,25 @@ IMPORTANT RULES:
 - End with the applicant's name (use the provided name, or "Your Name" if not provided)
 - Do NOT include placeholder brackets like [Your Name] — use actual values`;
 
-    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": anthropicKey,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${openaiKey}`,
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "gpt-4o-mini",
         max_tokens: 1500,
-        system: "You are an expert career coach who writes compelling, tailored cover letters. Write naturally and avoid clichés. Output only the cover letter text.",
-        messages: [{ role: "user", content: userPrompt }],
+        messages: [
+          { role: "system", content: "You are an expert career coach who writes compelling, tailored cover letters. Write naturally and avoid clichés. Output only the cover letter text." },
+          { role: "user", content: userPrompt },
+        ],
       }),
     });
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
-      console.error("Anthropic API error:", errText);
+      console.error("OpenAI API error:", errText);
       return new Response(JSON.stringify({ error: "AI generation failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -95,7 +96,7 @@ IMPORTANT RULES:
     }
 
     const aiData = await aiResponse.json();
-    const text = aiData.content?.[0]?.text || "";
+    const text = aiData.choices?.[0]?.message?.content || "";
 
     return new Response(JSON.stringify({ data: { letter: text.trim() } }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
