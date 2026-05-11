@@ -91,7 +91,7 @@ const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm pb-safe md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-shell bg-shell pb-safe text-shell-foreground md:hidden">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2 md:max-w-2xl lg:max-w-3xl">
         {navItems.map((item) => {
           const [itemPath, itemQuery] = item.path.split("?");
@@ -109,7 +109,7 @@ const BottomNav = () => {
               onClick={() => navigate(item.path)}
               className={cn(
                 "relative flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
+                active ? "text-accent" : "text-shell-foreground/65"
               )}
             >
               {active && (
