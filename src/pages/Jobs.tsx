@@ -221,31 +221,28 @@ const Jobs = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} />
-      <div className="bg-shell px-5 pb-5 pt-4 text-shell-foreground md:px-8">
+      <div className="border-b border-border bg-background px-5 pb-4 pt-3 md:px-8">
         <div className="mx-auto max-w-7xl">
         <div className="mb-3 flex gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent px-3.5 py-2.5">
-            <Search className="h-4 w-4 text-shell-foreground/65" strokeWidth={1.5} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm text-shell-foreground outline-none placeholder:text-shell-foreground/45" />
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5">
+            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/70" />
             {search && (
               <button onClick={() => setSearch("")} className="text-muted-foreground">
                 <X className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             )}
           </div>
-          <Button onClick={() => {}} variant="default" size="sm" className="rounded-xl bg-accent px-4 text-accent-foreground hover:bg-accent/90">
-            <Search className="h-4 w-4" strokeWidth={1.5} />
-          </Button>
-          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent px-3">
-            <SlidersHorizontal className="h-4 w-4 text-shell-foreground/70" strokeWidth={1.5} />
+          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3 hover:bg-muted/40">
+            <SlidersHorizontal className="h-4 w-4 text-foreground/70" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{activeFilterCount}</span>
             )}
           </button>
         </div>
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="mb-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
-            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-accent text-accent-foreground" : "border border-sidebar-border bg-sidebar-accent text-shell-foreground/70"}`}>
+            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground/70 hover:bg-muted/40"}`}>
               {lang === "my" ? cat.my : cat.en}
             </button>
           ))}
