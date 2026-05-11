@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, ArrowRight, Briefcase, Building2 } from "lucide-react";
+import { CheckCircle, ArrowRight, Briefcase, Building2, Sparkles, Users, ShieldCheck, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
