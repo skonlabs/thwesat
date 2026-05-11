@@ -14,6 +14,7 @@ import InviteFriendsCard from "@/components/InviteFriendsCard";
 import MentorCoachCue from "@/components/MentorCoachCue";
 import SeekerWelcomeTour from "@/components/SeekerWelcomeTour";
 import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
+import DashboardHero from "@/components/DashboardHero";
 import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const jobseekerActions = [
@@ -55,6 +56,15 @@ const HomePage = () => {
       <div className="px-5 pt-5 md:grid md:grid-cols-[1fr_320px] md:gap-8 md:px-8 md:pt-6 lg:grid-cols-[1fr_360px]">
         {/* Main column */}
         <div className="md:min-w-0">
+          <DashboardHero
+            roleLabelEn="Job Seeker"
+            roleLabelMy="အလုပ်ရှာသူ"
+            subtitleEn="Your next opportunity is one tap away."
+            subtitleMy="နောက်အခွင့်အလမ်းသည် တစ်ချက်နှိပ်ရုံသာ ဝေးပါသည်။"
+            ctaLabelEn="Browse jobs"
+            ctaLabelMy="အလုပ်များ ကြည့်ရန်"
+            ctaPath="/jobs"
+          />
           <WelcomeTourVideoCard variant="seeker" />
           <SeekerWelcomeTour />
           {showCompletionBar && (
