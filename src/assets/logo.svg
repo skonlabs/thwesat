@@ -1,1 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><line x1="220" y1="220" x2="320" y2="120" stroke="#1B1740" stroke-width="20" stroke-linecap="round" /><line x1="220" y1="220" x2="320" y2="280" stroke="#1B1740" stroke-width="20" stroke-linecap="round" /><line x1="120" y1="360" x2="320" y2="280" stroke="#1B1740" stroke-width="20" stroke-linecap="round" /><circle cx="320" cy="120" r="40" fill="#1B1740" /><circle cx="220" cy="220" r="40" fill="#1B1740" /><circle cx="120" cy="360" r="40" fill="#1B1740" /><circle cx="320" cy="280" r="40" fill="#FFBE5C" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="ThweSat">
+  <defs>
+    <linearGradient id="tsBadge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#231C58"/>
+      <stop offset="100%" stop-color="#15113A"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#tsBadge)"/>
+  <path d="M128 168 H384" stroke="#FFBE5C" stroke-width="36" stroke-linecap="round"/>
+  <path d="M256 168 V388" stroke="#F6F4FB" stroke-width="36" stroke-linecap="round"/>
+  <path d="M168 300 Q256 232 344 300" fill="none" stroke="#F6F4FB" stroke-width="22" stroke-linecap="round" stroke-opacity="0.55"/>
+  <circle cx="344" cy="300" r="26" fill="#FFBE5C"/>
+</svg>
