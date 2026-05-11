@@ -72,27 +72,28 @@ html[data-myanmar-font="noto"] body {
     --font-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
   }
 
-  /* Dark theme — preserves Navy primary + Gold accent semantics so all
-     in-app components keep brand colors. Only surfaces invert. */
+  /* Dark theme — Myanmar-inspired warm midnight: deep teak/burgundy
+     undertones (not cold navy) with Gold accent. Lifted surfaces for
+     a softer, lacquered feel reminiscent of Bagan teak + ruby. */
   .dark {
-    --background: 252 50% 7%;
-    --foreground: 40 30% 94%;
-    --card: 252 42% 11%;
-    --card-foreground: 40 30% 94%;
-    --popover: 252 42% 11%;
-    --popover-foreground: 40 30% 94%;
-    --primary: 252 46% 22%;
-    --primary-foreground: 40 30% 96%;
-    --secondary: 252 35% 13%;
-    --secondary-foreground: 40 25% 88%;
-    --muted: 252 30% 14%;
-    --muted-foreground: 252 12% 65%;
+    --background: 18 22% 11%;
+    --foreground: 36 30% 94%;
+    --card: 18 20% 15%;
+    --card-foreground: 36 30% 94%;
+    --popover: 18 20% 15%;
+    --popover-foreground: 36 30% 94%;
+    --primary: 12 55% 32%;
+    --primary-foreground: 36 35% 96%;
+    --secondary: 18 18% 18%;
+    --secondary-foreground: 36 25% 88%;
+    --muted: 18 16% 19%;
+    --muted-foreground: 36 12% 68%;
     --accent: 36 100% 68%;
-    --accent-foreground: 252 46% 10%;
-    --destructive: 0 72% 55%;
+    --accent-foreground: 18 30% 12%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 252 25% 20%;
-    --input: 252 25% 20%;
+    --border: 18 18% 24%;
+    --input: 18 18% 24%;
     --ring: 36 100% 68%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
