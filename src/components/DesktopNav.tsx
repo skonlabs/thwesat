@@ -65,7 +65,7 @@ const DesktopNav = () => {
 
   const items = isAdmin ? admin : isModerator ? mod : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
 
-  const initials = (profile?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
+  const initials = ((profile as any)?.display_name || (profile as any)?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <header className="sticky top-0 z-40 hidden border-b border-border bg-background/85 backdrop-blur-xl md:block">
