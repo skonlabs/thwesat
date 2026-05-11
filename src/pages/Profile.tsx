@@ -19,9 +19,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
-import { useFeatureUnlocks, useWallet } from "@/hooks/use-wallet";
-import { useApplications, useSavedJobIds } from "@/hooks/use-jobs";
-import { Sparkles as SparklesIcon, Bookmark } from "lucide-react";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { Sparkles as SparklesIcon } from "lucide-react";
+import ProfileDashboardHero from "@/components/profile/ProfileDashboardHero";
 
 const Profile = () => {
   const navigate = useNavigate();
