@@ -79,7 +79,7 @@ const DesktopNav = () => {
           </span>
         </Link>
 
-        <nav className="ml-2 flex items-center gap-1">
+        <nav className="ml-6 flex items-center gap-1">
           {items.map((it) => {
             const [base] = it.path.split("?");
             const active = location.pathname === base || location.pathname.startsWith(base + "/");
