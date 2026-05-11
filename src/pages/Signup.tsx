@@ -271,14 +271,36 @@ const Signup = () => {
           )}
         </div>
 
-        <Button variant="default" size="lg" className="mt-8 w-full rounded-2xl shadow-navy" onClick={handleSignup} disabled={isLoading}>
-          {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating...") : (lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up")}
+        <Button
+          size="xl"
+          className="group mt-8 h-14 w-full rounded-2xl bg-accent text-accent-foreground shadow-[0_12px_32px_-12px_hsl(var(--accent)/0.6)] hover:bg-accent/90"
+          onClick={handleSignup}
+          disabled={isLoading}
+        >
+          <span className="text-base font-semibold">
+            {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating account...") : (lang === "my" ? "အခမဲ့ စတင်ရန်" : "Create my free account")}
+          </span>
+          {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />}
         </Button>
 
-        <p className="mt-4 text-center text-[10px] text-muted-foreground">
+        {/* Trust strip */}
+        <div className="mt-5 flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1"><Shield className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "လုံခြုံ" : "Secure"}</span>
+          <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "အခမဲ့" : "Free forever"}</span>
+          <span className="flex items-center gap-1"><Sparkles className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "၂ မိနစ်" : "2 minutes"}</span>
+        </div>
+
+        <p className="mt-5 text-center text-[10px] text-muted-foreground">
           {lang === "my"
             ? "အကောင့်ဖွင့်ခြင်းဖြင့် ကိုယ်ရေးကာကွယ်မှု မူဝါဒကို သဘောတူပါသည်"
             : "By signing up, you agree to our Privacy Policy"}
+        </p>
+
+        <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
+          {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
+          <button onClick={() => navigate("/login")} className="font-semibold text-primary hover:underline" type="button">
+            {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign in"}
+          </button>
         </p>
 
         <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
