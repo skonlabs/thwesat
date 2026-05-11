@@ -222,9 +222,15 @@ const Jobs = () => {
   const clearFilters = () => {
     setFilterType("all");
     setFilterLocation("all");
-    setFilterDiasporaSafe(false);
-    setFilterVerified(false);
-    setFilterVisa(false);
+    setFilterSalaryMin("");
+    setFilterSalaryMax("");
+  };
+
+  const toggleLocation = (loc: string) => {
+    const next = selectedLocations.includes(loc)
+      ? selectedLocations.filter(l => l !== loc)
+      : [...selectedLocations, loc];
+    setFilterLocation(next.length === 0 ? "all" : next.join(","));
   };
 
   const handleToggleSave = (jobId: string, e: React.MouseEvent) => {
@@ -322,30 +328,41 @@ const Jobs = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "တည်နေရာ" : "Location"}</p>
+                  <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "တည်နေရာ" : "Location"}</p>
+                  <p className="mb-2 text-[10px] text-muted-foreground">{lang === "my" ? "တစ်ခုထက်ပို ရွေးချယ်နိုင်သည်" : "Select one or more"}</p>
                   <div className="flex flex-wrap gap-2">
-                    {locationOptions.map(loc => (
-                      <button key={loc.value} onClick={() => setFilterLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterLocation === loc.value ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
-                        {lang === "my" ? loc.labelMy : loc.labelEn}
-                      </button>
-                    ))}
+                    {locationOptions.map(loc => {
+                      const selected = selectedLocations.includes(loc.value);
+                      return (
+                        <button key={loc.value} onClick={() => toggleLocation(loc.value)} className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${selected ? "bg-primary text-primary-foreground" : "border border-border bg-background text-muted-foreground"}`}>
+                          {lang === "my" ? loc.labelMy : loc.labelEn}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လုံခြုံရေး" : "Safety & Trust"}</p>
-                  <div className="space-y-2">
-                    {[
-                      { label: lang === "my" ? "ပြည်ပ လုံခြုံသာ" : "Diaspora Safe only", value: diasporaOn, set: setFilterDiasporaSafe },
-                      { label: lang === "my" ? "အတည်ပြုပြီးသာ" : "Verified only", value: verifiedOn, set: setFilterVerified },
-                      { label: lang === "my" ? "ဗီဇာပံ့ပိုးသာ" : "Visa sponsorship", value: visaOn, set: setFilterVisa },
-                    ].map(toggle => (
-                      <button key={toggle.label} onClick={() => toggle.set(!toggle.value)} className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3">
-                        <span className="text-sm text-foreground">{toggle.label}</span>
-                        <div className={`flex h-5 w-5 items-center justify-center rounded-md transition-colors ${toggle.value ? "bg-primary" : "border border-border"}`}>
-                          {toggle.value && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />}
-                        </div>
-                      </button>
-                    ))}
+                  <p className="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wide">{lang === "my" ? "လစာအတိုင်းအတာ (USD/လ)" : "Salary range (USD / month)"}</p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      value={filterSalaryMin}
+                      onChange={e => setFilterSalaryMin(e.target.value)}
+                      placeholder={lang === "my" ? "အနိမ့်ဆုံး" : "Min"}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/70"
+                    />
+                    <span className="text-xs text-muted-foreground">—</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      value={filterSalaryMax}
+                      onChange={e => setFilterSalaryMax(e.target.value)}
+                      placeholder={lang === "my" ? "အမြင့်ဆုံး" : "Max"}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/70"
+                    />
                   </div>
                 </div>
               </div>
