@@ -863,20 +863,31 @@ const JobDetail = () => {
                   variant="outline"
                   size="sm"
                   className="mt-1 w-full"
+                  disabled={generatingCoverLetter || (!selectedCvId && !selectedGeneratedResumeId)}
                   onClick={() => {
-                    const params = new URLSearchParams();
-                    if (job?.title) params.set("jobTitle", job.title);
-                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
-                    if (companyName) params.set("company", companyName);
-                    if (job?.id) params.set("jobId", job.id);
-                    params.set("returnTo", `/jobs/${id}?openApply=1`);
-                    navigate(`/ai-tools/cover-letter?${params.toString()}`);
+                    if (!selectedCvId && !selectedGeneratedResumeId) {
+                      toast({
+                        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း ရွေးချယ်ပါ" : "Select a resume first",
+                        description: lang === "my"
+                          ? "Cover letter ဖန်တီးရန် ကိုယ်ရေးမှတ်တမ်း ရွေးပါ။"
+                          : "Pick a resume above so we can tailor the cover letter to your experience.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setCoverLetterSpendOpen(true);
                   }}
                 >
-                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {lang === "my"
-                    ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
-                    : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`}
+                  {generatingCoverLetter ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                  ) : (
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  )}
+                  {generatingCoverLetter
+                    ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Generating...")
+                    : (lang === "my"
+                      ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
+                      : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`)}
                 </Button>
                 <Button
                   variant="outline"
