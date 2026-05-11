@@ -87,7 +87,8 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-shell bg-shell text-shell-foreground md:hidden">
+      <header className="sticky top-0 z-40 border-b border-shell bg-shell text-shell-foreground md:hidden bg-gradient-to-br from-shell via-shell to-sidebar-accent/80 relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-12 h-32 w-32 rounded-full bg-accent/25 blur-3xl" />
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
             onClick={() => navigate("/dashboard")}
