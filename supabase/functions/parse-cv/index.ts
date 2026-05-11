@@ -88,17 +88,20 @@ Deno.serve(async (req) => {
     }
     const base64Content = btoa(binary);
 
-    const isPdf = file_path.endsWith(".pdf");
-    const mediaType = isPdf
-      ? "application/pdf"
-      : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    const isPdf = file_path.toLowerCase().endsWith(".pdf");
 
-    // Call Anthropic API
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
+        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!isPdf) {
+      return new Response(
+        JSON.stringify({ error: "Only PDF CVs are supported. Please upload your CV as a PDF." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -123,53 +126,46 @@ Deno.serve(async (req) => {
 }
 
 Rules:
-- Extract EVERY work experience entry as a separate object in "experiences" array — include company, role, duration, and description for each
+- Extract EVERY work experience entry as a separate object in "experiences" array
 - Include internships, freelance work, part-time jobs — every position mentioned
 - Extract ALL education entries, including certifications and training programs
 - Extract ALL skills — technical, soft skills, tools, frameworks, languages, methodologies
 - Extract the CV's professional summary / profile / objective into the "summary" field when present
-- The "other" field is a catch-all: put everything else here — certifications, awards, languages, volunteer work, projects, publications, portfolio links, references, hobbies, interests, etc. Do NOT duplicate the summary in "other" if it already belongs in "summary".
+- The "other" field is a catch-all for everything else (certifications, awards, languages, volunteer work, etc.)
 - If text is in Myanmar/Burmese, translate everything to English
 - If a field is not found, use empty string or empty array
 - Return ONLY the JSON, no markdown, no code fences, no explanation`;
 
-    // Build content array based on file type
-    const contentParts: any[] = [
-      { type: "text", text: "Parse this CV/resume document and extract the structured information." },
-    ];
+    const filename = file_path.split("/").pop() || "cv.pdf";
+    const dataUrl = `data:application/pdf;base64,${base64Content}`;
 
-    if (isPdf) {
-      contentParts.push({
-        type: "document",
-        source: { type: "base64", media_type: mediaType, data: base64Content },
-      });
-    } else {
-      // For DOCX, send as base64 file
-      contentParts.push({
-        type: "document",
-        source: { type: "base64", media_type: mediaType, data: base64Content },
-      });
-    }
-
-    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "gpt-4o",
         max_tokens: 8192,
-        system: systemPrompt,
-        messages: [{ role: "user", content: contentParts }],
         temperature: 0.1,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: "Parse this CV/resume document and extract the structured information as JSON." },
+              { type: "file", file: { filename, file_data: dataUrl } },
+            ],
+          },
+        ],
       }),
     });
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
-      console.error("Anthropic API error:", aiResponse.status, errText);
+      console.error("OpenAI API error:", aiResponse.status, errText);
       return new Response(
         JSON.stringify({ error: "AI parsing failed", details: errText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -177,7 +173,7 @@ Rules:
     }
 
     const aiData = await aiResponse.json();
-    const content = aiData.content?.[0]?.text || "";
+    const content = aiData.choices?.[0]?.message?.content || "";
 
     // Parse JSON from response
     let parsed;
