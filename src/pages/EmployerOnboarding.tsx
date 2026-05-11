@@ -26,7 +26,7 @@ const EmployerOnboarding = () => {
   const upsert = useUpsertEmployerProfile();
   const { profile } = useAuth();
   const isAgent = profile?.primary_role === "agent";
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
   const [linkedin, setLinkedin] = useState("");
