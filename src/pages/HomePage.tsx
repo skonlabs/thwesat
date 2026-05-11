@@ -53,7 +53,7 @@ const HomePage = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
-      <div className="px-5 pt-5 md:grid md:grid-cols-[1fr_320px] md:gap-8 md:px-8 md:pt-6 lg:grid-cols-[1fr_360px]">
+      <div className="mx-auto max-w-7xl px-5 pt-5 md:grid md:grid-cols-[minmax(0,1fr)_300px] md:gap-6 md:px-8 md:pt-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         {/* Main column */}
         <div className="md:min-w-0">
           <DashboardHero
@@ -109,37 +109,38 @@ const HomePage = () => {
                 {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             </div>
-            <div className="grid gap-2.5 md:grid-cols-2">
+            <div className="grid gap-2.5 xl:grid-cols-2">
               {latestJobs.map((job: any, i: number) => (
                 <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
                   onClick={() => navigate(`/jobs/${job.id}`)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover active:bg-muted">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent/15">
+                  className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover active:bg-muted">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-accent/15">
                     <Briefcase className="h-5 w-5 text-accent" strokeWidth={1.5} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
-                      <div className="flex gap-1">
-                        {job.is_diaspora_safe && (
-                          <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
-                            <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />{lang === "my" ? "လုံခြုံ" : "Safe"}
-                          </span>
-                        )}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
                       </div>
+                      {job.is_diaspora_safe && (
+                        <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald">
+                          <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />{lang === "my" ? "လုံခြုံ" : "Safe"}
+                        </span>
+                      )}
                     </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-1 truncate text-[11px] text-muted-foreground">
+                        <MapPin className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} />
+                        <span className="truncate">{translateJobLocation(job.location, lang)}</span>
                       </span>
-                      <span className="text-[11px] font-semibold text-accent">{formatJobSalary(job, lang)}</span>
+                      <span className="flex-shrink-0 whitespace-nowrap text-[11px] font-semibold text-accent">{formatJobSalary(job, lang)}</span>
                     </div>
                   </div>
                 </motion.button>
               ))}
               {latestJobs.length === 0 && (
-                <p className="py-6 text-center text-xs text-muted-foreground md:col-span-2">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
+                <p className="py-6 text-center text-xs text-muted-foreground xl:col-span-2">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိသေးပါ" : "No jobs yet"}</p>
               )}
             </div>
           </div>
@@ -148,8 +149,8 @@ const HomePage = () => {
             <MentorCoachCue variant={completionPct < 60 ? "profile" : "general"} />
           </div>
 
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5 md:p-6">
-            <h3 className="mb-4 text-sm font-bold text-primary-foreground md:text-base">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 mt-6 rounded-xl bg-primary p-5 md:hidden">
+            <h3 className="mb-4 text-sm font-bold text-primary-foreground">
               {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
             </h3>
             <div className="grid grid-cols-3 gap-3">
@@ -159,8 +160,8 @@ const HomePage = () => {
                 { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်သူ" : "Mentors", path: "/mentors" },
               ].map((stat) => (
                 <button key={stat.label} onClick={() => navigate(stat.path)} className="rounded-lg bg-primary-foreground/10 p-3 text-center transition-colors hover:bg-primary-foreground/20 active:bg-primary-foreground/25">
-                  <p className="text-lg font-bold text-accent md:text-2xl">{stat.value}</p>
-                  <p className="text-[10px] text-primary-foreground/70 md:text-xs">{stat.label}</p>
+                  <p className="text-lg font-bold text-accent">{stat.value}</p>
+                  <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
                 </button>
               ))}
             </div>
@@ -175,6 +176,26 @@ const HomePage = () => {
         <aside className="hidden md:block">
           <div className="sticky top-20 space-y-4">
             <MentorCoachCue variant={completionPct < 60 ? "profile" : "general"} />
+
+            {/* Community stats — moved into sidebar so the right column has substance */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-xl bg-primary p-5">
+              <h3 className="mb-3 text-sm font-bold text-primary-foreground">
+                {lang === "my" ? "ကျွန်ုပ်တို့ အသိုင်းအဝိုင်း" : "Our Community"}
+              </h3>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: `${(jobs || []).length}+`, label: lang === "my" ? "အလုပ်" : "Jobs", path: "/jobs" },
+                  { value: `${(allProfiles || []).length}+`, label: lang === "my" ? "အဖွဲ့ဝင်" : "Members", path: "/community" },
+                  { value: `${(mentors || []).length}+`, label: lang === "my" ? "လမ်းညွှန်" : "Mentors", path: "/mentors" },
+                ].map((stat) => (
+                  <button key={stat.label} onClick={() => navigate(stat.path)} className="rounded-lg bg-primary-foreground/10 p-2.5 text-center transition-colors hover:bg-primary-foreground/20">
+                    <p className="text-base font-bold text-accent">{stat.value}</p>
+                    <p className="text-[10px] text-primary-foreground/70">{stat.label}</p>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
             <InviteFriendsCard />
           </div>
         </aside>
