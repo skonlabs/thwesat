@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         burmese: ['Noto Sans Myanmar', 'sans-serif'],
-        display: ['Fraunces', 'Noto Sans Myanmar', 'Georgia', 'serif'],
+        display: ['Inter', 'Noto Sans Myanmar', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'Noto Sans Myanmar', 'system-ui', 'sans-serif'],
       },
       colors: {

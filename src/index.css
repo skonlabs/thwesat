@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -77,7 +77,7 @@ html[data-myanmar-font="noto"] body {
     --sidebar-ring: 36 100% 68%;
 
     --font-burmese: 'Noto Sans Myanmar', sans-serif;
-    --font-display: 'Fraunces', 'Noto Sans Myanmar', Georgia, serif;
+    --font-display: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
     --font-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
     --font-brand: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   }
