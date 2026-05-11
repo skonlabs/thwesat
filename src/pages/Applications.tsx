@@ -53,10 +53,12 @@ const Applications = () => {
   };
 
   const apps = applications || [];
+  const PIPELINE_STATUSES_INLINE = ["applied", "submitted", "viewed", "shortlisted", "interview", "interviewed", "offered"];
   const filteredApps = apps.filter((a: any) => {
     if (filter === "all") return true;
     if (filter === "new") return NEW_APPLICATION_STATUSES.includes(a.status);
     if (filter === "interview") return INTERVIEW_APPLICATION_STATUSES.includes(a.status);
+    if (filter === "pipeline") return PIPELINE_STATUSES_INLINE.includes(a.status);
     return a.status === filter;
   });
   const selected = apps.find((a: any) => a.id === selectedApp);
