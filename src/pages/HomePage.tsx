@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 import { useJobs } from "@/hooks/use-jobs";
+import { useMatchedJobs } from "@/hooks/use-matched-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -34,14 +35,30 @@ const HomePage = () => {
   const { data: jobs } = useJobs();
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
+  const { data: matchData } = useMatchedJobs(40);
+  const scoreMap = matchData?.scoreMap;
+  const hasMatches = !!scoreMap && scoreMap.size > 0;
 
   // NOTE: Admin/moderator routing is handled by HomeRedirect (which renders
   // the right dashboard inline). HomePage only ever mounts for non-admin
   // roles, so no redirect effect is needed here. Removing the previous
   // navigate() avoided a flash of HomePage before redirect.
 
-  const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
+  // Featured jobs personalized: when we have match scores, rank featured jobs by similarity.
+  const allFeatured = (jobs || []).filter((j: any) => j.is_featured);
+  const featuredJobs = hasMatches
+    ? [...allFeatured].sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0)).slice(0, 5)
+    : allFeatured.slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
+
+  // "Matched for you" — top non-featured jobs by similarity (avoid duplicating featured).
+  const featuredIds = new Set(featuredJobs.map((j: any) => j.id));
+  const matchedForYou = hasMatches
+    ? (jobs || [])
+        .filter((j: any) => !featuredIds.has(j.id) && (scoreMap!.get(j.id) ?? 0) > 0)
+        .sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0))
+        .slice(0, 5)
+    : [];
   
 
   // Profile completion — must mirror DB function `is_profile_complete` exactly,
