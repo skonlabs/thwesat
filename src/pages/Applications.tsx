@@ -38,6 +38,7 @@ const Applications = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: applications, isLoading } = useApplications();
+  const { data: savedJobs } = useSavedJobs();
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [confirmAccept, setConfirmAccept] = useState(false);
