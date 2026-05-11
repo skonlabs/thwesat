@@ -172,22 +172,63 @@ const Applications = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လျှောက်လွှာများ" : "My Applications"} showBack />
+      {/* Editorial summary hero */}
       <div className="px-5">
-        <div className="mb-4 grid grid-cols-4 gap-2">
-          {[
-            { label: lang === "my" ? "တင်ပြပြီး" : "Total", count: statusCounts.total, color: "text-foreground", filterVal: "all" },
-            { label: lang === "my" ? "ကြည့်ရှုပြီး" : "Viewed", count: statusCounts.viewed, color: "text-primary", filterVal: "viewed" },
-            { label: lang === "my" ? "ရွေးချယ်ခံ" : "Shortlisted", count: statusCounts.shortlisted, color: "text-emerald", filterVal: "shortlisted" },
-            { label: lang === "my" ? "အောင်မြင်" : "Placed", count: statusCounts.placed, color: "text-emerald", filterVal: "placed" },
-          ].map((s) => (
-            <button key={s.label} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
-              <p className={`text-lg font-bold ${s.color}`}>{s.count}</p>
-              <p className="text-[9px] text-muted-foreground">{s.label}</p>
+        <div className="mb-4 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-stretch divide-x divide-border">
+            <button
+              onClick={() => setFilter("all")}
+              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "all" ? "bg-primary/[0.04]" : ""}`}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {lang === "my" ? "လျှောက်လွှာစုစုပေါင်း" : "Pipeline"}
+              </p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
+                {statusCounts.total}
+              </p>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                {statusCounts.progress > 0
+                  ? (lang === "my" ? `${statusCounts.progress} ခု ဆောင်ရွက်ဆဲ` : `${statusCounts.progress} in progress`)
+                  : (lang === "my" ? "ဆောင်ရွက်ဆဲ မရှိ" : "None in progress")}
+              </p>
             </button>
-          ))}
+            <button
+              onClick={() => statusCounts.action > 0 && setFilter(ACTION_STATUSES.includes("offered") && apps.some((a:any)=>a.status==="offered") ? "offered" : "interview")}
+              disabled={statusCounts.action === 0}
+              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 disabled:opacity-60`}
+            >
+              <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-600 dark:text-amber-500">
+                <Sparkles className="h-3 w-3" strokeWidth={2} />
+                {lang === "my" ? "လုပ်ဆောင်ရန်" : "Action"}
+              </p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
+                {statusCounts.action}
+              </p>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                {statusCounts.action > 0
+                  ? (lang === "my" ? "ကမ်းလှမ်းမှု / အင်တာဗျူး" : "Offers & interviews")
+                  : (lang === "my" ? "သင့်ဘက်က စောင့်စရာ မရှိ" : "Nothing pending")}
+              </p>
+            </button>
+            <button
+              onClick={() => setFilter("placed")}
+              className={`flex-1 px-4 py-4 text-left transition-colors active:bg-muted/30 ${filter === "placed" ? "bg-primary/[0.04]" : ""}`}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald">
+                {lang === "my" ? "အောင်မြင်" : "Placed"}
+              </p>
+              <p className="mt-1 text-3xl font-bold leading-none tracking-tight text-foreground tabular-nums">
+                {statusCounts.placed}
+              </p>
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                {lang === "my" ? "ခန့်အပ်မှုများ" : "Confirmed hires"}
+              </p>
+            </button>
+          </div>
         </div>
 
-        <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
+        {/* Filter chips with counts */}
+        <div className="mb-4 -mx-5 flex gap-2 overflow-x-auto px-5 scrollbar-none">
           {[
             { value: "all", label: lang === "my" ? "အားလုံး" : "All" },
             { value: "new", label: lang === "my" ? "တင်ပြပြီး" : "Applied" },
@@ -196,15 +237,32 @@ const Applications = () => {
             { value: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Interview" },
             { value: "offered", label: lang === "my" ? "ကမ်းလှမ်းခံရ" : "Offered" },
             { value: "rejected", label: lang === "my" ? "ငြင်းပယ်ခံရ" : "Rejected" },
-          ].map(f => (
-            <button key={f.value} onClick={() => setFilter(f.value)} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.value ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
-              {f.label}
-            </button>
-          ))}
+          ].map(f => {
+            const c = countFor(f.value);
+            const active = filter === f.value;
+            return (
+              <button
+                key={f.value}
+                onClick={() => setFilter(f.value)}
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground active:bg-muted"
+                }`}
+              >
+                {f.label}
+                {c > 0 && (
+                  <span className={`rounded-full px-1.5 py-px text-[10px] tabular-nums ${active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-foreground/70"}`}>
+                    {c}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="space-y-3 px-5 pb-24">
+      <div className="space-y-4 px-5 pb-24">
         {(() => {
           const interviewApp = apps.find((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status) || a.status === "shortlisted");
           if (interviewApp) {
@@ -220,10 +278,11 @@ const Applications = () => {
           }
           return null;
         })()}
+
         {isLoading ? (
           <ListSkeleton count={4} />
         ) : filteredApps.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center">
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card/50 py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">
               {apps.length === 0
@@ -245,53 +304,115 @@ const Applications = () => {
               </Button>
             )}
           </div>
-        ) : (
-          filteredApps.map((app: any, i: number) => {
+        ) : (() => {
+          // Group when filter is "all"
+          const renderCard = (app: any, i: number) => {
             const job = app.jobs;
             const sl = statusLabels[app.status] || statusLabels.applied;
             const Icon = statusIcons[app.status] || FileText;
+            const accent =
+              ACTION_STATUSES.includes(app.status) ? "bg-amber-500"
+              : app.status === "placed" ? "bg-emerald"
+              : app.status === "rejected" || app.status === "withdrawn" ? "bg-muted-foreground/30"
+              : "bg-primary";
+            const interviewAt = app.interview_scheduled_at || app.interview_date;
             return (
-              <motion.button key={app.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              <motion.button
+                key={app.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(i * 0.04, 0.2) }}
                 onClick={() => setSelectedApp(app.id)}
-                className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left active:bg-muted">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-                  <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-foreground">{job?.title || "Job"}</h3>
-                  <p className="text-xs text-muted-foreground">{job?.company} {job?.salary_min && job?.salary_max ? `· ${formatCurrencyRange(job.salary_min, job.salary_max, job.currency, lang, "mo")}` : ""}</p>
-                  <div className="mt-2 flex items-center gap-2 flex-wrap">
-                    <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sl.color}`}>
-                      <Icon className="h-3 w-3" /> {lang === "my" ? sl.my : sl.en}
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Clock className="h-3 w-3" /> {app.created_at ? new Date(app.created_at).toLocaleDateString() : ""}
-                    </span>
-                    {app.status === "interview" && (app.interview_scheduled_at || app.interview_date) && (
-                      <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        <Calendar className="h-3 w-3" />
-                        {lang === "my" ? "အင်တာဗျူး: " : "Interview: "}
-                        {new Date(app.interview_scheduled_at || app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                className="group relative flex w-full overflow-hidden rounded-2xl border border-border bg-card text-left transition-colors active:bg-muted"
+              >
+                <span className={`w-1 shrink-0 ${accent}`} aria-hidden />
+                <div className="flex flex-1 items-start gap-3 p-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                    <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                          {job?.company || ""}
+                        </p>
+                        <h3 className="truncate text-[15px] font-semibold leading-tight text-foreground">
+                          {job?.title || "Job"}
+                        </h3>
+                      </div>
+                      <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sl.color}`}>
+                        <Icon className="h-3 w-3" /> {lang === "my" ? sl.my : sl.en}
                       </span>
+                    </div>
+
+                    {job?.salary_min && job?.salary_max && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatCurrencyRange(job.salary_min, job.salary_max, job.currency, lang, "mo")}
+                      </p>
                     )}
-                    {app.status !== "interview" && app.interview_date && (
-                      <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                        <Calendar className="h-3 w-3" /> {new Date(app.interview_date).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+
+                    <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Clock className="h-3 w-3" strokeWidth={1.75} />
+                        {app.created_at ? new Date(app.created_at).toLocaleDateString() : ""}
                       </span>
+                      {interviewAt && (
+                        <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Calendar className="h-3 w-3" />
+                          {lang === "my" ? "အင်တာဗျူး " : "Interview "}
+                          {new Date(interviewAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      )}
+                      {app.status === "offered" && (
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-500">
+                          <ArrowRight className="h-3 w-3" /> {lang === "my" ? "တုံ့ပြန်ရန်" : "Respond"}
+                        </span>
+                      )}
+                    </div>
+
+                    {app.status === "rejected" && app.rejection_reason && (
+                      <p className="mt-2 line-clamp-2 text-[11px] text-destructive/90">
+                        {lang === "my" ? `အကြောင်းပြချက်: ${app.rejection_reason_my || app.rejection_reason}` : `Reason: ${app.rejection_reason}`}
+                      </p>
                     )}
                   </div>
-                  {app.status === "rejected" && app.rejection_reason && (
-                    <p className="mt-1 text-[10px] text-destructive">
-                      {lang === "my" ? `အကြောင်းပြချက်: ${app.rejection_reason_my || app.rejection_reason}` : `Reason: ${app.rejection_reason}`}
-                    </p>
-                  )}
+                  <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/60" strokeWidth={1.5} />
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               </motion.button>
             );
-          })
-        )}
+          };
+
+          if (filter !== "all") {
+            return <div className="space-y-2.5">{filteredApps.map(renderCard)}</div>;
+          }
+
+          const action = filteredApps.filter((a: any) => ACTION_STATUSES.includes(a.status));
+          const progress = filteredApps.filter((a: any) => PROGRESS_STATUSES.includes(a.status));
+          const closed = filteredApps.filter((a: any) => CLOSED_STATUSES.includes(a.status));
+
+          const Section = ({ title, items, accent }: { title: string; items: any[]; accent?: string }) =>
+            items.length === 0 ? null : (
+              <div>
+                <div className="mb-2 flex items-center gap-2 px-1">
+                  <span className={`h-1.5 w-1.5 rounded-full ${accent || "bg-primary"}`} />
+                  <h2 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    {title} <span className="ml-1 text-foreground/60 tabular-nums">{items.length}</span>
+                  </h2>
+                </div>
+                <div className="space-y-2.5">{items.map(renderCard)}</div>
+              </div>
+            );
+
+          return (
+            <div className="space-y-5">
+              <Section title={lang === "my" ? "သင့်လုပ်ဆောင်ရန်" : "Action needed"} items={action} accent="bg-amber-500" />
+              <Section title={lang === "my" ? "ဆောင်ရွက်ဆဲ" : "In progress"} items={progress} accent="bg-primary" />
+              <Section title={lang === "my" ? "ပြီးဆုံး" : "Closed"} items={closed} accent="bg-muted-foreground/40" />
+            </div>
+          );
+        })()}
       </div>
+
 
       <AnimatePresence>
         {selected && (
