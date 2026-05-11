@@ -80,7 +80,7 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
-const jobCardPastels = ["bg-pastel-peach", "bg-pastel-mint", "bg-pastel-lavender", "bg-pastel-sky", "bg-pastel-blush", "bg-pastel-mist"];
+// Cards use the consistent card surface to match the editorial navy/gold theme.
 
 // Application status badges shown on job cards (seeker perspective).
 // Built from the shared registry so labels stay in sync with My Applications.
@@ -222,6 +222,7 @@ const Jobs = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} />
       <div className="bg-shell px-5 pb-5 pt-4 text-shell-foreground md:px-8">
+        <div className="mx-auto max-w-7xl">
         <div className="mb-3 flex gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent px-3.5 py-2.5">
             <Search className="h-4 w-4 text-shell-foreground/65" strokeWidth={1.5} />
@@ -265,6 +266,7 @@ const Jobs = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
 
       {/* Filter Panel */}
@@ -341,7 +343,7 @@ const Jobs = () => {
         )}
       </AnimatePresence>
 
-      <div className="space-y-2.5 px-5 pb-24 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 md:px-8 md:pb-12 lg:grid-cols-3">
+      <div className="mx-auto max-w-7xl space-y-2.5 px-5 pb-24 pt-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 md:px-8 md:pb-12 lg:grid-cols-3">
         {personalize && sortedJobs.length > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2 md:col-span-2 lg:col-span-3">
             <Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
@@ -379,27 +381,30 @@ const Jobs = () => {
 
             return (
               <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`cursor-pointer rounded-xl border p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${jobCardPastels[i % jobCardPastels.length]} ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+                className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+                {featured && (
+                  <span aria-hidden className="absolute inset-y-3 left-0 w-0.5 rounded-r bg-accent" />
+                )}
                 {featured && (
                   <div className="mb-2 flex items-center gap-1">
-                    <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
+                    <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-dark">★ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
                   </div>
                 )}
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/80">
-                      <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/8">
+                      <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{job.company}</p>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
                     </div>
                   </div>
-                  <button className="text-muted-foreground" onClick={(e) => handleToggleSave(job.id, e)}>
+                  <button className="flex-shrink-0 text-muted-foreground transition-colors hover:text-accent" onClick={(e) => handleToggleSave(job.id, e)} aria-label={isSaved ? "Unsave job" : "Save job"}>
                     <Bookmark className={`h-5 w-5 ${isSaved ? "fill-accent text-accent" : ""}`} strokeWidth={1.5} />
                   </button>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {job.is_verified && (
                     <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">✓ {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}</span>
                   )}
@@ -417,15 +422,17 @@ const Jobs = () => {
                     <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
                   )}
                 </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {translateJobTags(job.skills, lang).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
-                </div>
-                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.role_type || job.job_type, lang)}</span>
+                {translateJobTags(job.skills, lang).length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {translateJobTags(job.skills, lang).slice(0, 4).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
                   </div>
-                  <span className="text-xs font-semibold text-gold-dark">{formatJobSalary(job, lang)}</span>
+                )}
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                  <div className="flex min-w-0 items-center gap-3 text-[11px] text-muted-foreground">
+                    <span className="flex min-w-0 items-center gap-1 truncate"><MapPin className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} /> <span className="truncate">{translateJobLocation(job.location, lang)}</span></span>
+                    <span className="hidden items-center gap-1 sm:flex"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.role_type || job.job_type, lang)}</span>
+                  </div>
+                  <span className="flex-shrink-0 whitespace-nowrap text-xs font-semibold text-foreground">{formatJobSalary(job, lang)}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
