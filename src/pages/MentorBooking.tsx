@@ -283,88 +283,144 @@ const MentorBooking = () => {
     );
   }
 
+  // Build a 30-day rolling date strip starting today.
+  // If the mentor has set availability, only those dates are enabled; otherwise all future dates are enabled.
+  const dateStrip = useMemo(() => {
+    const days: { date: Date; key: string; hasSlots: boolean }[] = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const key = format(d, "yyyy-MM-dd");
+      days.push({ date: d, key, hasSlots: availableDates.has(key) });
+    }
+    return days;
+  }, [today, availableDates]);
+
+  const stepLabels = [
+    lang === "my" ? "အချိန်" : "When",
+    lang === "my" ? "အသေးစိတ်" : "Details",
+    lang === "my" ? "အတည်ပြု" : "Confirm",
+  ];
+
   return (
     <div className="bg-background pb-40">
       <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath={`/mentors/${mentorId}`} />
 
       <div className="px-5">
-        <div className="mb-6 flex gap-2">
-          <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-muted"}`} />
-          <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
-          <div className={`h-1.5 flex-1 rounded-full ${step >= 3 ? "bg-primary" : "bg-muted"}`} />
+        {/* Stepper */}
+        <div className="mb-5 flex items-center gap-2">
+          {stepLabels.map((label, i) => {
+            const n = i + 1;
+            const active = step >= n;
+            return (
+              <div key={label} className="flex flex-1 items-center gap-2">
+                <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  {n}
+                </div>
+                <span className={`text-[11px] font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+                {i < stepLabels.length - 1 && (
+                  <div className={`ml-1 h-px flex-1 ${step > n ? "bg-primary" : "bg-border"}`} />
+                )}
+              </div>
+            );
+          })}
         </div>
 
+        {/* Mentor header */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-card p-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             {mentorName.slice(0, 2).toUpperCase()}
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">{mentorName}</h3>
-            {mentorTitle && <p className="text-xs text-muted-foreground">{mentorTitle}</p>}
-            <div className="mt-0.5 flex items-center gap-1">
-              <Star className="h-3 w-3 fill-primary text-primary" />
-              <span className="text-[11px] font-medium text-foreground">{mentorProfile?.rating_avg || 0}</span>
-              <span className="text-[10px] text-muted-foreground">({mentorProfile?.total_sessions || 0})</span>
-              <span className="ml-1 text-[10px] text-primary font-medium">{sessionCredits.toLocaleString()} credits</span>
-            </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-sm font-semibold text-foreground">{mentorName}</h3>
+            {mentorTitle && <p className="truncate text-[11px] text-muted-foreground">{mentorTitle}</p>}
+          </div>
+          <div className="flex flex-col items-end gap-0.5">
+            {(mentorProfile?.rating_avg || 0) > 0 && (
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-primary text-primary" />
+                <span className="text-[11px] font-semibold text-foreground">{mentorProfile?.rating_avg}</span>
+              </div>
+            )}
+            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+              {sessionCredits.toLocaleString()} cr
+            </span>
           </div>
         </motion.div>
 
         {step === 1 && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            {/* Calendar picker */}
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <CalendarIcon className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-              {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Date"}
-            </h2>
-            <p className="mb-2 text-[10px] text-muted-foreground">
-              {lang === "my"
-                ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
-                : `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`}
-            </p>
-            <div className="mb-5 flex justify-center rounded-xl border border-border bg-card p-2">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  setSelectedDate(date);
-                  setSelectedTime(null);
-                }}
-                disabled={disableDate}
-                modifiers={{ hasSlots: (date) => availableDates.has(format(date, "yyyy-MM-dd")) }}
-                modifiersClassNames={{ hasSlots: "bg-primary/10 font-bold" }}
-                className={cn("pointer-events-auto")}
-              />
-            </div>
-
-            {availableDates.size === 0 && !selectedDate && (
-              <div className="mb-5 rounded-xl border border-accent/20 bg-accent/5 p-3 text-center">
-                <p className="text-xs text-muted-foreground">
-                  {lang === "my"
-                    ? "ဤ Mentor သည် အချိန်ဇယား မသတ်မှတ်ရသေးပါ။ ရက် ရွေးချယ်ပြီး တောင်းဆိုချက် ပို့နိုင်ပါသည်"
-                    : "This mentor hasn't set specific availability yet. Pick a preferred date to send a booking request"}
-                </p>
+            {/* Date strip */}
+            <div className="mb-5">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <CalendarIcon className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  {lang === "my" ? "ရက် ရွေးချယ်ပါ" : "Select Date"}
+                </h2>
+                <span className="text-[10px] text-muted-foreground">{mentorTz}</span>
               </div>
-            )}
+              {availableDates.size === 0 && (
+                <div className="mb-3 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2">
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    {lang === "my"
+                      ? "ဤ Mentor သည် အချိန်ဇယား မသတ်မှတ်ရသေးပါ။ ရက် ရွေးချယ်ပြီး တောင်းဆိုချက် ပို့နိုင်ပါသည်"
+                      : "This mentor hasn't set availability yet — pick a preferred date and send a request."}
+                  </p>
+                </div>
+              )}
+              <div className="-mx-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-2">
+                  {dateStrip.map(({ date, key, hasSlots }) => {
+                    const enabled = availableDates.size === 0 || hasSlots;
+                    const selected = selectedDateStr === key;
+                    return (
+                      <button
+                        key={key}
+                        disabled={!enabled}
+                        onClick={() => { setSelectedDate(date); setSelectedTime(null); }}
+                        className={`relative flex min-w-[58px] flex-col items-center rounded-xl border px-2 py-2.5 transition-all ${
+                          selected
+                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                            : enabled
+                              ? "border-border bg-card text-foreground hover:border-primary/40"
+                              : "border-border/50 bg-muted/30 text-muted-foreground/50 cursor-not-allowed"
+                        }`}
+                      >
+                        <span className={`text-[10px] font-medium uppercase tracking-wide ${selected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                          {format(date, "EEE")}
+                        </span>
+                        <span className="mt-0.5 text-lg font-bold leading-none">{format(date, "d")}</span>
+                        <span className={`mt-0.5 text-[10px] ${selected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                          {format(date, "MMM")}
+                        </span>
+                        {hasSlots && !selected && (
+                          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
 
             {/* Time slots */}
             {selectedDate && (
-              <>
-                <h2 className="mb-3 text-sm font-semibold text-foreground">
-                  <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-                  {lang === "my" ? "အချိန် ရွေးချယ်ပါ" : "Select Time"}
-                  <span className="ml-1 text-xs text-muted-foreground">{selectedDateDisplay}</span>
+              <div className="mb-5">
+                <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Clock className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  {lang === "my" ? "အချိန်" : "Available Times"}
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">{selectedDateDisplay}</span>
                 </h2>
                 {timeSlotsForDate.length > 0 ? (
-                  <div className="mb-5 grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {timeSlotsForDate.map(slot => (
                       <button
                         key={slot.raw}
                         onClick={() => setSelectedTime(slot.time)}
-                        className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${
+                        className={`rounded-xl border py-2.5 text-center text-sm font-medium transition-all ${
                           selectedTime === slot.time
                             ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-card text-foreground active:bg-muted"
+                            : "border-border bg-card text-foreground hover:border-primary/40"
                         }`}
                       >
                         {slot.time}
@@ -372,36 +428,52 @@ const MentorBooking = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="mb-5 text-center text-xs text-muted-foreground">
-                    {lang === "my" ? "ဤနေ့တွင် အချိန်မရှိပါ" : "No available time slots for this day"}
-                  </p>
+                  <div className="rounded-xl border border-dashed border-border bg-card/50 p-3 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      {lang === "my" ? "ဤနေ့တွင် အချိန်မရှိပါ" : "No available times this day"}
+                    </p>
+                  </div>
                 )}
-              </>
+              </div>
             )}
 
             {/* Duration */}
-            <h2 className="mb-3 text-sm font-semibold text-foreground">
-              <Timer className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-              {lang === "my" ? "ကြာချိန် ရွေးချယ်ပါ" : "Select Duration"}
-            </h2>
-            <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
-              {durationOptions.map(opt => {
-                const optCredits = hourlyRate > 0
-                  ? Math.round((hourlyRate * opt.minutes) / 60)
-                  : Math.round((baseCredits * opt.minutes) / 60);
-                return (
-                  <button key={opt.minutes} onClick={() => setSelectedDuration(opt.minutes)} className={`rounded-xl border p-2.5 text-center transition-all ${selectedDuration === opt.minutes ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground active:bg-muted"}`}>
-                    <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                    <p className={`mt-0.5 text-[10px] ${selectedDuration === opt.minutes ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} credits</p>
-                  </button>
-                );
-              })}
+            <div className="mb-2">
+              <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                <Timer className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                {lang === "my" ? "ကြာချိန်" : "Duration"}
+              </h2>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                {durationOptions.map(opt => {
+                  const optCredits = hourlyRate > 0
+                    ? Math.round((hourlyRate * opt.minutes) / 60)
+                    : Math.round((baseCredits * opt.minutes) / 60);
+                  const sel = selectedDuration === opt.minutes;
+                  return (
+                    <button
+                      key={opt.minutes}
+                      onClick={() => setSelectedDuration(opt.minutes)}
+                      className={`rounded-xl border p-2.5 text-center transition-all ${sel ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40"}`}
+                    >
+                      <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
+                      <p className={`mt-0.5 text-[10px] ${sel ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <p className="mb-5 text-xs text-muted-foreground text-center">
-              {lang === "my"
-                ? `Session ကြေး: ${sessionCredits.toLocaleString()} credits`
-                : `Session fee: ${sessionCredits.toLocaleString()} credits`}
-            </p>
+
+            {/* Inline session fee summary */}
+            <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-3.5 py-2.5">
+              <span className="text-xs text-muted-foreground">
+                {lang === "my" ? "Session ကြေး" : "Session fee"}
+              </span>
+              <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
+                <Coins className="h-3.5 w-3.5" strokeWidth={2} />
+                {sessionCredits.toLocaleString()}
+                <span className="text-[10px] font-medium text-muted-foreground">credits</span>
+              </span>
+            </div>
           </motion.div>
         )}
 
