@@ -692,384 +692,265 @@ const JobDetail = () => {
         </motion.div>
       </div>
 
-      {/* Enhanced Apply Modal */}
+      {/* Apply Modal — bottom sheet on mobile, centered dialog on desktop */}
       <AnimatePresence>
         {showApplyModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setShowApplyModal(false)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-card p-6 pb-8" onClick={e => e.stopPropagation()}>
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40 md:items-center md:bottom-0 md:p-6"
+            onClick={() => setShowApplyModal(false)}
+          >
+            <motion.div
+              initial={{ y: 400, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 400, opacity: 0 }}
+              transition={{ type: "spring", damping: 30, stiffness: 280 }}
+              className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-card shadow-2xl md:max-h-[85vh] md:max-w-3xl md:rounded-2xl"
+              onClick={e => e.stopPropagation()}
+            >
               {/* Header */}
-              <div className="mb-1 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">{lang === "my" ? "လျှောက်ထားရန်" : "Apply Now"}</h2>
-                <button onClick={() => setShowApplyModal(false)} className="rounded-lg p-1 active:bg-muted"><X className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} /></button>
-              </div>
-              <p className="mb-5 text-xs text-muted-foreground">{displayTitle} · {job.company}</p>
-
-              {/* Profile badge */}
-              <div className="mb-5 rounded-xl bg-emerald/5 p-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={1.5} />
-                  <p className="text-xs font-medium text-emerald">{lang === "my" ? "ThweSat ပရိုဖိုင်ဖြင့် လျှောက်ထားမည်" : "Applying with your ThweSat profile"}</p>
+              <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-3.5 md:px-6 md:py-4">
+                <div className="min-w-0">
+                  <h2 className="text-base font-bold text-foreground md:text-lg">{lang === "my" ? "လျှောက်ထားရန်" : "Apply"} <span className="font-normal text-muted-foreground">— {displayTitle}</span></h2>
+                  <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{job.company} · {translateJobLocation(job.location, lang)}</p>
                 </div>
+                <button onClick={() => setShowApplyModal(false)} className="-mr-1 rounded-lg p-1.5 text-muted-foreground hover:bg-muted">
+                  <X className="h-4 w-4" strokeWidth={1.75} />
+                </button>
               </div>
 
-              {/* Resume/CV Selection */}
-              <div className="mb-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "CV/Resume ရွေးချယ်ပါ" : "Select Resume"}</label>
-                </div>
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-5 py-4 md:px-6 md:py-5">
+                <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+                  {/* Resume column */}
+                  <section>
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="h-3.5 w-3.5 text-primary" strokeWidth={1.75} />
+                        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "Resume" : "Resume"}</h3>
+                      </div>
+                      {(selectedCvId || selectedGeneratedResumeId) && (
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={2} />
+                      )}
+                    </div>
 
-                {(cvDocuments.length > 0 || generatedResumes.length > 0) ? (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {/* Only latest uploaded CV */}
-                    {cvDocuments.slice(0, 1).map((doc: any) => {
-                      const isSelected = selectedCvId === doc.id && !selectedGeneratedResumeId;
-                      return (
-                        <div
-                          key={doc.id}
-                          className={`flex items-center justify-between rounded-xl border-2 p-3 transition-colors cursor-pointer ${
-                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
-                          }`}
-                          onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-emerald/20" : "bg-muted"}`}>
-                              <Upload className={`h-4 w-4 ${isSelected ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                            </div>
-                            <div className="min-w-0">
-                              <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.file_name}</p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {lang === "my" ? "တင်ထားသော CV" : "Original CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""} · {new Date(doc.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {doc.file_url && (
-                              <button onClick={async (e) => {
-                                e.stopPropagation();
-                                const storagePath = doc.file_url.split('/cv-documents/').pop();
-                                if (!storagePath) return;
-
-                                setParsingCvId(doc.id);
-                                setPreviewTitle(doc.file_name);
-
-                                try {
-                                  const { data, error } = await supabase.functions.invoke("parse-cv", {
-                                    body: { file_path: storagePath },
-                                  });
-                                  if (error) throw error;
-
-                                  const parsed = data?.data;
-                                  const formatted = [
-                                    parsed?.name ? `${lang === "my" ? "အမည်" : "Name"}: ${parsed.name}` : "",
-                                    parsed?.title ? `${lang === "my" ? "ရာထူး" : "Title"}: ${parsed.title}` : "",
-                                    parsed?.summary ? `${lang === "my" ? "အကျဉ်းချုပ်" : "Summary"}:\n${parsed.summary}` : "",
-                                    parsed?.skills?.length ? `${lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}: ${parsed.skills.join(", ")}` : "",
-                                    parsed?.experiences?.length
-                                      ? `${lang === "my" ? "အတွေ့အကြုံ" : "Experience"}:\n${parsed.experiences
-                                          .map((ex: any) => `• ${[ex.role, ex.company].filter(Boolean).join(lang === "my" ? " · " : " at ")} ${ex.duration ? `(${ex.duration})` : ""}${ex.description ? `\n  ${ex.description}` : ""}`)
-                                          .join("\n\n")}`
-                                      : "",
-                                    parsed?.education?.length
-                                      ? `${lang === "my" ? "ပညာရေး" : "Education"}:\n${parsed.education
-                                          .map((ed: any) => `• ${[ed.degree, ed.institution].filter(Boolean).join(" — ")} ${ed.year ? `(${ed.year})` : ""}`)
-                                          .join("\n")}`
-                                      : "",
-                                    parsed?.other ? `${lang === "my" ? "အခြား" : "Other"}:\n${parsed.other}` : "",
-                                  ]
-                                    .filter(Boolean)
-                                    .join("\n\n");
-
-                                  setPreviewContent(formatted || (lang === "my" ? "ဤ CV ကို ကြည့်ရှုရန် အချက်အလက် မရရှိပါ" : "No preview available for this CV."));
-                                } catch {
-                                  setPreviewContent(null);
-                                  toast({ title: lang === "my" ? "CV ကို မကြည့်ရှုနိုင်ပါ" : "Could not preview CV", variant: "destructive" });
-                                } finally {
-                                  setParsingCvId(null);
-                                }
-                              }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted active:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
-                                {parsingCvId === doc.id ? (
-                                  <span className="flex items-center gap-1">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    <span className="text-[10px]">{lang === "my" ? "ဖတ်နေ..." : "Parsing..."}</span>
-                                  </span>
-                                ) : (
-                                  <Eye className="h-4 w-4" strokeWidth={1.5} />
-                                )}
-                              </button>
-                            )}
-                            {isSelected && <CheckCircle className="h-4 w-4 text-emerald flex-shrink-0" strokeWidth={2} />}
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    {/* Generated Resumes */}
-                    {generatedResumes.map((doc: any) => {
-                      const isSelected = selectedGeneratedResumeId === doc.id;
-                      const meta = doc.metadata as any;
-                      return (
-                        <div
-                          key={doc.id}
-                          className={`flex items-center justify-between rounded-xl border-2 p-3 transition-colors cursor-pointer ${
-                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
-                          }`}
-                          onClick={() => { setSelectedGeneratedResumeId(isSelected ? null : doc.id); setSelectedCvId(null); }}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSelected ? "bg-emerald/20" : "bg-emerald/10"}`}>
-                              <Sparkles className={`h-4 w-4 ${isSelected ? "text-emerald" : "text-emerald"}`} strokeWidth={1.5} />
-                            </div>
-                            <div className="min-w-0">
-                              <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.title}</p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {lang === "my" ? "ဖန်တီးထားသော ပရိုဖိုင်" : "Generated Profile"}{meta?.platform ? ` · ${meta.platform}` : ""} · {new Date(doc.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
-                              <Eye className="h-4 w-4" strokeWidth={1.5} />
+                    {(cvDocuments.length > 0 || generatedResumes.length > 0) ? (
+                      <div className="space-y-1.5">
+                        {cvDocuments.slice(0, 1).map((doc: any) => {
+                          const isSelected = selectedCvId === doc.id && !selectedGeneratedResumeId;
+                          return (
+                            <button
+                              key={doc.id}
+                              type="button"
+                              className={`flex w-full items-center gap-2.5 rounded-lg border p-2.5 text-left transition-colors ${
+                                isSelected ? "border-emerald bg-emerald/5" : "border-border hover:bg-muted/50"
+                              }`}
+                              onClick={() => { setSelectedCvId(isSelected ? null : doc.id); setSelectedGeneratedResumeId(null); }}
+                            >
+                              <FileText className={`h-4 w-4 flex-shrink-0 ${isSelected ? "text-emerald" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-xs font-medium text-foreground">{doc.file_name}</p>
+                                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "မူရင်း CV" : "Original CV"} · {doc.file_size_bytes ? `${(doc.file_size_bytes / 1024).toFixed(0)} KB` : ""}</p>
+                              </div>
+                              {isSelected && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald" strokeWidth={2} />}
                             </button>
-                            {isSelected && <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={2} />}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 text-center">
-                    <FileText className="mx-auto mb-2 h-6 w-6 text-muted-foreground/50" strokeWidth={1.5} />
-                    <p className="text-xs text-muted-foreground">
-                      {lang === "my" ? "CV မတင်ရသေးပါ — Career Tools မှ CV တင်ပါ" : "No CV uploaded yet — upload via Career Tools"}
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={(e) => { e.stopPropagation(); navigate("/ai-tools"); }}>
-                      <Upload className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                      {lang === "my" ? "CV တင်ရန်" : "Upload CV"}
-                    </Button>
-                  </div>
-                )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 w-full"
-                  onClick={() => {
-                    const params = new URLSearchParams();
-                    if (job?.id) params.set("jobId", job.id);
-                    if (job?.title) params.set("jobTitle", job.title);
-                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
-                    if (companyName) params.set("company", companyName);
-                    params.set("returnTo", `/jobs/${id}?openApply=1`);
-                    navigate(`/ai-tools/profile-builder?${params.toString()}`);
-                  }}
-                >
-                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {lang === "my"
-                    ? `Resume ဖန်တီးရန်${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`
-                    : `Generate resume${cvRewritePrice ? ` · ${cvRewritePrice.price_credits.toLocaleString()} credits` : ""}`}
-                </Button>
-              </div>
-
-              {/* Cover Letter Section */}
-              <div className="mb-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <PenLine className="h-4 w-4 text-emerald" strokeWidth={1.5} />
-                  <label className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"}</label>
-                  <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်ပိုင်ခွင့်" : "Optional"})</span>
-                </div>
-
-                {generatedCoverLetters.length > 0 && (
-                  <div className="space-y-2 max-h-48 overflow-y-auto mb-2">
-                    {generatedCoverLetters.map((doc: any) => {
-                      const isSelected = coverLetter === doc.content && coverLetterMode === "generated";
-                      const meta = doc.metadata as any;
-                      return (
-                        <div
-                          key={doc.id}
-                          className={`cursor-pointer rounded-xl border-2 p-3 transition-colors ${
-                            isSelected ? "border-emerald bg-emerald/10 ring-1 ring-emerald/30" : "border-border active:bg-muted"
-                          }`}
-                          onClick={() => {
-                            if (isSelected) { setCoverLetter(""); setCoverLetterMode("none"); }
-                            else { setCoverLetter(doc.content); setCoverLetterMode("generated"); }
-                          }}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className={`flex h-9 w-9 items-center justify-center rounded-lg flex-shrink-0 ${isSelected ? "bg-emerald/20" : "bg-emerald/10"}`}>
-                                <PenLine className={`h-4 w-4 text-emerald`} strokeWidth={1.5} />
+                          );
+                        })}
+                        {generatedResumes.map((doc: any) => {
+                          const isSelected = selectedGeneratedResumeId === doc.id;
+                          return (
+                            <button
+                              key={doc.id}
+                              type="button"
+                              className={`flex w-full items-center gap-2.5 rounded-lg border p-2.5 text-left transition-colors ${
+                                isSelected ? "border-emerald bg-emerald/5" : "border-border hover:bg-muted/50"
+                              }`}
+                              onClick={() => { setSelectedGeneratedResumeId(isSelected ? null : doc.id); setSelectedCvId(null); }}
+                            >
+                              <Sparkles className={`h-4 w-4 flex-shrink-0 text-emerald`} strokeWidth={1.5} />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-xs font-medium text-foreground">{doc.title}</p>
+                                <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ဖန်တီးထား" : "Generated"} · {new Date(doc.created_at).toLocaleDateString()}</p>
                               </div>
-                              <div className="min-w-0">
-                                <p className={`text-xs font-medium truncate ${isSelected ? "text-emerald" : "text-foreground"}`}>{doc.title}</p>
-                                <p className="text-[10px] text-muted-foreground">
-                                  {meta?.tone ? `${lang === "my" ? (toneLabels[meta.tone]?.my || meta.tone) : (toneLabels[meta.tone]?.en || meta.tone)} · ` : ""}{new Date(doc.created_at).toLocaleDateString()}
-                                </p>
+                              {isSelected && <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-emerald" strokeWidth={2} />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-border p-3 text-center">
+                        <p className="text-xs text-muted-foreground">{lang === "my" ? "CV မတင်ရသေးပါ" : "No resume yet"}</p>
+                        <button onClick={() => navigate("/ai-tools")} className="mt-1.5 text-xs font-medium text-primary hover:underline">
+                          {lang === "my" ? "Career Tools မှ CV တင်ရန် →" : "Upload one in Career Tools →"}
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const params = new URLSearchParams();
+                        if (job?.id) params.set("jobId", job.id);
+                        if (job?.title) params.set("jobTitle", job.title);
+                        const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+                        if (companyName) params.set("company", companyName);
+                        params.set("returnTo", `/jobs/${id}?openApply=1`);
+                        navigate(`/ai-tools/profile-builder?${params.toString()}`);
+                      }}
+                      className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-[11px] font-medium text-muted-foreground hover:border-primary/50 hover:text-primary"
+                    >
+                      <Sparkles className="h-3 w-3" strokeWidth={1.75} />
+                      {lang === "my" ? "Resume အသစ် ဖန်တီးရန်" : "Generate new resume"}
+                      {cvRewritePrice && <span className="text-gold-dark">· {cvRewritePrice.price_credits.toLocaleString()}c</span>}
+                    </button>
+                  </section>
+
+                  {/* Cover letter column */}
+                  <section>
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <PenLine className="h-3.5 w-3.5 text-emerald" strokeWidth={1.75} />
+                        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"}</h3>
+                        <span className="text-[10px] text-muted-foreground">({lang === "my" ? "ရွေးချယ်" : "optional"})</span>
+                      </div>
+                      {coverLetterMode !== "none" && coverLetter && (
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={2} />
+                      )}
+                    </div>
+
+                    {generatedCoverLetters.length > 0 && (
+                      <div className="mb-2 space-y-1.5">
+                        {generatedCoverLetters.slice(0, 3).map((doc: any) => {
+                          const isSelected = coverLetter === doc.content && coverLetterMode === "generated";
+                          return (
+                            <button
+                              key={doc.id}
+                              type="button"
+                              className={`flex w-full items-center gap-2.5 rounded-lg border p-2.5 text-left transition-colors ${
+                                isSelected ? "border-emerald bg-emerald/5" : "border-border hover:bg-muted/50"
+                              }`}
+                              onClick={() => {
+                                if (isSelected) { setCoverLetter(""); setCoverLetterMode("none"); }
+                                else { setCoverLetter(doc.content); setCoverLetterMode("generated"); }
+                              }}
+                            >
+                              <PenLine className="h-4 w-4 flex-shrink-0 text-emerald" strokeWidth={1.5} />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-xs font-medium text-foreground">{doc.title}</p>
+                                <p className="text-[10px] text-muted-foreground">{new Date(doc.created_at).toLocaleDateString()}</p>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" title={lang === "my" ? "ကြည့်ရှုရန်" : "View"}>
-                                <Eye className="h-4 w-4" strokeWidth={1.5} />
+                              <button onClick={(e) => { e.stopPropagation(); setPreviewContent(doc.content); setPreviewTitle(doc.title); }} className="rounded p-1 text-muted-foreground hover:bg-muted">
+                                <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
                               </button>
-                              {isSelected && <CheckCircle className="h-4 w-4 text-emerald" strokeWidth={2} />}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        disabled={generatingCoverLetter || (!selectedCvId && !selectedGeneratedResumeId)}
+                        onClick={() => {
+                          if (!selectedCvId && !selectedGeneratedResumeId) {
+                            toast({
+                              title: lang === "my" ? "Resume ရွေးပါ" : "Select a resume first",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          setShowApplyModal(false);
+                          setTimeout(() => setCoverLetterSpendOpen(true), 150);
+                        }}
+                        className="flex items-center justify-center gap-1 rounded-lg border border-border bg-card px-2 py-2 text-[11px] font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50"
+                      >
+                        {generatingCoverLetter ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-emerald" strokeWidth={1.75} />}
+                        <span>{lang === "my" ? "ဖန်တီးရန်" : "Generate"}</span>
+                        {coverLetterPrice && <span className="text-gold-dark">· {coverLetterPrice.price_credits.toLocaleString()}c</span>}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
+                          else { setCoverLetterMode("manual"); }
+                        }}
+                        className={`flex items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-medium transition-colors ${
+                          coverLetterMode === "manual" ? "border-primary bg-primary/5 text-primary" : "border-border bg-card text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        <PenLine className="h-3 w-3" strokeWidth={1.75} />
+                        {coverLetterMode === "manual" ? (lang === "my" ? "ပိတ်" : "Cancel") : (lang === "my" ? "ကိုယ်တိုင်" : "Write")}
+                      </button>
+                    </div>
+
+                    {coverLetterMode === "manual" && (
+                      <Textarea
+                        value={coverLetter}
+                        onChange={e => setCoverLetter(e.target.value)}
+                        placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit..."}
+                        className="mt-2 min-h-[100px] rounded-lg border-border text-xs"
+                      />
+                    )}
+                  </section>
+                </div>
+
+                {/* Priority toggle — full width */}
+                <button
+                  type="button"
+                  onClick={() => setPriorityApply(v => !v)}
+                  className={`mt-5 flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors ${priorityApply ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}
+                >
+                  <Sparkles className={`h-4 w-4 flex-shrink-0 ${priorityApply ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.75} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}</p>
+                      {priorityPrice && (
+                        <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold-dark">
+                          {priorityPrice.price_credits.toLocaleString()}c
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည်" : "Pin to the top of the employer's list"}</p>
                   </div>
-                )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-1 w-full"
-                  disabled={generatingCoverLetter || (!selectedCvId && !selectedGeneratedResumeId)}
-                  onClick={() => {
-                    if (!selectedCvId && !selectedGeneratedResumeId) {
-                      toast({
-                        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း ရွေးချယ်ပါ" : "Select a resume first",
-                        description: lang === "my"
-                          ? "Cover letter ဖန်တီးရန် ကိုယ်ရေးမှတ်တမ်း ရွေးပါ။"
-                          : "Pick a resume above so we can tailor the cover letter to your experience.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setShowApplyModal(false);
-                    setTimeout(() => setCoverLetterSpendOpen(true), 150);
-                  }}
-                >
-                  {generatingCoverLetter ? (
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
-                  ) : (
-                    <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  )}
-                  {generatingCoverLetter
-                    ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Generating...")
-                    : (lang === "my"
-                      ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
-                      : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`)}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 w-full"
-                  onClick={() => {
-                    if (coverLetterMode === "manual") { setCoverLetterMode("none"); setCoverLetter(""); }
-                    else { setCoverLetterMode("manual"); }
-                  }}
-                >
-                  <PenLine className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {coverLetterMode === "manual"
-                    ? (lang === "my" ? "ပိတ်ရန်" : "Cancel")
-                    : (lang === "my" ? "ကိုယ်တိုင်ရေးရန်" : "Write your own")}
-                </Button>
-
-                {coverLetterMode === "manual" && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2">
-                    <Textarea
-                      value={coverLetter}
-                      onChange={e => setCoverLetter(e.target.value)}
-                      placeholder={lang === "my" ? "ဤအလုပ်အတွက် သင်ဘာကြောင့် သင့်တော်သည်ကို ရေးပါ..." : "Tell them why you're a great fit..."}
-                      className="min-h-[120px] rounded-xl border-border text-sm"
-                    />
-                  </motion.div>
-                )}
+                  <div className={`h-4 w-7 flex-shrink-0 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>
+                    <div className={`h-4 w-4 rounded-full bg-background shadow transition-transform ${priorityApply ? "translate-x-3" : ""}`} />
+                  </div>
+                </button>
               </div>
 
-              {/* Summary */}
-              <div className="mb-5 rounded-xl border border-border bg-muted/30 p-3">
-                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {lang === "my" ? "လျှောက်လွှာ အကျဉ်းချုပ်" : "Application Summary"}
-                </p>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                    <span className="text-foreground">{lang === "my" ? "ThweSat ပရိုဖိုင်" : "ThweSat Profile"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {selectedCv ? (
-                      <>
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                        <span className="text-foreground truncate">{selectedCv.file_name}</span>
-                      </>
-                    ) : selectedGeneratedResume ? (
-                      <>
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                        <span className="text-foreground truncate">{selectedGeneratedResume.title}</span>
-                      </>
-                    ) : (
-                      <>
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "Resume မပါဝင်ပါ" : "No resume attached"}</span>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {coverLetterMode !== "none" && coverLetter ? (
-                      <>
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} />
-                        <span className="text-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ ပါဝင်သည်" : "Cover letter included"}</span>
-                      </>
-                    ) : (
-                      <>
-                        <X className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.5} />
-                        <span className="text-muted-foreground">{lang === "my" ? "အလုပ်လျှောက်လွှာ မပါဝင်ပါ" : "No cover letter"}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Priority Application toggle */}
-              <button
-                type="button"
-                onClick={() => setPriorityApply(v => !v)}
-                className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${priorityApply ? "border-primary bg-primary/5" : "border-border"}`}
-              >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${priorityApply ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
-                  <Sparkles className="h-4 w-4" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="text-xs font-semibold text-foreground">
-                      {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
-                    </p>
-                    {priorityPrice && (
-                      <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold">
-                        {priorityPrice.price_credits.toLocaleString()} {lang === "my" ? "credits" : "credits"}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင် စာရင်း၏ ထိပ်ဆုံးတွင် ပြသမည် · အခပေး ဝန်ဆောင်မှု" : "Pin to top of employer's list · Paid feature"}
+              {/* Footer */}
+              <div className="flex items-center gap-3 border-t border-border bg-muted/20 px-5 py-3 md:px-6">
+                {!selectedCvId && !selectedGeneratedResumeId ? (
+                  <p className="flex-1 text-[11px] text-destructive">
+                    {lang === "my" ? "လျှောက်ထားရန် Resume ရွေးပါ" : "Select a resume to apply"}
                   </p>
-                </div>
-                <div className={`h-5 w-9 rounded-full transition-colors ${priorityApply ? "bg-primary" : "bg-muted"}`}>
-                  <div className={`h-5 w-5 rounded-full bg-background shadow transition-transform ${priorityApply ? "translate-x-4" : ""}`} />
-                </div>
-              </button>
-
-              {/* Submit */}
-              {!selectedCvId && !selectedGeneratedResumeId && (
-                <p className="text-xs text-destructive text-center">
-                  {lang === "my" ? "လျှောက်ထားရန် ကိုယ်ရေးမှတ်တမ်း ရွေးချယ်ပါ" : "Select or upload a resume to apply"}
-                </p>
-              )}
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleApply} disabled={applyMutation.isPending || (!selectedCvId && !selectedGeneratedResumeId)}>
-                {applyMutation.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {lang === "my" ? "တင်နေသည်..." : "Submitting..."}
-                  </span>
                 ) : (
-                  <>
-                    <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
-                  </>
+                  <p className="flex-1 text-[11px] text-muted-foreground">
+                    {lang === "my" ? "ThweSat ပရိုဖိုင် + Resume" : "ThweSat profile + resume"}
+                    {coverLetterMode !== "none" && coverLetter && (lang === "my" ? " + လျှောက်လွှာ" : " + cover letter")}
+                  </p>
                 )}
-              </Button>
+                <Button
+                  variant="default"
+                  className="rounded-xl"
+                  onClick={handleApply}
+                  disabled={applyMutation.isPending || (!selectedCvId && !selectedGeneratedResumeId)}
+                >
+                  {applyMutation.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {lang === "my" ? "တင်နေသည်..." : "Submitting..."}
+                    </span>
+                  ) : (
+                    <>
+                      <Send className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.75} /> {lang === "my" ? "လျှောက်လွှာ တင်ရန်" : "Submit Application"}
+                    </>
+                  )}
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
