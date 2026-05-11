@@ -74,6 +74,8 @@ const JobDetail = () => {
   const [parsingCvId, setParsingCvId] = useState<string | null>(null);
   const [priorityApply, setPriorityApply] = useState(false);
   const [priorityConfirmOpen, setPriorityConfirmOpen] = useState(false);
+  const [coverLetterSpendOpen, setCoverLetterSpendOpen] = useState(false);
+  const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false);
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
   const priorityPrice = useActionPrice("priority_application");
   const cvRewritePrice = useActionPrice("cv_rewrite");
@@ -199,6 +201,87 @@ const JobDetail = () => {
         },
       }
     );
+  };
+
+  const runGenerateCoverLetter = async () => {
+    if (!user || !job) return;
+    setGeneratingCoverLetter(true);
+    try {
+      // Build experience context from selected resume
+      let yourExperience = "";
+      let yourName = "";
+      if (selectedCvId) {
+        const cv: any = (cvDocuments as any[]).find((d) => d.id === selectedCvId);
+        if (cv?.file_url) {
+          const storagePath = cv.file_url.split("/cv-documents/").pop() || cv.file_url;
+          try {
+            const { data: parsed } = await supabase.functions.invoke("parse-cv", {
+              body: { file_path: storagePath },
+            });
+            const p = parsed?.data;
+            if (p) {
+              yourName = p.name || "";
+              yourExperience = [
+                ...(p.experiences || []).map((ex: any) =>
+                  [ex.role, ex.company, ex.duration].filter(Boolean).join(" at ") +
+                  (ex.description ? ` — ${ex.description}` : "")
+                ),
+                ...(p.skills?.length ? [`Skills: ${p.skills.join(", ")}`] : []),
+                ...(p.summary ? [p.summary] : []),
+              ].join("\n");
+            }
+          } catch (e) {
+            console.warn("CV parse failed, generating without resume detail", e);
+          }
+        }
+      } else if (selectedGeneratedResumeId) {
+        const r: any = (generatedResumes as any[]).find((d) => d.id === selectedGeneratedResumeId);
+        if (r?.content) yourExperience = String(r.content).substring(0, 3000);
+      }
+
+      const jobDescription = [
+        (job as any).description || "",
+        (job as any).requirements ? `Requirements: ${(job as any).requirements}` : "",
+      ].filter(Boolean).join("\n").substring(0, 2000);
+
+      const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+
+      const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
+        body: {
+          jobTitle: job.title,
+          company: companyName,
+          jobDescription,
+          yourName: yourName || (user as any)?.user_metadata?.display_name || "",
+          yourExperience,
+          tone: "professional",
+        },
+      });
+      if (error) throw error;
+      const letter = data?.data?.letter;
+      if (!letter) throw new Error("No cover letter returned");
+
+      // Persist for re-use
+      await supabase.from("generated_documents").insert({
+        user_id: user.id,
+        doc_type: "cover_letter",
+        title: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${job.title || ""} at ${companyName || ""}`,
+        content: letter,
+        metadata: { jobTitle: job.title, company: companyName, tone: "professional", jobId: id || null },
+      });
+      queryClient.invalidateQueries({ queryKey: ["generated-cover-letters", user.id] });
+
+      setCoverLetter(letter);
+      setCoverLetterMode("generated");
+    } catch (err: any) {
+      console.error("Inline cover letter generation failed", err);
+      toast({
+        title: lang === "my" ? "ဖန်တီး၍ မရပါ" : "Generation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingCoverLetter(false);
+    }
   };
 
   const handleApply = () => {
@@ -780,20 +863,31 @@ const JobDetail = () => {
                   variant="outline"
                   size="sm"
                   className="mt-1 w-full"
+                  disabled={generatingCoverLetter || (!selectedCvId && !selectedGeneratedResumeId)}
                   onClick={() => {
-                    const params = new URLSearchParams();
-                    if (job?.title) params.set("jobTitle", job.title);
-                    const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
-                    if (companyName) params.set("company", companyName);
-                    if (job?.id) params.set("jobId", job.id);
-                    params.set("returnTo", `/jobs/${id}?openApply=1`);
-                    navigate(`/ai-tools/cover-letter?${params.toString()}`);
+                    if (!selectedCvId && !selectedGeneratedResumeId) {
+                      toast({
+                        title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း ရွေးချယ်ပါ" : "Select a resume first",
+                        description: lang === "my"
+                          ? "Cover letter ဖန်တီးရန် ကိုယ်ရေးမှတ်တမ်း ရွေးပါ။"
+                          : "Pick a resume above so we can tailor the cover letter to your experience.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setCoverLetterSpendOpen(true);
                   }}
                 >
-                  <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                  {lang === "my"
-                    ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
-                    : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`}
+                  {generatingCoverLetter ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
+                  ) : (
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
+                  )}
+                  {generatingCoverLetter
+                    ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Generating...")
+                    : (lang === "my"
+                      ? `Cover letter ဖန်တီးရန်${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`
+                      : `Generate cover letter${coverLetterPrice ? ` · ${coverLetterPrice.price_credits.toLocaleString()} credits` : ""}`)}
                 </Button>
                 <Button
                   variant="outline"
@@ -954,6 +1048,15 @@ const JobDetail = () => {
         targetId={id}
         idempotencyKey={`priority_application:${id}:${Date.now()}`}
         onSuccess={() => submitApplication()}
+      />
+      <SpendConfirmSheet
+        open={coverLetterSpendOpen}
+        onOpenChange={setCoverLetterSpendOpen}
+        actionKey="cover_letter"
+        targetType="job"
+        targetId={id}
+        idempotencyKey={`cover_letter:${user?.id}:${id}:${Date.now()}`}
+        onSuccess={() => runGenerateCoverLetter()}
       />
       <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
         <AlertDialogContent className="max-w-sm rounded-2xl">
