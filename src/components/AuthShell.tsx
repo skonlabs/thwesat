@@ -32,7 +32,7 @@ const AuthShell = ({ children, pitchEn, pitchMy }: AuthShellProps) => {
 
         <Link to="/" className="relative flex items-center gap-2.5">
           <img src={logo} alt="ThweSat" width={36} height={36} />
-          <span className="font-display text-xl font-semibold tracking-tight">
+          <span className="font-brand text-xl font-semibold">
             <span className="text-shell-foreground">Thwe</span>
             <span className="text-accent">Sat</span>
           </span>

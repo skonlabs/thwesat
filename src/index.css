@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -79,6 +79,7 @@ html[data-myanmar-font="noto"] body {
     --font-burmese: 'Noto Sans Myanmar', sans-serif;
     --font-display: 'Fraunces', 'Noto Sans Myanmar', Georgia, serif;
     --font-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
+    --font-brand: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   }
 
   /* Dark theme — Myanmar-inspired warm midnight: deep teak/burgundy
@@ -164,6 +165,7 @@ html[data-myanmar-font="noto"] body {
   }
   .font-display { font-family: var(--font-display); font-feature-settings: "ss01"; letter-spacing: -0.02em; }
   .font-serif-display { font-family: var(--font-display); }
+  .font-brand { font-family: var(--font-brand); letter-spacing: -0.035em; font-feature-settings: "ss01", "ss02"; }
 }
 
 @layer utilities {
