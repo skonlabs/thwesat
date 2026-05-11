@@ -416,6 +416,11 @@ const JobDetail = () => {
             </div>
           </div>
 
+          {/* Inline action row — desktop only (replaces the mobile fixed bottom bar) */}
+          <div className="mt-5 hidden items-center gap-2 rounded-xl border border-border bg-card p-3 md:flex">
+            {actionButtons}
+          </div>
+
           {/* Info grid */}
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
@@ -935,77 +940,12 @@ const JobDetail = () => {
         )}
       </AnimatePresence>
 
-      {/* Action buttons — fixed bottom on mobile, inline at top on desktop */}
-      {(() => {
-        const buttons = (
-          <>
-            <button
-              onClick={handleShare}
-              disabled={isSharing}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground active:bg-muted disabled:opacity-60"
-              title={lang === "my" ? "မျှဝေရန်" : "Share"}
-              aria-label={lang === "my" ? "မျှဝေရန်" : "Share"}
-            >
-              {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" strokeWidth={1.5} />}
-            </button>
-            <button
-              onClick={handleSave}
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${saved ? "border-emerald bg-emerald/10 text-emerald" : "border-border bg-card text-muted-foreground"} active:bg-muted`}
-              title={lang === "my" ? "သိမ်းရန်" : "Save"}
-              aria-label={lang === "my" ? "သိမ်းရန်" : "Save"}
-            >
-              <Bookmark className="h-4 w-4" strokeWidth={1.5} fill={saved ? "currentColor" : "none"} />
-            </button>
-            {!isOwnJob && (
-              <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
-                <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
-              </Button>
-            )}
-            {(() => {
-              const method = ((job as any).application_method || "platform") as "platform" | "external" | "email";
-              const externalUrl = ((job as any).external_url || "").trim();
-              if (method === "external" && externalUrl) {
-                return (
-                  <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => window.open(externalUrl, "_blank", "noopener,noreferrer")}>
-                    <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                    {lang === "my" ? "ပြင်ပလင့်ခ်တွင် လျှောက်ထားရန်" : "Apply on external site"}
-                  </Button>
-                );
-              }
-              if (method === "email" && externalUrl) {
-                return (
-                  <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { window.location.href = `mailto:${externalUrl}?subject=${encodeURIComponent(`Application: ${displayTitle}`)}`; }}>
-                    <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                    {lang === "my" ? "အီးမေးလ်ဖြင့် လျှောက်ထားရန်" : "Apply via email"}
-                  </Button>
-                );
-              }
-              if (hasActiveApplication) {
-                return (
-                  <Button variant="outline" size="lg" className="flex-1 rounded-xl text-emerald border-emerald" disabled>
-                    <CheckCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "လျှောက်ထားပြီး" : "You have already applied to this job"}
-                  </Button>
-                );
-              }
-              return (
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
-                  {hadPreviousApplication
-                    ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
-                    : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
-                </Button>
-              );
-            })()}
-          </>
-        );
-        return (
-          <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg md:hidden">
-            <div className="mx-auto flex w-full max-w-md items-center gap-2">
-              {buttons}
-            </div>
-          </div>
-        );
-      })()}
+      {/* Action bar — fixed bottom on mobile only (inline desktop version is rendered near the top) */}
+      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur-lg md:hidden">
+        <div className="mx-auto flex w-full max-w-md items-center gap-2">
+          {actionButtons}
+        </div>
+      </div>
       <SpendConfirmSheet
         open={priorityConfirmOpen}
         onOpenChange={setPriorityConfirmOpen}
