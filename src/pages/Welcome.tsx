@@ -277,7 +277,7 @@ const Welcome = () => {
           <div className="flex items-center gap-2">
             <img src={logo} alt="" width={20} height={20} />
             <span className="font-display text-sm font-semibold">
-              <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
+              <span className="text-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
             <span className="ml-2">© {new Date().getFullYear()}</span>
           </div>
