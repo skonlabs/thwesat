@@ -88,7 +88,10 @@ const Applications = () => {
     total: apps.length,
     action: apps.filter((a: any) => ACTION_STATUSES.includes(a.status)).length,
     progress: apps.filter((a: any) => PROGRESS_STATUSES.includes(a.status)).length,
+    pipeline: apps.filter((a: any) => PROGRESS_STATUSES.includes(a.status) || ACTION_STATUSES.includes(a.status)).length,
+    rejected: apps.filter((a: any) => a.status === "rejected").length,
     placed: apps.filter((a: any) => a.status === "placed").length,
+    saved: savedJobs?.length || 0,
   };
 
   const countFor = (val: string) => {
