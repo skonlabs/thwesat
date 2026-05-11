@@ -87,7 +87,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border bg-card md:hidden">
+      <header className="sticky top-0 z-40 border-b border-shell bg-shell text-shell-foreground md:hidden">
         <div className="flex items-center justify-between px-5 py-2.5">
           <button
             onClick={() => navigate("/dashboard")}
@@ -106,13 +106,13 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
               style={{ opacity: logoOpacity }}
               draggable={false}
             />
-            <span className="text-sm font-bold"><span className="text-foreground">Thwe</span><span className="text-accent">Sat</span></span>
+            <span className="text-sm font-bold"><span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span></span>
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />
             <button
               onClick={() => navigate("/wallet")}
-              className="relative flex h-8 items-center gap-1 rounded-full bg-accent/15 px-2 text-[11px] font-bold text-accent-foreground transition-colors active:bg-accent/25"
+              className="relative flex h-8 items-center gap-1 rounded-full bg-sidebar-accent px-2 text-[11px] font-bold text-shell-foreground transition-colors active:bg-sidebar-accent/80"
               aria-label={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"}
             >
               <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
@@ -120,7 +120,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
             </button>
             <button
               onClick={() => navigate("/notifications")}
-              className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg text-shell-foreground/70 transition-colors active:bg-sidebar-accent"
               aria-label={lang === "my" ? "အကြောင်းကြားချက်များ" : "Notifications"}
             >
               <Bell className="h-5 w-5" strokeWidth={1.5} />
@@ -132,7 +132,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
             </button>
             <button
               onClick={() => navigate("/messages")}
-              className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors active:bg-muted"
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg text-shell-foreground/70 transition-colors active:bg-sidebar-accent"
               aria-label={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"}
             >
               <MessageSquare className="h-5 w-5" strokeWidth={1.5} />

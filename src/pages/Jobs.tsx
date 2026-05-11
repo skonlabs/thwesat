@@ -80,6 +80,8 @@ const locationOptions = [
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
 ];
 
+const jobCardPastels = ["bg-pastel-peach", "bg-pastel-mint", "bg-pastel-lavender", "bg-pastel-sky", "bg-pastel-blush", "bg-pastel-mist"];
+
 // Application status badges shown on job cards (seeker perspective).
 // Built from the shared registry so labels stay in sync with My Applications.
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -219,22 +221,22 @@ const Jobs = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} />
-      <div className="px-5 pt-4 md:px-8">
+      <div className="bg-shell px-5 pb-5 pt-4 text-shell-foreground md:px-8">
         <div className="mb-3 flex gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-muted/30 px-3.5 py-2.5">
-            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent px-3.5 py-2.5">
+            <Search className="h-4 w-4 text-shell-foreground/65" strokeWidth={1.5} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်၊ ကုမ္ပဏီ..." : "Job title, company..."} className="flex-1 bg-transparent text-sm text-shell-foreground outline-none placeholder:text-shell-foreground/45" />
             {search && (
               <button onClick={() => setSearch("")} className="text-muted-foreground">
                 <X className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             )}
           </div>
-          <Button onClick={() => {}} variant="default" size="sm" className="rounded-xl px-4">
+          <Button onClick={() => {}} variant="default" size="sm" className="rounded-xl bg-accent px-4 text-accent-foreground hover:bg-accent/90">
             <Search className="h-4 w-4" strokeWidth={1.5} />
           </Button>
-          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-border bg-card px-3">
-            <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+          <button onClick={() => setShowFilters(true)} className="relative flex items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent px-3">
+            <SlidersHorizontal className="h-4 w-4 text-shell-foreground/70" strokeWidth={1.5} />
             {activeFilterCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{activeFilterCount}</span>
             )}
@@ -242,7 +244,7 @@ const Jobs = () => {
         </div>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
-            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}>
+            <button key={cat.en} onClick={() => setActiveCategory(cat.en)} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${activeCategory === cat.en ? "bg-accent text-accent-foreground" : "border border-sidebar-border bg-sidebar-accent text-shell-foreground/70"}`}>
               {lang === "my" ? cat.my : cat.en}
             </button>
           ))}
@@ -253,7 +255,7 @@ const Jobs = () => {
               <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-[11px] font-bold text-destructive">{lang === "my" ? "⚠️ အလိမ်အညာ သတိပေးချက်" : "⚠️ Scam Alert"}</p>
-                <p className="mt-0.5 text-[10px] text-foreground/70">
+                <p className="mt-0.5 text-[10px] text-shell-foreground/70">
                   {lang === "my" ? "Processing Fee တောင်းသော Remote Job ကမ်းလှမ်းချက်များကို သတိထားပါ" : "Beware of remote job offers asking for processing fees"}
                 </p>
               </div>
@@ -377,7 +379,7 @@ const Jobs = () => {
 
             return (
               <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`cursor-pointer rounded-xl border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+                className={`cursor-pointer rounded-xl border p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${jobCardPastels[i % jobCardPastels.length]} ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
                 {featured && (
                   <div className="mb-2 flex items-center gap-1">
                     <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
@@ -385,7 +387,7 @@ const Jobs = () => {
                 )}
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/80">
                       <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                     </div>
                     <div>
