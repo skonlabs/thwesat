@@ -8,6 +8,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useUnreadMessageCount, useUnreadNotificationCount } from "@/hooks/use-unread-counts";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LanguageToggle from "@/components/LanguageToggle";
 
 type NavItem = { labelMy: string; labelEn: string; path: string };
 
@@ -98,6 +99,7 @@ const DesktopNav = () => {
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
+          <LanguageToggle />
           <button onClick={() => navigate("/jobs")} className="hidden h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground lg:flex">
             <Search className="h-4 w-4" strokeWidth={1.75} />
           </button>
