@@ -222,6 +222,7 @@ const Jobs = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} />
       <div className="bg-shell px-5 pb-5 pt-4 text-shell-foreground md:px-8">
+        <div className="mx-auto max-w-7xl">
         <div className="mb-3 flex gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent px-3.5 py-2.5">
             <Search className="h-4 w-4 text-shell-foreground/65" strokeWidth={1.5} />
@@ -265,6 +266,7 @@ const Jobs = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
 
       {/* Filter Panel */}
