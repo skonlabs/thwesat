@@ -16,7 +16,8 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import { useWallet, useActionPrice } from "@/hooks/use-wallet";
+import { useWallet, useActionPrice, useCreditPackages } from "@/hooks/use-wallet";
+import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 
 const topics = [
@@ -82,7 +83,9 @@ const MentorBooking = () => {
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
+  const [topupOpen, setTopupOpen] = useState(false);
   const { data: wallet } = useWallet();
+  const { data: creditPackages = [] } = useCreditPackages();
   const sessionPrice = useActionPrice("mentor_session");
   const baseCredits = sessionPrice?.price_credits ?? 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
@@ -146,7 +149,7 @@ const MentorBooking = () => {
 
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", variant: "destructive" });
-      navigate("/wallet");
+      setTopupOpen(true);
       return;
     }
     try {
@@ -663,18 +666,27 @@ const MentorBooking = () => {
               <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
                 {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending || insufficient} onClick={handleConfirm}>
-                <Coins className="mr-1.5 h-4 w-4" />
-                {insufficient
-                  ? (lang === "my" ? `Credit ${(sessionCredits - balance).toLocaleString()} လို` : `Need ${(sessionCredits - balance).toLocaleString()} more`)
-                  : createBooking.isPending
+              {insufficient ? (
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setTopupOpen(true)}>
+                  <Coins className="mr-1.5 h-4 w-4" />
+                  {lang === "my"
+                    ? `Credit ${(sessionCredits - balance).toLocaleString()} ဖြည့်ရန်`
+                    : `Top up ${(sessionCredits - balance).toLocaleString()} more`}
+                </Button>
+              ) : (
+                <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
+                  <Coins className="mr-1.5 h-4 w-4" />
+                  {createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
                     : (lang === "my" ? `${sessionCredits.toLocaleString()} credits ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} credits`)}
-              </Button>
+                </Button>
+              )}
             </>
           )}
         </div>
       </div>
+
+      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
     </div>
   );
 };
