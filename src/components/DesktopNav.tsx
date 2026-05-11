@@ -68,12 +68,12 @@ const DesktopNav = () => {
   const initials = ((profile as any)?.display_name || (profile as any)?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 hidden border-b border-border bg-background/85 backdrop-blur-xl md:block">
+    <header className="sticky top-0 z-40 hidden border-b border-shell bg-shell text-shell-foreground md:block">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6 lg:px-10">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={logo} alt="ThweSat" width={30} height={30} />
           <span className="font-display text-lg font-semibold tracking-tight">
-            <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
+            <span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span>
           </span>
         </Link>
 
@@ -87,7 +87,7 @@ const DesktopNav = () => {
                 to={it.path}
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm transition-colors",
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  active ? "bg-accent text-accent-foreground" : "text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground",
                 )}
               >
                 {lang === "my" ? it.labelMy : it.labelEn}
@@ -97,10 +97,10 @@ const DesktopNav = () => {
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={() => navigate("/jobs")} className="hidden h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground lg:flex">
+          <button onClick={() => navigate("/jobs")} className="hidden h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground lg:flex">
             <Search className="h-4 w-4" strokeWidth={1.75} />
           </button>
-          <button onClick={() => navigate("/messages")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button onClick={() => navigate("/messages")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground">
             <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
             {unreadMessages > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
@@ -108,7 +108,7 @@ const DesktopNav = () => {
               </span>
             )}
           </button>
-          <button onClick={() => navigate("/notifications")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+          <button onClick={() => navigate("/notifications")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground">
             <Bell className="h-4 w-4" strokeWidth={1.75} />
             {unreadNotifications > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
@@ -117,9 +117,9 @@ const DesktopNav = () => {
             )}
           </button>
           <button onClick={() => navigate("/profile")} className="ml-1 flex items-center">
-            <Avatar className="h-9 w-9 border border-border">
+            <Avatar className="h-9 w-9 border border-shell">
               <AvatarImage src={(profile as any)?.avatar_url || undefined} alt="" />
-              <AvatarFallback className="bg-primary text-xs text-primary-foreground">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-accent text-xs text-accent-foreground">{initials}</AvatarFallback>
             </Avatar>
           </button>
         </div>
