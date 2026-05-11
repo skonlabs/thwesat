@@ -1049,6 +1049,15 @@ const JobDetail = () => {
         idempotencyKey={`priority_application:${id}:${Date.now()}`}
         onSuccess={() => submitApplication()}
       />
+      <SpendConfirmSheet
+        open={coverLetterSpendOpen}
+        onOpenChange={setCoverLetterSpendOpen}
+        actionKey="cover_letter"
+        targetType="job"
+        targetId={id}
+        idempotencyKey={`cover_letter:${user?.id}:${id}:${Date.now()}`}
+        onSuccess={() => runGenerateCoverLetter()}
+      />
       <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
         <AlertDialogContent className="max-w-sm rounded-2xl">
           <AlertDialogHeader>
