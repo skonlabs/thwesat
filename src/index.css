@@ -105,6 +105,29 @@ html[data-myanmar-font="noto"] body {
     --sidebar-border: 252 25% 18%;
     --sidebar-ring: 36 100% 68%;
   }
+
+  /* Landing page dark surface — keeps Navy primary + Gold accent semantics
+     intact (unlike global .dark which swaps them). Scoped to <Welcome />. */
+  .landing-dark {
+    --background: 252 50% 7%;
+    --foreground: 40 30% 94%;
+    --card: 252 42% 11%;
+    --card-foreground: 40 30% 94%;
+    --popover: 252 42% 11%;
+    --popover-foreground: 40 30% 94%;
+    --primary: 252 46% 17%;
+    --primary-foreground: 40 30% 96%;
+    --secondary: 252 35% 13%;
+    --secondary-foreground: 40 25% 88%;
+    --muted: 252 30% 14%;
+    --muted-foreground: 252 12% 65%;
+    --accent: 36 100% 68%;
+    --accent-foreground: 252 46% 10%;
+    --border: 252 25% 20%;
+    --input: 252 25% 20%;
+    --ring: 36 100% 68%;
+    --gold-dark: 36 100% 68%;
+  }
 }
 
 @layer base {
