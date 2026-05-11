@@ -818,6 +818,9 @@ export type Database = {
           currency: string | null
           description: string | null
           description_my: string | null
+          embedding: string | null
+          embedding_input_hash: string | null
+          embedding_updated_at: string | null
           employer_id: string
           external_url: string | null
           id: string
@@ -856,6 +859,9 @@ export type Database = {
           currency?: string | null
           description?: string | null
           description_my?: string | null
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
           employer_id: string
           external_url?: string | null
           id?: string
@@ -894,6 +900,9 @@ export type Database = {
           currency?: string | null
           description?: string | null
           description_my?: string | null
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
           employer_id?: string
           external_url?: string | null
           id?: string
@@ -1515,6 +1524,9 @@ export type Database = {
           deletion_scheduled_at: string | null
           display_name: string
           email: string | null
+          embedding: string | null
+          embedding_input_hash: string | null
+          embedding_updated_at: string | null
           experience: string | null
           has_laptop: boolean | null
           has_payoneer: boolean | null
@@ -1546,6 +1558,9 @@ export type Database = {
           deletion_scheduled_at?: string | null
           display_name?: string
           email?: string | null
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
           experience?: string | null
           has_laptop?: boolean | null
           has_payoneer?: boolean | null
@@ -1577,6 +1592,9 @@ export type Database = {
           deletion_scheduled_at?: string | null
           display_name?: string
           email?: string | null
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
           experience?: string | null
           has_laptop?: boolean | null
           has_payoneer?: boolean | null
@@ -2165,6 +2183,13 @@ export type Database = {
       is_employer_or_agent: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
+      match_jobs_for_user: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: {
+          job_id: string
+          similarity: number
+        }[]
+      }
       mentor_book_with_credits: {
         Args: { _booking_id: string; _credits: number }
         Returns: Json
