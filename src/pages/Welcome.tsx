@@ -53,14 +53,14 @@ const Welcome = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="landing-dark min-h-screen bg-background text-foreground">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8 md:py-4">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="ThweSat" width={32} height={32} />
             <span className="font-display text-lg font-semibold tracking-tight">
-              <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
+              <span className="text-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
@@ -277,7 +277,7 @@ const Welcome = () => {
           <div className="flex items-center gap-2">
             <img src={logo} alt="" width={20} height={20} />
             <span className="font-display text-sm font-semibold">
-              <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
+              <span className="text-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
             <span className="ml-2">© {new Date().getFullYear()}</span>
           </div>
