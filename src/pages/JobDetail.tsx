@@ -875,7 +875,8 @@ const JobDetail = () => {
                       });
                       return;
                     }
-                    setCoverLetterSpendOpen(true);
+                    setShowApplyModal(false);
+                    setTimeout(() => setCoverLetterSpendOpen(true), 150);
                   }}
                 >
                   {generatingCoverLetter ? (
