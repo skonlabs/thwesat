@@ -68,7 +68,8 @@ const DesktopNav = () => {
   const initials = ((profile as any)?.display_name || (profile as any)?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 hidden border-b border-shell bg-shell text-shell-foreground md:block">
+    <header className="sticky top-0 z-40 hidden border-b border-shell bg-shell text-shell-foreground md:block bg-gradient-to-r from-shell via-shell to-sidebar-accent/70 relative overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-16 h-48 w-96 rounded-full bg-accent/20 blur-3xl" />
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6 lg:px-10">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={logo} alt="ThweSat" width={30} height={30} />
