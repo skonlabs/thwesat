@@ -256,7 +256,7 @@ const MentorMentees = () => {
             {filtered.map((mentee: any, i: number) => {
               const sc = statusConfig[mentee.status] || statusConfig.pending;
               return (
-                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(mentee.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(mentee.id)} className={`w-full rounded-2xl border bg-card p-4 text-left transition-all hover:border-primary/40 active:scale-[0.99] ${mentee.status === "pending" ? "border-accent/40 ring-1 ring-accent/10" : "border-border"}`}>
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{mentee.profile?.display_name?.slice(0, 2).toUpperCase() || "?"}</div>
                     <div className="flex-1 min-w-0">
