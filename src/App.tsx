@@ -144,7 +144,6 @@ const App = () => (
               <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
 
               {/* Employer Portal — employer role ONLY (agent has its own /agent/* namespace) */}
-              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
               <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
@@ -155,7 +154,6 @@ const App = () => (
               <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerFinance /></AppRoleGuard>} />
 
               {/* Agent Portal — uses shared components but lives under its own URL namespace */}
-              <Route path="/agent/onboarding" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerOnboarding /></AppRoleGuard>} />
               <Route path="/agent/post-job" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerPostJob /></AppRoleGuard>} />
               <Route path="/agent/jobs" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/agent/candidates" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerApplications /></AppRoleGuard>} />
@@ -182,6 +180,11 @@ const App = () => (
               <Route path="/mentor/settings" element={<Navigate to="/settings" replace />} />
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
             </Route>
+
+            {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
+                navy hero can paint the entire viewport without max-width cropping). */}
+            <Route path="/employer/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
+            <Route path="/agent/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["agent"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
 
             {/* Delegate Access (no nav) */}
             <Route path="/access/:token" element={<DelegateAccess />} />
