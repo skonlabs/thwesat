@@ -15,57 +15,57 @@ html[data-myanmar-font="noto"] body {
 
 @layer base {
   :root {
-    /* Softer warm off-white — editorial cream feel */
-    --background: 36 25% 97%;
-    --foreground: 252 46% 15%;
+    /* Forest cream — soft sage background, deep forest foreground */
+    --background: 75 35% 93%;
+    --foreground: 140 30% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 252 46% 15%;
+    --card: 70 40% 97%;
+    --card-foreground: 140 30% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 252 46% 15%;
+    --popover: 70 40% 97%;
+    --popover-foreground: 140 30% 12%;
 
-    --primary: 252 46% 17%;
-    --primary-foreground: 36 30% 98%;
+    --primary: 140 30% 18%;
+    --primary-foreground: 70 40% 97%;
 
-    --secondary: 36 18% 94%;
-    --secondary-foreground: 252 30% 28%;
+    --secondary: 80 25% 88%;
+    --secondary-foreground: 140 30% 18%;
 
-    --muted: 36 14% 93%;
-    --muted-foreground: 252 10% 48%;
+    --muted: 80 22% 90%;
+    --muted-foreground: 140 12% 38%;
 
-    --accent: 36 100% 68%;
-    --accent-foreground: 252 46% 15%;
+    --accent: 130 28% 45%;
+    --accent-foreground: 70 40% 97%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 65% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 14% 90%;
-    --input: 36 14% 90%;
-    --ring: 36 100% 68%;
+    --border: 90 18% 82%;
+    --input: 90 18% 82%;
+    --ring: 130 28% 45%;
 
     --radius: 0.75rem;
 
-    --gold-light: 42 100% 76%;
-    --gold: 36 100% 68%;
-    --gold-dark: 28 85% 48%;
-    --navy: 252 46% 17%;
-    --navy-light: 252 35% 28%;
-    --emerald: 152 60% 38%;
+    --gold-light: 130 28% 60%;
+    --gold: 130 30% 45%;
+    --gold-dark: 140 35% 28%;
+    --navy: 140 30% 18%;
+    --navy-light: 140 25% 28%;
+    --emerald: 152 55% 35%;
     --emerald-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 38 85% 45%;
     --warning-foreground: 0 0% 100%;
-    --info: 217 91% 60%;
+    --info: 200 60% 40%;
     --info-foreground: 0 0% 100%;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 252 30% 30%;
-    --sidebar-primary: 252 46% 17%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 248 20% 93%;
-    --sidebar-accent-foreground: 252 30% 30%;
-    --sidebar-border: 248 12% 90%;
-    --sidebar-ring: 36 100% 68%;
+    --sidebar-background: 70 40% 97%;
+    --sidebar-foreground: 140 25% 22%;
+    --sidebar-primary: 140 30% 18%;
+    --sidebar-primary-foreground: 70 40% 97%;
+    --sidebar-accent: 80 25% 90%;
+    --sidebar-accent-foreground: 140 30% 18%;
+    --sidebar-border: 90 18% 82%;
+    --sidebar-ring: 130 28% 45%;
 
     --font-burmese: 'Noto Sans Myanmar', sans-serif;
     --font-display: 'Fraunces', 'Noto Sans Myanmar', Georgia, serif;
