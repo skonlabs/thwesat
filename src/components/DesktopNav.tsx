@@ -23,7 +23,7 @@ const DesktopNav = () => {
   const location = useLocation();
 
   const seeker: NavItem[] = [
-    { labelMy: "ပင်မ", labelEn: "Home", path: "/dashboard" },
+    { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
     { labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },

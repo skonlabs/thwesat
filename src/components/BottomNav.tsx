@@ -26,7 +26,7 @@ const BottomNav = () => {
   type NavItem = { icon: typeof Home; labelMy: string; labelEn: string; path: string; badgeKey?: "messages" | "notifications" };
 
   const jobseekerNav: NavItem[] = [
-    { icon: Home, labelMy: "ပင်မ", labelEn: "Home", path: "/dashboard" },
+    { icon: Home, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { icon: Users, labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
     { icon: FileText, labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
