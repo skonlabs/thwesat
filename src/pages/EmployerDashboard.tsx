@@ -70,9 +70,9 @@ const EmployerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ပင်မ" : "Employer Dashboard"} />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Employer"
           roleLabelMy="အလုပ်ရှင်"
@@ -136,7 +136,7 @@ const EmployerDashboard = () => {
         )}
 
         {/* Stats — clean 2x2 */}
-        <div className="mb-5 grid grid-cols-2 gap-3">
+        <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               onClick={stat.action}
@@ -156,7 +156,7 @@ const EmployerDashboard = () => {
 
         {/* Quick actions */}
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
-        <div className="mb-5 grid grid-cols-3 gap-3">
+        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-6">
           {quickActions.map((action, i) => (
             <motion.button key={action.path} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               onClick={() => navigate(action.path)}
