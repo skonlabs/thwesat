@@ -13,6 +13,7 @@ import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
+import DashboardHero from "@/components/DashboardHero";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 
@@ -124,6 +125,15 @@ const MentorDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "Mentor ပင်မ" : "Mentor Dashboard"} />
       <div className="px-5">
+        <DashboardHero
+          roleLabelEn="Mentor"
+          roleLabelMy="လမ်းညွှန်"
+          subtitleEn={`${pending.length} pending · ${todayConfirmed.length} session${todayConfirmed.length === 1 ? "" : "s"} today`}
+          subtitleMy={`စောင့်ဆိုင်း ${pending.length} ခု · ဒီနေ့ session ${todayConfirmed.length} ခု`}
+          ctaLabelEn="Manage availability"
+          ctaLabelMy="အချိန်ဇယား စီမံရန်"
+          ctaPath="/settings"
+        />
         {showSetupAlert && (
           <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
             <AlertDescription className="text-sm">

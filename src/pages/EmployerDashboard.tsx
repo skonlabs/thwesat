@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 import EmployerOnboardingChecklist from "@/components/employer/EmployerOnboardingChecklist";
+import DashboardHero from "@/components/DashboardHero";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 
 const EmployerDashboard = () => {
@@ -72,6 +73,15 @@ const EmployerDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ပင်မ" : "Employer Dashboard"} />
       <div className="px-5">
+        <DashboardHero
+          roleLabelEn="Employer"
+          roleLabelMy="အလုပ်ရှင်"
+          subtitleEn={`${activeCount} active jobs · ${totalApplicants} total applicants`}
+          subtitleMy={`လက်ရှိ ခေါ်စာ ${activeCount} ခု · လျှောက်သူ ${totalApplicants} ဦး`}
+          ctaLabelEn="Post a new job"
+          ctaLabelMy="အလုပ် တင်ရန်"
+          ctaPath="/employer/post-job"
+        />
         {/* Company verification status */}
         <motion.button
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}

@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
 
 import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
+import DashboardHero from "@/components/DashboardHero";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 
@@ -79,6 +80,15 @@ const AgentDashboard = () => {
       <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
 
       <div className="px-5">
+        <DashboardHero
+          roleLabelEn="Recruiting Agent"
+          roleLabelMy="ခေါ်ယူရေး အေဂျင့်"
+          subtitleEn={`${stats.active} active candidates · ${stats.placed} placed`}
+          subtitleMy={`လက်ရှိ ${stats.active} ဦး · ခန့်အပ်ပြီး ${stats.placed} ဦး`}
+          ctaLabelEn="Find candidates"
+          ctaLabelMy="ကိုယ်စားလှယ် ရှာရန်"
+          ctaPath="/agent/search"
+        />
         <WelcomeTourVideoCard variant="agent" />
         {/* Profile completion (only if incomplete) */}
         {!empProfile?.is_verified && (

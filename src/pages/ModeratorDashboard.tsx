@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
+import DashboardHero from "@/components/DashboardHero";
 import { toast } from "sonner";
 import { getPlatformPaymentMethodLabel } from "@/lib/payment-methods";
 
@@ -321,6 +322,12 @@ const ModeratorDashboard = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
       <div className="px-5">
+        <DashboardHero
+          roleLabelEn="Moderator"
+          roleLabelMy="စစ်ဆေးသူ"
+          subtitleEn={`${todayModerationCount} item${todayModerationCount === 1 ? "" : "s"} moderated today`}
+          subtitleMy={`ယနေ့ ${todayModerationCount} ခု စစ်ဆေးပြီး`}
+        />
         {/* Today's moderation count */}
         <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
           <p className="text-sm text-foreground">
