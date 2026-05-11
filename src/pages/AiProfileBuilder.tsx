@@ -211,146 +211,160 @@ const AiProfileBuilder = () => {
             </>
           ) : (
             <>
-          {/* Subtitle */}
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <Sparkles className="h-6 w-6 text-primary" strokeWidth={1.5} />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {lang === "my" ? "သင့်အသက်မွေးဝမ်းကြောင်းအတွက် အကူအညီများ" : "Tools to boost your career"}
+          {/* Editorial intro */}
+          <div className="mb-5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {lang === "my" ? "အသက်မွေးမှု ကိရိယာများ" : "Career Toolkit"}
+            </p>
+            <h1 className="mt-1.5 text-2xl font-bold leading-tight tracking-tight text-foreground">
+              {lang === "my"
+                ? "သင့်အလုပ်ရှာဖွေမှုကို မြှင့်တင်ပါ"
+                : "Land more interviews, faster."}
+            </h1>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              {lang === "my"
+                ? "သင့် CV ကို တစ်ကြိမ်တင်ပြီး အောက်က ကိရိယာများကို ပေါင်းစပ်အသုံးပြုနိုင်ပါသည်။"
+                : "Upload your CV once and reuse it across every tool below."}
             </p>
           </div>
 
-          {/* How it works - includes CV upload step */}
-          <div className="mb-5 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ဘယ်လို အလုပ်လုပ်သလဲ?" : "How it works"}</h2>
-            <div className="space-y-3">
-              {[
-                { step: "1", text: lang === "my" ? "သင့် CV ဖိုင်ကို PDF သို့မဟုတ် DOCX ဖြင့် တင်ပါ" : "Upload your CV as PDF or DOCX" },
-                { step: "2", text: lang === "my" ? "သင့် CV သို့မဟုတ် အတွေ့အကြုံကို မြန်မာဘာသာဖြင့် ထည့်သွင်းပါ" : "Enter your experience in Burmese or English" },
-                { step: "3", text: lang === "my" ? "နိုင်ငံတကာ အဆင့်မီ ပရိုဖိုင်အဖြစ် ပြောင်းလဲပေးမည်" : "We transform it into a global-standard profile" },
-                { step: "4", text: lang === "my" ? "ပြင်ဆင်ပြီး Upwork, LinkedIn စသည်တို့တွင် အသုံးပြုပါ" : "Edit and use on Upwork, LinkedIn, etc." },
-              ].map((s) => (
-                <div key={s.step} className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{s.step}</span>
-                  <p className="text-xs text-foreground/80">{s.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Upload CV — primary anchor */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
 
-          {/* Upload CV - moved above tools */}
-          <div className="mb-5">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "CV တင်ရန်" : "Upload CV"}</h2>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.docx"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-
-            {uploadedFile ? (
-              <div className="rounded-xl border border-emerald/30 bg-emerald/5 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald/10">
-                    <File className="h-6 w-6 text-emerald" strokeWidth={1.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{uploadedFile.name}</p>
-                    <p className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(0)} KB</p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="h-4 w-4 text-emerald" strokeWidth={2} />
-                    <span className="text-xs font-medium text-emerald">{lang === "my" ? "တင်ပြီး" : "Uploaded"}</span>
-                  </div>
+          {uploadedFile ? (
+            <div className="mb-5 rounded-2xl border border-emerald/30 bg-emerald/[0.04] p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald/10">
+                  <File className="h-5 w-5 text-emerald" strokeWidth={1.5} />
                 </div>
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 rounded-lg text-xs"
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald">
+                    <Check className="h-3 w-3" strokeWidth={2.5} />
+                    {lang === "my" ? "CV တင်ပြီး" : "CV ready"}
+                  </p>
+                  <p className="mt-0.5 truncate text-sm font-medium text-foreground">{uploadedFile.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{(uploadedFile.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <div className="flex shrink-0 flex-col gap-1.5">
+                  <button
                     onClick={() => fileInputRef.current?.click()}
+                    className="rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground active:bg-muted"
                   >
-                    <Upload className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                    {lang === "my" ? "အစားထိုးတင်ရန်" : "Replace"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg text-xs text-destructive hover:bg-destructive/5"
+                    {lang === "my" ? "အစားထိုး" : "Replace"}
+                  </button>
+                  <button
                     onClick={handleRemoveFile}
+                    className="rounded-lg px-2.5 py-1 text-[11px] font-medium text-destructive active:bg-destructive/5"
                   >
-                    <X className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.5} />
-                    {lang === "my" ? "ဖယ်ရှားရန်" : "Remove"}
-                  </Button>
+                    {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                  </button>
                 </div>
               </div>
-            ) : (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); setDragActive(true); }}
-                onDragLeave={() => setDragActive(false)}
-                onDrop={handleDrop}
-                disabled={uploading}
-                className={`flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
-                  dragActive ? "border-primary bg-primary/5" : "border-border bg-card"
-                } active:bg-muted disabled:opacity-50`}
-              >
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${dragActive ? "bg-primary/10" : "bg-muted"}`}>
-                  <Upload className={`h-6 w-6 ${dragActive ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                </div>
-                {uploading ? (
-                  <p className="text-sm font-medium text-foreground">{lang === "my" ? "တင်ပြီး ပြင်ဆင်နေသည်..." : "Uploading & analyzing CV..."}</p>
-                ) : (
-                  <>
-                    <p className="text-sm font-medium text-foreground">
-                      {lang === "my" ? "CV ဖိုင်ကို ရွေးပါ သို့မဟုတ် ဤနေရာတွင် ချပါ" : "Click to select or drag & drop your CV"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">PDF, DOCX · Max 10MB</p>
-                  </>
-                )}
-              </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); setDragActive(true); }}
+              onDragLeave={() => setDragActive(false)}
+              onDrop={handleDrop}
+              disabled={uploading}
+              className={`mb-5 flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed p-7 text-center transition-colors disabled:opacity-50 ${
+                dragActive ? "border-primary bg-primary/5" : "border-border bg-card active:bg-muted"
+              }`}
+            >
+              <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${dragActive ? "bg-primary/10" : "bg-muted"}`}>
+                <Upload className={`h-5 w-5 ${dragActive ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+              </div>
+              {uploading ? (
+                <p className="text-sm font-medium text-foreground">{lang === "my" ? "တင်ပြီး ပြင်ဆင်နေသည်..." : "Uploading & analyzing CV…"}</p>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-foreground">
+                    {lang === "my" ? "CV ဖိုင်ကို တင်ရန်" : "Upload your CV to begin"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? "PDF / DOCX · အများဆုံး 10MB" : "PDF or DOCX · max 10MB · drag & drop supported"}
+                  </p>
+                </>
+              )}
+            </button>
+          )}
 
-          {/* Tool Cards */}
-          <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ရရှိနိုင်သော ကိရိယာများ" : "Available Tools"}</h2>
-          <div className="space-y-3">
+          {/* Tool Cards — responsive grid */}
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="text-sm font-semibold text-foreground">
+              {lang === "my" ? "ကိရိယာများ" : "Your toolkit"}
+            </h2>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {aiFeatures.length} {lang === "my" ? "ခု" : "tools"}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {aiFeatures.map((f, i) => (
               <motion.button
                 key={i}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 onClick={() => handleToolClick(f.path)}
-                className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted"
+                className="group relative flex w-full flex-col gap-3 overflow-hidden rounded-2xl border border-border bg-card p-4 text-left transition-all active:bg-muted hover:border-primary/40"
               >
-                <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${f.iconBg}`}>
-                  <f.icon className={`h-5 w-5 ${f.iconColor}`} strokeWidth={1.5} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-foreground">{f.title}</h3>
-                    <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${f.statusBg} ${f.statusColor}`}>{f.status}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.iconBg}`}>
+                    <f.icon className={`h-5 w-5 ${f.iconColor}`} strokeWidth={1.5} />
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{f.desc}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${f.statusBg} ${f.statusColor}`}>
+                    {f.status}
+                  </span>
                 </div>
-                <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                <div>
+                  <h3 className="text-sm font-semibold leading-tight text-foreground">{f.title}</h3>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{f.desc}</p>
+                </div>
+                <div className="mt-auto flex items-center gap-1 text-[11px] font-medium text-primary">
+                  {lang === "my" ? "ဖွင့်ရန်" : "Open"}
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
+                </div>
               </motion.button>
             ))}
           </div>
 
-          {/* Supported Platforms */}
-          <div className="mt-5 rounded-xl border border-border bg-card p-3">
-            <p className="mb-2 text-xs font-medium text-foreground">{lang === "my" ? "ပံ့ပိုးသော ပလက်ဖောင်းများ" : "Supported Platforms"}</p>
-            <div className="flex flex-wrap gap-2">
-              {["Upwork", "Fiverr", "LinkedIn", "Toptal", "Remote.co"].map((p) => (
-                <span key={p} className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] text-muted-foreground">
-                  <Globe className="h-3 w-3" strokeWidth={1.5} /> {p}
-                </span>
+          {/* How it works — collapsed micro-steps */}
+          <div className="mt-5 rounded-2xl border border-border bg-muted/30 p-4">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {lang === "my" ? "လုပ်ငန်းစဉ်" : "How it works"}
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                lang === "my" ? "CV တင်ပါ" : "Upload CV",
+                lang === "my" ? "ဘာသာ ထည့်ပါ" : "Add details",
+                lang === "my" ? "ပြောင်းလဲမည်" : "Transform",
+                lang === "my" ? "အသုံးပြုပါ" : "Apply",
+              ].map((t, idx) => (
+                <div key={idx} className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{idx + 1}</span>
+                  <p className="text-[11px] leading-snug text-foreground/80">{t}</p>
+                </div>
               ))}
             </div>
+          </div>
+
+          {/* Supported Platforms */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {lang === "my" ? "သုံးနိုင်သည်" : "Works with"}
+            </span>
+            {["Upwork", "Fiverr", "LinkedIn", "Toptal", "Remote.co"].map((p) => (
+              <span key={p} className="flex items-center gap-1 rounded-md border border-border bg-card px-2 py-0.5 text-[10px] text-foreground/70">
+                <Globe className="h-2.5 w-2.5" strokeWidth={1.5} /> {p}
+              </span>
+            ))}
           </div>
           </>
           )}
@@ -361,3 +375,4 @@ const AiProfileBuilder = () => {
 };
 
 export default AiProfileBuilder;
+
