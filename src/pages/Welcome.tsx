@@ -1,215 +1,279 @@
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Briefcase, Users, Sparkles, Shield } from "lucide-react";
+import { Search, MapPin, Briefcase, Building2, Shield, Users, GraduationCap, Wallet, ArrowRight, CheckCircle2, Code2, LineChart, HeartPulse, Hammer, Utensils, Palette } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.svg";
 import { useLanguage } from "@/hooks/use-language";
 import LanguageToggle from "@/components/LanguageToggle";
+import { useJobs } from "@/hooks/use-jobs";
+import { useMentorProfiles } from "@/hooks/use-mentor-data";
+import { useAllProfiles } from "@/hooks/use-profiles";
+import { formatJobSalary, translateJobLocation, translateJobTitle } from "@/lib/job-localization";
 
 const Welcome = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const my = lang === "my";
+  const { data: jobs } = useJobs();
+  const { data: mentors } = useMentorProfiles();
+  const { data: allProfiles } = useAllProfiles();
 
-  const stats = [
-    { k: my ? "အလုပ်ခန့်အပ်မှု" : "Placements", v: "2.4k+" },
-    { k: my ? "လမ်းညွှန်သူ" : "Mentors", v: "180+" },
-    { k: my ? "ကုမ္ပဏီ" : "Companies", v: "320+" },
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("q", keyword.trim());
+    if (location.trim()) params.set("location", location.trim());
+    navigate(`/jobs${params.toString() ? `?${params.toString()}` : ""}`);
+  };
+
+  const featured = (jobs || []).filter((j: any) => j.is_featured).slice(0, 6);
+  const featuredJobs = featured.length > 0 ? featured : (jobs || []).slice(0, 6);
+
+  const categories = [
+    { icon: Code2, en: "Tech & IT", my: "နည်းပညာ", q: "developer" },
+    { icon: LineChart, en: "Business", my: "စီးပွားရေး", q: "business" },
+    { icon: HeartPulse, en: "Healthcare", my: "ကျန်းမာရေး", q: "nurse" },
+    { icon: Hammer, en: "Construction", my: "ဆောက်လုပ်ရေး", q: "construction" },
+    { icon: Utensils, en: "Hospitality", my: "ဧည့်ဝန်ဆောင်မှု", q: "hospitality" },
+    { icon: Palette, en: "Design", my: "ဒီဇိုင်း", q: "designer" },
+    { icon: Briefcase, en: "Sales", my: "အရောင်း", q: "sales" },
+    { icon: GraduationCap, en: "Education", my: "ပညာရေး", q: "teacher" },
   ];
 
-  const features = [
-    { icon: Briefcase, t: my ? "အလုပ် တိုက်ရိုက်ရှာ" : "Verified jobs", d: my ? "လုံခြုံစိတ်ချရသော အလုပ်ခေါ်စာများ" : "Hand-curated, scam-free postings across APAC." },
-    { icon: Users, t: my ? "လမ်းညွှန်" : "1:1 mentorship", d: my ? "ကျွမ်းကျင်သူများနှင့် တိုက်ရိုက်" : "Book sessions with senior pros from your industry." },
-    { icon: Sparkles, t: my ? "ကိရိယာများ" : "Career toolkit", d: my ? "CV၊ Cover Letter၊ ကျွမ်းကျင်မှု ခြားနားချက်" : "CV builder, cover letters, and skill gap analysis." },
-    { icon: Shield, t: my ? "လုံခြုံမှု" : "Diaspora-safe", d: my ? "မြန်မာ အလုပ်သမားများအတွက် ကာကွယ်မှုများ" : "Built-in safeguards for Myanmar diaspora workers." },
+  const trust = [
+    { icon: Shield, en: "Verified employers only", my: "အတည်ပြုထားသော အလုပ်ရှင်များသာ" },
+    { icon: CheckCircle2, en: "Scam-checked listings", my: "လိမ်လည်မှု စစ်ဆေးပြီး အလုပ်များ" },
+    { icon: Users, en: "Mentors who've been there", my: "အတွေ့အကြုံရှိ လမ်းညွှန်သူများ" },
+    { icon: Wallet, en: "Transparent salary ranges", my: "ပွင့်လင်းသော လစာ" },
   ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top bar */}
-      <header className="absolute inset-x-0 top-0 z-30">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8 md:py-6">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8 md:py-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="ThweSat" width={36} height={36} />
-            <span className="font-display text-xl font-semibold tracking-tight">
+            <img src={logo} alt="ThweSat" width={32} height={32} />
+            <span className="font-display text-lg font-semibold tracking-tight">
               <span className="text-primary">Thwe</span><span className="text-accent">Sat</span>
             </span>
           </Link>
-          <div className="flex items-center gap-2 md:gap-3">
+          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
+            <button onClick={() => navigate("/jobs")} className="hover:text-foreground">{my ? "အလုပ်များ" : "Find Jobs"}</button>
+            <button onClick={() => navigate("/mentors")} className="hover:text-foreground">{my ? "လမ်းညွှန်သူများ" : "Mentors"}</button>
+            <button onClick={() => navigate("/guides")} className="hover:text-foreground">{my ? "လမ်းညွှန်" : "Guides"}</button>
+            <button onClick={() => navigate("/employer/onboarding")} className="hover:text-foreground">{my ? "အလုပ်ရှင်များအတွက်" : "For Employers"}</button>
+          </nav>
+          <div className="flex items-center gap-2">
             <LanguageToggle />
             <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={() => navigate("/login")}>
               {my ? "ဝင်ရောက်ရန်" : "Sign in"}
             </Button>
-            <Button size="sm" className="rounded-full px-4" onClick={() => navigate("/onboarding")}>
+            <Button size="sm" onClick={() => navigate("/onboarding")}>
               {my ? "စတင်ရန်" : "Get started"}
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        {/* editorial background flourishes */}
-        <div className="pointer-events-none absolute -top-32 right-[-10%] h-[480px] w-[480px] rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-[-15%] h-[420px] w-[420px] rounded-full bg-primary/10 blur-3xl" />
+      {/* Hero with search */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 to-background">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,hsl(var(--gold)/0.18),transparent_55%)]" />
+        <div className="relative mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto max-w-3xl text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent">
+              {my ? "မြန်မာပရော်ဖက်ရှင်နယ်များအတွက်" : "Built for Myanmar professionals — at home & across APAC"}
+            </p>
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
+              {my ? "သင့်အတွက် သင့်တော်တဲ့ အလုပ် ရှာဖွေပါ" : "Find the job that fits your life"}
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
+              {my
+                ? "လုံခြုံစိတ်ချရသော အလုပ်ခေါ်စာများ၊ လမ်းညွှန်မှုနှင့် အသက်မွေးဝမ်းကျောင်း ကိရိယာများ — တစ်နေရာတည်းမှာ။"
+                : "Thousands of verified jobs, real mentors, and the career tools you need — all in one place."}
+            </p>
+          </motion.div>
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-32 md:px-8 md:pb-28 md:pt-40 lg:pt-48">
-          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-7">
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
-                {my ? "မြန်မာပရော်ဖက်ရှင်နယ်များအတွက်" : "For Myanmar's working professionals — at home & abroad"}
-              </motion.div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05, duration: 0.7 }}
-                className="font-display text-[44px] font-medium leading-[1.02] tracking-tight text-foreground md:text-6xl lg:text-7xl"
-              >
-                {my ? (
-                  <>သင့် အသက်မွေးဝမ်းကျောင်း<br/>
-                  <span className="italic text-primary">အသစ်တစ်ခု</span> စတင်ပါ။</>
-                ) : (
-                  <>Your career,<br/>
-                  <span className="italic text-primary">authored</span> with intention.</>
-                )}
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.7 }}
-                className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg"
-              >
-                {my
-                  ? "ThweSat သည် မြန်မာပရော်ဖက်ရှင်နယ်များအတွက် အလုပ်၊ လမ်းညွှန်မှုနှင့် ကိရိယာများ စုစည်းထားသော တစ်ခုတည်းသော ပလက်ဖောင်း ဖြစ်သည်။"
-                  : "One platform to find verified work, learn from senior mentors, and ship a portfolio that actually opens doors."}
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: 0.7 }}
-                className="mt-8 flex flex-wrap items-center gap-3"
-              >
-                <Button size="lg" className="group rounded-full px-6 shadow-navy" onClick={() => navigate("/onboarding")}>
-                  {my ? "အခမဲ့ စတင်ရန်" : "Start free"}
-                  <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Button>
-                <Button size="lg" variant="ghost" className="rounded-full" onClick={() => navigate("/login")}>
-                  {my ? "ဝင်ရောက်ရန်" : "I have an account"}
-                </Button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.7 }}
-                className="mt-12 grid max-w-md grid-cols-3 gap-6"
-              >
-                {stats.map((s) => (
-                  <div key={s.k}>
-                    <p className="font-display text-2xl font-semibold text-foreground md:text-3xl">{s.v}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.k}</p>
-                  </div>
-                ))}
-              </motion.div>
+          {/* Search bar */}
+          <motion.form
+            onSubmit={handleSearch}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }}
+            className="mx-auto mt-8 flex max-w-3xl flex-col gap-2 rounded-2xl border border-border bg-card p-2 shadow-card-hover md:flex-row md:items-center md:gap-0 md:rounded-full md:p-1.5"
+          >
+            <div className="flex flex-1 items-center gap-2 px-3 md:px-4">
+              <Search className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={2} />
+              <Input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder={my ? "ရာထူး၊ ကုမ္ပဏီ၊ ကျွမ်းကျင်မှု" : "Job title, company, or skill"}
+                className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+              />
             </div>
+            <div className="hidden h-8 w-px bg-border md:block" />
+            <div className="flex flex-1 items-center gap-2 px-3 md:px-4">
+              <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={2} />
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder={my ? "မြို့ သို့မဟုတ် နိုင်ငံ" : "City or country"}
+                className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+              />
+            </div>
+            <Button type="submit" size="lg" className="h-11 rounded-xl px-6 md:rounded-full">
+              {my ? "ရှာဖွေ" : "Search"}
+            </Button>
+          </motion.form>
 
-            {/* Editorial visual block */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="relative lg:col-span-5"
-            >
-              <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[2rem] border border-border bg-gradient-navy p-8 shadow-card-hover">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--gold)/0.35),transparent_60%)]" />
-                <div className="relative flex h-full flex-col justify-between text-primary-foreground">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-primary-foreground/70">Issue 01</p>
-                    <p className="mt-1 text-sm text-primary-foreground/80">{my ? "ဂရုစိုက် တည်ဆောက်ထား" : "Crafted with care"}</p>
-                  </div>
-                  <div>
-                    <p className="font-display text-4xl font-medium leading-tight md:text-5xl">
-                      {my ? "ပိုကောင်းသော အလုပ်။ ပိုကောင်းသော ဘဝ။" : "Better work. Better life."}
-                    </p>
-                    <div className="mt-6 flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-accent" />
-                      <div>
-                        <p className="text-sm font-medium">{my ? "ပြောင်းလဲမှု စတင်" : "Begin the change"}</p>
-                        <p className="text-xs text-primary-foreground/60">thwesat.com</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Floating pull-quote card */}
-              <div className="absolute -bottom-6 -left-6 hidden max-w-[220px] rounded-2xl border border-border bg-card p-4 shadow-card-hover md:block">
-                <p className="font-display text-sm italic leading-snug text-foreground">
-                  "{my ? "သုံးရက်အတွင်း အလုပ်ရရှိခဲ့သည်။" : "Found a role in three days."}"
-                </p>
-                <p className="mt-2 text-[10px] uppercase tracking-wider text-muted-foreground">— Hnin, Designer</p>
-              </div>
-            </motion.div>
+          {/* Quick stats */}
+          <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground">
+            <span><span className="font-bold text-foreground">{(jobs || []).length.toLocaleString()}+</span> {my ? "အလုပ်များ" : "open jobs"}</span>
+            <span><span className="font-bold text-foreground">{(allProfiles || []).length.toLocaleString()}+</span> {my ? "အဖွဲ့ဝင်များ" : "members"}</span>
+            <span><span className="font-bold text-foreground">{(mentors || []).length.toLocaleString()}+</span> {my ? "လမ်းညွှန်သူများ" : "mentors"}</span>
           </div>
         </div>
       </section>
 
-      {/* Features grid */}
-      <section className="border-t border-border bg-card/40">
-        <div className="mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28">
-          <div className="mb-12 max-w-2xl">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-accent">{my ? "အင်္ဂါရပ်များ" : "What's inside"}</p>
-            <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight md:text-5xl">
-              {my ? "တစ်နေရာတည်းမှာပဲ၊ အရာအားလုံး။" : "Everything your career needs, in one place."}
+      {/* Categories */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">{my ? "လုပ်ငန်းခွင် အမျိုးအစားများ" : "Browse by category"}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{my ? "သင်စိတ်ဝင်စားရာ ကဏ္ဍကို ရွေးချယ်ပါ" : "Pick a field that suits you"}</p>
+            </div>
+            <button onClick={() => navigate("/jobs")} className="hidden text-sm font-semibold text-accent hover:underline md:inline-flex">
+              {my ? "အားလုံးကြည့်ရန်" : "View all jobs"} →
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {categories.map((c) => (
+              <button
+                key={c.en}
+                onClick={() => navigate(`/jobs?q=${encodeURIComponent(c.q)}`)}
+                className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover"
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent/15 text-gold-dark transition-colors group-hover:bg-accent/25">
+                  <c.icon className="h-5 w-5" strokeWidth={1.75} />
+                </div>
+                <span className="text-sm font-medium text-foreground">{my ? c.my : c.en}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured jobs */}
+      <section className="border-b border-border bg-secondary/30">
+        <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">{my ? "အသစ်ထွက် အလုပ်များ" : "Featured jobs"}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{my ? "ယနေ့ စတင်လျှောက်ထားနိုင်သော အလုပ်များ" : "Hand-picked opportunities you can apply to today"}</p>
+            </div>
+            <button onClick={() => navigate("/jobs")} className="text-sm font-semibold text-accent hover:underline">
+              {my ? "အားလုံး" : "See all"} →
+            </button>
+          </div>
+
+          {featuredJobs.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+              {my ? "အလုပ်ခေါ်စာများ မကြာမီ ထည့်သွင်းပေးပါမည်။" : "New jobs are being added — check back soon."}
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {featuredJobs.map((job: any) => (
+                <button
+                  key={job.id}
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-accent/15">
+                    <Building2 className="h-6 w-6 text-gold-dark" strokeWidth={1.5} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="truncate font-semibold text-foreground group-hover:text-primary">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                      {job.is_diaspora_safe && (
+                        <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald">
+                          <Shield className="mr-0.5 inline h-2.5 w-2.5" strokeWidth={2} />{my ? "လုံခြုံ" : "Safe"}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{job.company}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(job.location, lang)}
+                      </span>
+                      <span className="font-semibold text-gold-dark">{formatJobSalary(job, lang)}</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Trust / value props */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <div className="mb-8 max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent">{my ? "အဘယ်ကြောင့် ThweSat" : "Why ThweSat"}</p>
+            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight md:text-3xl">
+              {my ? "သင့်အလုပ်ရှာဖွေမှု ပိုလွယ်ကူ၊ ပိုလုံခြုံ" : "A safer, smarter way to find work"}
             </h2>
           </div>
-          <div className="grid gap-px overflow-hidden rounded-3xl border border-border bg-border md:grid-cols-2">
-            {features.map((f) => (
-              <div key={f.t} className="group bg-card p-8 transition-colors hover:bg-background md:p-10">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-gold-dark">
-                  <f.icon className="h-5 w-5" strokeWidth={1.5} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {trust.map((t) => (
+              <div key={t.en} className="rounded-xl border border-border bg-card p-5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <t.icon className="h-5 w-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="mt-6 font-display text-2xl font-medium tracking-tight">{f.t}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.d}</p>
+                <p className="mt-4 text-sm font-semibold text-foreground">{my ? t.my : t.en}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Closing CTA */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--gold)/0.25),transparent_55%)]" />
-        <div className="relative mx-auto max-w-4xl px-5 py-24 text-center md:px-8 md:py-32">
-          <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-tight md:text-6xl">
-            {my ? "သင့်ပထမအဆင့် ယနေ့ စတင်ပါ။" : "Take the first step today."}
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base text-primary-foreground/75 md:text-lg">
-            {my ? "မိနစ်ပိုင်းအတွင်း ပရိုဖိုင် တည်ဆောက်ပြီး အလုပ်ရှာဖွေပါ။" : "Set up your profile in minutes. Discover roles built around the life you want."}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" variant="secondary" className="rounded-full px-7" onClick={() => navigate("/onboarding")}>
-              {my ? "အခမဲ့ စတင်ရန်" : "Create your account"}
-              <ArrowRight className="ml-1.5 h-4 w-4" />
+      {/* Two-column CTAs: Seekers vs Employers */}
+      <section className="border-b border-border bg-secondary/30">
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-12 md:grid-cols-2 md:px-8 md:py-16">
+          <div className="rounded-2xl border border-border bg-card p-8">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 text-gold-dark">
+              <Briefcase className="h-5 w-5" strokeWidth={1.75} />
+            </div>
+            <h3 className="mt-5 font-display text-xl font-semibold tracking-tight">{my ? "အလုပ်ရှာဖွေသူများအတွက်" : "For job seekers"}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {my ? "အခမဲ့ ပရိုဖိုင်တည်ဆောက်ပြီး လုံခြုံစိတ်ချရသော အလုပ်များကို ရှာဖွေပါ။" : "Build a free profile, apply to verified jobs, and get guidance from mentors who've been there."}
+            </p>
+            <Button className="mt-5" onClick={() => navigate("/onboarding")}>
+              {my ? "အခမဲ့ စတင်ရန်" : "Create free account"} <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="ghost" className="rounded-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={() => navigate("/login")}>
-              {my ? "ဝင်ရောက်ရန်" : "Sign in"}
+          </div>
+          <div className="rounded-2xl border border-border bg-primary p-8 text-primary-foreground">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+              <Building2 className="h-5 w-5" strokeWidth={1.75} />
+            </div>
+            <h3 className="mt-5 font-display text-xl font-semibold tracking-tight">{my ? "အလုပ်ရှင်များအတွက်" : "For employers"}</h3>
+            <p className="mt-2 text-sm text-primary-foreground/75">
+              {my ? "ခေါ်ယူမှုတင်ပြီး အရည်အချင်းပြည့်စုံသူများကို ရှာဖွေပါ။" : "Post a role, search vetted talent, and hire confidently across APAC."}
+            </p>
+            <Button variant="secondary" className="mt-5" onClick={() => navigate("/employer/onboarding")}>
+              {my ? "အလုပ်ခေါ်ရန်" : "Post a job"} <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-muted-foreground md:flex-row md:px-8">
+      <footer className="bg-background">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-xs text-muted-foreground md:flex-row md:px-8">
           <div className="flex items-center gap-2">
             <img src={logo} alt="" width={20} height={20} />
             <span className="font-display text-sm font-semibold">
@@ -218,8 +282,10 @@ const Welcome = () => {
             <span className="ml-2">© {new Date().getFullYear()}</span>
           </div>
           <div className="flex items-center gap-6">
+            <Link to="/jobs" className="hover:text-foreground">{my ? "အလုပ်များ" : "Jobs"}</Link>
+            <Link to="/mentors" className="hover:text-foreground">{my ? "လမ်းညွှန်" : "Mentors"}</Link>
+            <Link to="/guides" className="hover:text-foreground">{my ? "လမ်းညွှန်ချက်" : "Guides"}</Link>
             <Link to="/login" className="hover:text-foreground">{my ? "ဝင်ရောက်" : "Sign in"}</Link>
-            <Link to="/onboarding" className="hover:text-foreground">{my ? "စတင်" : "Get started"}</Link>
           </div>
         </div>
       </footer>
