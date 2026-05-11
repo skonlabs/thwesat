@@ -16,7 +16,8 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import { useWallet, useActionPrice } from "@/hooks/use-wallet";
+import { useWallet, useActionPrice, useCreditPackages } from "@/hooks/use-wallet";
+import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 
 const topics = [
