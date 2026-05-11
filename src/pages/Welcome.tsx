@@ -55,19 +55,19 @@ const Welcome = () => {
   return (
     <div className="landing-dark min-h-screen bg-background text-foreground">
       {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-shell bg-shell text-shell-foreground">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8 md:py-4">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="ThweSat" width={32} height={32} />
             <span className="font-display text-lg font-semibold tracking-tight">
-              <span className="text-foreground">Thwe</span><span className="text-accent">Sat</span>
+              <span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
-            <button onClick={() => navigate("/jobs")} className="hover:text-foreground">{my ? "အလုပ်များ" : "Find Jobs"}</button>
-            <button onClick={() => navigate("/mentors")} className="hover:text-foreground">{my ? "လမ်းညွှန်သူများ" : "Mentors"}</button>
-            <button onClick={() => navigate("/guides")} className="hover:text-foreground">{my ? "လမ်းညွှန်" : "Guides"}</button>
-            <button onClick={() => navigate("/employer/onboarding")} className="hover:text-foreground">{my ? "အလုပ်ရှင်များအတွက်" : "For Employers"}</button>
+          <nav className="hidden items-center gap-6 text-sm font-medium text-shell-foreground/70 md:flex">
+            <button onClick={() => navigate("/jobs")} className="hover:text-shell-foreground">{my ? "အလုပ်များ" : "Find Jobs"}</button>
+            <button onClick={() => navigate("/mentors")} className="hover:text-shell-foreground">{my ? "လမ်းညွှန်သူများ" : "Mentors"}</button>
+            <button onClick={() => navigate("/guides")} className="hover:text-shell-foreground">{my ? "လမ်းညွှန်" : "Guides"}</button>
+            <button onClick={() => navigate("/employer/onboarding")} className="hover:text-shell-foreground">{my ? "အလုပ်ရှင်များအတွက်" : "For Employers"}</button>
           </nav>
           <div className="flex items-center gap-2">
             <LanguageToggle />
@@ -82,17 +82,16 @@ const Welcome = () => {
       </header>
 
       {/* Hero with search */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 to-background">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,hsl(var(--gold)/0.18),transparent_55%)]" />
+      <section className="relative overflow-hidden border-b border-shell bg-shell text-shell-foreground">
         <div className="relative mx-auto max-w-6xl px-4 py-14 md:px-8 md:py-20">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto max-w-3xl text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-accent">
               {my ? "မြန်မာပရော်ဖက်ရှင်နယ်များအတွက်" : "Built for Myanmar professionals — at home & across APAC"}
             </p>
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-shell-foreground md:text-5xl">
               {my ? "သင့်အတွက် သင့်တော်တဲ့ အလုပ် ရှာဖွေပါ" : "Find the job that fits your life"}
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-sm text-shell-foreground/70 md:text-base">
               {my
                 ? "လုံခြုံစိတ်ချရသော အလုပ်ခေါ်စာများ၊ လမ်းညွှန်မှုနှင့် အသက်မွေးဝမ်းကျောင်း ကိရိယာများ — တစ်နေရာတည်းမှာ။"
                 : "Thousands of verified jobs, real mentors, and the career tools you need — all in one place."}
@@ -130,10 +129,10 @@ const Welcome = () => {
           </motion.form>
 
           {/* Quick stats */}
-          <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground">
-            <span><span className="font-bold text-foreground">{(jobs || []).length.toLocaleString()}+</span> {my ? "အလုပ်များ" : "open jobs"}</span>
-            <span><span className="font-bold text-foreground">{(allProfiles || []).length.toLocaleString()}+</span> {my ? "အဖွဲ့ဝင်များ" : "members"}</span>
-            <span><span className="font-bold text-foreground">{(mentors || []).length.toLocaleString()}+</span> {my ? "လမ်းညွှန်သူများ" : "mentors"}</span>
+          <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-shell-foreground/65">
+            <span><span className="font-bold text-shell-foreground">{(jobs || []).length.toLocaleString()}+</span> {my ? "အလုပ်များ" : "open jobs"}</span>
+            <span><span className="font-bold text-shell-foreground">{(allProfiles || []).length.toLocaleString()}+</span> {my ? "အဖွဲ့ဝင်များ" : "members"}</span>
+            <span><span className="font-bold text-shell-foreground">{(mentors || []).length.toLocaleString()}+</span> {my ? "လမ်းညွှန်သူများ" : "mentors"}</span>
           </div>
         </div>
       </section>
