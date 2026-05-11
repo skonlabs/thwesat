@@ -72,37 +72,46 @@ html[data-myanmar-font="noto"] body {
     --font-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
   }
 
+  /* Dark theme — preserves Navy primary + Gold accent semantics so all
+     in-app components keep brand colors. Only surfaces invert. */
   .dark {
-    --background: 252 46% 8%;
+    --background: 252 50% 7%;
     --foreground: 40 30% 94%;
-    --card: 252 40% 11%;
+    --card: 252 42% 11%;
     --card-foreground: 40 30% 94%;
-    --popover: 252 40% 11%;
+    --popover: 252 42% 11%;
     --popover-foreground: 40 30% 94%;
-    --primary: 36 100% 68%;
-    --primary-foreground: 252 46% 8%;
-    --secondary: 252 30% 16%;
-    --secondary-foreground: 40 20% 85%;
-    --muted: 252 25% 16%;
-    --muted-foreground: 252 12% 55%;
-    --accent: 252 46% 17%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
+    --primary: 252 46% 22%;
+    --primary-foreground: 40 30% 96%;
+    --secondary: 252 35% 13%;
+    --secondary-foreground: 40 25% 88%;
+    --muted: 252 30% 14%;
+    --muted-foreground: 252 12% 65%;
+    --accent: 36 100% 68%;
+    --accent-foreground: 252 46% 10%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 252 25% 18%;
-    --input: 252 25% 18%;
+    --border: 252 25% 20%;
+    --input: 252 25% 20%;
     --ring: 36 100% 68%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
-    --sidebar-background: 252 46% 8%;
-    --sidebar-foreground: 40 20% 85%;
+    --gold-light: 42 100% 76%;
+    --gold: 36 100% 68%;
+    --gold-dark: 36 100% 68%;
+    --navy: 252 46% 22%;
+    --navy-light: 252 35% 32%;
+    --emerald: 152 60% 48%;
+    --emerald-foreground: 0 0% 100%;
+    --sidebar-background: 252 50% 7%;
+    --sidebar-foreground: 40 25% 88%;
     --sidebar-primary: 36 100% 68%;
     --sidebar-primary-foreground: 252 46% 8%;
-    --sidebar-accent: 252 30% 14%;
-    --sidebar-accent-foreground: 40 20% 85%;
-    --sidebar-border: 252 25% 18%;
+    --sidebar-accent: 252 35% 13%;
+    --sidebar-accent-foreground: 40 25% 88%;
+    --sidebar-border: 252 25% 20%;
     --sidebar-ring: 36 100% 68%;
   }
 

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import BottomNav from "./BottomNav";
+import DesktopNav from "./DesktopNav";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
@@ -81,12 +82,15 @@ const AppLayout = () => {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-background md:max-w-2xl lg:max-w-3xl">
-      <PullToRefresh onRefresh={handleRefresh} disabled={ptrDisabled}>
-        <div className="pb-20">
-          <Outlet />
-        </div>
-      </PullToRefresh>
+    <div className="min-h-screen bg-background">
+      <DesktopNav />
+      <div className="mx-auto max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
+        <PullToRefresh onRefresh={handleRefresh} disabled={ptrDisabled}>
+          <div className="pb-20 md:pb-10">
+            <Outlet />
+          </div>
+        </PullToRefresh>
+      </div>
       <BottomNav />
     </div>
   );
