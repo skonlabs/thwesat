@@ -291,7 +291,7 @@ const MentorDashboard = () => {
             );
           })}
           {filteredBookings.length === 0 && (
-            <div className="flex flex-col items-center rounded-xl border border-dashed border-border py-10 text-center">
+            <div className="flex flex-col items-center rounded-xl border border-dashed border-border py-10 text-center md:col-span-2">
               <Calendar className="mb-3 h-9 w-9 text-muted-foreground" strokeWidth={1} />
               <p className="text-sm font-medium text-foreground">
                 {bookings.length === 0 ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet") : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing here")}
