@@ -20,6 +20,7 @@ const DesktopNav = () => {
   const { profile } = useAuth();
   const { data: unreadMessages = 0 } = useUnreadMessageCount();
   const { data: unreadNotifications = 0 } = useUnreadNotificationCount();
+  const { data: wallet } = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
 
