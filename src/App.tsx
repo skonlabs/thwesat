@@ -144,7 +144,6 @@ const App = () => (
               <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
 
               {/* Employer Portal — employer role ONLY (agent has its own /agent/* namespace) */}
-              <Route path="/employer/onboarding" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard>} />
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
               <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
