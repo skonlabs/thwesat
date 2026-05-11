@@ -379,7 +379,7 @@ const Jobs = () => {
 
             return (
               <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`cursor-pointer rounded-xl border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+                className={`cursor-pointer rounded-xl border p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${jobCardPastels[i % jobCardPastels.length]} ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
                 {featured && (
                   <div className="mb-2 flex items-center gap-1">
                     <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-gold-dark">⭐ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
@@ -387,7 +387,7 @@ const Jobs = () => {
                 )}
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card/80">
                       <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
                     </div>
                     <div>
