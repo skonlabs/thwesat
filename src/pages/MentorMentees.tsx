@@ -182,22 +182,58 @@ const MentorMentees = () => {
 
   const selectedMentee = enriched.find((m: any) => m.id === selectedId);
 
+  const activeCount = enriched.filter((m: any) => m.status === "active").length;
+  const pendingCount = enriched.filter((m: any) => m.status === "pending").length;
+  const totalSessions = enriched.reduce((a: number, m: any) => a + (m.sessions_completed || 0), 0);
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "Mentee များ" : "My Mentees"} backPath="/mentors/dashboard" />
       <div className="px-5">
-        {/* Summary */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        {/* Editorial intro */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5 border-b border-border/60 pb-4"
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {lang === "my" ? "Mentor Studio" : "Mentor studio"}
+          </p>
+          <h1 className="mt-1 font-serif text-2xl leading-tight tracking-tight text-foreground">
+            {lang === "my" ? "သင် လမ်းညွှန်နေသူများ" : "People you mentor"}
+          </h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {lang === "my"
+              ? `လက်ရှိ ${activeCount} ဦး · တောင်းဆိုမှု ${pendingCount} ခု`
+              : `${activeCount} active · ${pendingCount} pending requests`}
+          </p>
+        </motion.div>
+
+        {/* Stat tiles */}
+        <div className="mb-5 grid grid-cols-3 gap-2">
           {[
-            { value: enriched.filter((m: any) => m.status === "active").length, label: lang === "my" ? "လက်ရှိ" : "Active", color: "text-emerald", action: () => setFilter("active") },
-            { value: enriched.filter((m: any) => m.status === "pending").length, label: lang === "my" ? "စောင့်" : "Pending", color: "text-accent", action: () => setFilter("pending") },
-            { value: enriched.reduce((a: number, m: any) => a + (m.sessions_completed || 0), 0), label: "Sessions", color: "text-foreground", action: () => navigate("/mentors/bookings") },
-          ].map((s, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={s.action} className="rounded-xl border border-border bg-card p-3 text-center transition-colors active:bg-muted/30">
-              <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </motion.button>
-          ))}
+            { value: activeCount, label: lang === "my" ? "လက်ရှိ" : "Active", hint: lang === "my" ? "Mentoring" : "Mentoring", tone: "text-emerald", action: () => setFilter("active"), key: "active" },
+            { value: pendingCount, label: lang === "my" ? "တောင်းဆိုမှု" : "Requests", hint: lang === "my" ? "Pending" : "Pending", tone: "text-accent", action: () => setFilter("pending"), key: "pending" },
+            { value: totalSessions, label: "Sessions", hint: lang === "my" ? "ပြီးဆုံး" : "Lifetime", tone: "text-foreground", action: () => navigate("/mentors/bookings"), key: "sessions" },
+          ].map((s, i) => {
+            const active = filter === s.key;
+            return (
+              <motion.button
+                key={s.key}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                onClick={s.action}
+                className={`rounded-2xl border p-3 text-left transition-all active:scale-[0.98] ${
+                  active ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <p className={`font-serif text-2xl leading-none ${s.tone}`}>{s.value}</p>
+                <p className="mt-1.5 text-[11px] font-semibold text-foreground">{s.label}</p>
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{s.hint}</p>
+              </motion.button>
+            );
+          })}
         </div>
 
         <div className="relative mb-4">
@@ -220,7 +256,7 @@ const MentorMentees = () => {
             {filtered.map((mentee: any, i: number) => {
               const sc = statusConfig[mentee.status] || statusConfig.pending;
               return (
-                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(mentee.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted">
+                <motion.button key={mentee.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedId(mentee.id)} className={`w-full rounded-2xl border bg-card p-4 text-left transition-all hover:border-primary/40 active:scale-[0.99] ${mentee.status === "pending" ? "border-accent/40 ring-1 ring-accent/10" : "border-border"}`}>
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{mentee.profile?.display_name?.slice(0, 2).toUpperCase() || "?"}</div>
                     <div className="flex-1 min-w-0">

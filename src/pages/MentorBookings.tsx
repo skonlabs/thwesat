@@ -188,22 +188,59 @@ const MentorBookings = () => {
     queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
   };
 
+  const confirmedCount = bookings.filter((b: any) => b.status === "confirmed").length;
+  const completedCount = bookings.filter((b: any) => b.status === "completed").length;
+  const today = new Date().toISOString().slice(0, 10);
+  const todayCount = bookings.filter((b: any) => b.scheduled_date === today && (b.status === "confirmed" || b.status === "pending")).length;
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "Booking များ" : "Bookings"} backPath="/mentors/dashboard" />
       <div className="px-5">
-        {/* Summary */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        {/* Editorial intro */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5 border-b border-border/60 pb-4"
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {lang === "my" ? "Mentor Studio" : "Mentor studio"}
+          </p>
+          <h1 className="mt-1 font-serif text-2xl leading-tight tracking-tight text-foreground">
+            {lang === "my" ? "သင့် session များ" : "Your sessions"}
+          </h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {lang === "my"
+              ? `ယနေ့ ${todayCount} ခု · တုံ့ပြန်ရန် ${pendingCount} ခု`
+              : `${todayCount} today · ${pendingCount} need a reply`}
+          </p>
+        </motion.div>
+
+        {/* Stat tiles */}
+        <div className="mb-5 grid grid-cols-3 gap-2">
           {[
-            { value: pendingCount, label: lang === "my" ? "စောင့်ဆိုင်း" : "Pending", color: "text-primary", filterVal: "pending" as FilterType },
-            { value: bookings.filter((b: any) => b.status === "confirmed").length, label: lang === "my" ? "အတည်ပြု" : "Confirmed", color: "text-emerald", filterVal: "confirmed" as FilterType },
-            { value: bookings.filter((b: any) => b.status === "completed").length, label: lang === "my" ? "ပြီးဆုံး" : "Done", color: "text-muted-foreground", filterVal: "completed" as FilterType },
-          ].map((s, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setFilter(s.filterVal)} className={`rounded-xl border bg-card p-3 text-center transition-colors active:bg-muted/30 ${filter === s.filterVal ? "border-primary" : "border-border"}`}>
-              <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
-            </motion.button>
-          ))}
+            { value: pendingCount, label: lang === "my" ? "တုံ့ပြန်ရန်" : "Action", hint: lang === "my" ? "Pending" : "Pending", tone: "text-primary", filterVal: "pending" as FilterType },
+            { value: confirmedCount, label: lang === "my" ? "လာမည်" : "Upcoming", hint: lang === "my" ? "Confirmed" : "Confirmed", tone: "text-emerald", filterVal: "confirmed" as FilterType },
+            { value: completedCount, label: lang === "my" ? "ပြီးဆုံး" : "Done", hint: lang === "my" ? "Lifetime" : "Lifetime", tone: "text-foreground", filterVal: "completed" as FilterType },
+          ].map((s, i) => {
+            const active = filter === s.filterVal;
+            return (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                onClick={() => setFilter(s.filterVal)}
+                className={`rounded-2xl border p-3 text-left transition-all active:scale-[0.98] ${
+                  active ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <p className={`font-serif text-2xl leading-none ${s.tone}`}>{s.value}</p>
+                <p className="mt-1.5 text-[11px] font-semibold text-foreground">{s.label}</p>
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{s.hint}</p>
+              </motion.button>
+            );
+          })}
         </div>
 
         {/* Filters */}
@@ -255,7 +292,7 @@ const MentorBookings = () => {
               const fullyDone = bothCompleted(booking);
 
               return (
-                <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="rounded-xl border border-border bg-card p-4">
+                <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className={`rounded-2xl border bg-card p-4 transition-colors ${booking.status === "pending" ? "border-primary/40 ring-1 ring-primary/10" : "border-border hover:border-primary/30"}`}>
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{mentee?.display_name?.slice(0, 2).toUpperCase() || "?"}</div>
                     <div className="flex-1 min-w-0">
