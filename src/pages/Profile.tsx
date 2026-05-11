@@ -21,6 +21,7 @@ import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useFeatureUnlocks } from "@/hooks/use-wallet";
 import { Sparkles as SparklesIcon } from "lucide-react";
+import ProfileDashboardHero from "@/components/profile/ProfileDashboardHero";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -297,36 +298,19 @@ const Profile = () => {
           </motion.div>
         )}
 
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-14 w-14 rounded-full object-cover" />
-              ) : avatarInitials}
-            </div>
-            <div className="flex-1">
-              <h2 className="text-base font-bold text-foreground">{displayName}</h2>
-              <p className="text-xs text-muted-foreground">{headline}</p>
-              <div className="mt-1.5 flex items-center gap-2.5">
-                {location && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {location}</span>}
-                {profile?.remote_ready && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Globe className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "အဝေးထိန်း" : "Remote"}</span>}
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate((effectiveRole === "employer" || effectiveRole === "agent") ? companyEditPath : "/profile/edit")}
-            className="mt-4 w-full rounded-lg bg-muted p-3 text-left transition-colors active:bg-muted/70"
-          >
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-xs font-medium text-foreground">{lang === "my" ? "ပရိုဖိုင် ပြည့်စုံမှု" : "Profile Completion"}</span>
-              <span className="text-xs font-bold text-primary">{completionPct}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-border">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
-            </div>
-          </button>
-        </motion.div>
+        <ProfileDashboardHero
+          displayName={displayName}
+          headline={headline}
+          location={location}
+          remoteReady={!!profile?.remote_ready}
+          avatarUrl={profile?.avatar_url || null}
+          avatarInitials={avatarInitials}
+          completionPct={completionPct}
+          isJobseeker={effectiveRole === "jobseeker"}
+          lang={lang}
+          onEdit={() => navigate((effectiveRole === "employer" || effectiveRole === "agent") ? companyEditPath : "/profile/edit")}
+          onNavigate={navigate}
+        />
 
         {/* Company Info — Employer / Agent */}
         {(effectiveRole === "employer" || effectiveRole === "agent") && (
