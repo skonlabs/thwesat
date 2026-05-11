@@ -122,9 +122,9 @@ const MentorDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "Mentor ပင်မ" : "Mentor Dashboard"} />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Mentor"
           roleLabelMy="လမ်းညွှန်"
@@ -188,7 +188,7 @@ const MentorDashboard = () => {
         )}
 
         {/* Stats — always 2x2 */}
-        <div className="mb-5 grid grid-cols-2 gap-3">
+        <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {stats.map((s, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               onClick={s.action}
@@ -207,7 +207,7 @@ const MentorDashboard = () => {
         </div>
 
         {/* Quick actions row */}
-        <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="mb-6 grid grid-cols-3 gap-3 md:grid-cols-6">
           {[
             { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
             { icon: WalletCards, my: "ငွေကြေး", en: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
@@ -240,7 +240,7 @@ const MentorDashboard = () => {
           ))}
         </div>
 
-        <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2">
           {filteredBookings.slice(0, 5).map((booking: any, i: number) => {
             const sc = statusConfig[booking.status] || statusConfig.pending;
             const mentee = menteeMap.get(booking.mentee_id);
@@ -291,7 +291,7 @@ const MentorDashboard = () => {
             );
           })}
           {filteredBookings.length === 0 && (
-            <div className="flex flex-col items-center rounded-xl border border-dashed border-border py-10 text-center">
+            <div className="flex flex-col items-center rounded-xl border border-dashed border-border py-10 text-center md:col-span-2">
               <Calendar className="mb-3 h-9 w-9 text-muted-foreground" strokeWidth={1} />
               <p className="text-sm font-medium text-foreground">
                 {bookings.length === 0 ? (lang === "my" ? "Booking မရှိသေးပါ" : "No bookings yet") : (lang === "my" ? "ဤအခြေအနေအတွက် မရှိပါ" : "Nothing here")}

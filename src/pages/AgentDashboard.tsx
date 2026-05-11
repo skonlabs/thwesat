@@ -76,10 +76,10 @@ const AgentDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
 
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Recruiting Agent"
           roleLabelMy="ခေါ်ယူရေး အေဂျင့်"
@@ -117,7 +117,7 @@ const AgentDashboard = () => {
 
         {/* Pipeline — the agent's daily workload */}
         <h2 className="mb-2 text-sm font-bold text-foreground">{lang === "my" ? "Pipeline" : "Pipeline"}</h2>
-        <div className="mb-5 grid grid-cols-3 gap-3">
+        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-6">
           {[
             { icon: Users, label: { my: "လက်ရှိ", en: "Active" }, value: stats.active, color: "text-primary bg-primary/10", action: () => navigate("/agent/candidates") },
             { icon: Briefcase, label: { my: "အင်တာဗျူး", en: "Interview" }, value: stats.interview, color: "text-amber-600 bg-amber-100 dark:bg-amber-900/30", action: () => navigate("/agent/candidates?filter=interview") },
@@ -142,7 +142,7 @@ const AgentDashboard = () => {
 
         {/* Quick actions */}
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
-        <div className="mb-5 grid grid-cols-3 gap-3">
+        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-7">
           {quickActions.map((a, i) => (
             <motion.button
               key={a.path + a.en}
@@ -169,7 +169,7 @@ const AgentDashboard = () => {
                 {lang === "my" ? "အားလုံး" : "View all"} →
               </button>
             </div>
-            <div className="mb-5 space-y-2">
+            <div className="mb-5 grid gap-2 md:grid-cols-3">
               {stats.recentPlacements.map((p: any, i: number) => (
                 <button
                   key={i}

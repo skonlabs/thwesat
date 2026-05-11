@@ -71,9 +71,9 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "စီမံခန့်ခွဲမှု" : "Admin Dashboard"} />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Administrator"
           roleLabelMy="စီမံအုပ်ချုပ်သူ"
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
             <span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">{totalPending}</span>
           )}
         </div>
-        <div className="mb-5 space-y-2">
+        <div className="mb-5 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
           {pendingItems.map((item, i) => {
             const showUrgent = item.urgent && item.count > 0;
             return (
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
 
         {/* Management Grid */}
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "စီမံခန့်ခွဲမှု" : "Management"}</h2>
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-3 gap-2.5 md:grid-cols-4 lg:grid-cols-8">
           {managementLinks.map((item, i) => (
             <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.04 }} onClick={() => navigate(item.path)} className="flex flex-col items-center rounded-xl border border-border bg-card p-2.5 transition-colors active:bg-muted/30">
               <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
