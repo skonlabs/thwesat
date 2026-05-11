@@ -132,32 +132,41 @@ const Jobs = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filterType, setFilterType] = useSearchParamState("type", "all");
   const [filterLocation, setFilterLocation] = useSearchParamState("loc", "all");
-  const [filterDiasporaSafe, setFilterDiasporaSafeRaw] = useSearchParamState("safe", "0");
-  const [filterVerified, setFilterVerifiedRaw] = useSearchParamState("verified", "0");
-  const [filterVisa, setFilterVisaRaw] = useSearchParamState("visa", "0");
-  const setFilterDiasporaSafe = (v: boolean) => setFilterDiasporaSafeRaw(v ? "1" : "0");
-  const setFilterVerified = (v: boolean) => setFilterVerifiedRaw(v ? "1" : "0");
-  const setFilterVisa = (v: boolean) => setFilterVisaRaw(v ? "1" : "0");
-  const diasporaOn = filterDiasporaSafe === "1";
-  const verifiedOn = filterVerified === "1";
-  const visaOn = filterVisa === "1";
+  const [filterSalaryMin, setFilterSalaryMin] = useSearchParamState("smin", "");
+  const [filterSalaryMax, setFilterSalaryMax] = useSearchParamState("smax", "");
   const [showScamAlert, setShowScamAlert] = useState(true);
 
-  const activeFilterCount = [filterType !== "all", filterLocation !== "all", diasporaOn, verifiedOn, visaOn].filter(Boolean).length;
+  const selectedLocations = filterLocation === "all" || filterLocation === "" ? [] : filterLocation.split(",").filter(Boolean);
+  const salaryMinNum = filterSalaryMin ? Number(filterSalaryMin) : null;
+  const salaryMaxNum = filterSalaryMax ? Number(filterSalaryMax) : null;
+
+  const activeFilterCount = [
+    filterType !== "all",
+    selectedLocations.length > 0,
+    salaryMinNum !== null,
+    salaryMaxNum !== null,
+  ].filter(Boolean).length;
+
+  const keywords = search.toLowerCase().split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
 
   const filteredJobs = jobs.filter(job => {
-    const matchesSearch = search === "" ||
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase()) ||
-      (job.skills || []).some(t => t.toLowerCase().includes(search.toLowerCase()));
+    const haystack = [
+      job.title,
+      job.company,
+      job.location,
+      (job as any).description,
+      ...(job.skills || []),
+    ].filter(Boolean).join(" ").toLowerCase();
+    const matchesSearch = keywords.length === 0 || keywords.every(k => haystack.includes(k));
     const jobCats = (job.categories && job.categories.length > 0) ? job.categories : (job.category ? [job.category] : []);
     const matchesCategory = activeCategory === "All" || jobCats.some(c => c === activeCategory || c.toLowerCase() === activeCategory.toLowerCase());
     const matchesType = filterType === "all" || filterType.split(",").some(t => t === job.role_type || t === job.job_type);
-    const matchesLocation = filterLocation === "all" || job.location === filterLocation;
-    const matchesDiaspora = !diasporaOn || job.is_diaspora_safe;
-    const matchesVerified = !verifiedOn || job.is_verified;
-    const matchesVisa = !visaOn || job.visa_sponsorship;
-    return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesDiaspora && matchesVerified && matchesVisa;
+    const matchesLocation = selectedLocations.length === 0 || selectedLocations.some(loc => (job.location || "").toLowerCase().includes(loc.toLowerCase()));
+    const sMin = (job as any).salary_min as number | null | undefined;
+    const sMax = (job as any).salary_max as number | null | undefined;
+    const matchesSalaryMin = salaryMinNum === null || (sMax ?? sMin ?? 0) >= salaryMinNum;
+    const matchesSalaryMax = salaryMaxNum === null || (sMin ?? sMax ?? 0) <= salaryMaxNum;
+    return matchesSearch && matchesCategory && matchesType && matchesLocation && matchesSalaryMin && matchesSalaryMax;
   });
 
   // Fetch the seeker's profile + latest CV filename to drive personalized matching.
