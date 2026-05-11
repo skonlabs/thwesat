@@ -73,6 +73,18 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        shell: {
+          DEFAULT: "hsl(var(--shell))",
+          foreground: "hsl(var(--shell-foreground))",
+        },
+        pastel: {
+          peach: "hsl(var(--pastel-peach))",
+          mint: "hsl(var(--pastel-mint))",
+          lavender: "hsl(var(--pastel-lavender))",
+          sky: "hsl(var(--pastel-sky))",
+          blush: "hsl(var(--pastel-blush))",
+          mist: "hsl(var(--pastel-mist))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
