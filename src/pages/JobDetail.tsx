@@ -203,6 +203,87 @@ const JobDetail = () => {
     );
   };
 
+  const runGenerateCoverLetter = async () => {
+    if (!user || !job) return;
+    setGeneratingCoverLetter(true);
+    try {
+      // Build experience context from selected resume
+      let yourExperience = "";
+      let yourName = "";
+      if (selectedCvId) {
+        const cv: any = (cvDocuments as any[]).find((d) => d.id === selectedCvId);
+        if (cv?.file_url) {
+          const storagePath = cv.file_url.split("/cv-documents/").pop() || cv.file_url;
+          try {
+            const { data: parsed } = await supabase.functions.invoke("parse-cv", {
+              body: { file_path: storagePath },
+            });
+            const p = parsed?.data;
+            if (p) {
+              yourName = p.name || "";
+              yourExperience = [
+                ...(p.experiences || []).map((ex: any) =>
+                  [ex.role, ex.company, ex.duration].filter(Boolean).join(" at ") +
+                  (ex.description ? ` — ${ex.description}` : "")
+                ),
+                ...(p.skills?.length ? [`Skills: ${p.skills.join(", ")}`] : []),
+                ...(p.summary ? [p.summary] : []),
+              ].join("\n");
+            }
+          } catch (e) {
+            console.warn("CV parse failed, generating without resume detail", e);
+          }
+        }
+      } else if (selectedGeneratedResumeId) {
+        const r: any = (generatedResumes as any[]).find((d) => d.id === selectedGeneratedResumeId);
+        if (r?.content) yourExperience = String(r.content).substring(0, 3000);
+      }
+
+      const jobDescription = [
+        (job as any).description || "",
+        (job as any).requirements ? `Requirements: ${(job as any).requirements}` : "",
+      ].filter(Boolean).join("\n").substring(0, 2000);
+
+      const companyName = (job as any)?.companies?.name || (job as any)?.company || "";
+
+      const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
+        body: {
+          jobTitle: job.title,
+          company: companyName,
+          jobDescription,
+          yourName: yourName || (user as any)?.user_metadata?.display_name || "",
+          yourExperience,
+          tone: "professional",
+        },
+      });
+      if (error) throw error;
+      const letter = data?.data?.letter;
+      if (!letter) throw new Error("No cover letter returned");
+
+      // Persist for re-use
+      await supabase.from("generated_documents").insert({
+        user_id: user.id,
+        doc_type: "cover_letter",
+        title: `${lang === "my" ? "အလုပ်လျှောက်လွှာ" : "Cover Letter"} — ${job.title || ""} at ${companyName || ""}`,
+        content: letter,
+        metadata: { jobTitle: job.title, company: companyName, tone: "professional", jobId: id || null },
+      });
+      queryClient.invalidateQueries({ queryKey: ["generated-cover-letters", user.id] });
+
+      setCoverLetter(letter);
+      setCoverLetterMode("generated");
+    } catch (err: any) {
+      console.error("Inline cover letter generation failed", err);
+      toast({
+        title: lang === "my" ? "ဖန်တီး၍ မရပါ" : "Generation failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingCoverLetter(false);
+    }
+  };
+
   const handleApply = () => {
     if (!id) return;
     if (!selectedCvId && !selectedGeneratedResumeId) {
