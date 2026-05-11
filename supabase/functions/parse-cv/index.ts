@@ -103,7 +103,9 @@ Deno.serve(async (req) => {
     }
     const base64Content = btoa(binary);
 
-    const isPdf = file_path.toLowerCase().endsWith(".pdf");
+    const lower = file_path.toLowerCase();
+    const isPdf = lower.endsWith(".pdf");
+    const isDocx = lower.endsWith(".docx");
 
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) {
@@ -113,14 +115,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!isPdf) {
+    if (!isPdf && !isDocx) {
       return new Response(
-        JSON.stringify({ error: "Only PDF CVs are supported. Please upload your CV as a PDF." }),
+        JSON.stringify({ error: "Only PDF or DOCX CVs are supported." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const systemPrompt = `You are an expert CV/resume parser. Extract ALL structured information from the uploaded document thoroughly. Return ONLY valid JSON with this exact structure:
+    let docxText = "";
+    if (isDocx) {
+      try {
+        docxText = extractDocxText(uint8Array);
+      } catch (e) {
+        console.error("DOCX extract failed:", e);
+        return new Response(
+          JSON.stringify({ error: "Failed to read DOCX file. Please upload as PDF instead." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (!docxText.trim()) {
+        return new Response(
+          JSON.stringify({ error: "DOCX appears to be empty. Please upload as PDF instead." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    const systemPrompt = `You are an expert CV/resume parser. Extract ALL structured information from the document thoroughly. Return ONLY valid JSON with this exact structure:
 {
   "name": "Full name of the candidate",
   "title": "Current or most recent job title / professional headline",
@@ -151,8 +172,14 @@ Rules:
 - If a field is not found, use empty string or empty array
 - Return ONLY the JSON, no markdown, no code fences, no explanation`;
 
-    const filename = file_path.split("/").pop() || "cv.pdf";
-    const dataUrl = `data:application/pdf;base64,${base64Content}`;
+    const filename = file_path.split("/").pop() || "cv";
+
+    const userContent: any = isPdf
+      ? [
+          { type: "text", text: "Parse this CV/resume document and extract the structured information as JSON." },
+          { type: "file", file: { filename, file_data: `data:application/pdf;base64,${base64Content}` } },
+        ]
+      : `Parse this CV/resume text and extract the structured information as JSON.\n\n--- CV TEXT START ---\n${docxText.slice(0, 60000)}\n--- CV TEXT END ---`;
 
     const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -161,19 +188,13 @@ Rules:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: isPdf ? "gpt-4o" : "gpt-4o-mini",
         max_tokens: 8192,
         temperature: 0.1,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: "Parse this CV/resume document and extract the structured information as JSON." },
-              { type: "file", file: { filename, file_data: dataUrl } },
-            ],
-          },
+          { role: "user", content: userContent },
         ],
       }),
     });
