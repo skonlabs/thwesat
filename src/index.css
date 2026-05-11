@@ -106,13 +106,13 @@ html[data-myanmar-font="noto"] body {
     --navy-light: 252 35% 32%;
     --emerald: 152 60% 48%;
     --emerald-foreground: 0 0% 100%;
-    --sidebar-background: 252 50% 7%;
-    --sidebar-foreground: 40 25% 88%;
+    --sidebar-background: 18 22% 11%;
+    --sidebar-foreground: 36 25% 88%;
     --sidebar-primary: 36 100% 68%;
-    --sidebar-primary-foreground: 252 46% 8%;
-    --sidebar-accent: 252 35% 13%;
-    --sidebar-accent-foreground: 40 25% 88%;
-    --sidebar-border: 252 25% 20%;
+    --sidebar-primary-foreground: 18 30% 12%;
+    --sidebar-accent: 18 18% 18%;
+    --sidebar-accent-foreground: 36 25% 88%;
+    --sidebar-border: 18 18% 24%;
     --sidebar-ring: 36 100% 68%;
   }
 
