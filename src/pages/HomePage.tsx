@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { computeProfileCompletion } from "@/lib/profile-completion";
 import { useJobs } from "@/hooks/use-jobs";
+import { useMatchedJobs } from "@/hooks/use-matched-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -34,14 +35,30 @@ const HomePage = () => {
   const { data: jobs } = useJobs();
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
+  const { data: matchData } = useMatchedJobs(40);
+  const scoreMap = matchData?.scoreMap;
+  const hasMatches = !!scoreMap && scoreMap.size > 0;
 
   // NOTE: Admin/moderator routing is handled by HomeRedirect (which renders
   // the right dashboard inline). HomePage only ever mounts for non-admin
   // roles, so no redirect effect is needed here. Removing the previous
   // navigate() avoided a flash of HomePage before redirect.
 
-  const featuredJobs = (jobs || []).filter((j: any) => j.is_featured).slice(0, 5);
+  // Featured jobs personalized: when we have match scores, rank featured jobs by similarity.
+  const allFeatured = (jobs || []).filter((j: any) => j.is_featured);
+  const featuredJobs = hasMatches
+    ? [...allFeatured].sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0)).slice(0, 5)
+    : allFeatured.slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
+
+  // "Matched for you" — top non-featured jobs by similarity (avoid duplicating featured).
+  const featuredIds = new Set(featuredJobs.map((j: any) => j.id));
+  const matchedForYou = hasMatches
+    ? (jobs || [])
+        .filter((j: any) => !featuredIds.has(j.id) && (scoreMap!.get(j.id) ?? 0) > 0)
+        .sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0))
+        .slice(0, 5)
+    : [];
   
 
   // Profile completion — must mirror DB function `is_profile_complete` exactly,
@@ -104,7 +121,11 @@ const HomePage = () => {
 
           <div className="mt-6">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[15px] font-bold text-foreground md:font-display md:text-xl md:font-semibold md:tracking-tight">{lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs"}</h2>
+              <h2 className="text-[15px] font-bold text-foreground md:font-display md:text-xl md:font-semibold md:tracking-tight">
+                {hasMatches
+                  ? (lang === "my" ? "သင့်အတွက် ထူးချွန်အလုပ်များ" : "Featured for you")
+                  : (lang === "my" ? "အသစ်ထွက် အလုပ်များ" : "Featured Jobs")}
+              </h2>
               <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-accent hover:underline">
                 {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
@@ -144,6 +165,50 @@ const HomePage = () => {
               )}
             </div>
           </div>
+
+          {matchedForYou.length > 0 && (
+            <div className="mt-6">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-[15px] font-bold text-foreground md:font-display md:text-xl md:font-semibold md:tracking-tight">
+                  {lang === "my" ? "သင့်အတွက် ကိုက်ညီသော အလုပ်များ" : "Matched for you"}
+                </h2>
+                <button onClick={() => navigate("/jobs")} className="flex items-center text-xs font-semibold text-accent hover:underline">
+                  {lang === "my" ? "အားလုံး" : "View all"} <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </button>
+              </div>
+              <div className="grid gap-2.5 xl:grid-cols-2">
+                {matchedForYou.map((job: any, i: number) => {
+                  const score = scoreMap?.get(job.id) ?? 0;
+                  const pct = Math.round(Math.max(0, Math.min(1, score)) * 100);
+                  return (
+                    <motion.button key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                      onClick={() => navigate(`/jobs/${job.id}`)}
+                      className="flex w-full items-start gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover active:bg-muted">
+                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-emerald/10">
+                        <Sparkles className="h-5 w-5 text-emerald" strokeWidth={1.5} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+                            <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
+                          </div>
+                          <span className="flex-shrink-0 rounded bg-emerald/10 px-1.5 py-0.5 text-[10px] font-bold text-emerald">{pct}%</span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                          <span className="flex min-w-0 items-center gap-1 truncate text-[11px] text-muted-foreground">
+                            <MapPin className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} />
+                            <span className="truncate">{translateJobLocation(job.location, lang)}</span>
+                          </span>
+                          <span className="flex-shrink-0 whitespace-nowrap text-[11px] font-semibold text-accent">{formatJobSalary(job, lang)}</span>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 md:hidden">
             <MentorCoachCue variant={completionPct < 60 ? "profile" : "general"} />

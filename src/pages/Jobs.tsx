@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRole } from "@/hooks/use-role";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useMatchedJobs } from "@/hooks/use-matched-jobs";
 
 /** Tokenize a free-text string into lowercase keywords (>=3 chars). */
 function tokenize(input: string | null | undefined): Set<string> {
@@ -212,12 +213,23 @@ const Jobs = () => {
   const userActivelyFiltering = !!search || activeCategory !== "All" || activeFilterCount > 0;
   const personalize = isSeeker && !!seekerSignals?.hasProfile && !userActivelyFiltering;
 
+  // Embeddings-based match scores (lazy: edge function backfills as needed).
+  const { data: matchData } = useMatchedJobs(80);
+  const scoreMap = matchData?.scoreMap;
+
   const sortedJobs = useMemo(() => {
     if (!personalize || !seekerSignals) return filteredJobs;
-    const scored = filteredJobs.map((j) => ({ j, s: scoreJobForSeeker(j, seekerSignals) }));
+    const useEmbeddings = !!scoreMap && scoreMap.size > 0;
+    const scored = filteredJobs.map((j) => {
+      const embed = useEmbeddings ? (scoreMap!.get(j.id) ?? 0) : 0;
+      // Combine: embeddings dominate when present; keyword score is a tiebreaker.
+      const keyword = scoreJobForSeeker(j, seekerSignals);
+      const s = useEmbeddings ? embed * 1000 + keyword * 0.1 : keyword;
+      return { j, s };
+    });
     scored.sort((a, b) => b.s - a.s);
     return scored.map((x) => x.j);
-  }, [filteredJobs, personalize, seekerSignals]);
+  }, [filteredJobs, personalize, seekerSignals, scoreMap]);
 
   const clearFilters = () => {
     setFilterType("all");
