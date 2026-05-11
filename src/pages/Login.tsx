@@ -10,6 +10,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
+import AuthShell from "@/components/AuthShell";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 30;
@@ -104,7 +105,8 @@ const Login = () => {
   };
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md bg-background px-5 pt-6 pb-24">
+    <AuthShell pitchEn="Welcome back. Your next opportunity is waiting." pitchMy="ပြန်လည်ကြိုဆိုပါသည်။ နောက်အခွင့်အလမ်း စောင့်နေပါပြီ။">
+    <div className="mx-auto w-full max-w-md flex-1 bg-background px-5 pt-6 pb-24">
       <div className="flex items-center justify-between">
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
@@ -192,6 +194,7 @@ const Login = () => {
         </p>
       </motion.div>
     </div>
+    </AuthShell>
   );
 };
 

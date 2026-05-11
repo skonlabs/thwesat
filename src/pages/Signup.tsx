@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import LanguageToggle from "@/components/LanguageToggle";
+import AuthShell from "@/components/AuthShell";
 
 const PASSWORD_MIN_LENGTH = 8;
 
@@ -139,7 +140,8 @@ const Signup = () => {
   ];
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md bg-background px-5 pt-6 pb-24">
+    <AuthShell pitchEn="Join thousands building careers across APAC." pitchMy="APAC ဒေသတစ်ခွင် အသက်မွေးမှု တည်ဆောက်နေသူ ထောင်ပေါင်းများစွာနှင့် တွဲဖက်ပါ။">
+    <div className="mx-auto w-full max-w-md flex-1 bg-background px-5 pt-6 pb-24">
       <div className="flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-muted-foreground active:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
@@ -271,6 +273,7 @@ const Signup = () => {
         </p>
       </motion.div>
     </div>
+    </AuthShell>
   );
 };
 
