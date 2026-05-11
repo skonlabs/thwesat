@@ -1,4 +1,19 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { unzipSync, strFromU8 } from "https://esm.sh/fflate@0.8.2";
+
+function extractDocxText(bytes: Uint8Array): string {
+  const files = unzipSync(bytes);
+  const docXml = files["word/document.xml"];
+  if (!docXml) return "";
+  const xml = strFromU8(docXml);
+  // Convert paragraph/break boundaries to newlines, then strip tags
+  const withBreaks = xml
+    .replace(/<w:p[ >][^]*?<\/w:p>/g, (m) => m + "\n")
+    .replace(/<w:br[^>]*\/>/g, "\n")
+    .replace(/<w:tab[^>]*\/>/g, "\t");
+  const text = withBreaks.replace(/<[^>]+>/g, "");
+  return text.replace(/\n{3,}/g, "\n\n").trim();
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
