@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, ArrowRight, Briefcase, Building2 } from "lucide-react";
+import { CheckCircle, ArrowRight, Briefcase, Building2, Sparkles, Users, ShieldCheck, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ const EmployerOnboarding = () => {
   const upsert = useUpsertEmployerProfile();
   const { profile } = useAuth();
   const isAgent = profile?.primary_role === "agent";
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
   const [linkedin, setLinkedin] = useState("");
@@ -112,6 +112,71 @@ const EmployerOnboarding = () => {
             <Button variant="default" size="lg" className="w-full max-w-xs rounded-xl" onClick={handleSubmit} disabled={upsert.isPending}>
             {lang === "my" ? "Dashboard သို့ သွားရန်" : "Go to Dashboard"} <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 0) {
+    const valueProps = [
+      { icon: Users, en: "Reach vetted talent across APAC", my: "APAC တစ်ဝှမ်းမှ စစ်ဆေးပြီးသား ကျွမ်းကျင်သူများ ရှာဖွေနိုင်" },
+      { icon: ShieldCheck, en: "Verified employers stand out", my: "အတည်ပြုထား အလုပ်ရှင်များက ပိုထင်ရှား" },
+      { icon: Zap, en: "Post a job in under 5 minutes", my: "၅ မိနစ်အတွင်း အလုပ်ခေါ်ယူနိုင်" },
+    ];
+    return (
+      <div className="landing-dark relative min-h-screen overflow-hidden bg-shell text-shell-foreground">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-32 -left-24 h-[24rem] w-[24rem] rounded-full bg-sidebar-accent/70 blur-[100px]" />
+
+        <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pt-6 md:max-w-lg md:px-8">
+          <div className="flex items-center justify-between">
+            <button onClick={() => navigate(-1)} className="text-sm text-shell-foreground/60 hover:text-shell-foreground">
+              ← {lang === "my" ? "နောက်သို့" : "Back"}
+            </button>
+          </div>
+
+          <div className="flex flex-1 flex-col justify-center py-10">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <div className="mb-7 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-[0_12px_40px_-12px_hsl(var(--accent)/0.6)]">
+                <Building2 className="h-7 w-7" strokeWidth={1.75} />
+              </div>
+              <p className="text-[11px] font-bold tracking-[0.2em] text-accent">
+                {isAgent
+                  ? (lang === "my" ? "အေဂျင့်များအတွက်" : "FOR AGENCIES")
+                  : (lang === "my" ? "အလုပ်ရှင်များအတွက်" : "FOR EMPLOYERS")}
+              </p>
+              <h1 className="mt-3 font-display text-[2rem] font-semibold leading-[1.1] tracking-tight md:text-[2.5rem]">
+                {lang === "my" ? "သင့်နောက်ထပ် ထူးချွန်သူကို ဤနေရာတွင် ရှာတွေ့ပါ။" : "Find your next great hire — fast."}
+              </h1>
+              <p className="mt-5 max-w-sm text-base leading-relaxed text-shell-foreground/75">
+                {lang === "my"
+                  ? "ကုမ္ပဏီပရိုဖိုင်တစ်ခု တည်ဆောက်ပြီး APAC တစ်ဝှမ်းမှ အရည်အချင်းပြည့်စုံသူများကို ချိတ်ဆက်ပါ။"
+                  : "Set up your company profile and connect with qualified candidates across APAC."}
+              </p>
+
+              <ul className="mt-8 space-y-3">
+                {valueProps.map((v) => (
+                  <li key={v.en} className="flex items-start gap-3 text-sm text-shell-foreground/85">
+                    <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-sidebar-accent text-accent">
+                      <v.icon className="h-3.5 w-3.5" strokeWidth={2} />
+                    </span>
+                    {lang === "my" ? v.my : v.en}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+
+          <div className="pb-10">
+            <Button size="xl" onClick={() => setStep(1)} className="group h-14 w-full rounded-2xl bg-accent text-accent-foreground hover:bg-accent/90">
+              <span className="text-base font-semibold">{lang === "my" ? "စတင်ရန်" : "Get started"}</span>
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
+            </Button>
+            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-shell-foreground/60">
+              <Sparkles className="h-3 w-3 text-accent" strokeWidth={2} />
+              <span>{lang === "my" ? "၂ ဆင့်သာ · ၅ မိနစ်" : "Just 2 steps · 5 minutes"}</span>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap, CheckCircle2, XCircle, Building2 } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Gift, Briefcase, Search, GraduationCap, CheckCircle2, XCircle, Building2, Shield, Sparkles, ArrowRight } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
@@ -150,41 +150,57 @@ const Signup = () => {
         <LanguageToggle />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col">
-        <img src={logo} alt="ThweSat" width={56} height={56} className="mb-6" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 flex flex-col">
+        <div className="mb-5 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-dark">
+          <Sparkles className="h-3 w-3" strokeWidth={2} />
+          {lang === "my" ? "အခမဲ့ စတင်ပါ" : "Free to start"}
+        </div>
 
-        <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Create Account"}</h1>
-        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "အခမဲ့ဖြစ်ပါသည်" : "It's free"}</p>
+        <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+          {lang === "my" ? "သင့်အသက်မွေးမှု ဤနေရာတွင် စတင်ပါ" : "Your career starts here."}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {lang === "my"
+            ? "၂ မိနစ်အတွင်း အကောင့်ဖွင့်ပြီး APAC တစ်ဝှမ်းမှ အလုပ်များကို စတင်ရှာဖွေပါ။"
+            : "Create your account in 2 minutes and start exploring jobs across APAC."}
+        </p>
 
         {/* Role Selection */}
-        <div className="mb-6">
-          <Label className="mb-2.5 block text-xs font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
+        <div className="mt-7">
+          <Label className="mb-3 block text-xs font-bold uppercase tracking-wider text-muted-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I'm here to..."}</Label>
           <div className="grid grid-cols-2 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
                 onClick={() => setSelectedRole(r.value)}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-3.5 transition-all ${
+                className={`group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all ${
                   selectedRole === r.value
-                    ? "border-primary/40 bg-primary/5 shadow-sm"
-                    : "border-border bg-card active:bg-muted"
+                    ? "border-primary bg-primary/[0.04] shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.4)]"
+                    : "border-border bg-card hover:border-primary/40 hover:-translate-y-0.5"
                 }`}
               >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/15" : "bg-muted"}`}>
-                  <r.icon className={`h-4 w-4 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                {selectedRole === r.value && (
+                  <div className="absolute right-2.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
+                    <CheckCircle2 className="h-3 w-3 text-primary-foreground" strokeWidth={2.5} />
+                  </div>
+                )}
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${selectedRole === r.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <r.icon className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-                <span className={`text-xs font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
-                  {lang === "my" ? r.label.my : r.label.en}
-                </span>
-                <span className="text-[9px] text-muted-foreground text-center leading-tight">
-                  {lang === "my" ? r.desc.my : r.desc.en}
-                </span>
+                <div>
+                  <div className={`text-sm font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
+                    {lang === "my" ? r.label.my : r.label.en}
+                  </div>
+                  <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                    {lang === "my" ? r.desc.my : r.desc.en}
+                  </div>
+                </div>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="mt-7 space-y-4">
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
             <div className="relative">
@@ -255,11 +271,26 @@ const Signup = () => {
           )}
         </div>
 
-        <Button variant="default" size="lg" className="mt-8 w-full rounded-2xl shadow-navy" onClick={handleSignup} disabled={isLoading}>
-          {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating...") : (lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Sign Up")}
+        <Button
+          size="xl"
+          className="group mt-8 h-14 w-full rounded-2xl bg-accent text-accent-foreground shadow-[0_12px_32px_-12px_hsl(var(--accent)/0.6)] hover:bg-accent/90"
+          onClick={handleSignup}
+          disabled={isLoading}
+        >
+          <span className="text-base font-semibold">
+            {isLoading ? (lang === "my" ? "ဖန်တီးနေသည်..." : "Creating account...") : (lang === "my" ? "အခမဲ့ စတင်ရန်" : "Create my free account")}
+          </span>
+          {!isLoading && <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />}
         </Button>
 
-        <p className="mt-4 text-center text-[10px] text-muted-foreground">
+        {/* Trust strip */}
+        <div className="mt-5 flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1"><Shield className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "လုံခြုံ" : "Secure"}</span>
+          <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "အခမဲ့" : "Free forever"}</span>
+          <span className="flex items-center gap-1"><Sparkles className="h-3 w-3 text-emerald" strokeWidth={2} />{lang === "my" ? "၂ မိနစ်" : "2 minutes"}</span>
+        </div>
+
+        <p className="mt-5 text-center text-[10px] text-muted-foreground">
           {lang === "my"
             ? "အကောင့်ဖွင့်ခြင်းဖြင့် ကိုယ်ရေးကာကွယ်မှု မူဝါဒကို သဘောတူပါသည်"
             : "By signing up, you agree to our Privacy Policy"}
@@ -267,8 +298,8 @@ const Signup = () => {
 
         <p className="mt-4 mb-8 text-center text-xs text-muted-foreground">
           {lang === "my" ? "အကောင့်ရှိပြီးသား?" : "Already have an account?"}{" "}
-          <button onClick={() => navigate("/login")} className="font-semibold text-primary" type="button">
-            {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign In"}
+          <button onClick={() => navigate("/login")} className="font-semibold text-primary hover:underline" type="button">
+            {lang === "my" ? "ဝင်ရောက်ရန်" : "Sign in"}
           </button>
         </p>
       </motion.div>
