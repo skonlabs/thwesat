@@ -74,10 +74,20 @@ const jobTypes = [
 ];
 
 const locationOptions = [
-  { value: "all", labelEn: "All Locations", labelMy: "နေရာအားလုံး" },
   { value: "Remote", labelEn: "Remote", labelMy: "အဝေးထိန်း" },
-  { value: "Bangkok, TH", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
+  { value: "Yangon", labelEn: "Yangon", labelMy: "ရန်ကုန်" },
+  { value: "Mandalay", labelEn: "Mandalay", labelMy: "မန္တလေး" },
+  { value: "Bangkok", labelEn: "Bangkok", labelMy: "ဘန်ကောက်" },
+  { value: "Chiang Mai", labelEn: "Chiang Mai", labelMy: "ချင်းမိုင်" },
+  { value: "Mae Sot", labelEn: "Mae Sot", labelMy: "မဲဆောက်" },
   { value: "Singapore", labelEn: "Singapore", labelMy: "စင်ကာပူ" },
+  { value: "Kuala Lumpur", labelEn: "Kuala Lumpur", labelMy: "ကွာလာလမ်ပူ" },
+  { value: "Penang", labelEn: "Penang", labelMy: "ပီနန်" },
+  { value: "Tokyo", labelEn: "Tokyo", labelMy: "တိုကျို" },
+  { value: "Seoul", labelEn: "Seoul", labelMy: "ဆိုးလ်" },
+  { value: "Hong Kong", labelEn: "Hong Kong", labelMy: "ဟောင်ကောင်" },
+  { value: "Taipei", labelEn: "Taipei", labelMy: "ထိုင်ပေ" },
+  { value: "Dubai", labelEn: "Dubai", labelMy: "ဒူဘိုင်း" },
 ];
 
 // Cards use the consistent card surface to match the editorial navy/gold theme.
