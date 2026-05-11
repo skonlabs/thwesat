@@ -1,4 +1,4 @@
-import { Bell, MessageSquare, Search } from "lucide-react";
+import { Bell, MessageSquare, Search, Coins } from "lucide-react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg";
 import { cn } from "@/lib/utils";
