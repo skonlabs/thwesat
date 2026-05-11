@@ -181,6 +181,11 @@ const App = () => (
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
             </Route>
 
+            {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
+                navy hero can paint the entire viewport without max-width cropping). */}
+            <Route path="/employer/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
+            <Route path="/agent/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["agent"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
+
             {/* Delegate Access (no nav) */}
             <Route path="/access/:token" element={<DelegateAccess />} />
 
