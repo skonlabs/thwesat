@@ -71,15 +71,15 @@ const DesktopNav = () => {
   return (
     <header className="sticky top-0 z-40 hidden border-b border-shell bg-shell text-shell-foreground md:block bg-gradient-to-r from-shell via-shell to-sidebar-accent/70 relative overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-16 h-48 w-96 rounded-full bg-accent/20 blur-3xl" />
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6 lg:px-10">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <img src={logo} alt="ThweSat" width={30} height={30} />
-          <span className="font-brand text-lg font-semibold">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-3 md:px-4 lg:gap-6 lg:px-10">
+        <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
+          <img src={logo} alt="ThweSat" width={28} height={28} />
+          <span className="font-brand text-base font-semibold lg:text-lg">
             <span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span>
           </span>
         </Link>
 
-        <nav className="ml-6 flex items-center gap-1">
+        <nav className="ml-2 flex min-w-0 items-center gap-0.5 lg:ml-4 lg:gap-1">
           {items.map((it) => {
             const [base] = it.path.split("?");
             const active = location.pathname === base || location.pathname.startsWith(base + "/");
@@ -88,7 +88,7 @@ const DesktopNav = () => {
                 key={it.path}
                 to={it.path}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-sm transition-colors",
+                  "whitespace-nowrap rounded-full px-2.5 py-1.5 text-[13px] transition-colors lg:px-4 lg:text-sm",
                   active ? "bg-accent text-accent-foreground" : "text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground",
                 )}
               >
