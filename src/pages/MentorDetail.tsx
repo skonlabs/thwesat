@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Calendar, MessageCircle, Clock, ThumbsDown, ThumbsUp, Heart } from "lucide-react";
+import { Star, MapPin, Calendar, MessageCircle, Clock, ThumbsDown, ThumbsUp, Heart, Briefcase, Building2, Sparkles, ChevronDown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,8 +34,8 @@ const MentorDetail = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
-  // Fetch next available slot
   const { data: nextSlot } = useQuery({
     queryKey: ["next-available-slot", id],
     queryFn: async () => {
@@ -91,7 +91,6 @@ const MentorDetail = () => {
     if (!reportReason.trim() || !id) return;
     setReportSubmitting(true);
     try {
-      // Try to send to admin users via user_roles; fall back to null user_id
       const { data: adminRoles } = await supabase
         .from("user_roles")
         .select("user_id")
@@ -129,94 +128,145 @@ const MentorDetail = () => {
 
   const displayName = mentor.profile?.display_name || "Mentor";
   const initials = displayName.slice(0, 2).toUpperCase();
+  const isNew = (mentor.rating_avg || 0) === 0;
+  const rateLabel = mentor.hourly_rate
+    ? `${formatMoney(mentor.hourly_rate, "MMK", lang)}/hr`
+    : (lang === "my" ? "အခမဲ့" : "Free");
+
+  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-background pb-40">
+    <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} backPath="/mentors" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{initials}</div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
-              <UserStatusBadge status={mentor.status || "offline"} size="md" />
-            </div>
-            <p className="text-sm text-muted-foreground">{mentor.title}</p>
-            <p className="text-xs text-muted-foreground">{mentor.company} · {mentor.location}</p>
-            <div className="mt-3 flex items-center gap-4">
-              {(mentor.rating_avg || 0) > 0 ? (
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-primary text-primary" strokeWidth={1.5} />
-                  <span className="text-sm font-bold text-foreground">{mentor.rating_avg}</span>
+          {/* Editorial Hero Card */}
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-accent/5 p-5">
+            <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl" aria-hidden />
+            <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+
+            <div className="relative flex items-start gap-4">
+              <div className="relative shrink-0">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-lg">
+                  {initials}
                 </div>
-              ) : (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-default rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
-                        {lang === "my" ? "အသစ် Mentor" : "New Mentor"}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-[200px] text-xs">
-                        {lang === "my"
-                          ? "ဤ Mentor သည် Platform တွင် အသစ်ဝင်ရောက်ကာ track record တည်ဆောက်နေပါသည်။"
-                          : "This mentor is new to the platform and building their track record."}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {mentor.location || (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set")}</span>
+                <div className="absolute -bottom-1 -right-1 rounded-full border-2 border-card bg-card p-0.5">
+                  <UserStatusBadge status={mentor.status || "offline"} size="md" />
+                </div>
+              </div>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <h1 className="text-lg font-bold leading-tight text-foreground">{displayName}</h1>
+                  {isNew ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex cursor-default items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+                            <Sparkles className="h-2.5 w-2.5" strokeWidth={2} />
+                            {lang === "my" ? "အသစ်" : "New"}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-[200px] text-xs">
+                            {lang === "my"
+                              ? "ဤ Mentor သည် Platform တွင် အသစ်ဝင်ရောက်ကာ track record တည်ဆောက်နေပါသည်။"
+                              : "This mentor is new and building their track record."}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                      <Star className="h-3 w-3 fill-primary text-primary" strokeWidth={1.5} />
+                      {mentor.rating_avg}
+                    </span>
+                  )}
+                </div>
+                {mentor.title && (
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-foreground/80">
+                    <Briefcase className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                    <span className="truncate">{mentor.title}</span>
+                  </p>
+                )}
+                {mentor.company && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Building2 className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+                    <span className="truncate">{mentor.company}</span>
+                  </p>
+                )}
+                {mentor.location && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+                    <span className="truncate">{mentor.location}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Stat row */}
+            <div className="relative mt-4 grid grid-cols-3 divide-x divide-border rounded-xl bg-background/60 py-2.5 backdrop-blur-sm">
+              <div className="text-center">
+                <p className="text-base font-bold text-foreground">{mentor.total_sessions || 0}</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "ချိန်းဆိုမှု" : "Sessions"}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-base font-bold text-foreground">{mentor.total_mentees || 0}</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "လူဦးရေ" : "Mentees"}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-base font-bold text-primary">{rateLabel}</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "နှုန်းထား" : "Rate"}</p>
+              </div>
+            </div>
+
+            {/* CTAs */}
+            <div className="relative mt-4 flex gap-2">
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl bg-background/70" onClick={() => id && startConversation(id)}>
+                <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+              </Button>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>
+                <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"}
+              </Button>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-3">
-            {[
-              { value: mentor.total_sessions || 0, label: lang === "my" ? "ချိန်းဆိုမှု" : "Sessions" },
-              { value: mentor.total_mentees || 0, label: lang === "my" ? "လူဦးရေ" : "Mentees" },
-              { value: mentor.hourly_rate ? `${formatMoney(mentor.hourly_rate, "MMK", lang)}/hr` : (lang === "my" ? "အခမဲ့" : "Free"), label: lang === "my" ? "နှုန်းထား" : "Rate" },
-            ].map((s) => (
-              <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
-                <p className="text-lg font-bold text-primary">{s.value}</p>
-                <p className="text-[10px] text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5">
+          {/* About */}
+          <section className="mt-6">
             <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း" : "About"}</h2>
             <p className="text-sm leading-relaxed text-foreground/80">
               {(lang === "my" ? (mentor.bio_my || mentor.bio) : (mentor.bio || mentor.bio_my)) || (
-                <span className="text-muted-foreground italic">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း မထည့်ရသေးပါ" : "This mentor hasn't added a bio yet"}</span>
+                <span className="italic text-muted-foreground">{lang === "my" ? "ကိုယ်ရေးအကျဉ်း မထည့်ရသေးပါ" : "This mentor hasn't added a bio yet"}</span>
               )}
             </p>
-          </div>
+          </section>
 
+          {/* Expertise */}
           {mentor.expertise && mentor.expertise.length > 0 && (
-            <div className="mt-5">
+            <section className="mt-6">
               <h2 className="mb-2 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Expertise"}</h2>
               <div className="flex flex-wrap gap-2">
                 {mentor.expertise.map((s) => (
                   <span key={s} className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-          <div className="mt-5">
+          {/* Next slot */}
+          <section className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "နောက်ရရှိနိုင်ချိန်" : "Next Available Slot"}</h2>
+              <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "နောက်ရရှိနိုင်ချိန်" : "Next Available"}</h2>
               <span className="text-[10px] text-muted-foreground">
-                {lang === "my"
-                  ? `Times in ${(mentor as any)?.timezone || "mentor's local time"}`
-                  : `Times in ${(mentor as any)?.timezone || "mentor's local time"}`}
+                {`Times in ${(mentor as any)?.timezone || "mentor's local time"}`}
               </span>
             </div>
             {nextSlot ? (
-              <div className="rounded-xl border border-border bg-card p-3.5">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <button
+                onClick={() => navigate(`/mentors/book?mentorId=${id}`)}
+                className="block w-full rounded-xl border border-border bg-card p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-card/80"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                     <Calendar className="h-4 w-4 text-primary" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
@@ -228,17 +278,15 @@ const MentorDetail = () => {
                       {nextSlot.start_time} – {nextSlot.end_time}
                     </div>
                   </div>
+                  {totalSlots > 1 && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                      +{totalSlots - 1}
+                    </span>
+                  )}
                 </div>
-                {totalSlots > 1 && (
-                  <p className="mt-2.5 text-[11px] text-muted-foreground">
-                    {lang === "my"
-                      ? `နောက်ထပ် ${totalSlots - 1} ခုရှိပါသေးသည်။ ချိန်းဆိုရန် နှိပ်ပါ။`
-                      : `${totalSlots - 1} more slot${totalSlots - 1 > 1 ? "s" : ""} available — tap Book to see all times.`}
-                  </p>
-                )}
-              </div>
+              </button>
             ) : (
-              <div className="rounded-xl border border-border bg-card p-3.5">
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-3.5">
                 <p className="text-xs text-muted-foreground">
                   {lang === "my"
                     ? "လက်ရှိ အချိန်ဇယား မရှိသေးပါ။ ချိန်းဆိုရန် နှိပ်၍ အချိန်တောင်းဆိုနိုင်ပါသည်။"
@@ -246,8 +294,9 @@ const MentorDetail = () => {
                 </p>
               </div>
             )}
-          </div>
+          </section>
 
+          {/* Reviews — summary + show all */}
           {reviews.length > 0 && (() => {
             const total = reviews.length;
             const dislike = reviews.filter((r: any) => r.rating <= 2).length;
@@ -261,12 +310,12 @@ const MentorDetail = () => {
               { key: "dislike", label_en: "Don't like", label_my: "မကြိုက်ပါ", count: dislike, Icon: ThumbsDown, color: "text-destructive", fill: "fill-destructive/20", bar: "bg-destructive" },
             ];
             return (
-              <div className="mt-5">
+              <section className="mt-6">
                 <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "သုံးသပ်ချက်များ" : "Reviews"}</h2>
                 <div className="mb-4 rounded-xl border border-border bg-card p-4">
-                  <div className="mb-3 flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-foreground leading-none">{avg}</p>
+                      <p className="text-2xl font-bold leading-none text-foreground">{avg}</p>
                       <div className="mt-1 flex items-center justify-center gap-0.5">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star key={i} className={`h-3 w-3 ${i < Math.round(Number(avg)) ? "fill-accent text-accent" : "text-muted-foreground/40"}`} />
@@ -291,27 +340,39 @@ const MentorDetail = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                {reviews.map((r: any) => (
-                  <div key={r.id} className="rounded-xl border border-border bg-card p-3.5">
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">{r.reviewer?.display_name || "User"}</span>
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: r.rating }).map((_, j) => (
-                          <Star key={j} className="h-3 w-3 fill-primary text-primary" />
-                        ))}
+                  {visibleReviews.map((r: any) => (
+                    <div key={r.id} className="rounded-xl border border-border bg-card p-3.5">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground">{r.reviewer?.display_name || "User"}</span>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: r.rating }).map((_, j) => (
+                            <Star key={j} className="h-3 w-3 fill-primary text-primary" />
+                          ))}
+                        </div>
                       </div>
+                      <p className="text-xs leading-relaxed text-foreground/80">{lang === "my" ? (r.review_text_my || r.review_text) : (r.review_text || r.review_text_my)}</p>
                     </div>
-                    <p className="text-xs leading-relaxed text-foreground/80">{lang === "my" ? (r.review_text_my || r.review_text) : (r.review_text || r.review_text_my)}</p>
-                  </div>
-                ))}
+                  ))}
                 </div>
-              </div>
+                {reviews.length > 2 && (
+                  <button
+                    onClick={() => setShowAllReviews(v => !v)}
+                    className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl border border-border bg-card py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted/50"
+                  >
+                    {showAllReviews
+                      ? (lang === "my" ? "လျှော့ပြရန်" : "Show less")
+                      : (lang === "my" ? `သုံးသပ်ချက် ${reviews.length} ခုလုံးကြည့်ရန်` : `Show all ${reviews.length} reviews`)}
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAllReviews ? "rotate-180" : ""}`} strokeWidth={1.5} />
+                  </button>
+                )}
+              </section>
             );
           })()}
+
           <div className="mt-8 pb-2 text-center">
             <button
               onClick={() => setReportOpen(true)}
-              className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+              className="text-[11px] text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
             >
               {lang === "my" ? "ဤပရိုဖိုင်ကို တိုင်ကြားရန်" : "Report this profile"}
             </button>
@@ -319,7 +380,6 @@ const MentorDetail = () => {
         </motion.div>
       </div>
 
-      {/* Report AlertDialog */}
       <AlertDialog open={reportOpen} onOpenChange={setReportOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -349,17 +409,6 @@ const MentorDetail = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <div className="fixed bottom-20 left-0 right-0 border-t border-border bg-background/95 px-5 py-3 backdrop-blur-lg">
-        <div className="mx-auto flex w-full max-w-md gap-3">
-          <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => id && startConversation(id)}>
-            <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
-          </Button>
-          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>
-            <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book"}
-          </Button>
-        </div>
-      </div>
     </div>
   );
 };
