@@ -150,35 +150,51 @@ const Signup = () => {
         <LanguageToggle />
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-6 flex flex-col">
-        <img src={logo} alt="ThweSat" width={56} height={56} className="mb-6" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 flex flex-col">
+        <div className="mb-5 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-dark">
+          <Sparkles className="h-3 w-3" strokeWidth={2} />
+          {lang === "my" ? "အခမဲ့ စတင်ပါ" : "Free to start"}
+        </div>
 
-        <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "အကောင့်ဖွင့်ရန်" : "Create Account"}</h1>
-        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "အခမဲ့ဖြစ်ပါသည်" : "It's free"}</p>
+        <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+          {lang === "my" ? "သင့်အသက်မွေးမှု ဤနေရာတွင် စတင်ပါ" : "Your career starts here."}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {lang === "my"
+            ? "၂ မိနစ်အတွင်း အကောင့်ဖွင့်ပြီး APAC တစ်ဝှမ်းမှ အလုပ်များကို စတင်ရှာဖွေပါ။"
+            : "Create your account in 2 minutes and start exploring jobs across APAC."}
+        </p>
 
         {/* Role Selection */}
-        <div className="mb-6">
-          <Label className="mb-2.5 block text-xs font-semibold text-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I want to..."}</Label>
+        <div className="mt-7">
+          <Label className="mb-3 block text-xs font-bold uppercase tracking-wider text-muted-foreground">{lang === "my" ? "သင်ဘာအတွက် အသုံးပြုမလဲ?" : "I'm here to..."}</Label>
           <div className="grid grid-cols-2 gap-2.5">
             {roles.map((r) => (
               <button
                 key={r.value}
                 onClick={() => setSelectedRole(r.value)}
-                className={`flex flex-col items-center gap-1.5 rounded-2xl border p-3.5 transition-all ${
+                className={`group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-left transition-all ${
                   selectedRole === r.value
-                    ? "border-primary/40 bg-primary/5 shadow-sm"
-                    : "border-border bg-card active:bg-muted"
+                    ? "border-primary bg-primary/[0.04] shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.4)]"
+                    : "border-border bg-card hover:border-primary/40 hover:-translate-y-0.5"
                 }`}
               >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${selectedRole === r.value ? "bg-primary/15" : "bg-muted"}`}>
-                  <r.icon className={`h-4 w-4 ${selectedRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
+                {selectedRole === r.value && (
+                  <div className="absolute right-2.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
+                    <CheckCircle2 className="h-3 w-3 text-primary-foreground" strokeWidth={2.5} />
+                  </div>
+                )}
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${selectedRole === r.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <r.icon className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-                <span className={`text-xs font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
-                  {lang === "my" ? r.label.my : r.label.en}
-                </span>
-                <span className="text-[9px] text-muted-foreground text-center leading-tight">
-                  {lang === "my" ? r.desc.my : r.desc.en}
-                </span>
+                <div>
+                  <div className={`text-sm font-semibold ${selectedRole === r.value ? "text-primary" : "text-foreground"}`}>
+                    {lang === "my" ? r.label.my : r.label.en}
+                  </div>
+                  <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
+                    {lang === "my" ? r.desc.my : r.desc.en}
+                  </div>
+                </div>
               </button>
             ))}
           </div>
