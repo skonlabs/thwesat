@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar, History } from "lucide-react";
+import { Briefcase, Clock, ChevronRight, CheckCircle, Eye, FileText, X, Calendar, History, Sparkles, ArrowRight } from "lucide-react";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
