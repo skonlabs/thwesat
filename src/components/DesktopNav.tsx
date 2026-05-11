@@ -73,7 +73,7 @@ const DesktopNav = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6 lg:px-10">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={logo} alt="ThweSat" width={30} height={30} />
-          <span className="font-display text-lg font-semibold tracking-tight">
+          <span className="font-brand text-lg font-semibold">
             <span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span>
           </span>
         </Link>

@@ -59,7 +59,7 @@ const Welcome = () => {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8 md:py-4">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="ThweSat" width={32} height={32} />
-            <span className="font-display text-lg font-semibold tracking-tight">
+            <span className="font-brand text-lg font-semibold">
               <span className="text-shell-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
           </Link>
@@ -275,7 +275,7 @@ const Welcome = () => {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-xs text-muted-foreground md:flex-row md:px-8">
           <div className="flex items-center gap-2">
             <img src={logo} alt="" width={20} height={20} />
-            <span className="font-display text-sm font-semibold">
+            <span className="font-brand text-sm font-semibold">
               <span className="text-foreground">Thwe</span><span className="text-accent">Sat</span>
             </span>
             <span className="ml-2">© {new Date().getFullYear()}</span>
