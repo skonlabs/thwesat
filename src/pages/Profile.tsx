@@ -198,7 +198,7 @@ const Profile = () => {
   ];
 
   const employerMenu = [
-    { icon: Edit3, label: lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Company Profile", path: companyEditPath },
+    { icon: Edit3, label: effectiveRole === "agent" ? (lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile") : (lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Company Profile"), path: companyEditPath },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     
