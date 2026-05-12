@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, AlertTriangle, Star, Briefcase, Bookmark, MapPin, Clock, Shield, CreditCard } from "lucide-react";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobType } from "@/lib/job-localization";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
