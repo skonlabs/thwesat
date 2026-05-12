@@ -58,6 +58,7 @@ const EmployerApplications = () => {
   const updateStatus = useUpdateApplicationStatus();
   const { profile } = useAuth();
   const isAgent = profile?.primary_role === "agent";
+  const roleLabels = useRoleLabels();
   const { startConversation } = useStartConversation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showReject, setShowReject] = useState(false);
