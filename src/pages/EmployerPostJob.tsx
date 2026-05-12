@@ -619,7 +619,8 @@ const EmployerPostJob = () => {
           })()}
         </SheetContent>
       </Sheet>
-    
+
+      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
     </div>
   );
 };
