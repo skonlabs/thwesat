@@ -373,7 +373,7 @@ const Profile = () => {
               )}
               <div className="mt-3 flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(effectiveRole === "agent" ? "/agent/profile" : "/employer/edit-company")}>
-                  <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company"}
+                  <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {effectiveRole === "agent" ? (lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Profile") : (lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company")}
                 </Button>
                 {employerProfile?.id && (
                   <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(`/company/${employerProfile.id}`)}>
