@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History, Lock, Phone, Mail } from "lucide-react";
+import { ChevronRight, MessageCircle, X, CheckCircle, Clock, Eye, XCircle, Users, Briefcase, Plus, Pencil, MapPin, Eye as EyeIcon, Calendar, History, Lock, Phone, Mail, Search, ArrowLeft, Inbox } from "lucide-react";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
-import { useEmployerApplications } from "@/hooks/use-jobs";
+import { useEmployerApplications, useEmployerJobs, useEmployerJobApplicantBreakdown } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import { useAuth } from "@/hooks/use-auth";
 import { useStartConversation } from "@/hooks/use-start-conversation";
@@ -72,6 +72,10 @@ const EmployerApplications = () => {
   const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
   const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
   const queryClient = useQueryClient();
+  const [postingSearch, setPostingSearch] = useState("");
+  const [candidateSearch, setCandidateSearch] = useState("");
+  const { data: employerJobs = [], isLoading: jobsLoading } = useEmployerJobs();
+  const { data: breakdown } = useEmployerJobApplicantBreakdown();
 
   // Keep local filter state in sync when URL changes (back/forward, deep links)
   useEffect(() => {
@@ -210,144 +214,291 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
       <div className="px-5">
-        {/* Show scoped-job breadcrumb only when filtering by a specific listing */}
-        {jobIdParam && (
-          <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2.5">
-            <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
-            <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
-              <span className="text-muted-foreground">{L.filteredByJob[lang]}: </span>
-              {scopedJobTitle || ""}
-            </span>
+        {!jobIdParam ? (
+          <>
+            {/* Postings index — pick a job to drill into its candidate pipeline */}
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {lang === "my" ? "သင့်အလုပ်တင်ထားသူများ" : "Your postings"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {lang === "my"
+                    ? "လျှောက်ထားသူများ ကြည့်ရန် အလုပ်တစ်ခုကို ရွေးပါ"
+                    : "Pick a posting to view its candidate pipeline"}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => navigate(isAgent ? "/agent/post-job" : "/employer/post-job")}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" /> {L.postJob[lang]}
+              </Button>
+            </div>
+
+            <div className="relative mb-4">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+              <Input
+                value={postingSearch}
+                onChange={(e) => setPostingSearch(e.target.value)}
+                placeholder={lang === "my" ? "အလုပ်ခေါင်းစဉ်ဖြင့် ရှာရန်" : "Search postings by title or company"}
+                className="h-10 rounded-xl pl-9"
+              />
+            </div>
+
+            {jobsLoading ? (
+              <div className="flex flex-col items-center py-12 text-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : employerJobs.length === 0 ? (
+              <div className="flex flex-col items-center py-12 text-center">
+                <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "အလုပ်တင်ထားခြင်း မရှိသေးပါ" : "No postings yet"}</p>
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate(isAgent ? "/agent/post-job" : "/employer/post-job")}>
+                  <Plus className="mr-1.5 h-3.5 w-3.5" /> {L.postJob[lang]}
+                </Button>
+              </div>
+            ) : (() => {
+              const q = postingSearch.trim().toLowerCase();
+              const list = employerJobs
+                .filter((j: any) => !q || (j.title || "").toLowerCase().includes(q) || (j.company || "").toLowerCase().includes(q) || (j.title_my || "").toLowerCase().includes(q))
+                .map((j: any) => ({ job: j, b: breakdown?.get(j.id) || { total: 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 } }))
+                // Sort: new candidates first, then total, then most recent
+                .sort((a, b) => (b.b.new - a.b.new) || (b.b.total - a.b.total) || (new Date(b.job.created_at).getTime() - new Date(a.job.created_at).getTime()));
+
+              if (list.length === 0) {
+                return (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <Search className="mb-3 h-8 w-8 text-muted-foreground/30" strokeWidth={1.5} />
+                    <p className="text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေမှု ရလဒ် မရှိပါ" : "No postings match your search"}</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {list.map(({ job, b }, i) => {
+                    const title = lang === "my" && job.title_my ? job.title_my : job.title;
+                    const isPending = job.status === "pending";
+                    const isClosed = job.status === "closed" || job.status === "rejected";
+                    return (
+                      <motion.button
+                        key={job.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(i, 8) * 0.03 }}
+                        onClick={() => setJobScope(job.id)}
+                        className="group relative flex w-full flex-col rounded-xl border border-border bg-card p-4 text-left transition-shadow hover:shadow-md active:bg-muted/30"
+                      >
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-sm font-semibold text-foreground">{title}</h3>
+                            <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                              {job.company}
+                              {job.location ? ` · ${job.location}` : ""}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            {isPending && (
+                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+                                {lang === "my" ? "စောင့်ဆိုင်း" : "Pending"}
+                              </span>
+                            )}
+                            {isClosed && (
+                              <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                {lang === "my" ? "ပိတ်" : "Closed"}
+                              </span>
+                            )}
+                            {b.new > 0 && (
+                              <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                                {b.new} {lang === "my" ? "အသစ်" : "new"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-5 gap-1 rounded-lg border border-border/60 bg-muted/30 p-2 text-center">
+                          {[
+                            { k: "total", v: b.total, label: lang === "my" ? "စုစုပေါင်း" : "Total" },
+                            { k: "new", v: b.new, label: lang === "my" ? "အသစ်" : "New", tone: "text-primary" },
+                            { k: "shortlisted", v: b.shortlisted, label: lang === "my" ? "ရွေးချယ်" : "Short" },
+                            { k: "interview", v: b.interview, label: lang === "my" ? "အင်တာဗျူး" : "Intv", tone: "text-amber-700 dark:text-amber-400" },
+                            { k: "placed", v: b.placed, label: lang === "my" ? "ခန့်အပ်" : "Placed", tone: "text-emerald-700 dark:text-emerald-400" },
+                          ].map(s => (
+                            <div key={s.k}>
+                              <p className={`text-base font-bold leading-none ${s.tone || "text-foreground"}`}>{s.v}</p>
+                              <p className="mt-1 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between text-[11px]">
+                          <span className="text-muted-foreground">
+                            {b.total === 0
+                              ? (lang === "my" ? "လျှောက်ထားသူ မရှိသေးပါ" : "No applicants yet")
+                              : (lang === "my" ? `${b.total} လျှောက်ထား` : `${b.total} applicant${b.total === 1 ? "" : "s"}`)}
+                          </span>
+                          <span className="flex items-center gap-1 font-semibold text-primary">
+                            {lang === "my" ? "ကြည့်ရန်" : "View pipeline"}
+                            <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+                          </span>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </>
+        ) : (
+          <>
+            {/* Scoped view — back to all postings */}
             <button
               onClick={() => setJobScope(undefined)}
-              className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:bg-muted"
-              aria-label="Clear filter"
+              className="mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-[11px] font-medium text-muted-foreground hover:bg-muted active:bg-muted"
             >
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
+              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
+              {lang === "my" ? "အလုပ်အားလုံး" : "All postings"}
             </button>
-          </div>
-        )}
-
-        {/* Pipeline header — clear left-to-right candidate journey */}
-        <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
-          {lang === "my" ? "ကိုယ်စားလှယ် Pipeline" : "Candidate Pipeline"}
-        </p>
-        <div className="mb-4 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
-          {[
-            { label: lang === "my" ? "အားလုံး" : "All", count: apps.filter((a: any) => a.status !== "placed").length, filterVal: "all", tone: "border-border" },
-            { label: lang === "my" ? "အသစ်" : "1. New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "new", tone: "border-primary/40" },
-            { label: lang === "my" ? "2. ရွေးချယ်" : "2. Shortlist", count: apps.filter((a: any) => a.status === "shortlisted").length, filterVal: "shortlisted", tone: "border-emerald/40" },
-            { label: lang === "my" ? "3. အင်တာဗျူး" : "3. Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "interview", tone: "border-amber-400" },
-            { label: lang === "my" ? "4. ကမ်းလှမ်း" : "4. Offered", count: apps.filter((a: any) => a.status === "offered").length, filterVal: "offered", tone: "border-emerald/40" },
-            { label: lang === "my" ? "5. ခန့်အပ်" : "5. Placed", count: apps.filter((a: any) => a.status === "placed").length, filterVal: "placed", tone: "border-emerald" },
-            { label: lang === "my" ? "ငြင်းပယ်" : "Rejected", count: apps.filter((a: any) => a.status === "rejected").length, filterVal: "rejected", tone: "border-destructive/40" },
-          ].map((s) => {
-            const active = filter === s.filterVal;
-            return (
-              <button
-                key={s.filterVal}
-                onClick={() => updateFilter(s.filterVal)}
-                className={`min-w-[78px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${s.tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
-              >
-                <p className="text-lg font-bold text-foreground leading-tight">{s.count}</p>
-                <p className="mt-0.5 text-[9px] font-medium text-muted-foreground leading-tight">{s.label}</p>
-              </button>
-            );
-          })}
-        </div>
-        {/* Show only end-state filters not represented by KPI cards above */}
-        {filter === "rejected" && (
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-[11px] text-muted-foreground">
-              {lang === "my" ? "စစ်ထုတ်ထား:" : "Filtered:"}
-            </span>
-            <button
-              onClick={() => updateFilter("all")}
-              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-medium text-primary-foreground"
-            >
-              {lang === "my" ? statusConfig[filter]?.label.my : statusConfig[filter]?.label.en}
-              <X className="h-3 w-3" strokeWidth={2.5} />
-            </button>
-          </div>
-        )}
-
-        <div className={filtered.length > 0 && !isLoading ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
-          {isLoading ? (
-            <div className="flex flex-col items-center py-12 text-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2.5">
+              <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
+              <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
+                {scopedJobTitle || ""}
+              </span>
+              <span className="shrink-0 text-[10px] text-muted-foreground">
+                {apps.length} {lang === "my" ? "လျှောက်ထား" : `applicant${apps.length === 1 ? "" : "s"}`}
+              </span>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center py-12 text-center">
-              {filter === "placed" ? (
-                <>
-                  <CheckCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                  <p className="text-sm font-medium text-muted-foreground">{L.noPlacements[lang]}</p>
-                  <p className="mt-1 text-xs text-muted-foreground/70">
-                    {lang === "my" ? "ခန့်အပ်လိုက်သောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Confirmed placements will appear here"}
-                  </p>
-                  <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => updateFilter("shortlisted")}>
-                    {lang === "my" ? "ရွေးချယ်ထားသူများ ကြည့်ရန်" : "View shortlisted"}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                  <p className="text-sm font-medium text-muted-foreground">{L.noApplications[lang]}</p>
-                  <p className="mt-1 text-xs text-muted-foreground/70">
-                    {jobIdParam
-                      ? (lang === "my" ? "ဤအလုပ်အတွက် လျှောက်ထားသူ မရှိသေးပါ" : "No applications for this listing yet")
-                      : (lang === "my" ? "လျှောက်ထားသူများ ရောက်လာသောအခါ ဤနေရာတွင် ပေါ်လာပါမည်" : "Applications will appear here once candidates apply")}
-                  </p>
-                  <div className="mt-4 flex gap-2">
-                    {jobIdParam ? (
-                      <>
-                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setJobScope(undefined)}>
-                          {L.allJobs[lang]}
-                        </Button>
-                        <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate(`/employer/edit-job/${jobIdParam}`)}>
-                          <Pencil className="mr-1.5 h-3.5 w-3.5" /> {L.editJob[lang]}
-                        </Button>
-                      </>
-                    ) : (
-                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate("/employer/post-job")}>
-                        <Plus className="mr-1.5 h-3.5 w-3.5" /> {L.postJob[lang]}
-                      </Button>
-                    )}
-                  </div>
-                </>
-              )}
+
+            {/* Pipeline header — clear left-to-right candidate journey */}
+            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+              {lang === "my" ? "ကိုယ်စားလှယ် Pipeline" : "Candidate Pipeline"}
+            </p>
+            <div className="mb-3 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
+              {[
+                { label: lang === "my" ? "အားလုံး" : "All", count: apps.filter((a: any) => a.status !== "placed").length, filterVal: "all", tone: "border-border" },
+                { label: lang === "my" ? "အသစ်" : "1. New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "new", tone: "border-primary/40" },
+                { label: lang === "my" ? "2. ရွေးချယ်" : "2. Shortlist", count: apps.filter((a: any) => a.status === "shortlisted").length, filterVal: "shortlisted", tone: "border-emerald/40" },
+                { label: lang === "my" ? "3. အင်တာဗျူး" : "3. Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "interview", tone: "border-amber-400" },
+                { label: lang === "my" ? "4. ကမ်းလှမ်း" : "4. Offered", count: apps.filter((a: any) => a.status === "offered").length, filterVal: "offered", tone: "border-emerald/40" },
+                { label: lang === "my" ? "5. ခန့်အပ်" : "5. Placed", count: apps.filter((a: any) => a.status === "placed").length, filterVal: "placed", tone: "border-emerald" },
+                { label: lang === "my" ? "ငြင်းပယ်" : "Rejected", count: apps.filter((a: any) => a.status === "rejected").length, filterVal: "rejected", tone: "border-destructive/40" },
+              ].map((s) => {
+                const active = filter === s.filterVal;
+                return (
+                  <button
+                    key={s.filterVal}
+                    onClick={() => updateFilter(s.filterVal)}
+                    className={`min-w-[78px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${s.tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
+                  >
+                    <p className="text-lg font-bold text-foreground leading-tight">{s.count}</p>
+                    <p className="mt-0.5 text-[9px] font-medium text-muted-foreground leading-tight">{s.label}</p>
+                  </button>
+                );
+              })}
             </div>
-          ) : filtered.map((app: any, i: number) => {
-            const sc = statusConfig[app.status] || statusConfig.applied;
-            return (
-              <motion.button key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                onClick={() => setSelectedId(app.id)}
-                className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
-                        <p className="text-[11px] text-muted-foreground">{app.jobs?.title || "Job"}</p>
-                        {INTERVIEW_APPLICATION_STATUSES.includes(app.status) && app.interview_date && (
-                          <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300">
-                            <Calendar className="h-3 w-3" strokeWidth={1.5} />
-                            {lang === "my" ? "အင်တာဗျူး" : "Interview"}: {new Date(app.interview_date).toLocaleString(lang === "my" ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" })}
-                          </p>
-                        )}
-                      </div>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
+
+            {/* Candidate search — essential at scale */}
+            <div className="relative mb-4">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+              <Input
+                value={candidateSearch}
+                onChange={(e) => setCandidateSearch(e.target.value)}
+                placeholder={lang === "my" ? "ကိုယ်စားလှယ်အမည်ဖြင့် ရှာရန်" : "Search candidates by name, headline, or skill"}
+                className="h-10 rounded-xl pl-9"
+              />
+            </div>
+
+            {(() => {
+              const q = candidateSearch.trim().toLowerCase();
+              const searched = q
+                ? filtered.filter((a: any) => {
+                    const p = a.applicant_profile || {};
+                    return (
+                      (p.display_name || "").toLowerCase().includes(q) ||
+                      (p.headline || "").toLowerCase().includes(q) ||
+                      (p.location || "").toLowerCase().includes(q) ||
+                      (Array.isArray(p.skills) && p.skills.some((s: string) => (s || "").toLowerCase().includes(q)))
+                    );
+                  })
+                : filtered;
+
+              return (
+                <div className={searched.length > 0 && !isLoading ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
+                  {isLoading ? (
+                    <div className="flex flex-col items-center py-12 text-center">
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
                     </div>
-                  </div>
+                  ) : searched.length === 0 ? (
+                    <div className="flex flex-col items-center py-12 text-center">
+                      {q ? (
+                        <>
+                          <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                          <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရှာဖွေမှု ရလဒ် မရှိပါ" : "No candidates match your search"}</p>
+                          <Button variant="ghost" size="sm" className="mt-3 rounded-xl" onClick={() => setCandidateSearch("")}>
+                            {lang === "my" ? "ရှင်းရန်" : "Clear search"}
+                          </Button>
+                        </>
+                      ) : filter === "placed" ? (
+                        <>
+                          <CheckCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                          <p className="text-sm font-medium text-muted-foreground">{L.noPlacements[lang]}</p>
+                          <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => updateFilter("shortlisted")}>
+                            {lang === "my" ? "ရွေးချယ်ထားသူများ ကြည့်ရန်" : "View shortlisted"}
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Inbox className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                          <p className="text-sm font-medium text-muted-foreground">{L.noApplications[lang]}</p>
+                          <p className="mt-1 text-xs text-muted-foreground/70">
+                            {lang === "my" ? "ဤအလုပ်အတွက် လျှောက်ထားသူ မရှိသေးပါ" : "No applications for this listing yet"}
+                          </p>
+                          <div className="mt-4 flex gap-2">
+                            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setJobScope(undefined)}>
+                              {L.allJobs[lang]}
+                            </Button>
+                            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate((isAgent ? "/agent/edit-job/" : "/employer/edit-job/") + jobIdParam)}>
+                              <Pencil className="mr-1.5 h-3.5 w-3.5" /> {L.editJob[lang]}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : searched.map((app: any, i: number) => {
+                    const sc = statusConfig[app.status] || statusConfig.applied;
+                    return (
+                      <motion.button key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 8) * 0.03 }}
+                        onClick={() => setSelectedId(app.id)}
+                        className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                            {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <h3 className="truncate text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
+                                {app.applicant_profile?.headline && (
+                                  <p className="truncate text-[11px] text-muted-foreground">{app.applicant_profile.headline}</p>
+                                )}
+                                {INTERVIEW_APPLICATION_STATUSES.includes(app.status) && app.interview_date && (
+                                  <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300">
+                                    <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                                    {new Date(app.interview_date).toLocaleString(lang === "my" ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" })}
+                                  </p>
+                                )}
+                              </div>
+                              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
                 </div>
-              </motion.button>
-            );
-          })}
-        </div>
+              );
+            })()}
+          </>
+        )}
       </div>
 
       <AnimatePresence>
