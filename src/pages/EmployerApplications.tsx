@@ -1031,8 +1031,8 @@ const EmployerApplications = () => {
             <AlertDialogDescription>
               {isAgent
                 ? (lang === "my"
-                    ? `ခန့်အပ်ခ ၈% (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
-                    : `An 8% placement fee (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
+                    ? `ခန့်အပ်ခ ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
+                    : `A ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% placement fee (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
                 : (lang === "my" ? "ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?" : "This will record a placement. Confirm?")}
             </AlertDialogDescription>
           </AlertDialogHeader>
