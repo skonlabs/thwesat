@@ -226,7 +226,8 @@ const Mentors = () => {
         )}
       </AnimatePresence>
 
-      <div className="space-y-3 px-5 pb-24">
+      <div className="px-5 pb-24">
+        <div className={filteredMentors.length > 0 && !isLoading ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
         {isLoading ? (
           <ListSkeleton count={5} />
         ) : filteredMentors.length === 0 ? (
