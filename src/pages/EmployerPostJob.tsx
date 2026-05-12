@@ -486,7 +486,7 @@ const EmployerPostJob = () => {
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
                   {lang === "my" ? `${(totalCost - balance).toLocaleString()} credits လို အပ်သည်။ ` : `Need ${(totalCost - balance).toLocaleString()} more credits. `}
-                  <button type="button" className="underline" onClick={() => navigate("/wallet")}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
+                  <button type="button" className="underline" onClick={() => setTopupOpen(true)}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
                 </p>
               )}
             </div>
