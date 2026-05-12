@@ -162,6 +162,7 @@ const App = () => (
               <Route path="/agent/edit-job/:id" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerEditJob /></AppRoleGuard>} />
               <Route path="/agent/profile" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerEditCompany /></AppRoleGuard>} />
               <Route path="/agent/finance" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerFinance /></AppRoleGuard>} />
+              <Route path="/agent/clients" element={<AppRoleGuard allowedRoles={["agent"]}><AgentClients /></AppRoleGuard>} />
 
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
               <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
