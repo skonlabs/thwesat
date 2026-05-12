@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
-import { useEmployerApplications } from "@/hooks/use-jobs";
+import { useEmployerApplications, useEmployerJobs, useEmployerJobApplicantBreakdown } from "@/hooks/use-jobs";
 import { useUpdateApplicationStatus } from "@/hooks/use-employer-data";
 import { useAuth } from "@/hooks/use-auth";
 import { useStartConversation } from "@/hooks/use-start-conversation";
