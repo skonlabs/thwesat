@@ -32,7 +32,7 @@ const EmployerJobs = () => {
   const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useEmployerJobs();
   const isAgent = typeof window !== "undefined" && window.location.pathname.startsWith("/agent");
-  const postJobPath = isAgent ? "/agent/post-job" : "/employer/post-job";
+  const postJobPath = isAgent ? "/agent/post-job" : postJobPath;
   const { data: breakdown } = useEmployerJobApplicantBreakdown();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
   const [page, setPage] = useState(0);
@@ -124,7 +124,7 @@ const EmployerJobs = () => {
               {listings.length} <span className="text-xs font-medium text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "total"}</span>
             </p>
           </div>
-          <Button size="sm" className="rounded-xl" onClick={() => navigate("/employer/post-job")}>
+          <Button size="sm" className="rounded-xl" onClick={() => navigate(postJobPath)}>
             <Plus className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အလုပ်တင်ရန်" : "Post Job"}
           </Button>
         </div>
@@ -168,7 +168,7 @@ const EmployerJobs = () => {
               <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
               <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ မရှိပါ" : "No job listings yet"}</p>
               <p className="mt-1 text-xs text-muted-foreground/70">{lang === "my" ? "ပထမဆုံး အလုပ်ခေါ်စာကို တင်ပါ" : "Post your first job to start receiving applications"}</p>
-              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/employer/post-job")}>
+              <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate(postJobPath)}>
                 <Plus className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "အလုပ်တင်ရန်" : "Post a Job"}
               </Button>
             </div>
