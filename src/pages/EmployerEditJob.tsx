@@ -149,6 +149,10 @@ const CHAR_LIMIT_REQ = 2000;
       toast.error(lang === "my" ? "လင့်ခ် မှန်ကန်အောင် ထည့်ပါ" : "Please enter a valid URL");
       return;
     }
+    if (isAgent && postedByLabel === "client" && !selectedClient) {
+      toast.error(lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company");
+      return;
+    }
     setConfirmOpen(true);
   };
 
