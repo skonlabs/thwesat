@@ -110,7 +110,6 @@ const EmployerJobs = () => {
     try {
       const { error } = await supabase.from("jobs").delete().eq("id", jobId);
       if (error) throw error;
-      toast.success(lang === "my" ? "ဖျက်ပြီးပါပြီ" : "Listing deleted");
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       setDeleteConfirmId(null);
