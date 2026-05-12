@@ -95,8 +95,23 @@ const CHAR_LIMIT_REQ = 2000;
       setWasFeatured(job.is_featured || false);
       setApplicationMethod((job as any).application_method || "platform");
       setExternalUrl((job as any).external_url || "");
+      const lbl = ((job as any).posted_by_label as "self" | "client" | null) || "self";
+      setPostedByLabel(lbl);
+      const acid = (job as any).agent_client_id as string | null;
+      if (acid) {
+        const found = agentClients.find(c => c.id === acid);
+        if (found) setSelectedClient(found);
+        else setSelectedClient({
+          id: acid,
+          agent_id: "",
+          name: (job as any).client_company_name || job.company || "",
+          logo_url: (job as any).client_logo_url || "",
+          website: "", industry: "", notes: "",
+          is_active: true, created_at: "", updated_at: "",
+        } as AgentClient);
+      }
     }
-  }, [job]);
+  }, [job, agentClients]);
 
   useEffect(() => {
     if (!isDirty) return;
