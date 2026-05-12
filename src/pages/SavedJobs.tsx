@@ -51,7 +51,7 @@ const SavedJobs = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} backPath="/jobs" />
-      <div className="space-y-3 px-5 pb-24">
+      <div className="grid gap-3 px-5 pb-24 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
           <ListSkeleton count={4} />
         ) : savedEntries.length === 0 ? (
