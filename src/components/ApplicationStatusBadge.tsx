@@ -35,7 +35,7 @@ interface Props {
 }
 
 export default function ApplicationStatusBadge({ status, className, size = "sm" }: Props) {
-  const { language: lang } = useLanguage();
+  const { lang } = useLanguage();
   const key = normalize(status);
   const meta = STATUS_META[key];
   return (

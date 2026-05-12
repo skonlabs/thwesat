@@ -8,7 +8,7 @@ import { useLanguage } from "@/hooks/use-language";
  */
 export function useRoleLabels() {
   const { effectiveRole } = useAuth() as any;
-  const { language: lang } = useLanguage();
+  const { lang } = useLanguage();
   const isAgent = effectiveRole === "agent";
 
   const t = (en: string, my: string) => (lang === "my" ? my : en);
