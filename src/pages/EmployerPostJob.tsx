@@ -168,7 +168,13 @@ const EmployerPostJob = () => {
         contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         skills: skills.length ? skills : null,
-        company: employerProfile?.company_name || "",
+        company: isAgent && postedByLabel === "client" && selectedClient
+          ? selectedClient.name
+          : (employerProfile?.company_name || ""),
+        agent_client_id: isAgent && postedByLabel === "client" ? selectedClient?.id ?? null : null,
+        client_company_name: isAgent && postedByLabel === "client" ? selectedClient?.name ?? null : null,
+        client_logo_url: isAgent && postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
+        posted_by_label: isAgent ? postedByLabel : "self",
         status: "pending",
       } as any).select("id").single();
       if (jobErr) throw jobErr;
