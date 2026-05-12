@@ -327,6 +327,7 @@ const EditProfile = () => {
     setExperience(draftText(draft, "experience", profile.experience ?? ""));
     setVisibility(draftText(draft, "visibility", profile.visibility ?? "public"));
     setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
+    setJobSearchStatus(draftText(draft, "jobSearchStatus", ((profile as any).job_search_status as "open" | "casual" | "not_looking") ?? "open") as "open" | "casual" | "not_looking");
     setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
     setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));
     setHasLaptop(draftBool(draft, "hasLaptop", profile.has_laptop ?? false));
