@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useApplications, useSavedJobs } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
+import { calculatePlacementFee } from "@/lib/finance";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrencyRange } from "@/lib/currency";
@@ -125,7 +126,7 @@ const Applications = () => {
   const handleAcceptOffer = async () => {
     if (!selected) return;
     const salary = Number(selected.jobs?.salary_max || selected.jobs?.salary_min || 0);
-    const fee = salary > 0 ? Math.round(salary * 0.08) : 0;
+    const fee = salary > 0 ? calculatePlacementFee(salary) : 0;
     const { error } = await supabase
       .from("applications")
       .update({ status: "placed", placement_salary: salary || null, placement_fee: fee || null })
