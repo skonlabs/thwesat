@@ -18,6 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
+import { calculatePlacementFee, PLACEMENT_FEE_PERCENT } from "@/lib/finance";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -222,7 +223,7 @@ const EmployerApplications = () => {
       return;
     }
     try {
-      const fee = isAgent ? Math.round(salary * 0.08) : 0;
+      const fee = isAgent ? calculatePlacementFee(salary) : 0;
       await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
@@ -972,12 +973,13 @@ const EmployerApplications = () => {
                 }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="500000" />
               </div>
               {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
-                const fee = Math.round(parseInt(placementSalary) * 0.08);
+                const fee = calculatePlacementFee(parseInt(placementSalary));
                 const commission = Math.round(fee * 0.10);
                 const net = fee - commission;
+                const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (
                   <div className="mb-4 space-y-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                    <p className="flex justify-between"><span>{lang === "my" ? "ခန့်အပ်ခ (ဝန်ထမ်းပေးချေ)" : "Placement fee (paid by seeker)"}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                    <p className="flex justify-between"><span>{lang === "my" ? `ခန့်အပ်ခ ${pct}% (ဝန်ထမ်းပေးချေ)` : `Placement fee ${pct}% (paid by seeker)`}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
                     <p className="flex justify-between"><span>{lang === "my" ? "ပလက်ဖောင်း ၁၀% ကော်မရှင်" : "Platform 10% commission"}</span><span>−{commission.toLocaleString()}</span></p>
                     <p className="flex justify-between border-t border-border/60 pt-1"><span>{lang === "my" ? "သင် ရရှိမည်" : "You receive"}</span><span className="font-bold text-emerald">{net.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
                   </div>
@@ -1029,8 +1031,8 @@ const EmployerApplications = () => {
             <AlertDialogDescription>
               {isAgent
                 ? (lang === "my"
-                    ? `ခန့်အပ်ခ ၈% (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
-                    : `An 8% placement fee (${placementSalary ? Math.round(parseInt(placementSalary) * 0.08).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
+                    ? `ခန့်အပ်ခ ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
+                    : `A ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% placement fee (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
                 : (lang === "my" ? "ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?" : "This will record a placement. Confirm?")}
             </AlertDialogDescription>
           </AlertDialogHeader>

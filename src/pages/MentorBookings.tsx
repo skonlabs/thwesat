@@ -83,7 +83,6 @@ const MentorBookings = () => {
       setCancelBookingId(null);
       queryClient.invalidateQueries({ queryKey: ["mentor-bookings"] });
       queryClient.invalidateQueries({ queryKey: ["wallet"] });
-      toast({ title: lang === "my" ? "ချိန်းဆိုမှု ပယ်ဖျက်ပြီး၊ Credit ပြန်အမ်းပြီး" : "Cancelled. Credits refunded if held.", variant: "default" });
     },
     onError: (e: any) => {
       toast({ title: e?.message || (lang === "my" ? "ပယ်ဖျက်မရပါ" : "Failed to cancel booking"), variant: "destructive" });
