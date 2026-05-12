@@ -243,7 +243,7 @@ const Profile = () => {
 
       <div className="px-5 pt-4">
         {/* Role Switcher */}
-        {!isSystemRole && (
+        {!isSystemRole && (effectiveRole === "jobseeker" || effectiveRole === "mentor") && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
           <button
             onClick={() => setShowRolePicker(!showRolePicker)}
