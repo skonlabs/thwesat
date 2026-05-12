@@ -193,7 +193,7 @@ const EmployerPostJob = () => {
       qc.invalidateQueries({ queryKey: ["wallet"] });
       qc.invalidateQueries({ queryKey: ["wallet-transactions"] });
       qc.invalidateQueries({ queryKey: ["feature-unlocks"] });
-      navigate("/employer/dashboard");
+      setSuccessOpen(true);
     } catch (e: any) {
       const msg = e?.message || "";
       if (msg.includes("insufficient_balance")) {
