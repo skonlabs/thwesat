@@ -629,7 +629,7 @@ const EmployerPostJob = () => {
 
       <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
 
-      <Sheet open={successOpen} onOpenChange={(o) => { if (!o) navigate(isAgent ? "/agent/dashboard" : "/employer/dashboard"); setSuccessOpen(o); }}>
+      <Sheet open={successOpen} onOpenChange={setSuccessOpen}>
         <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
           <SheetHeader>
             <SheetTitle className="sr-only">{lang === "my" ? "တင်ပြီးပါပြီ" : "Submitted"}</SheetTitle>
