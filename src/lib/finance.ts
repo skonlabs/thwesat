@@ -4,6 +4,18 @@
 
 export type Money = { amount: number; currency: string };
 
+/**
+ * Single source of truth for the agent placement fee percentage.
+ * Used by EmployerApplications (placement modal) and any future fee logic.
+ * Centralised here to avoid the 0.08 magic number scattered across UI.
+ */
+export const PLACEMENT_FEE_PERCENT = 0.08;
+
+export function calculatePlacementFee(salary: number): number {
+  if (!Number.isFinite(salary) || salary <= 0) return 0;
+  return Math.round(salary * PLACEMENT_FEE_PERCENT);
+}
+
 export function formatMoney(amount: number, _currency: string, lang: "my" | "en" = "en") {
   return `${Math.round(amount).toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
 }
