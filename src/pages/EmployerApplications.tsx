@@ -973,12 +973,13 @@ const EmployerApplications = () => {
                 }} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" placeholder="500000" />
               </div>
               {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
-                const fee = Math.round(parseInt(placementSalary) * 0.08);
+                const fee = calculatePlacementFee(parseInt(placementSalary));
                 const commission = Math.round(fee * 0.10);
                 const net = fee - commission;
+                const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (
                   <div className="mb-4 space-y-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                    <p className="flex justify-between"><span>{lang === "my" ? "ခန့်အပ်ခ (ဝန်ထမ်းပေးချေ)" : "Placement fee (paid by seeker)"}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                    <p className="flex justify-between"><span>{lang === "my" ? `ခန့်အပ်ခ ${pct}% (ဝန်ထမ်းပေးချေ)` : `Placement fee ${pct}% (paid by seeker)`}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
                     <p className="flex justify-between"><span>{lang === "my" ? "ပလက်ဖောင်း ၁၀% ကော်မရှင်" : "Platform 10% commission"}</span><span>−{commission.toLocaleString()}</span></p>
                     <p className="flex justify-between border-t border-border/60 pt-1"><span>{lang === "my" ? "သင် ရရှိမည်" : "You receive"}</span><span className="font-bold text-emerald">{net.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
                   </div>
