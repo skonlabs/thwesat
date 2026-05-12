@@ -420,48 +420,58 @@ const EmployerApplications = () => {
               </span>
             </div>
 
-            {/* Pipeline header — clear left-to-right candidate journey */}
-            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
-              {lang === "my" ? "ကိုယ်စားလှယ် Pipeline" : "Candidate Pipeline"}
-            </p>
-            <div className="mb-3 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
+            {/* Stage tabs — compact pill bar */}
+            <div className="mb-3 -mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
               {[
-                { label: lang === "my" ? "အားလုံး" : "All", count: apps.filter((a: any) => a.status !== "placed").length, filterVal: "all", tone: "border-border" },
-                { label: lang === "my" ? "အသစ်" : "1. New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "new", tone: "border-primary/40" },
-                { label: lang === "my" ? "2. ရွေးချယ်" : "2. Shortlist", count: apps.filter((a: any) => a.status === "shortlisted").length, filterVal: "shortlisted", tone: "border-emerald/40" },
-                { label: lang === "my" ? "3. အင်တာဗျူး" : "3. Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, filterVal: "interview", tone: "border-amber-400" },
-                { label: lang === "my" ? "4. ကမ်းလှမ်း" : "4. Offered", count: apps.filter((a: any) => a.status === "offered").length, filterVal: "offered", tone: "border-emerald/40" },
-                { label: lang === "my" ? "5. ခန့်အပ်" : "5. Placed", count: apps.filter((a: any) => a.status === "placed").length, filterVal: "placed", tone: "border-emerald" },
-                { label: lang === "my" ? "ငြင်းပယ်" : "Rejected", count: apps.filter((a: any) => a.status === "rejected").length, filterVal: "rejected", tone: "border-destructive/40" },
+                { label: lang === "my" ? "အားလုံး" : "All", count: apps.filter((a: any) => a.status !== "placed").length, val: "all" },
+                { label: lang === "my" ? "အသစ်" : "New", count: apps.filter((a: any) => NEW_APPLICATION_STATUSES.includes(a.status)).length, val: "new", dot: "bg-primary" },
+                { label: lang === "my" ? "ရွေးချယ်" : "Shortlisted", count: apps.filter((a: any) => a.status === "shortlisted").length, val: "shortlisted", dot: "bg-emerald" },
+                { label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: apps.filter((a: any) => INTERVIEW_APPLICATION_STATUSES.includes(a.status)).length, val: "interview", dot: "bg-amber-400" },
+                { label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: apps.filter((a: any) => a.status === "offered").length, val: "offered", dot: "bg-emerald" },
+                { label: lang === "my" ? "ခန့်အပ်" : "Placed", count: apps.filter((a: any) => a.status === "placed").length, val: "placed", dot: "bg-emerald" },
+                { label: lang === "my" ? "ငြင်းပယ်" : "Rejected", count: apps.filter((a: any) => a.status === "rejected").length, val: "rejected", dot: "bg-destructive" },
               ].map((s) => {
-                const active = filter === s.filterVal;
+                const active = filter === s.val;
                 return (
                   <button
-                    key={s.filterVal}
-                    onClick={() => updateFilter(s.filterVal)}
-                    className={`min-w-[78px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${s.tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
+                    key={s.val}
+                    onClick={() => updateFilter(s.val)}
+                    className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors ${active ? "border-primary bg-primary text-primary-foreground font-semibold" : "border-border bg-card text-muted-foreground hover:bg-muted"}`}
                   >
-                    <p className="text-lg font-bold text-foreground leading-tight">{s.count}</p>
-                    <p className="mt-0.5 text-[9px] font-medium text-muted-foreground leading-tight">{s.label}</p>
+                    {s.dot && <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-primary-foreground" : s.dot}`} />}
+                    <span>{s.label}</span>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${active ? "bg-primary-foreground/20" : "bg-muted text-foreground"}`}>{s.count}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Candidate search — essential at scale */}
-            <div className="relative mb-4">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-              <Input
-                value={candidateSearch}
-                onChange={(e) => setCandidateSearch(e.target.value)}
-                placeholder={lang === "my" ? "ကိုယ်စားလှယ်အမည်ဖြင့် ရှာရန်" : "Search candidates by name, headline, or skill"}
-                className="h-10 rounded-xl pl-9"
-              />
+            {/* Search + sort row */}
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+                <Input
+                  value={candidateSearch}
+                  onChange={(e) => setCandidateSearch(e.target.value)}
+                  placeholder={lang === "my" ? "အမည်၊ ကျွမ်းကျင်မှု၊ နေရာဖြင့် ရှာရန်" : "Search by name, skill, headline, location"}
+                  className="h-10 rounded-xl pl-9"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateSort(sort === "newest" ? "oldest" : "newest")}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  title={lang === "my" ? "စီရန်" : "Sort"}
+                >
+                  <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  {sort === "newest" ? (lang === "my" ? "အသစ်ဆုံး" : "Newest") : (lang === "my" ? "အဟောင်းဆုံး" : "Oldest")}
+                </button>
+              </div>
             </div>
 
             {(() => {
               const q = candidateSearch.trim().toLowerCase();
-              const searched = q
+              let searched = q
                 ? filtered.filter((a: any) => {
                     const p = a.applicant_profile || {};
                     return (
@@ -472,84 +482,223 @@ const EmployerApplications = () => {
                     );
                   })
                 : filtered;
+              searched = [...searched].sort((a: any, b: any) => {
+                const ta = new Date(a.created_at).getTime();
+                const tb = new Date(b.created_at).getTime();
+                return sort === "newest" ? tb - ta : ta - tb;
+              });
+
+              const visibleIds = searched.map((a: any) => a.id);
+              const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+              const someSelected = selectedIds.size > 0;
+
+              if (isLoading) {
+                return (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
+                  </div>
+                );
+              }
+              if (searched.length === 0) {
+                return (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    {q ? (
+                      <>
+                        <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                        <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရှာဖွေမှု ရလဒ် မရှိပါ" : "No candidates match your search"}</p>
+                        <Button variant="ghost" size="sm" className="mt-3 rounded-xl" onClick={() => setCandidateSearch("")}>
+                          {lang === "my" ? "ရှင်းရန်" : "Clear search"}
+                        </Button>
+                      </>
+                    ) : filter === "placed" ? (
+                      <>
+                        <CheckCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                        <p className="text-sm font-medium text-muted-foreground">{L.noPlacements[lang]}</p>
+                        <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => updateFilter("shortlisted")}>
+                          {lang === "my" ? "ရွေးချယ်ထားသူများ ကြည့်ရန်" : "View shortlisted"}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Inbox className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                        <p className="text-sm font-medium text-muted-foreground">{L.noApplications[lang]}</p>
+                        <p className="mt-1 text-xs text-muted-foreground/70">
+                          {lang === "my" ? "ဤအလုပ်အတွက် လျှောက်ထားသူ မရှိသေးပါ" : "No applications for this listing yet"}
+                        </p>
+                        <div className="mt-4 flex gap-2">
+                          <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setJobScope(undefined)}>
+                            {L.allJobs[lang]}
+                          </Button>
+                          <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate((isAgent ? "/agent/edit-job/" : "/employer/edit-job/") + jobIdParam)}>
+                            <Pencil className="mr-1.5 h-3.5 w-3.5" /> {L.editJob[lang]}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              }
 
               return (
-                <div className={searched.length > 0 && !isLoading ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
-                  {isLoading ? (
-                    <div className="flex flex-col items-center py-12 text-center">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      <p className="mt-3 text-sm text-muted-foreground">{lang === "my" ? "ရှာဖွေနေပါသည်..." : "Loading..."}</p>
-                    </div>
-                  ) : searched.length === 0 ? (
-                    <div className="flex flex-col items-center py-12 text-center">
-                      {q ? (
-                        <>
-                          <Search className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                          <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရှာဖွေမှု ရလဒ် မရှိပါ" : "No candidates match your search"}</p>
-                          <Button variant="ghost" size="sm" className="mt-3 rounded-xl" onClick={() => setCandidateSearch("")}>
-                            {lang === "my" ? "ရှင်းရန်" : "Clear search"}
-                          </Button>
-                        </>
-                      ) : filter === "placed" ? (
-                        <>
-                          <CheckCircle className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                          <p className="text-sm font-medium text-muted-foreground">{L.noPlacements[lang]}</p>
-                          <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => updateFilter("shortlisted")}>
-                            {lang === "my" ? "ရွေးချယ်ထားသူများ ကြည့်ရန်" : "View shortlisted"}
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Inbox className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
-                          <p className="text-sm font-medium text-muted-foreground">{L.noApplications[lang]}</p>
-                          <p className="mt-1 text-xs text-muted-foreground/70">
-                            {lang === "my" ? "ဤအလုပ်အတွက် လျှောက်ထားသူ မရှိသေးပါ" : "No applications for this listing yet"}
-                          </p>
-                          <div className="mt-4 flex gap-2">
-                            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setJobScope(undefined)}>
-                              {L.allJobs[lang]}
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate((isAgent ? "/agent/edit-job/" : "/employer/edit-job/") + jobIdParam)}>
-                              <Pencil className="mr-1.5 h-3.5 w-3.5" /> {L.editJob[lang]}
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : searched.map((app: any, i: number) => {
+                <div className="overflow-hidden rounded-2xl border border-border bg-card">
+                  {/* Header row with select-all */}
+                  <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <button
+                      onClick={() => toggleSelectAll(visibleIds)}
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${allSelected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/60"}`}
+                      title={allSelected ? (lang === "my" ? "ဖျက်" : "Clear") : (lang === "my" ? "အားလုံး ရွေး" : "Select all")}
+                    >
+                      {allSelected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                    </button>
+                    <span className="flex-1">{searched.length} {lang === "my" ? "လျှောက်ထား" : `candidate${searched.length === 1 ? "" : "s"}`}</span>
+                    {someSelected && (
+                      <span className="text-primary normal-case">{selectedIds.size} {lang === "my" ? "ရွေးထား" : "selected"}</span>
+                    )}
+                  </div>
+
+                  {searched.map((app: any, i: number) => {
                     const sc = statusConfig[app.status] || statusConfig.applied;
+                    const p = app.applicant_profile || {};
+                    const checked = selectedIds.has(app.id);
+                    const initials = (p.display_name || "?").slice(0, 2).toUpperCase();
+                    const skills = Array.isArray(p.skills) ? p.skills.slice(0, 3) : [];
+                    const ago = (() => {
+                      const t = new Date(app.created_at).getTime();
+                      const diff = Date.now() - t;
+                      const m = Math.floor(diff / 60000);
+                      if (m < 60) return `${m}m`;
+                      const h = Math.floor(m / 60);
+                      if (h < 24) return `${h}h`;
+                      const d = Math.floor(h / 24);
+                      if (d < 30) return `${d}d`;
+                      return new Date(app.created_at).toLocaleDateString();
+                    })();
+                    const canShortlist = !["shortlisted", "interview", "interviewed", "offered", "placed", "rejected"].includes(app.status);
+                    const canReject = app.status !== "rejected" && app.status !== "placed";
                     return (
-                      <motion.button key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 8) * 0.03 }}
-                        onClick={() => setSelectedId(app.id)}
-                        className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30">
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                            {((app as any).applicant_profile?.display_name || "?").slice(0, 2).toUpperCase()}
+                      <motion.div
+                        key={app.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: Math.min(i, 12) * 0.015 }}
+                        className={`group flex items-center gap-3 border-b border-border/60 px-3 py-2.5 last:border-b-0 transition-colors hover:bg-muted/30 ${checked ? "bg-primary/5" : ""}`}
+                      >
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleSelected(app.id); }}
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/60"}`}
+                          title={lang === "my" ? "ရွေးရန်" : "Select"}
+                        >
+                          {checked && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedId(app.id)}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                            {initials}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <h3 className="truncate text-sm font-semibold text-foreground">{app.applicant_profile?.display_name || "Applicant"}</h3>
-                                {app.applicant_profile?.headline && (
-                                  <p className="truncate text-[11px] text-muted-foreground">{app.applicant_profile.headline}</p>
-                                )}
-                                {INTERVIEW_APPLICATION_STATUSES.includes(app.status) && app.interview_date && (
-                                  <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300">
-                                    <Calendar className="h-3 w-3" strokeWidth={1.5} />
-                                    {new Date(app.interview_date).toLocaleString(lang === "my" ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" })}
-                                  </p>
-                                )}
-                              </div>
-                              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="truncate text-sm font-semibold text-foreground">{p.display_name || "Applicant"}</h3>
+                              <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium ${sc.color}`}>{lang === "my" ? sc.label.my : sc.label.en}</span>
                             </div>
+                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              {p.headline && <span className="truncate">{p.headline}</span>}
+                              {p.location && <span className="hidden shrink-0 items-center gap-0.5 sm:inline-flex"><MapPin className="h-2.5 w-2.5" strokeWidth={1.5} />{p.location}</span>}
+                              <span className="ml-auto shrink-0 text-muted-foreground/70">· {ago}</span>
+                            </div>
+                            {skills.length > 0 && (
+                              <div className="mt-1 hidden flex-wrap gap-1 md:flex">
+                                {skills.map((s: string) => (
+                                  <span key={s} className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">{s}</span>
+                                ))}
+                              </div>
+                            )}
+                            {INTERVIEW_APPLICATION_STATUSES.includes(app.status) && app.interview_date && (
+                              <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300">
+                                <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                                {new Date(app.interview_date).toLocaleString(lang === "my" ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" })}
+                              </p>
+                            )}
                           </div>
+                        </button>
+
+                        {/* Inline quick actions — appear on hover (always-on for touch via opacity 100 on small screens) */}
+                        <div className="flex shrink-0 items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                          {canShortlist && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); quickStatus(app.id, "shortlisted"); }}
+                              disabled={updateStatus.isPending}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald hover:bg-emerald/10 disabled:opacity-60"
+                              title={lang === "my" ? "ရွေးချယ်" : "Shortlist"}
+                            >
+                              <CheckCircle className="h-4 w-4" strokeWidth={1.8} />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const jobTitle = app.jobs?.title || "your application";
+                              const seed = lang === "my" ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက်...` : `Hi, regarding your application for "${jobTitle}"...`;
+                              startConversation(app.applicant_id, { initialMessage: seed });
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-primary hover:bg-primary/10"
+                            title={lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                          >
+                            <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
+                          </button>
+                          {canReject && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedId(app.id); setShowReject(true); }}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10"
+                              title={lang === "my" ? "ငြင်းပယ်" : "Reject"}
+                            >
+                              <XCircle className="h-4 w-4" strokeWidth={1.8} />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setSelectedId(app.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+                            title={lang === "my" ? "ဖွင့်" : "Open"}
+                          >
+                            <ChevronRight className="h-4 w-4" strokeWidth={1.8} />
+                          </button>
                         </div>
-                      </motion.button>
+                      </motion.div>
                     );
                   })}
                 </div>
               );
             })()}
+
+            {/* Sticky bulk-action bar */}
+            <AnimatePresence>
+              {selectedIds.size > 0 && (
+                <motion.div
+                  initial={{ y: 80, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 80, opacity: 0 }}
+                  className="fixed inset-x-0 bottom-16 z-40 mx-auto flex max-w-3xl items-center gap-2 border border-border bg-card px-4 py-3 shadow-lg sm:bottom-20 sm:rounded-2xl"
+                >
+                  <span className="flex-1 text-sm font-semibold text-foreground">
+                    {selectedIds.size} {lang === "my" ? "ကိုယ်စားလှယ် ရွေးထား" : `selected`}
+                  </span>
+                  <Button size="sm" variant="ghost" className="rounded-lg" onClick={() => setSelectedIds(new Set())}>
+                    {lang === "my" ? "ဖျက်" : "Clear"}
+                  </Button>
+                  <Button size="sm" variant="outline" className="rounded-lg" disabled={updateStatus.isPending} onClick={() => runBulk("shortlisted")}>
+                    <CheckCircle className="mr-1.5 h-3.5 w-3.5 text-emerald" strokeWidth={1.8} />
+                    {lang === "my" ? "ရွေးချယ်" : "Shortlist"}
+                  </Button>
+                  <Button size="sm" variant="destructive" className="rounded-lg" disabled={updateStatus.isPending} onClick={() => setBulkRejectOpen(true)}>
+                    <XCircle className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.8} />
+                    {lang === "my" ? "ငြင်းပယ်" : "Reject"}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         )}
       </div>
