@@ -329,10 +329,10 @@ const Profile = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-foreground">
-                    {employerProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီ မသတ်မှတ်ရသေးပါ" : "Company not set yet")}
+                    {employerProfile?.company_name || (effectiveRole === "agent" ? (lang === "my" ? "ပရိုဖိုင် မသတ်မှတ်ရသေးပါ" : "Profile not set yet") : (lang === "my" ? "ကုမ္ပဏီ မသတ်မှတ်ရသေးပါ" : "Company not set yet"))}
                   </p>
                   <p className="truncate text-[11px] text-muted-foreground">
-                    {[employerProfile?.industry, employerProfile?.company_size && `${employerProfile.company_size} ${lang === "my" ? "ဦး" : "people"}`, employerProfile?.hq_country].filter(Boolean).join(" · ") || (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add company details")}
+                    {[employerProfile?.industry, employerProfile?.company_size && `${employerProfile.company_size} ${lang === "my" ? "ဦး" : "people"}`, employerProfile?.hq_country].filter(Boolean).join(" · ") || (effectiveRole === "agent" ? (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add profile details") : (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add company details"))}
                   </p>
                 </div>
               </div>
