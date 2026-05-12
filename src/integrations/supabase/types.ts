@@ -2266,6 +2266,10 @@ export type Database = {
         Args: { _count?: number; _owner_id: string }
         Returns: number
       }
+      post_job_with_credits: {
+        Args: { _featured?: boolean; _payload: Json }
+        Returns: Json
+      }
       process_referral_reward: {
         Args: { _referrer_id: string }
         Returns: undefined
