@@ -114,7 +114,7 @@ const EmployerEditCompany = () => {
           {lang === "my" ? "မသိမ်းရသေးသော ပြောင်းလဲမှုများ ရှိသည်" : "You have unsaved changes"}
         </div>
       )}
-      <div className="px-5 space-y-4 mt-4">
+      <div className="mx-auto max-w-2xl px-5 space-y-4 mt-4 md:px-8">
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ကုမ္ပဏီအမည် *" : "Company Name *"}</label><Input value={companyName} onChange={e => markDirty(setCompanyName)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "ဝဘ်ဆိုဒ်" : "Website"}</label><Input value={website} onChange={e => markDirty(setWebsite)(e.target.value)} className="h-11 rounded-xl" /></div>
         <div><label className="mb-1 block text-xs font-medium text-foreground">LinkedIn</label><Input value={linkedin} onChange={e => markDirty(setLinkedin)(e.target.value)} className="h-11 rounded-xl" /></div>
