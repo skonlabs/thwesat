@@ -198,7 +198,7 @@ const Profile = () => {
   ];
 
   const employerMenu = [
-    { icon: Edit3, label: lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Company Profile", path: companyEditPath },
+    { icon: Edit3, label: effectiveRole === "agent" ? (lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile") : (lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Company Profile"), path: companyEditPath },
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     
@@ -329,10 +329,10 @@ const Profile = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-foreground">
-                    {employerProfile?.company_name || (lang === "my" ? "ကုမ္ပဏီ မသတ်မှတ်ရသေးပါ" : "Company not set yet")}
+                    {employerProfile?.company_name || (effectiveRole === "agent" ? (lang === "my" ? "ပရိုဖိုင် မသတ်မှတ်ရသေးပါ" : "Profile not set yet") : (lang === "my" ? "ကုမ္ပဏီ မသတ်မှတ်ရသေးပါ" : "Company not set yet"))}
                   </p>
                   <p className="truncate text-[11px] text-muted-foreground">
-                    {[employerProfile?.industry, employerProfile?.company_size && `${employerProfile.company_size} ${lang === "my" ? "ဦး" : "people"}`, employerProfile?.hq_country].filter(Boolean).join(" · ") || (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add company details")}
+                    {[employerProfile?.industry, employerProfile?.company_size && `${employerProfile.company_size} ${lang === "my" ? "ဦး" : "people"}`, employerProfile?.hq_country].filter(Boolean).join(" · ") || (effectiveRole === "agent" ? (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add profile details") : (lang === "my" ? "အသေးစိတ် ထည့်သွင်းပါ" : "Add company details"))}
                   </p>
                 </div>
               </div>
@@ -373,7 +373,7 @@ const Profile = () => {
               )}
               <div className="mt-3 flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(effectiveRole === "agent" ? "/agent/profile" : "/employer/edit-company")}>
-                  <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company"}
+                  <Edit3 className="mr-1 h-3.5 w-3.5" strokeWidth={1.5} /> {effectiveRole === "agent" ? (lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Profile") : (lang === "my" ? "ပြင်ဆင်ရန်" : "Edit Company")}
                 </Button>
                 {employerProfile?.id && (
                   <Button size="sm" variant="outline" className="flex-1 rounded-lg" onClick={() => navigate(`/company/${employerProfile.id}`)}>
