@@ -93,10 +93,10 @@ const AgentClients = () => {
     setDeleteTarget(c);
     setLinkedJobsCount(null);
     setCheckingLinks(true);
-    const { count, error } = await supabase
+    const { count, error } = await (supabase as any)
       .from("jobs")
       .select("id", { head: true, count: "exact" })
-      .eq("agent_client_id" as any, c.id as any);
+      .eq("agent_client_id", c.id);
     setCheckingLinks(false);
     if (error) {
       setLinkedJobsCount(0);
