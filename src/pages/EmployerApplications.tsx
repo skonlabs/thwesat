@@ -268,7 +268,12 @@ const EmployerApplications = () => {
   };
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
+      <PageHeader
+        title={jobIdParam ? (scopedJobTitle || L.applications[lang]) : L.applications[lang]}
+        backPath="/employer/dashboard"
+        onBack={jobIdParam ? () => setJobScope(undefined) : undefined}
+        showBack
+      />
       <div className="px-5">
         {!jobIdParam ? (
           <>
