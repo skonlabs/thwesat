@@ -26,7 +26,7 @@ const PublicProfile = () => {
       if (!id) return false;
       const [m, e] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
-        supabase.from("employer_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
+        (supabase as any).from("employer_profiles_public").select("id", { head: true, count: "exact" }).eq("id", id),
       ]);
       return (m.count ?? 0) > 0 || (e.count ?? 0) > 0;
     },
