@@ -77,6 +77,10 @@ const EmployerPostJob = () => {
   const [contractDurationNote, setContractDurationNote] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
+  const role = useRole(s => s.role);
+  const isAgent = role === "agent";
+  const [postedByLabel, setPostedByLabel] = useState<"self" | "client">("self");
+  const [selectedClient, setSelectedClient] = useState<AgentClient | null>(null);
 
   const addSkill = (raw: string) => {
     const s = raw.trim();
