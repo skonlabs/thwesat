@@ -324,6 +324,7 @@ const EmployerJobs = () => {
                 </motion.div>
               );
             })}
+            </div>
             {totalFiltered > PAGE_SIZE && (
               <div className="mt-4 flex items-center justify-between gap-3">
                 <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
