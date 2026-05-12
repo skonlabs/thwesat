@@ -14,7 +14,8 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
-import { useSpendCredits, useActionPrice, useWallet } from "@/hooks/use-wallet";
+import { useSpendCredits, useActionPrice, useWallet, useCreditPackages } from "@/hooks/use-wallet";
+import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { HQ_COUNTRIES } from "@/lib/countries";
@@ -96,6 +97,8 @@ const EmployerPostJob = () => {
   const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
   const balance = wallet?.balance_credits ?? 0;
   const insufficient = balance < totalCost;
+  const [topupOpen, setTopupOpen] = useState(false);
+  const { data: creditPackages = [] } = useCreditPackages();
   const isContract = roleType === "remote_contract";
 
   
@@ -147,7 +150,7 @@ const EmployerPostJob = () => {
     }
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
-      navigate("/wallet");
+      setTopupOpen(true);
       return;
     }
     try {
@@ -483,7 +486,7 @@ const EmployerPostJob = () => {
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
                   {lang === "my" ? `${(totalCost - balance).toLocaleString()} credits လို အပ်သည်။ ` : `Need ${(totalCost - balance).toLocaleString()} more credits. `}
-                  <button type="button" className="underline" onClick={() => navigate("/wallet")}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
+                  <button type="button" className="underline" onClick={() => setTopupOpen(true)}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
                 </p>
               )}
             </div>
@@ -616,7 +619,8 @@ const EmployerPostJob = () => {
           })()}
         </SheetContent>
       </Sheet>
-    
+
+      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
     </div>
   );
 };
