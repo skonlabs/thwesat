@@ -19,6 +19,9 @@ import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { HQ_COUNTRIES } from "@/lib/countries";
 import { X } from "lucide-react";
+import { useRole } from "@/hooks/use-role";
+import AgentClientPicker from "@/components/agent/AgentClientPicker";
+import type { AgentClient } from "@/hooks/use-agent-clients";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
