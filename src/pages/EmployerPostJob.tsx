@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, AlertTriangle, Star, Briefcase, Bookmark, MapPin, Clock, Shield, CreditCard } from "lucide-react";
 import { formatJobSalary, translateJobLocation, translateJobTags, translateJobType } from "@/lib/job-localization";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,6 +92,8 @@ const EmployerPostJob = () => {
   };
   const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const spend = useSpendCredits();
+  const qc = useQueryClient();
+  const [submitting, setSubmitting] = useState(false);
   const postPrice = useActionPrice("job_post");
   const featurePrice = useActionPrice("featured_job");
   const { data: wallet } = useWallet();
@@ -153,12 +156,10 @@ const EmployerPostJob = () => {
       setTopupOpen(true);
       return;
     }
+    setSubmitting(true);
     try {
-      // Spend job_post first
-      await spend.mutateAsync({ action_key: "job_post", idempotency_key: `job_post:${Date.now()}` });
-      const { data: jobRow, error: jobErr } = await (await import("@/integrations/supabase/client")).supabase
-        .from("jobs").insert({
-        employer_id: (await (await import("@/integrations/supabase/client")).supabase.auth.getUser()).data.user?.id,
+      const { supabase } = await import("@/integrations/supabase/client");
+      const payload = {
         title: titleEn, title_my: titleMy || null,
         description: descEn, description_my: descMy || null,
         requirements: requirementsEn, requirements_my: requirementsMy || null,
@@ -182,12 +183,15 @@ const EmployerPostJob = () => {
         client_company_name: isAgent && postedByLabel === "client" ? selectedClient?.name ?? null : null,
         client_logo_url: isAgent && postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
         posted_by_label: isAgent ? postedByLabel : "self",
-        status: "pending",
-      } as any).select("id").single();
-      if (jobErr) throw jobErr;
-      if (isFeatured && jobRow?.id) {
-        await spend.mutateAsync({ action_key: "featured_job", target_type: "job", target_id: jobRow.id });
-      }
+      };
+      const { error: rpcErr } = await (supabase as any).rpc("post_job_with_credits", {
+        _payload: payload,
+        _featured: isFeatured,
+      });
+      if (rpcErr) throw rpcErr;
+      qc.invalidateQueries({ queryKey: ["wallet"] });
+      qc.invalidateQueries({ queryKey: ["wallet-transactions"] });
+      qc.invalidateQueries({ queryKey: ["feature-unlocks"] });
       navigate("/employer/dashboard");
     } catch (e: any) {
       const msg = e?.message || "";
@@ -196,6 +200,8 @@ const EmployerPostJob = () => {
       } else {
         toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -479,9 +485,9 @@ const EmployerPostJob = () => {
             <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={spend.isPending}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {spend.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} credits ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} credits`)}
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} credits ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} credits`)}
               </Button>
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
