@@ -421,7 +421,7 @@ const EmployerApplications = () => {
             <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
               <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
               <div className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
-                <span className="font-medium text-foreground">{lang === "my" ? "လျှောက်ထားသူများ" : "Applicants for"}</span>
+                <span className="font-medium text-foreground">{roleLabels.applicants} {lang === "my" ? "" : "for"}</span>
                 {scopedJobCompany ? <span> · {scopedJobCompany}</span> : null}
                 {scopedJobLocation ? <span> · {scopedJobLocation}</span> : null}
               </div>
