@@ -297,10 +297,12 @@ const Welcome = () => {
             </span>
             <span className="ml-2">© {new Date().getFullYear()}</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link to="/jobs" className="hover:text-foreground">{my ? "အလုပ်များ" : "Jobs"}</Link>
             <Link to="/mentors" className="hover:text-foreground">{my ? "လမ်းညွှန်" : "Mentors"}</Link>
             <Link to="/guides" className="hover:text-foreground">{my ? "လမ်းညွှန်ချက်" : "Guides"}</Link>
+            <Link to="/privacy-policy" className="hover:text-foreground">{my ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy"}</Link>
+            <Link to="/terms-of-service" className="hover:text-foreground">{my ? "စည်းမျဉ်း" : "Terms"}</Link>
             <Link to="/login" className="hover:text-foreground">{my ? "ဝင်ရောက်" : "Sign in"}</Link>
           </div>
         </div>
