@@ -915,6 +915,35 @@ const EmployerApplications = () => {
         )}
       </AnimatePresence>
 
+      {/* Bulk reject dialog — reuses rejection_reasons */}
+      <AnimatePresence>
+        {bulkRejectOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setBulkRejectOpen(false)}>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
+              <h3 className="mb-1 text-base font-bold text-foreground">{lang === "my" ? "အားလုံး ငြင်းပယ်ရန်" : "Reject Selected"}</h3>
+              <p className="mb-3 text-xs text-muted-foreground">{selectedIds.size} {lang === "my" ? "ဦး အား ငြင်းပယ်မည်။ အကြောင်းရင်း ရွေးပါ။" : `candidate${selectedIds.size === 1 ? "" : "s"} will be rejected. Pick a reason.`}</p>
+              <div className="mb-3 space-y-2">
+                {rejectionReasons.map(r => (
+                  <button key={r.en} onClick={() => { setRejectionReason(r.en); setOtherReasonText(""); }} className={`w-full rounded-xl border p-3 text-left text-xs transition-colors ${rejectionReason === r.en ? "border-primary bg-primary/5" : "border-border"}`}>
+                    {lang === "my" ? r.my : r.en}
+                  </button>
+                ))}
+                <button onClick={() => setRejectionReason("__other__")} className={`w-full rounded-xl border p-3 text-left text-xs transition-colors ${rejectionReason === "__other__" ? "border-primary bg-primary/5" : "border-border"}`}>
+                  {lang === "my" ? "အခြား" : "Other"}
+                </button>
+                {rejectionReason === "__other__" && (
+                  <Input autoFocus value={otherReasonText} onChange={e => setOtherReasonText(e.target.value)} placeholder={lang === "my" ? "အကြောင်းရင်း ထည့်ပါ..." : "Enter reason..."} className="h-10 rounded-xl text-xs" maxLength={500} />
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { setBulkRejectOpen(false); setRejectionReason(""); setOtherReasonText(""); }}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleBulkReject} disabled={(!rejectionReason || (rejectionReason === "__other__" && !otherReasonText.trim())) || updateStatus.isPending}>{lang === "my" ? "အားလုံး ငြင်းပယ်" : "Reject all"}</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showPlacement && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setShowPlacement(false)}>
