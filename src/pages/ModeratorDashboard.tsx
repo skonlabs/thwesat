@@ -211,20 +211,9 @@ const ModeratorDashboard = () => {
 
   const approveJob = useMutation({
     mutationFn: async (id: string) => {
-      // Fetch job first so we can notify the poster
-      const { data: job } = await supabase.from("jobs").select("employer_id").eq("id", id).single();
-      const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", id);
+      // Atomic: updates job, notifies employer, writes audit log.
+      const { error } = await (supabase as any).rpc("approve_job", { _job_id: id });
       if (error) throw error;
-      // Issue #35: notify the employer who posted the job
-      if (job?.employer_id) {
-        await supabase.from("notifications").insert({
-          user_id: job.employer_id,
-          notification_type: "job_approved",
-          title: "Job approved",
-          description: "Your job posting has been approved and is now live.",
-          link_path: "/employer/jobs",
-        });
-      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
   });
