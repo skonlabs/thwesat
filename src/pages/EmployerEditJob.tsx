@@ -17,6 +17,9 @@ import BilingualField from "@/components/employer/BilingualField";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { useRole } from "@/hooks/use-role";
+import AgentClientPicker from "@/components/agent/AgentClientPicker";
+import { useAgentClients, type AgentClient } from "@/hooks/use-agent-clients";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
