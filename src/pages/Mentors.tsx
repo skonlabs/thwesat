@@ -303,6 +303,7 @@ const Mentors = () => {
             );
           })
         )}
+        </div>
       </div>
     </div>
   );
