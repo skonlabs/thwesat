@@ -232,7 +232,7 @@ const Profile = () => {
     : isModerator
       ? moderatorMenu
         : effectiveRole === "employer" || effectiveRole === "agent"
-        ? employerMenu
+        ? (effectiveRole === "agent" ? employerMenu.filter(m => m.path !== "/employer/applications") : employerMenu)
           : effectiveRole === "mentor"
           ? mentorMenu
           : jobseekerMenu;
