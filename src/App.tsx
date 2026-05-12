@@ -16,6 +16,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Unsubscribe from "./pages/Unsubscribe";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 import HomeRedirect from "./pages/HomeRedirect";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
@@ -102,6 +103,7 @@ const App = () => (
             <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* All authenticated pages with bottom nav */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

@@ -303,6 +303,7 @@ const Welcome = () => {
             <Link to="/guides" className="hover:text-foreground">{my ? "လမ်းညွှန်ချက်" : "Guides"}</Link>
             <Link to="/privacy-policy" className="hover:text-foreground">{my ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy"}</Link>
             <Link to="/terms-of-service" className="hover:text-foreground">{my ? "စည်းမျဉ်း" : "Terms"}</Link>
+            <Link to="/contact" className="hover:text-foreground">{my ? "ဆက်သွယ်ရန်" : "Contact"}</Link>
             <Link to="/login" className="hover:text-foreground">{my ? "ဝင်ရောက်" : "Sign in"}</Link>
           </div>
         </div>
