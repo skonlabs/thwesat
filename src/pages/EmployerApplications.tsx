@@ -68,7 +68,10 @@ const EmployerApplications = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [otherReasonText, setOtherReasonText] = useState("");
   const [placementSalary, setPlacementSalary] = useState("");
-  const [filter, setFilter] = useState(searchParams.get("filter") || "all");
+  const [filter, setFilter] = useState(searchParams.get("stage") || searchParams.get("filter") || "all");
+  const [sort, setSort] = useState<"newest" | "oldest">(((searchParams.get("sort") as any) === "oldest" ? "oldest" : "newest"));
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
   const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
   const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
   const queryClient = useQueryClient();
@@ -79,16 +82,30 @@ const EmployerApplications = () => {
 
   // Keep local filter state in sync when URL changes (back/forward, deep links)
   useEffect(() => {
-    const f = searchParams.get("filter");
+    const f = searchParams.get("stage") || searchParams.get("filter");
     setFilter(f || "all");
+    const s = searchParams.get("sort");
+    setSort(s === "oldest" ? "oldest" : "newest");
   }, [searchParams]);
+
+  // Reset selection when scope/filter changes
+  useEffect(() => { setSelectedIds(new Set()); }, [jobIdParam, filter]);
 
   // Persist filter changes to URL so they survive navigation/back
   const updateFilter = (next: string) => {
     setFilter(next);
     const params = new URLSearchParams(searchParams);
-    if (next === "all") params.delete("filter");
-    else params.set("filter", next);
+    params.delete("filter"); // legacy
+    if (next === "all") params.delete("stage");
+    else params.set("stage", next);
+    setSearchParams(params, { replace: true });
+  };
+
+  const updateSort = (next: "newest" | "oldest") => {
+    setSort(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === "newest") params.delete("sort");
+    else params.set("sort", next);
     setSearchParams(params, { replace: true });
   };
 
