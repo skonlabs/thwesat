@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Globe, Briefcase, MessageCircle, ArrowLeft, FileText, Download, Eye, Phone, Mail, Laptop, Wifi, Wallet, CheckCircle2 } from "lucide-react";
+import { MapPin, Globe, Briefcase, MessageCircle, ArrowLeft, Phone, Mail, Laptop, Wifi, Wallet, CheckCircle2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
