@@ -507,7 +507,8 @@ const EditProfile = () => {
         has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
         has_laptop: hasLaptop, internet_stable: internetStable,
         remote_ready: hasLaptop && internetStable,
-      }).eq("id", profile.id);
+        job_search_status: jobSearchStatus,
+      } as any).eq("id", profile.id);
       if (error) throw error;
 
       // Sync mentor_profiles if user is a mentor
