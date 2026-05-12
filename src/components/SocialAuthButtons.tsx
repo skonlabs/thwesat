@@ -62,39 +62,37 @@ const SocialAuthButtons = ({ intendedRole, redirectTo = "/dashboard" }: Props) =
     }
   };
 
-  const labelContinue = lang === "my" ? "ဖြင့် ဆက်လုပ်ရန်" : "Continue with";
+  const labelMap: Record<Provider, string> = {
+    google: "Google",
+    linkedin_oidc: "LinkedIn",
+    facebook: "Facebook",
+  };
+  const ariaContinue = lang === "my" ? "ဖြင့် ဆက်လုပ်ရန်" : "Continue with";
+
+  const btnClass =
+    "flex h-10 flex-1 items-center justify-center rounded-lg border border-border bg-card text-foreground transition hover:bg-muted/40 disabled:opacity-60";
 
   return (
-    <div className="space-y-2.5">
-      <button
-        type="button"
-        onClick={() => handle("google")}
-        disabled={!!busy}
-        className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground transition hover:bg-muted/40 disabled:opacity-60"
-      >
-        <GoogleIcon />
-        <span>{labelContinue} Google</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => handle("linkedin_oidc")}
-        disabled={!!busy}
-        className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground transition hover:bg-muted/40 disabled:opacity-60"
-      >
-        <LinkedInIcon />
-        <span>{labelContinue} LinkedIn</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => handle("facebook")}
-        disabled={!!busy}
-        className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground transition hover:bg-muted/40 disabled:opacity-60"
-      >
-        <FacebookIcon />
-        <span>{labelContinue} Facebook</span>
-      </button>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        {(["google", "linkedin_oidc", "facebook"] as Provider[]).map((p) => {
+          const Icon = p === "google" ? GoogleIcon : p === "linkedin_oidc" ? LinkedInIcon : FacebookIcon;
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => handle(p)}
+              disabled={!!busy}
+              aria-label={`${ariaContinue} ${labelMap[p]}`}
+              className={btnClass}
+            >
+              <Icon />
+            </button>
+          );
+        })}
+      </div>
 
-      <div className="flex items-center gap-3 pt-1">
+      <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {lang === "my" ? "သို့မဟုတ်" : "or"}
