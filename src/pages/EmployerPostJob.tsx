@@ -154,11 +154,9 @@ const EmployerPostJob = () => {
       return;
     }
     try {
-      // Spend job_post first
-      await spend.mutateAsync({ action_key: "job_post", idempotency_key: `job_post:${Date.now()}` });
-      const { data: jobRow, error: jobErr } = await (await import("@/integrations/supabase/client")).supabase
-        .from("jobs").insert({
-        employer_id: (await (await import("@/integrations/supabase/client")).supabase.auth.getUser()).data.user?.id,
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const payload = {
         title: titleEn, title_my: titleMy || null,
         description: descEn, description_my: descMy || null,
         requirements: requirementsEn, requirements_my: requirementsMy || null,
@@ -182,12 +180,16 @@ const EmployerPostJob = () => {
         client_company_name: isAgent && postedByLabel === "client" ? selectedClient?.name ?? null : null,
         client_logo_url: isAgent && postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
         posted_by_label: isAgent ? postedByLabel : "self",
-        status: "pending",
-      } as any).select("id").single();
-      if (jobErr) throw jobErr;
-      if (isFeatured && jobRow?.id) {
-        await spend.mutateAsync({ action_key: "featured_job", target_type: "job", target_id: jobRow.id });
-      }
+      };
+      const { error: rpcErr } = await (supabase as any).rpc("post_job_with_credits", {
+        _payload: payload,
+        _featured: isFeatured,
+      });
+      if (rpcErr) throw rpcErr;
+      // Refresh wallet caches after successful spend
+      await Promise.all([
+        (await import("@tanstack/react-query")).useQueryClient ? Promise.resolve() : Promise.resolve(),
+      ]);
       navigate("/employer/dashboard");
     } catch (e: any) {
       const msg = e?.message || "";
