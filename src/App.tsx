@@ -49,6 +49,7 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerPostJob from "./pages/EmployerPostJob";
 import EmployerJobs from "./pages/EmployerJobs";
 import EmployerApplications from "./pages/EmployerApplications";
+import AgentClients from "./pages/AgentClients";
 
 import SearchTalent from "./pages/SearchTalent";
 import BecomeMentor from "./pages/BecomeMentor";
