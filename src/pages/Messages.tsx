@@ -85,7 +85,7 @@ const Messages = () => {
           )}
         </div>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="mx-auto w-full max-w-3xl divide-y divide-border">
           {filtered.map((conv: any, i: number) => (
             <motion.button
               key={conv.id}
