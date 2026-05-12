@@ -211,6 +211,7 @@ type ProfileDraft = {
   experience: string;
   visibility: string;
   preferredWorkTypes: string[];
+  jobSearchStatus: string;
   hasWise: boolean;
   hasUpwork: boolean;
   hasLaptop: boolean;
