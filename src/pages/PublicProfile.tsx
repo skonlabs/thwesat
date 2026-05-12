@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Globe, Briefcase, MessageCircle, ArrowLeft, FileText, Download, Eye, Phone, Mail, Laptop, Wifi, Wallet, CheckCircle2 } from "lucide-react";
+import { MapPin, Globe, Briefcase, MessageCircle, ArrowLeft, Phone, Mail, Laptop, Wifi, Wallet, CheckCircle2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -52,47 +52,6 @@ const PublicProfile = () => {
     enabled: !!id,
   });
 
-  // CVs — only fetched for hiring side viewing a job seeker
-  const { data: cvDocuments = [] } = useQuery({
-    queryKey: ["public-profile-cvs", id],
-    queryFn: async () => {
-      if (!id) return [];
-      const { data } = await supabase
-        .from("cv_documents")
-        .select("id, file_name, file_url, is_primary, created_at, file_size_bytes")
-        .eq("user_id", id)
-        .order("is_primary", { ascending: false })
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!id && isHiringSide && profile?.primary_role === "jobseeker",
-  });
-
-  const getCvStoragePath = (fileUrl: string) => {
-    if (!fileUrl) return "";
-    if (fileUrl.includes("/cv-documents/")) return fileUrl.split("/cv-documents/").pop() || "";
-    return fileUrl;
-  };
-  const openCv = async (fileUrl: string) => {
-    const path = getCvStoragePath(fileUrl);
-    if (!path) return;
-    const { data } = await supabase.storage.from("cv-documents").createSignedUrl(path, 300);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-  };
-  const downloadCv = async (fileUrl: string, fileName: string) => {
-    const path = getCvStoragePath(fileUrl);
-    if (!path) return;
-    const { data } = await supabase.storage.from("cv-documents").download(path);
-    if (!data) return;
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName || "cv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
 
   if (isLoading) {
     return (
@@ -296,35 +255,6 @@ const PublicProfile = () => {
             </div>
           </div>
 
-          {/* CV documents — hiring side only */}
-          {isHiringSide && profile.primary_role === "jobseeker" && (
-            <div className="mb-4 rounded-xl border border-border bg-card p-4">
-              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "CV / ကိုယ်ရေးရာဇဝင်" : "CV / Resume"}</h3>
-              {cvDocuments.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">{lang === "my" ? "CV မတင်ထားပါ" : "No CV uploaded"}</p>
-              ) : (
-                <div className="space-y-2">
-                  {cvDocuments.map((cv: any) => (
-                    <div key={cv.id} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                      <FileText className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-foreground">{cv.file_name || "CV"}</p>
-                        {cv.is_primary && (
-                          <span className="text-[10px] text-emerald">{lang === "my" ? "အဓိက" : "Primary"}</span>
-                        )}
-                      </div>
-                      <button onClick={() => openCv(cv.file_url)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ကြည့်ရန်" : "View"}>
-                        <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => downloadCv(cv.file_url, cv.file_name)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ဒေါင်းလုဒ်" : "Download"}>
-                        <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Actions */}
           {!isOwn && user && canMessage && (
