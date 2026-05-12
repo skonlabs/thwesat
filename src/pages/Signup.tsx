@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRole, type UserRole } from "@/hooks/use-role";
 import LanguageToggle from "@/components/LanguageToggle";
 import AuthShell from "@/components/AuthShell";
+import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 const PASSWORD_MIN_LENGTH = 8;
 
