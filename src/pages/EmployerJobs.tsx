@@ -183,7 +183,7 @@ const EmployerJobs = () => {
                   : `Showing ${pageStart + 1}–${pageEnd} of ${totalFiltered} jobs`}
               </p>
             )}
-            <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="rounded-2xl border border-border bg-card [&>*:first-child]:rounded-t-2xl [&>*:last-child]:rounded-b-2xl">
             {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
               const b = breakdown?.get(listing.id) || { total: listing.applicant_count || 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 };
