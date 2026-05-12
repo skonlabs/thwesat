@@ -183,146 +183,132 @@ const EmployerJobs = () => {
                   : `Showing ${pageStart + 1}–${pageEnd} of ${totalFiltered} jobs`}
               </p>
             )}
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
-              const m = getApplicationMethodLabel((listing as any).application_method, lang);
-              const MIcon = (listing as any).application_method === "external" ? Link2 : (listing as any).application_method === "email" ? Mail : Send;
               const b = breakdown?.get(listing.id) || { total: listing.applicant_count || 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 };
-              const chips: { key: string; label: string; count: number; color: string; filter?: string }[] = [
-                { key: "new", label: lang === "my" ? "အသစ်" : "New", count: b.new, color: "bg-primary/10 text-primary", filter: "new" },
-                { key: "shortlisted", label: lang === "my" ? "ရွေး" : "Shortlist", count: b.shortlisted, color: "bg-emerald/10 text-emerald", filter: "shortlisted" },
-                { key: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Interview", count: b.interview, color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200", filter: "interview" },
-                { key: "offered", label: lang === "my" ? "ကမ်းလှမ်း" : "Offered", count: b.offered, color: "bg-emerald/10 text-emerald", filter: "offered" },
-                { key: "placed", label: lang === "my" ? "ခန့်အပ်" : "Placed", count: b.placed, color: "bg-emerald text-emerald-foreground", filter: "placed" },
+              const dotColor =
+                listing.status === "active" ? "bg-emerald" :
+                listing.status === "pending" ? "bg-amber-400" :
+                listing.status === "rejected" ? "bg-destructive" :
+                "bg-muted-foreground/40";
+              const stageChips: { key: string; label: string; count: number; tone: string; stage: string }[] = [
+                { key: "new", label: lang === "my" ? "အသစ်" : "New", count: b.new, tone: "bg-primary/10 text-primary hover:bg-primary/15", stage: "new" },
+                { key: "shortlisted", label: lang === "my" ? "ရွေး" : "Short", count: b.shortlisted, tone: "bg-emerald/10 text-emerald hover:bg-emerald/15", stage: "shortlisted" },
+                { key: "interview", label: lang === "my" ? "အင်တာဗျူး" : "Intv", count: b.interview, tone: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 hover:bg-amber-200/70", stage: "interview" },
+                { key: "offered", label: lang === "my" ? "ကမ်းလှမ်း" : "Offer", count: b.offered, tone: "bg-emerald/10 text-emerald hover:bg-emerald/15", stage: "offered" },
+                { key: "placed", label: lang === "my" ? "ခန့်အပ်" : "Placed", count: b.placed, tone: "bg-emerald text-emerald-foreground hover:bg-emerald/90", stage: "placed" },
               ];
-              const visibleChips = chips.filter(c => c.count > 0);
               return (
                 <motion.div
                   key={listing.id}
-                  initial={{ opacity: 0, y: 6 }}
+                  initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                  transition={{ delay: Math.min(i, 8) * 0.02 }}
+                  className={`group flex flex-col gap-2 border-b border-border/60 px-4 py-3 last:border-b-0 hover:bg-muted/30 md:flex-row md:items-center md:gap-4 md:py-2.5`}
                 >
-                  {/* Top: title + status badge */}
+                  {/* Title + status */}
                   <button
                     onClick={() => navigate(`${applicationsPath}?jobId=${listing.id}`)}
-                    className="flex w-full items-start justify-between gap-3 px-4 pt-4 pb-3 text-left active:bg-muted/30"
+                    className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+                    title={lang === "my" ? "ကိုယ်စားလှယ်များ ကြည့်ရန်" : "Review candidates"}
                   >
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor}`} title={lang === "my" ? sc.label.my : sc.label.en} />
                     <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="truncate text-sm font-semibold text-foreground">
+                          {lang === "my" && listing.title_my ? listing.title_my : listing.title}
+                        </h3>
                         {listing.is_featured && (
-                          <span className="flex items-center gap-0.5 rounded-md bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-200">
-                            <Sparkles className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ထိပ်တန်း" : "Featured"}
+                          <span className="flex shrink-0 items-center gap-0.5 rounded bg-amber-50 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-200">
+                            <Sparkles className="h-2 w-2" strokeWidth={2} /> {lang === "my" ? "ထိပ်တန်း" : "Featured"}
                           </span>
                         )}
                       </div>
-                      <h3 className="truncate text-sm font-semibold text-foreground">
-                        {lang === "my" && listing.title_my ? listing.title_my : listing.title}
-                      </h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
-                        <span>{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : ""}</span>
-                        <span className="text-muted-foreground/40">•</span>
-                        <span className="flex items-center gap-1">
-                          <MIcon className="h-2.5 w-2.5" strokeWidth={1.5} />
-                          {m.label}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${sc.color}`}>
-                      <sc.icon className="h-3 w-3" strokeWidth={1.5} />
-                      {lang === "my" ? sc.label.my : sc.label.en}
-                    </span>
-                  </button>
-
-                  {/* Applicants summary */}
-                  <button
-                    onClick={() => navigate(`${applicationsPath}?jobId=${listing.id}`)}
-                    className="flex w-full items-center justify-between gap-2 border-t border-border/60 bg-muted/20 px-4 py-2.5 text-left active:bg-muted/40"
-                  >
-                    <span className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                      <Users className="h-3.5 w-3.5" strokeWidth={1.5} /> {b.total} {lang === "my" ? "လျှောက်" : "applicants"}
-                    </span>
-                    <div className="flex flex-wrap items-center justify-end gap-1">
-                      {visibleChips.length > 0 ? (
-                        visibleChips.map(c => (
-                          <span key={c.key} className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${c.color}`} title={c.label}>
-                            {c.count} {c.label}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-[10px] text-muted-foreground">{lang === "my" ? "လျှောက်ထားသူ မရှိသေး" : "No applicants yet"}</span>
-                      )}
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        <span className="capitalize">{lang === "my" ? sc.label.my : sc.label.en}</span>
+                        {listing.created_at && <> · {new Date(listing.created_at).toLocaleDateString()}</>}
+                        {b.total > 0 && <> · {b.total} {lang === "my" ? "လျှောက်" : `applicant${b.total === 1 ? "" : "s"}`}</>}
+                      </p>
                     </div>
                   </button>
 
-                  {/* Action bar */}
-                  <div className="flex items-center justify-between gap-1 border-t border-border/60 px-2 py-1.5">
-                    <div className="flex items-center gap-0.5">
-                      <button onClick={() => navigate(editJobPath(listing.id))} className="flex h-9 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-muted-foreground hover:bg-muted active:bg-muted">
-                        <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်" : "Edit"}
-                      </button>
-                      <button onClick={() => handleShare(listing)} disabled={sharingId === listing.id} className="flex h-9 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60">
-                        {sharingId === listing.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} />}
-                        {lang === "my" ? "မျှဝေ" : "Share"}
-                      </button>
-                      <button onClick={() => setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title })} className="flex h-9 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-muted-foreground hover:bg-muted active:bg-muted">
-                        <History className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မှတ်တမ်း" : "History"}
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-0.5">
-                      {listing.status === "active" && !listing.is_featured && (
-                        <button onClick={() => setFeatureJobId(listing.id)} className="flex h-9 items-center gap-1 rounded-lg border border-dashed border-amber-400 bg-transparent px-2 text-[10px] font-medium text-amber-700 hover:bg-amber-50 active:bg-amber-100 dark:border-amber-500/60 dark:text-amber-300 dark:hover:bg-amber-950/40" title={lang === "my" ? "ထိပ်တန်း ပြသရန်" : "Promote to Featured"}>
-                          <Plus className="h-3 w-3" strokeWidth={2} />
-                          <Sparkles className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်းတင်မည်" : "Promote"}
+                  {/* Pipeline chips — clickable, deep-link to stage */}
+                  <div className="flex flex-wrap items-center gap-1 md:shrink-0">
+                    {stageChips.filter(c => c.count > 0).length === 0 ? (
+                      <span className="text-[10px] italic text-muted-foreground/70">
+                        {lang === "my" ? "လျှောက်ထားသူ မရှိသေး" : "No applicants yet"}
+                      </span>
+                    ) : (
+                      stageChips.filter(c => c.count > 0).map(c => (
+                        <button
+                          key={c.key}
+                          onClick={(e) => { e.stopPropagation(); navigate(`${applicationsPath}?jobId=${listing.id}&stage=${c.stage}`); }}
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-colors ${c.tone}`}
+                          title={`${c.count} ${c.label}`}
+                        >
+                          {c.count} {c.label}
                         </button>
-                      )}
-                      {(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
-                        <div className="relative">
-                          <button
-                            onClick={() => setStatusMenuId(statusMenuId === listing.id ? null : listing.id)}
-                            disabled={updatingId === listing.id}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60"
-                            title={lang === "my" ? "နောက်ထပ်" : "More"}
-                          >
-                            {updatingId === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" strokeWidth={1.5} />}
-                          </button>
-                          {statusMenuId === listing.id && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setStatusMenuId(null)} />
-                              <div className="absolute right-0 bottom-10 z-50 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
-                                {listing.status === "paused" && (
-                                  <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
-                                    <Play className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်ရန်" : "Resume"}
-                                  </button>
-                                )}
-                                {listing.status === "active" && (
-                                  <button onClick={() => handleStatusChange(listing.id, "paused")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
-                                    <Pause className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ခေတ္တရပ်" : "Pause"}
-                                  </button>
-                                )}
-                                {listing.status === "closed" ? (
-                                  <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
-                                    <RotateCcw className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်" : "Reopen"}
-                                  </button>
-                                ) : (
-                                  <button onClick={() => handleStatusChange(listing.id, "closed")} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
-                                    <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပိတ်ရန်" : "Close"}
-                                  </button>
-                                )}
-                                <button onClick={() => { setStatusMenuId(null); setDeleteConfirmId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-destructive hover:bg-destructive/5">
-                                  <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ဖျက်ရန်" : "Delete"}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
-                      {!(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
-                        <button onClick={() => setDeleteConfirmId(listing.id)} className="flex h-9 w-9 items-center justify-center rounded-lg text-destructive hover:bg-destructive/10 active:bg-destructive/10" title={lang === "my" ? "ဖျက်ရန်" : "Delete"}>
-                          <Trash2 className="h-4 w-4" strokeWidth={1.5} />
-                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Action cluster */}
+                  <div className="flex shrink-0 items-center gap-0.5">
+                    <Button size="sm" variant="default" className="h-8 rounded-lg px-3 text-xs" onClick={() => navigate(`${applicationsPath}?jobId=${listing.id}`)}>
+                      {lang === "my" ? "ကြည့်ရန်" : "Review"}
+                    </Button>
+                    <div className="relative">
+                      <button
+                        onClick={() => setStatusMenuId(statusMenuId === listing.id ? null : listing.id)}
+                        disabled={updatingId === listing.id}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted active:bg-muted disabled:opacity-60"
+                        title={lang === "my" ? "နောက်ထပ်" : "More actions"}
+                      >
+                        {updatingId === listing.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" strokeWidth={1.5} />}
+                      </button>
+                      {statusMenuId === listing.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setStatusMenuId(null)} />
+                          <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                            <button onClick={() => { setStatusMenuId(null); navigate(editJobPath(listing.id)); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                              <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ရန်" : "Edit listing"}
+                            </button>
+                            <button onClick={() => { setStatusMenuId(null); handleShare(listing); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                              <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မျှဝေရန်" : "Share link"}
+                            </button>
+                            <button onClick={() => { setStatusMenuId(null); setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title }); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                              <History className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မှတ်တမ်း" : "Status history"}
+                            </button>
+                            {listing.status === "active" && !listing.is_featured && (
+                              <button onClick={() => { setStatusMenuId(null); setFeatureJobId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/40">
+                                <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်းတင်" : "Promote to Featured"}
+                              </button>
+                            )}
+                            {listing.status === "active" && (
+                              <button onClick={() => handleStatusChange(listing.id, "paused")} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                <Pause className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ခေတ္တရပ်" : "Pause"}
+                              </button>
+                            )}
+                            {listing.status === "paused" && (
+                              <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                <Play className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်" : "Resume"}
+                              </button>
+                            )}
+                            {listing.status === "closed" ? (
+                              <button onClick={() => handleStatusChange(listing.id, "active")} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                <RotateCcw className="h-3.5 w-3.5 text-emerald" strokeWidth={1.5} /> {lang === "my" ? "ပြန်ဖွင့်" : "Reopen"}
+                              </button>
+                            ) : (listing.status === "active" || listing.status === "paused") && (
+                              <button onClick={() => handleStatusChange(listing.id, "closed")} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
+                                <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပိတ်ရန်" : "Close"}
+                              </button>
+                            )}
+                            <button onClick={() => { setStatusMenuId(null); setDeleteConfirmId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-destructive hover:bg-destructive/5">
+                              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ဖျက်ရန်" : "Delete"}
+                            </button>
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>
