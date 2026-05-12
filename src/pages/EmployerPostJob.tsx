@@ -97,6 +97,8 @@ const EmployerPostJob = () => {
   const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
   const balance = wallet?.balance_credits ?? 0;
   const insufficient = balance < totalCost;
+  const [topupOpen, setTopupOpen] = useState(false);
+  const { data: creditPackages = [] } = useCreditPackages();
   const isContract = roleType === "remote_contract";
 
   
