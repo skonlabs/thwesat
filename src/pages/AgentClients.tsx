@@ -185,6 +185,79 @@ const AgentClients = () => {
         )}
       </div>
 
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6"
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
+              className="w-full max-w-sm rounded-2xl bg-card p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" strokeWidth={1.5} />
+                <h3 className="text-base font-bold text-foreground">
+                  {lang === "my" ? "ကုမ္ပဏီ ဖျက်မည်" : "Delete client"}
+                </h3>
+              </div>
+              {checkingLinks || linkedJobsCount === null ? (
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {lang === "my" ? "စစ်ဆေးနေသည်..." : "Checking linked jobs..."}
+                </p>
+              ) : linkedJobsCount > 0 ? (
+                <>
+                  <p className="mb-2 text-sm text-foreground">
+                    {lang === "my"
+                      ? `${deleteTarget.name} သည် အလုပ်ခေါ်စာ ${linkedJobsCount} ခုနှင့် ချိတ်ဆက်ထားသည်။`
+                      : `${deleteTarget.name} is linked to ${linkedJobsCount} job listing${linkedJobsCount === 1 ? "" : "s"}.`}
+                  </p>
+                  <p className="mb-4 text-xs text-muted-foreground">
+                    {lang === "my"
+                      ? "ဖျက်လျှင် အဆိုပါအလုပ်များ၏ ကုမ္ပဏီ အညွှန်း ပျက်သွားမည်။ ဦးစွာ အလုပ်ခေါ်စာများကို ပြင်ဆင်ပါ။"
+                      : "Deleting will leave those listings with a missing client name. Please reassign or close those jobs first."}
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-xl"
+                    onClick={() => setDeleteTarget(null)}
+                  >
+                    {lang === "my" ? "ပိတ်" : "OK"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    {lang === "my"
+                      ? `"${deleteTarget.name}" ကို အပြီးတိုင် ဖျက်မည်။ ပြန်ပြင်၍ မရပါ။`
+                      : `Permanently delete "${deleteTarget.name}"? This cannot be undone.`}
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-xl"
+                      onClick={() => setDeleteTarget(null)}
+                    >
+                      {lang === "my" ? "မလုပ်တော့" : "Cancel"}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1 rounded-xl"
+                      onClick={confirmDelete}
+                      disabled={del.isPending}
+                    >
+                      {lang === "my" ? "ဖျက်ရန်" : "Delete"}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="bottom"
