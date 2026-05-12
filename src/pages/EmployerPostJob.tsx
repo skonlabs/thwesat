@@ -628,6 +628,35 @@ const EmployerPostJob = () => {
       </Sheet>
 
       <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
+
+      <Sheet open={successOpen} onOpenChange={(o) => { if (!o) navigate(isAgent ? "/agent/dashboard" : "/employer/dashboard"); setSuccessOpen(o); }}>
+        <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="sr-only">{lang === "my" ? "တင်ပြီးပါပြီ" : "Submitted"}</SheetTitle>
+          </SheetHeader>
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald/10">
+              <CheckCircle2 className="h-8 w-8 text-emerald" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-lg font-bold">
+              {lang === "my" ? "အလုပ်ခေါ်စာ တင်ပြီးပါပြီ" : "Job submitted for review"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {lang === "my"
+                ? "Moderator မှ စစ်ဆေးပြီးနောက် အလုပ်ရှာသူများ မြင်တွေ့နိုင်ပါမည်။ ပုံမှန်အားဖြင့် ၂၄ နာရီအတွင်း ပြီးစီးပါသည်။"
+                : "A moderator will review your post shortly. Once approved, it will be visible to candidates — usually within 24 hours."}
+            </p>
+            <div className="mt-2 flex w-full flex-col gap-2">
+              <Button onClick={() => { setSuccessOpen(false); navigate(isAgent ? "/agent/jobs" : "/employer/jobs"); }} className="w-full rounded-xl">
+                {lang === "my" ? "ကျွန်ုပ်၏ အလုပ်များ ကြည့်ရန်" : "View my jobs"}
+              </Button>
+              <Button variant="outline" onClick={() => { setSuccessOpen(false); navigate(isAgent ? "/agent/dashboard" : "/employer/dashboard"); }} className="w-full rounded-xl">
+                {lang === "my" ? "Dashboard သို့" : "Back to dashboard"}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
