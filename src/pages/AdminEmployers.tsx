@@ -201,7 +201,7 @@ const AdminEmployers = () => {
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center text-sm text-muted-foreground">{lang === "my" ? "ရလဒ် မရှိပါ" : "No employers found"}</div>
         ) : (
-          <div className="space-y-2">
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((emp: any, i: number) => {
               const st = statusConfig[(emp.verification_status || "pending")] || statusConfig.pending;
               return (
