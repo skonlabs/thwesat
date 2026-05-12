@@ -277,33 +277,36 @@ export function useMarkSessionComplete() {
   return useMutation({
     mutationFn: async ({ id, role }: { id: string; role: "mentor" | "mentee" }) => {
       if (!user) throw new Error("Not authenticated");
-      const field = role === "mentor" ? "mentor_completed_at" : "mentee_completed_at";
-      const { error } = await supabase
-        .from("mentor_bookings")
-        .update({ [field]: new Date().toISOString() } as any)
-        .eq("id", id);
+      // Atomic: stamps the caller's completion timestamp and flips status to
+      // 'completed' in one txn when both sides have confirmed (no race).
+      const { data: rpcRes, error } = await (supabase as any).rpc("mark_session_complete", {
+        _booking_id: id,
+        _role: role,
+      });
       if (error) throw error;
+
       const { data: booking } = await supabase
         .from("mentor_bookings")
-        .select("mentor_id, mentee_id, scheduled_date, scheduled_time, mentor_completed_at, mentee_completed_at")
+        .select("mentor_id, mentee_id, scheduled_date, scheduled_time")
         .eq("id", id)
         .single();
       if (booking) {
         const b = booking as any;
         const otherId = role === "mentor" ? b.mentee_id : b.mentor_id;
-        const { data: senderProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
-        const senderName = senderProfile?.display_name || (role === "mentor" ? "Your mentor" : "Your mentee");
-        await supabase.from("notifications").insert({
-          user_id: otherId,
-          notification_type: "booking",
-          title: `${senderName} marked the session as complete`,
-          title_my: `${senderName} က session ပြီးဆုံးကြောင်း မှတ်သားပြီး`,
-          description: `Session on ${b.scheduled_date} at ${b.scheduled_time}. Please confirm completion on your side.`,
-          description_my: `${b.scheduled_date} ${b.scheduled_time} session။ သင့်ဘက်မှလည်း အတည်ပြုပါ။`,
-          link_path: "/mentors/bookings",
-        });
-        if (b.mentor_completed_at && b.mentee_completed_at) {
-          await supabase.from("mentor_bookings").update({ status: "completed" }).eq("id", id);
+        const bothComplete = !!(rpcRes?.mentor_completed_at && rpcRes?.mentee_completed_at);
+        // Don't pester the other side once the session is already completed.
+        if (!bothComplete) {
+          const { data: senderProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+          const senderName = senderProfile?.display_name || (role === "mentor" ? "Your mentor" : "Your mentee");
+          await supabase.from("notifications").insert({
+            user_id: otherId,
+            notification_type: "booking",
+            title: `${senderName} marked the session as complete`,
+            title_my: `${senderName} က session ပြီးဆုံးကြောင်း မှတ်သားပြီး`,
+            description: `Session on ${b.scheduled_date} at ${b.scheduled_time}. Please confirm completion on your side.`,
+            description_my: `${b.scheduled_date} ${b.scheduled_time} session။ သင့်ဘက်မှလည်း အတည်ပြုပါ။`,
+            link_path: "/mentors/bookings",
+          });
         }
       }
     },
