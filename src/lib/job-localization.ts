@@ -6,6 +6,7 @@ type Language = "my" | "en";
 type SalaryLike = {
   salary_min?: number | null;
   salary_max?: number | null;
+  salary_negotiable?: boolean | null;
   currency?: string | null;
 };
 
