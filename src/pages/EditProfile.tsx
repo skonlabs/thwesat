@@ -369,7 +369,7 @@ const EditProfile = () => {
         _version: EDIT_PROFILE_DRAFT_VERSION,
         savedAt: Date.now(),
         name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
-        skills, languages, experience, visibility, preferredWorkTypes,
+        skills, languages, experience, visibility, preferredWorkTypes, jobSearchStatus,
         hasWise, hasUpwork, hasLaptop, internetStable,
         avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
       };
