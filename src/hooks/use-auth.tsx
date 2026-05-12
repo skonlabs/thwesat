@@ -129,6 +129,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setProfile(authProfileFallback(session.user));
           // Use setTimeout to avoid potential deadlock with Supabase auth
           setTimeout(() => fetchProfile(session.user), 0);
+          // Apply intended role from OAuth signup if present.
+          if (event === "SIGNED_IN") {
+            const pending = (() => { try { return sessionStorage.getItem("thwesat_pending_role"); } catch { return null; } })();
+            if (pending) {
+              try { sessionStorage.removeItem("thwesat_pending_role"); } catch { /* ignore */ }
+              setTimeout(async () => {
+                try {
+                  await supabase.from("profiles").update({ primary_role: pending }).eq("id", session.user.id);
+                  if (pending === "employer" || pending === "agent") {
+                    await supabase.from("employer_profiles").upsert({ id: session.user.id } as any);
+                  }
+                  await supabase.rpc("set_user_role", { _user_id: session.user.id, _role: "user" } as any);
+                } catch (e) { console.error("Failed to apply pending role:", e); }
+              }, 0);
+            }
+          }
         } else {
           setProfile(null);
         }
