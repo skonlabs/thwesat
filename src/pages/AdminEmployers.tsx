@@ -117,21 +117,9 @@ const AdminEmployers = () => {
   };
 
   const handleDeleteEmployer = async (id: string) => {
-    const employerToDelete = employers.find((e: any) => e.id === id);
     try {
-      // Delete associated jobs first
-      const { error: jobsError } = await supabase.from("jobs").delete().eq("employer_id", id);
-      if (jobsError) throw jobsError;
-
-      // Delete associated notifications
-      const userId = id;
-      const { error: notifError } = await supabase.from("notifications").delete().eq("user_id", userId);
-      if (notifError) throw notifError;
-
-      // Delete employer profile
-      const { error: profileError } = await supabase.from("employer_profiles").delete().eq("id", id);
-      if (profileError) throw profileError;
-
+      const { error } = await supabase.rpc("admin_delete_employer", { _employer_id: id });
+      if (error) throw error;
       toast.success(lang === "my" ? "အလုပ်ရှင် ဖျက်ပြီး" : "Employer deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
