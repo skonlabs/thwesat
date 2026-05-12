@@ -159,26 +159,16 @@ const MentorBookings = () => {
 
   const handleAcceptProposal = async (booking: any) => {
     if (!user) return;
-    // Create a new booking with the proposed date/time
-    const { error } = await supabase.from("mentor_bookings").insert({
-      mentor_id: booking.mentor_id,
-      mentee_id: booking.mentee_id,
-      scheduled_date: booking.proposed_date,
-      scheduled_time: booking.proposed_time,
-      topic: booking.topic,
-      message: booking.message,
-      goals: booking.goals,
-      booked_by: "mentee",
-      status: "confirmed",
-    });
+    const { error } = await supabase.rpc("accept_counter_proposal", { _booking_id: booking.id });
     if (error) {
-      toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", variant: "destructive" });
+      toast({ title: lang === "my" ? "အမှားဖြစ်ပွားပါသည်" : "Error accepting proposal", description: error.message, variant: "destructive" });
       return;
     }
 
-    // Send confirmation notification back to mentor
+    // Notify the other party
+    const recipientId = user.id === booking.mentee_id ? booking.mentor_id : booking.mentee_id;
     await sendNotification.mutateAsync({
-      recipientId: booking.mentor_id,
+      recipientId,
       senderId: user.id,
       type: "booking_confirmed",
       bookingDate: booking.proposed_date,

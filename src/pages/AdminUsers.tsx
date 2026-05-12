@@ -451,22 +451,13 @@ const AdminUsers = () => {
                     variant="destructive"
                     className="flex-1 rounded-xl"
                     onClick={async () => {
-                      let deleted = false;
-                      try {
-                        // RPC delete_user_cascade is not available — fall back to direct profile delete
-                        const { error: directError } = await supabase.from("profiles").delete().eq("id", deleteConfirmId);
-                        if (!directError) {
-                          deleted = true;
-                          toast.warning(lang === "my" ? "သတိပေးချက်: ဆက်စပ်မှတ်တမ်းများ ကိုယ်တိုင်ဖျက်ရန် လိုအပ်နိုင်သည်" : "Note: some related records may need manual cleanup.");
-                        }
-                      } catch {
-                        deleted = false;
-                      }
-                      if (deleted) {
+                      if (!deleteConfirmId) return;
+                      const { error } = await supabase.rpc("delete_user_cascade", { _target_user_id: deleteConfirmId });
+                      if (error) {
+                        toast.error(lang === "my" ? "ဖယ်ရှား၍ မရပါ" : `Failed to remove user: ${error.message}`);
+                      } else {
                         toast.success(lang === "my" ? "အသုံးပြုသူ ဖယ်ရှားပြီး" : "User removed");
                         queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-                      } else {
-                        toast.error(lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove user");
                       }
                       setDeleteConfirmId(null);
                     }}

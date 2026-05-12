@@ -2011,58 +2011,67 @@ export type Database = {
     Views: {
       employer_profiles_public: {
         Row: {
+          benefits: string[] | null
           company_description: string | null
           company_linkedin: string | null
           company_name: string | null
           company_size: string | null
           company_website: string | null
-          contact_email: string | null
-          contact_name: string | null
-          contact_phone: string | null
+          cover_url: string | null
           created_at: string | null
           hq_country: string | null
           id: string | null
           industry: string | null
           is_verified: boolean | null
+          logo_url: string | null
+          mission: string | null
           payment_methods: string[] | null
           updated_at: string | null
           verification_status: string | null
+          vision: string | null
+          what_we_do: string | null
         }
         Insert: {
+          benefits?: string[] | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
           company_size?: string | null
           company_website?: string | null
-          contact_email?: never
-          contact_name?: never
-          contact_phone?: never
+          cover_url?: string | null
           created_at?: string | null
           hq_country?: string | null
           id?: string | null
           industry?: string | null
           is_verified?: boolean | null
+          logo_url?: string | null
+          mission?: string | null
           payment_methods?: string[] | null
           updated_at?: string | null
           verification_status?: string | null
+          vision?: string | null
+          what_we_do?: string | null
         }
         Update: {
+          benefits?: string[] | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
           company_size?: string | null
           company_website?: string | null
-          contact_email?: never
-          contact_name?: never
-          contact_phone?: never
+          cover_url?: string | null
           created_at?: string | null
           hq_country?: string | null
           id?: string | null
           industry?: string | null
           is_verified?: boolean | null
+          logo_url?: string | null
+          mission?: string | null
           payment_methods?: string[] | null
           updated_at?: string | null
           verification_status?: string | null
+          vision?: string | null
+          what_we_do?: string | null
         }
         Relationships: []
       }
@@ -2202,6 +2211,42 @@ export type Database = {
         Args: { _delta: number; _topup_mmk?: number; _user: string }
         Returns: undefined
       }
+      accept_counter_proposal: {
+        Args: { _booking_id: string }
+        Returns: {
+          booked_by: string | null
+          created_at: string | null
+          credits_charged: number | null
+          decline_reason: string | null
+          duration_minutes: number
+          goals: string | null
+          id: string
+          mentee_completed_at: string | null
+          mentee_id: string
+          mentor_completed_at: string | null
+          mentor_id: string
+          message: string | null
+          payment_status: string
+          proposed_date: string | null
+          proposed_time: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string | null
+          topic: string | null
+          topic_my: string | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "mentor_bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_delete_employer: {
+        Args: { _employer_id: string }
+        Returns: undefined
+      }
       can_notify: { Args: { _target_user_id: string }; Returns: boolean }
       consume_delegate_token: {
         Args: { _session_id: string; _token: string }
@@ -2210,6 +2255,10 @@ export type Database = {
           permissions: string[]
           status: string
         }[]
+      }
+      delete_user_cascade: {
+        Args: { _target_user_id: string }
+        Returns: undefined
       }
       enroll_career_track: { Args: { _track_id: string }; Returns: Json }
       get_applicant_contact: {

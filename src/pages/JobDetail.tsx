@@ -46,8 +46,8 @@ const JobDetail = () => {
           .select("id, display_name, headline, avatar_url, location, website")
           .eq("id", job.employer_id)
           .maybeSingle(),
-        supabase
-          .from("employer_profiles")
+        (supabase as any)
+          .from("employer_profiles_public")
           .select("company_name, company_description, company_website, industry, company_size, hq_country, is_verified")
           .eq("id", job.employer_id)
           .maybeSingle(),
