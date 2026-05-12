@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
 import AuthShell from "@/components/AuthShell";
+import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 30;
