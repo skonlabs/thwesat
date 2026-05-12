@@ -141,6 +141,10 @@ const EmployerPostJob = () => {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
       return;
     }
+    if (isAgent && postedByLabel === "client" && !selectedClient) {
+      toast({ title: lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company", variant: "destructive" });
+      return;
+    }
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
       navigate("/wallet");
