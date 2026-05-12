@@ -102,30 +102,57 @@ const EmployerJobs = () => {
     }
   };
 
+  const statusCounts: Record<string, number> = {
+    all: listings.length,
+    ...Object.fromEntries(JOB_STATUS_KEYS.map(k => [k, listings.filter(l => l.status === k).length])),
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Job Listings"} />
 
       <div className="mx-auto max-w-lg px-5 pt-5">
+        {/* Header row: total + post CTA */}
         <div className="mb-4 flex items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">
-            {listings.length} {lang === "my" ? "စုစုပေါင်း" : "total"}
-          </p>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "ခေါ်ယူမှု" : "Postings"}
+            </p>
+            <p className="text-lg font-bold text-foreground leading-tight">
+              {listings.length} <span className="text-xs font-medium text-muted-foreground">{lang === "my" ? "စုစုပေါင်း" : "total"}</span>
+            </p>
+          </div>
           <Button size="sm" className="rounded-xl" onClick={() => navigate("/employer/post-job")}>
             <Plus className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အလုပ်တင်ရန်" : "Post Job"}
           </Button>
         </div>
 
-        <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-          {["all", "active", "pending", "paused", "closed", "rejected"].map(f => (
-            <button
-              key={f}
-              onClick={() => updateFilter(f)}
-              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f ? "bg-primary text-primary-foreground" : "border border-border bg-card text-muted-foreground"}`}
-            >
-              {f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en)}
-            </button>
-          ))}
+        {/* KPI tile filters — consistent with Applications pipeline */}
+        <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+          {lang === "my" ? "အခြေအနေအလိုက်" : "By status"}
+        </p>
+        <div className="mb-5 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
+          {(["all", ...JOB_STATUS_KEYS] as const).map((f) => {
+            const active = filter === f;
+            const tone =
+              f === "all" ? "border-border" :
+              f === "active" ? "border-emerald/40" :
+              f === "pending" ? "border-amber-400" :
+              f === "paused" ? "border-border" :
+              f === "closed" ? "border-border" :
+              "border-destructive/40";
+            const label = f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en);
+            return (
+              <button
+                key={f}
+                onClick={() => updateFilter(f)}
+                className={`min-w-[68px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
+              >
+                <p className="text-lg font-bold leading-tight text-foreground">{statusCounts[f] ?? 0}</p>
+                <p className="mt-0.5 text-[9px] font-medium leading-tight text-muted-foreground">{label}</p>
+              </button>
+            );
+          })}
         </div>
 
         <div className="space-y-3">
