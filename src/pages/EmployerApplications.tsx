@@ -110,7 +110,10 @@ const EmployerApplications = () => {
   };
 
   const apps = applications || [];
-  const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
+  const scopedJob = jobIdParam ? (employerJobs.find((j: any) => j.id === jobIdParam) || apps[0]?.jobs || null) : null;
+  const scopedJobTitle = scopedJob ? ((lang === "my" && scopedJob.title_my) ? scopedJob.title_my : scopedJob.title) : null;
+  const scopedJobCompany = scopedJob?.company || null;
+  const scopedJobLocation = scopedJob?.location || null;
   const filtered = apps.filter((a: any) => {
     // Placed applications only appear on the "placed" filter tab
     if (a.status === "placed" && filter !== "placed") return false;
@@ -265,7 +268,12 @@ const EmployerApplications = () => {
   };
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
+      <PageHeader
+        title={jobIdParam ? (scopedJobTitle || L.applications[lang]) : L.applications[lang]}
+        backPath="/employer/dashboard"
+        onBack={jobIdParam ? () => setJobScope(undefined) : undefined}
+        showBack
+      />
       <div className="px-5">
         {!jobIdParam ? (
           <>
@@ -402,20 +410,21 @@ const EmployerApplications = () => {
           </>
         ) : (
           <>
-            {/* Scoped view — back to all postings */}
-            <button
-              onClick={() => setJobScope(undefined)}
-              className="mb-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-[11px] font-medium text-muted-foreground hover:bg-muted active:bg-muted"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
-              {lang === "my" ? "အလုပ်အားလုံး" : "All postings"}
-            </button>
-            <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2.5">
+            {/* Scoped job context — title is in PageHeader; this strip shows company/location + applicant count */}
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2">
               <Briefcase className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={1.5} />
-              <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
-                {scopedJobTitle || ""}
-              </span>
-              <span className="shrink-0 text-[10px] text-muted-foreground">
+              <div className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground">
+                <span className="font-medium text-foreground">{lang === "my" ? "လျှောက်ထားသူများ" : "Applicants for"}</span>
+                {scopedJobCompany ? <span> · {scopedJobCompany}</span> : null}
+                {scopedJobLocation ? <span> · {scopedJobLocation}</span> : null}
+              </div>
+              <button
+                onClick={() => setJobScope(undefined)}
+                className="shrink-0 rounded-md px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/10"
+              >
+                {lang === "my" ? "ပြောင်း" : "Change"}
+              </button>
+              <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                 {apps.length} {lang === "my" ? "လျှောက်ထား" : `applicant${apps.length === 1 ? "" : "s"}`}
               </span>
             </div>
