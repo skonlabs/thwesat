@@ -138,9 +138,9 @@ const EmployerFinance = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ငွေကြေး မှတ်တမ်း" : "Finance"} showBack />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
         <FinanceLedger
           isLoading={isLoading}
           totals={[
