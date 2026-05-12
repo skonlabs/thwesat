@@ -44,10 +44,15 @@ const HomePage = () => {
   // roles, so no redirect effect is needed here. Removing the previous
   // navigate() avoided a flash of HomePage before redirect.
 
-  // Featured jobs personalized: when we have match scores, rank featured jobs by similarity.
+  // Featured jobs personalized: when we have match scores, only show featured jobs
+  // that actually match the seeker's profile (similarity > 0), ranked by similarity.
+  // Falls back to all featured when matches aren't ready yet (cold start).
   const allFeatured = (jobs || []).filter((j: any) => j.is_featured);
   const featuredJobs = hasMatches
-    ? [...allFeatured].sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0)).slice(0, 5)
+    ? allFeatured
+        .filter((j: any) => (scoreMap!.get(j.id) ?? 0) > 0)
+        .sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0))
+        .slice(0, 5)
     : allFeatured.slice(0, 5);
   const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
 
