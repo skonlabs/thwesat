@@ -218,7 +218,7 @@ const AdminUsers = () => {
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((user: any, i: number) => {
                 const sysRoles = roleMap.get(user.id) || [];
                 const isAdminUser = sysRoles.includes("admin");

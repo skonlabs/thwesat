@@ -47,7 +47,7 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "မက်ဆေ့ချ်များ" : "Messages"} />
-      <div className="px-5">
+      <div className="mx-auto w-full max-w-3xl px-5">
         <div className="mb-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <Lock className="h-3 w-3" strokeWidth={1.5} />
           <span>{lang === "my" ? "ပုဂ္ဂိုလ်ရေး စကားဝိုင်း" : "Private conversations"}</span>
@@ -85,7 +85,7 @@ const Messages = () => {
           )}
         </div>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="mx-auto w-full max-w-3xl divide-y divide-border">
           {filtered.map((conv: any, i: number) => (
             <motion.button
               key={conv.id}
