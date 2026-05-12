@@ -179,6 +179,7 @@ const EmployerJobs = () => {
                   : `Showing ${pageStart + 1}–${pageEnd} of ${totalFiltered} jobs`}
               </p>
             )}
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
               const m = getApplicationMethodLabel((listing as any).application_method, lang);
