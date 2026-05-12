@@ -498,10 +498,14 @@ const EmployerPostJob = () => {
             <p className="text-[11px] text-muted-foreground">{lang === "my" ? "အလုပ်ရှာသူများ မြင်တွေ့မည့် ပုံစံ" : "How job seekers will see this listing"}</p>
           </SheetHeader>
           {(() => {
+            const displayCompany = isAgent && postedByLabel === "client" && selectedClient
+              ? selectedClient.name
+              : (employerProfile?.company_name || (lang === "my" ? "(ကုမ္ပဏီ)" : "(Company)"));
+            const displayLogo = isAgent && postedByLabel === "client" ? selectedClient?.logo_url : null;
             const previewJob = {
               title: titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)"),
               title_my: titleMy,
-              company: employerProfile?.company_name || (lang === "my" ? "(ကုမ္ပဏီ)" : "(Company)"),
+              company: displayCompany,
               location: locationCountry,
               role_type: roleType,
               job_type: roleType,
