@@ -2247,6 +2247,7 @@ export type Database = {
         Args: { _employer_id: string }
         Returns: undefined
       }
+      approve_job: { Args: { _job_id: string }; Returns: Json }
       can_notify: { Args: { _target_user_id: string }; Returns: boolean }
       consume_delegate_token: {
         Args: { _session_id: string; _token: string }
@@ -2370,10 +2371,10 @@ export type Database = {
       wallet_spend: {
         Args: {
           _action_key: string
-          _idempotency_key?: string
+          _idempotency_key: string
           _metadata?: Json
-          _target_id?: string
-          _target_type?: string
+          _target_id: string
+          _target_type: string
         }
         Returns: Json
       }

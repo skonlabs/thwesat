@@ -136,12 +136,16 @@ const EmployerApplications = () => {
     enabled: !!selected?.applicant_id && isContactUnlocked,
   });
 
-  // Auto-mark application as "viewed" when the employer opens it
+  // Auto-mark application as "viewed" when the employer opens it.
+  // Guard with sessionStorage so accidental re-opens within the same session
+  // don't spam the applicant with duplicate notifications/emails.
   useEffect(() => {
     if (!selected) return;
-    if (NEW_APPLICATION_STATUSES.includes(selected.status)) {
-      updateStatus.mutate({ id: selected.id, status: "viewed" });
-    }
+    if (!NEW_APPLICATION_STATUSES.includes(selected.status)) return;
+    const key = `app-viewed:${selected.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    updateStatus.mutate({ id: selected.id, status: "viewed" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 

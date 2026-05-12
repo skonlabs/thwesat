@@ -139,9 +139,15 @@ const Profile = () => {
   };
 
   const deleteCv = async (id: string, fileUrl: string) => {
+    // Delete the row FIRST so a storage-cleanup failure can never leave a
+    // dangling DB record pointing at a missing file.
+    const { error } = await supabase.from("cv_documents").delete().eq("id", id);
+    if (error) return;
     const path = getCvStoragePath(fileUrl);
-    if (path) await supabase.storage.from("cv-documents").remove([path]);
-    await supabase.from("cv_documents").delete().eq("id", id);
+    if (path) {
+      // Best-effort storage cleanup; row is already gone.
+      await supabase.storage.from("cv-documents").remove([path]).catch(() => {});
+    }
     refetchCvs();
   };
 
