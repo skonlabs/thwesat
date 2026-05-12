@@ -52,47 +52,6 @@ const PublicProfile = () => {
     enabled: !!id,
   });
 
-  // CVs — only fetched for hiring side viewing a job seeker
-  const { data: cvDocuments = [] } = useQuery({
-    queryKey: ["public-profile-cvs", id],
-    queryFn: async () => {
-      if (!id) return [];
-      const { data } = await supabase
-        .from("cv_documents")
-        .select("id, file_name, file_url, is_primary, created_at, file_size_bytes")
-        .eq("user_id", id)
-        .order("is_primary", { ascending: false })
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!id && isHiringSide && profile?.primary_role === "jobseeker",
-  });
-
-  const getCvStoragePath = (fileUrl: string) => {
-    if (!fileUrl) return "";
-    if (fileUrl.includes("/cv-documents/")) return fileUrl.split("/cv-documents/").pop() || "";
-    return fileUrl;
-  };
-  const openCv = async (fileUrl: string) => {
-    const path = getCvStoragePath(fileUrl);
-    if (!path) return;
-    const { data } = await supabase.storage.from("cv-documents").createSignedUrl(path, 300);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-  };
-  const downloadCv = async (fileUrl: string, fileName: string) => {
-    const path = getCvStoragePath(fileUrl);
-    if (!path) return;
-    const { data } = await supabase.storage.from("cv-documents").download(path);
-    if (!data) return;
-    const url = URL.createObjectURL(data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName || "cv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
 
   if (isLoading) {
     return (
