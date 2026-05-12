@@ -1594,6 +1594,7 @@ export type Database = {
           headline: string | null
           id: string
           internet_stable: boolean | null
+          job_search_status: string
           languages: string[] | null
           last_seen_at: string | null
           location: string | null
@@ -1628,6 +1629,7 @@ export type Database = {
           headline?: string | null
           id: string
           internet_stable?: boolean | null
+          job_search_status?: string
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
@@ -1662,6 +1664,7 @@ export type Database = {
           headline?: string | null
           id?: string
           internet_stable?: boolean | null
+          job_search_status?: string
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
