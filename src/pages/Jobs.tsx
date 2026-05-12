@@ -513,12 +513,16 @@ const Jobs = () => {
         )}
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/8">
-              <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/8">
+              {(job as any).client_logo_url ? (
+                <img src={(job as any).client_logo_url} alt={(job as any).client_company_name || job.company} className="h-full w-full object-cover" />
+              ) : (
+                <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
+              )}
             </div>
             <div className="min-w-0">
               <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{(job as any).client_company_name || job.company}</p>
             </div>
           </div>
           <button className="flex-shrink-0 text-muted-foreground transition-colors hover:text-accent" onClick={(e) => handleToggleSave(job.id, e)} aria-label={isSaved ? "Unsave job" : "Save job"}>
