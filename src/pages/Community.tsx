@@ -430,7 +430,7 @@ const Community = () => {
       </AnimatePresence>
 
       {/* Posts */}
-      <div className="space-y-2.5 px-5 pb-24">
+      <div className={posts.length > 0 && !isLoading ? "grid gap-2.5 px-5 pb-24 md:grid-cols-2 xl:grid-cols-3" : "space-y-2.5 px-5 pb-24"}>
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : posts.length === 0 ? (
