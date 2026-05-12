@@ -198,11 +198,16 @@ const PublicProfile = () => {
                     <MapPin className="h-3 w-3" strokeWidth={1.5} /> {profile.location}
                   </span>
                 )}
-                {profile.remote_ready && (
-                  <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">
-                    {lang === "my" ? "ရနိုင်" : "Available"}
-                  </span>
-                )}
+                {profile.primary_role === "jobseeker" && (() => {
+                  const s = (profile as any).job_search_status || "open";
+                  const map: Record<string, { en: string; my: string; cls: string }> = {
+                    open: { en: "Open for Job", my: "အလုပ်လက်ခံနိုင်", cls: "bg-emerald/10 text-emerald" },
+                    casual: { en: "Casually Looking", my: "လေ့လာနေဆဲ", cls: "bg-accent/15 text-accent-foreground" },
+                    not_looking: { en: "Not Looking", my: "မရှာသေး", cls: "bg-muted text-muted-foreground" },
+                  };
+                  const m = map[s] || map.open;
+                  return <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${m.cls}`}>{lang === "my" ? m.my : m.en}</span>;
+                })()}
               </div>
             </div>
           </div>
