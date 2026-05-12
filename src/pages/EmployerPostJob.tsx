@@ -94,6 +94,7 @@ const EmployerPostJob = () => {
   const spend = useSpendCredits();
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
   const postPrice = useActionPrice("job_post");
   const featurePrice = useActionPrice("featured_job");
   const { data: wallet } = useWallet();
