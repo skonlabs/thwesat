@@ -532,8 +532,12 @@ const EmployerPostJob = () => {
                   )}
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
-                        <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-accent/15">
+                        {displayLogo ? (
+                          <img src={displayLogo} alt={displayCompany} className="h-full w-full object-cover" />
+                        ) : (
+                          <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                        )}
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-foreground">{displayTitle || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>
