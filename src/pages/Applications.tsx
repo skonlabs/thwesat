@@ -81,7 +81,7 @@ const Applications = () => {
   });
   const isAgentOffer = offerEmployer?.primary_role === "agent";
   const offerSalary = Number(selected?.jobs?.salary_max || selected?.jobs?.salary_min || 0);
-  const offerFee = isAgentOffer && offerSalary > 0 ? Math.round(offerSalary * 0.08) : 0;
+  const offerFee = isAgentOffer && offerSalary > 0 ? calculatePlacementFee(offerSalary) : 0;
 
   const ACTION_STATUSES = ["offered", "interview", "interviewed"];
   const PROGRESS_STATUSES = ["applied", "submitted", "viewed", "shortlisted"];
