@@ -184,11 +184,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    // Clear React state immediately so route guards redirect to /login even
-    // if the network call below is slow or fails.
-    setProfile(null);
-    setUser(null);
-    setSession(null);
+    // NOTE: Do NOT clear React state here — it would trigger route guards to
+    // navigate to /login synchronously, causing an extra render/redirect cycle
+    // before the hard reload below. The hard reload at the end resets all
+    // in-memory state cleanly.
     clearRole();
 
     // Best-effort global revoke (invalidates refresh tokens server-side).
