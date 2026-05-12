@@ -267,14 +267,14 @@ const EmployerApplications = () => {
     catch (err: any) { toast.error((lang === "my" ? "မအောင်မြင်ပါ: " : "Failed: ") + (err?.message || "unknown")); }
   };
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader
         title={jobIdParam ? (scopedJobTitle || L.applications[lang]) : L.applications[lang]}
         backPath="/employer/dashboard"
         onBack={jobIdParam ? () => setJobScope(undefined) : undefined}
         showBack
       />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
         {!jobIdParam ? (
           <>
             {/* Postings index — pick a job to drill into its candidate pipeline */}
