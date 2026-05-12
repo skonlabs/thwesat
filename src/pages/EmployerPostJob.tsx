@@ -485,9 +485,9 @@ const EmployerPostJob = () => {
             <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={spend.isPending}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {spend.isPending ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} credits ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} credits`)}
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} credits ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} credits`)}
               </Button>
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
