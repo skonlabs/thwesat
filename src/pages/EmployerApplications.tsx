@@ -110,7 +110,10 @@ const EmployerApplications = () => {
   };
 
   const apps = applications || [];
-  const scopedJobTitle = jobIdParam ? (apps[0]?.jobs?.title || null) : null;
+  const scopedJob = jobIdParam ? (employerJobs.find((j: any) => j.id === jobIdParam) || apps[0]?.jobs || null) : null;
+  const scopedJobTitle = scopedJob ? ((lang === "my" && scopedJob.title_my) ? scopedJob.title_my : scopedJob.title) : null;
+  const scopedJobCompany = scopedJob?.company || null;
+  const scopedJobLocation = scopedJob?.location || null;
   const filtered = apps.filter((a: any) => {
     // Placed applications only appear on the "placed" filter tab
     if (a.status === "placed" && filter !== "placed") return false;
