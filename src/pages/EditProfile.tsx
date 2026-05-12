@@ -285,6 +285,7 @@ const EditProfile = () => {
   const [experience, setExperience] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [preferredWorkTypes, setPreferredWorkTypes] = useState<string[]>([]);
+  const [jobSearchStatus, setJobSearchStatus] = useState<"open" | "casual" | "not_looking">("open");
   const [hasWise, setHasWise] = useState(false);
   const [hasUpwork, setHasUpwork] = useState(false);
   const [hasLaptop, setHasLaptop] = useState(false);
