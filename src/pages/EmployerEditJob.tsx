@@ -67,6 +67,12 @@ const EmployerEditJob = () => {
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
 
+  const role = useRole(s => s.role);
+  const isAgent = role === "agent";
+  const { data: agentClients = [] } = useAgentClients();
+  const [postedByLabel, setPostedByLabel] = useState<"self" | "client">("self");
+  const [selectedClient, setSelectedClient] = useState<AgentClient | null>(null);
+
   useEffect(() => {
     if (job) {
       setTitleEn(job.title || "");
