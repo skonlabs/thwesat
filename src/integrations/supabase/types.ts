@@ -80,6 +80,45 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_clients: {
+        Row: {
+          agent_id: string
+          created_at: string
+          id: string
+          industry: string | null
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       app_config: {
         Row: {
           key: string
@@ -806,10 +845,13 @@ export type Database = {
       }
       jobs: {
         Row: {
+          agent_client_id: string | null
           applicant_count: number | null
           application_method: string | null
           categories: string[]
           category: string | null
+          client_company_name: string | null
+          client_logo_url: string | null
           company: string
           contract_duration_months: number | null
           contract_duration_note: string | null
@@ -830,6 +872,7 @@ export type Database = {
           job_type: string | null
           location: string | null
           payment_methods: string[] | null
+          posted_by_label: string
           rejection_reason: string | null
           requirements: string | null
           requirements_my: string | null
@@ -847,10 +890,13 @@ export type Database = {
           visa_sponsorship: boolean | null
         }
         Insert: {
+          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
           category?: string | null
+          client_company_name?: string | null
+          client_logo_url?: string | null
           company?: string
           contract_duration_months?: number | null
           contract_duration_note?: string | null
@@ -871,6 +917,7 @@ export type Database = {
           job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
+          posted_by_label?: string
           rejection_reason?: string | null
           requirements?: string | null
           requirements_my?: string | null
@@ -888,10 +935,13 @@ export type Database = {
           visa_sponsorship?: boolean | null
         }
         Update: {
+          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
           category?: string | null
+          client_company_name?: string | null
+          client_logo_url?: string | null
           company?: string
           contract_duration_months?: number | null
           contract_duration_note?: string | null
@@ -912,6 +962,7 @@ export type Database = {
           job_type?: string | null
           location?: string | null
           payment_methods?: string[] | null
+          posted_by_label?: string
           rejection_reason?: string | null
           requirements?: string | null
           requirements_my?: string | null
@@ -928,7 +979,15 @@ export type Database = {
           updated_at?: string | null
           visa_sponsorship?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "jobs_agent_client_id_fkey"
+            columns: ["agent_client_id"]
+            isOneToOne: false
+            referencedRelation: "agent_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mentor_availability_slots: {
         Row: {
