@@ -271,7 +271,7 @@ const EmployerApplications = () => {
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className={filtered.length > 0 && !isLoading ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
           {isLoading ? (
             <div className="flex flex-col items-center py-12 text-center">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
