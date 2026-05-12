@@ -353,8 +353,20 @@ const EmployerJobs = () => {
         {deleteConfirmId && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 px-6" onClick={() => setDeleteConfirmId(null)}>
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={e => e.stopPropagation()}>
-              <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်မည်" : "Delete Job Listing"}</h3>
-              <p className="mb-4 text-sm text-muted-foreground">{lang === "my" ? "ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။ ဆက်လုပ်မည်လား?" : "This action cannot be undone. Continue?"}</p>
+              {(() => {
+                const job = listings.find(l => l.id === deleteConfirmId);
+                const count = job?.applicant_count || 0;
+                return (
+                  <>
+                    <h3 className="mb-2 text-base font-bold text-foreground">{lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်မည်" : "Delete Job Listing"}</h3>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      {lang === "my"
+                        ? `ဤလုပ်ဆောင်ချက်ကို ပြန်ပြင်၍ မရပါ။${count > 0 ? ` ဆက်စပ်လျှောက်လွှာ ${count} ခုပါ ဖျက်ပစ်မည်။` : ""} ဆက်လုပ်မည်လား?`
+                        : `This action cannot be undone.${count > 0 ? ` ${count} application${count === 1 ? "" : "s"} will also be permanently deleted.` : ""} Continue?`}
+                    </p>
+                  </>
+                );
+              })()}
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setDeleteConfirmId(null)}>{lang === "my" ? "မလုပ်တော့" : "Cancel"}</Button>
                 <Button variant="destructive" className="flex-1 rounded-xl" onClick={() => handleDeleteJob(deleteConfirmId)}>{lang === "my" ? "ဖျက်ရန်" : "Delete"}</Button>
