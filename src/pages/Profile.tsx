@@ -232,7 +232,13 @@ const Profile = () => {
     : isModerator
       ? moderatorMenu
         : effectiveRole === "employer" || effectiveRole === "agent"
-        ? (effectiveRole === "agent" ? employerMenu.filter(m => m.path !== "/employer/applications") : employerMenu)
+        ? (effectiveRole === "agent"
+            ? [
+                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(0, 2),
+                { icon: Building2, label: lang === "my" ? "သုံးစွဲသူ ကုမ္ပဏီများ" : "Client Companies", path: "/agent/clients" },
+                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(2),
+              ]
+            : employerMenu)
           : effectiveRole === "mentor"
           ? mentorMenu
           : jobseekerMenu;
