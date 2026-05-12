@@ -384,7 +384,7 @@ const Applications = () => {
           };
 
           if (filter !== "all") {
-            return <div className="space-y-2.5">{filteredApps.map(renderCard)}</div>;
+            return <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">{filteredApps.map(renderCard)}</div>;
           }
 
           const action = filteredApps.filter((a: any) => ACTION_STATUSES.includes(a.status));
