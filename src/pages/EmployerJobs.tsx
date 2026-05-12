@@ -351,6 +351,11 @@ const EmployerJobs = () => {
                                 <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပိတ်ရန်" : "Close"}
                               </button>
                             )}
+                            {(listing.status === "closed" || listing.status === "rejected") && (
+                              <button onClick={() => handleRepost(listing.id)} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-primary hover:bg-primary/5">
+                                <Copy className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြန်တင်ရန်" : "Repost as new draft"}
+                              </button>
+                            )}
                             <button onClick={() => { setStatusMenuId(null); setDeleteConfirmId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-destructive hover:bg-destructive/5">
                               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ဖျက်ရန်" : "Delete"}
                             </button>
