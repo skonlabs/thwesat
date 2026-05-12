@@ -1,93 +1,57 @@
-## Goal
-Make the **My Jobs** and **Applications/Candidates** screens usable for employers and agents handling **50+ postings × 1000s of candidates each**. Today both screens force scrolling through cards and opening a modal for every triage action. We will redesign them as a focused ATS workflow.
+## Context
 
-## Problems with current UX
+Agent and Employer share the same screen files (`EmployerJobs.tsx`, `EmployerApplications.tsx`, `EmployerPostJob.tsx`, `EmployerFinance.tsx`, `SearchTalent.tsx`, `EmployerEditCompany.tsx`) — only the dashboard is role-specific. The complaint isn't that "Agent looks different from Employer" — it's that all of these shared screens are noticeably worse than the polished Agent Dashboard. This plan brings them up to that bar.
 
-**My Jobs page**
-- Each job card has 3 stacked sections (header + applicant chips + action bar) → very tall, only 4–5 visible at a time.
-- KPI status filter row + per-card chips are duplicated information.
-- Actions hidden behind a `MoreVertical` menu.
+The existing `.lovable/plan.md` already covers My Jobs + Applications redesign. I'll execute that plus extend the polish to the other three.
 
-**Applications page (per job)**
-- After clicking a job, candidates are shown as big cards with no inline action — every shortlist / reject / message requires opening a bottom-sheet modal. Reviewing 100 CVs = 100 modal opens.
-- No bulk actions, no sort, no keyboard nav.
-- Pipeline tiles wrap awkwardly on desktop.
-- Detail lives in a small mobile bottom-sheet even on a 1440px screen.
+## What changes
 
-## Redesign
-
-### 1. My Jobs → compact rows + inline pipeline summary
-Replace the 3-section card with a **single dense row** (responsive: row on md+, stacked on mobile):
-
-```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ ● Active   Senior React Dev — Acme Co.            New 12  Short 4  Intv 2  │
-│ Posted 3d · Apply on platform                     [Review →] [⋯ menu]       │
-└──────────────────────────────────────────────────────────────────────────────┘
-```
-
-- Status dot replaces the badge column.
-- Pipeline counts inline as clickable chips that deep-link straight into that stage of the candidate pipeline (e.g. `?jobId=…&stage=new`).
-- Primary CTA "Review candidates" jumps to the pipeline view.
-- Edit / Share / Pause / Close / Delete / Promote moved into a single `⋯` menu so the row stays clean.
+### 1. My Jobs (`EmployerJobs.tsx`)
+- Replace tall 3-section cards with a **single dense row** per job: status dot · title/company · inline pipeline chips (New / Short / Intv) · `Review →` CTA · `⋯` menu (Edit, Share, Pause, Close, Delete, Promote).
+- Pipeline chips deep-link to Applications with `?jobId=…&stage=…`.
+- KPI tiles tightened, only show counts > 0.
 - Search box at top to filter postings by title/company.
-- Keep status KPI tiles, but tighten them and only show counts > 0 by default.
+- Mobile: same row stacks vertically; actions stay inline.
 
-### 2. Applications → two-pane ATS pipeline (master–detail)
+### 2. Applications (`EmployerApplications.tsx`)
+- Two-pane ATS layout on `md+`:
+  - Left: candidate list rows with avatar, name, top skills, location, time-ago, hover quick-actions (✓ Shortlist, ✕ Reject, 💬 Message). Checkbox column for bulk select.
+  - Right: sticky candidate detail (replaces bottom-sheet modal).
+- Stage tabs row (All · New · Shortlisted · Interview · Offered · Placed · Rejected) — single row, no duplicate "Pipeline" header.
+- Bulk action bar (Shortlist, Reject, Message) when rows selected.
+- Sort + search kept; pagination 50/page.
+- Mobile: detail collapses back to existing bottom-sheet, list rows keep inline quick-actions.
 
-This is the core change. On md+ screens we use a **resizable two-pane layout**:
+### 3. Post Job (`EmployerPostJob.tsx`)
+- Reduce from 2 long steps to a **single scrollable form with section anchors** (Details · Compensation · Requirements · Application Method). Stepper bar replaced with anchor pills.
+- Group salary + currency + negotiable into one row.
+- Sticky bottom bar with credit cost + Submit (no separate "next" → "submit" navigation).
+- Live preview kept but moved to a slide-over instead of inline sheet.
 
-```text
-┌─ Posting bar: Senior React Dev (← All postings)  · 247 candidates ──────────┐
-├─ Stage tabs: All 247 · New 12 · Short 18 · Intv 6 · Offered 2 · Placed 1 ─┤
-├──────────────────────────────────────────────────┬──────────────────────────┤
-│ ▣  Search by name, skill, location…   [Sort ▾] │  Candidate detail        │
-│ ──────────────────────────────────────────────── │  ─────────────────────── │
-│ ☐ ⓜ Mya Mya Aung  · React, TS · Yangon  · 2h │  Avatar · Name           │
-│ ☐ ⓢ Hla Hla     · Node, AWS · Mandalay · 5h │  Headline · Location      │
-│ ☑ ⓚ Kyaw Kyaw  · React Native · YGN · 1d ▸│  [Profile] [Message]      │
-│ ☐ …                                           │                          │
-│ ──────────────────────────────────────────────── │  Skills · Cover letter  │
-│ Bulk: [Shortlist] [Reject…] [Message]          │  Status history          │
-│        2 selected                                 │  Stage actions:         │
-│ Page 1 / 13                                       │  Shortlist / Interview  │
-│                                                   │  Offer / Place / Reject │
-└──────────────────────────────────────────────────┴──────────────────────────┘
-```
+### 4. Finance (`EmployerFinance.tsx`)
+- Match Agent Finance: header KPI row (Total Earnings · This Month · Pending) → ledger table → filters in a slim toolbar instead of stacked card.
+- Empty state matches Agent.
 
-Key features:
+### 5. Search Talent (`SearchTalent.tsx`)
+- Same grid pattern as Agent Search: `grid gap-3 md:grid-cols-2 xl:grid-cols-3` with compact candidate cards (avatar · name · headline · top skills · status badge · Message/View buttons).
+- Filters move to bottom-sheet trigger button (matches mem://features/search-filters).
 
-- **Left list** — compact rows with avatar, name, headline, top 2 skills, location, time-ago, status pill. Hover reveals quick-action icons (✓ Shortlist, ✕ Reject, 💬 Message) so most triage happens without opening detail.
-- **Right pane** — replaces the bottom-sheet modal. On mobile it slides up as a sheet (existing behavior preserved); on md+ it's a sticky right column.
-- **Bulk select** — checkbox column + sticky bulk-action bar (Shortlist, Reject with reason, Message via template, Move to interview).
-- **Sort** — Newest, Oldest, Skill match (existing), Last activity.
-- **Search** — name, headline, location, skills (already there, kept).
-- **Stage tabs** — single horizontal row, no duplicate "Pipeline" header. Stages reorder by funnel: All · New · Shortlisted · Interview · Offered · Placed · Rejected.
-- **Pagination / virtualized** — page through 50 at a time so a 1000-candidate list stays fast.
-- **Auto-mark viewed** stays.
-- **Keyboard**: `j/k` next/prev candidate, `s` shortlist, `r` reject, `m` message, `[` `]` switch stage.
+### 6. Company (`EmployerEditCompany.tsx`)
+- Match Agent Profile pattern: hero card with logo + verified badge, sectioned form below (About · Contact · Industry · Locations).
+- Save bar sticks to bottom while scrolling.
 
-### 3. Mobile behavior
-On screens < md, the right pane collapses back into the existing bottom-sheet modal so we don't regress mobile. Inline quick-actions stay on rows.
+## Scope & wording
 
-### 4. Shared changes
-- One `CandidateRow` component used by both desktop list and (with denser variant) the mobile drill-down.
-- `PipelineStageTabs` extracted from current inline JSX.
-- Reject/Place/Interview-date dialogs are reused as-is.
-- Deep-link query params: `?jobId=…&stage=new&q=react&sort=newest&sel=<id>` so refreshing/back keeps state and we can link from the Jobs page rows.
-
-## Technical notes
-
-- All work is presentation-layer in `src/pages/EmployerJobs.tsx` and `src/pages/EmployerApplications.tsx`, plus 2 small extracted components in `src/components/employer/`. No DB/RLS/business-logic changes — same hooks (`useEmployerJobs`, `useEmployerApplications`, `useUpdateApplicationStatus`).
-- Two-pane layout uses CSS grid `md:grid-cols-[minmax(360px,_1fr)_minmax(420px,_1.2fr)]` with `lg:grid-cols-[420px_1fr]`. No new resize lib — keep static breakpoints.
-- Keep applies-on-the-fly URL state via `useSearchParams` (already in use). New params: `stage`, `sort`, `q`, `sel`.
-- Bulk actions = `Promise.all` over existing `useUpdateApplicationStatus.mutateAsync` with a single toast summarising successes/failures.
-- Virtualization: start with simple pagination (50/page); only add `react-virtual` if a real list exceeds ~500 items in profiling.
+- Wording stays employer-side (Applicants, Hires, Company) — not Agent-side (Candidates, Placements, Client). That decision was already locked in.
+- Pure presentation work — no DB, RLS, or business-logic changes. Same hooks (`useEmployerJobs`, `useEmployerApplications`, `useUpdateApplicationStatus`, `useEmployerFinance`).
 - No new dependencies.
 
-## Out of scope
-- Drag-and-drop Kanban (slow at 1000s of cards; tabs + bulk actions cover the same need).
-- Saved views / smart filters (can come later).
-- Comments / internal notes per candidate (separate feature).
+## Order I'll ship
 
-Once you approve, I'll ship this in one pass.
+1. My Jobs (highest visible impact)
+2. Applications (core daily workflow)
+3. Search Talent + Finance (quick polish)
+4. Post Job (form refactor)
+5. Company (last; simple form)
+
+This will land across multiple turns — I'll ship one screen per turn so you can review each before I move on. Sound good?
