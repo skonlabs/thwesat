@@ -153,8 +153,10 @@ export function useMyTopupRequests() {
 }
 
 export async function uploadTopupProof(userId: string, file: File): Promise<string> {
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${userId}/topup/${Date.now()}.${ext}`;
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+  // Random suffix prevents same-millisecond double-click collisions (audit C3).
+  const rand = Math.random().toString(36).slice(2, 8);
+  const path = `${userId}/topup/${Date.now()}-${rand}.${ext || "jpg"}`;
   const { error } = await supabase.storage.from("payment-proofs").upload(path, file, { upsert: false });
   if (error) throw error;
   return path;
