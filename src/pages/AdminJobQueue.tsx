@@ -272,7 +272,7 @@ const AdminJobQueue = () => {
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {jobs.map((job: any, i: number) => {
                 const sc = statusConfig[job.status] || statusConfig.pending;
                 const isSelected = selectedJobIds.has(job.id);
