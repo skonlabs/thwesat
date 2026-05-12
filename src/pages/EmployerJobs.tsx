@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Plus, Clock, CheckCircle, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Link2, Mail, Send, Share2, Loader2, MoreVertical, History, Sparkles } from "lucide-react";
+import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -37,6 +38,7 @@ const EmployerJobs = () => {
   const editJobPath = (id: string) => isAgent ? `/agent/edit-job/${id}` : `/employer/edit-job/${id}`;
   const { data: breakdown } = useEmployerJobApplicantBreakdown();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [sharingId, setSharingId] = useState<string | null>(null);
@@ -87,7 +89,18 @@ const EmployerJobs = () => {
   };
 
   const listings = jobs || [];
-  const filtered = filter === "all" ? listings : listings.filter(l => l.status === filter);
+  const q = search.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    let base = filter === "all" ? listings : listings.filter(l => l.status === filter);
+    if (q) {
+      base = base.filter(l =>
+        (l.title || "").toLowerCase().includes(q) ||
+        (l.title_my || "").toLowerCase().includes(q) ||
+        (l.company || "").toLowerCase().includes(q)
+      );
+    }
+    return base;
+  }, [listings, filter, q]);
   const totalFiltered = filtered.length;
   const pageStart = page * PAGE_SIZE;
   const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);
@@ -112,10 +125,10 @@ const EmployerJobs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Job Listings"} />
 
-      <div className="px-5 pt-5">
+      <div className="mx-auto max-w-6xl px-5 pt-5 md:px-8">
         {/* Header row: total + post CTA */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
@@ -131,31 +144,35 @@ const EmployerJobs = () => {
           </Button>
         </div>
 
-        {/* KPI tile filters — consistent with Applications pipeline */}
-        <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
-          {lang === "my" ? "အခြေအနေအလိုက်" : "By status"}
-        </p>
-        <div className="mb-5 -mx-1 flex items-stretch gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
-          {(["all", ...JOB_STATUS_KEYS] as const).map((f) => {
-            const active = filter === f;
-            const tone =
-              f === "all" ? "border-border" :
-              f === "active" ? "border-emerald/40" :
-              f === "pending" ? "border-amber-400" :
-              f === "paused" ? "border-border" :
-              f === "closed" ? "border-border" :
-              "border-destructive/40";
-            const label = f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en);
-            return (
-              <button
-                key={f}
-                onClick={() => updateFilter(f)}
-                className={`min-w-[68px] shrink-0 rounded-xl border-2 bg-card p-2.5 text-center transition-all active:bg-muted/30 ${active ? `${tone} shadow-sm ring-2 ring-primary/20` : "border-border"}`}
-              >
-                <p className="text-lg font-bold leading-tight text-foreground">{statusCounts[f] ?? 0}</p>
-                <p className="mt-0.5 text-[9px] font-medium leading-tight text-muted-foreground">{label}</p>
-              </button>
-            );
+        {/* Search bar */}
+        {listings.length > 0 && (
+          <div className="relative mb-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+            <Input
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              placeholder={lang === "my" ? "ခေါင်းစဉ် သို့ ကုမ္ပဏီ ရှာရန်..." : "Search by title or company..."}
+              className="h-10 rounded-xl pl-9"
+            />
+          </div>
+        )}
+
+        {/* Status pills — only show statuses that have items */}
+        <div className="mb-5 -mx-1 flex items-stretch gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-none">
+          {(["all", ...JOB_STATUS_KEYS] as const)
+            .filter(f => f === "all" || (statusCounts[f] ?? 0) > 0)
+            .map((f) => {
+              const active = filter === f;
+              const label = f === "all" ? (lang === "my" ? "အားလုံး" : "All") : (lang === "my" ? statusConfig[f]?.label.my : statusConfig[f]?.label.en);
+              return (
+                <button
+                  key={f}
+                  onClick={() => updateFilter(f)}
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:bg-muted/40"}`}
+                >
+                  {label} <span className={`ml-1 ${active ? "opacity-80" : "text-muted-foreground"}`}>{statusCounts[f] ?? 0}</span>
+                </button>
+              );
           })}
         </div>
 
