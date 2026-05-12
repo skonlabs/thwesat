@@ -378,7 +378,9 @@ const JobDetail = () => {
   const salaryText = formatJobSalary(job, lang);
   const displayTitle = translateJobTitle(job.title, job.title_my, lang);
   const isOwnJob = user?.id === job.employer_id;
-  const employerCompanyName = employerDetails?.employer?.company_name || job.company;
+  const clientName = (job as any).client_company_name as string | null;
+  const clientLogo = (job as any).client_logo_url as string | null;
+  const employerCompanyName = clientName || employerDetails?.employer?.company_name || job.company;
   const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
   const requirementsList = pickLocalized(job.requirements, job.requirements_my, lang)
