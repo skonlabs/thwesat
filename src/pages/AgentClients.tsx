@@ -85,10 +85,32 @@ const AgentClients = () => {
     }
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<AgentClient | null>(null);
+  const [linkedJobsCount, setLinkedJobsCount] = useState<number | null>(null);
+  const [checkingLinks, setCheckingLinks] = useState(false);
+
   const handleDelete = async (c: AgentClient) => {
-    if (!confirm(lang === "my" ? `${c.name} ကို ဖျက်မလား?` : `Delete ${c.name}?`)) return;
+    setDeleteTarget(c);
+    setLinkedJobsCount(null);
+    setCheckingLinks(true);
+    const { count, error } = await supabase
+      .from("jobs")
+      .select("id", { head: true, count: "exact" })
+      .eq("agent_client_id" as any, c.id as any);
+    setCheckingLinks(false);
+    if (error) {
+      setLinkedJobsCount(0);
+      return;
+    }
+    setLinkedJobsCount(count ?? 0);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await del.mutateAsync(c.id);
+      await del.mutateAsync(deleteTarget.id);
+      setDeleteTarget(null);
+      setLinkedJobsCount(null);
     } catch (e: any) {
       toast.error(e?.message || "Failed to delete");
     }
