@@ -384,7 +384,7 @@ const Applications = () => {
           };
 
           if (filter !== "all") {
-            return <div className="space-y-2.5">{filteredApps.map(renderCard)}</div>;
+            return <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">{filteredApps.map(renderCard)}</div>;
           }
 
           const action = filteredApps.filter((a: any) => ACTION_STATUSES.includes(a.status));
@@ -400,7 +400,7 @@ const Applications = () => {
                     {title} <span className="ml-1 text-foreground/60 tabular-nums">{items.length}</span>
                   </h2>
                 </div>
-                <div className="space-y-2.5">{items.map(renderCard)}</div>
+                <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">{items.map(renderCard)}</div>
               </div>
             );
 

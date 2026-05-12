@@ -122,7 +122,7 @@ const AgentClients = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {clients.map((c) => (
               <div
                 key={c.id}

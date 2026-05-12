@@ -111,7 +111,7 @@ const EmployerJobs = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Job Listings"} />
 
-      <div className="mx-auto max-w-lg px-5 pt-5">
+      <div className="px-5 pt-5">
         {/* Header row: total + post CTA */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
@@ -155,7 +155,7 @@ const EmployerJobs = () => {
           })}
         </div>
 
-        <div className="space-y-3">
+        <div className={pagedFiltered.length > 0 ? "" : "space-y-3"}>
           {isLoading ? (
             <div className="flex flex-col items-center py-12 text-center">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -179,6 +179,7 @@ const EmployerJobs = () => {
                   : `Showing ${pageStart + 1}–${pageEnd} of ${totalFiltered} jobs`}
               </p>
             )}
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
               const m = getApplicationMethodLabel((listing as any).application_method, lang);
@@ -323,6 +324,7 @@ const EmployerJobs = () => {
                 </motion.div>
               );
             })}
+            </div>
             {totalFiltered > PAGE_SIZE && (
               <div className="mt-4 flex items-center justify-between gap-3">
                 <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
