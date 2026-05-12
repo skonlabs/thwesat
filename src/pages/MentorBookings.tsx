@@ -63,20 +63,11 @@ const MentorBookings = () => {
 
   const cancelBooking = useMutation({
     mutationFn: async (id: string) => {
-      // Try refund first if escrow exists; ignore "no escrow" errors
-      const { data: escrow } = await (supabase as any)
-        .from("mentor_session_escrow")
-        .select("status")
-        .eq("booking_id", id)
-        .maybeSingle();
-      if (escrow && escrow.status === "held") {
-        const { error: refundErr } = await (supabase as any).rpc("mentor_session_refund", {
-          _booking_id: id,
-          _reason: "Cancelled by mentee",
-        });
-        if (refundErr) throw refundErr;
-      }
-      const { error } = await supabase.from("mentor_bookings").update({ status: "cancelled" }).eq("id", id);
+      // Single RPC handles refund (if escrow held) + status='cancelled' atomically.
+      const { error } = await (supabase as any).rpc("mentor_session_refund", {
+        _booking_id: id,
+        _reason: "Cancelled by mentee",
+      });
       if (error) throw error;
     },
     onSuccess: () => {

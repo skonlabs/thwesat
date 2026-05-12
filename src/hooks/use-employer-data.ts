@@ -247,21 +247,9 @@ export function useApproveJob() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", jobId).maybeSingle();
-      const { error } = await supabase.from("jobs").update({ status: "active", is_verified: true }).eq("id", jobId);
+      // Atomic: updates job, notifies employer, writes audit log in one txn.
+      const { error } = await (supabase as any).rpc("approve_job", { _job_id: jobId });
       if (error) throw error;
-      // Notify the employer that their listing went live.
-      if (job?.employer_id) {
-        await supabase.from("notifications").insert({
-          user_id: job.employer_id,
-          notification_type: "job",
-          title: "Your job listing is live",
-          title_my: "သင့်အလုပ်ကြော်ငြာ စတင်ပြသပြီးပါပြီ",
-          description: `"${job.title}" has been approved and is now visible to candidates.`,
-          description_my: `"${job.title_my || job.title}" အတည်ပြုပြီး လူကြည့်နိုင်ပါပြီ။`,
-          link_path: "/employer/dashboard",
-        });
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-jobs"] });
