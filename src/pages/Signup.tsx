@@ -201,7 +201,11 @@ const Signup = () => {
           </div>
         </div>
 
-        <div className="mt-7 space-y-4">
+        <div className="mt-7">
+          <SocialAuthButtons intendedRole={selectedRole} redirectTo="/dashboard" />
+        </div>
+
+        <div className="mt-5 space-y-4">
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "ပြသမည့်အမည်" : "Display Name"}</Label>
             <div className="relative">
