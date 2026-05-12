@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Globe, Briefcase, Star, MessageCircle, ArrowLeft } from "lucide-react";
+import { MapPin, Globe, Briefcase, MessageCircle, ArrowLeft, FileText, Download, Eye, Phone, Mail, Laptop, Wifi, Wallet, CheckCircle2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -35,6 +35,7 @@ const PublicProfile = () => {
 
   const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer") || hasRole("agent");
   const canMessage = currentUserCanMessageAnyone || !!targetIsMessageable;
+  const isHiringSide = hasRole("employer") || hasRole("agent");
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", id],
@@ -50,6 +51,48 @@ const PublicProfile = () => {
     },
     enabled: !!id,
   });
+
+  // CVs — only fetched for hiring side viewing a job seeker
+  const { data: cvDocuments = [] } = useQuery({
+    queryKey: ["public-profile-cvs", id],
+    queryFn: async () => {
+      if (!id) return [];
+      const { data } = await supabase
+        .from("cv_documents")
+        .select("id, file_name, file_url, is_primary, created_at, file_size_bytes")
+        .eq("user_id", id)
+        .order("is_primary", { ascending: false })
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!id && isHiringSide && profile?.primary_role === "jobseeker",
+  });
+
+  const getCvStoragePath = (fileUrl: string) => {
+    if (!fileUrl) return "";
+    if (fileUrl.includes("/cv-documents/")) return fileUrl.split("/cv-documents/").pop() || "";
+    return fileUrl;
+  };
+  const openCv = async (fileUrl: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data } = await supabase.storage.from("cv-documents").createSignedUrl(path, 300);
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  };
+  const downloadCv = async (fileUrl: string, fileName: string) => {
+    const path = getCvStoragePath(fileUrl);
+    if (!path) return;
+    const { data } = await supabase.storage.from("cv-documents").download(path);
+    if (!data) return;
+    const url = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName || "cv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   if (isLoading) {
     return (
@@ -73,24 +116,14 @@ const PublicProfile = () => {
     );
   }
 
-  // RLS on profiles enforces visibility server-side; this client check
-  // only governs presentation (private placeholder vs full view).
   const isOwn = user?.id === profile.id;
-
-  // Visibility enforcement: server-side rules applied after fetch.
-  // - private:   only the owner can view → show error for all non-owners
-  // - members:   authenticated users only → redirect non-auth to /login
-  // - employers: only users with primary_role "employer" or system roles → show error otherwise
-  // - public:    no restriction
   const visibility = (profile.visibility || "public") as "public" | "members" | "private" | "employers";
 
   if (!isOwn) {
     if (visibility === "members" && !user) {
-      // Redirect unauthenticated visitors to login
       navigate("/login", { replace: true });
       return null;
     }
-
     if (visibility === "private") {
       return (
         <div className="min-h-screen bg-background pb-24">
@@ -109,9 +142,7 @@ const PublicProfile = () => {
         </div>
       );
     }
-
     if (visibility === "employers") {
-      // hasRole only knows app roles; admin/moderator are system roles handled elsewhere.
       const isEmployerOrSystem = hasRole("employer") || hasRole("agent");
       if (!isEmployerOrSystem) {
         return (
@@ -119,9 +150,7 @@ const PublicProfile = () => {
             <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
             <div className="flex flex-col items-center py-16 text-center px-5">
               <p className="text-sm font-semibold text-foreground">
-                {lang === "my"
-                  ? "ဤပရိုဖိုင်သည် အလုပ်ရှင်များသာ ကြည့်ရှုနိုင်သည်"
-                  : "This profile is only visible to employers"}
+                {lang === "my" ? "ဤပရိုဖိုင်သည် အလုပ်ရှင်များသာ ကြည့်ရှုနိုင်သည်" : "This profile is only visible to employers"}
               </p>
               <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-1.5 h-4 w-4" /> {lang === "my" ? "နောက်သို့" : "Go Back"}
@@ -132,6 +161,15 @@ const PublicProfile = () => {
       }
     }
   }
+
+  const readiness = [
+    { ok: !!profile.remote_ready, icon: Globe, en: "Remote ready", my: "အဝေးထိန်းရနိုင်" },
+    { ok: !!profile.has_laptop, icon: Laptop, en: "Has laptop", my: "လက်တော့ ရှိ" },
+    { ok: !!profile.internet_stable, icon: Wifi, en: "Stable internet", my: "အင်တာနက် တည်ငြိမ်" },
+    { ok: !!profile.has_wise, icon: Wallet, en: "Wise account", my: "Wise အကောင့်" },
+    { ok: !!profile.has_upwork, icon: Wallet, en: "Upwork account", my: "Upwork အကောင့်" },
+  ];
+  const readinessVisible = profile.primary_role === "jobseeker" && readiness.some(r => r.ok);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -173,7 +211,7 @@ const PublicProfile = () => {
           {profile.bio && (
             <div className="mb-4 rounded-xl border border-border bg-card p-4">
               <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အကြောင်း" : "About"}</h3>
-              <p className="text-sm leading-relaxed text-foreground/80">{profile.bio}</p>
+              <p className="text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>
             </div>
           )}
 
@@ -184,6 +222,33 @@ const PublicProfile = () => {
               <div className="flex flex-wrap gap-1.5">
                 {(profile.skills || []).map((s: string) => (
                   <span key={s} className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Preferred work types */}
+          {(profile.preferred_work_types || []).length > 0 && (
+            <div className="mb-4 rounded-xl border border-border bg-card p-4">
+              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "လိုလားသော အလုပ်အမျိုးအစား" : "Preferred Work Types"}</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {(profile.preferred_work_types || []).map((s: string) => (
+                  <span key={s} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground/80">{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Work readiness */}
+          {readinessVisible && (
+            <div className="mb-4 rounded-xl border border-border bg-card p-4">
+              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အလုပ်လုပ်နိုင်မှု" : "Work Readiness"}</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {readiness.filter(r => r.ok).map((r, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg bg-emerald/5 px-2.5 py-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald" strokeWidth={2} />
+                    <span className="text-[11px] text-foreground">{lang === "my" ? r.my : r.en}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -208,11 +273,53 @@ const PublicProfile = () => {
               {profile.website && (
                 <div className="flex items-center gap-2">
                   <Globe className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-primary underline">{profile.website}</a>
+                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all">{profile.website}</a>
+                </div>
+              )}
+              {isHiringSide && profile.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <a href={`mailto:${profile.email}`} className="text-primary underline break-all">{profile.email}</a>
+                </div>
+              )}
+              {isHiringSide && profile.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <a href={`tel:${profile.phone}`} className="text-primary underline">{profile.phone}</a>
                 </div>
               )}
             </div>
           </div>
+
+          {/* CV documents — hiring side only */}
+          {isHiringSide && profile.primary_role === "jobseeker" && (
+            <div className="mb-4 rounded-xl border border-border bg-card p-4">
+              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "CV / ကိုယ်ရေးရာဇဝင်" : "CV / Resume"}</h3>
+              {cvDocuments.length === 0 ? (
+                <p className="text-[11px] text-muted-foreground">{lang === "my" ? "CV မတင်ထားပါ" : "No CV uploaded"}</p>
+              ) : (
+                <div className="space-y-2">
+                  {cvDocuments.map((cv: any) => (
+                    <div key={cv.id} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
+                      <FileText className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-foreground">{cv.file_name || "CV"}</p>
+                        {cv.is_primary && (
+                          <span className="text-[10px] text-emerald">{lang === "my" ? "အဓိက" : "Primary"}</span>
+                        )}
+                      </div>
+                      <button onClick={() => openCv(cv.file_url)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ကြည့်ရန်" : "View"}>
+                        <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                      <button onClick={() => downloadCv(cv.file_url, cv.file_name)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ဒေါင်းလုဒ်" : "Download"}>
+                        <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Actions */}
           {!isOwn && user && canMessage && (
