@@ -255,35 +255,6 @@ const PublicProfile = () => {
             </div>
           </div>
 
-          {/* CV documents — hiring side only */}
-          {isHiringSide && profile.primary_role === "jobseeker" && (
-            <div className="mb-4 rounded-xl border border-border bg-card p-4">
-              <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "CV / ကိုယ်ရေးရာဇဝင်" : "CV / Resume"}</h3>
-              {cvDocuments.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground">{lang === "my" ? "CV မတင်ထားပါ" : "No CV uploaded"}</p>
-              ) : (
-                <div className="space-y-2">
-                  {cvDocuments.map((cv: any) => (
-                    <div key={cv.id} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                      <FileText className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.5} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-foreground">{cv.file_name || "CV"}</p>
-                        {cv.is_primary && (
-                          <span className="text-[10px] text-emerald">{lang === "my" ? "အဓိက" : "Primary"}</span>
-                        )}
-                      </div>
-                      <button onClick={() => openCv(cv.file_url)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ကြည့်ရန်" : "View"}>
-                        <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => downloadCv(cv.file_url, cv.file_name)} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted" title={lang === "my" ? "ဒေါင်းလုဒ်" : "Download"}>
-                        <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Actions */}
           {!isOwn && user && canMessage && (
