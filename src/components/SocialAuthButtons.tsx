@@ -70,7 +70,7 @@ const SocialAuthButtons = ({ intendedRole, redirectTo = "/dashboard" }: Props) =
   const ariaContinue = lang === "my" ? "ဖြင့် ဆက်လုပ်ရန်" : "Continue with";
 
   const btnClass =
-    "flex h-10 flex-1 items-center justify-center rounded-lg border border-border bg-card text-foreground transition hover:bg-muted/40 disabled:opacity-60";
+    "flex h-10 flex-1 items-center justify-center rounded-lg border border-border bg-muted/30 text-foreground transition hover:bg-muted/60 disabled:opacity-60";
 
   return (
     <div className="space-y-3">
