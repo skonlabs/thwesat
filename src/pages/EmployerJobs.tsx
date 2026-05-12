@@ -31,6 +31,8 @@ const EmployerJobs = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useEmployerJobs();
+  const isAgent = typeof window !== "undefined" && window.location.pathname.startsWith("/agent");
+  const postJobPath = isAgent ? "/agent/post-job" : "/employer/post-job";
   const { data: breakdown } = useEmployerJobApplicantBreakdown();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
   const [page, setPage] = useState(0);
