@@ -118,7 +118,6 @@ const Applications = () => {
       return;
     }
     invalidate();
-    toast.success(lang === "my" ? "လျှောက်လွှာ ရုပ်သိမ်းပြီးပါပြီ" : "Application withdrawn");
     setConfirmWithdraw(false);
     setSelectedApp(null);
   };
