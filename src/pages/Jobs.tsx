@@ -416,19 +416,19 @@ const Jobs = () => {
         )}
       </AnimatePresence>
 
-      <div className="mx-auto max-w-7xl space-y-2.5 px-5 pb-24 pt-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 md:px-8 md:pb-12 lg:grid-cols-3">
-        {personalize && sortedJobs.length > 0 && (
-          <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2 md:col-span-2 lg:col-span-3">
+      <div className="mx-auto max-w-7xl px-5 pb-24 pt-4 md:px-8 md:pb-12">
+        {personalize && (sortedJobs.length > 0) && (
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2">
             <Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={1.5} />
             <p className="text-[11px] text-foreground/80">
-              {lang === "my" ? "သင့်ပရိုဖိုင်နှင့် ကိုက်ညီသော အလုပ်များ ဦးစွာပြထားသည်" : "Sorted by best match for your profile & resume"}
+              {lang === "my" ? "သင့်ပရိုဖိုင်နှင့် ကိုက်ညီသော အလုပ်များ ဦးစွာပြထားသည်" : "Personalized to your profile & resume"}
             </p>
           </div>
         )}
         {isLoading ? (
-          <div className="md:col-span-2 lg:col-span-3"><ListSkeleton count={5} /></div>
+          <ListSkeleton count={5} />
         ) : sortedJobs.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center md:col-span-2 lg:col-span-3">
+          <div className="flex flex-col items-center py-16 text-center">
             <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
             <p className="text-sm font-medium text-muted-foreground">{lang === "my" ? "ရလဒ် မတွေ့ပါ" : "No jobs found"}</p>
             <p className="mt-1 text-xs text-muted-foreground/70">
@@ -442,95 +442,139 @@ const Jobs = () => {
               </Button>
             )}
           </div>
+        ) : jobSections ? (
+          <div className="space-y-6">
+            {jobSections.featured.length > 0 && (
+              <section>
+                <h2 className="mb-2.5 text-[15px] font-bold text-foreground md:text-lg">
+                  {lang === "my" ? "သင့်အတွက် ထူးချွန်အလုပ်များ" : "Featured for you"}
+                </h2>
+                <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+                  {jobSections.featured.map((job, i) => renderJobCard(job, i))}
+                </div>
+              </section>
+            )}
+            {jobSections.matched.length > 0 && (
+              <section>
+                <h2 className="mb-2.5 text-[15px] font-bold text-foreground md:text-lg">
+                  {lang === "my" ? "သင့်အတွက် ကိုက်ညီသော အလုပ်များ" : "Matched for you"}
+                </h2>
+                <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+                  {jobSections.matched.map((job, i) => renderJobCard(job, i))}
+                </div>
+              </section>
+            )}
+            {jobSections.featured.length === 0 && jobSections.matched.length === 0 && (
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-4 text-center text-xs text-muted-foreground">
+                {lang === "my"
+                  ? "သင့်ပရိုဖိုင်နှင့် တိုက်ရိုက်ကိုက်ညီသော အလုပ် မတွေ့သေးပါ။ ပရိုဖိုင်ကို ပြည့်စုံအောင်ဖြည့်ပါ။"
+                  : "No direct matches yet — complete your profile to improve matching."}
+              </div>
+            )}
+            {jobSections.rest.length > 0 && (
+              <section>
+                <h2 className="mb-2.5 text-[15px] font-bold text-foreground md:text-lg">
+                  {lang === "my" ? "အခြား အလုပ်များ" : "More jobs"}
+                </h2>
+                <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+                  {jobSections.rest.map((job, i) => renderJobCard(job, i))}
+                </div>
+              </section>
+            )}
+          </div>
         ) : (
-          sortedJobs.map((job, i) => {
-            const featured = isFeatured(job);
-            const isSaved = savedJobIds.includes(job.id);
-            const application = applications.find((a: any) => a.job_id === job.id);
-            const status = application?.status;
-            const statusMeta = status ? (applicationStatusLabel[status] || applicationStatusLabel.applied) : null;
-            const postedAgo = formatTimeAgo(job.created_at);
-            const visiblePaymentMethods = sanitizeJobPaymentMethods(job.payment_methods);
-
-            return (
-              <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
-                {featured && (
-                  <span aria-hidden className="absolute inset-y-3 left-0 w-0.5 rounded-r bg-accent" />
-                )}
-                {featured && (
-                  <div className="mb-2 flex items-center gap-1">
-                    <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-dark">★ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
-                  </div>
-                )}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/8">
-                      <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
-                    </div>
-                  </div>
-                  <button className="flex-shrink-0 text-muted-foreground transition-colors hover:text-accent" onClick={(e) => handleToggleSave(job.id, e)} aria-label={isSaved ? "Unsave job" : "Save job"}>
-                    <Bookmark className={`h-5 w-5 ${isSaved ? "fill-accent text-accent" : ""}`} strokeWidth={1.5} />
-                  </button>
-                </div>
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {job.is_verified && (
-                    <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">✓ {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}</span>
-                  )}
-                  {job.is_diaspora_safe && (
-                    <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
-                      <Shield className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}
-                    </span>
-                  )}
-                  {job.requires_embassy && (
-                    <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-medium text-destructive">
-                      <AlertTriangle className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "သံရုံးလိုအပ်" : "Embassy docs"}
-                    </span>
-                  )}
-                  {job.visa_sponsorship && (
-                    <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
-                  )}
-                </div>
-                {translateJobTags(job.skills, lang).length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {translateJobTags(job.skills, lang).slice(0, 4).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
-                  </div>
-                )}
-                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
-                  <div className="flex min-w-0 items-center gap-3 text-[11px] text-muted-foreground">
-                    <span className="flex min-w-0 items-center gap-1 truncate"><MapPin className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} /> <span className="truncate">{translateJobLocation(job.location, lang)}</span></span>
-                    <span className="hidden items-center gap-1 sm:flex"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.role_type || job.job_type, lang)}</span>
-                  </div>
-                  <span className="flex-shrink-0 whitespace-nowrap text-xs font-semibold text-foreground">{formatJobSalary(job, lang)}</span>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">{lang === "my" ? `${postedAgo.my} အကြာက` : `${postedAgo.en} ago`}</span>
-                    {visiblePaymentMethods.length > 0 && (
-                      <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                        <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {visiblePaymentMethods.join(", ")}
-                      </span>
-                    )}
-                  </div>
-                  {statusMeta ? (
-                    <span className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium ${statusMeta.tone}`}>
-                      <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? statusMeta.my : statusMeta.en}
-                    </span>
-                  ) : (
-                    <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })
+          <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+            {sortedJobs.map((job, i) => renderJobCard(job, i))}
+          </div>
         )}
       </div>
     </div>
   );
+
+  function renderJobCard(job: Job, i: number) {
+    const featured = isFeatured(job);
+    const isSaved = savedJobIds.includes(job.id);
+    const application = applications.find((a: any) => a.job_id === job.id);
+    const status = application?.status;
+    const statusMeta = status ? (applicationStatusLabel[status] || applicationStatusLabel.applied) : null;
+    const postedAgo = formatTimeAgo(job.created_at);
+    const visiblePaymentMethods = sanitizeJobPaymentMethods(job.payment_methods);
+
+    return (
+      <motion.div key={job.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+        className={`group relative cursor-pointer overflow-hidden rounded-xl border bg-card p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-card-hover ${featured ? "border-accent/40" : "border-border"}`} onClick={() => navigate(`/jobs/${job.id}`)}>
+        {featured && (
+          <span aria-hidden className="absolute inset-y-3 left-0 w-0.5 rounded-r bg-accent" />
+        )}
+        {featured && (
+          <div className="mb-2 flex items-center gap-1">
+            <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-dark">★ {lang === "my" ? "အထူးအသား" : "Featured"}</span>
+          </div>
+        )}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/8">
+              <Briefcase className="h-5 w-5 text-primary" strokeWidth={1.5} />
+            </div>
+            <div className="min-w-0">
+              <h3 className="truncate text-sm font-semibold text-foreground">{translateJobTitle(job.title, job.title_my, lang)}</h3>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{job.company}</p>
+            </div>
+          </div>
+          <button className="flex-shrink-0 text-muted-foreground transition-colors hover:text-accent" onClick={(e) => handleToggleSave(job.id, e)} aria-label={isSaved ? "Unsave job" : "Save job"}>
+            <Bookmark className={`h-5 w-5 ${isSaved ? "fill-accent text-accent" : ""}`} strokeWidth={1.5} />
+          </button>
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {job.is_verified && (
+            <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">✓ {lang === "my" ? "အတည်ပြုပြီး" : "Verified"}</span>
+          )}
+          {job.is_diaspora_safe && (
+            <span className="flex items-center gap-0.5 rounded-full bg-emerald/10 px-2 py-0.5 text-[9px] font-medium text-emerald">
+              <Shield className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}
+            </span>
+          )}
+          {job.requires_embassy && (
+            <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[9px] font-medium text-destructive">
+              <AlertTriangle className="h-2.5 w-2.5" strokeWidth={2} /> {lang === "my" ? "သံရုံးလိုအပ်" : "Embassy docs"}
+            </span>
+          )}
+          {job.visa_sponsorship && (
+            <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[9px] font-medium text-primary">{lang === "my" ? "ဗီဇာ ပံ့ပိုး" : "Visa sponsor"}</span>
+          )}
+        </div>
+        {translateJobTags(job.skills, lang).length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {translateJobTags(job.skills, lang).slice(0, 4).map((tag) => (<span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{tag}</span>))}
+          </div>
+        )}
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+          <div className="flex min-w-0 items-center gap-3 text-[11px] text-muted-foreground">
+            <span className="flex min-w-0 items-center gap-1 truncate"><MapPin className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} /> <span className="truncate">{translateJobLocation(job.location, lang)}</span></span>
+            <span className="hidden items-center gap-1 sm:flex"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(job.role_type || job.job_type, lang)}</span>
+          </div>
+          <span className="flex-shrink-0 whitespace-nowrap text-xs font-semibold text-foreground">{formatJobSalary(job, lang)}</span>
+        </div>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground">{lang === "my" ? `${postedAgo.my} အကြာက` : `${postedAgo.en} ago`}</span>
+            {visiblePaymentMethods.length > 0 && (
+              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                <CreditCard className="h-2.5 w-2.5" strokeWidth={1.5} /> {visiblePaymentMethods.join(", ")}
+              </span>
+            )}
+          </div>
+          {statusMeta ? (
+            <span className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium ${statusMeta.tone}`}>
+              <Check className="h-3 w-3" strokeWidth={2} /> {lang === "my" ? statusMeta.my : statusMeta.en}
+            </span>
+          ) : (
+            <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={(e) => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}>{lang === "my" ? "လျှောက်ထားရန်" : "Apply"}</Button>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
 };
 
 export default Jobs;
