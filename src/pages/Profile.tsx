@@ -142,10 +142,7 @@ const Profile = () => {
     // Delete the row FIRST so a storage-cleanup failure can never leave a
     // dangling DB record pointing at a missing file.
     const { error } = await supabase.from("cv_documents").delete().eq("id", id);
-    if (error) {
-      toast({ title: lang === "my" ? "ဖျက်မရပါ" : "Failed to delete CV", variant: "destructive" });
-      return;
-    }
+    if (error) return;
     const path = getCvStoragePath(fileUrl);
     if (path) {
       // Best-effort storage cleanup; row is already gone.
