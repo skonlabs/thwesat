@@ -227,6 +227,42 @@ const EmployerApplications = () => {
     }
   };
 
+  // Bulk-action helpers
+  const toggleSelected = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = (ids: string[]) => {
+    setSelectedIds(prev => {
+      const allSelected = ids.length > 0 && ids.every(id => prev.has(id));
+      return allSelected ? new Set() : new Set(ids);
+    });
+  };
+  const runBulk = async (status: string, extras: any = {}) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    let ok = 0, failed = 0;
+    await Promise.all(ids.map(async id => {
+      try { await updateStatus.mutateAsync({ id, status, ...extras }); ok++; } catch { failed++; }
+    }));
+    setSelectedIds(new Set());
+    if (failed > 0) toast.error(`${failed} ${lang === "my" ? "မအောင်မြင်ပါ" : "failed"}${ok ? `, ${ok} ${lang === "my" ? "အောင်မြင်" : "succeeded"}` : ""}`);
+  };
+  const handleBulkReject = async () => {
+    const effectiveReason = rejectionReason === "__other__" ? otherReasonText.trim() : rejectionReason;
+    const preset = rejectionReasons.find(r => r.en === rejectionReason);
+    await runBulk("rejected", { rejectionReason: effectiveReason, rejectionReasonMy: preset?.my });
+    setBulkRejectOpen(false); setRejectionReason(""); setOtherReasonText("");
+  };
+
+  // Inline single-row quick-action (no modal)
+  const quickStatus = async (id: string, status: string) => {
+    try { await updateStatus.mutateAsync({ id, status }); }
+    catch (err: any) { toast.error((lang === "my" ? "မအောင်မြင်ပါ: " : "Failed: ") + (err?.message || "unknown")); }
+  };
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={L.applications[lang]} backPath="/employer/dashboard" />
