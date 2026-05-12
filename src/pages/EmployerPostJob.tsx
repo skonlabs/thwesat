@@ -93,6 +93,7 @@ const EmployerPostJob = () => {
   const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const spend = useSpendCredits();
   const qc = useQueryClient();
+  const [submitting, setSubmitting] = useState(false);
   const postPrice = useActionPrice("job_post");
   const featurePrice = useActionPrice("featured_job");
   const { data: wallet } = useWallet();
