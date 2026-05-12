@@ -273,8 +273,9 @@ const EmployerJobs = () => {
                     </div>
                     <div className="flex items-center gap-0.5">
                       {listing.status === "active" && !listing.is_featured && (
-                        <button onClick={() => setFeatureJobId(listing.id)} className="flex h-9 items-center gap-1 rounded-lg bg-amber-100 px-2 text-[10px] font-semibold text-amber-900 active:bg-amber-200 dark:bg-amber-950 dark:text-amber-100" title={lang === "my" ? "ထိပ်တန်း ပြသရန်" : "Feature this job"}>
-                          <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်း" : "Feature"}
+                        <button onClick={() => setFeatureJobId(listing.id)} className="flex h-9 items-center gap-1 rounded-lg border border-dashed border-amber-400 bg-transparent px-2 text-[10px] font-medium text-amber-700 hover:bg-amber-50 active:bg-amber-100 dark:border-amber-500/60 dark:text-amber-300 dark:hover:bg-amber-950/40" title={lang === "my" ? "ထိပ်တန်း ပြသရန်" : "Promote to Featured"}>
+                          <Plus className="h-3 w-3" strokeWidth={2} />
+                          <Sparkles className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်းတင်မည်" : "Promote"}
                         </button>
                       )}
                       {(listing.status === "active" || listing.status === "paused" || listing.status === "closed") && (
