@@ -111,7 +111,7 @@ const EmployerJobs = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာများ" : "My Job Listings"} />
 
-      <div className="mx-auto max-w-lg px-5 pt-5">
+      <div className="px-5 pt-5">
         {/* Header row: total + post CTA */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
