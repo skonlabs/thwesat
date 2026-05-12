@@ -19,6 +19,9 @@ import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { HQ_COUNTRIES } from "@/lib/countries";
 import { X } from "lucide-react";
+import { useRole } from "@/hooks/use-role";
+import AgentClientPicker from "@/components/agent/AgentClientPicker";
+import type { AgentClient } from "@/hooks/use-agent-clients";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
@@ -74,6 +77,10 @@ const EmployerPostJob = () => {
   const [contractDurationNote, setContractDurationNote] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
+  const role = useRole(s => s.role);
+  const isAgent = role === "agent";
+  const [postedByLabel, setPostedByLabel] = useState<"self" | "client">("self");
+  const [selectedClient, setSelectedClient] = useState<AgentClient | null>(null);
 
   const addSkill = (raw: string) => {
     const s = raw.trim();
@@ -134,6 +141,10 @@ const EmployerPostJob = () => {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
       return;
     }
+    if (isAgent && postedByLabel === "client" && !selectedClient) {
+      toast({ title: lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company", variant: "destructive" });
+      return;
+    }
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
       navigate("/wallet");
@@ -161,7 +172,13 @@ const EmployerPostJob = () => {
         contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
         skills: skills.length ? skills : null,
-        company: employerProfile?.company_name || "",
+        company: isAgent && postedByLabel === "client" && selectedClient
+          ? selectedClient.name
+          : (employerProfile?.company_name || ""),
+        agent_client_id: isAgent && postedByLabel === "client" ? selectedClient?.id ?? null : null,
+        client_company_name: isAgent && postedByLabel === "client" ? selectedClient?.name ?? null : null,
+        client_logo_url: isAgent && postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
+        posted_by_label: isAgent ? postedByLabel : "self",
         status: "pending",
       } as any).select("id").single();
       if (jobErr) throw jobErr;
@@ -195,6 +212,14 @@ const EmployerPostJob = () => {
             <p className="mt-1 text-xs text-muted-foreground">
               {lang === "my" ? "💡 ခေါင်းစဉ်နှင့် ဖော်ပြချက်ကို ရှင်းလင်းစွာ ရေးပါ — လျှောက်ထားသူ ပိုများလာပါမည်" : "💡 Clear titles and detailed descriptions attract more qualified applicants"}
             </p>
+            {isAgent && (
+              <AgentClientPicker
+                postedByLabel={postedByLabel}
+                onPostedByLabelChange={setPostedByLabel}
+                selectedClientId={selectedClient?.id ?? null}
+                onSelectClient={setSelectedClient}
+              />
+            )}
             <BilingualField
               label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
               required
@@ -473,10 +498,14 @@ const EmployerPostJob = () => {
             <p className="text-[11px] text-muted-foreground">{lang === "my" ? "အလုပ်ရှာသူများ မြင်တွေ့မည့် ပုံစံ" : "How job seekers will see this listing"}</p>
           </SheetHeader>
           {(() => {
+            const displayCompany = isAgent && postedByLabel === "client" && selectedClient
+              ? selectedClient.name
+              : (employerProfile?.company_name || (lang === "my" ? "(ကုမ္ပဏီ)" : "(Company)"));
+            const displayLogo = isAgent && postedByLabel === "client" ? selectedClient?.logo_url : null;
             const previewJob = {
               title: titleEn || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)"),
               title_my: titleMy,
-              company: employerProfile?.company_name || (lang === "my" ? "(ကုမ္ပဏီ)" : "(Company)"),
+              company: displayCompany,
               location: locationCountry,
               role_type: roleType,
               job_type: roleType,
@@ -503,8 +532,12 @@ const EmployerPostJob = () => {
                   )}
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
-                        <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-accent/15">
+                        {displayLogo ? (
+                          <img src={displayLogo} alt={displayCompany} className="h-full w-full object-cover" />
+                        ) : (
+                          <Briefcase className="h-5 w-5 text-gold-dark" strokeWidth={1.5} />
+                        )}
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-foreground">{displayTitle || (lang === "my" ? "(ခေါင်းစဉ် မရှိ)" : "(No title)")}</h3>

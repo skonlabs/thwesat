@@ -17,6 +17,9 @@ import BilingualField from "@/components/employer/BilingualField";
 import { useEmployerProfile } from "@/hooks/use-employer-data";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
+import { useRole } from "@/hooks/use-role";
+import AgentClientPicker from "@/components/agent/AgentClientPicker";
+import { useAgentClients, type AgentClient } from "@/hooks/use-agent-clients";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -64,6 +67,12 @@ const EmployerEditJob = () => {
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
 
+  const role = useRole(s => s.role);
+  const isAgent = role === "agent";
+  const { data: agentClients = [] } = useAgentClients();
+  const [postedByLabel, setPostedByLabel] = useState<"self" | "client">("self");
+  const [selectedClient, setSelectedClient] = useState<AgentClient | null>(null);
+
   useEffect(() => {
     if (job) {
       setTitleEn(job.title || "");
@@ -86,8 +95,23 @@ const CHAR_LIMIT_REQ = 2000;
       setWasFeatured(job.is_featured || false);
       setApplicationMethod((job as any).application_method || "platform");
       setExternalUrl((job as any).external_url || "");
+      const lbl = ((job as any).posted_by_label as "self" | "client" | null) || "self";
+      setPostedByLabel(lbl);
+      const acid = (job as any).agent_client_id as string | null;
+      if (acid) {
+        const found = agentClients.find(c => c.id === acid);
+        if (found) setSelectedClient(found);
+        else setSelectedClient({
+          id: acid,
+          agent_id: "",
+          name: (job as any).client_company_name || job.company || "",
+          logo_url: (job as any).client_logo_url || "",
+          website: "", industry: "", notes: "",
+          is_active: true, created_at: "", updated_at: "",
+        } as AgentClient);
+      }
     }
-  }, [job]);
+  }, [job, agentClients]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -125,6 +149,10 @@ const CHAR_LIMIT_REQ = 2000;
       toast.error(lang === "my" ? "လင့်ခ် မှန်ကန်အောင် ထည့်ပါ" : "Please enter a valid URL");
       return;
     }
+    if (isAgent && postedByLabel === "client" && !selectedClient) {
+      toast.error(lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company");
+      return;
+    }
     setConfirmOpen(true);
   };
 
@@ -157,7 +185,16 @@ const CHAR_LIMIT_REQ = 2000;
       application_method: applicationMethod,
       external_url: applicationMethod === "external" ? externalUrl.trim() : null,
       job_type: roleType.includes("contract") ? "contract" : "full-time",
-    }).eq("id", id);
+      ...(isAgent ? {
+        company: postedByLabel === "client" && selectedClient
+          ? selectedClient.name
+          : (employerProfile?.company_name || ""),
+        agent_client_id: postedByLabel === "client" ? selectedClient?.id ?? null : null,
+        client_company_name: postedByLabel === "client" ? selectedClient?.name ?? null : null,
+        client_logo_url: postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
+        posted_by_label: postedByLabel,
+      } : {}),
+    } as any).eq("id", id);
     setSaving(false);
     if (error) {
       toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update");
@@ -199,6 +236,14 @@ const CHAR_LIMIT_REQ = 2000;
         </div>
       )}
       <div className="px-5 space-y-4 mt-4">
+        {isAgent && (
+          <AgentClientPicker
+            postedByLabel={postedByLabel}
+            onPostedByLabelChange={(v) => { setPostedByLabel(v); setIsDirty(true); }}
+            selectedClientId={selectedClient?.id ?? null}
+            onSelectClient={(c) => { setSelectedClient(c); setIsDirty(true); }}
+          />
+        )}
         <BilingualField
           label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
           required

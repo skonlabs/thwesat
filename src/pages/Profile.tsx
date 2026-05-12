@@ -4,7 +4,7 @@ import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
   Gift, Copy, Shield, Check, FileText, Download, Eye,
-  Users, ArrowLeftRight, GraduationCap, Search, Wallet
+  Users, ArrowLeftRight, GraduationCap, Search, Wallet, Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -232,7 +232,13 @@ const Profile = () => {
     : isModerator
       ? moderatorMenu
         : effectiveRole === "employer" || effectiveRole === "agent"
-        ? (effectiveRole === "agent" ? employerMenu.filter(m => m.path !== "/employer/applications") : employerMenu)
+        ? (effectiveRole === "agent"
+            ? [
+                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(0, 2),
+                { icon: Building2, label: lang === "my" ? "သုံးစွဲသူ ကုမ္ပဏီများ" : "Client Companies", path: "/agent/clients" },
+                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(2),
+              ]
+            : employerMenu)
           : effectiveRole === "mentor"
           ? mentorMenu
           : jobseekerMenu;

@@ -378,7 +378,9 @@ const JobDetail = () => {
   const salaryText = formatJobSalary(job, lang);
   const displayTitle = translateJobTitle(job.title, job.title_my, lang);
   const isOwnJob = user?.id === job.employer_id;
-  const employerCompanyName = employerDetails?.employer?.company_name || job.company;
+  const clientName = (job as any).client_company_name as string | null;
+  const clientLogo = (job as any).client_logo_url as string | null;
+  const employerCompanyName = clientName || employerDetails?.employer?.company_name || job.company;
   const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
   const requirementsList = pickLocalized(job.requirements, job.requirements_my, lang)
@@ -462,8 +464,12 @@ const JobDetail = () => {
         >
           <section className="border-b border-border pb-5">
             <div className="flex items-start gap-3 md:gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/15 md:h-14 md:w-14">
-                <Briefcase className="h-6 w-6 text-accent md:h-7 md:w-7" strokeWidth={1.5} />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent/15 md:h-14 md:w-14">
+                {clientLogo ? (
+                  <img src={clientLogo} alt={employerCompanyName} className="h-full w-full object-cover" />
+                ) : (
+                  <Briefcase className="h-6 w-6 text-accent md:h-7 md:w-7" strokeWidth={1.5} />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -471,11 +477,11 @@ const JobDetail = () => {
                     <h1 className="text-xl font-bold leading-tight text-foreground md:text-3xl">{displayTitle}</h1>
                     <button
                       type="button"
-                      onClick={() => job.employer_id && navigate(`/company/${job.employer_id}`)}
+                      onClick={() => !clientName && job.employer_id && navigate(`/company/${job.employer_id}`)}
                       className="mt-1 inline-flex max-w-full items-center gap-1.5 text-left text-sm font-medium text-muted-foreground hover:text-primary"
                     >
                       <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-                      <span className="truncate">{job.company}</span>
+                      <span className="truncate">{employerCompanyName}</span>
                       {job.is_verified && <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={2} />}
                     </button>
                   </div>
