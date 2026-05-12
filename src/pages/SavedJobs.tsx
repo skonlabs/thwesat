@@ -119,6 +119,7 @@ const SavedJobs = () => {
             );
           })
         )}
+        </div>
       </div>
 
       {/* Remove confirmation dialog */}
