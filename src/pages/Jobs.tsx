@@ -222,13 +222,41 @@ const Jobs = () => {
     const useEmbeddings = !!scoreMap && scoreMap.size > 0;
     const scored = filteredJobs.map((j) => {
       const embed = useEmbeddings ? (scoreMap!.get(j.id) ?? 0) : 0;
-      // Combine: embeddings dominate when present; keyword score is a tiebreaker.
       const keyword = scoreJobForSeeker(j, seekerSignals);
       const s = useEmbeddings ? embed * 1000 + keyword * 0.1 : keyword;
       return { j, s };
     });
     scored.sort((a, b) => b.s - a.s);
     return scored.map((x) => x.j);
+  }, [filteredJobs, personalize, seekerSignals, scoreMap]);
+
+  // Personalized default view: split into "Featured for you" (featured + matches profile)
+  // and "Matched for you" (non-featured + matches profile). Other jobs stay below.
+  const jobSections = useMemo(() => {
+    if (!personalize || !seekerSignals) return null;
+    const useEmbeddings = !!scoreMap && scoreMap.size > 0;
+    const scoreOf = (j: Job) => {
+      const embed = useEmbeddings ? (scoreMap!.get(j.id) ?? 0) : 0;
+      const keyword = scoreJobForSeeker(j, seekerSignals);
+      return { embed, keyword, combined: useEmbeddings ? embed * 1000 + keyword * 0.1 : keyword };
+    };
+    const matches = (j: Job) => {
+      const { embed, keyword } = scoreOf(j);
+      return useEmbeddings ? embed > 0.15 : keyword >= 5;
+    };
+    const featured: Job[] = [];
+    const matched: Job[] = [];
+    const rest: Job[] = [];
+    for (const j of filteredJobs) {
+      const ok = matches(j);
+      if (j.is_featured && ok) featured.push(j);
+      else if (ok) matched.push(j);
+      else rest.push(j);
+    }
+    const byScore = (a: Job, b: Job) => scoreOf(b).combined - scoreOf(a).combined;
+    featured.sort(byScore);
+    matched.sort(byScore);
+    return { featured: featured.slice(0, 6), matched: matched.slice(0, 12), rest };
   }, [filteredJobs, personalize, seekerSignals, scoreMap]);
 
   const clearFilters = () => {
