@@ -457,7 +457,7 @@ const Settings = () => {
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
-            <button className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-muted/30" onClick={async () => { await signOut(); navigate("/"); }}>
+            <button className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-muted/30" onClick={async () => { await signOut(); }}>
               <LogOut className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
               <div className="flex-1">
                 <p className="text-sm text-foreground">{lang === "my" ? "ထွက်ရန်" : "Sign Out"}</p>
