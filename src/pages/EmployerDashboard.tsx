@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import PageHeader from "@/components/PageHeader";
-import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
 import DashboardHero from "@/components/DashboardHero";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
@@ -82,8 +81,6 @@ const EmployerDashboard = () => {
           ctaLabelMy="အလုပ် တင်ရန်"
           ctaPath="/employer/post-job"
         />
-        <WelcomeTourVideoCard variant="employer" />
-
         {/* Company verification (only if not verified) */}
         {!empProfile?.is_verified && (
           <motion.button
