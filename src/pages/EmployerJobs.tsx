@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle } from "lucide-react";
+import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
@@ -115,6 +115,37 @@ const EmployerJobs = () => {
       setDeleteConfirmId(null);
     } catch (err: any) {
       toast.error((lang === "my" ? "ဖျက်၍မရပါ: " : "Failed to delete: ") + (err?.message || ""));
+    }
+  };
+
+  /**
+   * A8 — Repost: duplicate a closed/rejected job into a fresh draft so the
+   * employer doesn't have to retype everything. The new row is created as
+   * `pending` (re-moderation) and the user is dropped into the edit screen.
+   */
+  const handleRepost = async (jobId: string) => {
+    setStatusMenuId(null);
+    setUpdatingId(jobId);
+    try {
+      const { data: source, error: fetchErr } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("id", jobId)
+        .single();
+      if (fetchErr || !source) throw fetchErr || new Error("not_found");
+      const { id, created_at, updated_at, applicant_count, embedding, embedding_input_hash, embedding_updated_at, is_verified, is_featured, ...rest } = source as any;
+      const { data: created, error: insErr } = await supabase
+        .from("jobs")
+        .insert({ ...rest, status: "pending", is_verified: false, is_featured: false, applicant_count: 0 })
+        .select("id")
+        .single();
+      if (insErr) throw insErr;
+      queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+      navigate(editJobPath(created.id));
+    } catch (err: any) {
+      toast.error((lang === "my" ? "ပြန်တင်၍မရပါ: " : "Failed to repost: ") + (err?.message || ""));
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -318,6 +349,11 @@ const EmployerJobs = () => {
                             ) : (listing.status === "active" || listing.status === "paused") && (
                               <button onClick={() => handleStatusChange(listing.id, "closed")} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
                                 <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပိတ်ရန်" : "Close"}
+                              </button>
+                            )}
+                            {(listing.status === "closed" || listing.status === "rejected") && (
+                              <button onClick={() => handleRepost(listing.id)} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-primary hover:bg-primary/5">
+                                <Copy className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြန်တင်ရန်" : "Repost as new draft"}
                               </button>
                             )}
                             <button onClick={() => { setStatusMenuId(null); setDeleteConfirmId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-destructive hover:bg-destructive/5">
