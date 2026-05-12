@@ -4,7 +4,7 @@ import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
   Gift, Copy, Shield, Check, FileText, Download, Eye,
-  Users, ArrowLeftRight, GraduationCap, Search, Wallet
+  Users, ArrowLeftRight, GraduationCap, Search, Wallet, Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
