@@ -236,6 +236,14 @@ const CHAR_LIMIT_REQ = 2000;
         </div>
       )}
       <div className="px-5 space-y-4 mt-4">
+        {isAgent && (
+          <AgentClientPicker
+            postedByLabel={postedByLabel}
+            onPostedByLabelChange={(v) => { setPostedByLabel(v); setIsDirty(true); }}
+            selectedClientId={selectedClient?.id ?? null}
+            onSelectClient={(c) => { setSelectedClient(c); setIsDirty(true); }}
+          />
+        )}
         <BilingualField
           label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
           required
