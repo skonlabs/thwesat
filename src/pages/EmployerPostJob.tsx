@@ -156,6 +156,7 @@ const EmployerPostJob = () => {
       setTopupOpen(true);
       return;
     }
+    setSubmitting(true);
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const payload = {
@@ -199,6 +200,8 @@ const EmployerPostJob = () => {
       } else {
         toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
