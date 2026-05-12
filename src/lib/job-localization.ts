@@ -139,6 +139,8 @@ export function formatJobSalary(job: SalaryLike, lang: Language): string {
   const min = job.salary_min;
   const max = job.salary_max;
 
+  // Audit G: when employer flagged the role as negotiable, hide any stale numeric range.
+  if (job.salary_negotiable) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
   if (!min && !max) return lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable";
 
   const unit = lang === "my" ? "လ" : "mo";
