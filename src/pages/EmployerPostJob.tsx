@@ -154,7 +154,6 @@ const EmployerPostJob = () => {
       return;
     }
     try {
-    try {
       const { supabase } = await import("@/integrations/supabase/client");
       const payload = {
         title: titleEn, title_my: titleMy || null,
@@ -186,10 +185,9 @@ const EmployerPostJob = () => {
         _featured: isFeatured,
       });
       if (rpcErr) throw rpcErr;
-      // Refresh wallet caches after successful spend
-      await Promise.all([
-        (await import("@tanstack/react-query")).useQueryClient ? Promise.resolve() : Promise.resolve(),
-      ]);
+      qc.invalidateQueries({ queryKey: ["wallet"] });
+      qc.invalidateQueries({ queryKey: ["wallet-transactions"] });
+      qc.invalidateQueries({ queryKey: ["feature-unlocks"] });
       navigate("/employer/dashboard");
     } catch (e: any) {
       const msg = e?.message || "";
