@@ -238,7 +238,6 @@ const Settings = () => {
 
   const handleEmergencyExit = async () => {
     await signOut();
-    navigate("/");
   };
 
   const generateToken = () => {
