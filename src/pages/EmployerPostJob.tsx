@@ -207,9 +207,9 @@ const EmployerPostJob = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ တင်ရန်" : "Post a Job"} backPath="/employer/dashboard" />
-      <div className="px-5">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
         <div className="mb-5 flex items-center gap-2">
           {[1, 2].map(s => (
             <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`} />

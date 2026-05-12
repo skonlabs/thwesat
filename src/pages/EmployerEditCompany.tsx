@@ -107,7 +107,7 @@ const EmployerEditCompany = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ကုမ္ပဏီ ပြင်ဆင်ရန်" : "Edit Company Info"} backPath="/employer/dashboard" />
       {isDirty && (
         <div className="mx-5 mt-3 rounded-xl border border-yellow-400 bg-yellow-50 px-4 py-2.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
