@@ -86,13 +86,20 @@ export function useSavedJobs() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []).map((saved: any) => ({
-        ...saved,
-        jobs: saved.jobs ? {
-          ...saved.jobs,
-          payment_methods: sanitizeJobPaymentMethods(saved.jobs.payment_methods),
-        } : saved.jobs,
-      }));
+      // Audit A11: skip rows whose underlying job has been deleted (no FK cascade exists yet).
+      const orphans = (data || []).filter((s: any) => !s.jobs).map((s: any) => s.id);
+      if (orphans.length > 0) {
+        try { await supabase.from("saved_jobs").delete().in("id", orphans); } catch { /* best effort */ }
+      }
+      return (data || [])
+        .filter((saved: any) => !!saved.jobs)
+        .map((saved: any) => ({
+          ...saved,
+          jobs: {
+            ...saved.jobs,
+            payment_methods: sanitizeJobPaymentMethods(saved.jobs.payment_methods),
+          },
+        }));
     },
     enabled: !!user,
   });
