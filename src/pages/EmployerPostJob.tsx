@@ -150,7 +150,7 @@ const EmployerPostJob = () => {
     }
     if (insufficient) {
       toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient credits", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
-      navigate("/wallet");
+      setTopupOpen(true);
       return;
     }
     try {
