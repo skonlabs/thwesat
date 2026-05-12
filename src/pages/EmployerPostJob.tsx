@@ -208,6 +208,14 @@ const EmployerPostJob = () => {
             <p className="mt-1 text-xs text-muted-foreground">
               {lang === "my" ? "💡 ခေါင်းစဉ်နှင့် ဖော်ပြချက်ကို ရှင်းလင်းစွာ ရေးပါ — လျှောက်ထားသူ ပိုများလာပါမည်" : "💡 Clear titles and detailed descriptions attract more qualified applicants"}
             </p>
+            {isAgent && (
+              <AgentClientPicker
+                postedByLabel={postedByLabel}
+                onPostedByLabelChange={setPostedByLabel}
+                selectedClientId={selectedClient?.id ?? null}
+                onSelectClient={setSelectedClient}
+              />
+            )}
             <BilingualField
               label={lang === "my" ? "ခေါင်းစဉ်" : "Title"}
               required
