@@ -66,8 +66,8 @@ export function useStartConversation() {
             .from("mentor_profiles")
             .select("id", { head: true, count: "exact" })
             .eq("id", otherUserId),
-          supabase
-            .from("employer_profiles")
+          (supabase as any)
+            .from("employer_profiles_public")
             .select("id", { head: true, count: "exact" })
             .eq("id", otherUserId),
         ]);
