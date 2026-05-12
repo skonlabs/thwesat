@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import LanguageToggle from "@/components/LanguageToggle";
 import AuthShell from "@/components/AuthShell";
+import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 30;
@@ -119,9 +120,11 @@ const Login = () => {
         <img src={logo} alt="ThweSat" width={56} height={56} className="mb-6" />
 
         <h1 className="mb-1 text-2xl font-bold text-foreground">{lang === "my" ? "ပြန်လည်ဝင်ရောက်ရန်" : "Sign In"}</h1>
-        <p className="mb-8 text-sm text-muted-foreground">{lang === "my" ? "ကြိုဆိုပါသည်" : "Welcome back"}</p>
+        <p className="mb-6 text-sm text-muted-foreground">{lang === "my" ? "ကြိုဆိုပါသည်" : "Welcome back"}</p>
 
-        <div className="space-y-4">
+        <SocialAuthButtons redirectTo="/dashboard" />
+
+        <div className="mt-5 space-y-4">
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">{lang === "my" ? "အီးမေးလ်" : "Email"}</Label>
             <div className="relative">
