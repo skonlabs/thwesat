@@ -211,6 +211,7 @@ type ProfileDraft = {
   experience: string;
   visibility: string;
   preferredWorkTypes: string[];
+  jobSearchStatus: string;
   hasWise: boolean;
   hasUpwork: boolean;
   hasLaptop: boolean;
@@ -285,6 +286,7 @@ const EditProfile = () => {
   const [experience, setExperience] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [preferredWorkTypes, setPreferredWorkTypes] = useState<string[]>([]);
+  const [jobSearchStatus, setJobSearchStatus] = useState<"open" | "casual" | "not_looking">("open");
   const [hasWise, setHasWise] = useState(false);
   const [hasUpwork, setHasUpwork] = useState(false);
   const [hasLaptop, setHasLaptop] = useState(false);
@@ -326,6 +328,7 @@ const EditProfile = () => {
     setExperience(draftText(draft, "experience", profile.experience ?? ""));
     setVisibility(draftText(draft, "visibility", profile.visibility ?? "public"));
     setPreferredWorkTypes(draftArray(draft, "preferredWorkTypes", profile.preferred_work_types ?? []));
+    setJobSearchStatus(draftText(draft, "jobSearchStatus", ((profile as any).job_search_status as "open" | "casual" | "not_looking") ?? "open") as "open" | "casual" | "not_looking");
     setHasWise(draftBool(draft, "hasWise", profile.has_wise ?? false));
     setHasUpwork(draftBool(draft, "hasUpwork", profile.has_upwork ?? false));
     setHasLaptop(draftBool(draft, "hasLaptop", profile.has_laptop ?? false));
@@ -352,7 +355,7 @@ const EditProfile = () => {
       _version: EDIT_PROFILE_DRAFT_VERSION,
       savedAt: Date.now(),
       name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
-      skills, languages, experience, visibility, preferredWorkTypes,
+      skills, languages, experience, visibility, preferredWorkTypes, jobSearchStatus,
       hasWise, hasUpwork, hasLaptop, internetStable,
       avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
     };
@@ -366,7 +369,7 @@ const EditProfile = () => {
         _version: EDIT_PROFILE_DRAFT_VERSION,
         savedAt: Date.now(),
         name, headline, bio, location, locationSearch, email, phoneCountryCode, phoneNumber, website,
-        skills, languages, experience, visibility, preferredWorkTypes,
+        skills, languages, experience, visibility, preferredWorkTypes, jobSearchStatus,
         hasWise, hasUpwork, hasLaptop, internetStable,
         avatarUrl: avatarUrl?.startsWith("blob:") ? null : avatarUrl,
       };
@@ -504,7 +507,8 @@ const EditProfile = () => {
         has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
         has_laptop: hasLaptop, internet_stable: internetStable,
         remote_ready: hasLaptop && internetStable,
-      }).eq("id", profile.id);
+        job_search_status: jobSearchStatus,
+      } as any).eq("id", profile.id);
       if (error) throw error;
 
       // Sync mentor_profiles if user is a mentor
@@ -661,6 +665,36 @@ const EditProfile = () => {
             ))}
           </div>
         </motion.div>
+
+        {/* Job Search Status */}
+        {!isHiringRole && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.075 }} className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <Search className="h-4 w-4 text-primary" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်ရှာဖွေမှု အခြေအနေ" : "Job Search Status"}</h2>
+          </div>
+          <div className="grid gap-2">
+            {([
+              { value: "open", label: { en: "Open for Job", my: "အလုပ်လက်ခံနိုင်" }, desc: { en: "Actively looking — show me to recruiters", my: "တက်ကြွစွာ ရှာနေသည်" } },
+              { value: "casual", label: { en: "Casually Looking", my: "လေ့လာနေဆဲ" }, desc: { en: "Open to the right opportunity", my: "သင့်တော်သော အလုပ်ကိုသာ" } },
+              { value: "not_looking", label: { en: "Not Looking", my: "မရှာသေး" }, desc: { en: "Hide from recruiter searches", my: "ခေါ်ယူသူများထံ ဖျောက်ထားရန်" } },
+            ] as const).map(opt => (
+              <button key={opt.value} type="button" onClick={() => { setJobSearchStatus(opt.value); markDirty(); }}
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${jobSearchStatus === opt.value ? "border-primary/40 bg-primary/5" : "border-border hover:border-border/80"}`}>
+                <div className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2 ${jobSearchStatus === opt.value ? "border-primary bg-primary" : "border-border"}`}>
+                  {jobSearchStatus === opt.value && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${jobSearchStatus === opt.value ? "text-primary" : "text-foreground"}`}>{opt.label[lang]}</p>
+                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{opt.desc[lang]}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+        )}
 
         {/* Preferred Work Type */}
         {!isHiringRole && (
