@@ -116,7 +116,7 @@ export function usePartnerStatementPreview(
     enabled: !!partner,
     queryFn: async () => {
       if (!partner) return null;
-      const { start, endExclusive } = periodBoundsUtc(year, month);
+      const { start, endExclusive } = periodBoundsYangon(year, month);
       const periodEndIso = new Date(new Date(endExclusive).getTime() - 1).toISOString();
 
       // Attributions for this partner
@@ -126,46 +126,81 @@ export function usePartnerStatementPreview(
         .eq("partner_id", partner.id);
       if (aErr) throw aErr;
       const userIds = (attribs || []).map((a: any) => a.user_id);
-      const ageBaseByUser = new Map<string, string>(
-        (attribs || []).map((a: any) => [a.user_id, a.first_paid_at || a.attributed_at]),
+      // Use first_paid_at when present; otherwise leave undefined and
+      // fall back to the payment's own date so age = 0 (Growth) for the
+      // very first txn rather than wrongly aging from attribution date.
+      const firstPaidByUser = new Map<string, string | null>(
+        (attribs || []).map((a: any) => [a.user_id, a.first_paid_at || null]),
       );
 
       let payments: AttributedPayment[] = [];
+      // Map from payment_request_id -> bucket of original payment (for reversal classification)
+      const paymentBucketById = new Map<string, ReturnType<typeof ageBucket>>();
+
       if (userIds.length > 0) {
         const { data: pays, error: pErr } = await (supabase as any)
           .from("payment_requests")
-          .select("user_id, payment_type, amount, third_party_payout, npr_amount, revenue_classification, updated_at, status")
+          .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at, status")
           .in("user_id", userIds)
           .eq("status", "approved")
-          .gte("updated_at", start)
-          .lt("updated_at", endExclusive);
+          .eq("currency", "MMK")
+          .gte("reviewed_at", start)
+          .lt("reviewed_at", endExclusive);
         if (pErr) throw pErr;
-        payments = (pays || []).map((p: any) => ({
-          user_id: p.user_id,
-          payment_type: p.payment_type,
-          amount: Number(p.amount || 0),
-          third_party_payout: Number(p.third_party_payout || 0),
-          npr_amount_override: p.npr_amount,
-          approved_at: p.updated_at,
-          classification: (p.revenue_classification || "new") as any,
-          account_age_months: monthsBetween(ageBaseByUser.get(p.user_id) || start, periodEndIso),
-        }));
+        payments = (pays || []).map((p: any) => {
+          const ageBase = firstPaidByUser.get(p.user_id) || p.reviewed_at;
+          const months = monthsBetween(ageBase, periodEndIso);
+          const bucket = ageBucket(months);
+          paymentBucketById.set(p.id, bucket);
+          return {
+            user_id: p.user_id,
+            payment_type: p.payment_type,
+            amount: Number(p.amount || 0),
+            third_party_payout: Number(p.third_party_payout || 0),
+            npr_amount_override: p.npr_amount,
+            approved_at: p.reviewed_at,
+            classification: (p.revenue_classification || "new") as any,
+            account_age_months: months,
+          };
+        });
       }
 
-      // Reversals in period
-      const paymentIds = payments.length > 0 ? null : []; // we filter by date below
-      const { data: revRows } = await (supabase as any)
+      // Reversals occurring in this period for attributed users.
+      // For each reversal, look up the ORIGINAL payment to determine its bucket
+      // (the original payment may be from any prior period).
+      const { data: revRowsRaw } = await (supabase as any)
         .from("payment_reversals")
-        .select("amount, currency, npr_amount, occurred_at, payment_request_id, payment_requests!inner(user_id)")
+        .select("amount, currency, npr_amount, occurred_at, payment_request_id")
         .gte("occurred_at", start)
         .lt("occurred_at", endExclusive);
-      const reversals = ((revRows || []) as any[])
-        .filter((r) => userIds.includes(r.payment_requests?.user_id))
-        .map((r) => ({
-          amount_npr: Number(r.npr_amount ?? r.amount ?? 0),
-          occurred_at: r.occurred_at,
-        }));
-      void paymentIds;
+      const revRows = (revRowsRaw || []) as any[];
+      const origIds = Array.from(new Set(revRows.map((r) => r.payment_request_id)));
+      let origPayments: any[] = [];
+      if (origIds.length > 0) {
+        const { data: origs } = await (supabase as any)
+          .from("payment_requests")
+          .select("id, user_id, reviewed_at, currency")
+          .in("id", origIds);
+        origPayments = origs || [];
+      }
+      const origById = new Map<string, any>(origPayments.map((o) => [o.id, o]));
+
+      const reversals: ReversalEntry[] = revRows
+        .filter((r) => {
+          const o = origById.get(r.payment_request_id);
+          return o && userIds.includes(o.user_id) && (o.currency || "MMK") === "MMK";
+        })
+        .map((r) => {
+          const o = origById.get(r.payment_request_id);
+          // Bucket = bucket of the original payment at the time it was approved
+          const ageBase = firstPaidByUser.get(o.user_id) || o.reviewed_at;
+          const monthsAtOrig = monthsBetween(ageBase, o.reviewed_at);
+          return {
+            amount_npr: Number(r.npr_amount ?? r.amount ?? 0),
+            occurred_at: r.occurred_at,
+            bucket: ageBucket(monthsAtOrig),
+          };
+        });
 
       // Quality metrics for the period
       const { data: qRows } = await (supabase as any)
