@@ -18,10 +18,14 @@ const CityAutocomplete = ({ value, onChange, placeholder, emptyText, className, 
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const all = useMemo(
-    () => APAC_CITIES.map((c) => `${c.city}, ${c.country}`),
-    []
-  );
+  const all = useMemo(() => {
+    const cityLabels = APAC_CITIES.map((c) => `${c.city}, ${c.country}`);
+    const countryLabels = Array.from(new Set(APAC_CITIES.map((c) => c.country)))
+      .filter((c) => c && c !== "Other")
+      .map((c) => c);
+    // Countries first so a bare country query surfaces them at the top.
+    return [...countryLabels, ...cityLabels];
+  }, []);
 
   const matches = useMemo(() => {
     const q = value.trim().toLowerCase();
