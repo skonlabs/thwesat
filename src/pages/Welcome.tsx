@@ -124,11 +124,12 @@ const Welcome = () => {
             <div className="hidden h-8 w-px bg-border md:block" />
             <div className="flex flex-1 items-center gap-2 px-3 md:px-4">
               <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={2} />
-              <Input
+              <CityAutocomplete
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={setLocation}
                 placeholder={my ? "မြို့ သို့မဟုတ် နိုင်ငံ" : "City or country"}
-                className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                emptyText={my ? "မတွေ့ပါ — Enter နှိပ်၍ ရှာနိုင်သည်" : "No matching city. Press Enter to search."}
+                hideIcon
               />
             </div>
             <Button type="submit" size="lg" className="h-11 rounded-xl bg-accent px-6 text-accent-foreground hover:bg-accent/90 md:rounded-full">
