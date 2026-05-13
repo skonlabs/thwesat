@@ -446,7 +446,7 @@ const JobDetail = () => {
           );
         }
         return (
-          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
+          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { if (!requireAuth()) return; setShowApplyModal(true); }}>
             {hadPreviousApplication
               ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
               : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}
