@@ -126,6 +126,7 @@ const Jobs = () => {
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const { role } = useRole();
   const isSeeker = role === "jobseeker";
 
