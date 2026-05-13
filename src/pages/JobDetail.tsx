@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
@@ -28,6 +29,7 @@ const JobDetail = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const { data: job, isLoading } = useJob(id);
   const { data: savedJobIds = [] } = useSavedJobIds();
   const toggleSaveMutation = useToggleSaveJob();
@@ -277,6 +279,7 @@ const JobDetail = () => {
 
   const handleApply = () => {
     if (!id) return;
+    if (!requireAuth()) return;
     if (!selectedCvId && !selectedGeneratedResumeId) {
       toast({
         title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း လိုအပ်ပါသည်" : "Resume required",
@@ -326,6 +329,7 @@ const JobDetail = () => {
 
   const handleSave = () => {
     if (!id) return;
+    if (!requireAuth()) return;
     toggleSaveMutation.mutate({ jobId: id, isSaved: saved });
   };
 
@@ -410,7 +414,7 @@ const JobDetail = () => {
         <Bookmark className="h-4 w-4" strokeWidth={1.5} fill={saved ? "currentColor" : "none"} />
       </button>
       {!isOwnJob && (
-        <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
+        <Button variant="outline" size="lg" className="rounded-xl" onClick={() => { if (!requireAuth()) return; startConversation(job.employer_id); }}>
           <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
           {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
         </Button>
@@ -442,7 +446,7 @@ const JobDetail = () => {
           );
         }
         return (
-          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setShowApplyModal(true)}>
+          <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { if (!requireAuth()) return; setShowApplyModal(true); }}>
             {hadPreviousApplication
               ? (lang === "my" ? "ယခင် လျှောက်ထားဖူး — ထပ်မံ လျှောက်ထားမည်?" : "You applied previously. Apply again?")
               : (lang === "my" ? "လျှောက်ထားရန်" : "Apply")}

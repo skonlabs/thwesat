@@ -20,6 +20,7 @@ import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
@@ -30,6 +31,7 @@ const MentorDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
   const { startConversation } = useStartConversation();
+  const requireAuth = useGuestGate();
   const { data: mentor, isLoading } = useMentorProfile(id);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
@@ -221,10 +223,10 @@ const MentorDetail = () => {
 
             {/* CTAs */}
             <div className="relative mt-4 flex gap-2">
-              <Button variant="outline" size="lg" className="flex-1 rounded-xl bg-background/70" onClick={() => id && startConversation(id)}>
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl bg-background/70" onClick={() => { if (!requireAuth()) return; if (id) startConversation(id); }}>
                 <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { if (!requireAuth()) return; navigate(`/mentors/book?mentorId=${id}`); }}>
                 <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"}
               </Button>
             </div>
@@ -262,7 +264,7 @@ const MentorDetail = () => {
             </div>
             {nextSlot ? (
               <button
-                onClick={() => navigate(`/mentors/book?mentorId=${id}`)}
+                onClick={() => { if (!requireAuth()) return; navigate(`/mentors/book?mentorId=${id}`); }}
                 className="block w-full rounded-xl border border-border bg-card p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-card/80"
               >
                 <div className="flex items-center gap-3">

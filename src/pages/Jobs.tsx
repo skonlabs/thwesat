@@ -11,6 +11,7 @@ import { useSearchParamState } from "@/hooks/use-search-param-state";
 import ListSkeleton from "@/components/ListSkeleton";
 import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { useAuth } from "@/hooks/use-auth";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { useRole } from "@/hooks/use-role";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,6 +126,7 @@ const Jobs = () => {
   const { data: applications = [] } = useApplications();
   const toggleSaveMutation = useToggleSaveJob();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const { role } = useRole();
   const isSeeker = role === "jobseeker";
 
@@ -275,6 +277,7 @@ const Jobs = () => {
 
   const handleToggleSave = (jobId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!requireAuth()) return;
     const isSaved = savedJobIds.includes(jobId);
     toggleSaveMutation.mutate({ jobId, isSaved });
   };

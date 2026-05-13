@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useGuide, useGuideFeedbackCounts, useUserGuideFeedback } from "@/hooks/use-guides-data";
 import { useAuth } from "@/hooks/use-auth";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
@@ -154,6 +155,7 @@ const GuideDetail = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const queryClient = useQueryClient();
   const { data: guide, isLoading } = useGuide(id);
   const { data: counts } = useGuideFeedbackCounts(id);
@@ -179,9 +181,9 @@ const GuideDetail = () => {
   const feedback = userFeedback ? (userFeedback.is_helpful ? "yes" : "no") : null;
 
   const handleFeedback = async (type: "yes" | "no") => {
-    if (!user || !id) {
-      return;
-    }
+    if (!id) return;
+    if (!requireAuth()) return;
+    if (!user) return;
     await supabase.from("guide_feedback").upsert({
       guide_id: id, user_id: user.id, is_helpful: type === "yes",
     }, { onConflict: "guide_id,user_id" });

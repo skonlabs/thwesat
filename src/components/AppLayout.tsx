@@ -3,11 +3,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import BottomNav from "./BottomNav";
 import DesktopNav from "./DesktopNav";
+import GuestHeader from "./GuestHeader";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
 import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
 
 // Routes that own scrollable input/chat surfaces where pull-to-refresh
 // would interfere with normal scrolling/typing.
@@ -81,17 +83,20 @@ const AppLayout = () => {
     );
   };
 
+  const { user } = useAuth();
+  const isGuest = !user;
+
   return (
     <div className="min-h-screen bg-background">
-      <DesktopNav />
+      {isGuest ? <GuestHeader /> : <DesktopNav />}
       <div className="mx-auto max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
         <PullToRefresh onRefresh={handleRefresh} disabled={ptrDisabled}>
-          <div className="pb-20 md:pb-10">
+          <div className={isGuest ? "pb-10" : "pb-20 md:pb-10"}>
             <Outlet />
           </div>
         </PullToRefresh>
       </div>
-      <BottomNav />
+      {!isGuest && <BottomNav />}
     </div>
   );
 };
