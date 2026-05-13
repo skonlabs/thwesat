@@ -313,7 +313,8 @@ export function usePartnerPeriodPayments(
       const { data: attribs } = await (supabase as any)
         .from("partner_attributions")
         .select("user_id")
-        .eq("partner_id", partner.id);
+        .eq("partner_id", partner.id)
+        .limit(MAX_ROWS);
       const userIds = (attribs || []).map((a: any) => a.user_id);
       if (userIds.length === 0) return [];
       const { data, error } = await (supabase as any)
