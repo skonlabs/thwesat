@@ -155,6 +155,7 @@ const GuideDetail = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const queryClient = useQueryClient();
   const { data: guide, isLoading } = useGuide(id);
   const { data: counts } = useGuideFeedbackCounts(id);
