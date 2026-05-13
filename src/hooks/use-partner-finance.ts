@@ -254,6 +254,68 @@ export function usePartnerStatementPreview(
   });
 }
 
+/**
+ * Approved MMK payments for users attributed to a partner within a Yangon-aligned
+ * month. Used by the override editor (third_party_payout, npr_amount, classification).
+ */
+export function usePartnerPeriodPayments(
+  partner: Partner | null | undefined,
+  year: number,
+  month: number,
+) {
+  return useQuery({
+    queryKey: ["partner-period-payments", partner?.id, year, month],
+    enabled: !!partner,
+    queryFn: async () => {
+      if (!partner) return [];
+      const { start, endExclusive } = periodBoundsYangon(year, month);
+      const { data: attribs } = await (supabase as any)
+        .from("partner_attributions")
+        .select("user_id")
+        .eq("partner_id", partner.id);
+      const userIds = (attribs || []).map((a: any) => a.user_id);
+      if (userIds.length === 0) return [];
+      const { data, error } = await (supabase as any)
+        .from("payment_requests")
+        .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at")
+        .in("user_id", userIds)
+        .eq("status", "approved")
+        .eq("currency", "MMK")
+        .gte("reviewed_at", start)
+        .lt("reviewed_at", endExclusive)
+        .order("reviewed_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as any[];
+    },
+  });
+}
+
+export function useUpdatePaymentOverrides() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      id: string;
+      third_party_payout?: number | null;
+      npr_amount?: number | null;
+      revenue_classification?: string | null;
+    }) => {
+      const patch: any = {};
+      if (input.third_party_payout !== undefined) patch.third_party_payout = input.third_party_payout;
+      if (input.npr_amount !== undefined) patch.npr_amount = input.npr_amount;
+      if (input.revenue_classification !== undefined) patch.revenue_classification = input.revenue_classification;
+      const { error } = await (supabase as any)
+        .from("payment_requests")
+        .update(patch)
+        .eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["partner-period-payments"] });
+      qc.invalidateQueries({ queryKey: ["partner-statement-preview"] });
+    },
+  });
+}
+
 export function useFinalizeStatement() {
   const qc = useQueryClient();
   return useMutation({

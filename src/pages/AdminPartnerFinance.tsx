@@ -20,19 +20,26 @@ import {
   usePartnerQualityMetrics,
   useFinalizeStatement,
   usePaymentReversals,
+  usePartnerPeriodPayments,
+  useUpdatePaymentOverrides,
   type Partner,
 } from "@/hooks/use-partner-finance";
 
 const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} MMK`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
-const now = new Date();
+// Default selector to the current month on the Asia/Yangon (UTC+6:30) calendar.
+function nowYangon() {
+  const d = new Date(Date.now() + (6 * 60 + 30) * 60_000);
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+}
 
 export default function AdminPartnerFinance() {
   const { data: partners, isLoading: loadingPartners } = usePartners();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [year, setYear] = useState<number>(now.getUTCFullYear());
-  const [month, setMonth] = useState<number>(now.getUTCMonth() + 1);
+  const _now = nowYangon();
+  const [year, setYear] = useState<number>(_now.year);
+  const [month, setMonth] = useState<number>(_now.month);
 
   const partner = useMemo<Partner | null>(
     () => partners?.find((p) => p.id === selectedId) ?? partners?.[0] ?? null,
@@ -84,6 +91,7 @@ export default function AdminPartnerFinance() {
             <TabsList>
               <TabsTrigger value="statement">Monthly Statement</TabsTrigger>
               <TabsTrigger value="attributions">Attributions</TabsTrigger>
+              <TabsTrigger value="payments">Payments &amp; Overrides</TabsTrigger>
               <TabsTrigger value="quality">Quality Gate</TabsTrigger>
               <TabsTrigger value="reversals">Reversals</TabsTrigger>
               <TabsTrigger value="history">Statement History</TabsTrigger>
@@ -91,6 +99,7 @@ export default function AdminPartnerFinance() {
 
             <TabsContent value="statement"><StatementTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="attributions"><AttributionsTab partner={partner} /></TabsContent>
+            <TabsContent value="payments"><PaymentsTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="quality"><QualityTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="reversals"><ReversalsTab /></TabsContent>
             <TabsContent value="history"><HistoryTab partner={partner} /></TabsContent>
@@ -261,6 +270,103 @@ function AttributionsTab({ partner }: { partner: Partner }) {
             </div>
           ))}
       </Card>
+    </div>
+  );
+}
+
+// ───────────── Payments & Overrides tab ─────────────
+function PaymentsTab({ partner, year, month }: { partner: Partner; year: number; month: number }) {
+  const { data, isLoading } = usePartnerPeriodPayments(partner, year, month);
+  const update = useUpdatePaymentOverrides();
+
+  if (isLoading) return <Card className="p-4 text-sm text-muted-foreground">Loading…</Card>;
+  if (!data || data.length === 0) {
+    return <Card className="p-4 text-sm text-muted-foreground">No approved MMK payments for attributed users in this period.</Card>;
+  }
+
+  return (
+    <div className="space-y-3">
+      <Card className="p-3 text-xs text-muted-foreground">
+        Edit per-payment <strong>third-party payout</strong> (e.g. agent/recruiter cut deducted before NPR), an
+        explicit <strong>NPR override</strong>, or the <strong>revenue classification</strong> (new / expansion /
+        reactivation). Changes recompute the statement preview live.
+      </Card>
+      <Card className="divide-y">
+        {data.map((p: any) => (
+          <PaymentRow key={p.id} p={p} onSave={(patch) => update.mutateAsync({ id: p.id, ...patch })} />
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function PaymentRow({ p, onSave }: { p: any; onSave: (patch: any) => Promise<void> }) {
+  const [tpp, setTpp] = useState<string>(p.third_party_payout != null ? String(p.third_party_payout) : "");
+  const [npr, setNpr] = useState<string>(p.npr_amount != null ? String(p.npr_amount) : "");
+  const [cls, setCls] = useState<string>(p.revenue_classification || "new");
+  const [busy, setBusy] = useState(false);
+
+  const dirty =
+    String(p.third_party_payout ?? "") !== tpp ||
+    String(p.npr_amount ?? "") !== npr ||
+    (p.revenue_classification || "new") !== cls;
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      await onSave({
+        third_party_payout: tpp === "" ? 0 : Number(tpp),
+        npr_amount: npr === "" ? null : Number(npr),
+        revenue_classification: cls,
+      });
+      toast.success("Saved");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
+  const computedNpr = npr !== "" ? Number(npr)
+    : p.payment_type === "mentor_session" ? Number(p.amount || 0) * 0.15
+    : Math.max(0, Number(p.amount || 0) - Number(tpp || 0));
+
+  return (
+    <div className="space-y-2 p-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="font-medium">{p.payment_type} · {fmt(p.amount)}</div>
+          <div className="font-mono text-[10px] text-muted-foreground">{p.id}</div>
+          <div className="text-xs text-muted-foreground">
+            user {p.user_id.slice(0, 8)}… · {new Date(p.reviewed_at).toLocaleDateString()}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Effective NPR</div>
+          <div className="font-bold">{fmt(computedNpr)}</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div>
+          <Label className="text-[10px]">3rd-party payout</Label>
+          <Input type="number" value={tpp} onChange={(e) => setTpp(e.target.value)} />
+        </div>
+        <div>
+          <Label className="text-[10px]">NPR override</Label>
+          <Input type="number" value={npr} onChange={(e) => setNpr(e.target.value)} placeholder="auto" />
+        </div>
+        <div>
+          <Label className="text-[10px]">Classification</Label>
+          <Select value={cls} onValueChange={setCls}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="expansion">Expansion</SelectItem>
+              <SelectItem value="reactivation">Reactivation</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-end">
+          <Button size="sm" disabled={!dirty || busy} onClick={save} className="w-full">Save</Button>
+        </div>
+      </div>
     </div>
   );
 }
