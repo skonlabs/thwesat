@@ -63,6 +63,7 @@ const Mentors = () => {
   const navigate = useNavigate();
   const { role } = useRole();
   const { startConversation } = useStartConversation();
+  const requireAuth = useGuestGate();
   const { data: mentors = [], isLoading } = useMentorProfiles();
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
