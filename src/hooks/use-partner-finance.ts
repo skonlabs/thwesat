@@ -130,15 +130,20 @@ export function usePartnerStatementPreview(
         .limit(MAX_ROWS);
       if (aErr) throw aErr;
       const userIds = (attribs || []).map((a: any) => a.user_id);
-      const firstPaidByUser = new Map<string, string | null>(
-        (attribs || []).map((a: any) => [a.user_id, a.first_paid_at || null]),
+      // Age base = attributed_at (≈ signup) per SOP "first 12 months from joining".
+      // Fall back to first_paid_at only if attribution timestamp is missing.
+      const ageBaseByUser = new Map<string, string | null>(
+        (attribs || []).map((a: any) => [a.user_id, a.attributed_at || a.first_paid_at || null]),
       );
       // Onboarding %: only count attributions that have had a full 7-day window
       // BEFORE period end. Younger ones still have time to onboard and shouldn't
-      // count as failures yet.
+      // count as failures yet. Use Date.getTime() to avoid ISO suffix mismatches
+      // (Postgres `+00:00` vs JS `Z`).
       const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-      const cutoff = new Date(new Date(endExclusive).getTime() - sevenDaysMs).toISOString();
-      const eligible = (attribs || []).filter((a: any) => a.attributed_at && a.attributed_at <= cutoff);
+      const cutoffMs = new Date(endExclusive).getTime() - sevenDaysMs;
+      const eligible = (attribs || []).filter(
+        (a: any) => a.attributed_at && new Date(a.attributed_at).getTime() <= cutoffMs,
+      );
       const onboardedCount = eligible.filter((a: any) => !!a.onboarding_completed_at).length;
       const onboardingPct = eligible.length > 0 ? (onboardedCount / eligible.length) * 100 : 100; // vacuously true if no eligible attribs
 
@@ -159,7 +164,7 @@ export function usePartnerStatementPreview(
           .limit(MAX_ROWS);
         if (pErr) throw pErr;
         payments = (pays || []).map((p: any) => {
-          const ageBase = firstPaidByUser.get(p.user_id) || p.reviewed_at;
+          const ageBase = ageBaseByUser.get(p.user_id) || p.reviewed_at;
           const months = monthsBetween(ageBase, periodEndIso);
           const ap: AttributedPayment = {
             user_id: p.user_id,
@@ -205,7 +210,7 @@ export function usePartnerStatementPreview(
         })
         .map((r) => {
           const o = origById.get(r.payment_request_id);
-          const ageBase = firstPaidByUser.get(o.user_id) || o.reviewed_at;
+          const ageBase = ageBaseByUser.get(o.user_id) || o.reviewed_at;
           const monthsAtOrig = monthsBetween(ageBase, o.reviewed_at);
           // Compute NPR of the reversal: prefer explicit, else proportional to
           // original NPR using ratio of reversed gross to original gross.
@@ -308,7 +313,8 @@ export function usePartnerPeriodPayments(
       const { data: attribs } = await (supabase as any)
         .from("partner_attributions")
         .select("user_id")
-        .eq("partner_id", partner.id);
+        .eq("partner_id", partner.id)
+        .limit(MAX_ROWS);
       const userIds = (attribs || []).map((a: any) => a.user_id);
       if (userIds.length === 0) return [];
       const { data, error } = await (supabase as any)
