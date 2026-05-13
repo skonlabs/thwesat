@@ -37,8 +37,13 @@ const Welcome = () => {
     navigate(`/jobs${params.toString() ? `?${params.toString()}` : ""}`);
   };
 
-  const featured = (jobs || []).filter((j: any) => j.is_featured).slice(0, 6);
-  const featuredJobs = featured.length > 0 ? featured : (jobs || []).slice(0, 6);
+  const HOME_JOBS_LIMIT = 6;
+  const featured = (jobs || []).filter((j: any) => j.is_featured).slice(0, HOME_JOBS_LIMIT);
+  const featuredIds = new Set(featured.map((j: any) => j.id));
+  const recentFill = (jobs || [])
+    .filter((j: any) => !featuredIds.has(j.id))
+    .slice(0, Math.max(0, HOME_JOBS_LIMIT - featured.length));
+  const featuredJobs = [...featured, ...recentFill].slice(0, HOME_JOBS_LIMIT);
 
   const categories = [
     { icon: Code2, en: "Tech & IT", my: "နည်းပညာ", q: "developer" },
