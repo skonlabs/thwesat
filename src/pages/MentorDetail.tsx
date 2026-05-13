@@ -264,7 +264,7 @@ const MentorDetail = () => {
             </div>
             {nextSlot ? (
               <button
-                onClick={() => navigate(`/mentors/book?mentorId=${id}`)}
+                onClick={() => { if (!requireAuth()) return; navigate(`/mentors/book?mentorId=${id}`); }}
                 className="block w-full rounded-xl border border-border bg-card p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-card/80"
               >
                 <div className="flex items-center gap-3">
