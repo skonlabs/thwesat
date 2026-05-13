@@ -223,10 +223,10 @@ const MentorDetail = () => {
 
             {/* CTAs */}
             <div className="relative mt-4 flex gap-2">
-              <Button variant="outline" size="lg" className="flex-1 rounded-xl bg-background/70" onClick={() => id && startConversation(id)}>
+              <Button variant="outline" size="lg" className="flex-1 rounded-xl bg-background/70" onClick={() => { if (!requireAuth()) return; if (id) startConversation(id); }}>
                 <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => navigate(`/mentors/book?mentorId=${id}`)}>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { if (!requireAuth()) return; navigate(`/mentors/book?mentorId=${id}`); }}>
                 <Calendar className="mr-1.5 h-4 w-4" strokeWidth={1.5} /> {lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"}
               </Button>
             </div>
