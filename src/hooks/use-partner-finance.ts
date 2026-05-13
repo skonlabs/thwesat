@@ -163,22 +163,29 @@ export function usePartnerStatementPreview(
           .lt("reviewed_at", endExclusive)
           .limit(MAX_ROWS);
         if (pErr) throw pErr;
-        payments = (pays || []).map((p: any) => {
-          const ageBase = ageBaseByUser.get(p.user_id) || p.reviewed_at;
-          const months = monthsBetween(ageBase, periodEndIso);
-          const ap: AttributedPayment = {
-            user_id: p.user_id,
-            payment_type: p.payment_type,
-            amount: Number(p.amount || 0),
-            third_party_payout: Number(p.third_party_payout || 0),
-            npr_amount_override: p.npr_amount,
-            approved_at: p.reviewed_at,
-            classification: (p.revenue_classification || "new") as any,
-            account_age_months: months,
-          };
-          paymentByIdForReversal.set(p.id, { ap, reviewed_at: p.reviewed_at, user_id: p.user_id });
-          return ap;
-        });
+        payments = (pays || [])
+          // Drop payments that pre-date the user's attribution — partner only
+          // earns on revenue from the moment of attribution forward.
+          .filter((p: any) => {
+            const ab = ageBaseByUser.get(p.user_id);
+            return !ab || new Date(p.reviewed_at).getTime() >= new Date(ab).getTime();
+          })
+          .map((p: any) => {
+            const ageBase = ageBaseByUser.get(p.user_id) || p.reviewed_at;
+            const months = monthsBetween(ageBase, periodEndIso);
+            const ap: AttributedPayment = {
+              user_id: p.user_id,
+              payment_type: p.payment_type,
+              amount: Number(p.amount || 0),
+              third_party_payout: Number(p.third_party_payout || 0),
+              npr_amount_override: p.npr_amount,
+              approved_at: p.reviewed_at,
+              classification: (p.revenue_classification || "new") as any,
+              account_age_months: months,
+            };
+            paymentByIdForReversal.set(p.id, { ap, reviewed_at: p.reviewed_at, user_id: p.user_id });
+            return ap;
+          });
       }
 
       // Reversals occurring in this period for attributed users.
