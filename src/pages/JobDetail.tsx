@@ -329,6 +329,7 @@ const JobDetail = () => {
 
   const handleSave = () => {
     if (!id) return;
+    if (!requireAuth()) return;
     toggleSaveMutation.mutate({ jobId: id, isSaved: saved });
   };
 
