@@ -335,14 +335,14 @@ export function useUpdatePaymentOverrides() {
       npr_amount?: number | null;
       revenue_classification?: string | null;
     }) => {
-      const patch: any = {};
-      if (input.third_party_payout !== undefined) patch.third_party_payout = input.third_party_payout;
-      if (input.npr_amount !== undefined) patch.npr_amount = input.npr_amount;
-      if (input.revenue_classification !== undefined) patch.revenue_classification = input.revenue_classification;
-      const { error } = await (supabase as any)
-        .from("payment_requests")
-        .update(patch)
-        .eq("id", input.id);
+      // Use SECURITY DEFINER RPC so RLS on payment_requests doesn't silently
+      // refuse the update — the RPC checks admin role server-side.
+      const { error } = await (supabase as any).rpc("admin_set_payment_revenue_overrides", {
+        _payment_id: input.id,
+        _third_party_payout: input.third_party_payout ?? null,
+        _npr_amount: input.npr_amount ?? null,
+        _revenue_classification: input.revenue_classification ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -364,10 +364,31 @@ export function useFinalizeStatement() {
       const { data: u } = await supabase.auth.getUser();
       const userId = u.user?.id;
       if (!userId) throw new Error("Not authenticated");
+      const partner = input.preview.partner || {};
+      // Snapshot contract terms + raw computation inputs so the statement
+      // remains reproducible even if partner.maintenance_rate_* changes later.
+      const computationInputs = {
+        snapshot_at: new Date().toISOString(),
+        partner_terms: {
+          maintenance_rate_y2: partner.maintenance_rate_y2,
+          maintenance_rate_y3plus: partner.maintenance_rate_y3plus,
+          payout_cap_pct: partner.payout_cap_pct,
+        },
+        period_summary: {
+          payments_count: input.preview.payments_count,
+          attributed_users_count: input.preview.attributed_users_count,
+          eligible_attributions_count: input.preview.eligible_attributions_count,
+          onboarded_count: input.preview.onboarded_count,
+          onboarding_pct: input.preview.onboarding_pct,
+          quality_gate_breakdown: input.preview.quality_gate_breakdown,
+          tier_approval_required: input.preview.tier_approval_required,
+        },
+      };
       const { error } = await (supabase as any).from("partner_monthly_statements").upsert({
         partner_id: input.partner_id,
         period_year: input.year,
         period_month: input.month,
+        currency: "MMK",
         gross_attributed_npr: input.preview.gross_attributed_npr,
         reversals_npr: input.preview.reversals_npr,
         net_collected_attributed_npr: input.preview.net_collected_attributed_npr,
@@ -376,6 +397,8 @@ export function useFinalizeStatement() {
         maintenance_y3_npr: input.preview.maintenance_y3_npr,
         growth_tier_pct: input.preview.growth_tier_pct,
         growth_bonus_pct: input.preview.growth_bonus_pct,
+        maintenance_y2_pct: Number(partner.maintenance_rate_y2 ?? 0.075),
+        maintenance_y3_pct: Number(partner.maintenance_rate_y3plus ?? 0.05),
         mom_growth_pct: input.preview.mom_growth_pct,
         active_growth_ratio: input.preview.active_growth_ratio,
         quality_gate_passed: input.preview.quality_gate_passed,
@@ -386,6 +409,7 @@ export function useFinalizeStatement() {
         total_payout_uncapped: input.preview.total_payout_uncapped,
         total_payout: input.preview.total_payout,
         cap_applied: input.preview.cap_applied,
+        computation_inputs: computationInputs,
         status: "finalized",
         finalized_at: new Date().toISOString(),
         finalized_by: userId,
