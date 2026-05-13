@@ -123,7 +123,7 @@ const Welcome = () => {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder={my ? "ရာထူး၊ ကုမ္ပဏီ၊ ကျွမ်းကျင်မှု" : "Job title, company, or skill"}
-                className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                className="h-10 border-0 bg-transparent p-0 text-sm text-foreground shadow-none focus-visible:ring-0"
               />
             </div>
             <div className="hidden h-8 w-px bg-border md:block" />
