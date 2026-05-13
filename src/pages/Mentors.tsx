@@ -10,6 +10,7 @@ import PageHeader from "@/components/PageHeader";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useRole } from "@/hooks/use-role";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +63,7 @@ const Mentors = () => {
   const navigate = useNavigate();
   const { role } = useRole();
   const { startConversation } = useStartConversation();
+  const requireAuth = useGuestGate();
   const { data: mentors = [], isLoading } = useMentorProfiles();
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");
@@ -291,7 +293,7 @@ const Mentors = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); if (!requireAuth()) return; startConversation(mentor.id); }}>
                       <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                     </Button>
                     <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
