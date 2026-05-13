@@ -4,6 +4,7 @@ import { Search, MapPin, Briefcase, Building2, Shield, Users, GraduationCap, Wal
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import CityAutocomplete from "@/components/CityAutocomplete";
 import logo from "@/assets/logo.svg";
 import { useLanguage } from "@/hooks/use-language";
 import LanguageToggle from "@/components/LanguageToggle";
