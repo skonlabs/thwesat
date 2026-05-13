@@ -414,7 +414,7 @@ const JobDetail = () => {
         <Bookmark className="h-4 w-4" strokeWidth={1.5} fill={saved ? "currentColor" : "none"} />
       </button>
       {!isOwnJob && (
-        <Button variant="outline" size="lg" className="rounded-xl" onClick={() => startConversation(job.employer_id)}>
+        <Button variant="outline" size="lg" className="rounded-xl" onClick={() => { if (!requireAuth()) return; startConversation(job.employer_id); }}>
           <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
           {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
         </Button>
