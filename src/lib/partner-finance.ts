@@ -40,9 +40,15 @@ export function ageBucket(months: number): AgeBucket {
   return "maintenance_y3";
 }
 
+/**
+ * Returns the growth-tier % for a given monthly Growth NPR.
+ * For ≥80M MMK the SOP requires manual `partner_tier_approvals`. If no
+ * approval row exists, return 0 — caller should treat as a hard blocker
+ * and zero the growth payout (cannot silently default to 25%).
+ */
 export function growthTierPct(growthNpr: number, approvedTierPct?: number | null): number {
   if (growthNpr >= 80_000_000) {
-    return approvedTierPct != null ? approvedTierPct : 0.25;
+    return approvedTierPct != null ? Number(approvedTierPct) : 0;
   }
   if (growthNpr >= 30_000_000) return 0.25;
   if (growthNpr >= 10_000_000) return 0.20;
@@ -106,6 +112,10 @@ export interface MonthlyComputation {
   growth_bonus_pct: number;
   mom_growth_pct: number;
   quality_gate_passed: boolean;
+  /** Per-metric pass/fail breakdown for clearer blocker reporting. */
+  quality_gate_breakdown: Record<string, { value: number; threshold: number; pass: boolean }>;
+  /** True when growth NPR ≥ 80M and no manual tier-approval row exists. */
+  tier_approval_required: boolean;
   growth_payout: number;
   maintenance_payout: number;
   bonus_payout: number;
@@ -158,14 +168,24 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
   const ratio = net > 0 ? growth / net : 0;
   const requirementMet = ratio >= 0.25;
 
+  const tierApprovalRequired = growth >= 80_000_000 && (args.approved_tier_pct == null);
   const baseTier = growthTierPct(growth, args.approved_tier_pct);
   const mom = args.prior_growth_npr > 0 ? (growth - args.prior_growth_npr) / args.prior_growth_npr : 0;
   const bonus = requirementMet ? growthBonusPct(mom) : 0;
   const gate = qualityGatePassed(args.quality);
 
-  // Quality-gate failure zeros growth + bonus only — maintenance is preserved
-  // (a partner shouldn't lose protected legacy revenue for a one-month SLA dip).
-  // Active-Growth-Requirement failure zeros bonus only (already enforced above).
+  // Per-metric breakdown so the UI can show which threshold failed.
+  const q = args.quality || {};
+  const breakdown = {
+    l1_sla_pct:        { value: Number(q.l1_sla_pct ?? 0),        threshold: QG_L1_MIN,         pass: Number(q.l1_sla_pct ?? 0)        >= QG_L1_MIN },
+    csat_score:        { value: Number(q.csat_score ?? 0),        threshold: QG_CSAT_MIN,       pass: Number(q.csat_score ?? 0)        >= QG_CSAT_MIN },
+    dispute_rate_pct:  { value: Number(q.dispute_rate_pct ?? 100),threshold: QG_DISPUTE_MAX,    pass: Number(q.dispute_rate_pct ?? 100)<= QG_DISPUTE_MAX },
+    fraud_rate_pct:    { value: Number(q.fraud_rate_pct ?? 100),  threshold: QG_FRAUD_MAX,      pass: Number(q.fraud_rate_pct ?? 100)  <= QG_FRAUD_MAX },
+    onboarding_pct:    { value: Number(q.onboarding_pct ?? 0),    threshold: QG_ONBOARDING_MIN, pass: Number(q.onboarding_pct ?? 0)    >= QG_ONBOARDING_MIN },
+  };
+
+  // Per SOP: Quality-gate OR Active-Growth-Requirement failure zeros BOTH growth
+  // payout and bonus. Maintenance payouts are preserved (legacy revenue protection).
   const growthPayout = gate && requirementMet ? growth * baseTier : 0;
   const maintenancePayout = y2 * m_y2 + y3 * m_y3;
   const bonusPayout = gate && requirementMet ? growth * bonus : 0;
@@ -191,6 +211,8 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
     growth_bonus_pct: bonus,
     mom_growth_pct: mom,
     quality_gate_passed: gate,
+    quality_gate_breakdown: breakdown,
+    tier_approval_required: tierApprovalRequired,
     growth_payout: growthPayout,
     maintenance_payout: maintenancePayout,
     bonus_payout: bonusPayout,
@@ -200,10 +222,16 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
   };
 }
 
+/**
+ * Completed calendar months between two ISO timestamps using UTC.
+ * Browser-timezone-independent. Dec 31 → Jan 1 returns 0 (not 1).
+ */
 export function monthsBetween(fromIso: string, toIso: string): number {
   const a = new Date(fromIso);
   const b = new Date(toIso);
-  return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  let months = (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth());
+  if (b.getUTCDate() < a.getUTCDate()) months -= 1;
+  return Math.max(0, months);
 }
 
 /**

@@ -5,9 +5,12 @@ import {
   monthsBetween,
   periodBoundsYangon,
   ageBucket,
+  nprForPayment,
   type AttributedPayment,
   type ReversalEntry,
 } from "@/lib/partner-finance";
+
+const MAX_ROWS = 50_000; // explicit cap to avoid the silent 1000-row default
 
 export interface Partner {
   id: string;
@@ -123,22 +126,26 @@ export function usePartnerStatementPreview(
       const { data: attribs, error: aErr } = await (supabase as any)
         .from("partner_attributions")
         .select("user_id, attributed_at, first_paid_at, onboarding_completed_at")
-        .eq("partner_id", partner.id);
+        .eq("partner_id", partner.id)
+        .limit(MAX_ROWS);
       if (aErr) throw aErr;
       const userIds = (attribs || []).map((a: any) => a.user_id);
       const firstPaidByUser = new Map<string, string | null>(
         (attribs || []).map((a: any) => [a.user_id, a.first_paid_at || null]),
       );
-      // Onboarding %: of users attributed BEFORE the period ended, what % have
-      // onboarding_completed_at set (which the trigger only sets when the
-      // employer hit the rule within 7 days of profile creation).
-      const eligible = (attribs || []).filter((a: any) => a.attributed_at && a.attributed_at < endExclusive);
+      // Onboarding %: only count attributions that have had a full 7-day window
+      // BEFORE period end. Younger ones still have time to onboard and shouldn't
+      // count as failures yet.
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+      const cutoff = new Date(new Date(endExclusive).getTime() - sevenDaysMs).toISOString();
+      const eligible = (attribs || []).filter((a: any) => a.attributed_at && a.attributed_at <= cutoff);
       const onboardedCount = eligible.filter((a: any) => !!a.onboarding_completed_at).length;
-      const onboardingPct = eligible.length > 0 ? (onboardedCount / eligible.length) * 100 : 0;
+      const onboardingPct = eligible.length > 0 ? (onboardedCount / eligible.length) * 100 : 100; // vacuously true if no eligible attribs
 
       let payments: AttributedPayment[] = [];
-      // Map from payment_request_id -> bucket of original payment (for reversal classification)
-      const paymentBucketById = new Map<string, ReturnType<typeof ageBucket>>();
+      // payment_request_id -> {bucket, payment_type, amount, third_party_payout, npr_amount}
+      // (used to compute the correct NPR for any reversal whose npr_amount is missing)
+      const paymentByIdForReversal = new Map<string, any>();
 
       if (userIds.length > 0) {
         const { data: pays, error: pErr } = await (supabase as any)
@@ -148,14 +155,13 @@ export function usePartnerStatementPreview(
           .eq("status", "approved")
           .eq("currency", "MMK")
           .gte("reviewed_at", start)
-          .lt("reviewed_at", endExclusive);
+          .lt("reviewed_at", endExclusive)
+          .limit(MAX_ROWS);
         if (pErr) throw pErr;
         payments = (pays || []).map((p: any) => {
           const ageBase = firstPaidByUser.get(p.user_id) || p.reviewed_at;
           const months = monthsBetween(ageBase, periodEndIso);
-          const bucket = ageBucket(months);
-          paymentBucketById.set(p.id, bucket);
-          return {
+          const ap: AttributedPayment = {
             user_id: p.user_id,
             payment_type: p.payment_type,
             amount: Number(p.amount || 0),
@@ -165,25 +171,29 @@ export function usePartnerStatementPreview(
             classification: (p.revenue_classification || "new") as any,
             account_age_months: months,
           };
+          paymentByIdForReversal.set(p.id, { ap, reviewed_at: p.reviewed_at, user_id: p.user_id });
+          return ap;
         });
       }
 
       // Reversals occurring in this period for attributed users.
-      // For each reversal, look up the ORIGINAL payment to determine its bucket
-      // (the original payment may be from any prior period).
+      // For each reversal: bucket = bucket of ORIGINAL payment, NPR = original
+      // payment's NPR (proportional) when not explicitly set on the reversal row.
       const { data: revRowsRaw } = await (supabase as any)
         .from("payment_reversals")
         .select("amount, currency, npr_amount, occurred_at, payment_request_id")
         .gte("occurred_at", start)
-        .lt("occurred_at", endExclusive);
+        .lt("occurred_at", endExclusive)
+        .limit(MAX_ROWS);
       const revRows = (revRowsRaw || []) as any[];
       const origIds = Array.from(new Set(revRows.map((r) => r.payment_request_id)));
       let origPayments: any[] = [];
       if (origIds.length > 0) {
         const { data: origs } = await (supabase as any)
           .from("payment_requests")
-          .select("id, user_id, reviewed_at, currency")
-          .in("id", origIds);
+          .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, reviewed_at")
+          .in("id", origIds)
+          .limit(MAX_ROWS);
         origPayments = origs || [];
       }
       const origById = new Map<string, any>(origPayments.map((o) => [o.id, o]));
@@ -195,11 +205,31 @@ export function usePartnerStatementPreview(
         })
         .map((r) => {
           const o = origById.get(r.payment_request_id);
-          // Bucket = bucket of the original payment at the time it was approved
           const ageBase = firstPaidByUser.get(o.user_id) || o.reviewed_at;
           const monthsAtOrig = monthsBetween(ageBase, o.reviewed_at);
+          // Compute NPR of the reversal: prefer explicit, else proportional to
+          // original NPR using ratio of reversed gross to original gross.
+          const reversedGross = Number(r.amount || 0);
+          const origGross = Number(o.amount || 0);
+          let nprAmount: number;
+          if (r.npr_amount != null) {
+            nprAmount = Number(r.npr_amount);
+          } else {
+            const origNpr = nprForPayment({
+              user_id: o.user_id,
+              payment_type: o.payment_type,
+              amount: origGross,
+              third_party_payout: Number(o.third_party_payout || 0),
+              npr_amount_override: o.npr_amount,
+              approved_at: o.reviewed_at,
+              classification: "new",
+              account_age_months: 0,
+            });
+            const ratio = origGross > 0 ? Math.min(1, reversedGross / origGross) : 1;
+            nprAmount = origNpr * ratio;
+          }
           return {
-            amount_npr: Number(r.npr_amount ?? r.amount ?? 0),
+            amount_npr: Math.max(0, nprAmount),
             occurred_at: r.occurred_at,
             bucket: ageBucket(monthsAtOrig),
           };
@@ -305,14 +335,14 @@ export function useUpdatePaymentOverrides() {
       npr_amount?: number | null;
       revenue_classification?: string | null;
     }) => {
-      const patch: any = {};
-      if (input.third_party_payout !== undefined) patch.third_party_payout = input.third_party_payout;
-      if (input.npr_amount !== undefined) patch.npr_amount = input.npr_amount;
-      if (input.revenue_classification !== undefined) patch.revenue_classification = input.revenue_classification;
-      const { error } = await (supabase as any)
-        .from("payment_requests")
-        .update(patch)
-        .eq("id", input.id);
+      // Use SECURITY DEFINER RPC so RLS on payment_requests doesn't silently
+      // refuse the update — the RPC checks admin role server-side.
+      const { error } = await (supabase as any).rpc("admin_set_payment_revenue_overrides", {
+        _payment_id: input.id,
+        _third_party_payout: input.third_party_payout ?? null,
+        _npr_amount: input.npr_amount ?? null,
+        _revenue_classification: input.revenue_classification ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -334,10 +364,31 @@ export function useFinalizeStatement() {
       const { data: u } = await supabase.auth.getUser();
       const userId = u.user?.id;
       if (!userId) throw new Error("Not authenticated");
+      const partner = input.preview.partner || {};
+      // Snapshot contract terms + raw computation inputs so the statement
+      // remains reproducible even if partner.maintenance_rate_* changes later.
+      const computationInputs = {
+        snapshot_at: new Date().toISOString(),
+        partner_terms: {
+          maintenance_rate_y2: partner.maintenance_rate_y2,
+          maintenance_rate_y3plus: partner.maintenance_rate_y3plus,
+          payout_cap_pct: partner.payout_cap_pct,
+        },
+        period_summary: {
+          payments_count: input.preview.payments_count,
+          attributed_users_count: input.preview.attributed_users_count,
+          eligible_attributions_count: input.preview.eligible_attributions_count,
+          onboarded_count: input.preview.onboarded_count,
+          onboarding_pct: input.preview.onboarding_pct,
+          quality_gate_breakdown: input.preview.quality_gate_breakdown,
+          tier_approval_required: input.preview.tier_approval_required,
+        },
+      };
       const { error } = await (supabase as any).from("partner_monthly_statements").upsert({
         partner_id: input.partner_id,
         period_year: input.year,
         period_month: input.month,
+        currency: "MMK",
         gross_attributed_npr: input.preview.gross_attributed_npr,
         reversals_npr: input.preview.reversals_npr,
         net_collected_attributed_npr: input.preview.net_collected_attributed_npr,
@@ -346,6 +397,8 @@ export function useFinalizeStatement() {
         maintenance_y3_npr: input.preview.maintenance_y3_npr,
         growth_tier_pct: input.preview.growth_tier_pct,
         growth_bonus_pct: input.preview.growth_bonus_pct,
+        maintenance_y2_pct: Number(partner.maintenance_rate_y2 ?? 0.075),
+        maintenance_y3_pct: Number(partner.maintenance_rate_y3plus ?? 0.05),
         mom_growth_pct: input.preview.mom_growth_pct,
         active_growth_ratio: input.preview.active_growth_ratio,
         quality_gate_passed: input.preview.quality_gate_passed,
@@ -356,6 +409,7 @@ export function useFinalizeStatement() {
         total_payout_uncapped: input.preview.total_payout_uncapped,
         total_payout: input.preview.total_payout,
         cap_applied: input.preview.cap_applied,
+        computation_inputs: computationInputs,
         status: "finalized",
         finalized_at: new Date().toISOString(),
         finalized_by: userId,
