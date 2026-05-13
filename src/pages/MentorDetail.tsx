@@ -20,6 +20,7 @@ import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useStartConversation } from "@/hooks/use-start-conversation";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { UserStatusBadge } from "@/components/UserStatusBadge";
