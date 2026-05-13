@@ -3,11 +3,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import BottomNav from "./BottomNav";
 import DesktopNav from "./DesktopNav";
+import GuestHeader from "./GuestHeader";
 import PullToRefresh from "./PullToRefresh";
 import { usePresenceHeartbeat } from "@/hooks/use-presence";
 import { useSessionExpiry } from "@/hooks/use-session-expiry";
 import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
 
 // Routes that own scrollable input/chat surfaces where pull-to-refresh
 // would interfere with normal scrolling/typing.
