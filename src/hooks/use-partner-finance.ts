@@ -213,7 +213,12 @@ export function usePartnerStatementPreview(
       const reversals: ReversalEntry[] = revRows
         .filter((r) => {
           const o = origById.get(r.payment_request_id);
-          return o && userIds.includes(o.user_id) && (o.currency || "MMK") === "MMK";
+          if (!o || !userIds.includes(o.user_id) || (o.currency || "MMK") !== "MMK") return false;
+          // Skip reversals for original payments that pre-date the user's
+          // attribution — those payments were never credited to the partner.
+          const ab = ageBaseByUser.get(o.user_id);
+          if (ab && new Date(o.reviewed_at).getTime() < new Date(ab).getTime()) return false;
+          return true;
         })
         .map((r) => {
           const o = origById.get(r.payment_request_id);
