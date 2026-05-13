@@ -28,6 +28,7 @@ const JobDetail = () => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const requireAuth = useGuestGate();
   const { data: job, isLoading } = useJob(id);
   const { data: savedJobIds = [] } = useSavedJobIds();
   const toggleSaveMutation = useToggleSaveJob();
