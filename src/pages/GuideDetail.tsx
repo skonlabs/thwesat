@@ -6,6 +6,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useGuide, useGuideFeedbackCounts, useUserGuideFeedback } from "@/hooks/use-guides-data";
 import { useAuth } from "@/hooks/use-auth";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/PageHeader";
