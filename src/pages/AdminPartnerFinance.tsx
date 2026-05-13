@@ -409,6 +409,9 @@ function QualityTab({ partner, year, month }: { partner: Partner; year: number; 
   return (
     <Card className="space-y-3 p-4">
       <h3 className="text-sm font-semibold">Quality metrics — {year}/{String(month).padStart(2, "0")}</h3>
+      <p className="text-xs text-muted-foreground">
+        Onboarding-within-7d % is computed automatically from attributions (employer profile complete + ≥1 job within 7 days of joining). The four metrics below are admin-entered.
+      </p>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
         <NumField label="CSAT (≥4.0)" value={vals.csat_score} onChange={(v) => setVals({ ...vals, csat_score: v })} />
