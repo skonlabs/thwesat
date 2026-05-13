@@ -11,6 +11,7 @@ import { useSearchParamState } from "@/hooks/use-search-param-state";
 import ListSkeleton from "@/components/ListSkeleton";
 import { sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { useAuth } from "@/hooks/use-auth";
+import { useGuestGate } from "@/hooks/use-guest-gate";
 import { useRole } from "@/hooks/use-role";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
