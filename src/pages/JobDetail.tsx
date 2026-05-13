@@ -279,6 +279,7 @@ const JobDetail = () => {
 
   const handleApply = () => {
     if (!id) return;
+    if (!requireAuth()) return;
     if (!selectedCvId && !selectedGeneratedResumeId) {
       toast({
         title: lang === "my" ? "ကိုယ်ရေးမှတ်တမ်း လိုအပ်ပါသည်" : "Resume required",
