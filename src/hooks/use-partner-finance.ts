@@ -198,60 +198,11 @@ export function useFinalizeStatement() {
       month: number;
       preview: any;
     }) => {
-      const { data: u } = await supabase.auth.getUser();
-      const userId = u.user?.id;
-      if (!userId) throw new Error("Not authenticated");
-      const partner = input.preview.partner || {};
-      // Snapshot contract terms + raw computation inputs so the statement
-      // remains reproducible even if partner.maintenance_rate_* changes later.
-      const computationInputs = {
-        snapshot_at: new Date().toISOString(),
-        partner_terms: {
-          maintenance_rate_y2: partner.maintenance_rate_y2,
-          maintenance_rate_y3plus: partner.maintenance_rate_y3plus,
-          payout_cap_pct: partner.payout_cap_pct,
-        },
-        period_summary: {
-          payments_count: input.preview.payments_count,
-          attributed_users_count: input.preview.attributed_users_count,
-          eligible_attributions_count: input.preview.eligible_attributions_count,
-          onboarded_count: input.preview.onboarded_count,
-          onboarding_pct: input.preview.onboarding_pct,
-          quality_gate_breakdown: input.preview.quality_gate_breakdown,
-          tier_approval_required: input.preview.tier_approval_required,
-        },
-      };
-      const { error } = await (supabase as any).from("partner_monthly_statements").upsert({
-        partner_id: input.partner_id,
-        period_year: input.year,
-        period_month: input.month,
-        currency: "MMK",
-        gross_attributed_npr: input.preview.gross_attributed_npr,
-        reversals_npr: input.preview.reversals_npr,
-        net_collected_attributed_npr: input.preview.net_collected_attributed_npr,
-        growth_npr: input.preview.growth_npr,
-        maintenance_y2_npr: input.preview.maintenance_y2_npr,
-        maintenance_y3_npr: input.preview.maintenance_y3_npr,
-        growth_tier_pct: input.preview.growth_tier_pct,
-        growth_bonus_pct: input.preview.growth_bonus_pct,
-        maintenance_y2_pct: Number(partner.maintenance_rate_y2 ?? 0.075),
-        maintenance_y3_pct: Number(partner.maintenance_rate_y3plus ?? 0.05),
-        mom_growth_pct: input.preview.mom_growth_pct,
-        active_growth_ratio: input.preview.active_growth_ratio,
-        quality_gate_passed: input.preview.quality_gate_passed,
-        active_growth_requirement_met: input.preview.active_growth_requirement_met,
-        growth_payout: input.preview.growth_payout,
-        maintenance_payout: input.preview.maintenance_payout,
-        bonus_payout: input.preview.bonus_payout,
-        total_payout_uncapped: input.preview.total_payout_uncapped,
-        total_payout: input.preview.total_payout,
-        cap_applied: input.preview.cap_applied,
-        computation_inputs: computationInputs,
-        status: "finalized",
-        finalized_at: new Date().toISOString(),
-        finalized_by: userId,
-        created_by: userId,
-      }, { onConflict: "partner_id,period_year,period_month" });
+      const { error } = await (supabase as any).rpc("admin_finalize_partner_statement", {
+        _partner_id: input.partner_id,
+        _year: input.year,
+        _month: input.month,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
