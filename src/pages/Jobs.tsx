@@ -275,6 +275,7 @@ const Jobs = () => {
 
   const handleToggleSave = (jobId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!requireAuth()) return;
     const isSaved = savedJobIds.includes(jobId);
     toggleSaveMutation.mutate({ jobId, isSaved });
   };
