@@ -293,7 +293,7 @@ const Mentors = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); startConversation(mentor.id); }}>
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); if (!requireAuth()) return; startConversation(mentor.id); }}>
                       <Send className="mr-1 h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
                     </Button>
                     <Button variant="default" size="sm" className="rounded-lg text-xs" onClick={e => { e.stopPropagation(); navigate(`/mentors/${mentor.id}`); }}>
