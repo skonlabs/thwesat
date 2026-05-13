@@ -179,9 +179,9 @@ const GuideDetail = () => {
   const feedback = userFeedback ? (userFeedback.is_helpful ? "yes" : "no") : null;
 
   const handleFeedback = async (type: "yes" | "no") => {
-    if (!user || !id) {
-      return;
-    }
+    if (!id) return;
+    if (!requireAuth()) return;
+    if (!user) return;
     await supabase.from("guide_feedback").upsert({
       guide_id: id, user_id: user.id, is_helpful: type === "yes",
     }, { onConflict: "guide_id,user_id" });
