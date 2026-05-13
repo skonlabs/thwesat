@@ -2659,6 +2659,15 @@ export type Database = {
         Args: { _employer_id: string }
         Returns: undefined
       }
+      admin_set_payment_revenue_overrides: {
+        Args: {
+          _npr_amount: number
+          _payment_id: string
+          _revenue_classification: string
+          _third_party_payout: number
+        }
+        Returns: undefined
+      }
       approve_job: { Args: { _job_id: string }; Returns: Json }
       can_notify: { Args: { _target_user_id: string }; Returns: boolean }
       consume_delegate_token: {
