@@ -127,11 +127,11 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
       </div>
 
       <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold">Buckets</h3>
+        <h3 className="mb-3 text-sm font-semibold">Buckets (gross → net of reversals)</h3>
         <div className="grid grid-cols-3 gap-3 text-sm">
-          <Row k="Growth NPR (≤12mo)" v={fmt(data.growth_npr)} />
-          <Row k="Maintenance Y2 (13-24mo)" v={fmt(data.maintenance_y2_npr)} />
-          <Row k="Maintenance Y3+ (25mo+)" v={fmt(data.maintenance_y3_npr)} />
+          <Row k="Growth (≤12mo)" v={`${fmt(data.growth_npr_gross)} → ${fmt(data.growth_npr)}`} />
+          <Row k="Maintenance Y2 (13-24mo)" v={`${fmt(data.maintenance_y2_npr_gross)} → ${fmt(data.maintenance_y2_npr)}`} />
+          <Row k="Maintenance Y3+ (25mo+)" v={`${fmt(data.maintenance_y3_npr_gross)} → ${fmt(data.maintenance_y3_npr)}`} />
         </div>
       </Card>
 
@@ -151,7 +151,7 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
           <Row k="Growth Payout" v={fmt(data.growth_payout)} />
           <Row k="Maintenance Payout" v={fmt(data.maintenance_payout)} />
           <Row k="Bonus Payout" v={fmt(data.bonus_payout)} />
-          <Row k={`Capped at ${pct(partner.payout_cap_pct)}`} v={data.cap_applied ? "Yes" : "No"} />
+          <Row k={`Cap (${pct(partner.payout_cap_pct)} of Net)`} v={data.cap_applied ? `Capped — uncapped was ${fmt(data.total_payout_uncapped)}` : "No"} />
         </div>
       </Card>
 
