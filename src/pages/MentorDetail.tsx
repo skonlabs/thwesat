@@ -31,6 +31,7 @@ const MentorDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { lang } = useLanguage();
   const { startConversation } = useStartConversation();
+  const requireAuth = useGuestGate();
   const { data: mentor, isLoading } = useMentorProfile(id);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("");
