@@ -43,6 +43,7 @@ import SeekerFinance from "./pages/SeekerFinance";
 import EmployerFinance from "./pages/EmployerFinance";
 import MentorFinance from "./pages/MentorFinance";
 import AdminFinance from "./pages/AdminFinance";
+import AdminPartnerFinance from "./pages/AdminPartnerFinance";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
 import CareerTracks from "./pages/CareerTracks";
