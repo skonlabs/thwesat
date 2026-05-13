@@ -164,7 +164,7 @@ export function usePartnerStatementPreview(
           .limit(MAX_ROWS);
         if (pErr) throw pErr;
         payments = (pays || []).map((p: any) => {
-          const ageBase = firstPaidByUser.get(p.user_id) || p.reviewed_at;
+          const ageBase = ageBaseByUser.get(p.user_id) || p.reviewed_at;
           const months = monthsBetween(ageBase, periodEndIso);
           const ap: AttributedPayment = {
             user_id: p.user_id,
@@ -210,7 +210,7 @@ export function usePartnerStatementPreview(
         })
         .map((r) => {
           const o = origById.get(r.payment_request_id);
-          const ageBase = firstPaidByUser.get(o.user_id) || o.reviewed_at;
+          const ageBase = ageBaseByUser.get(o.user_id) || o.reviewed_at;
           const monthsAtOrig = monthsBetween(ageBase, o.reviewed_at);
           // Compute NPR of the reversal: prefer explicit, else proportional to
           // original NPR using ratio of reversed gross to original gross.
