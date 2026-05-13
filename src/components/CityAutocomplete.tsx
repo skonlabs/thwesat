@@ -61,7 +61,7 @@ const CityAutocomplete = ({ value, onChange, placeholder, emptyText, className, 
               }
             }}
             placeholder={placeholder}
-            className="h-10 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+            className="h-10 border-0 bg-transparent p-0 text-sm text-foreground shadow-none focus-visible:ring-0"
             autoComplete="off"
           />
         </div>
