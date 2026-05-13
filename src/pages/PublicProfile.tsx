@@ -18,6 +18,7 @@ const PublicProfile = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const { startConversation } = useStartConversation();
+  const requireAuth = useGuestGate();
   const { hasRole } = useUserRoles();
 
   // Check if target user is a mentor or employer (so messaging is allowed for everyone)
