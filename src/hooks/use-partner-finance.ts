@@ -238,7 +238,7 @@ export function usePartnerStatementPreview(
         payments,
         reversals,
         prior_growth_npr: Number(prevStmt?.growth_npr || 0),
-        quality: qRows || null,
+        quality: { ...(qRows || {}), onboarding_pct: onboardingPct },
         approved_tier_pct: tRow?.approved_tier_pct ?? null,
         maintenance_y2_pct: Number(partner.maintenance_rate_y2),
         maintenance_y3_pct: Number(partner.maintenance_rate_y3plus),
@@ -251,6 +251,9 @@ export function usePartnerStatementPreview(
         month,
         payments_count: payments.length,
         attributed_users_count: userIds.length,
+        onboarding_pct: onboardingPct,
+        onboarded_count: onboardedCount,
+        eligible_attributions_count: eligible.length,
         ...computation,
       };
     },

@@ -122,7 +122,9 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
   if (isLoading || !data) return <Card className="p-8 text-sm text-muted-foreground">Computing…</Card>;
 
   const blockers: string[] = [];
-  if (!data.quality_gate_passed) blockers.push("Quality gate failed (need L1≥90%, CSAT≥4.0, Disputes≤1%, Fraud≤0.5%).");
+  if (!data.quality_gate_passed) blockers.push(
+    `Quality gate failed (need L1≥90%, CSAT≥4.0, Disputes≤1%, Fraud≤0.5%, Onboarded-in-7d≥80% — current onboarding ${data.onboarding_pct?.toFixed(1)}%).`,
+  );
   if (!data.active_growth_requirement_met) blockers.push(`Active Growth requirement not met (Growth share = ${pct(data.active_growth_ratio)}, need ≥25%).`);
   if (data.growth_npr >= 80_000_000) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required for 30% rate.");
 
