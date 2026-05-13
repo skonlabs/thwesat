@@ -122,7 +122,9 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
   if (isLoading || !data) return <Card className="p-8 text-sm text-muted-foreground">Computing…</Card>;
 
   const blockers: string[] = [];
-  if (!data.quality_gate_passed) blockers.push("Quality gate failed (need L1≥90%, CSAT≥4.0, Disputes≤1%, Fraud≤0.5%).");
+  if (!data.quality_gate_passed) blockers.push(
+    `Quality gate failed (need L1≥90%, CSAT≥4.0, Disputes≤1%, Fraud≤0.5%, Onboarded-in-7d≥80% — current onboarding ${data.onboarding_pct?.toFixed(1)}%).`,
+  );
   if (!data.active_growth_requirement_met) blockers.push(`Active Growth requirement not met (Growth share = ${pct(data.active_growth_ratio)}, need ≥25%).`);
   if (data.growth_npr >= 80_000_000) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required for 30% rate.");
 
@@ -407,6 +409,9 @@ function QualityTab({ partner, year, month }: { partner: Partner; year: number; 
   return (
     <Card className="space-y-3 p-4">
       <h3 className="text-sm font-semibold">Quality metrics — {year}/{String(month).padStart(2, "0")}</h3>
+      <p className="text-xs text-muted-foreground">
+        Onboarding-within-7d % is computed automatically from attributions (employer profile complete + ≥1 job within 7 days of joining). The four metrics below are admin-entered.
+      </p>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
         <NumField label="CSAT (≥4.0)" value={vals.csat_score} onChange={(v) => setVals({ ...vals, csat_score: v })} />

@@ -61,17 +61,31 @@ export interface QualityGateInput {
   csat_score?: number | null;
   dispute_rate_pct?: number | null;
   fraud_rate_pct?: number | null;
+  /** % of attributed users who completed onboarding within 7d (auto-computed). */
+  onboarding_pct?: number | null;
 }
 
-// NOTE: Thresholds below are placeholders pending verbatim confirmation from the SOP.
-// Adjust here once the contract values are confirmed.
+// Quality Gate thresholds per ThweSat–Partner SOP.
+//   L1 SLA              ≥ 90%
+//   CSAT                ≥ 4.0
+//   Disputes            ≤ 1.0%
+//   Fraud write-offs    ≤ 0.5%
+//   Onboarding within 7d≥ 80% (auto-computed: profile complete + ≥1 job in 7d)
+export const QG_L1_MIN = 90;
+export const QG_CSAT_MIN = 4.0;
+export const QG_DISPUTE_MAX = 1.0;
+export const QG_FRAUD_MAX = 0.5;
+export const QG_ONBOARDING_MIN = 80;
+
 export function qualityGatePassed(q: QualityGateInput | null | undefined): boolean {
   if (!q) return false;
   const l1 = q.l1_sla_pct ?? 0;
   const csat = q.csat_score ?? 0;
   const disp = q.dispute_rate_pct ?? 100;
   const fraud = q.fraud_rate_pct ?? 100;
-  return l1 >= 90 && csat >= 4.0 && disp <= 1 && fraud <= 0.5;
+  const onb = q.onboarding_pct ?? 0;
+  return l1 >= QG_L1_MIN && csat >= QG_CSAT_MIN && disp <= QG_DISPUTE_MAX
+      && fraud <= QG_FRAUD_MAX && onb >= QG_ONBOARDING_MIN;
 }
 
 export interface MonthlyComputation {

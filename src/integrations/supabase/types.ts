@@ -2706,6 +2706,7 @@ export type Database = {
       }
       is_employer_or_agent: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
+      is_user_onboarded: { Args: { _user_id: string }; Returns: string }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mark_session_complete: {
         Args: { _booking_id: string; _role: string }
