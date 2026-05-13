@@ -28,7 +28,12 @@ const Welcome = () => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (keyword.trim()) params.set("q", keyword.trim());
-    if (location.trim()) params.set("location", location.trim());
+    if (location.trim()) {
+      // City autocomplete returns "City, Country" — match on the city portion
+      // so it lines up with how jobs typically store the location field.
+      const loc = location.split(",")[0].trim();
+      if (loc) params.set("loc", loc);
+    }
     navigate(`/jobs${params.toString() ? `?${params.toString()}` : ""}`);
   };
 
