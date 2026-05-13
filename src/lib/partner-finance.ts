@@ -9,8 +9,8 @@ export interface AttributedPayment {
   payment_type: "placement_fee" | "mentor_session" | string;
   amount: number;
   third_party_payout?: number | null;
-  npr_amount_override?: number | null; // when admin set it
-  approved_at: string; // ISO
+  npr_amount_override?: number | null;
+  approved_at: string;
   classification: "new" | "expansion" | "reactivation";
   account_age_months: number; // at end of period
 }
@@ -18,18 +18,17 @@ export interface AttributedPayment {
 export interface ReversalEntry {
   amount_npr: number;
   occurred_at: string;
+  /** Age bucket of the ORIGINAL payment, computed by caller. */
+  bucket: AgeBucket;
 }
 
-/** Compute NPR for a single approved payment row. */
 export function nprForPayment(p: AttributedPayment): number {
   if (p.npr_amount_override != null) return Number(p.npr_amount_override);
   const gross = Number(p.amount || 0);
   const thirdParty = Number(p.third_party_payout || 0);
   if (p.payment_type === "mentor_session") {
-    // Platform cut only
     return Math.max(0, gross * PLATFORM_MENTOR_CUT);
   }
-  // placement_fee or other → gross minus any third-party (e.g. agent cut)
   return Math.max(0, gross - thirdParty);
 }
 
@@ -41,17 +40,15 @@ export function ageBucket(months: number): AgeBucket {
   return "maintenance_y3";
 }
 
-/** Growth tier percentage based on monthly Growth NPR. 80M+ requires manual approval. */
 export function growthTierPct(growthNpr: number, approvedTierPct?: number | null): number {
   if (growthNpr >= 80_000_000) {
-    return approvedTierPct != null ? approvedTierPct : 0.25; // safe default until approved
+    return approvedTierPct != null ? approvedTierPct : 0.25;
   }
   if (growthNpr >= 30_000_000) return 0.25;
   if (growthNpr >= 10_000_000) return 0.20;
   return 0.15;
 }
 
-/** Growth bonus added to growth tier when MoM Growth NPR growth meets thresholds. */
 export function growthBonusPct(momGrowthRatio: number): number {
   if (momGrowthRatio >= 0.40) return 0.05;
   if (momGrowthRatio >= 0.25) return 0.03;
@@ -60,12 +57,14 @@ export function growthBonusPct(momGrowthRatio: number): number {
 }
 
 export interface QualityGateInput {
-  l1_sla_pct?: number | null;        // target ≥ 90
-  csat_score?: number | null;        // target ≥ 4.0
-  dispute_rate_pct?: number | null;  // target ≤ 1
-  fraud_rate_pct?: number | null;    // target ≤ 0.5
+  l1_sla_pct?: number | null;
+  csat_score?: number | null;
+  dispute_rate_pct?: number | null;
+  fraud_rate_pct?: number | null;
 }
 
+// NOTE: Thresholds below are placeholders pending verbatim confirmation from the SOP.
+// Adjust here once the contract values are confirmed.
 export function qualityGatePassed(q: QualityGateInput | null | undefined): boolean {
   if (!q) return false;
   const l1 = q.l1_sla_pct ?? 0;
@@ -76,6 +75,11 @@ export function qualityGatePassed(q: QualityGateInput | null | undefined): boole
 }
 
 export interface MonthlyComputation {
+  // gross by bucket
+  growth_npr_gross: number;
+  maintenance_y2_npr_gross: number;
+  maintenance_y3_npr_gross: number;
+  // net by bucket (after reversals)
   growth_npr: number;
   maintenance_y2_npr: number;
   maintenance_y3_npr: number;
@@ -112,19 +116,32 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
   const m_y3 = args.maintenance_y3_pct ?? 0.05;
   const cap = args.payout_cap_pct ?? DEFAULT_PAYOUT_CAP;
 
-  let growth = 0, y2 = 0, y3 = 0;
+  let g_gross = 0, y2_gross = 0, y3_gross = 0;
   for (const p of args.payments) {
     const npr = nprForPayment(p);
     const bucket = ageBucket(p.account_age_months);
-    if (bucket === "growth") growth += npr;
-    else if (bucket === "maintenance_y2") y2 += npr;
-    else y3 += npr;
+    if (bucket === "growth") g_gross += npr;
+    else if (bucket === "maintenance_y2") y2_gross += npr;
+    else y3_gross += npr;
   }
-  const gross = growth + y2 + y3;
-  const reversals = args.reversals.reduce((s, r) => s + Number(r.amount_npr || 0), 0);
+
+  // Subtract reversals from the bucket of the original payment
+  let g_rev = 0, y2_rev = 0, y3_rev = 0;
+  for (const r of args.reversals) {
+    const v = Number(r.amount_npr || 0);
+    if (r.bucket === "growth") g_rev += v;
+    else if (r.bucket === "maintenance_y2") y2_rev += v;
+    else y3_rev += v;
+  }
+  const growth = Math.max(0, g_gross - g_rev);
+  const y2 = Math.max(0, y2_gross - y2_rev);
+  const y3 = Math.max(0, y3_gross - y3_rev);
+
+  const gross = g_gross + y2_gross + y3_gross;
+  const reversals = g_rev + y2_rev + y3_rev;
   const net = Math.max(0, gross - reversals);
 
-  const ratio = gross > 0 ? growth / gross : 0;
+  const ratio = net > 0 ? growth / net : 0;
   const requirementMet = ratio >= 0.25;
 
   const baseTier = growthTierPct(growth, args.approved_tier_pct);
@@ -132,21 +149,22 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
   const bonus = requirementMet ? growthBonusPct(mom) : 0;
   const gate = qualityGatePassed(args.quality);
 
-  // If quality gate fails or active-growth requirement fails → zero growth payout & bonus.
-  const effectiveGrowth = gate && requirementMet ? growth * (baseTier + bonus) : 0;
-  const effectiveY2 = gate ? y2 * m_y2 : 0;
-  const effectiveY3 = gate ? y3 * m_y3 : 0;
-
+  // Quality-gate failure zeros growth + bonus only — maintenance is preserved
+  // (a partner shouldn't lose protected legacy revenue for a one-month SLA dip).
+  // Active-Growth-Requirement failure zeros bonus only (already enforced above).
   const growthPayout = gate && requirementMet ? growth * baseTier : 0;
-  const maintenancePayout = effectiveY2 + effectiveY3;
+  const maintenancePayout = y2 * m_y2 + y3 * m_y3;
   const bonusPayout = gate && requirementMet ? growth * bonus : 0;
 
-  const uncapped = effectiveGrowth + effectiveY2 + effectiveY3;
+  const uncapped = growthPayout + maintenancePayout + bonusPayout;
   const capValue = net * cap;
   const total = Math.min(uncapped, capValue);
   const capApplied = uncapped > capValue;
 
   return {
+    growth_npr_gross: g_gross,
+    maintenance_y2_npr_gross: y2_gross,
+    maintenance_y3_npr_gross: y3_gross,
     growth_npr: growth,
     maintenance_y2_npr: y2,
     maintenance_y3_npr: y3,
@@ -168,13 +186,24 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
   };
 }
 
-/** Months between two ISO dates (floored). */
 export function monthsBetween(fromIso: string, toIso: string): number {
   const a = new Date(fromIso);
   const b = new Date(toIso);
   return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
 }
 
+/**
+ * Period bounds on the Asia/Yangon (UTC+6:30) calendar, returned as ISO UTC.
+ * A month [year, month] starts at 00:00 Yangon on day 1, ends at start of next month.
+ */
+const YGN_OFFSET_MIN = 6 * 60 + 30;
+export function periodBoundsYangon(year: number, month: number): { start: string; endExclusive: string } {
+  const startUtcMs = Date.UTC(year, month - 1, 1) - YGN_OFFSET_MIN * 60_000;
+  const endUtcMs = Date.UTC(year, month, 1) - YGN_OFFSET_MIN * 60_000;
+  return { start: new Date(startUtcMs).toISOString(), endExclusive: new Date(endUtcMs).toISOString() };
+}
+
+// Backwards-compat alias (UTC bounds — kept for callers that explicitly want UTC).
 export function periodBoundsUtc(year: number, month: number): { start: string; endExclusive: string } {
   const start = new Date(Date.UTC(year, month - 1, 1));
   const end = new Date(Date.UTC(year, month, 1));
