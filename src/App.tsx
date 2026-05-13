@@ -43,6 +43,7 @@ import SeekerFinance from "./pages/SeekerFinance";
 import EmployerFinance from "./pages/EmployerFinance";
 import MentorFinance from "./pages/MentorFinance";
 import AdminFinance from "./pages/AdminFinance";
+import AdminPartnerFinance from "./pages/AdminPartnerFinance";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
 import CareerTracks from "./pages/CareerTracks";
@@ -178,6 +179,7 @@ const App = () => (
 
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
               <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
+              <Route path="/admin/partner-finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
 
               {/* Admin sub-pages */}
               <Route path="/admin/jobs" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminJobQueue /></SystemRoleGuard>} />
