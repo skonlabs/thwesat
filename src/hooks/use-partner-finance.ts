@@ -1,14 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  computeMonthlyStatement,
-  monthsBetween,
-  periodBoundsYangon,
-  ageBucket,
-  nprForPayment,
-  type AttributedPayment,
-  type ReversalEntry,
-} from "@/lib/partner-finance";
+import { periodBoundsYangon } from "@/lib/partner-finance";
 
 const MAX_ROWS = 50_000; // explicit cap to avoid the silent 1000-row default
 
@@ -119,190 +111,13 @@ export function usePartnerStatementPreview(
     enabled: !!partner,
     queryFn: async () => {
       if (!partner) return null;
-      const { start, endExclusive } = periodBoundsYangon(year, month);
-      const periodEndIso = new Date(new Date(endExclusive).getTime() - 1).toISOString();
-
-      // Attributions for this partner
-      const { data: attribs, error: aErr } = await (supabase as any)
-        .from("partner_attributions")
-        .select("user_id, attributed_at, first_paid_at, onboarding_completed_at")
-        .eq("partner_id", partner.id)
-        .limit(MAX_ROWS);
-      if (aErr) throw aErr;
-      const userIds = (attribs || []).map((a: any) => a.user_id);
-      // Age base = attributed_at (≈ signup) per SOP "first 12 months from joining".
-      // Fall back to first_paid_at only if attribution timestamp is missing.
-      const ageBaseByUser = new Map<string, string | null>(
-        (attribs || []).map((a: any) => [a.user_id, a.attributed_at || a.first_paid_at || null]),
-      );
-      // Onboarding %: only count attributions that have had a full 7-day window
-      // BEFORE period end. Younger ones still have time to onboard and shouldn't
-      // count as failures yet. Use Date.getTime() to avoid ISO suffix mismatches
-      // (Postgres `+00:00` vs JS `Z`).
-      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-      const cutoffMs = new Date(endExclusive).getTime() - sevenDaysMs;
-      const eligible = (attribs || []).filter(
-        (a: any) => a.attributed_at && new Date(a.attributed_at).getTime() <= cutoffMs,
-      );
-      const onboardedCount = eligible.filter((a: any) => !!a.onboarding_completed_at).length;
-      const onboardingPct = eligible.length > 0 ? (onboardedCount / eligible.length) * 100 : 100; // vacuously true if no eligible attribs
-
-      let payments: AttributedPayment[] = [];
-      // payment_request_id -> {bucket, payment_type, amount, third_party_payout, npr_amount}
-      // (used to compute the correct NPR for any reversal whose npr_amount is missing)
-      const paymentByIdForReversal = new Map<string, any>();
-
-      if (userIds.length > 0) {
-        const { data: pays, error: pErr } = await (supabase as any)
-          .from("payment_requests")
-          .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at, status")
-          .in("user_id", userIds)
-          .eq("status", "approved")
-          .eq("currency", "MMK")
-          .gte("reviewed_at", start)
-          .lt("reviewed_at", endExclusive)
-          .limit(MAX_ROWS);
-        if (pErr) throw pErr;
-        payments = (pays || [])
-          // Drop payments that pre-date the user's attribution — partner only
-          // earns on revenue from the moment of attribution forward.
-          .filter((p: any) => {
-            const ab = ageBaseByUser.get(p.user_id);
-            return !ab || new Date(p.reviewed_at).getTime() >= new Date(ab).getTime();
-          })
-          .map((p: any) => {
-            const ageBase = ageBaseByUser.get(p.user_id) || p.reviewed_at;
-            const months = monthsBetween(ageBase, periodEndIso);
-            const ap: AttributedPayment = {
-              user_id: p.user_id,
-              payment_type: p.payment_type,
-              amount: Number(p.amount || 0),
-              third_party_payout: Number(p.third_party_payout || 0),
-              npr_amount_override: p.npr_amount,
-              approved_at: p.reviewed_at,
-              classification: (p.revenue_classification || "new") as any,
-              account_age_months: months,
-            };
-            paymentByIdForReversal.set(p.id, { ap, reviewed_at: p.reviewed_at, user_id: p.user_id });
-            return ap;
-          });
-      }
-
-      // Reversals occurring in this period for attributed users.
-      // For each reversal: bucket = bucket of ORIGINAL payment, NPR = original
-      // payment's NPR (proportional) when not explicitly set on the reversal row.
-      const { data: revRowsRaw } = await (supabase as any)
-        .from("payment_reversals")
-        .select("amount, currency, npr_amount, occurred_at, payment_request_id")
-        .gte("occurred_at", start)
-        .lt("occurred_at", endExclusive)
-        .limit(MAX_ROWS);
-      const revRows = (revRowsRaw || []) as any[];
-      const origIds = Array.from(new Set(revRows.map((r) => r.payment_request_id)));
-      let origPayments: any[] = [];
-      if (origIds.length > 0) {
-        const { data: origs } = await (supabase as any)
-          .from("payment_requests")
-          .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, reviewed_at")
-          .in("id", origIds)
-          .limit(MAX_ROWS);
-        origPayments = origs || [];
-      }
-      const origById = new Map<string, any>(origPayments.map((o) => [o.id, o]));
-
-      const reversals: ReversalEntry[] = revRows
-        .filter((r) => {
-          const o = origById.get(r.payment_request_id);
-          if (!o || !userIds.includes(o.user_id) || (o.currency || "MMK") !== "MMK") return false;
-          // Skip reversals for original payments that pre-date the user's
-          // attribution — those payments were never credited to the partner.
-          const ab = ageBaseByUser.get(o.user_id);
-          if (ab && new Date(o.reviewed_at).getTime() < new Date(ab).getTime()) return false;
-          return true;
-        })
-        .map((r) => {
-          const o = origById.get(r.payment_request_id);
-          const ageBase = ageBaseByUser.get(o.user_id) || o.reviewed_at;
-          const monthsAtOrig = monthsBetween(ageBase, o.reviewed_at);
-          // Compute NPR of the reversal: prefer explicit, else proportional to
-          // original NPR using ratio of reversed gross to original gross.
-          const reversedGross = Number(r.amount || 0);
-          const origGross = Number(o.amount || 0);
-          let nprAmount: number;
-          if (r.npr_amount != null) {
-            nprAmount = Number(r.npr_amount);
-          } else {
-            const origNpr = nprForPayment({
-              user_id: o.user_id,
-              payment_type: o.payment_type,
-              amount: origGross,
-              third_party_payout: Number(o.third_party_payout || 0),
-              npr_amount_override: o.npr_amount,
-              approved_at: o.reviewed_at,
-              classification: "new",
-              account_age_months: 0,
-            });
-            const ratio = origGross > 0 ? Math.min(1, reversedGross / origGross) : 1;
-            nprAmount = origNpr * ratio;
-          }
-          return {
-            amount_npr: Math.max(0, nprAmount),
-            occurred_at: r.occurred_at,
-            bucket: ageBucket(monthsAtOrig),
-          };
-        });
-
-      // Quality metrics for the period
-      const { data: qRows } = await (supabase as any)
-        .from("partner_quality_metrics")
-        .select("*")
-        .eq("partner_id", partner.id)
-        .eq("period_year", year)
-        .eq("period_month", month)
-        .maybeSingle();
-
-      // Tier approval (if any)
-      const { data: tRow } = await (supabase as any)
-        .from("partner_tier_approvals")
-        .select("approved_tier_pct")
-        .eq("partner_id", partner.id)
-        .eq("period_year", year)
-        .eq("period_month", month)
-        .maybeSingle();
-
-      // Prior month growth NPR for MoM
-      const prevMonth = month === 1 ? 12 : month - 1;
-      const prevYear = month === 1 ? year - 1 : year;
-      const { data: prevStmt } = await (supabase as any)
-        .from("partner_monthly_statements")
-        .select("growth_npr")
-        .eq("partner_id", partner.id)
-        .eq("period_year", prevYear)
-        .eq("period_month", prevMonth)
-        .maybeSingle();
-
-      const computation = computeMonthlyStatement({
-        payments,
-        reversals,
-        prior_growth_npr: Number(prevStmt?.growth_npr || 0),
-        quality: { ...(qRows || {}), onboarding_pct: onboardingPct },
-        approved_tier_pct: tRow?.approved_tier_pct ?? null,
-        maintenance_y2_pct: Number(partner.maintenance_rate_y2),
-        maintenance_y3_pct: Number(partner.maintenance_rate_y3plus),
-        payout_cap_pct: Number(partner.payout_cap_pct),
+      const { data, error } = await (supabase as any).rpc("admin_compute_partner_statement", {
+        _partner_id: partner.id,
+        _year: year,
+        _month: month,
       });
-
-      return {
-        partner,
-        year,
-        month,
-        payments_count: payments.length,
-        attributed_users_count: userIds.length,
-        onboarding_pct: onboardingPct,
-        onboarded_count: onboardedCount,
-        eligible_attributions_count: eligible.length,
-        ...computation,
-      };
+      if (error) throw error;
+      return data;
     },
   });
 }
@@ -324,11 +139,12 @@ export function usePartnerPeriodPayments(
       const { start, endExclusive } = periodBoundsYangon(year, month);
       const { data: attribs } = await (supabase as any)
         .from("partner_attributions")
-        .select("user_id")
+        .select("user_id, attributed_at")
         .eq("partner_id", partner.id)
         .limit(MAX_ROWS);
       const userIds = (attribs || []).map((a: any) => a.user_id);
       if (userIds.length === 0) return [];
+      const attributionByUser = new Map<string, string>((attribs || []).map((a: any) => [a.user_id, a.attributed_at]));
       const { data, error } = await (supabase as any)
         .from("payment_requests")
         .select("id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at")
@@ -339,7 +155,10 @@ export function usePartnerPeriodPayments(
         .lt("reviewed_at", endExclusive)
         .order("reviewed_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as any[];
+      return (data || []).filter((p: any) => {
+        const attributedAt = attributionByUser.get(p.user_id);
+        return !attributedAt || new Date(p.reviewed_at).getTime() >= new Date(attributedAt).getTime();
+      }) as any[];
     },
   });
 }
