@@ -2655,9 +2655,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_compute_partner_statement: {
+        Args: { _month: number; _partner_id: string; _year: number }
+        Returns: Json
+      }
       admin_delete_employer: {
         Args: { _employer_id: string }
         Returns: undefined
+      }
+      admin_finalize_partner_statement: {
+        Args: { _month: number; _partner_id: string; _year: number }
+        Returns: Json
       }
       admin_set_payment_revenue_overrides: {
         Args: {
@@ -2744,6 +2752,27 @@ export type Database = {
       mint_referral_codes: {
         Args: { _count?: number; _owner_id: string }
         Returns: number
+      }
+      partner_age_bucket: { Args: { _months: number }; Returns: string }
+      partner_months_between: {
+        Args: { _from: string; _to: string }
+        Returns: number
+      }
+      partner_payment_npr: {
+        Args: {
+          _amount: number
+          _npr_amount: number
+          _payment_type: string
+          _third_party_payout: number
+        }
+        Returns: number
+      }
+      partner_period_bounds_yangon: {
+        Args: { _month: number; _year: number }
+        Returns: {
+          end_at: string
+          start_at: string
+        }[]
       }
       post_job_with_credits: {
         Args: { _featured?: boolean; _payload: Json }
