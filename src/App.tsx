@@ -105,6 +105,20 @@ const App = () => (
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/contact" element={<Contact />} />
 
+            {/* Public browse pages — render inside AppLayout but DO NOT require auth.
+                Guests see a lightweight header; auth-only actions inside each page
+                redirect to /login. */}
+            <Route element={<AppLayout />}>
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/jobs/:id" element={<JobDetail />} />
+              <Route path="/mentors" element={<Mentors />} />
+              <Route path="/mentors/:id" element={<MentorDetail />} />
+              <Route path="/guides" element={<Guides />} />
+              <Route path="/guides/:id" element={<GuideDetail />} />
+              <Route path="/company/:id" element={<CompanyProfile />} />
+              <Route path="/profile/:id" element={<PublicProfile />} />
+            </Route>
+
             {/* All authenticated pages with bottom nav */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<Navigate to="/dashboard" replace />} />
