@@ -20,19 +20,26 @@ import {
   usePartnerQualityMetrics,
   useFinalizeStatement,
   usePaymentReversals,
+  usePartnerPeriodPayments,
+  useUpdatePaymentOverrides,
   type Partner,
 } from "@/hooks/use-partner-finance";
 
 const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} MMK`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
-const now = new Date();
+// Default selector to the current month on the Asia/Yangon (UTC+6:30) calendar.
+function nowYangon() {
+  const d = new Date(Date.now() + (6 * 60 + 30) * 60_000);
+  return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+}
 
 export default function AdminPartnerFinance() {
   const { data: partners, isLoading: loadingPartners } = usePartners();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [year, setYear] = useState<number>(now.getUTCFullYear());
-  const [month, setMonth] = useState<number>(now.getUTCMonth() + 1);
+  const _now = nowYangon();
+  const [year, setYear] = useState<number>(_now.year);
+  const [month, setMonth] = useState<number>(_now.month);
 
   const partner = useMemo<Partner | null>(
     () => partners?.find((p) => p.id === selectedId) ?? partners?.[0] ?? null,
@@ -84,6 +91,7 @@ export default function AdminPartnerFinance() {
             <TabsList>
               <TabsTrigger value="statement">Monthly Statement</TabsTrigger>
               <TabsTrigger value="attributions">Attributions</TabsTrigger>
+              <TabsTrigger value="payments">Payments &amp; Overrides</TabsTrigger>
               <TabsTrigger value="quality">Quality Gate</TabsTrigger>
               <TabsTrigger value="reversals">Reversals</TabsTrigger>
               <TabsTrigger value="history">Statement History</TabsTrigger>
@@ -91,6 +99,7 @@ export default function AdminPartnerFinance() {
 
             <TabsContent value="statement"><StatementTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="attributions"><AttributionsTab partner={partner} /></TabsContent>
+            <TabsContent value="payments"><PaymentsTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="quality"><QualityTab partner={partner} year={year} month={month} /></TabsContent>
             <TabsContent value="reversals"><ReversalsTab /></TabsContent>
             <TabsContent value="history"><HistoryTab partner={partner} /></TabsContent>
