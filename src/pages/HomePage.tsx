@@ -47,14 +47,19 @@ const HomePage = () => {
   // Featured jobs personalized: when we have match scores, only show featured jobs
   // that actually match the seeker's profile (similarity > 0), ranked by similarity.
   // Falls back to all featured when matches aren't ready yet (cold start).
+  const HOME_JOBS_LIMIT = 5;
   const allFeatured = (jobs || []).filter((j: any) => j.is_featured);
   const featuredJobs = hasMatches
     ? allFeatured
         .filter((j: any) => (scoreMap!.get(j.id) ?? 0) > 0)
         .sort((a: any, b: any) => (scoreMap!.get(b.id) ?? 0) - (scoreMap!.get(a.id) ?? 0))
-        .slice(0, 5)
-    : allFeatured.slice(0, 5);
-  const latestJobs = featuredJobs.length > 0 ? featuredJobs : (jobs || []).slice(0, 3);
+    : allFeatured;
+  // Always show up to N: featured first, then most-recent non-featured to fill.
+  const featuredIdSet = new Set(featuredJobs.map((j: any) => j.id));
+  const recentFill = (jobs || [])
+    .filter((j: any) => !featuredIdSet.has(j.id))
+    .slice(0, Math.max(0, HOME_JOBS_LIMIT - featuredJobs.length));
+  const latestJobs = [...featuredJobs.slice(0, HOME_JOBS_LIMIT), ...recentFill].slice(0, HOME_JOBS_LIMIT);
 
   // "Matched for you" — top non-featured jobs by similarity (avoid duplicating featured).
   const featuredIds = new Set(featuredJobs.map((j: any) => j.id));
