@@ -121,12 +121,25 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
 
   if (isLoading || !data) return <Card className="p-8 text-sm text-muted-foreground">Computing…</Card>;
 
+  const QG_LABELS: Record<string, { name: string; cmp: string; suffix: string }> = {
+    l1_sla_pct:       { name: "L1 SLA",      cmp: "≥", suffix: "%" },
+    csat_score:       { name: "CSAT",        cmp: "≥", suffix: "" },
+    dispute_rate_pct: { name: "Disputes",    cmp: "≤", suffix: "%" },
+    fraud_rate_pct:   { name: "Fraud",       cmp: "≤", suffix: "%" },
+    onboarding_pct:   { name: "Onboarding",  cmp: "≥", suffix: "%" },
+  };
   const blockers: string[] = [];
-  if (!data.quality_gate_passed) blockers.push(
-    `Quality gate failed (need L1≥90%, CSAT≥4.0, Disputes≤1%, Fraud≤0.5%, Onboarded-in-7d≥80% — current onboarding ${data.onboarding_pct?.toFixed(1)}%).`,
-  );
+  if (!data.quality_gate_passed) {
+    const failing = Object.entries(data.quality_gate_breakdown || {})
+      .filter(([, v]: any) => !v.pass)
+      .map(([k, v]: any) => {
+        const meta = QG_LABELS[k] || { name: k, cmp: "?", suffix: "" };
+        return `${meta.name} ${v.value}${meta.suffix} (need ${meta.cmp}${v.threshold}${meta.suffix})`;
+      });
+    blockers.push(`Quality gate failed — ${failing.join(", ") || "missing inputs"}.`);
+  }
   if (!data.active_growth_requirement_met) blockers.push(`Active Growth requirement not met (Growth share = ${pct(data.active_growth_ratio)}, need ≥25%).`);
-  if (data.growth_npr >= 80_000_000) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required for 30% rate.");
+  if (data.tier_approval_required) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).");
 
   return (
     <div className="space-y-4">
@@ -136,6 +149,10 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
         <Stat label="Net Collected NPR" value={fmt(data.net_collected_attributed_npr)} />
         <Stat label="Total Payout" value={fmt(data.total_payout)} tone="ok" />
       </div>
+
+      <Card className="p-3 text-xs text-muted-foreground">
+        {data.payments_count} approved MMK payments · {data.eligible_attributions_count}/{data.attributed_users_count} attributions eligible for onboarding metric · onboarding {data.onboarding_pct?.toFixed(1)}%
+      </Card>
 
       <Card className="p-4">
         <h3 className="mb-3 text-sm font-semibold">Buckets (gross → net of reversals)</h3>
