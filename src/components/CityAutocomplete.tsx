@@ -49,15 +49,14 @@ const CityAutocomplete = ({ value, onChange, placeholder, emptyText, className, 
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => {
-              if (e.key === "Escape") setOpen(false);
-              if (e.key === "Enter" && open && matches.length > 0) {
-                // Allow form submit if the user typed an exact match-ish; otherwise pick first match.
-                const exact = matches.find((m) => m.toLowerCase() === value.trim().toLowerCase());
-                if (!exact) {
-                  e.preventDefault();
-                  onChange(matches[0]);
-                  setOpen(false);
-                }
+              if (e.key === "Escape") {
+                setOpen(false);
+                e.stopPropagation();
+              }
+              if (e.key === "Enter") {
+                // Always allow the parent form to submit on Enter — just close
+                // the popover. Do NOT preventDefault.
+                setOpen(false);
               }
             }}
             placeholder={placeholder}
