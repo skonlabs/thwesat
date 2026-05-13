@@ -122,16 +122,19 @@ export function usePartnerStatementPreview(
       // Attributions for this partner
       const { data: attribs, error: aErr } = await (supabase as any)
         .from("partner_attributions")
-        .select("user_id, attributed_at, first_paid_at")
+        .select("user_id, attributed_at, first_paid_at, onboarding_completed_at")
         .eq("partner_id", partner.id);
       if (aErr) throw aErr;
       const userIds = (attribs || []).map((a: any) => a.user_id);
-      // Use first_paid_at when present; otherwise leave undefined and
-      // fall back to the payment's own date so age = 0 (Growth) for the
-      // very first txn rather than wrongly aging from attribution date.
       const firstPaidByUser = new Map<string, string | null>(
         (attribs || []).map((a: any) => [a.user_id, a.first_paid_at || null]),
       );
+      // Onboarding %: of users attributed BEFORE the period ended, what % have
+      // onboarding_completed_at set (which the trigger only sets when the
+      // employer hit the rule within 7 days of profile creation).
+      const eligible = (attribs || []).filter((a: any) => a.attributed_at && a.attributed_at < endExclusive);
+      const onboardedCount = eligible.filter((a: any) => !!a.onboarding_completed_at).length;
+      const onboardingPct = eligible.length > 0 ? (onboardedCount / eligible.length) * 100 : 0;
 
       let payments: AttributedPayment[] = [];
       // Map from payment_request_id -> bucket of original payment (for reversal classification)
