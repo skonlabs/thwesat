@@ -101,8 +101,11 @@ const Login = () => {
       return;
     }
 
-    const from = (location.state as { from?: string } | null)?.from || "/dashboard";
-    navigate(from, { replace: true });
+    const params = new URLSearchParams(location.search);
+    const redirectParam = params.get("redirect");
+    const stateFrom = (location.state as { from?: string } | null)?.from;
+    const target = redirectParam || stateFrom || "/dashboard";
+    navigate(target, { replace: true });
   };
 
   return (
