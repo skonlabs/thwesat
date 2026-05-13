@@ -1459,6 +1459,317 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_attributions: {
+        Row: {
+          attributed_at: string
+          attribution_source: string | null
+          channel: string
+          created_at: string
+          created_by: string | null
+          first_paid_at: string | null
+          id: string
+          onboarding_completed_at: string | null
+          partner_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attributed_at?: string
+          attribution_source?: string | null
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          first_paid_at?: string | null
+          id?: string
+          onboarding_completed_at?: string | null
+          partner_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attributed_at?: string
+          attribution_source?: string | null
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          first_paid_at?: string | null
+          id?: string
+          onboarding_completed_at?: string | null
+          partner_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_attributions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_monthly_statements: {
+        Row: {
+          active_growth_ratio: number | null
+          active_growth_requirement_met: boolean
+          bonus_payout: number
+          cap_applied: boolean
+          computation_inputs: Json
+          created_at: string
+          created_by: string
+          currency: string
+          finalized_at: string | null
+          finalized_by: string | null
+          gross_attributed_npr: number
+          growth_bonus_pct: number
+          growth_npr: number
+          growth_payout: number
+          growth_tier_pct: number
+          id: string
+          maintenance_payout: number
+          maintenance_y2_npr: number
+          maintenance_y2_pct: number
+          maintenance_y3_npr: number
+          maintenance_y3_pct: number
+          mom_growth_pct: number | null
+          net_collected_attributed_npr: number
+          paid_at: string | null
+          paid_by: string | null
+          partner_id: string
+          payout_reference: string | null
+          period_month: number
+          period_year: number
+          quality_gate_passed: boolean
+          reversals_npr: number
+          status: string
+          total_payout: number
+          total_payout_uncapped: number
+        }
+        Insert: {
+          active_growth_ratio?: number | null
+          active_growth_requirement_met?: boolean
+          bonus_payout?: number
+          cap_applied?: boolean
+          computation_inputs?: Json
+          created_at?: string
+          created_by: string
+          currency?: string
+          finalized_at?: string | null
+          finalized_by?: string | null
+          gross_attributed_npr?: number
+          growth_bonus_pct?: number
+          growth_npr?: number
+          growth_payout?: number
+          growth_tier_pct?: number
+          id?: string
+          maintenance_payout?: number
+          maintenance_y2_npr?: number
+          maintenance_y2_pct?: number
+          maintenance_y3_npr?: number
+          maintenance_y3_pct?: number
+          mom_growth_pct?: number | null
+          net_collected_attributed_npr?: number
+          paid_at?: string | null
+          paid_by?: string | null
+          partner_id: string
+          payout_reference?: string | null
+          period_month: number
+          period_year: number
+          quality_gate_passed?: boolean
+          reversals_npr?: number
+          status?: string
+          total_payout?: number
+          total_payout_uncapped?: number
+        }
+        Update: {
+          active_growth_ratio?: number | null
+          active_growth_requirement_met?: boolean
+          bonus_payout?: number
+          cap_applied?: boolean
+          computation_inputs?: Json
+          created_at?: string
+          created_by?: string
+          currency?: string
+          finalized_at?: string | null
+          finalized_by?: string | null
+          gross_attributed_npr?: number
+          growth_bonus_pct?: number
+          growth_npr?: number
+          growth_payout?: number
+          growth_tier_pct?: number
+          id?: string
+          maintenance_payout?: number
+          maintenance_y2_npr?: number
+          maintenance_y2_pct?: number
+          maintenance_y3_npr?: number
+          maintenance_y3_pct?: number
+          mom_growth_pct?: number | null
+          net_collected_attributed_npr?: number
+          paid_at?: string | null
+          paid_by?: string | null
+          partner_id?: string
+          payout_reference?: string | null
+          period_month?: number
+          period_year?: number
+          quality_gate_passed?: boolean
+          reversals_npr?: number
+          status?: string
+          total_payout?: number
+          total_payout_uncapped?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_monthly_statements_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_quality_metrics: {
+        Row: {
+          created_at: string
+          csat_score: number | null
+          dispute_rate_pct: number | null
+          fraud_rate_pct: number | null
+          id: string
+          l1_sla_pct: number | null
+          notes: string | null
+          partner_id: string
+          period_month: number
+          period_year: number
+          recorded_by: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          csat_score?: number | null
+          dispute_rate_pct?: number | null
+          fraud_rate_pct?: number | null
+          id?: string
+          l1_sla_pct?: number | null
+          notes?: string | null
+          partner_id: string
+          period_month: number
+          period_year: number
+          recorded_by: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          csat_score?: number | null
+          dispute_rate_pct?: number | null
+          fraud_rate_pct?: number | null
+          id?: string
+          l1_sla_pct?: number | null
+          notes?: string | null
+          partner_id?: string
+          period_month?: number
+          period_year?: number
+          recorded_by?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_quality_metrics_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_tier_approvals: {
+        Row: {
+          approved_at: string
+          approved_by: string
+          approved_tier_pct: number
+          id: string
+          partner_id: string
+          period_month: number
+          period_year: number
+          reason: string
+        }
+        Insert: {
+          approved_at?: string
+          approved_by: string
+          approved_tier_pct: number
+          id?: string
+          partner_id: string
+          period_month: number
+          period_year: number
+          reason: string
+        }
+        Update: {
+          approved_at?: string
+          approved_by?: string
+          approved_tier_pct?: number
+          id?: string
+          partner_id?: string
+          period_month?: number
+          period_year?: number
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_tier_approvals_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          code: string
+          contact_email: string | null
+          contract_end_date: string | null
+          contract_start_date: string
+          created_at: string
+          id: string
+          is_active: boolean
+          maintenance_rate_y2: number
+          maintenance_rate_y3plus: number
+          name: string
+          notes: string | null
+          payout_cap_pct: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          contact_email?: string | null
+          contract_end_date?: string | null
+          contract_start_date: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          maintenance_rate_y2?: number
+          maintenance_rate_y3plus?: number
+          name: string
+          notes?: string | null
+          payout_cap_pct?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          contact_email?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          maintenance_rate_y2?: number
+          maintenance_rate_y3plus?: number
+          name?: string
+          notes?: string | null
+          payout_cap_pct?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_requests: {
         Row: {
           admin_note: string | null
@@ -1467,13 +1778,18 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          npr_amount: number | null
           payment_method: string
           payment_type: string
           proof_url: string | null
           reference_id: string | null
+          revenue_classification: string
+          revenue_classification_override_at: string | null
+          revenue_classification_override_by: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
+          third_party_payout: number
           updated_at: string
           user_id: string
         }
@@ -1484,13 +1800,18 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          npr_amount?: number | null
           payment_method?: string
           payment_type: string
           proof_url?: string | null
           reference_id?: string | null
+          revenue_classification?: string
+          revenue_classification_override_at?: string | null
+          revenue_classification_override_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          third_party_payout?: number
           updated_at?: string
           user_id: string
         }
@@ -1501,17 +1822,69 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          npr_amount?: number | null
           payment_method?: string
           payment_type?: string
           proof_url?: string | null
           reference_id?: string | null
+          revenue_classification?: string
+          revenue_classification_override_at?: string | null
+          revenue_classification_override_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
+          third_party_payout?: number
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      payment_reversals: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          currency: string
+          id: string
+          npr_amount: number | null
+          occurred_at: string
+          payment_request_id: string
+          reason: string | null
+          reversal_type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          currency?: string
+          id?: string
+          npr_amount?: number | null
+          occurred_at?: string
+          payment_request_id: string
+          reason?: string | null
+          reversal_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          currency?: string
+          id?: string
+          npr_amount?: number | null
+          occurred_at?: string
+          payment_request_id?: string
+          reason?: string | null
+          reversal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_reversals_payment_request_id_fkey"
+            columns: ["payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_comments: {
         Row: {
