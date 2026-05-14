@@ -41,20 +41,22 @@ describe("useStartConversation", () => {
   });
 
   it("REUSES an existing conversation instead of creating a new one", async () => {
+    let call = 0;
     fromMock.mockImplementation((t: string) => {
       if (t === "conversation_participants") {
-        let callCount = 0;
+        call++;
+        if (call === 1) {
+          return {
+            select: () => ({
+              eq: () => Promise.resolve({ data: [{ conversation_id: "conv-existing" }], error: null }),
+            }),
+          };
+        }
         return {
           select: () => ({
-            eq: () => {
-              callCount++;
-              if (callCount === 1) {
-                return Promise.resolve({ data: [{ conversation_id: "conv-existing" }], error: null });
-              }
-              return {
-                in: () => Promise.resolve({ data: [{ conversation_id: "conv-existing" }], error: null }),
-              };
-            },
+            eq: () => ({
+              in: () => Promise.resolve({ data: [{ conversation_id: "conv-existing" }], error: null }),
+            }),
           }),
         };
       }
@@ -63,7 +65,6 @@ describe("useStartConversation", () => {
 
     const { startConversation } = useStartConversation();
     await startConversation("user-2");
-
     expect(navigateMock).toHaveBeenCalledWith("/messages/chat?id=conv-existing");
   });
 
