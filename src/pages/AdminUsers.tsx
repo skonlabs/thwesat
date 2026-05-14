@@ -185,16 +185,17 @@ const AdminUsers = () => {
         <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
         <div className="px-5">
           {/* Summary */}
-          <div className="mb-4 grid grid-cols-4 gap-2">
+          <div className="mb-4 grid grid-cols-5 gap-2">
             {[
-              { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
+              { label: lang === "my" ? "စုစုပေါင်း" : "All", count: users.length, filterVal: "all" },
+              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "jobseeker" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
               { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
             ].map(s => (
               <button
                 key={s.filterVal}
-                onClick={() => setRoleFilter(s.filterVal)}
+                onClick={() => updateRoleFilter(s.filterVal)}
                 className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${roleFilter === s.filterVal ? "border-primary" : "border-border"}`}
               >
                 <p className="text-lg font-bold text-foreground">{s.count}</p>
