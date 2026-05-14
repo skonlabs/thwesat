@@ -68,11 +68,8 @@ const DesktopNav = () => {
   const partner: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
-    { labelMy: "ပို့စ်", labelEn: "Posts", path: "/partner/posts" },
     { labelMy: "ငွေပေး", labelEn: "Payments", path: "/partner/payments" },
     { labelMy: "သုံးသူ", labelEn: "Users", path: "/partner/users" },
-    { labelMy: "အလုပ်ရှင်", labelEn: "Employers", path: "/partner/employers" },
-    { labelMy: "ခွဲခြမ်း", labelEn: "Analytics", path: "/partner/analytics" },
   ];
 
   const items = isAdmin ? admin : isPartner ? partner : isModerator ? mod : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
