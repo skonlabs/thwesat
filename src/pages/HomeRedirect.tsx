@@ -2,6 +2,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useRole } from "@/hooks/use-role";
 import HomePage from "./HomePage";
 import AdminDashboard from "./AdminDashboard";
+import PartnerDashboard from "./PartnerDashboard";
 import ModeratorDashboard from "./ModeratorDashboard";
 import EmployerDashboard from "./EmployerDashboard";
 import AgentDashboard from "./AgentDashboard";
