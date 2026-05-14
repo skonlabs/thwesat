@@ -48,13 +48,29 @@ const AdminUsers = () => {
   const { lang } = useLanguage();
   const { isAdmin } = useUserRoles();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialRole = searchParams.get("role") || "all";
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState(initialRole);
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
   const [page, setPage] = useState(0);
   const queryClient = useQueryClient();
+
+  // Sync URL ?role= → filter (so dashboard deep links work and reload preserves it)
+  useEffect(() => {
+    const urlRole = searchParams.get("role") || "all";
+    if (urlRole !== roleFilter) setRoleFilter(urlRole);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const updateRoleFilter = (val: string) => {
+    setRoleFilter(val);
+    const next = new URLSearchParams(searchParams);
+    if (val === "all") next.delete("role"); else next.set("role", val);
+    setSearchParams(next, { replace: true });
+  };
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users", page],
