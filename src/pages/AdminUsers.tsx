@@ -341,6 +341,7 @@ const AdminUsers = () => {
                     </div>
                     <Switch
                       checked={selectedSystemRoles.includes("admin")}
+                      disabled={!isAdmin}
                       onCheckedChange={(checked) =>
                         requestRoleChange(selected.id, selected.display_name || "User", "admin", checked)
                       }
