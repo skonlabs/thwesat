@@ -39,6 +39,7 @@ const DesktopNav = () => {
     { labelMy: "လျှောက်သူ", labelEn: "Applicants", path: "/employer/applications" },
     { labelMy: "ရှာဖွေ", labelEn: "Search Talent", path: "/employer/search" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/employer/finance" },
+    { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
   const agent: NavItem[] = [
     { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
@@ -46,12 +47,14 @@ const DesktopNav = () => {
     { labelMy: "ကိုယ်စားလှယ်", labelEn: "Candidates", path: "/agent/candidates" },
     { labelMy: "ရှာဖွေ", labelEn: "Search Talent", path: "/agent/search" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/agent/finance" },
+    { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
   const mentor: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "ဘွတ်ကင်", labelEn: "Bookings", path: "/mentors/bookings" },
     { labelMy: "ကျောင်းသား", labelEn: "Mentees", path: "/mentors/mentees" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance" },
+    { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
   const admin: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
