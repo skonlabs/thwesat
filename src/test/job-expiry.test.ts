@@ -11,6 +11,7 @@ describe("job expiry helpers", () => {
   });
 
   it("detects expired listings", () => {
+    vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-05-15T00:00:00.000Z"));
     expect(isJobExpired("2026-05-14T17:29:59.999Z")).toBe(true);
     expect(isJobExpired("2026-05-15T17:29:59.999Z")).toBe(false);
