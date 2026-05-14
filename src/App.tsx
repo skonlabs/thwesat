@@ -62,6 +62,7 @@ import MentorMentees from "./pages/MentorMentees";
 import MentorBookings from "./pages/MentorBookings";
 
 import AdminDashboard from "./pages/AdminDashboard";
+import PartnerDashboard from "./pages/PartnerDashboard";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAnalytics from "./pages/AdminAnalytics";
