@@ -2,6 +2,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useRole } from "@/hooks/use-role";
 import HomePage from "./HomePage";
 import AdminDashboard from "./AdminDashboard";
+import PartnerDashboard from "./PartnerDashboard";
 import ModeratorDashboard from "./ModeratorDashboard";
 import EmployerDashboard from "./EmployerDashboard";
 import AgentDashboard from "./AgentDashboard";
@@ -26,7 +27,7 @@ const HomeRedirect = () => {
   }
 
   if (isAdmin) return <AdminDashboard />;
-  if (isPartner) return <AdminDashboard />;
+  if (isPartner) return <PartnerDashboard />;
   if (isModerator) return <ModeratorDashboard />;
 
   // Fall back to the user's actual allowed roles when the persisted UI role
