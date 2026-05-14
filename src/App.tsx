@@ -197,7 +197,7 @@ const App = () => (
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
 
               {/* Partner Portal — read + approve mirror of admin (no destructive actions) */}
-              <Route path="/partner" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/partner" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerDashboard /></SystemRoleGuard>} />
               <Route path="/partner/jobs" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminJobQueue /></SystemRoleGuard>} />
               <Route path="/partner/users" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminUsers /></SystemRoleGuard>} />
               <Route path="/partner/analytics" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminAnalytics /></SystemRoleGuard>} />
