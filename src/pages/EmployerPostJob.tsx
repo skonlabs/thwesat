@@ -538,6 +538,7 @@ const EmployerPostJob = () => {
               salary_min: salaryMin ? Number(salaryMin) : null,
               salary_max: salaryMax ? Number(salaryMax) : null,
               currency,
+              expires_at: jobExpiryDateToIso(expiresOn),
               skills,
               is_verified: false,
               is_diaspora_safe: locationCountry && locationCountry !== "Myanmar" ? !requiresEmbassy && !requiresWorkPermit : false,
@@ -598,6 +599,7 @@ const EmployerPostJob = () => {
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" strokeWidth={1.5} /> {translateJobLocation(previewJob.location, lang)}</span>
                       {roleType && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {translateJobType(roleType, lang)}</span>}
+                      {expiresOn && <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" strokeWidth={1.5} /> {lang === "my" ? "ကုန်ဆုံး" : "Expires"} {new Date(previewJob.expires_at as string).toLocaleDateString()}</span>}
                     </div>
                     <span className="text-xs font-semibold text-gold-dark">
                       {salaryNegotiable ? (lang === "my" ? "ညှိနှိုင်းနိုင်" : "Negotiable") : formatJobSalary(previewJob, lang)}
