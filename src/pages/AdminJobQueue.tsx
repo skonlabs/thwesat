@@ -256,6 +256,28 @@ const AdminJobQueue = () => {
           ))}
         </div>
 
+        {since && (
+          <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[11px]">
+            <span className="text-muted-foreground">
+              {lang === "my" ? "ကာလ" : "Window"}:{" "}
+              <span className="font-semibold text-foreground">
+                {since === "24h" ? (lang === "my" ? "နောက်ဆုံး ၂၄ နာရီ" : "Last 24 hours") : since === "7d" ? (lang === "my" ? "နောက်ဆုံး ၇ ရက်" : "Last 7 days") : since}
+              </span>{" "}
+              · {jobs.length} {lang === "my" ? "ခု တွေ့ရှိ" : "shown"}
+            </span>
+            <button
+              onClick={() => {
+                const p = new URLSearchParams(searchParams);
+                p.delete("since");
+                setSearchParams(p, { replace: true });
+              }}
+              className="font-semibold text-primary"
+            >
+              {lang === "my" ? "ဖျက်ရန်" : "Clear"}
+            </button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
         ) : (

@@ -155,7 +155,7 @@ const PartnerDashboard = () => {
             value={counts?.approvedJobsToday ?? 0}
             label={my ? "ယနေ့ အတည်ပြုပြီး" : "Approved today"}
             tone="emerald"
-            onClick={() => navigate("/partner/jobs?status=active")}
+            onClick={() => navigate("/partner/jobs?status=active&since=24h")}
           />
           <SnapshotCard
             icon={Briefcase}
