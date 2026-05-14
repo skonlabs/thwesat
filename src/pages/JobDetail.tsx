@@ -20,6 +20,7 @@ import { formatJobSalary, translateJobCategories, translateJobCategory, translat
 import { pickLocalized } from "@/lib/i18n";
 import { shareJobLink } from "@/lib/share-job";
 import MentorCoachCue from "@/components/MentorCoachCue";
+import { isJobExpired } from "@/lib/job-expiry";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -382,6 +383,8 @@ const JobDetail = () => {
   const salaryText = formatJobSalary(job, lang);
   const displayTitle = translateJobTitle(job.title, job.title_my, lang);
   const isOwnJob = user?.id === job.employer_id;
+  const expired = isJobExpired((job as any).expires_at);
+  const acceptingApplications = job.status === "active" && !expired;
   const clientName = (job as any).client_company_name as string | null;
   const clientLogo = (job as any).client_logo_url as string | null;
   const employerCompanyName = clientName || employerDetails?.employer?.company_name || job.company;
@@ -424,17 +427,24 @@ const JobDetail = () => {
         const externalUrl = ((job as any).external_url || "").trim();
         if (method === "external" && externalUrl) {
           return (
-            <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => window.open(externalUrl, "_blank", "noopener,noreferrer")}>
+            <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={!acceptingApplications} onClick={() => window.open(externalUrl, "_blank", "noopener,noreferrer")}>
               <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-              {lang === "my" ? "ပြင်ပလင့်ခ်တွင် လျှောက်ထားရန်" : "Apply on external site"}
+              {!acceptingApplications ? (lang === "my" ? "လျှောက်ထားမှု ပိတ်ထားသည်" : "Applications closed") : (lang === "my" ? "ပြင်ပလင့်ခ်တွင် လျှောက်ထားရန်" : "Apply on external site")}
             </Button>
           );
         }
         if (method === "email" && externalUrl) {
           return (
-            <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => { window.location.href = `mailto:${externalUrl}?subject=${encodeURIComponent(`Application: ${displayTitle}`)}`; }}>
+            <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={!acceptingApplications} onClick={() => { window.location.href = `mailto:${externalUrl}?subject=${encodeURIComponent(`Application: ${displayTitle}`)}`; }}>
               <Send className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-              {lang === "my" ? "အီးမေးလ်ဖြင့် လျှောက်ထားရန်" : "Apply via email"}
+              {!acceptingApplications ? (lang === "my" ? "လျှောက်ထားမှု ပိတ်ထားသည်" : "Applications closed") : (lang === "my" ? "အီးမေးလ်ဖြင့် လျှောက်ထားရန်" : "Apply via email")}
+            </Button>
+          );
+        }
+        if (!acceptingApplications) {
+          return (
+            <Button variant="outline" size="lg" className="flex-1 rounded-xl" disabled>
+              {lang === "my" ? "လျှောက်ထားမှု ပိတ်ထားသည်" : "Applications closed"}
             </Button>
           );
         }
