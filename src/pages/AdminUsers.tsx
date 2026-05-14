@@ -127,6 +127,7 @@ const AdminUsers = () => {
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
+  const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
