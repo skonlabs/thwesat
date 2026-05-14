@@ -24,6 +24,7 @@ import { X } from "lucide-react";
 import { useRole } from "@/hooks/use-role";
 import AgentClientPicker from "@/components/agent/AgentClientPicker";
 import type { AgentClient } from "@/hooks/use-agent-clients";
+import { jobExpiryDateToIso, todayDateInput } from "@/lib/job-expiry";
 
 const CHAR_LIMIT_DESC = 3000;
 const CHAR_LIMIT_REQ = 2000;
@@ -77,6 +78,7 @@ const EmployerPostJob = () => {
   const [contractDurationType, setContractDurationType] = useState<"fixed" | "variable">("fixed");
   const [contractDurationMonths, setContractDurationMonths] = useState("");
   const [contractDurationNote, setContractDurationNote] = useState("");
+  const [expiresOn, setExpiresOn] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
   const role = useRole(s => s.role);
@@ -173,6 +175,7 @@ const EmployerPostJob = () => {
         application_method: applicationMethod,
         external_url: applicationMethod === "external" ? externalUrl : null,
         job_type: roleType.includes("contract") ? "contract" : "full-time",
+        expires_at: jobExpiryDateToIso(expiresOn),
         contract_duration_type: isContract ? contractDurationType : null,
         contract_duration_months: isContract && contractDurationType === "fixed" && contractDurationMonths ? parseInt(contractDurationMonths) : null,
         contract_duration_note: isContract && contractDurationType === "variable" ? contractDurationNote : null,
