@@ -17,10 +17,8 @@ describe("jobExpiryDateToIso", () => {
 
   it("returns null for empty / falsy values", () => {
     expect(jobExpiryDateToIso("")).toBeNull();
-    // @ts-expect-error - guard runtime nulls
-    expect(jobExpiryDateToIso(null)).toBeNull();
-    // @ts-expect-error
-    expect(jobExpiryDateToIso(undefined)).toBeNull();
+    expect(jobExpiryDateToIso(null as unknown as string)).toBeNull();
+    expect(jobExpiryDateToIso(undefined as unknown as string)).toBeNull();
   });
 
   it("handles leap-day boundary correctly", () => {
