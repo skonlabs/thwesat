@@ -31,6 +31,7 @@ const DesktopNav = () => {
     { labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
     { labelMy: "ကိရိယာ", labelEn: "Tools", path: "/ai-tools" },
     { labelMy: "လမ်းညွှန်စာ", labelEn: "Guides", path: "/guides" },
+    { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
   const employer: NavItem[] = [
     { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
