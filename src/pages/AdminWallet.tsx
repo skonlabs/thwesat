@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
@@ -13,7 +14,24 @@ import { CheckCircle2, XCircle, Eye } from "lucide-react";
 const AdminWallet = () => {
   const { lang } = useLanguage();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<"topups" | "adjust" | "prices" | "packages">("topups");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (["topups","adjust","prices","packages"] as const).includes(searchParams.get("tab") as any)
+    ? (searchParams.get("tab") as "topups" | "adjust" | "prices" | "packages")
+    : "topups";
+  const [tab, setTabState] = useState<"topups" | "adjust" | "prices" | "packages">(initialTab);
+  const setTab = (next: "topups" | "adjust" | "prices" | "packages") => {
+    setTabState(next);
+    const p = new URLSearchParams(searchParams);
+    if (next === "topups") p.delete("tab"); else p.set("tab", next);
+    setSearchParams(p, { replace: true });
+  };
+  useEffect(() => {
+    const urlT = searchParams.get("tab");
+    const valid = (["topups","adjust","prices","packages"] as const).includes(urlT as any) ? urlT as any : "topups";
+    if (valid !== tab) setTabState(valid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+  const topupStatusFilter = searchParams.get("status"); // optional pending|approved|rejected
 
   const { data: topups = [] } = useQuery({
     queryKey: ["admin-topups"],
@@ -118,8 +136,14 @@ const AdminWallet = () => {
 
         {tab === "topups" && (
           <div className="space-y-2">
-            {topups.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">No top-ups</p>}
-            {topups.map((t: any) => (
+            {topupStatusFilter && (
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[11px]">
+                <span className="text-muted-foreground">Filter: <span className="font-semibold text-foreground capitalize">{topupStatusFilter}</span></span>
+                <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">Clear</button>
+              </div>
+            )}
+            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">No top-ups</p>}
+            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).map((t: any) => (
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>

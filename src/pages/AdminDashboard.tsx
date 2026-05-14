@@ -45,18 +45,18 @@ const AdminDashboard = () => {
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
-    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs" },
-    { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/employers" },
-    { icon: Shield, label: { my: "လမ်းညွှန်", en: "Mentors" }, value: counts?.totalMentors?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/mentors" },
+    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
+    { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/users?role=employer" },
+    { icon: Shield, label: { my: "လမ်းညွှန်", en: "Mentors" }, value: counts?.totalMentors?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/users?role=mentor" },
   ];
 
   const pendingItems = [
-    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups" }, count: counts?.pendingTopups || 0, path: "/admin/wallet", urgent: (counts?.pendingTopups || 0) > 0 },
-    { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments", urgent: (counts?.pendingPayments || 0) > 0 },
-    { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs", urgent: (counts?.pendingJobs || 0) > 0 },
-    { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers", urgent: (counts?.pendingEmployers || 0) > 0 },
-    { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Posts" }, count: counts?.pendingPosts || 0, path: "/moderator", urgent: false },
-    { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/moderator", urgent: (counts?.reports || 0) > 0 },
+    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups" }, count: counts?.pendingTopups || 0, path: "/admin/wallet?tab=topups&status=pending", urgent: (counts?.pendingTopups || 0) > 0 },
+    { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments?status=pending", urgent: (counts?.pendingPayments || 0) > 0 },
+    { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
+    { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
+    { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Posts" }, count: counts?.pendingPosts || 0, path: "/moderator?tab=posts", urgent: false },
+    { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/moderator?tab=posts", urgent: (counts?.reports || 0) > 0 },
   ];
 
   const managementLinks = [

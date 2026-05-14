@@ -92,28 +92,28 @@ const PartnerDashboard = () => {
       icon: Briefcase,
       label: { en: "Job Listings", my: "အလုပ်ခေါ်စာများ" },
       count: counts?.pendingJobs || 0,
-      path: "/partner/jobs",
+      path: "/partner/jobs?status=pending",
       tone: "primary" as const,
     },
     {
       icon: CreditCard,
       label: { en: "Payments", my: "ငွေပေးချေမှုများ" },
       count: counts?.pendingPayments || 0,
-      path: "/partner/payments",
+      path: "/partner/payments?status=pending",
       tone: "amber" as const,
     },
     {
       icon: Building2,
       label: { en: "Employer Verifications", my: "အလုပ်ရှင် အတည်ပြုရန်" },
       count: counts?.pendingEmployers || 0,
-      path: "/partner/employers",
+      path: "/partner/employers?status=pending",
       tone: "primary" as const,
     },
     {
       icon: MessageCircle,
       label: { en: "Community Posts", my: "Community ပို့စ်များ" },
       count: counts?.pendingPosts || 0,
-      path: "/partner/posts",
+      path: "/partner/posts?tab=posts",
       tone: "muted" as const,
     },
   ];
@@ -155,18 +155,21 @@ const PartnerDashboard = () => {
             value={counts?.approvedJobsToday ?? 0}
             label={my ? "ယနေ့ အတည်ပြုပြီး" : "Approved today"}
             tone="emerald"
+            onClick={() => navigate("/partner/jobs?status=active")}
           />
           <SnapshotCard
             icon={Briefcase}
             value={counts?.activeJobs ?? 0}
             label={my ? "တက်ကြွ အလုပ်" : "Active jobs"}
             tone="primary"
+            onClick={() => navigate("/partner/jobs?status=active")}
           />
           <SnapshotCard
             icon={Users}
             value={counts?.totalUsers ?? 0}
             label={my ? "အသုံးပြုသူ စုစုပေါင်း" : "Total users"}
             tone="muted"
+            onClick={() => navigate("/partner/users")}
           />
           <SnapshotCard
             icon={Eye}
@@ -273,12 +276,14 @@ const SnapshotCard = ({
   label,
   tone,
   isText = false,
+  onClick,
 }: {
   icon: any;
   value: number | string;
   label: string;
   tone: "emerald" | "primary" | "muted" | "amber";
   isText?: boolean;
+  onClick?: () => void;
 }) => {
   const accent =
     tone === "emerald"
@@ -288,14 +293,18 @@ const SnapshotCard = ({
       : tone === "muted"
       ? "bg-muted text-muted-foreground"
       : "bg-primary/10 text-primary";
+  const Wrap: any = onClick ? "button" : "div";
   return (
-    <div className="rounded-xl border border-border bg-card p-3">
+    <Wrap
+      {...(onClick ? { onClick, type: "button" } : {})}
+      className={`rounded-xl border border-border bg-card p-3 text-left ${onClick ? "transition-colors hover:border-primary/40 active:bg-muted/30" : ""}`}
+    >
       <div className={`mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg ${accent}`}>
         <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
       </div>
       <p className={`font-bold text-foreground ${isText ? "text-xs" : "text-lg"}`}>{value}</p>
       <p className="text-[10px] text-muted-foreground">{label}</p>
-    </div>
+    </Wrap>
   );
 };
 
