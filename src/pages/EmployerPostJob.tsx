@@ -406,6 +406,19 @@ const EmployerPostJob = () => {
                 )}
               </div>
             )}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <label className="mb-1 block text-xs font-semibold text-foreground">{lang === "my" ? "သက်တမ်းကုန်မည့်နေ့" : "Expiry Date"}</label>
+              <Input
+                type="date"
+                min={todayDateInput()}
+                value={expiresOn}
+                onChange={e => setExpiresOn(e.target.value)}
+                className="h-11 rounded-xl"
+              />
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {lang === "my" ? "ရွေးချယ်ထားလျှင် ထိုနေ့နောက်ပိုင်း လျှောက်ထား၍ မရပါ။" : "Optional — the listing stops accepting applications after this date."}
+              </p>
+            </div>
             {locationCountry && locationCountry !== "Myanmar" && (
               <div className="space-y-3 rounded-xl border border-border bg-card p-4">
                 <h3 className="text-xs font-semibold text-foreground">{lang === "my" ? "ဒိုင်ယာစပိုရာ လုံခြုံရေး" : "Diaspora Safety Flags"}</h3>
