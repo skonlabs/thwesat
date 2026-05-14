@@ -26,6 +26,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 const roleColors: Record<string, string> = {
   jobseeker: "bg-muted text-muted-foreground",
@@ -37,7 +38,7 @@ const roleColors: Record<string, string> = {
 interface PendingRoleChange {
   userId: string;
   userName: string;
-  role: "admin" | "moderator";
+  role: "admin" | "moderator" | "partner";
   action: "add" | "remove";
 }
 
@@ -45,6 +46,7 @@ const PAGE_SIZE = 100;
 
 const AdminUsers = () => {
   const { lang } = useLanguage();
+  const { isAdmin } = useUserRoles();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -61,7 +63,7 @@ const AdminUsers = () => {
       const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages")
+        .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages, is_suspended")
         .order("created_at", { ascending: false })
         .range(from, to);
       if (error) throw error;
@@ -117,10 +119,19 @@ const AdminUsers = () => {
   const requestRoleChange = (
     userId: string,
     userName: string,
-    role: "admin" | "moderator",
+    role: "admin" | "moderator" | "partner",
     checked: boolean
   ) => {
     setPendingRoleChange({ userId, userName, role, action: checked ? "add" : "remove" });
+  };
+
+  const toggleSuspend = async (userId: string, suspend: boolean) => {
+    const { error } = await supabase.rpc("set_user_suspended" as any, { _user_id: userId, _suspended: suspend });
+    if (error) {
+      toast.error(error.message || "Failed to update suspend status");
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    }
   };
 
   /** Executes the role change after confirmation */
@@ -330,6 +341,7 @@ const AdminUsers = () => {
                     </div>
                     <Switch
                       checked={selectedSystemRoles.includes("admin")}
+                      disabled={!isAdmin}
                       onCheckedChange={(checked) =>
                         requestRoleChange(selected.id, selected.display_name || "User", "admin", checked)
                       }
@@ -342,9 +354,33 @@ const AdminUsers = () => {
                     </div>
                     <Switch
                       checked={selectedSystemRoles.includes("moderator")}
+                      disabled={!isAdmin}
                       onCheckedChange={(checked) =>
                         requestRoleChange(selected.id, selected.display_name || "User", "moderator", checked)
                       }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-accent" />
+                      <span className="text-sm font-medium text-foreground">Partner</span>
+                    </div>
+                    <Switch
+                      checked={selectedSystemRoles.includes("partner")}
+                      disabled={!isAdmin}
+                      onCheckedChange={(checked) =>
+                        requestRoleChange(selected.id, selected.display_name || "User", "partner", checked)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <span className="text-sm font-medium text-foreground">{lang === "my" ? "ရပ်ဆိုင်းထား" : "Suspended"}</span>
+                    </div>
+                    <Switch
+                      checked={!!selected.is_suspended}
+                      onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
                     />
                   </div>
                 </div>
@@ -358,14 +394,16 @@ const AdminUsers = () => {
                   >
                     <span className="mr-1.5">👁</span> {lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
                   </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex-1 rounded-xl"
-                    onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
-                  >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1 rounded-xl"
+                      onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
+                    >
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             </motion.div>

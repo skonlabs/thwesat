@@ -195,6 +195,15 @@ const App = () => (
               <Route path="/mentor/mentees" element={<Navigate to="/mentors/mentees" replace />} />
               <Route path="/mentor/settings" element={<Navigate to="/settings" replace />} />
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
+
+              {/* Partner Portal — read + approve mirror of admin (no destructive actions) */}
+              <Route path="/partner" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/partner/jobs" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminJobQueue /></SystemRoleGuard>} />
+              <Route path="/partner/users" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminUsers /></SystemRoleGuard>} />
+              <Route path="/partner/analytics" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminAnalytics /></SystemRoleGuard>} />
+              <Route path="/partner/payments" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/partner/employers" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminEmployers /></SystemRoleGuard>} />
+              <Route path="/partner/posts" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><ModeratorDashboard /></SystemRoleGuard>} />
             </Route>
 
             {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
