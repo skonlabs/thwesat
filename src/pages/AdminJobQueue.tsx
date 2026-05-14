@@ -32,9 +32,20 @@ const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = (searchParams.get("status") as FilterType) || "all";
-  const [filter, setFilter] = useState<FilterType>(initialFilter);
+  const [filter, setFilterState] = useState<FilterType>(initialFilter);
+  const setFilter = (next: FilterType) => {
+    setFilterState(next);
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("status"); else p.set("status", next);
+    // Clear time-window filter when user changes status tab manually
+    p.delete("since");
+    setSearchParams(p, { replace: true });
+  };
+  // Optional time-window filter on updated_at (e.g. ?since=24h shows last-24h activity)
+  const since = searchParams.get("since");
+  const sinceMs = since === "24h" ? 24 * 60 * 60 * 1000 : since === "7d" ? 7 * 24 * 60 * 60 * 1000 : null;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
@@ -56,7 +67,11 @@ const AdminJobQueue = () => {
     },
   });
 
-  const jobs = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
+  const cutoff = sinceMs ? Date.now() - sinceMs : null;
+  const jobsByStatus = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
+  const jobs = cutoff
+    ? jobsByStatus.filter((j: any) => new Date(j.updated_at || j.created_at).getTime() >= cutoff)
+    : jobsByStatus;
   const pendingCount = allJobs.filter((j: any) => j.status === "pending").length;
   const activeCount = allJobs.filter((j: any) => j.status === "active").length;
   const rejectedCount = allJobs.filter((j: any) => j.status === "rejected").length;
