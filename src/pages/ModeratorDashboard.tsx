@@ -37,6 +37,14 @@ const ModeratorDashboard = () => {
   const { user } = useAuth();
   const { isAdmin } = useUserRoles();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const validTabs = ["posts", "jobs", "payments", "bookings"] as const;
+  const tabValue = (validTabs.includes(searchParams.get("tab") as any) ? searchParams.get("tab") : "posts") as string;
+  const setTabValue = (next: string) => {
+    const p = new URLSearchParams(searchParams);
+    if (next === "posts") p.delete("tab"); else p.set("tab", next);
+    setSearchParams(p, { replace: true });
+  };
 
   // Community posts state
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
@@ -326,8 +334,7 @@ const ModeratorDashboard = () => {
               : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
           </p>
         </div>
-        <ModerationTabsWrapper posts={posts} pendingJobs={pendingJobs} pendingPayments={pendingPayments} lang={lang}>
-        <Tabs value={undefined as any} className="w-full">
+        <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
             <TabsTrigger value="jobs" className="text-xs">{lang === "my" ? "အလုပ်" : "Jobs"}{pendingJobs.length > 0 && ` (${pendingJobs.length})`}</TabsTrigger>
