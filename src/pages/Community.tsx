@@ -25,11 +25,22 @@ const PAGE_SIZE = 20;
 
 const categories = [
   { my: "အားလုံး", en: "All" },
+  { my: "မေးခွန်း", en: "Q&A" },
+  { my: "အကြံပြုချက်", en: "Advice" },
   { my: "အောင်မြင်မှု", en: "Success" },
   { my: "အလုပ်အကိုင်", en: "Career" },
-  { my: "သတိပေး", en: "Alert" },
-  { my: "မေးခွန်း", en: "Q&A" },
+  { my: "အင်တာဗျူး", en: "Interviews" },
+  { my: "လစာ", en: "Salary" },
+  { my: "အရည်အချင်း", en: "Skills" },
+  { my: "ပညာရေး", en: "Education" },
+  { my: "လမ်းညွှန်", en: "Mentorship" },
+  { my: "ပြောင်းရွှေ့လုပ်ကိုင်ခြင်း", en: "Relocation" },
+  { my: "ဗီဇာ", en: "Visa" },
   { my: "ဥပဒေ", en: "Legal" },
+  { my: "သတိပေး", en: "Alert" },
+  { my: "ဖြစ်ရပ်", en: "Events" },
+  { my: "သတင်း", en: "News" },
+  { my: "အထွေထွေ", en: "General" },
 ];
 
 function usePostLikes(postIds: string[]) {
