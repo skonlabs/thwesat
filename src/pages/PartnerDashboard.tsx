@@ -57,8 +57,8 @@ const PartnerDashboard = () => {
           .gte("updated_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
-        supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
-        supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "jobseeker"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "agent"),
       ]);
