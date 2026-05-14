@@ -23,8 +23,9 @@ const AdminDashboard = () => {
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
-        supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
+        // Match the destination view (/admin/users?role=employer) which filters profiles.primary_role
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
       ]);
       return {
         totalUsers: users.count || 0,

@@ -32,9 +32,20 @@ const AdminJobQueue = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = (searchParams.get("status") as FilterType) || "all";
-  const [filter, setFilter] = useState<FilterType>(initialFilter);
+  const [filter, setFilterState] = useState<FilterType>(initialFilter);
+  const setFilter = (next: FilterType) => {
+    setFilterState(next);
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("status"); else p.set("status", next);
+    // Clear time-window filter when user changes status tab manually
+    p.delete("since");
+    setSearchParams(p, { replace: true });
+  };
+  // Optional time-window filter on updated_at (e.g. ?since=24h shows last-24h activity)
+  const since = searchParams.get("since");
+  const sinceMs = since === "24h" ? 24 * 60 * 60 * 1000 : since === "7d" ? 7 * 24 * 60 * 60 * 1000 : null;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showReject, setShowReject] = useState(false);
@@ -56,7 +67,11 @@ const AdminJobQueue = () => {
     },
   });
 
-  const jobs = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
+  const cutoff = sinceMs ? Date.now() - sinceMs : null;
+  const jobsByStatus = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
+  const jobs = cutoff
+    ? jobsByStatus.filter((j: any) => new Date(j.updated_at || j.created_at).getTime() >= cutoff)
+    : jobsByStatus;
   const pendingCount = allJobs.filter((j: any) => j.status === "pending").length;
   const activeCount = allJobs.filter((j: any) => j.status === "active").length;
   const rejectedCount = allJobs.filter((j: any) => j.status === "rejected").length;
@@ -240,6 +255,28 @@ const AdminJobQueue = () => {
             </button>
           ))}
         </div>
+
+        {since && (
+          <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[11px]">
+            <span className="text-muted-foreground">
+              {lang === "my" ? "ကာလ" : "Window"}:{" "}
+              <span className="font-semibold text-foreground">
+                {since === "24h" ? (lang === "my" ? "နောက်ဆုံး ၂၄ နာရီ" : "Last 24 hours") : since === "7d" ? (lang === "my" ? "နောက်ဆုံး ၇ ရက်" : "Last 7 days") : since}
+              </span>{" "}
+              · {jobs.length} {lang === "my" ? "ခု တွေ့ရှိ" : "shown"}
+            </span>
+            <button
+              onClick={() => {
+                const p = new URLSearchParams(searchParams);
+                p.delete("since");
+                setSearchParams(p, { replace: true });
+              }}
+              className="font-semibold text-primary"
+            >
+              {lang === "my" ? "ဖျက်ရန်" : "Clear"}
+            </button>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
