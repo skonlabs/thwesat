@@ -4,7 +4,7 @@ import { MessageCircle, CheckCircle, XCircle, Clock, Shield, Briefcase, CreditCa
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -326,7 +326,8 @@ const ModeratorDashboard = () => {
               : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
           </p>
         </div>
-        <Tabs defaultValue="posts" className="w-full">
+        <ModerationTabsWrapper posts={posts} pendingJobs={pendingJobs} pendingPayments={pendingPayments} lang={lang}>
+        <Tabs value={undefined as any} className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
             <TabsTrigger value="jobs" className="text-xs">{lang === "my" ? "အလုပ်" : "Jobs"}{pendingJobs.length > 0 && ` (${pendingJobs.length})`}</TabsTrigger>
