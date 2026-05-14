@@ -136,8 +136,14 @@ const AdminWallet = () => {
 
         {tab === "topups" && (
           <div className="space-y-2">
-            {topups.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">No top-ups</p>}
-            {topups.map((t: any) => (
+            {topupStatusFilter && (
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[11px]">
+                <span className="text-muted-foreground">Filter: <span className="font-semibold text-foreground capitalize">{topupStatusFilter}</span></span>
+                <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">Clear</button>
+              </div>
+            )}
+            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">No top-ups</p>}
+            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).map((t: any) => (
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>
