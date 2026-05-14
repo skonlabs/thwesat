@@ -20,6 +20,7 @@ import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/
 import { useRole } from "@/hooks/use-role";
 import AgentClientPicker from "@/components/agent/AgentClientPicker";
 import { useAgentClients, type AgentClient } from "@/hooks/use-agent-clients";
+import { jobExpiryDateToIso, jobExpiryIsoToDateInput, todayDateInput } from "@/lib/job-expiry";
 
 const roleTypes = [
   { value: "remote_full", label: { my: "Remote အပြည့်", en: "Remote Full-Time" } },
@@ -62,6 +63,7 @@ const EmployerEditJob = () => {
   const [externalUrl, setExternalUrl] = useState("");
   const [urlTouched, setUrlTouched] = useState(false);
   const [externalUrlError, setExternalUrlError] = useState("");
+  const [expiresOn, setExpiresOn] = useState("");
   const [isDirty, setIsDirty] = useState(false);
 
 const CHAR_LIMIT_DESC = 3000;
@@ -95,6 +97,7 @@ const CHAR_LIMIT_REQ = 2000;
       setWasFeatured(job.is_featured || false);
       setApplicationMethod((job as any).application_method || "platform");
       setExternalUrl((job as any).external_url || "");
+      setExpiresOn(jobExpiryIsoToDateInput((job as any).expires_at));
       const lbl = ((job as any).posted_by_label as "self" | "client" | null) || "self";
       setPostedByLabel(lbl);
       const acid = (job as any).agent_client_id as string | null;
@@ -184,6 +187,7 @@ const CHAR_LIMIT_REQ = 2000;
       is_featured: effectiveFeatured,
       application_method: applicationMethod,
       external_url: applicationMethod === "external" ? externalUrl.trim() : null,
+      expires_at: jobExpiryDateToIso(expiresOn),
       job_type: roleType.includes("contract") ? "contract" : "full-time",
       ...(isAgent ? {
         company: postedByLabel === "client" && selectedClient
