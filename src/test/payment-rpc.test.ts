@@ -37,6 +37,17 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 beforeEach(() => {
   rpcMock.mockReset();
   fromMock.mockReset();
+  // Default: payment_requests lookup returns null so the email side-effect is skipped.
+  fromMock.mockImplementation((table: string) => {
+    if (table === "payment_requests") {
+      return {
+        select: () => ({
+          eq: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }),
+        }),
+      };
+    }
+    return {};
+  });
 });
 
 describe("useUpdatePaymentRequest → review_payment_request RPC", () => {
