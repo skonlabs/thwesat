@@ -148,6 +148,7 @@ Deno.serve(async (req) => {
       .from("jobs")
       .select("id, title, company, location, role_type, job_type, categories, skills, description, requirements, embedding_input_hash, embedding")
       .eq("status", "active")
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
       .or("embedding.is.null,embedding_input_hash.is.null")
       .limit(JOB_BACKFILL_LIMIT);
 

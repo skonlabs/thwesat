@@ -15,6 +15,7 @@ import PageHeader from "@/components/PageHeader";
 import { employerLabels as L, getApplicationMethodLabel } from "@/lib/employer-labels";
 import { shareJobLink } from "@/lib/share-job";
 import { getJobStatusMeta } from "@/lib/status-labels";
+import { isJobExpired } from "@/lib/job-expiry";
 
 const JOB_STATUS_KEYS = ["active", "pending", "paused", "closed", "rejected"] as const;
 const statusConfig: Record<string, { label: { my: string; en: string }; color: string; icon: typeof CheckCircle }> = Object.fromEntries(
@@ -233,6 +234,7 @@ const EmployerJobs = () => {
             <div className="rounded-2xl border border-border bg-card [&>*:first-child]:rounded-t-2xl [&>*:last-child]:rounded-b-2xl">
             {pagedFiltered.map((listing, i) => {
               const sc = statusConfig[listing.status || "pending"] || statusConfig.pending;
+              const expired = isJobExpired(listing.expires_at);
               const b = breakdown?.get(listing.id) || { total: listing.applicant_count || 0, new: 0, shortlisted: 0, interview: 0, offered: 0, placed: 0, rejected: 0 };
               const dotColor =
                 listing.status === "active" ? "bg-emerald" :
@@ -275,6 +277,7 @@ const EmployerJobs = () => {
                       <p className="truncate text-[11px] text-muted-foreground">
                         <span className="capitalize">{lang === "my" ? sc.label.my : sc.label.en}</span>
                         {listing.created_at && <> · {new Date(listing.created_at).toLocaleDateString()}</>}
+                        {listing.expires_at && <> · {expired ? (lang === "my" ? "သက်တမ်းကုန်" : "Expired") : (lang === "my" ? "ကုန်ဆုံး" : "Expires")} {new Date(listing.expires_at).toLocaleDateString()}</>}
                         {b.total > 0 && <> · {b.total} {lang === "my" ? "လျှောက်" : `applicant${b.total === 1 ? "" : "s"}`}</>}
                       </p>
                     </div>

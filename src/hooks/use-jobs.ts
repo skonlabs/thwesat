@@ -32,6 +32,7 @@ export interface Job {
   status: string | null;
   applicant_count: number | null;
   created_at: string | null;
+  expires_at?: string | null;
   external_url: string | null;
 }
 
@@ -43,6 +44,7 @@ export function useJobs() {
         .from("jobs")
         .select("*")
         .eq("status", "active")
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
