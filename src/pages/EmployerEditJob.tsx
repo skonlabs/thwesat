@@ -313,6 +313,19 @@ const CHAR_LIMIT_REQ = 2000;
           <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "တိုင်းပြည်" : "Location"}</label>
           <Input value={locationCountry} onChange={e => { setLocationCountry(e.target.value); setIsDirty(true); }} className="h-11 rounded-xl" />
         </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <label className="mb-1 block text-xs font-semibold text-foreground">{lang === "my" ? "သက်တမ်းကုန်မည့်နေ့" : "Expiry Date"}</label>
+          <Input
+            type="date"
+            min={todayDateInput()}
+            value={expiresOn}
+            onChange={e => { setExpiresOn(e.target.value); setIsDirty(true); }}
+            className="h-11 rounded-xl"
+          />
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            {lang === "my" ? "ရွေးချယ်ထားလျှင် ထိုနေ့နောက်ပိုင်း လျှောက်ထား၍ မရပါ။" : "Optional — the listing stops accepting applications after this date."}
+          </p>
+        </div>
         <div>
           <label className="mb-2 block text-xs font-medium text-foreground">{lang === "my" ? "ငွေပေးချေနည်းများ" : "Payment Methods"}</label>
           <div className="flex flex-wrap gap-2">
@@ -451,6 +464,10 @@ const CHAR_LIMIT_REQ = 2000;
                 {applicationMethod === "external" && externalUrl && (
                   <p className="mt-1 truncate text-[10px] text-muted-foreground">{externalUrl}</p>
                 )}
+              </div>
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{lang === "my" ? "သက်တမ်း" : "Expiry"}</p>
+                <p className="mt-0.5 text-sm font-medium text-foreground">{expiresOn ? new Date(jobExpiryDateToIso(expiresOn) as string).toLocaleDateString() : (lang === "my" ? "မသတ်မှတ်" : "Not set")}</p>
               </div>
             </div>
             <div className="flex gap-2 pt-1">
