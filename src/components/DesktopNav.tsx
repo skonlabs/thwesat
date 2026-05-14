@@ -16,7 +16,7 @@ type NavItem = { labelMy: string; labelEn: string; path: string };
 const DesktopNav = () => {
   const { lang } = useLanguage();
   const { role } = useRole();
-  const { isAdmin, isModerator } = useUserRoles();
+  const { isAdmin, isModerator, isPartner } = useUserRoles();
   const { profile } = useAuth();
   const { data: unreadMessages = 0 } = useUnreadMessageCount();
   const { data: unreadNotifications = 0 } = useUnreadNotificationCount();
@@ -65,8 +65,17 @@ const DesktopNav = () => {
     { labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
     { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
+  const partner: NavItem[] = [
+    { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
+    { labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
+    { labelMy: "ပို့စ်", labelEn: "Posts", path: "/partner/posts" },
+    { labelMy: "ငွေပေး", labelEn: "Payments", path: "/partner/payments" },
+    { labelMy: "သုံးသူ", labelEn: "Users", path: "/partner/users" },
+    { labelMy: "အလုပ်ရှင်", labelEn: "Employers", path: "/partner/employers" },
+    { labelMy: "ခွဲခြမ်း", labelEn: "Analytics", path: "/partner/analytics" },
+  ];
 
-  const items = isAdmin ? admin : isModerator ? mod : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
+  const items = isAdmin ? admin : isPartner ? partner : isModerator ? mod : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
 
   const initials = ((profile as any)?.display_name || (profile as any)?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
 

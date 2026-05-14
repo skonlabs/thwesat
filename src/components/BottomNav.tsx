@@ -12,7 +12,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { allowedRoles, isLoading, isSystemRole, isAdmin, isModerator } = useUserRoles();
+  const { allowedRoles, isLoading, isSystemRole, isAdmin, isModerator, isPartner } = useUserRoles();
   const { data: unreadMessages = 0 } = useUnreadMessageCount();
   const { data: unreadNotifications = 0 } = useUnreadNotificationCount();
 
@@ -72,17 +72,27 @@ const BottomNav = () => {
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
 
+  const partnerNav: NavItem[] = [
+    { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
+    { icon: CheckCircle, labelMy: "ပို့စ်", labelEn: "Posts", path: "/partner/posts" },
+    { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/partner/users" },
+    { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
+  ];
+
   const navItems: NavItem[] = isAdmin
     ? adminNav
-    : isModerator
-      ? moderatorNav
-      : role === "employer"
-        ? employerNav
-        : role === "agent"
-          ? agentNav
-          : role === "mentor"
-            ? mentorNav
-            : jobseekerNav;
+    : isPartner
+      ? partnerNav
+      : isModerator
+        ? moderatorNav
+        : role === "employer"
+          ? employerNav
+          : role === "agent"
+            ? agentNav
+            : role === "mentor"
+              ? mentorNav
+              : jobseekerNav;
 
   const getBadge = (key?: "messages" | "notifications") => {
     if (key === "messages") return unreadMessages;
