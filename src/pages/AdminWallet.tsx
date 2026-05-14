@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
@@ -13,7 +14,24 @@ import { CheckCircle2, XCircle, Eye } from "lucide-react";
 const AdminWallet = () => {
   const { lang } = useLanguage();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<"topups" | "adjust" | "prices" | "packages">("topups");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (["topups","adjust","prices","packages"] as const).includes(searchParams.get("tab") as any)
+    ? (searchParams.get("tab") as "topups" | "adjust" | "prices" | "packages")
+    : "topups";
+  const [tab, setTabState] = useState<"topups" | "adjust" | "prices" | "packages">(initialTab);
+  const setTab = (next: "topups" | "adjust" | "prices" | "packages") => {
+    setTabState(next);
+    const p = new URLSearchParams(searchParams);
+    if (next === "topups") p.delete("tab"); else p.set("tab", next);
+    setSearchParams(p, { replace: true });
+  };
+  useEffect(() => {
+    const urlT = searchParams.get("tab");
+    const valid = (["topups","adjust","prices","packages"] as const).includes(urlT as any) ? urlT as any : "topups";
+    if (valid !== tab) setTabState(valid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+  const topupStatusFilter = searchParams.get("status"); // optional pending|approved|rejected
 
   const { data: topups = [] } = useQuery({
     queryKey: ["admin-topups"],

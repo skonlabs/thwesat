@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Clock, WalletCards, GraduationCap, RotateCcw, Calendar, Briefcase } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
@@ -50,7 +51,19 @@ const AdminPayments = () => {
   const { toast } = useToast();
   const { data: payments, isLoading } = useAllPaymentRequests();
   const updatePayment = useUpdatePaymentRequest();
-  const [filter, setFilter] = useState<FilterType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filter, setFilterState] = useState<FilterType>(((searchParams.get("status") as FilterType) || "all"));
+  const setFilter = (next: FilterType) => {
+    setFilterState(next);
+    const p = new URLSearchParams(searchParams);
+    if (next === "all") p.delete("status"); else p.set("status", next);
+    setSearchParams(p, { replace: true });
+  };
+  useEffect(() => {
+    const urlF = (searchParams.get("status") as FilterType) || "all";
+    if (urlF !== filter) setFilterState(urlF);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRequest | null>(null);
   const [adminNote, setAdminNote] = useState("");
   const [proofSignedUrl, setProofSignedUrl] = useState<string | null>(null);
