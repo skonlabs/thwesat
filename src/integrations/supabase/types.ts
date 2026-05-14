@@ -2009,6 +2009,7 @@ export type Database = {
           headline: string | null
           id: string
           internet_stable: boolean | null
+          is_suspended: boolean
           job_search_status: string
           languages: string[] | null
           last_seen_at: string | null
@@ -2044,6 +2045,7 @@ export type Database = {
           headline?: string | null
           id: string
           internet_stable?: boolean | null
+          is_suspended?: boolean
           job_search_status?: string
           languages?: string[] | null
           last_seen_at?: string | null
@@ -2079,6 +2081,7 @@ export type Database = {
           headline?: string | null
           id?: string
           internet_stable?: boolean | null
+          is_suspended?: boolean
           job_search_status?: string
           languages?: string[] | null
           last_seen_at?: string | null
@@ -2724,7 +2727,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_or_partner: { Args: { _user_id: string }; Returns: boolean }
       is_employer_or_agent: { Args: { _user_id: string }; Returns: boolean }
+      is_partner: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       is_user_onboarded: { Args: { _user_id: string }; Returns: string }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
@@ -2807,6 +2812,10 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      set_user_suspended: {
+        Args: { _suspended: boolean; _user_id: string }
+        Returns: Json
       }
       try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
