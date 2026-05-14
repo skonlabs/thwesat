@@ -3,16 +3,16 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 
 interface SystemRoleGuardProps {
   children: React.ReactNode;
-  allowedRoles: ("admin" | "moderator")[];
+  allowedRoles: ("admin" | "moderator" | "partner")[];
 }
 
 /**
- * Guards admin/moderator-only routes. Reuses the cached `useUserRoles`
+ * Guards admin/moderator/partner-only routes. Reuses the cached `useUserRoles`
  * query (same query key as BottomNav and AppRoleGuard) so we don't fire
  * a second user-roles request on every protected page load.
  */
 const SystemRoleGuard = ({ children, allowedRoles }: SystemRoleGuardProps) => {
-  const { isLoading, isAdmin, isModerator } = useUserRoles();
+  const { isLoading, isAdmin, isModerator, isPartner } = useUserRoles();
 
   if (isLoading) {
     return (
@@ -24,7 +24,8 @@ const SystemRoleGuard = ({ children, allowedRoles }: SystemRoleGuardProps) => {
 
   const hasAccess =
     (allowedRoles.includes("admin") && isAdmin) ||
-    (allowedRoles.includes("moderator") && isModerator);
+    (allowedRoles.includes("moderator") && isModerator) ||
+    (allowedRoles.includes("partner") && isPartner);
 
   if (!hasAccess) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;

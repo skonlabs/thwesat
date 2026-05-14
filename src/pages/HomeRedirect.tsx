@@ -14,7 +14,7 @@ import MentorDashboard from "./MentorDashboard";
  * which all redirect into /dashboard.
  */
 const HomeRedirect = () => {
-  const { isLoading, isAdmin, isModerator, allowedRoles } = useUserRoles();
+  const { isLoading, isAdmin, isModerator, isPartner, allowedRoles } = useUserRoles();
   const { role } = useRole();
 
   if (isLoading) {
@@ -26,6 +26,7 @@ const HomeRedirect = () => {
   }
 
   if (isAdmin) return <AdminDashboard />;
+  if (isPartner) return <AdminDashboard />;
   if (isModerator) return <ModeratorDashboard />;
 
   // Fall back to the user's actual allowed roles when the persisted UI role
