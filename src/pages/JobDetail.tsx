@@ -514,6 +514,11 @@ const JobDetail = () => {
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
                     <Clock className="h-3 w-3" strokeWidth={1.5} /> {job.created_at ? new Date(job.created_at).toLocaleDateString() : ""}
                   </span>
+                  {(job as any).expires_at && (
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] ${expired ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                      <Clock className="h-3 w-3" strokeWidth={1.5} /> {expired ? (lang === "my" ? "သက်တမ်းကုန်" : "Expired") : (lang === "my" ? "ကုန်ဆုံး" : "Expires")} {new Date((job as any).expires_at).toLocaleDateString()}
+                    </span>
+                  )}
                   {(() => {
                     const m = (job as any).application_method || "platform";
                     const label = m === "external" ? (lang === "my" ? "ပြင်ပလင့်ခ်" : "External URL") : m === "email" ? (lang === "my" ? "အီးမေးလ်ဖြင့်" : "Via Email") : (lang === "my" ? "ThweSat မှ" : "Via Platform");
