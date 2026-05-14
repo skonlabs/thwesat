@@ -353,9 +353,33 @@ const AdminUsers = () => {
                     </div>
                     <Switch
                       checked={selectedSystemRoles.includes("moderator")}
+                      disabled={!isAdmin}
                       onCheckedChange={(checked) =>
                         requestRoleChange(selected.id, selected.display_name || "User", "moderator", checked)
                       }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-accent" />
+                      <span className="text-sm font-medium text-foreground">Partner</span>
+                    </div>
+                    <Switch
+                      checked={selectedSystemRoles.includes("partner")}
+                      disabled={!isAdmin}
+                      onCheckedChange={(checked) =>
+                        requestRoleChange(selected.id, selected.display_name || "User", "partner", checked)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <span className="text-sm font-medium text-foreground">{lang === "my" ? "ရပ်ဆိုင်းထား" : "Suspended"}</span>
+                    </div>
+                    <Switch
+                      checked={!!selected.is_suspended}
+                      onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
                     />
                   </div>
                 </div>
@@ -369,14 +393,16 @@ const AdminUsers = () => {
                   >
                     <span className="mr-1.5">👁</span> {lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
                   </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex-1 rounded-xl"
-                    onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
-                  >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1 rounded-xl"
+                      onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
+                    >
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             </motion.div>
