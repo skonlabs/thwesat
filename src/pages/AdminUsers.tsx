@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Crown, Trash2, Shield, ShieldCheck } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -48,13 +48,29 @@ const AdminUsers = () => {
   const { lang } = useLanguage();
   const { isAdmin } = useUserRoles();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialRole = searchParams.get("role") || "all";
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState(initialRole);
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
   const [page, setPage] = useState(0);
   const queryClient = useQueryClient();
+
+  // Sync URL ?role= → filter (so dashboard deep links work and reload preserves it)
+  useEffect(() => {
+    const urlRole = searchParams.get("role") || "all";
+    if (urlRole !== roleFilter) setRoleFilter(urlRole);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const updateRoleFilter = (val: string) => {
+    setRoleFilter(val);
+    const next = new URLSearchParams(searchParams);
+    if (val === "all") next.delete("role"); else next.set("role", val);
+    setSearchParams(next, { replace: true });
+  };
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users", page],
@@ -111,6 +127,7 @@ const AdminUsers = () => {
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
+  const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
@@ -168,16 +185,17 @@ const AdminUsers = () => {
         <PageHeader title={lang === "my" ? "အသုံးပြုသူ စီမံခန့်ခွဲ" : "User Management"} />
         <div className="px-5">
           {/* Summary */}
-          <div className="mb-4 grid grid-cols-4 gap-2">
+          <div className="mb-4 grid grid-cols-5 gap-2">
             {[
-              { label: lang === "my" ? "စုစုပေါင်း" : "Total", count: users.length, filterVal: "all" },
+              { label: lang === "my" ? "စုစုပေါင်း" : "All", count: users.length, filterVal: "all" },
+              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "jobseeker" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
               { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
             ].map(s => (
               <button
                 key={s.filterVal}
-                onClick={() => setRoleFilter(s.filterVal)}
+                onClick={() => updateRoleFilter(s.filterVal)}
                 className={`rounded-xl border bg-card p-2.5 text-center transition-colors active:bg-muted/30 ${roleFilter === s.filterVal ? "border-primary" : "border-border"}`}
               >
                 <p className="text-lg font-bold text-foreground">{s.count}</p>
