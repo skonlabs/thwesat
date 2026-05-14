@@ -111,14 +111,16 @@ const DesktopNav = () => {
           <button onClick={() => navigate("/jobs")} className="hidden h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground lg:flex">
             <Search className="h-4 w-4" strokeWidth={1.75} />
           </button>
-          <button
-            onClick={() => navigate("/wallet")}
-            className="flex h-9 items-center gap-1 rounded-full bg-sidebar-accent px-2.5 text-[12px] font-bold text-shell-foreground transition-colors hover:bg-sidebar-accent/80"
-            aria-label={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"}
-          >
-            <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-            <span className="tabular-nums">{(wallet?.balance_credits ?? 0).toLocaleString()}</span>
-          </button>
+          {!isAdmin && !isPartner && !isModerator && (
+            <button
+              onClick={() => navigate("/wallet")}
+              className="flex h-9 items-center gap-1 rounded-full bg-sidebar-accent px-2.5 text-[12px] font-bold text-shell-foreground transition-colors hover:bg-sidebar-accent/80"
+              aria-label={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"}
+            >
+              <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+              <span className="tabular-nums">{(wallet?.balance_credits ?? 0).toLocaleString()}</span>
+            </button>
+          )}
           <button onClick={() => navigate("/messages")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground">
             <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
             {unreadMessages > 0 && (
