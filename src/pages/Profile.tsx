@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
-import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { formatCredits, useFeatureUnlocks } from "@/hooks/use-wallet";
 import { Sparkles as SparklesIcon } from "lucide-react";
 import ProfileDashboardHero from "@/components/profile/ProfileDashboardHero";
 
@@ -199,7 +199,7 @@ const Profile = () => {
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -208,14 +208,14 @@ const Profile = () => {
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
