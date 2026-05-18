@@ -300,7 +300,7 @@ function PaymentsTab({ partner, year, month }: { partner: Partner; year: number;
 
   if (isLoading) return <Card className="p-4 text-sm text-muted-foreground">Loading…</Card>;
   if (!data || data.length === 0) {
-    return <Card className="p-4 text-sm text-muted-foreground">No approved MMK payments for attributed users in this period.</Card>;
+    return <Card className="p-4 text-sm text-muted-foreground">No approved Ks payments for attributed users in this period.</Card>;
   }
 
   return (
