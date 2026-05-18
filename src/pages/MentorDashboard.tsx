@@ -299,12 +299,12 @@ const MentorDashboard = () => {
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {bookings.length === 0
-                  ? (lang === "my" ? "ဆက်တင်တွင် ရနိုင်သော အချိန်များ သတ်မှတ်ပါ" : "Set your availability in Settings")
+                  ? (lang === "my" ? "Mentor Preferences တွင် ရနိုင်သော အချိန်များ သတ်မှတ်ပါ" : "Set your availability and time slots in Mentor Preferences")
                   : (lang === "my" ? "အခြားအခြေအနေတစ်ခု ရွေးပါ" : "Try another tab")}
               </p>
               {bookings.length === 0 && (
-                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/settings")}>
-                  {lang === "my" ? "ဆက်တင် ဖွင့်ရန်" : "Open Settings"}
+                <Button variant="outline" size="sm" className="mt-4 rounded-xl" onClick={() => navigate("/mentor/preferences")}>
+                  {lang === "my" ? "အချိန်ဇယား ဖွင့်ရန်" : "Open Availability"}
                 </Button>
               )}
             </div>
