@@ -365,7 +365,22 @@ const Settings = () => {
           </motion.div>
         ))}
 
-        {isMentor && <MentorPreferencesSection />}
+        {isMentor && (
+          <button
+            onClick={() => navigate("/mentor/preferences")}
+            className="mb-4 flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-left transition-colors active:bg-muted/30"
+          >
+            <div>
+              <p className="text-sm font-bold text-foreground">
+                {lang === "my" ? "Mentor အခြေအနေ" : "Mentor Preferences"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {lang === "my" ? "နှုန်းထား၊ အချိန်ဇယားနှင့် ဘာသာစကားများ" : "Rate, time slots, languages & availability"}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+          </button>
+        )}
 
         {/* Security note — active sessions & delegate token permissions notice (issue #57) */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4 space-y-2">
