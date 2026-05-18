@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Upload, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { useCreateTopupRequest, uploadTopupProof, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
+import { useCreateTopupRequest, uploadTopupProof, formatCredits, formatMMK, type CreditPackage } from "@/hooks/use-wallet";
 import { useReceivingAccount } from "@/hooks/use-app-config";
 import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
 import PaymentQR from "@/components/payment/PaymentQR";
@@ -67,7 +67,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   const submit = async () => {
     if (!user || !effective) return;
     if (isCustom && !customValid) {
-      toast.error(lang === "my" ? `အနည်းဆုံး ${MIN_CUSTOM.toLocaleString()} Ks` : `Minimum ${MIN_CUSTOM.toLocaleString()} Ks`);
+      toast.error(lang === "my" ? `အနည်းဆုံး ${formatMMK(MIN_CUSTOM, lang)}` : `Minimum ${formatMMK(MIN_CUSTOM, lang)}`);
       return;
     }
     if (!proofFile) {
@@ -112,7 +112,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <button key={p.id} onClick={() => { setPkg(p); setIsCustom(false); setStep("pay"); }}
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left active:scale-[0.99]">
                   <div>
-                    <div className="text-sm font-bold">{(p.credits + p.bonus_credits).toLocaleString()} Ks</div>
+                    <div className="text-sm font-bold">{formatCredits(p.credits + p.bonus_credits, lang)}</div>
                     {p.bonus_credits > 0 && <div className="text-[10px] text-emerald-600">+{p.bonus_credits.toLocaleString()} bonus</div>}
                   </div>
                   <div className="text-sm font-bold text-primary">{formatMMK(p.price_mmk, lang)}</div>
@@ -125,7 +125,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <div>
                   <div className="text-sm font-bold text-primary">{lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount"}</div>
                   <div className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "1,000 ၏ ဆ — အနည်းဆုံး 5,000 Ks" : "Multiples of 1,000 — min 5,000 Ks"}
+                    {lang === "my" ? `1,000 ၏ ဆ — အနည်းဆုံး ${formatMMK(MIN_CUSTOM, lang)}` : `Multiples of 1,000 — min ${formatMMK(MIN_CUSTOM, lang)}`}
                   </div>
                 </div>
                 <div className="text-xs font-semibold text-primary">+</div>
@@ -137,7 +137,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
             <div className="space-y-4">
               {isCustom ? (
                 <div>
-                  <Label className="text-xs">{lang === "my" ? "ပမာဏ (Ks)" : "Amount (Ks)"}</Label>
+                  <Label className="text-xs">{lang === "my" ? "ပမာဏ" : "Amount"}</Label>
                   <Input
                     type="number"
                     inputMode="numeric"
@@ -153,7 +153,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                       {lang === "my" ? "1,000 ၏ ဆ ဖြစ်ရမည် (အနည်းဆုံး 5,000)" : "Rounded to nearest 1,000 (min 5,000)"}
                     </span>
                     {customMmk > 0 && (
-                      <span className="font-semibold text-primary">→ {customMmk.toLocaleString()} Ks</span>
+                      <span className="font-semibold text-primary">→ {formatMMK(customMmk, lang)}</span>
                     )}
                   </div>
                 </div>
@@ -161,7 +161,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <div className="rounded-xl bg-muted p-3">
                   <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
                   <div className="text-2xl font-bold text-primary">{formatMMK(effective.mmk, lang)}</div>
-                  <div className="mt-0.5 text-xs">→ {effective.credits.toLocaleString()} Ks</div>
+                  <div className="mt-0.5 text-xs">→ {formatCredits(effective.credits, lang)}</div>
                 </div>
               )}
 
@@ -215,7 +215,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
             <div className="py-6 text-center">
               <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
               <p className="mt-3 text-sm font-semibold">
-                {lang === "my" ? "Admin အတည်ပြုပြီးမှ Credit ထည့်ပေးမည်" : "Credits will appear after admin approval"}
+                {lang === "my" ? "Admin အတည်ပြုပြီးမှ Wallet ထဲသို့ ထည့်ပေးမည်" : "Funds will appear after admin approval"}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {lang === "my" ? "ပုံမှန်အားဖြင့် နာရီအနည်းငယ်အတွင်း ပြီးစီးပါမည်" : "Usually within a few hours"}
