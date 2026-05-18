@@ -35,7 +35,7 @@ const Wallet = () => {
             {isLoading ? "—" : balance.toLocaleString()}
           </div>
           <div className="mt-1 text-xs opacity-75">
-            {lang === "my" ? "1 Credit = 1 ကျပ်" : "1 credit = 1 Ks"}
+            {lang === "my" ? "1 Credit = 1 Ks" : "1 credit = 1 Ks"}
           </div>
           <button
             onClick={() => { setSelectedPkg(null); setTopupOpen(true); }}
