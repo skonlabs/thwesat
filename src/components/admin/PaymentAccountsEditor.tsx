@@ -17,6 +17,19 @@ import {
   type SupportedPaymentMethod,
 } from "@/lib/payment-methods";
 
+/**
+ * Realistic-looking sample merchant payloads for each wallet.
+ * These mirror the URL/scheme format each Myanmar wallet typically encodes
+ * inside its merchant QR — admins should replace the placeholder values
+ * (merchant id, phone, name) with the ones provided by their wallet provider.
+ */
+const SAMPLE_PAYLOADS: Record<SupportedPaymentMethod, string> = {
+  kbzpay: "kbzpay://pay?merchant=MERCHANT_ID&name=ThweSat&phone=09xxxxxxxxx",
+  cbpay: "cbpay://merchant/MERCHANT_ID?name=ThweSat&phone=09xxxxxxxxx",
+  wavepay: "wavepay://pay?to=09xxxxxxxxx&name=ThweSat",
+  ayapay: "ayapay://merchant?id=MERCHANT_ID&name=ThweSat&phone=09xxxxxxxxx",
+};
+
 const empty = (): ReceivingAccountConfig => ({
   method_label: "",
   account_name: "",
