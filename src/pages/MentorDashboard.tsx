@@ -132,7 +132,7 @@ const MentorDashboard = () => {
           subtitleMy={`စောင့်ဆိုင်း ${pending.length} ခု · ဒီနေ့ session ${todayConfirmed.length} ခု`}
           ctaLabelEn="Manage availability"
           ctaLabelMy="အချိန်ဇယား စီမံရန်"
-          ctaPath="/settings"
+          ctaPath="/mentor/preferences"
         />
         {showSetupAlert && (
           <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
