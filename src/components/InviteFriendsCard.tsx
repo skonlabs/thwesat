@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { useReferralRewards } from "@/hooks/use-app-config";
+import { formatCredits } from "@/hooks/use-wallet";
 
 /**
  * Reusable Invite Friends widget — renders the user's one-time-use referral
@@ -70,8 +71,8 @@ const InviteFriendsCard = () => {
           <h3 className="text-sm font-semibold text-foreground">{lang === "my" ? "သူငယ်ချင်းကို ဖိတ်ပါ" : "Invite Friends"}</h3>
           <p className="text-[11px] text-muted-foreground">
             {lang === "my"
-              ? `သူငယ်ချင်း ${refFriends} ဦး ဖိတ်လျှင် Credits ${refCredits.toLocaleString()} • ${progress}/${refFriends}`
-              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} Ks • ${progress}/${refFriends}`}
+              ? `သူငယ်ချင်း ${refFriends} ဦး ဖိတ်လျှင် ${formatCredits(refCredits, lang)} • ${progress}/${refFriends}`
+              : `Refer ${refFriends} friends = ${formatCredits(refCredits, lang)} • ${progress}/${refFriends}`}
           </p>
         </div>
         <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} strokeWidth={1.5} />
