@@ -56,9 +56,9 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   // Resolve effective top-up amount/credits depending on package vs custom
   const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
   const effective = isCustom
-    ? { mmk: customMmk, Ks: customMmk, label: lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount" }
+    ? { mmk: customMmk, credits: customMmk, label: lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount" }
     : pkg
-      ? { mmk: pkg.price_mmk, Ks: pkg.credits + pkg.bonus_credits, label: lang === "my" ? pkg.name_my : pkg.name_en }
+      ? { mmk: pkg.price_mmk, credits: pkg.credits + pkg.bonus_credits, label: lang === "my" ? pkg.name_my : pkg.name_en }
       : null;
 
   const MIN_CUSTOM = 5000;
