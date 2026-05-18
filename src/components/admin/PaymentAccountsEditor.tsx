@@ -162,15 +162,20 @@ const PaymentAccountsEditor = () => {
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground">
-            {lang === "my" ? "Default အညွှန်း" : "Default method label"}
+            {lang === "my" ? "Default ပေးချေနည်း" : "Default payment method"}
           </Label>
-          <Input
+          <select
             value={draft.method_label ?? ""}
             onChange={(e) => setField("method_label", e.target.value)}
-            className="h-8 text-xs"
-            placeholder="KBZPay"
-            maxLength={40}
-          />
+            className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+          >
+            <option value="">{lang === "my" ? "ရွေးပါ" : "Select…"}</option>
+            {SUPPORTED_PAYMENT_METHODS.map((m) => (
+              <option key={m} value={getPlatformPaymentMethodLabel(m)}>
+                {getPlatformPaymentMethodLabel(m)}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
