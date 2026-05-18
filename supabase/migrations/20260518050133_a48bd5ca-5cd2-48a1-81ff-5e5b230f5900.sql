@@ -1,0 +1,1 @@
+ALTER TABLE public.user_settings ADD COLUMN IF NOT EXISTS email_notifications boolean NOT NULL DEFAULT true;

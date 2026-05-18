@@ -2302,6 +2302,7 @@ export type Database = {
       user_settings: {
         Row: {
           created_at: string | null
+          email_notifications: boolean
           font_encoding: string
           id: string
           language: string
@@ -2318,6 +2319,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email_notifications?: boolean
           font_encoding?: string
           id?: string
           language?: string
@@ -2334,6 +2336,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email_notifications?: boolean
           font_encoding?: string
           id?: string
           language?: string
