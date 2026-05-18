@@ -972,7 +972,7 @@ const JobDetail = () => {
         }}
       />
       <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
-        <AlertDialogContent className="max-w-sm rounded-2xl">
+        <AlertDialogContent className="z-[80] max-w-sm rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {lang === "my" ? "လျှောက်လွှာ တင်မည်လား?" : "Submit application?"}
