@@ -106,7 +106,7 @@ const AdminEditGuide = () => {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      toast.error("Title is required");
+      toast.error(lang === "my" ? "ခေါင်းစဉ် လိုအပ်ပါသည်" : "Title is required");
       return;
     }
 
@@ -125,14 +125,14 @@ const AdminEditGuide = () => {
     if (isNew) {
       const { error } = await supabase.from("guides").insert(payload);
       if (error) {
-        toast.error("Failed to create guide");
+        toast.error(lang === "my" ? "လမ်းညွှန်ချက် ဖန်တီး၍ မရပါ" : "Failed to create guide");
         return;
       }
       toast.success(lang === "my" ? "လမ်းညွှန်ချက် ဖန်တီးပြီး" : "Guide created");
     } else {
       const { error } = await supabase.from("guides").update(payload).eq("id", id!);
       if (error) {
-        toast.error("Failed to update guide");
+        toast.error(lang === "my" ? "လမ်းညွှန်ချက် ပြင်ဆင်၍ မရပါ" : "Failed to update guide");
         return;
       }
       toast.success(lang === "my" ? "လမ်းညွှန်ချက် ပြင်ဆင်ပြီး" : "Guide updated");

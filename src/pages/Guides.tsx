@@ -47,7 +47,7 @@ const Guides = () => {
     if (!deleteGuideId) return;
     const { error } = await supabase.from("guides").delete().eq("id", deleteGuideId);
     if (error) {
-      toast.error("Failed to delete guide");
+      toast.error(lang === "my" ? "လမ်းညွှန်ချက် ဖျက်၍ မရပါ" : "Failed to delete guide");
     } else {
       toast.success(lang === "my" ? "လမ်းညွှန်ချက် ဖျက်ပြီး" : "Guide deleted");
       queryClient.invalidateQueries({ queryKey: ["guides"] });

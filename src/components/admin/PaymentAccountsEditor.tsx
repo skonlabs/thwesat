@@ -101,7 +101,7 @@ const PaymentAccountsEditor = () => {
     }
     const canvas = hiddenCanvasRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
     if (!canvas) {
-      toast({ title: "Error", description: "QR canvas not ready", variant: "destructive" });
+      toast({ title: lang === "my" ? "အမှား" : "Error", description: lang === "my" ? "QR canvas အသင့်မဖြစ်သေးပါ" : "QR canvas not ready", variant: "destructive" });
       return;
     }
     try {
@@ -109,7 +109,7 @@ const PaymentAccountsEditor = () => {
       setMethodQr(activeMethod, dataUrl);
       setPayload("");
     } catch (e: any) {
-      toast({ title: "Error", description: e?.message || "Failed to generate", variant: "destructive" });
+      toast({ title: lang === "my" ? "အမှား" : "Error", description: e?.message || (lang === "my" ? "ထုတ်လုပ်၍ မရပါ" : "Failed to generate"), variant: "destructive" });
     }
   };
 
