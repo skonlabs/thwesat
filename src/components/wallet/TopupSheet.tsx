@@ -137,7 +137,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
             <div className="space-y-4">
               {isCustom ? (
                 <div>
-                  <Label className="text-xs">{lang === "my" ? "ပမာဏ (ကျပ်)" : "Amount (MMK)"}</Label>
+                  <Label className="text-xs">{lang === "my" ? "ပမာဏ (Ks)" : "Amount (Ks)"}</Label>
                   <Input
                     type="number"
                     inputMode="numeric"
