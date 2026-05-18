@@ -75,7 +75,7 @@ const AdminWallet = () => {
             recipientUserId: tr.user_id,
             idempotencyKey: `topup-approved-${id}`,
             templateData: {
-              Ks: tr.credits_to_grant?.toLocaleString?.() ?? tr.credits_to_grant,
+              credits: tr.credits_to_grant?.toLocaleString?.() ?? tr.credits_to_grant,
               mmkAmount: tr.mmk_amount?.toLocaleString?.() ?? tr.mmk_amount,
             },
           });
