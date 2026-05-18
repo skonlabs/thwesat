@@ -26,10 +26,10 @@ const sections = [
     },
   },
   {
-    title: { my: "ငွေပေးချေမှု နှင့် Credits", en: "Payments & Credits" },
+    title: { my: "ငွေပေးချေမှု နှင့် Wallet", en: "Payments & Wallet" },
     content: {
-      my: "Wallet credits များ၊ placement fees နှင့် mentor session ငွေများကို သက်ဆိုင်ရာ စည်းမျဉ်းများအတိုင်း ကောက်ခံပါသည်။ ဝယ်ယူပြီး credits များကို ပြန်အမ်းပေးခြင်း မရှိပါ၊ မိမိအကောင့်တွင်သာ အသုံးပြုနိုင်ပါသည်။",
-      en: "Wallet credits, placement fees, and mentor session fees are charged according to the published pricing. Purchased credits are non-refundable but remain available in your wallet for future use.",
+      my: "Wallet balance၊ placement fees နှင့် mentor session ငွေများကို သက်ဆိုင်ရာ စည်းမျဉ်းများအတိုင်း ကောက်ခံပါသည်။ ဝယ်ယူပြီး Wallet balance ကို ပြန်အမ်းပေးခြင်း မရှိပါ၊ မိမိအကောင့်တွင်သာ အသုံးပြုနိုင်ပါသည်။",
+      en: "Wallet balance, placement fees, and mentor session fees are charged according to the published pricing. Purchased wallet balance is non-refundable but remains available in your wallet for future use.",
     },
   },
   {
