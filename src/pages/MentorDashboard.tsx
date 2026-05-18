@@ -207,7 +207,7 @@ const MentorDashboard = () => {
         </div>
 
         {/* Quick actions row */}
-        <div className="mb-6 grid grid-cols-3 gap-3 md:grid-cols-6">
+        <div className="mb-6 grid grid-cols-4 gap-3 md:grid-cols-6">
           {[
             { icon: CalendarClock, my: "အချိန်ဇယား", en: "Availability", path: "/mentor/preferences", bg: "bg-gold/10", fg: "text-gold-dark" },
             { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
