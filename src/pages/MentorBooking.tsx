@@ -669,15 +669,15 @@ const MentorBooking = () => {
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setTopupOpen(true)}>
                   <Coins className="mr-1.5 h-4 w-4" />
                   {lang === "my"
-                    ? `Credit ${(sessionCredits - balance).toLocaleString()} ဖြည့်ရန်`
-                    : `Top up ${(sessionCredits - balance).toLocaleString()} more`}
+                    ? `${formatCredits(sessionCredits - balance, lang)} ဖြည့်ရန်`
+                    : `Top up ${formatCredits(sessionCredits - balance, lang)} more`}
                 </Button>
               ) : (
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
                   <Coins className="mr-1.5 h-4 w-4" />
                   {createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                    : (lang === "my" ? `${sessionCredits.toLocaleString()} Ks ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} Ks`)}
+                    : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
                 </Button>
               )}
             </>
