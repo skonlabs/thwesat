@@ -93,8 +93,8 @@ describe("Wallet — useCreateTopupRequest", () => {
 
 describe("Wallet — formatters", () => {
   it("formats MMK with locale separators", () => {
-    expect(formatMMK(50000, "en")).toBe("50,000 MMK");
-    expect(formatMMK(50000, "my")).toBe("50,000 ကျပ်");
+    expect(formatMMK(50000, "en")).toBe("50,000 Ks");
+    expect(formatMMK(50000, "my")).toBe("50,000 Ks");
   });
 
   it("formats credits", () => {
