@@ -67,7 +67,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   const submit = async () => {
     if (!user || !effective) return;
     if (isCustom && !customValid) {
-      toast.error(lang === "my" ? `အနည်းဆုံး ${MIN_CUSTOM.toLocaleString()} ကျပ်` : `Minimum ${MIN_CUSTOM.toLocaleString()} MMK`);
+      toast.error(lang === "my" ? `အနည်းဆုံး ${MIN_CUSTOM.toLocaleString()} Ks` : `Minimum ${MIN_CUSTOM.toLocaleString()} Ks`);
       return;
     }
     if (!proofFile) {
