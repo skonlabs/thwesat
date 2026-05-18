@@ -139,7 +139,7 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
     blockers.push(`Quality gate failed — ${failing.join(", ") || "missing inputs"}.`);
   }
   if (!data.active_growth_requirement_met) blockers.push(`Active Growth requirement not met (Growth share = ${pct(data.active_growth_ratio)}, need ≥25%).`);
-  if (data.tier_approval_required) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).");
+  if (data.tier_approval_required) blockers.push("Growth NPR ≥ 80M Ks — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).");
 
   return (
     <div className="space-y-4">
