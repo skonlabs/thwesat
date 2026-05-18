@@ -138,8 +138,8 @@ const MentorDashboard = () => {
           <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
             <AlertDescription className="text-sm">
               {lang === "my"
-                ? "ကြိုဆိုပါသည်! ဆက်တင်တွင် နာရီနှုန်းနှင့် ရနိုင်မှု သတ်မှတ်ပါ။"
-                : "Welcome! Set your hourly rate and availability in Settings to start accepting bookings."}
+                ? "ကြိုဆိုပါသည်! Mentor အခြေအနေတွင် နာရီနှုန်းနှင့် ရနိုင်မှု သတ်မှတ်ပါ။"
+                : "Welcome! Set your hourly rate and availability in Mentor Preferences to start accepting bookings."}
             </AlertDescription>
           </Alert>
         )}
