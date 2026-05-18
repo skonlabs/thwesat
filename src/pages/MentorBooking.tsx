@@ -344,7 +344,7 @@ const MentorBooking = () => {
               </div>
             )}
             <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-              {sessionCredits.toLocaleString()} cr
+              {formatCredits(sessionCredits, lang)}
             </span>
           </div>
         </motion.div>
@@ -457,7 +457,7 @@ const MentorBooking = () => {
                       className={`rounded-xl border p-2.5 text-center transition-all ${sel ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40"}`}
                     >
                       <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                      <p className={`mt-0.5 text-[10px] ${sel ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                      <p className={`mt-0.5 text-[10px] ${sel ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{formatCredits(optCredits, lang)}</p>
                     </button>
                   );
                 })}
@@ -471,8 +471,7 @@ const MentorBooking = () => {
               </span>
               <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
                 <Coins className="h-3.5 w-3.5" strokeWidth={2} />
-                {sessionCredits.toLocaleString()}
-                <span className="text-[10px] font-medium text-muted-foreground">Ks</span>
+                {formatCredits(sessionCredits, lang)}
               </span>
             </div>
           </motion.div>
