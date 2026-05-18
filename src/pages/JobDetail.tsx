@@ -963,7 +963,13 @@ const JobDetail = () => {
       </div>
       <SpendConfirmSheet
         open={priorityConfirmOpen}
-        onOpenChange={setPriorityConfirmOpen}
+        onOpenChange={(open) => {
+          setPriorityConfirmOpen(open);
+          if (!open && prioritySubmitInProgressRef.current && !applyMutation.isPending) {
+            prioritySubmitInProgressRef.current = false;
+            setShowApplyModal(true);
+          }
+        }}
         actionKey="priority_application"
         targetType="job"
         targetId={id}
@@ -985,7 +991,12 @@ const JobDetail = () => {
           runGenerateCoverLetter();
         }}
       />
-      <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
+      <AlertDialog open={submitConfirmOpen} onOpenChange={(open) => {
+        setSubmitConfirmOpen(open);
+        if (!open && !confirmedSubmitRef.current && !priorityConfirmOpen && !applyMutation.isPending) {
+          setShowApplyModal(true);
+        }
+      }}>
         <AlertDialogContent className="max-w-sm rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
