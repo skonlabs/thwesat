@@ -54,7 +54,7 @@ export default function FinanceFilters({
                   : "border border-border bg-card text-muted-foreground"
               }`}
             >
-              {c === "all" ? (lang === "my" ? "ငွေကြေးအားလုံး" : "All ccy") : c}
+              {c === "all" ? (lang === "my" ? "ငွေကြေးအားလုံး" : "All currencies") : c === "MMK" ? "Ks" : c}
             </button>
           ))}
         </>
