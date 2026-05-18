@@ -4,7 +4,7 @@ import {
   ChevronRight, Briefcase, Sparkles, TrendingUp,
   Globe, MapPin, Edit3, Star, LogOut, Settings,
   Gift, Copy, Shield, Check, FileText, Download, Eye,
-  Users, ArrowLeftRight, GraduationCap, Search, Wallet, Building2
+  Users, ArrowLeftRight, GraduationCap, Search, Wallet, Building2, CalendarClock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -214,6 +214,7 @@ const Profile = () => {
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
+    { icon: CalendarClock, label: lang === "my" ? "အချိန်ဇယားနှင့် ရနိုင်မှု" : "Availability & Time Slots", path: "/mentor/preferences" },
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
     { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
