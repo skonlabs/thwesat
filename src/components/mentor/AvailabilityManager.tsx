@@ -406,31 +406,37 @@ export default function AvailabilityManager() {
         )}
       </div>
 
-      {/* Bulk add button */}
-      {(selectedDates.length > 0 || selectedTimes.size > 0) && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
-          <Button
-            onClick={handleBulkAdd}
-            disabled={isAdding || selectedDates.length === 0 || selectedTimes.size === 0}
-            className="w-full rounded-xl text-xs font-semibold"
-            size="sm"
-          >
-            {isAdding ? (
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                {lang === "my" ? "ထည့်နေသည်..." : "Adding..."}
-              </span>
-            ) : (
-              <>
-                <Plus className="mr-1 h-3.5 w-3.5" />
-                {lang === "my"
-                  ? `${selectedDates.length} ရက် × ${selectedTimes.size} အချိန် = ${selectedDates.length * selectedTimes.size} Slot ထည့်ရန်`
-                  : `Add ${selectedDates.length * selectedTimes.size} slots (${selectedDates.length} days × ${selectedTimes.size} times)`}
-              </>
-            )}
-          </Button>
-        </motion.div>
-      )}
+      {/* Step 3 — Confirm */}
+      <div className="mb-2 mt-5 flex items-center">
+        <StepBadge n={3} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "အတည်ပြုပါ" : "Confirm & add"}
+        </h3>
+      </div>
+      <Button
+        onClick={handleBulkAdd}
+        disabled={isAdding || selectedDates.length === 0 || selectedTimes.size === 0}
+        className="w-full rounded-xl text-xs font-semibold"
+        size="lg"
+      >
+        {isAdding ? (
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+            {lang === "my" ? "ထည့်နေသည်..." : "Adding..."}
+          </span>
+        ) : selectedDates.length === 0 || selectedTimes.size === 0 ? (
+          <span className="opacity-80">
+            {lang === "my" ? "ရက်နှင့် အချိန် ရွေးပါ" : "Pick dates and times above"}
+          </span>
+        ) : (
+          <>
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            {lang === "my"
+              ? `${selectedDates.length} ရက် × ${selectedTimes.size} အချိန် = ${selectedDates.length * selectedTimes.size} Slot ထည့်ရန်`
+              : `Add ${selectedDates.length * selectedTimes.size} slots (${selectedDates.length} days × ${selectedTimes.size} times)`}
+          </>
+        )}
+      </Button>
 
       {/* Existing slots overview */}
       {upcomingDates.length > 0 && (
