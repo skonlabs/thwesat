@@ -193,6 +193,14 @@ const JobDetail = () => {
           setSelectedGeneratedResumeId(null);
           setPriorityApply(false);
         },
+        onError: (err: any) => {
+          console.error("[apply] submit failed", err);
+          toast({
+            title: lang === "my" ? "လျှောက်လွှာ မတင်နိုင်ပါ" : "Could not submit application",
+            description: err?.message || (lang === "my" ? "ထပ်ကြိုးစားကြည့်ပါ။" : "Please try again."),
+            variant: "destructive",
+          });
+        },
       }
     );
   };
@@ -297,20 +305,17 @@ const JobDetail = () => {
       });
       return;
     }
-    if (priorityApply) {
-      setPriorityConfirmOpen(true);
-      return;
-    }
-    submitApplication();
+    setSubmitConfirmOpen(true);
   };
 
   const confirmAndSubmit = () => {
     setSubmitConfirmOpen(false);
     if (priorityApply) {
-      setPriorityConfirmOpen(true);
+      // Defer so Radix releases its body pointer-events lock before the Sheet opens.
+      setTimeout(() => setPriorityConfirmOpen(true), 150);
       return;
     }
-    submitApplication();
+    setTimeout(() => submitApplication(), 0);
   };
 
   const [isSharing, setIsSharing] = useState(false);
