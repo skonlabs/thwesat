@@ -345,10 +345,16 @@ export default function AvailabilityManager() {
         )}
       </div>
 
-      {/* Time slot selection */}
+      {/* Step 2 */}
+      <div className="mb-2 mt-5 flex items-center">
+        <StepBadge n={2} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "အချိန်များ ရွေးပါ" : "Pick the times you're free"}
+        </h3>
+      </div>
       <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "အချိန် ရွေးပါ (တစ်ခုထက်ပို)" : "Select time slots (multi-select)"}
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "အမြန် Template" : "Quick templates"}
         </label>
 
         {/* Quick templates */}
