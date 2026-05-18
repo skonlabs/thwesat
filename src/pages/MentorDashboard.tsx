@@ -209,6 +209,7 @@ const MentorDashboard = () => {
         {/* Quick actions row */}
         <div className="mb-6 grid grid-cols-3 gap-3 md:grid-cols-6">
           {[
+            { icon: CalendarClock, my: "အချိန်ဇယား", en: "Availability", path: "/mentor/preferences", bg: "bg-gold/10", fg: "text-gold-dark" },
             { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
             { icon: WalletCards, my: "ငွေကြေး", en: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
             { icon: Settings, my: "ဆက်တင်", en: "Settings", path: "/settings", bg: "bg-accent/15", fg: "text-gold-dark" },
