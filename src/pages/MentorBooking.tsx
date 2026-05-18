@@ -472,7 +472,7 @@ const MentorBooking = () => {
               <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
                 <Coins className="h-3.5 w-3.5" strokeWidth={2} />
                 {sessionCredits.toLocaleString()}
-                <span className="text-[10px] font-medium text-muted-foreground">credits</span>
+                <span className="text-[10px] font-medium text-muted-foreground">Ks</span>
               </span>
             </div>
           </motion.div>
@@ -576,7 +576,7 @@ const MentorBooking = () => {
                   <span className="font-semibold text-foreground">{lang === "my" ? "စုစုပေါင်း ကုန်ကျမည်" : "Total Charged"}</span>
                   <span className="inline-flex items-center gap-1 text-base font-bold text-primary">
                     <Coins className="h-4 w-4" strokeWidth={2} />
-                    {sessionCredits.toLocaleString()} <span className="text-xs font-medium">credits</span>
+                    {sessionCredits.toLocaleString()} <span className="text-xs font-medium">Ks</span>
                   </span>
                 </div>
               </div>

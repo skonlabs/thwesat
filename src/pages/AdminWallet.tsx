@@ -191,7 +191,7 @@ const AdminWallet = () => {
                       const v = Number(e.target.value);
                       if (v !== p.price_credits) updatePrice.mutate({ key: p.action_key, price: v });
                     }} />
-                    <span className="text-[10px] text-muted-foreground">credits</span>
+                    <span className="text-[10px] text-muted-foreground">Ks</span>
                   </div>
                 </div>
               </div>

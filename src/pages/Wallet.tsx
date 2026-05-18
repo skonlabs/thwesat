@@ -79,7 +79,7 @@ const Wallet = () => {
                     </span>
                   )}
                   <div className="text-xs font-semibold text-muted-foreground">{lang === "my" ? p.name_my : p.name_en}</div>
-                  <div className="mt-1 text-base font-bold">{total.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">credits</span></div>
+                  <div className="mt-1 text-base font-bold">{total.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">Ks</span></div>
                   {p.bonus_credits > 0 && (
                     <div className="text-[10px] text-emerald-600 dark:text-emerald-400">+{p.bonus_credits.toLocaleString()} bonus</div>
                   )}

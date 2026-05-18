@@ -83,7 +83,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
           <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
             <div>
               <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "ကုန်ကျမည်" : "Cost"}</div>
-              <div className="text-xl font-bold text-foreground">{cost.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">credits</span></div>
+              <div className="text-xl font-bold text-foreground">{cost.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">Ks</span></div>
             </div>
             <div className="text-right">
               <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "လက်ကျန်" : "Balance"}</div>
