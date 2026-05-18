@@ -258,12 +258,12 @@ const EmployerFinance = () => {
                   const f = e.target.files?.[0] || null;
                   if (f) {
                     if (f.size > 5 * 1024 * 1024) {
-                      toast.error("File too large — maximum file size is 5MB.");
+                      toast.error(lang === "my" ? "ဖိုင်ပမာဏ ကြီးလွန်းသည် — အများဆုံး 5MB" : "File too large — maximum file size is 5MB.");
                       e.target.value = "";
                       return;
                     }
                     if (!f.type.startsWith("image/")) {
-                      toast.error("Invalid file type — only image files are accepted.");
+                      toast.error(lang === "my" ? "ဖိုင်အမျိုးအစား မမှန် — ဓာတ်ပုံဖိုင်သာ လက်ခံသည်" : "Invalid file type — only image files are accepted.");
                       e.target.value = "";
                       return;
                     }

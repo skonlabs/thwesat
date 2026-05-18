@@ -225,7 +225,7 @@ const EmployerApplications = () => {
     // Issue #14: strict salary parser
     const salary = Number(placementSalary);
     if (!Number.isFinite(salary) || salary <= 0 || !placementSalary.match(/^\d+(\.\d+)?$/)) {
-      toastUI({ title: "Invalid salary", description: "Please enter a valid positive number.", variant: "destructive" });
+      toastUI({ title: lang === "my" ? "လစာ မမှန်ပါ" : "Invalid salary", description: lang === "my" ? "သုညထက်ကြီးသော နံပါတ်တစ်ခု ထည့်ပါ" : "Please enter a valid positive number.", variant: "destructive" });
       return;
     }
     try {
