@@ -236,6 +236,6 @@ export function formatMMK(amount: number, _lang: "my" | "en" = "en"): string {
   return `${amount.toLocaleString()} Ks`;
 }
 
-export function formatCredits(credits: number, lang: "my" | "en" = "en"): string {
-  return `${credits.toLocaleString()} ${lang === "my" ? "credits" : "credits"}`;
+export function formatCredits(credits: number, _lang: "my" | "en" = "en"): string {
+  return `${credits.toLocaleString()} Ks`;
 }

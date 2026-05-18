@@ -79,7 +79,7 @@ const Wallet = () => {
                     </span>
                   )}
                   <div className="text-xs font-semibold text-muted-foreground">{lang === "my" ? p.name_my : p.name_en}</div>
-                  <div className="mt-1 text-base font-bold">{total.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">credits</span></div>
+                  <div className="mt-1 text-base font-bold">{total.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">Ks</span></div>
                   {p.bonus_credits > 0 && (
                     <div className="text-[10px] text-emerald-600 dark:text-emerald-400">+{p.bonus_credits.toLocaleString()} bonus</div>
                   )}
@@ -136,7 +136,7 @@ const Wallet = () => {
                 return (
                   <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
                     <div>
-                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {t.credits_to_grant.toLocaleString()} credits</div>
+                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {t.credits_to_grant.toLocaleString()} Ks</div>
                       <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {new Date(t.created_at).toLocaleDateString()}</div>
                     </div>
                     <div className={`flex items-center gap-1 ${tone}`}>

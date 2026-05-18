@@ -112,7 +112,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <button key={p.id} onClick={() => { setPkg(p); setIsCustom(false); setStep("pay"); }}
                   className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-3 text-left active:scale-[0.99]">
                   <div>
-                    <div className="text-sm font-bold">{(p.credits + p.bonus_credits).toLocaleString()} credits</div>
+                    <div className="text-sm font-bold">{(p.credits + p.bonus_credits).toLocaleString()} Ks</div>
                     {p.bonus_credits > 0 && <div className="text-[10px] text-emerald-600">+{p.bonus_credits.toLocaleString()} bonus</div>}
                   </div>
                   <div className="text-sm font-bold text-primary">{formatMMK(p.price_mmk, lang)}</div>
@@ -153,7 +153,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                       {lang === "my" ? "1,000 ၏ ဆ ဖြစ်ရမည် (အနည်းဆုံး 5,000)" : "Rounded to nearest 1,000 (min 5,000)"}
                     </span>
                     {customMmk > 0 && (
-                      <span className="font-semibold text-primary">→ {customMmk.toLocaleString()} credits</span>
+                      <span className="font-semibold text-primary">→ {customMmk.toLocaleString()} Ks</span>
                     )}
                   </div>
                 </div>
@@ -161,7 +161,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <div className="rounded-xl bg-muted p-3">
                   <div className="text-[11px] text-muted-foreground">{lang === "my" ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
                   <div className="text-2xl font-bold text-primary">{formatMMK(effective.mmk, lang)}</div>
-                  <div className="mt-0.5 text-xs">→ {effective.credits.toLocaleString()} credits</div>
+                  <div className="mt-0.5 text-xs">→ {effective.credits.toLocaleString()} Ks</div>
                 </div>
               )}
 

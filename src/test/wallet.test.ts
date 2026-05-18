@@ -98,6 +98,6 @@ describe("Wallet — formatters", () => {
   });
 
   it("formats credits", () => {
-    expect(formatCredits(120)).toBe("120 credits");
+    expect(formatCredits(120)).toBe("120 Ks");
   });
 });

@@ -147,7 +147,7 @@ const AdminWallet = () => {
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} credits</div>
+                    <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} Ks</div>
                     <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · ref: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
                     <div className="text-[10px] text-muted-foreground">user: {t.user_id.slice(0, 8)}…</div>
                   </div>
@@ -169,7 +169,7 @@ const AdminWallet = () => {
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Manually credit or debit a user's wallet (use negative for debit).</p>
             <Input placeholder="User UUID" value={adjustUser} onChange={(e) => setAdjustUser(e.target.value)} className="h-9 text-xs" />
-            <Input placeholder="Delta credits (e.g. 1000 or -500)" value={adjustDelta} onChange={(e) => setAdjustDelta(e.target.value)} className="h-9 text-xs" type="number" />
+            <Input placeholder="Delta Ks (e.g. 1000 or -500)" value={adjustDelta} onChange={(e) => setAdjustDelta(e.target.value)} className="h-9 text-xs" type="number" />
             <Textarea placeholder="Reason / note" value={adjustNote} onChange={(e) => setAdjustNote(e.target.value)} className="text-xs" />
             <Button className="w-full" disabled={!adjustUser || !adjustDelta || !adjustNote} onClick={() => adjust.mutate({ user_id: adjustUser, delta: Number(adjustDelta), note: adjustNote })}>
               Apply adjustment
@@ -191,7 +191,7 @@ const AdminWallet = () => {
                       const v = Number(e.target.value);
                       if (v !== p.price_credits) updatePrice.mutate({ key: p.action_key, price: v });
                     }} />
-                    <span className="text-[10px] text-muted-foreground">credits</span>
+                    <span className="text-[10px] text-muted-foreground">Ks</span>
                   </div>
                 </div>
               </div>
@@ -204,7 +204,7 @@ const AdminWallet = () => {
             {packages.map((p: any) => (
               <div key={p.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="font-bold">{p.name_en}</div>
-                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} + {p.bonus_credits.toLocaleString()} bonus</div>
+                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} Ks + {p.bonus_credits.toLocaleString()} Ks bonus</div>
               </div>
             ))}
             <p className="pt-2 text-[10px] text-muted-foreground">Edit packages via the SQL editor for now.</p>
