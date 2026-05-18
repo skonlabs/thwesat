@@ -53,6 +53,7 @@ const DesktopNav = () => {
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "ဘွတ်ကင်", labelEn: "Bookings", path: "/mentors/bookings" },
     { labelMy: "ကျောင်းသား", labelEn: "Mentees", path: "/mentors/mentees" },
+    { labelMy: "အချိန်ဇယား", labelEn: "Availability", path: "/mentor/preferences" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/mentor/finance" },
     { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];
