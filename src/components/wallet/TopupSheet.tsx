@@ -125,7 +125,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
                 <div>
                   <div className="text-sm font-bold text-primary">{lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount"}</div>
                   <div className="text-[10px] text-muted-foreground">
-                    {lang === "my" ? "1,000 ၏ ဆ — အနည်းဆုံး 5,000 ကျပ်" : "Multiples of 1,000 — min 5,000 MMK"}
+                    {lang === "my" ? "1,000 ၏ ဆ — အနည်းဆုံး 5,000 Ks" : "Multiples of 1,000 — min 5,000 Ks"}
                   </div>
                 </div>
                 <div className="text-xs font-semibold text-primary">+</div>
