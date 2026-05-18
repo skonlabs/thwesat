@@ -236,21 +236,34 @@ const PaymentAccountsEditor = () => {
 
             <div>
               <Label className="text-[10px] text-muted-foreground">
-                {lang === "my"
-                  ? `${getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)`
-                  : `${getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)`}
+                {getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)
               </Label>
               <div className="flex gap-1.5">
                 <Input
                   value={payload}
                   onChange={(e) => setPayload(e.target.value)}
                   className="h-8 text-xs font-mono"
-                  placeholder={`${activeMethod}://merchant/…  or  https://…`}
+                  placeholder={SAMPLE_PAYLOADS[activeMethod]}
                 />
                 <Button size="sm" type="button" onClick={generateQr} className="h-8 rounded-lg">
                   <QrCode className="mr-1 h-3.5 w-3.5" />
                   {lang === "my" ? "ဖန်တီးမည်" : "Generate"}
                 </Button>
+              </div>
+              <div className="mt-1 flex items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "နမူနာ" : "Sample"}
+                </span>
+                <code className="flex-1 break-all font-mono text-[10px] text-foreground/80">
+                  {SAMPLE_PAYLOADS[activeMethod]}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => setPayload(SAMPLE_PAYLOADS[activeMethod])}
+                  className="text-[10px] font-semibold text-primary hover:underline"
+                >
+                  {lang === "my" ? "သုံးမည်" : "Use"}
+                </button>
               </div>
             </div>
 
