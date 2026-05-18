@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useJob, useSavedJobIds, useToggleSaveJob, useApplyToJob, useApplications } from "@/hooks/use-jobs";
-import { useActionPrice } from "@/hooks/use-wallet";
+import { formatCredits, useActionPrice } from "@/hooks/use-wallet";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatJobSalary, translateJobCategories, translateJobCategory, translateJobLocation, translateJobTags, translateJobTitle, translateJobType, translatePaymentMethods } from "@/lib/job-localization";
@@ -781,7 +781,7 @@ const JobDetail = () => {
                     >
                       <Sparkles className="h-3 w-3" strokeWidth={1.75} />
                       {lang === "my" ? "Resume အသစ် ဖန်တီးရန်" : "Generate new resume"}
-                      {cvRewritePrice && <span className="text-gold-dark">· {cvRewritePrice.price_credits.toLocaleString()} Ks</span>}
+                      {cvRewritePrice && <span className="text-gold-dark">· {formatCredits(cvRewritePrice.price_credits, lang)}</span>}
                     </button>
                   </section>
 
@@ -847,7 +847,7 @@ const JobDetail = () => {
                       >
                         {generatingCoverLetter ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-emerald" strokeWidth={1.75} />}
                         <span>{lang === "my" ? "ဖန်တီးရန်" : "Generate"}</span>
-                        {coverLetterPrice && <span className="text-gold-dark">· {coverLetterPrice.price_credits.toLocaleString()} Ks</span>}
+                        {coverLetterPrice && <span className="text-gold-dark">· {formatCredits(coverLetterPrice.price_credits, lang)}</span>}
                       </button>
                       <button
                         type="button"
@@ -887,7 +887,7 @@ const JobDetail = () => {
                       <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}</p>
                       {priorityPrice && (
                         <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold-dark">
-                          {priorityPrice.price_credits.toLocaleString()} Ks
+                          {formatCredits(priorityPrice.price_credits, lang)}
                         </span>
                       )}
                     </div>
