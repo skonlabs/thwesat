@@ -1028,7 +1028,7 @@ const JobDetail = () => {
                         {lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}
                       </span>
                       <span className="font-semibold text-gold">
-                        {priorityPrice.price_credits.toLocaleString()} credits
+                        {priorityPrice.price_credits.toLocaleString()} Ks
                       </span>
                     </div>
                   )}
@@ -1036,7 +1036,7 @@ const JobDetail = () => {
                     <span>{lang === "my" ? "စုစုပေါင်း" : "Total"}</span>
                     <span className={priorityApply && priorityPrice ? "text-gold" : "text-emerald"}>
                       {priorityApply && priorityPrice
-                        ? `${priorityPrice.price_credits.toLocaleString()} credits`
+                        ? `${priorityPrice.price_credits.toLocaleString()} Ks`
                         : lang === "my" ? "အခမဲ့" : "Free"}
                     </span>
                   </div>

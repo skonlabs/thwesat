@@ -435,15 +435,15 @@ const Profile = () => {
           <p className="mb-2 text-xs text-muted-foreground">
             {lang === "my"
               ? `သူငယ်ချင်း ${refFriends} ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ${refCredits.toLocaleString()} ရရှိမည်`
-              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} credits`}
+              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} Ks`}
           </p>
 
           {/* How it works */}
           <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
             <p className="text-[11px] leading-relaxed text-muted-foreground">
               {lang === "my"
-                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အခမဲ့ credits ရရှိပါမည်။"
-                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn free credits."}
+                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အခမဲ့ Ks ရရှိပါမည်။"
+                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn free Ks."}
             </p>
           </div>
 

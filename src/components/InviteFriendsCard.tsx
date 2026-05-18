@@ -71,7 +71,7 @@ const InviteFriendsCard = () => {
           <p className="text-[11px] text-muted-foreground">
             {lang === "my"
               ? `သူငယ်ချင်း ${refFriends} ဦး ဖိတ်လျှင် Credits ${refCredits.toLocaleString()} • ${progress}/${refFriends}`
-              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} credits • ${progress}/${refFriends}`}
+              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} Ks • ${progress}/${refFriends}`}
           </p>
         </div>
         <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} strokeWidth={1.5} />

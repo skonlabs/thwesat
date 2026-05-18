@@ -136,7 +136,7 @@ const Wallet = () => {
                 return (
                   <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
                     <div>
-                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {t.credits_to_grant.toLocaleString()} credits</div>
+                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {t.credits_to_grant.toLocaleString()} Ks</div>
                       <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {new Date(t.created_at).toLocaleDateString()}</div>
                     </div>
                     <div className={`flex items-center gap-1 ${tone}`}>
