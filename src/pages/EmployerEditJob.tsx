@@ -301,11 +301,11 @@ const CHAR_LIMIT_REQ = 2000;
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (MMK)" : "Min Salary (MMK)"}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အနည်းဆုံး (Ks)" : "Min Salary (Ks)"}</label>
             <Input type="number" min="0" value={salaryMin} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) { setSalaryMin(v); setIsDirty(true); } }} className="h-11 rounded-xl" />
           </div>
           <div className="flex-1">
-            <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (MMK)" : "Max Salary (MMK)"}</label>
+            <label className="mb-1 block text-xs font-medium text-foreground">{lang === "my" ? "အများဆုံး (Ks)" : "Max Salary (Ks)"}</label>
             <Input type="number" min="0" value={salaryMax} onChange={e => { const v = e.target.value; if (v === "" || Number(v) >= 0) { setSalaryMax(v); setIsDirty(true); } }} className="h-11 rounded-xl" />
           </div>
         </div>
