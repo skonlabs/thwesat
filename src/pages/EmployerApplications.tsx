@@ -972,7 +972,7 @@ const EmployerApplications = () => {
               )}
               {isAgent && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% — ဝန်ထမ်းမှ ပေးချေရပါမည်" : "8% placement fee — paid by the job seeker"}</p>}
               <div className="mb-3">
-                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (ကျပ်/လ) *" : "Monthly Salary (MMK) *"}</label>
+                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (Ks/လ) *" : "Monthly Salary (Ks) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
                   const val = e.target.value;
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
