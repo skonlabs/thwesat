@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     { label: { my: "အသုံးပြုသူများ", en: "Users" }, path: "/admin/users", icon: Users, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "အလုပ်ရှင်များ", en: "Employers" }, path: "/admin/employers", icon: Building2, desc: { my: "စစ်ဆေး", en: "Verify" } },
     { label: { my: "ငွေပေးချေမှု", en: "Payments" }, path: "/admin/payments", icon: CreditCard, desc: { my: "စစ်ဆေး", en: "Review" } },
-    { label: { my: "Wallet/Top-ups", en: "Wallet & Top-ups" }, path: "/admin/wallet", icon: WalletCards, desc: { my: "Credits", en: "Credits" } },
+    { label: { my: "Wallet/Top-ups", en: "Wallet & Top-ups" }, path: "/admin/wallet", icon: WalletCards, desc: { my: "စီမံ", en: "Manage" } },
     { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: WalletCards, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
     { label: { my: "Partner Finance", en: "Partner Finance" }, path: "/admin/partner-finance", icon: WalletCards, desc: { my: "Rev share", en: "Rev share" } },
     { label: { my: "အလုပ်များ", en: "Jobs" }, path: "/admin/jobs", icon: Briefcase, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
