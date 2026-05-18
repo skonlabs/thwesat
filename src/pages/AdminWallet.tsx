@@ -147,7 +147,7 @@ const AdminWallet = () => {
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-bold">{t.mmk_amount.toLocaleString()} MMK → {t.credits_to_grant.toLocaleString()} credits</div>
+                    <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} credits</div>
                     <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · ref: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
                     <div className="text-[10px] text-muted-foreground">user: {t.user_id.slice(0, 8)}…</div>
                   </div>
@@ -204,7 +204,7 @@ const AdminWallet = () => {
             {packages.map((p: any) => (
               <div key={p.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="font-bold">{p.name_en}</div>
-                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} MMK → {p.credits.toLocaleString()} + {p.bonus_credits.toLocaleString()} bonus</div>
+                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} + {p.bonus_credits.toLocaleString()} bonus</div>
               </div>
             ))}
             <p className="pt-2 text-[10px] text-muted-foreground">Edit packages via the SQL editor for now.</p>

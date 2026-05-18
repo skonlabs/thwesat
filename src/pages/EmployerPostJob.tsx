@@ -338,7 +338,7 @@ const EmployerPostJob = () => {
                     className="h-11 w-full rounded-xl border border-input bg-background px-2 text-sm text-foreground"
                   >
                     {["MMK", "USD", "SGD", "THB", "MYR", "JPY", "KRW", "AUD", "EUR", "GBP"].map(c => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>{c === "MMK" ? "Ks" : c}</option>
                     ))}
                   </select>
                 </div>

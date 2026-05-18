@@ -25,7 +25,7 @@ import {
   type Partner,
 } from "@/hooks/use-partner-finance";
 
-const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} MMK`;
+const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} Ks`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
 // Default selector to the current month on the Asia/Yangon (UTC+6:30) calendar.
@@ -139,7 +139,7 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
     blockers.push(`Quality gate failed — ${failing.join(", ") || "missing inputs"}.`);
   }
   if (!data.active_growth_requirement_met) blockers.push(`Active Growth requirement not met (Growth share = ${pct(data.active_growth_ratio)}, need ≥25%).`);
-  if (data.tier_approval_required) blockers.push("Growth NPR ≥ 80M MMK — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).");
+  if (data.tier_approval_required) blockers.push("Growth NPR ≥ 80M Ks — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).");
 
   return (
     <div className="space-y-4">
@@ -151,7 +151,7 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
       </div>
 
       <Card className="p-3 text-xs text-muted-foreground">
-        {data.payments_count} approved MMK payments · {data.eligible_attributions_count}/{data.attributed_users_count} attributions eligible for onboarding metric · onboarding {data.onboarding_pct?.toFixed(1)}%
+        {data.payments_count} approved Ks payments · {data.eligible_attributions_count}/{data.attributed_users_count} attributions eligible for onboarding metric · onboarding {data.onboarding_pct?.toFixed(1)}%
       </Card>
 
       <Card className="p-4">
@@ -300,7 +300,7 @@ function PaymentsTab({ partner, year, month }: { partner: Partner; year: number;
 
   if (isLoading) return <Card className="p-4 text-sm text-muted-foreground">Loading…</Card>;
   if (!data || data.length === 0) {
-    return <Card className="p-4 text-sm text-muted-foreground">No approved MMK payments for attributed users in this period.</Card>;
+    return <Card className="p-4 text-sm text-muted-foreground">No approved Ks payments for attributed users in this period.</Card>;
   }
 
   return (

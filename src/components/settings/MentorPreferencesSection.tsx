@@ -127,7 +127,7 @@ const MentorPreferencesSection = () => {
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "နာရီစျေးနှုန်း" : "Hourly Rate"}</h3>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex h-10 items-center rounded-xl border border-border bg-muted px-3 text-xs font-medium text-foreground">{lang === "my" ? "ကျပ်" : "MMK"}</span>
+            <span className="inline-flex h-10 items-center rounded-xl border border-border bg-muted px-3 text-xs font-medium text-foreground">Ks</span>
             <Input type="number" min={100} max={50000} step={100} value={hourlyRate} onChange={e => { setHourlyRate(e.target.value); setRateError(null); }} className={`h-10 w-28 rounded-xl text-center ${rateError ? "border-destructive" : ""}`} />
             <span className="text-xs text-muted-foreground">/ {lang === "my" ? "နာရီ" : "hr"}</span>
           </div>

@@ -17,7 +17,7 @@ export function calculatePlacementFee(salary: number): number {
 }
 
 export function formatMoney(amount: number, _currency: string, lang: "my" | "en" = "en") {
-  return `${Math.round(amount).toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
+  return `${Math.round(amount).toLocaleString()} Ks`;
 }
 
 /** Aggregate a list of {amount, currency} into per-currency totals. */

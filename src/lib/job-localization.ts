@@ -146,7 +146,7 @@ export function formatJobSalary(job: SalaryLike, lang: Language): string {
   const unit = lang === "my" ? "လ" : "mo";
   const fmt = (n: number) => {
     const r = Math.round(n / 1000) * 1000;
-    return `${r.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
+    return `${r.toLocaleString()} Ks`;
   };
 
   if (min && max) return `${fmt(min)}–${fmt(max)}/${unit}`;

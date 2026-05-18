@@ -232,8 +232,8 @@ export function useFeatureUnlocks(featureKey?: string) {
   });
 }
 
-export function formatMMK(amount: number, lang: "my" | "en" = "en"): string {
-  return `${amount.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
+export function formatMMK(amount: number, _lang: "my" | "en" = "en"): string {
+  return `${amount.toLocaleString()} Ks`;
 }
 
 export function formatCredits(credits: number, lang: "my" | "en" = "en"): string {

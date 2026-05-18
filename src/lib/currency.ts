@@ -3,7 +3,7 @@
 export function formatCurrency(amount: number | null | undefined, _currency?: string | null, lang: "my" | "en" = "en"): string {
   if (amount == null || isNaN(amount)) return lang === "my" ? "ညှိနှိုင်း" : "Negotiable";
   const rounded = Math.round(amount / 1000) * 1000;
-  return `${rounded.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`;
+  return `${rounded.toLocaleString()} Ks`;
 }
 
 export function formatCurrencyRange(min: number | null | undefined, max: number | null | undefined, currency: string | null | undefined, lang: "my" | "en" = "en", per?: "mo" | "hr"): string {

@@ -972,7 +972,7 @@ const EmployerApplications = () => {
               )}
               {isAgent && <p className="mb-4 text-xs text-muted-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈% — ဝန်ထမ်းမှ ပေးချေရပါမည်" : "8% placement fee — paid by the job seeker"}</p>}
               <div className="mb-3">
-                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (ကျပ်/လ) *" : "Monthly Salary (MMK) *"}</label>
+                <label className="mb-1 block text-xs text-foreground">{lang === "my" ? "လစာ (Ks/လ) *" : "Monthly Salary (Ks) *"}</label>
                 <input type="number" min="1" value={placementSalary} onChange={e => {
                   const val = e.target.value;
                   if (val === "" || Number(val) >= 0) setPlacementSalary(val);
@@ -985,9 +985,9 @@ const EmployerApplications = () => {
                 const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (
                   <div className="mb-4 space-y-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                    <p className="flex justify-between"><span>{lang === "my" ? `ခန့်အပ်ခ ${pct}% (ဝန်ထမ်းပေးချေ)` : `Placement fee ${pct}% (paid by seeker)`}</span><span className="font-bold text-foreground">{fee.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                    <p className="flex justify-between"><span>{lang === "my" ? `ခန့်အပ်ခ ${pct}% (ဝန်ထမ်းပေးချေ)` : `Placement fee ${pct}% (paid by seeker)`}</span><span className="font-bold text-foreground">{fee.toLocaleString()} Ks</span></p>
                     <p className="flex justify-between"><span>{lang === "my" ? "ပလက်ဖောင်း ၁၀% ကော်မရှင်" : "Platform 10% commission"}</span><span>−{commission.toLocaleString()}</span></p>
-                    <p className="flex justify-between border-t border-border/60 pt-1"><span>{lang === "my" ? "သင် ရရှိမည်" : "You receive"}</span><span className="font-bold text-emerald">{net.toLocaleString()} {lang === "my" ? "ကျပ်" : "MMK"}</span></p>
+                    <p className="flex justify-between border-t border-border/60 pt-1"><span>{lang === "my" ? "သင် ရရှိမည်" : "You receive"}</span><span className="font-bold text-emerald">{net.toLocaleString()} Ks</span></p>
                   </div>
                 );
               })()}
@@ -1037,8 +1037,8 @@ const EmployerApplications = () => {
             <AlertDialogDescription>
               {isAgent
                 ? (lang === "my"
-                    ? `ခန့်အပ်ခ ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} ကျပ်) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
-                    : `A ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% placement fee (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} MMK) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
+                    ? `ခန့်အပ်ခ ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} Ks) ကို ဝန်ထမ်းမှ ပေးချေရမည်။ ပလက်ဖောင်းသည် ၁၀% ကော်မရှင် ကောက်ခံပါမည်။ ဆက်လုပ်မည်လား?`
+                    : `A ${Math.round(PLACEMENT_FEE_PERCENT * 100)}% placement fee (${placementSalary ? calculatePlacementFee(parseInt(placementSalary)).toLocaleString() : 0} Ks) is paid by the job seeker. The platform retains a 10% commission on this fee. Confirm?`)
                 : (lang === "my" ? "ခန့်အပ်မှု မှတ်တမ်းတင်ပါမည်။ ဆက်လက်လုပ်ဆောင်မည်လား?" : "This will record a placement. Confirm?")}
             </AlertDialogDescription>
           </AlertDialogHeader>
