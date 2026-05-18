@@ -29,13 +29,13 @@ const Wallet = () => {
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground shadow-lg">
           <div className="flex items-center gap-2 text-xs opacity-80">
             <WalletIcon className="h-4 w-4" />
-            <span>{lang === "my" ? "လက်ကျန် Credits" : "Credit balance"}</span>
+            <span>{lang === "my" ? "Wallet လက်ကျန်" : "Wallet balance"}</span>
           </div>
           <div className="mt-2 text-4xl font-bold tabular-nums">
-            {isLoading ? "—" : balance.toLocaleString()}
+            {isLoading ? "—" : formatCredits(balance, lang)}
           </div>
           <div className="mt-1 text-xs opacity-75">
-            {lang === "my" ? "1 Credit = 1 Ks" : "1 credit = 1 Ks"}
+            {lang === "my" ? "သင့် Wallet တွင် အသုံးပြုနိုင်သော ပမာဏ" : "Available to spend in your wallet"}
           </div>
           <button
             onClick={() => { setSelectedPkg(null); setTopupOpen(true); }}
@@ -55,7 +55,7 @@ const Wallet = () => {
                 : `${pendingTopups.length} top-up${pendingTopups.length > 1 ? "s" : ""} pending review`}
             </div>
             <div className="mt-1 opacity-80">
-              {lang === "my" ? "Admin အတည်ပြုပြီးမှ Credit ထည့်ပေးမည်။" : "Credits will appear after admin approval (usually within hours)."}
+              {lang === "my" ? "Admin အတည်ပြုပြီးမှ Wallet ထဲသို့ ထည့်ပေးမည်။" : "Funds will appear after admin approval (usually within hours)."}
             </div>
           </div>
         )}
@@ -79,7 +79,7 @@ const Wallet = () => {
                     </span>
                   )}
                   <div className="text-xs font-semibold text-muted-foreground">{lang === "my" ? p.name_my : p.name_en}</div>
-                  <div className="mt-1 text-base font-bold">{total.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">Ks</span></div>
+                  <div className="mt-1 text-base font-bold">{formatCredits(total, lang)}</div>
                   {p.bonus_credits > 0 && (
                     <div className="text-[10px] text-emerald-600 dark:text-emerald-400">+{p.bonus_credits.toLocaleString()} bonus</div>
                   )}
@@ -117,7 +117,7 @@ const Wallet = () => {
                       </div>
                     </div>
                     <div className={`text-xs font-bold tabular-nums ${positive ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>
-                      {positive ? "+" : ""}{t.credits.toLocaleString()}
+                      {positive ? "+" : ""}{formatCredits(t.credits, lang)}
                     </div>
                   </div>
                 );
@@ -136,7 +136,7 @@ const Wallet = () => {
                 return (
                   <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
                     <div>
-                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {t.credits_to_grant.toLocaleString()} Ks</div>
+                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {formatCredits(t.credits_to_grant, lang)}</div>
                       <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {new Date(t.created_at).toLocaleDateString()}</div>
                     </div>
                     <div className={`flex items-center gap-1 ${tone}`}>
@@ -166,7 +166,7 @@ function txLabel(t: { kind: string; ref_type: string | null; ref_id: string | nu
     escrow_release: { my: "ပြန်ထုတ်", en: "Released" },
     refund: { my: "ပြန်အမ်း", en: "Refund" },
     adjustment: { my: "ပြုပြင်မှု", en: "Adjustment" },
-    migration: { my: "ပြောင်းရွှေ့မှု credit", en: "Migration credit" },
+    migration: { my: "ပြောင်းရွှေ့မှု", en: "Migration" },
     payout: { my: "Payout", en: "Payout" },
   };
   return (map[t.kind] && (lang === "my" ? map[t.kind].my : map[t.kind].en)) || t.kind;

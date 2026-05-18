@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
-import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { formatCredits, useFeatureUnlocks } from "@/hooks/use-wallet";
 import { Sparkles as SparklesIcon } from "lucide-react";
 import ProfileDashboardHero from "@/components/profile/ProfileDashboardHero";
 
@@ -199,7 +199,7 @@ const Profile = () => {
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -208,14 +208,14 @@ const Profile = () => {
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
   const mentorMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ် (Credits)" : "Wallet (Credits)", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -434,16 +434,16 @@ const Profile = () => {
           </div>
           <p className="mb-2 text-xs text-muted-foreground">
             {lang === "my"
-              ? `သူငယ်ချင်း ${refFriends} ဦးကို ဖိတ်ခေါ်နိုင်ပါက Credits ${refCredits.toLocaleString()} ရရှိမည်`
-              : `Refer ${refFriends} friends = ${refCredits.toLocaleString()} Ks`}
+              ? `သူငယ်ချင်း ${refFriends} ဦးကို ဖိတ်ခေါ်နိုင်ပါက ${formatCredits(refCredits, lang)} ရရှိမည်`
+              : `Refer ${refFriends} friends = ${formatCredits(refCredits, lang)}`}
           </p>
 
           {/* How it works */}
           <div className="mb-3 rounded-lg bg-card/80 border border-border p-3">
             <p className="text-[11px] leading-relaxed text-muted-foreground">
               {lang === "my"
-                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့်အတွက် အခမဲ့ Ks ရရှိပါမည်။"
-                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn free Ks."}
+                ? "အောက်ပါ လင့်ခ်ကို သူငယ်ချင်းထံ မျှဝေပါ။ သူတို့ စာရင်းသွင်းသောအခါ ညွှန်းဆိုကုဒ်ကို ထည့်သွင်းပါက သင့် Wallet ထဲသို့ ဆုလာဘ် ရရှိပါမည်။"
+                : "Share the link below with friends. When they sign up and enter your referral code during registration, you earn a wallet reward."}
             </p>
           </div>
 

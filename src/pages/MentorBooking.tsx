@@ -16,7 +16,7 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import { useWallet, useActionPrice, useCreditPackages } from "@/hooks/use-wallet";
+import { useWallet, useActionPrice, useCreditPackages, formatCredits } from "@/hooks/use-wallet";
 import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 
@@ -148,7 +148,7 @@ const MentorBooking = () => {
     }
 
     if (insufficient) {
-      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient Ks", variant: "destructive" });
+      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
       setTopupOpen(true);
       return;
     }
@@ -250,7 +250,7 @@ const MentorBooking = () => {
             <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
             <p className="mb-3 text-xs text-muted-foreground">
               {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
-              {` · ${sessionCredits.toLocaleString()} Ks`}
+              {` · ${formatCredits(sessionCredits, lang)}`}
             </p>
 
             {goals && (
@@ -267,7 +267,7 @@ const MentorBooking = () => {
               </div>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {lang === "my"
-                  ? "သင့် Credits ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
+                  ? "သင့် Wallet လက်ကျန်ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
                   : "Your Ks are held in escrow and only released to the mentor (85%) after the session is completed."}
               </p>
             </div>
@@ -344,7 +344,7 @@ const MentorBooking = () => {
               </div>
             )}
             <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-              {sessionCredits.toLocaleString()} cr
+              {formatCredits(sessionCredits, lang)}
             </span>
           </div>
         </motion.div>
@@ -457,7 +457,7 @@ const MentorBooking = () => {
                       className={`rounded-xl border p-2.5 text-center transition-all ${sel ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40"}`}
                     >
                       <p className="text-xs font-semibold">{lang === "my" ? opt.labelMy : opt.labelEn}</p>
-                      <p className={`mt-0.5 text-[10px] ${sel ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{optCredits.toLocaleString()} cr</p>
+                      <p className={`mt-0.5 text-[10px] ${sel ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{formatCredits(optCredits, lang)}</p>
                     </button>
                   );
                 })}
@@ -471,8 +471,7 @@ const MentorBooking = () => {
               </span>
               <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
                 <Coins className="h-3.5 w-3.5" strokeWidth={2} />
-                {sessionCredits.toLocaleString()}
-                <span className="text-[10px] font-medium text-muted-foreground">Ks</span>
+                {formatCredits(sessionCredits, lang)}
               </span>
             </div>
           </motion.div>
@@ -488,7 +487,7 @@ const MentorBooking = () => {
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ရက်:" : "Date:"}</span> {selectedDateDisplay}</p>
                 {selectedTime && <p><span className="font-medium text-foreground">{lang === "my" ? "အချိန်:" : "Time:"}</span> {selectedTime}</p>}
                 <p><span className="font-medium text-foreground">{lang === "my" ? "ကြာချိန်:" : "Duration:"}</span> {durationLabel ? (lang === "my" ? durationLabel.labelMy : durationLabel.labelEn) : ""}</p>
-                <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {sessionCredits.toLocaleString()} Ks</p>
+                <p><span className="font-medium text-foreground">{lang === "my" ? "ကုန်ကျမည်:" : "Cost:"}</span> {formatCredits(sessionCredits, lang)}</p>
                 <p className="text-[10px] text-muted-foreground/70">
                   {lang === "my"
                     ? `Times in ${(mentorProfile as any)?.timezone || "mentor's timezone"}`
@@ -576,7 +575,7 @@ const MentorBooking = () => {
                   <span className="font-semibold text-foreground">{lang === "my" ? "စုစုပေါင်း ကုန်ကျမည်" : "Total Charged"}</span>
                   <span className="inline-flex items-center gap-1 text-base font-bold text-primary">
                     <Coins className="h-4 w-4" strokeWidth={2} />
-                    {sessionCredits.toLocaleString()} <span className="text-xs font-medium">Ks</span>
+                    {formatCredits(sessionCredits, lang)}
                   </span>
                 </div>
               </div>
@@ -593,8 +592,8 @@ const MentorBooking = () => {
               <ol className="space-y-3">
                 {[
                   {
-                    en: `Now — ${sessionCredits.toLocaleString()} Ks held in escrow from your wallet`,
-                    my: `ယခု — ${sessionCredits.toLocaleString()} Ks ကို သင့် Wallet မှ Escrow တွင် ထိန်းသိမ်းပါမည်`,
+                    en: `Now — ${formatCredits(sessionCredits, lang)} held in escrow from your wallet`,
+                    my: `ယခု — ${formatCredits(sessionCredits, lang)} ကို သင့် Wallet မှ Escrow တွင် ထိန်းသိမ်းပါမည်`,
                   },
                   {
                     en: "Mentor confirms or proposes a new time",
@@ -605,8 +604,8 @@ const MentorBooking = () => {
                     my: "ချိန်းဆိုထားသော အချိန်တွင် Session ပြုလုပ်သည်",
                   },
                   {
-                    en: `After both confirm completion → 85% (${Math.round(sessionCredits * 0.85).toLocaleString()} Ks) released to mentor, 15% platform fee`,
-                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${Math.round(sessionCredits * 0.85).toLocaleString()} Ks) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
+                    en: `After both confirm completion → 85% (${formatCredits(Math.round(sessionCredits * 0.85), lang)}) released to mentor, 15% platform fee`,
+                    my: `နှစ်ဦးစလုံး အပြီးအပိုင် အတည်ပြုပြီးနောက် → ၈၅% (${formatCredits(Math.round(sessionCredits * 0.85), lang)}) Mentor ထံ၊ ၁၅% Platform အခကြေး`,
                   },
                   {
                     en: "If mentor declines or cancels → full refund to your wallet",
@@ -637,12 +636,12 @@ const MentorBooking = () => {
             {/* Wallet snapshot */}
             <div className="mb-2 flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-[11px]">
               <span className="text-muted-foreground">{lang === "my" ? "Wallet လက်ကျန်" : "Wallet balance"}</span>
-              <span className="font-semibold text-foreground">{balance.toLocaleString()} Ks</span>
+              <span className="font-semibold text-foreground">{formatCredits(balance, lang)}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-[11px]">
               <span className="text-muted-foreground">{lang === "my" ? "Booking ပြီးနောက်" : "After this booking"}</span>
               <span className={`font-semibold ${insufficient ? "text-destructive" : "text-foreground"}`}>
-                {(balance - sessionCredits).toLocaleString()} Ks
+                {formatCredits(balance - sessionCredits, lang)}
               </span>
             </div>
           </motion.div>
@@ -670,15 +669,15 @@ const MentorBooking = () => {
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setTopupOpen(true)}>
                   <Coins className="mr-1.5 h-4 w-4" />
                   {lang === "my"
-                    ? `Credit ${(sessionCredits - balance).toLocaleString()} ဖြည့်ရန်`
-                    : `Top up ${(sessionCredits - balance).toLocaleString()} more`}
+                    ? `${formatCredits(sessionCredits - balance, lang)} ဖြည့်ရန်`
+                    : `Top up ${formatCredits(sessionCredits - balance, lang)} more`}
                 </Button>
               ) : (
                 <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
                   <Coins className="mr-1.5 h-4 w-4" />
                   {createBooking.isPending
                     ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                    : (lang === "my" ? `${sessionCredits.toLocaleString()} Ks ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${sessionCredits.toLocaleString()} Ks`)}
+                    : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
                 </Button>
               )}
             </>
