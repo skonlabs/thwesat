@@ -25,7 +25,7 @@ import {
   type Partner,
 } from "@/hooks/use-partner-finance";
 
-const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} MMK`;
+const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} Ks`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
 // Default selector to the current month on the Asia/Yangon (UTC+6:30) calendar.
