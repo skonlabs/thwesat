@@ -255,17 +255,24 @@ export default function AvailabilityManager() {
 
   const upcomingDates = Array.from(slotsByDate.keys()).sort();
 
+  const StepBadge = ({ n }: { n: number }) => (
+    <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{n}</span>
+  );
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card p-4">
-      <h3 className="mb-3 text-sm font-bold text-foreground">
-        <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-        {lang === "my" ? "အချိန်ဇယား စီမံရန်" : "Manage Availability"}
-      </h3>
+      {/* Step 1 */}
+      <div className="mb-2 flex items-center">
+        <StepBadge n={1} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "ရက်များ ရွေးပါ" : "Pick the dates you're free"}
+        </h3>
+      </div>
 
       {/* Quick date selection */}
       <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "ရက် အမြန်ရွေးရန်" : "Quick date selection"}
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "အမြန်ရွေးရန်" : "Quick picks"}
         </label>
         <div className="flex flex-wrap gap-1.5">
           <button onClick={() => selectWeekdays(1)} className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-[10px] font-medium text-foreground transition-colors hover:bg-accent">
