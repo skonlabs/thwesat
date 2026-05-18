@@ -781,7 +781,7 @@ const JobDetail = () => {
                     >
                       <Sparkles className="h-3 w-3" strokeWidth={1.75} />
                       {lang === "my" ? "Resume အသစ် ဖန်တီးရန်" : "Generate new resume"}
-                      {cvRewritePrice && <span className="text-gold-dark">· {cvRewritePrice.price_credits.toLocaleString()}c</span>}
+                      {cvRewritePrice && <span className="text-gold-dark">· {cvRewritePrice.price_credits.toLocaleString()} Ks</span>}
                     </button>
                   </section>
 
@@ -847,7 +847,7 @@ const JobDetail = () => {
                       >
                         {generatingCoverLetter ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-emerald" strokeWidth={1.75} />}
                         <span>{lang === "my" ? "ဖန်တီးရန်" : "Generate"}</span>
-                        {coverLetterPrice && <span className="text-gold-dark">· {coverLetterPrice.price_credits.toLocaleString()}c</span>}
+                        {coverLetterPrice && <span className="text-gold-dark">· {coverLetterPrice.price_credits.toLocaleString()} Ks</span>}
                       </button>
                       <button
                         type="button"
@@ -887,7 +887,7 @@ const JobDetail = () => {
                       <p className="text-xs font-semibold text-foreground">{lang === "my" ? "ဦးစားပေး လျှောက်လွှာ" : "Priority Application"}</p>
                       {priorityPrice && (
                         <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[9px] font-semibold text-gold-dark">
-                          {priorityPrice.price_credits.toLocaleString()}c
+                          {priorityPrice.price_credits.toLocaleString()} Ks
                         </span>
                       )}
                     </div>
