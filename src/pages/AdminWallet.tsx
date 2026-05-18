@@ -204,7 +204,7 @@ const AdminWallet = () => {
             {packages.map((p: any) => (
               <div key={p.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="font-bold">{p.name_en}</div>
-                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} MMK → {p.credits.toLocaleString()} + {p.bonus_credits.toLocaleString()} bonus</div>
+                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} + {p.bonus_credits.toLocaleString()} bonus</div>
               </div>
             ))}
             <p className="pt-2 text-[10px] text-muted-foreground">Edit packages via the SQL editor for now.</p>
