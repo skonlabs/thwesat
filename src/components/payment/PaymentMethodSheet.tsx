@@ -261,11 +261,10 @@ const PaymentMethodSheet = ({
                 ))}
               </div>
 
-              {/* QR Code (single global receiving account) */}
-              {(() => {
-                const qr = (selected && account?.qr_by_method?.[selected]) || account?.qr_url;
-                return qr ? <PaymentQR qrUrl={qr} /> : null;
-              })()}
+              {/* QR Code — strictly the QR configured for the SELECTED method */}
+              {selected && account?.qr_by_method?.[selected] ? (
+                <PaymentQR qrUrl={account.qr_by_method[selected]} />
+              ) : null}
 
               {/* Account info */}
               <div className="mb-4 rounded-xl border border-border bg-card p-3 space-y-2">
