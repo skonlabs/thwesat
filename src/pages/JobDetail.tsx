@@ -310,17 +310,20 @@ const JobDetail = () => {
       });
       return;
     }
+    confirmedSubmitRef.current = false;
     setSubmitConfirmOpen(true);
   };
 
   const confirmAndSubmit = () => {
+    confirmedSubmitRef.current = true;
+    setShowApplyModal(false);
     setSubmitConfirmOpen(false);
     if (priorityApply) {
-      // Defer so Radix releases its body pointer-events lock before the Sheet opens.
-      setTimeout(() => setPriorityConfirmOpen(true), 150);
+      prioritySubmitInProgressRef.current = true;
+      setPriorityConfirmOpen(true);
       return;
     }
-    setTimeout(() => submitApplication(), 0);
+    submitApplication();
   };
 
   const [isSharing, setIsSharing] = useState(false);
