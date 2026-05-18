@@ -17,6 +17,19 @@ import {
   type SupportedPaymentMethod,
 } from "@/lib/payment-methods";
 
+/**
+ * Realistic-looking sample merchant payloads for each wallet.
+ * These mirror the URL/scheme format each Myanmar wallet typically encodes
+ * inside its merchant QR — admins should replace the placeholder values
+ * (merchant id, phone, name) with the ones provided by their wallet provider.
+ */
+const SAMPLE_PAYLOADS: Record<SupportedPaymentMethod, string> = {
+  kbzpay: "kbzpay://pay?merchant=MERCHANT_ID&name=ThweSat&phone=09xxxxxxxxx",
+  cbpay: "cbpay://merchant/MERCHANT_ID?name=ThweSat&phone=09xxxxxxxxx",
+  wavepay: "wavepay://pay?to=09xxxxxxxxx&name=ThweSat",
+  ayapay: "ayapay://merchant?id=MERCHANT_ID&name=ThweSat&phone=09xxxxxxxxx",
+};
+
 const empty = (): ReceivingAccountConfig => ({
   method_label: "",
   account_name: "",
@@ -162,15 +175,20 @@ const PaymentAccountsEditor = () => {
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground">
-            {lang === "my" ? "Default အညွှန်း" : "Default method label"}
+            {lang === "my" ? "Default ပေးချေနည်း" : "Default payment method"}
           </Label>
-          <Input
+          <select
             value={draft.method_label ?? ""}
             onChange={(e) => setField("method_label", e.target.value)}
-            className="h-8 text-xs"
-            placeholder="KBZPay"
-            maxLength={40}
-          />
+            className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+          >
+            <option value="">{lang === "my" ? "ရွေးပါ" : "Select…"}</option>
+            {SUPPORTED_PAYMENT_METHODS.map((m) => (
+              <option key={m} value={getPlatformPaymentMethodLabel(m)}>
+                {getPlatformPaymentMethodLabel(m)}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -218,21 +236,34 @@ const PaymentAccountsEditor = () => {
 
             <div>
               <Label className="text-[10px] text-muted-foreground">
-                {lang === "my"
-                  ? `${getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)`
-                  : `${getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)`}
+                {getPlatformPaymentMethodLabel(activeMethod)} merchant payload (admin only)
               </Label>
               <div className="flex gap-1.5">
                 <Input
                   value={payload}
                   onChange={(e) => setPayload(e.target.value)}
                   className="h-8 text-xs font-mono"
-                  placeholder={`${activeMethod}://merchant/…  or  https://…`}
+                  placeholder={SAMPLE_PAYLOADS[activeMethod]}
                 />
                 <Button size="sm" type="button" onClick={generateQr} className="h-8 rounded-lg">
                   <QrCode className="mr-1 h-3.5 w-3.5" />
                   {lang === "my" ? "ဖန်တီးမည်" : "Generate"}
                 </Button>
+              </div>
+              <div className="mt-1 flex items-start gap-1.5 rounded-md bg-muted/50 px-2 py-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {lang === "my" ? "နမူနာ" : "Sample"}
+                </span>
+                <code className="flex-1 break-all font-mono text-[10px] text-foreground/80">
+                  {SAMPLE_PAYLOADS[activeMethod]}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => setPayload(SAMPLE_PAYLOADS[activeMethod])}
+                  className="text-[10px] font-semibold text-primary hover:underline"
+                >
+                  {lang === "my" ? "သုံးမည်" : "Use"}
+                </button>
               </div>
             </div>
 
