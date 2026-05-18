@@ -77,7 +77,7 @@ const CareerTracks = () => {
     onError: (e: any) => {
       const m = e?.message || "";
       if (m.includes("insufficient_balance")) {
-        toast.error(lang === "my" ? "Credit မလုံလောက်ပါ" : "Not enough credits");
+        toast.error(lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Not enough wallet balance");
         navigate("/wallet");
       } else toast.error(m || "Failed");
     },
@@ -91,8 +91,8 @@ const CareerTracks = () => {
       <div className="px-5 space-y-3">
         <div className="rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
           {lang === "my"
-            ? "Mentor တစ်ဦးနှင့် multi-session program။ Credit တစ်ကြိမ်တည်း ပေးချေပါ။"
-            : "Multi-session programs guided by a mentor. One-time credit payment."}
+            ? "Mentor တစ်ဦးနှင့် multi-session program။ Wallet မှ တစ်ကြိမ်တည်း ပေးချေပါ။"
+            : "Multi-session programs guided by a mentor. One-time wallet payment."}
         </div>
 
         {isLoading && <div className="text-center text-xs text-muted-foreground">Loading...</div>}
