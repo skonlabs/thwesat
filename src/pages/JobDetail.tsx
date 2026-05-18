@@ -297,19 +297,20 @@ const JobDetail = () => {
       });
       return;
     }
-    setSubmitConfirmOpen(true);
+    if (priorityApply) {
+      setPriorityConfirmOpen(true);
+      return;
+    }
+    submitApplication();
   };
 
   const confirmAndSubmit = () => {
     setSubmitConfirmOpen(false);
     if (priorityApply) {
-      // Defer opening the Sheet so the AlertDialog fully unmounts and Radix
-      // releases the body pointer-events lock; otherwise the confirm button
-      // inside SpendConfirmSheet appears unclickable.
-      setTimeout(() => setPriorityConfirmOpen(true), 150);
+      setPriorityConfirmOpen(true);
       return;
     }
-    setTimeout(() => submitApplication(), 0);
+    submitApplication();
   };
 
   const [isSharing, setIsSharing] = useState(false);
