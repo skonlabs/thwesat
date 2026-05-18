@@ -13,6 +13,7 @@ import { CheckCircle2, XCircle, Eye } from "lucide-react";
 
 const AdminWallet = () => {
   const { lang } = useLanguage();
+  const my = lang === "my";
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (["topups","adjust","prices","packages"] as const).includes(searchParams.get("tab") as any)
@@ -31,7 +32,14 @@ const AdminWallet = () => {
     if (valid !== tab) setTabState(valid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-  const topupStatusFilter = searchParams.get("status"); // optional pending|approved|rejected
+  const topupStatusFilter = searchParams.get("status");
+
+  const tabLabels: Record<typeof tab, { en: string; my: string }> = {
+    topups: { en: "Top-ups", my: "ငွေဖြည့်" },
+    adjust: { en: "Adjust", my: "ပြင်ဆင်" },
+    prices: { en: "Prices", my: "ဈေးနှုန်း" },
+    packages: { en: "Packages", my: "ပက်ကေ့ဂျ်" },
+  };
 
   const { data: topups = [] } = useQuery({
     queryKey: ["admin-topups"],
@@ -93,7 +101,7 @@ const AdminWallet = () => {
       qc.invalidateQueries({ queryKey: ["admin-topups"] });
       qc.invalidateQueries({ queryKey: ["wallet"] });
     },
-    onError: (e: any) => toast.error(e?.message || "Failed"),
+    onError: (e: any) => toast.error(e?.message || (my ? "မအောင်မြင်ပါ" : "Failed")),
   });
 
   const updatePrice = useMutation({
@@ -109,8 +117,8 @@ const AdminWallet = () => {
       const { error } = await (supabase as any).rpc("wallet_adjust", { _user_id: user_id, _delta: delta, _note: note });
       if (error) throw error;
     },
-    onSuccess: () => toast.success("Adjusted"),
-    onError: (e: any) => toast.error(e?.message || "Failed"),
+    onSuccess: () => toast.success(my ? "ပြင်ဆင်ပြီး" : "Adjusted"),
+    onError: (e: any) => toast.error(e?.message || (my ? "မအောင်မြင်ပါ" : "Failed")),
   });
 
   const [adjustUser, setAdjustUser] = useState("");
@@ -124,12 +132,12 @@ const AdminWallet = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ပိုက်ဆံအိတ် စီမံ" : "Wallet Admin"} showBack />
+      <PageHeader title={my ? "ပိုက်ဆံအိတ် စီမံ" : "Wallet Admin"} showBack />
       <div className="px-5">
         <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">
           {(["topups", "adjust", "prices", "packages"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold capitalize ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-              {t}
+            <button key={t} onClick={() => setTab(t)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+              {my ? tabLabels[t].my : tabLabels[t].en}
             </button>
           ))}
         </div>
@@ -138,26 +146,26 @@ const AdminWallet = () => {
           <div className="space-y-2">
             {topupStatusFilter && (
               <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-[11px]">
-                <span className="text-muted-foreground">Filter: <span className="font-semibold text-foreground capitalize">{topupStatusFilter}</span></span>
-                <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">Clear</button>
+                <span className="text-muted-foreground">{my ? "စစ်ထုတ်: " : "Filter: "}<span className="font-semibold text-foreground capitalize">{topupStatusFilter}</span></span>
+                <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">{my ? "ရှင်းရန်" : "Clear"}</button>
               </div>
             )}
-            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">No top-ups</p>}
+            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "ငွေဖြည့်တောင်းခံမှု မရှိပါ" : "No top-ups"}</p>}
             {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).map((t: any) => (
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} Ks</div>
-                    <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · ref: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
-                    <div className="text-[10px] text-muted-foreground">user: {t.user_id.slice(0, 8)}…</div>
+                    <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {my ? "ref" : "ref"}: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
+                    <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {t.user_id.slice(0, 8)}…</div>
                   </div>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${t.status === "approved" ? "bg-emerald-100 text-emerald-700" : t.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{t.status}</span>
                 </div>
                 {t.status === "pending" && (
                   <div className="mt-2 flex gap-1.5">
-                    {t.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(t.proof_url)}><Eye className="mr-1 h-3 w-3" />Proof</Button>}
-                    <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => review.mutate({ id: t.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />Approve</Button>
-                    <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt("Reject reason?") || "Rejected"; review.mutate({ id: t.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />Reject</Button>
+                    {t.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(t.proof_url)}><Eye className="mr-1 h-3 w-3" />{my ? "အထောက်အထား" : "Proof"}</Button>}
+                    <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => review.mutate({ id: t.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />{my ? "ခွင့်ပြု" : "Approve"}</Button>
+                    <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt(my ? "ငြင်းပယ်ရသည့် အကြောင်းပြချက်?" : "Reject reason?") || (my ? "ငြင်းပယ်" : "Rejected"); review.mutate({ id: t.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
                   </div>
                 )}
               </div>
@@ -167,12 +175,12 @@ const AdminWallet = () => {
 
         {tab === "adjust" && (
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Manually credit or debit a user's wallet (use negative for debit).</p>
-            <Input placeholder="User UUID" value={adjustUser} onChange={(e) => setAdjustUser(e.target.value)} className="h-9 text-xs" />
-            <Input placeholder="Delta Ks (e.g. 1000 or -500)" value={adjustDelta} onChange={(e) => setAdjustDelta(e.target.value)} className="h-9 text-xs" type="number" />
-            <Textarea placeholder="Reason / note" value={adjustNote} onChange={(e) => setAdjustNote(e.target.value)} className="text-xs" />
+            <p className="text-xs text-muted-foreground">{my ? "သုံးစွဲသူ၏ ပိုက်ဆံအိတ်ကို ကိုယ်တိုင် ဖြည့်/နုတ်ပါ (နုတ်ရန် အနုတ်လက္ခဏာဖြင့် ထည့်ပါ)။" : "Manually credit or debit a user's wallet (use negative for debit)."}</p>
+            <Input placeholder={my ? "သုံးစွဲသူ UUID" : "User UUID"} value={adjustUser} onChange={(e) => setAdjustUser(e.target.value)} className="h-9 text-xs" />
+            <Input placeholder={my ? "ပမာဏ Ks (ဥပမာ 1000 သို့ -500)" : "Delta Ks (e.g. 1000 or -500)"} value={adjustDelta} onChange={(e) => setAdjustDelta(e.target.value)} className="h-9 text-xs" type="number" />
+            <Textarea placeholder={my ? "အကြောင်းပြချက် / မှတ်ချက်" : "Reason / note"} value={adjustNote} onChange={(e) => setAdjustNote(e.target.value)} className="text-xs" />
             <Button className="w-full" disabled={!adjustUser || !adjustDelta || !adjustNote} onClick={() => adjust.mutate({ user_id: adjustUser, delta: Number(adjustDelta), note: adjustNote })}>
-              Apply adjustment
+              {my ? "ပြင်ဆင်မှု လုပ်ဆောင်ရန်" : "Apply adjustment"}
             </Button>
           </div>
         )}
@@ -183,8 +191,8 @@ const AdminWallet = () => {
               <div key={p.action_key} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0">
-                    <div className="font-bold">{p.label_en}</div>
-                    <div className="text-[10px] text-muted-foreground">{p.action_key} · {p.duration_days ? `${p.duration_days}d` : "one-time"}</div>
+                    <div className="font-bold">{my && p.label_my ? p.label_my : p.label_en}</div>
+                    <div className="text-[10px] text-muted-foreground">{p.action_key} · {p.duration_days ? `${p.duration_days}${my ? "ရက်" : "d"}` : (my ? "တစ်ကြိမ်" : "one-time")}</div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Input type="number" defaultValue={p.price_credits} className="h-8 w-24 text-xs" onBlur={(e) => {
@@ -203,11 +211,11 @@ const AdminWallet = () => {
           <div className="space-y-2">
             {packages.map((p: any) => (
               <div key={p.id} className="rounded-xl border border-border bg-card p-3 text-xs">
-                <div className="font-bold">{p.name_en}</div>
-                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} Ks + {p.bonus_credits.toLocaleString()} Ks bonus</div>
+                <div className="font-bold">{my && p.name_my ? p.name_my : p.name_en}</div>
+                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} Ks + {p.bonus_credits.toLocaleString()} Ks {my ? "ဘောနပ်စ်" : "bonus"}</div>
               </div>
             ))}
-            <p className="pt-2 text-[10px] text-muted-foreground">Edit packages via the SQL editor for now.</p>
+            <p className="pt-2 text-[10px] text-muted-foreground">{my ? "ပက်ကေ့ဂျ်များကို ယာယီ SQL editor မှ ပြင်ဆင်ပါ။" : "Edit packages via the SQL editor for now."}</p>
           </div>
         )}
       </div>
