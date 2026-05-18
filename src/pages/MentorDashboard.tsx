@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Star, Users, CheckCircle, XCircle, MessageCircle, Settings, WalletCards, AlertCircle, ChevronRight } from "lucide-react";
+import { Calendar, Clock, Star, Users, CheckCircle, XCircle, MessageCircle, Settings, WalletCards, AlertCircle, ChevronRight, CalendarClock } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
