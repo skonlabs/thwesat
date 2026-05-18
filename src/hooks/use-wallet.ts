@@ -232,10 +232,10 @@ export function useFeatureUnlocks(featureKey?: string) {
   });
 }
 
-export function formatMMK(amount: number, _lang: "my" | "en" = "en"): string {
-  return `${amount.toLocaleString()} Ks`;
+export function formatMMK(amount: number | null | undefined, _lang: "my" | "en" = "en"): string {
+  return `${Number(amount || 0).toLocaleString()} Ks`;
 }
 
-export function formatCredits(credits: number, _lang: "my" | "en" = "en"): string {
-  return `${credits.toLocaleString()} Ks`;
+export function formatCredits(credits: number | null | undefined, _lang: "my" | "en" = "en"): string {
+  return `${Number(credits || 0).toLocaleString()} Ks`;
 }
