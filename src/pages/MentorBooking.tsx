@@ -16,7 +16,7 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import { useWallet, useActionPrice, useCreditPackages } from "@/hooks/use-wallet";
+import { useWallet, useActionPrice, useCreditPackages, formatCredits } from "@/hooks/use-wallet";
 import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 
@@ -148,7 +148,7 @@ const MentorBooking = () => {
     }
 
     if (insufficient) {
-      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient Ks", variant: "destructive" });
+      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
       setTopupOpen(true);
       return;
     }
@@ -250,7 +250,7 @@ const MentorBooking = () => {
             <p className="mb-1 text-xs text-muted-foreground">{lang === "my" ? `အကြောင်းအရာ: ${selectedTopic}` : `Topic: ${selectedTopic}`}</p>
             <p className="mb-3 text-xs text-muted-foreground">
               {lang === "my" ? `ကြာချိန်: ${durationLabel?.labelMy}` : `Duration: ${durationLabel?.labelEn}`}
-              {` · ${sessionCredits.toLocaleString()} Ks`}
+              {` · ${formatCredits(sessionCredits, lang)}`}
             </p>
 
             {goals && (
@@ -267,7 +267,7 @@ const MentorBooking = () => {
               </div>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {lang === "my"
-                  ? "သင့် Credits ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
+                  ? "သင့် Wallet လက်ကျန်ကို Session ပြီးဆုံးပြီးမှသာ Mentor ထံ လွှဲပြောင်းပေးပါမည် (85% Mentor / 15% Platform)။"
                   : "Your Ks are held in escrow and only released to the mentor (85%) after the session is completed."}
               </p>
             </div>
