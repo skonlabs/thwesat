@@ -196,7 +196,7 @@ const App = () => (
               {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
               <Route path="/mentor/mentees" element={<Navigate to="/mentors/mentees" replace />} />
-              <Route path="/mentor/settings" element={<Navigate to="/settings" replace />} />
+              <Route path="/mentor/settings" element={<Navigate to="/mentor/preferences" replace />} />
               <Route path="/mentor" element={<Navigate to="/mentors" replace />} />
 
               {/* Partner Portal — read + approve mirror of admin (no destructive actions) */}
