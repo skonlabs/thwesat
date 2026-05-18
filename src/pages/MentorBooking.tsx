@@ -152,6 +152,7 @@ const MentorBooking = () => {
       setTopupOpen(true);
       return;
     }
+    let createdId: string | null = null;
     try {
       const result = await createBooking.mutateAsync({
         mentor_id: mentorId,
@@ -165,6 +166,7 @@ const MentorBooking = () => {
         duration_minutes: selectedDuration,
         credits_charged: sessionCredits,
       });
+      createdId = result.id;
       // Hold Ks in escrow
       const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
         _booking_id: result.id,
@@ -174,11 +176,25 @@ const MentorBooking = () => {
       setCreatedBookingId(result.id);
       setStep(4);
     } catch (e: any) {
+      // Rollback orphan booking row if escrow failed so the slot doesn't stay locked.
+      if (createdId) {
+        await supabase.from("mentor_bookings").delete().eq("id", createdId);
+      }
+      const raw = e?.message || "";
+      const friendly =
+        raw.includes("insufficient_balance")
+          ? lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance"
+          : raw.includes("already_held")
+          ? lang === "my" ? "ဤ Booking ကို ငွေထိန်းသိမ်းပြီးဖြစ်သည်" : "This booking is already held"
+          : raw.includes("not_authorized")
+          ? lang === "my" ? "ဤ Booking ကို ပြုလုပ်ခွင့် မရှိပါ" : "Not authorized to book"
+          : raw || (lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking");
       toast({
-        title: lang === "my" ? "အမှား" : "Error",
-        description: e?.message || (lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking"),
+        title: lang === "my" ? "ချိန်းဆို၍ မရပါ" : "Booking failed",
+        description: friendly,
         variant: "destructive",
       });
+      if (raw.includes("insufficient_balance")) setTopupOpen(true);
     }
   };
 
