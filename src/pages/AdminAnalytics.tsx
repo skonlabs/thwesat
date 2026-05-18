@@ -286,7 +286,7 @@ const AdminAnalytics = () => {
                   ))}
                 </div>
               ) : (
-                <p className="mt-1 text-2xl font-bold text-foreground">0 {lang === "my" ? "ကျပ်" : "MMK"}</p>
+                <p className="mt-1 text-2xl font-bold text-foreground">0 Ks</p>
               )}
               <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ရွေးချယ်ထားသော ကာလအတွင်း" : `In selected ${days}-day window`}</p>
               <div className="mt-3 h-24">
