@@ -123,6 +123,20 @@ const MentorBooking = () => {
   const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const selectedDateDisplay = selectedDate ? format(selectedDate, "EEE, MMM d") : "";
 
+  // Build a 30-day rolling date strip starting today.
+  // Keep this hook before all conditional returns so confirming a booking
+  // doesn't change the hook order and trip the error boundary.
+  const dateStrip = useMemo(() => {
+    const days: { date: Date; key: string; hasSlots: boolean }[] = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const key = format(d, "yyyy-MM-dd");
+      days.push({ date: d, key, hasSlots: availableDates.has(key) });
+    }
+    return days;
+  }, [today, availableDates]);
+
   const handleConfirm = async () => {
     if (!user || !mentorId || !selectedDate || !selectedTopic) return;
 
@@ -299,19 +313,6 @@ const MentorBooking = () => {
       </div>
     );
   }
-
-  // Build a 30-day rolling date strip starting today.
-  // If the mentor has set availability, only those dates are enabled; otherwise all future dates are enabled.
-  const dateStrip = useMemo(() => {
-    const days: { date: Date; key: string; hasSlots: boolean }[] = [];
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const key = format(d, "yyyy-MM-dd");
-      days.push({ date: d, key, hasSlots: availableDates.has(key) });
-    }
-    return days;
-  }, [today, availableDates]);
 
   const stepLabels = [
     lang === "my" ? "အချိန်" : "When",
