@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Briefcase, Building2, Globe, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -78,6 +78,8 @@ const JobDetail = () => {
   const [coverLetterSpendOpen, setCoverLetterSpendOpen] = useState(false);
   const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false);
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
+  const confirmedSubmitRef = useRef(false);
+  const prioritySubmitInProgressRef = useRef(false);
   const priorityPrice = useActionPrice("priority_application");
   const cvRewritePrice = useActionPrice("cv_rewrite");
   const coverLetterPrice = useActionPrice("cover_letter");
@@ -186,6 +188,7 @@ const JobDetail = () => {
       },
       {
         onSuccess: () => {
+          prioritySubmitInProgressRef.current = false;
           setShowApplyModal(false);
           setCoverLetter("");
           setCoverLetterMode("none");
@@ -194,6 +197,8 @@ const JobDetail = () => {
           setPriorityApply(false);
         },
         onError: (err: any) => {
+          prioritySubmitInProgressRef.current = false;
+          setShowApplyModal(true);
           console.error("[apply] submit failed", err);
           toast({
             title: lang === "my" ? "လျှောက်လွှာ မတင်နိုင်ပါ" : "Could not submit application",
