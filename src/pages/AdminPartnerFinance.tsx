@@ -151,7 +151,7 @@ function StatementTab({ partner, year, month }: { partner: Partner; year: number
       </div>
 
       <Card className="p-3 text-xs text-muted-foreground">
-        {data.payments_count} approved MMK payments · {data.eligible_attributions_count}/{data.attributed_users_count} attributions eligible for onboarding metric · onboarding {data.onboarding_pct?.toFixed(1)}%
+        {data.payments_count} approved Ks payments · {data.eligible_attributions_count}/{data.attributed_users_count} attributions eligible for onboarding metric · onboarding {data.onboarding_pct?.toFixed(1)}%
       </Card>
 
       <Card className="p-4">
