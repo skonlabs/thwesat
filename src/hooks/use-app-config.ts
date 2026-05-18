@@ -6,8 +6,13 @@ export interface PaymentAccountInfo {
   account_name?: string;
   account_number?: string;
   account_email?: string;
-  /** Optional admin-uploaded QR image. When absent, UI generates a QR from account_number. */
+  /** Optional admin-uploaded QR image (generic / fallback). When absent, no QR is shown. */
   qr_url?: string;
+  /**
+   * Per-payment-method QR images keyed by method (e.g. "kbzpay", "wavepay").
+   * Falls back to `qr_url` when a method-specific entry is missing.
+   */
+  qr_by_method?: Record<string, string>;
 }
 
 /** Single receiving account used for ALL incoming payments (top-ups, mentor sessions, placement fees). */
