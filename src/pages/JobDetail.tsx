@@ -193,6 +193,14 @@ const JobDetail = () => {
           setSelectedGeneratedResumeId(null);
           setPriorityApply(false);
         },
+        onError: (err: any) => {
+          console.error("[apply] submit failed", err);
+          toast({
+            title: lang === "my" ? "လျှောက်လွှာ မတင်နိုင်ပါ" : "Could not submit application",
+            description: err?.message || (lang === "my" ? "ထပ်ကြိုးစားကြည့်ပါ။" : "Please try again."),
+            variant: "destructive",
+          });
+        },
       }
     );
   };
