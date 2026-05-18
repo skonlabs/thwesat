@@ -255,17 +255,24 @@ export default function AvailabilityManager() {
 
   const upcomingDates = Array.from(slotsByDate.keys()).sort();
 
+  const StepBadge = ({ n }: { n: number }) => (
+    <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">{n}</span>
+  );
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card p-4">
-      <h3 className="mb-3 text-sm font-bold text-foreground">
-        <Clock className="mr-1.5 inline h-4 w-4 text-primary" strokeWidth={1.5} />
-        {lang === "my" ? "အချိန်ဇယား စီမံရန်" : "Manage Availability"}
-      </h3>
+      {/* Step 1 */}
+      <div className="mb-2 flex items-center">
+        <StepBadge n={1} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "ရက်များ ရွေးပါ" : "Pick the dates you're free"}
+        </h3>
+      </div>
 
       {/* Quick date selection */}
       <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "ရက် အမြန်ရွေးရန်" : "Quick date selection"}
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "အမြန်ရွေးရန်" : "Quick picks"}
         </label>
         <div className="flex flex-wrap gap-1.5">
           <button onClick={() => selectWeekdays(1)} className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-[10px] font-medium text-foreground transition-colors hover:bg-accent">
@@ -290,9 +297,9 @@ export default function AvailabilityManager() {
       </div>
 
       {/* Calendar for manual date picking (multi-select) */}
-      <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "ရက်များ ရွေးပါ (တစ်ခုထက်ပိုရွေးနိုင်)" : "Pick dates (tap to toggle, multi-select)"}
+      <div className="mb-4">
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "သို့မဟုတ် ပြက္ခဒိန်တွင် ရွေးပါ" : "Or tap dates on the calendar (multi-select)"}
         </label>
         <div className="rounded-2xl border border-border bg-card p-3 shadow-card">
           <Calendar
@@ -338,10 +345,16 @@ export default function AvailabilityManager() {
         )}
       </div>
 
-      {/* Time slot selection */}
+      {/* Step 2 */}
+      <div className="mb-2 mt-5 flex items-center">
+        <StepBadge n={2} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "အချိန်များ ရွေးပါ" : "Pick the times you're free"}
+        </h3>
+      </div>
       <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "အချိန် ရွေးပါ (တစ်ခုထက်ပို)" : "Select time slots (multi-select)"}
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "အမြန် Template" : "Quick templates"}
         </label>
 
         {/* Quick templates */}
@@ -393,31 +406,37 @@ export default function AvailabilityManager() {
         )}
       </div>
 
-      {/* Bulk add button */}
-      {(selectedDates.length > 0 || selectedTimes.size > 0) && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
-          <Button
-            onClick={handleBulkAdd}
-            disabled={isAdding || selectedDates.length === 0 || selectedTimes.size === 0}
-            className="w-full rounded-xl text-xs font-semibold"
-            size="sm"
-          >
-            {isAdding ? (
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                {lang === "my" ? "ထည့်နေသည်..." : "Adding..."}
-              </span>
-            ) : (
-              <>
-                <Plus className="mr-1 h-3.5 w-3.5" />
-                {lang === "my"
-                  ? `${selectedDates.length} ရက် × ${selectedTimes.size} အချိန် = ${selectedDates.length * selectedTimes.size} Slot ထည့်ရန်`
-                  : `Add ${selectedDates.length * selectedTimes.size} slots (${selectedDates.length} days × ${selectedTimes.size} times)`}
-              </>
-            )}
-          </Button>
-        </motion.div>
-      )}
+      {/* Step 3 — Confirm */}
+      <div className="mb-2 mt-5 flex items-center">
+        <StepBadge n={3} />
+        <h3 className="text-sm font-bold text-foreground">
+          {lang === "my" ? "အတည်ပြုပါ" : "Confirm & add"}
+        </h3>
+      </div>
+      <Button
+        onClick={handleBulkAdd}
+        disabled={isAdding || selectedDates.length === 0 || selectedTimes.size === 0}
+        className="w-full rounded-xl text-xs font-semibold"
+        size="lg"
+      >
+        {isAdding ? (
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+            {lang === "my" ? "ထည့်နေသည်..." : "Adding..."}
+          </span>
+        ) : selectedDates.length === 0 || selectedTimes.size === 0 ? (
+          <span className="opacity-80">
+            {lang === "my" ? "ရက်နှင့် အချိန် ရွေးပါ" : "Pick dates and times above"}
+          </span>
+        ) : (
+          <>
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            {lang === "my"
+              ? `${selectedDates.length} ရက် × ${selectedTimes.size} အချိန် = ${selectedDates.length * selectedTimes.size} Slot ထည့်ရန်`
+              : `Add ${selectedDates.length * selectedTimes.size} slots (${selectedDates.length} days × ${selectedTimes.size} times)`}
+          </>
+        )}
+      </Button>
 
       {/* Existing slots overview */}
       {upcomingDates.length > 0 && (
