@@ -147,7 +147,7 @@ const AdminWallet = () => {
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-bold">{t.mmk_amount.toLocaleString()} MMK → {t.credits_to_grant.toLocaleString()} credits</div>
+                    <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} credits</div>
                     <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · ref: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
                     <div className="text-[10px] text-muted-foreground">user: {t.user_id.slice(0, 8)}…</div>
                   </div>
