@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Clock, Briefcase, Building2, Globe, Shield, Bookmark, Share2, CheckCircle, X, Send, FileText, PenLine, Eye, Loader2, Sparkles } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -78,6 +78,8 @@ const JobDetail = () => {
   const [coverLetterSpendOpen, setCoverLetterSpendOpen] = useState(false);
   const [generatingCoverLetter, setGeneratingCoverLetter] = useState(false);
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
+  const confirmedSubmitRef = useRef(false);
+  const prioritySubmitInProgressRef = useRef(false);
   const priorityPrice = useActionPrice("priority_application");
   const cvRewritePrice = useActionPrice("cv_rewrite");
   const coverLetterPrice = useActionPrice("cover_letter");
@@ -186,6 +188,7 @@ const JobDetail = () => {
       },
       {
         onSuccess: () => {
+          prioritySubmitInProgressRef.current = false;
           setShowApplyModal(false);
           setCoverLetter("");
           setCoverLetterMode("none");
@@ -194,6 +197,8 @@ const JobDetail = () => {
           setPriorityApply(false);
         },
         onError: (err: any) => {
+          prioritySubmitInProgressRef.current = false;
+          setShowApplyModal(true);
           console.error("[apply] submit failed", err);
           toast({
             title: lang === "my" ? "လျှောက်လွှာ မတင်နိုင်ပါ" : "Could not submit application",
@@ -305,17 +310,21 @@ const JobDetail = () => {
       });
       return;
     }
+    confirmedSubmitRef.current = false;
+    setShowApplyModal(false);
     setSubmitConfirmOpen(true);
   };
 
   const confirmAndSubmit = () => {
+    confirmedSubmitRef.current = true;
+    setShowApplyModal(false);
     setSubmitConfirmOpen(false);
     if (priorityApply) {
-      // Defer so Radix releases its body pointer-events lock before the Sheet opens.
-      setTimeout(() => setPriorityConfirmOpen(true), 150);
+      prioritySubmitInProgressRef.current = true;
+      setPriorityConfirmOpen(true);
       return;
     }
-    setTimeout(() => submitApplication(), 0);
+    submitApplication();
   };
 
   const [isSharing, setIsSharing] = useState(false);
@@ -955,12 +964,21 @@ const JobDetail = () => {
       </div>
       <SpendConfirmSheet
         open={priorityConfirmOpen}
-        onOpenChange={setPriorityConfirmOpen}
+        onOpenChange={(open) => {
+          setPriorityConfirmOpen(open);
+          if (!open && prioritySubmitInProgressRef.current && !applyMutation.isPending) {
+            prioritySubmitInProgressRef.current = false;
+            setShowApplyModal(true);
+          }
+        }}
         actionKey="priority_application"
         targetType="job"
         targetId={id}
         idempotencyKey={`priority_application:${id}:${Date.now()}`}
-        onSuccess={() => submitApplication()}
+        onSuccess={() => {
+          prioritySubmitInProgressRef.current = false;
+          submitApplication();
+        }}
       />
       <SpendConfirmSheet
         open={coverLetterSpendOpen}
@@ -977,7 +995,12 @@ const JobDetail = () => {
           runGenerateCoverLetter();
         }}
       />
-      <AlertDialog open={submitConfirmOpen} onOpenChange={setSubmitConfirmOpen}>
+      <AlertDialog open={submitConfirmOpen} onOpenChange={(open) => {
+        setSubmitConfirmOpen(open);
+        if (!open && !confirmedSubmitRef.current && !priorityConfirmOpen && !applyMutation.isPending) {
+          setShowApplyModal(true);
+        }
+      }}>
         <AlertDialogContent className="max-w-sm rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
