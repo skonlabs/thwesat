@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
-import { useWallet, useActionPrice, useSpendCredits } from "@/hooks/use-wallet";
+import { useWallet, useActionPrice, useSpendCredits, formatCredits } from "@/hooks/use-wallet";
 import { toast } from "sonner";
 
 interface Props {
@@ -49,7 +49,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
     } catch (e: any) {
       const msg = e?.message || "";
       if (msg.includes("insufficient_balance")) {
-        toast.error(lang === "my" ? "Credit မလုံလောက်ပါ" : "Not enough Ks");
+        toast.error(lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Not enough wallet balance");
       } else {
         toast.error(msg || "Failed");
       }
@@ -83,11 +83,11 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
           <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
             <div>
               <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "ကုန်ကျမည်" : "Cost"}</div>
-              <div className="text-xl font-bold text-foreground">{cost.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">Ks</span></div>
+              <div className="text-xl font-bold text-foreground">{formatCredits(cost, lang)}</div>
             </div>
             <div className="text-right">
               <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "လက်ကျန်" : "Balance"}</div>
-              <div className={`text-xl font-bold tabular-nums ${insufficient ? "text-destructive" : "text-foreground"}`}>{balance.toLocaleString()}</div>
+              <div className={`text-xl font-bold tabular-nums ${insufficient ? "text-destructive" : "text-foreground"}`}>{formatCredits(balance, lang)}</div>
             </div>
           </div>
 
@@ -95,7 +95,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
             <>
               <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>{lang === "my" ? `Credit ${(cost - balance).toLocaleString()} လို အပ်သည်။ ငွေဖြည့်ပါ။` : `You need ${(cost - balance).toLocaleString()} more Ks.`}</span>
+                <span>{lang === "my" ? `${formatCredits(cost - balance, lang)} လိုအပ်သည်။ ငွေဖြည့်ပါ။` : `You need ${formatCredits(cost - balance, lang)} more.`}</span>
               </div>
               <Button onClick={() => { onOpenChange(false); navigate("/wallet"); }} className="w-full rounded-xl">
                 {lang === "my" ? "ငွေဖြည့်မည်" : "Top up wallet"}
@@ -103,7 +103,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
             </>
           ) : (
             <Button onClick={submit} disabled={busy} className="w-full rounded-xl bg-primary">
-              {busy ? "..." : (lang === "my" ? `${cost.toLocaleString()} Ks ပေး၍ ဝယ်ယူမည်` : `Confirm — pay ${cost.toLocaleString()} Ks`)}
+              {busy ? "..." : (lang === "my" ? `${formatCredits(cost, lang)} ပေး၍ ဝယ်ယူမည်` : `Confirm — pay ${formatCredits(cost, lang)}`)}
             </Button>
           )}
           <button onClick={() => onOpenChange(false)} className="w-full text-center text-xs text-muted-foreground">
