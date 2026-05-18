@@ -297,9 +297,9 @@ export default function AvailabilityManager() {
       </div>
 
       {/* Calendar for manual date picking (multi-select) */}
-      <div className="mb-3">
-        <label className="mb-1.5 block text-xs font-medium text-foreground">
-          {lang === "my" ? "ရက်များ ရွေးပါ (တစ်ခုထက်ပိုရွေးနိုင်)" : "Pick dates (tap to toggle, multi-select)"}
+      <div className="mb-4">
+        <label className="mb-1.5 block text-[11px] font-medium text-muted-foreground">
+          {lang === "my" ? "သို့မဟုတ် ပြက္ခဒိန်တွင် ရွေးပါ" : "Or tap dates on the calendar (multi-select)"}
         </label>
         <div className="rounded-2xl border border-border bg-card p-3 shadow-card">
           <Calendar
