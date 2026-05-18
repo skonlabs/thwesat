@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, CreditCard, CheckCircle, FileText, WalletCards } from "lucide-react";
+import { Home, Briefcase, Users, MessageSquare, User, LayoutDashboard, Calendar, Shield, CreditCard, CheckCircle, FileText, WalletCards, CalendarClock } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/use-language";
@@ -52,7 +52,7 @@ const BottomNav = () => {
   const mentorNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Calendar, labelMy: "ဘွတ်ကင်", labelEn: "Bookings", path: "/mentors/bookings" },
-    { icon: Users, labelMy: "ကျောင်းသား", labelEn: "Mentees", path: "/mentors/mentees" },
+    { icon: CalendarClock, labelMy: "အချိန်ဇယား", labelEn: "Availability", path: "/mentor/preferences" },
     { icon: MessageSquare, labelMy: "မက်ဆေ့", labelEn: "Messages", path: "/messages", badgeKey: "messages" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
