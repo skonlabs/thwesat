@@ -499,8 +499,8 @@ const Applications = () => {
                     <p className="mb-1 font-semibold text-foreground">{lang === "my" ? "ခန့်အပ်ခ ၈%" : "8% placement fee"}</p>
                     <p>
                       {lang === "my"
-                        ? `ဤကမ်းလှမ်းမှုသည် ခေါ်ယူရေး အေဂျင့်မှ ဖြစ်ပါသည်။ လက်ခံပါက သဘောတူထားသော လစာ၏ ၈% ${offerFee > 0 ? `(${offerFee.toLocaleString()} ကျပ်) ` : ""}ကို အေဂျင့်သို့ ပေးချေရပါမည်။`
-                        : `This offer is from a recruiting agent. By accepting, you agree to pay the agent 8%${offerFee > 0 ? ` (${offerFee.toLocaleString()} MMK)` : ""} of your agreed salary as a placement fee.`}
+                        ? `ဤကမ်းလှမ်းမှုသည် ခေါ်ယူရေး အေဂျင့်မှ ဖြစ်ပါသည်။ လက်ခံပါက သဘောတူထားသော လစာ၏ ၈% ${offerFee > 0 ? `(${offerFee.toLocaleString()} Ks) ` : ""}ကို အေဂျင့်သို့ ပေးချေရပါမည်။`
+                        : `This offer is from a recruiting agent. By accepting, you agree to pay the agent 8%${offerFee > 0 ? ` (${offerFee.toLocaleString()} Ks)` : ""} of your agreed salary as a placement fee.`}
                     </p>
                   </>
                 ) : (
