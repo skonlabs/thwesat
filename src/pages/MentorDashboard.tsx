@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Star, Users, CheckCircle, XCircle, MessageCircle, Settings, WalletCards, AlertCircle, ChevronRight } from "lucide-react";
+import { Calendar, Clock, Star, Users, CheckCircle, XCircle, MessageCircle, Settings, WalletCards, AlertCircle, ChevronRight, CalendarClock } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,14 +132,14 @@ const MentorDashboard = () => {
           subtitleMy={`စောင့်ဆိုင်း ${pending.length} ခု · ဒီနေ့ session ${todayConfirmed.length} ခု`}
           ctaLabelEn="Manage availability"
           ctaLabelMy="အချိန်ဇယား စီမံရန်"
-          ctaPath="/settings"
+          ctaPath="/mentor/preferences"
         />
         {showSetupAlert && (
           <Alert className="mb-4 border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100">
             <AlertDescription className="text-sm">
               {lang === "my"
-                ? "ကြိုဆိုပါသည်! ဆက်တင်တွင် နာရီနှုန်းနှင့် ရနိုင်မှု သတ်မှတ်ပါ။"
-                : "Welcome! Set your hourly rate and availability in Settings to start accepting bookings."}
+                ? "ကြိုဆိုပါသည်! Mentor အခြေအနေတွင် နာရီနှုန်းနှင့် ရနိုင်မှု သတ်မှတ်ပါ။"
+                : "Welcome! Set your hourly rate and availability in Mentor Preferences to start accepting bookings."}
             </AlertDescription>
           </Alert>
         )}
@@ -207,8 +207,9 @@ const MentorDashboard = () => {
         </div>
 
         {/* Quick actions row */}
-        <div className="mb-6 grid grid-cols-3 gap-3 md:grid-cols-6">
+        <div className="mb-6 grid grid-cols-4 gap-3 md:grid-cols-6">
           {[
+            { icon: CalendarClock, my: "အချိန်ဇယား", en: "Availability", path: "/mentor/preferences", bg: "bg-gold/10", fg: "text-gold-dark" },
             { icon: Users, my: "တပည့်များ", en: "Mentees", path: "/mentors/mentees", bg: "bg-primary/10", fg: "text-primary" },
             { icon: WalletCards, my: "ငွေကြေး", en: "Earnings", path: "/mentor/finance", bg: "bg-emerald/10", fg: "text-emerald" },
             { icon: Settings, my: "ဆက်တင်", en: "Settings", path: "/settings", bg: "bg-accent/15", fg: "text-gold-dark" },

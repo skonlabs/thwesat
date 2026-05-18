@@ -42,6 +42,7 @@ import PaymentHistory from "./pages/PaymentHistory";
 import SeekerFinance from "./pages/SeekerFinance";
 import EmployerFinance from "./pages/EmployerFinance";
 import MentorFinance from "./pages/MentorFinance";
+import MentorPreferences from "./pages/MentorPreferences";
 import AdminFinance from "./pages/AdminFinance";
 import AdminPartnerFinance from "./pages/AdminPartnerFinance";
 import Wallet from "./pages/Wallet";
@@ -179,6 +180,7 @@ const App = () => (
               <Route path="/agent/clients" element={<AppRoleGuard allowedRoles={["agent"]}><AgentClients /></AppRoleGuard>} />
 
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
+              <Route path="/mentor/preferences" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorPreferences /></AppRoleGuard>} />
               <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
               <Route path="/admin/partner-finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
 
