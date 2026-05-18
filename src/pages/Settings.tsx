@@ -15,7 +15,7 @@ import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-setting
 import { useActiveDelegateToken, useGenerateDelegateToken, useRevokeDelegateToken } from "@/hooks/use-delegate-token";
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
-import MentorPreferencesSection from "@/components/settings/MentorPreferencesSection";
+
 import { useUserRoles } from "@/hooks/use-user-roles";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
 import SessionExpirySheet from "@/components/settings/SessionExpirySheet";
