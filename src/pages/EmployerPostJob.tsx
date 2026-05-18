@@ -448,7 +448,7 @@ const EmployerPostJob = () => {
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
                     {lang === "my" ? "Featured အဆင့်တင်" : "Mark as Featured"}
-                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{(featurePrice?.price_credits ?? 0).toLocaleString()} Ks</span>
+                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{formatCredits(featurePrice?.price_credits ?? 0, lang)}</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
                     {lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days."}
@@ -504,11 +504,11 @@ const EmployerPostJob = () => {
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
               <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${totalCost.toLocaleString()} Ks ပေး၍ တင်မည်` : `Post for ${totalCost.toLocaleString()} Ks`)}
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${formatCredits(totalCost, lang)} ပေး၍ တင်မည်` : `Post for ${formatCredits(totalCost, lang)}`)}
               </Button>
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
-                  {lang === "my" ? `${(totalCost - balance).toLocaleString()} Ks လို အပ်သည်။ ` : `Need ${(totalCost - balance).toLocaleString()} more Ks. `}
+                  {lang === "my" ? `${formatCredits(totalCost - balance, lang)} လိုအပ်သည်။ ` : `Need ${formatCredits(totalCost - balance, lang)} more. `}
                   <button type="button" className="underline" onClick={() => setTopupOpen(true)}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
                 </p>
               )}
