@@ -311,6 +311,7 @@ const JobDetail = () => {
       return;
     }
     confirmedSubmitRef.current = false;
+    setShowApplyModal(false);
     setSubmitConfirmOpen(true);
   };
 
@@ -974,7 +975,10 @@ const JobDetail = () => {
         targetType="job"
         targetId={id}
         idempotencyKey={`priority_application:${id}:${Date.now()}`}
-        onSuccess={() => submitApplication()}
+        onSuccess={() => {
+          prioritySubmitInProgressRef.current = false;
+          submitApplication();
+        }}
       />
       <SpendConfirmSheet
         open={coverLetterSpendOpen}
