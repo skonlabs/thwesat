@@ -8,8 +8,7 @@ const MentorPreferences = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader
         title={lang === "my" ? "Mentor အခြေအနေ" : "Mentor Preferences"}
-        showBack
-        backTo="/dashboard"
+        backPath="/dashboard"
       />
       <div className="mx-auto max-w-3xl px-5 md:px-8 md:pt-2">
         <p className="mb-4 text-xs text-muted-foreground">
