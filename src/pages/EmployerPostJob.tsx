@@ -15,7 +15,7 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
-import { useSpendCredits, useActionPrice, useWallet, useCreditPackages } from "@/hooks/use-wallet";
+import { useSpendCredits, useActionPrice, useWallet, useCreditPackages, formatCredits } from "@/hooks/use-wallet";
 import TopupSheet from "@/components/wallet/TopupSheet";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
@@ -155,7 +155,7 @@ const EmployerPostJob = () => {
       return;
     }
     if (insufficient) {
-      toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient Ks", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
+      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
       setTopupOpen(true);
       return;
     }
@@ -200,7 +200,7 @@ const EmployerPostJob = () => {
     } catch (e: any) {
       const msg = e?.message || "";
       if (msg.includes("insufficient_balance")) {
-        toast({ title: lang === "my" ? "Credit မလုံလောက်ပါ" : "Insufficient Ks", variant: "destructive" });
+        toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
       } else {
         toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
       }
