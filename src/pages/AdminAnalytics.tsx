@@ -281,7 +281,7 @@ const AdminAnalytics = () => {
                 <div className="mt-1 space-y-0.5">
                   {Object.entries(trends.approvedByCurrency).map(([cur, amt]) => (
                     <p key={cur} className="text-base font-bold text-foreground leading-tight">
-                      {`${amt.toLocaleString()} ${lang === "my" ? "ကျပ်" : "MMK"}`}
+                      {`${amt.toLocaleString()} Ks`}
                     </p>
                   ))}
                 </div>
