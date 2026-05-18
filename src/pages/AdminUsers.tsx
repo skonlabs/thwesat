@@ -298,25 +298,25 @@ const AdminUsers = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40"
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 p-4 md:p-6"
               onClick={() => setSelectedId(null)}
             >
               <motion.div
-                initial={{ y: 400 }}
-                animate={{ y: 0 }}
-                exit={{ y: 400 }}
-                className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-8 max-h-[85vh] overflow-y-auto"
+                initial={{ y: 20, opacity: 0, scale: 0.98 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                exit={{ y: 20, opacity: 0, scale: 0.98 }}
+                className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-card shadow-2xl max-h-[90vh]"
                 onClick={e => e.stopPropagation()}
               >
-                <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
+                {/* Header */}
+                <div className="flex items-start gap-3 border-b border-border p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
                     {(selected.display_name || "U").slice(0, 2).toUpperCase()}
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-foreground">{selected.display_name}</h2>
-                    <p className="text-xs text-muted-foreground">{selected.email}</p>
-                    <div className="mt-1 flex flex-wrap gap-1.5">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-base font-bold text-foreground">{selected.display_name || "User"}</h2>
+                    <p className="truncate text-xs text-muted-foreground">{selected.email}</p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.jobseeker}`}>
                         {selected.primary_role}
                       </span>
@@ -330,87 +330,100 @@ const AdminUsers = () => {
                   </div>
                 </div>
 
-                {/* User details */}
-                <h3 className="mb-2 text-xs font-semibold text-foreground">{lang === "my" ? "အချက်အလက်" : "Details"}</h3>
-                <div className="mb-4 space-y-1 text-xs text-muted-foreground">
-                  <p>{lang === "my" ? "တည်နေရာ" : "Location"}: {selected.location || "—"}</p>
-                  <p>{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}: {selected.headline || "—"}</p>
-                  <p>{lang === "my" ? "ဖုန်း" : "Phone"}: {selected.phone || "—"}</p>
-                  <p>{lang === "my" ? "စတင်ရက်" : "Joined"}: {new Date(selected.created_at).toLocaleDateString()}</p>
-                  {selected.skills?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {selected.skills.slice(0, 8).map((s: string) => (
-                        <span key={s} className="rounded bg-muted px-1.5 py-0.5 text-[10px]">{s}</span>
-                      ))}
+                {/* Scrollable body */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                  {/* Details */}
+                  <section>
+                    <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {lang === "my" ? "အချက်အလက်" : "Details"}
+                    </h3>
+                    <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1.5 text-xs">
+                      <dt className="text-muted-foreground">{lang === "my" ? "တည်နေရာ" : "Location"}</dt>
+                      <dd className="text-foreground truncate">{selected.location || "—"}</dd>
+                      <dt className="text-muted-foreground">{lang === "my" ? "ခေါင်းစဉ်" : "Headline"}</dt>
+                      <dd className="text-foreground truncate">{selected.headline || "—"}</dd>
+                      <dt className="text-muted-foreground">{lang === "my" ? "ဖုန်း" : "Phone"}</dt>
+                      <dd className="text-foreground">{selected.phone || "—"}</dd>
+                      <dt className="text-muted-foreground">{lang === "my" ? "စတင်ရက်" : "Joined"}</dt>
+                      <dd className="text-foreground">{new Date(selected.created_at).toLocaleDateString()}</dd>
+                    </dl>
+                    {selected.skills?.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {selected.skills.slice(0, 8).map((s: string) => (
+                          <span key={s} className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-foreground">{s}</span>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* System roles */}
+                  <section>
+                    <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {lang === "my" ? "စနစ် Role" : "System Roles"}
+                    </h3>
+                    <div className="divide-y divide-border rounded-xl border border-border">
+                      <div className="flex items-center justify-between px-3 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-destructive" />
+                          <span className="text-sm font-medium text-foreground">Admin</span>
+                        </div>
+                        <Switch
+                          checked={selectedSystemRoles.includes("admin")}
+                          disabled={!isAdmin}
+                          onCheckedChange={(checked) =>
+                            requestRoleChange(selected.id, selected.display_name || "User", "admin", checked)
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center justify-between px-3 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="h-4 w-4 text-emerald" />
+                          <span className="text-sm font-medium text-foreground">Moderator</span>
+                        </div>
+                        <Switch
+                          checked={selectedSystemRoles.includes("moderator")}
+                          disabled={!isAdmin}
+                          onCheckedChange={(checked) =>
+                            requestRoleChange(selected.id, selected.display_name || "User", "moderator", checked)
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center justify-between px-3 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-accent" />
+                          <span className="text-sm font-medium text-foreground">Partner</span>
+                        </div>
+                        <Switch
+                          checked={selectedSystemRoles.includes("partner")}
+                          disabled={!isAdmin}
+                          onCheckedChange={(checked) =>
+                            requestRoleChange(selected.id, selected.display_name || "User", "partner", checked)
+                          }
+                        />
+                      </div>
+                      <div className="flex items-center justify-between px-3 py-2.5">
+                        <div className="flex items-center gap-2">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <span className="text-sm font-medium text-foreground">{lang === "my" ? "ရပ်ဆိုင်းထား" : "Suspended"}</span>
+                        </div>
+                        <Switch
+                          checked={!!selected.is_suspended}
+                          onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
+                        />
+                      </div>
                     </div>
-                  )}
+                  </section>
                 </div>
 
-
-                {/* System role management — changes require confirmation */}
-                <h3 className="mb-2 text-xs font-semibold text-foreground">
-                  {lang === "my" ? "စနစ် Role" : "System Roles"}
-                </h3>
-                <div className="mb-4 space-y-2">
-                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-destructive" />
-                      <span className="text-sm font-medium text-foreground">Admin</span>
-                    </div>
-                    <Switch
-                      checked={selectedSystemRoles.includes("admin")}
-                      disabled={!isAdmin}
-                      onCheckedChange={(checked) =>
-                        requestRoleChange(selected.id, selected.display_name || "User", "admin", checked)
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-emerald" />
-                      <span className="text-sm font-medium text-foreground">Moderator</span>
-                    </div>
-                    <Switch
-                      checked={selectedSystemRoles.includes("moderator")}
-                      disabled={!isAdmin}
-                      onCheckedChange={(checked) =>
-                        requestRoleChange(selected.id, selected.display_name || "User", "moderator", checked)
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-accent" />
-                      <span className="text-sm font-medium text-foreground">Partner</span>
-                    </div>
-                    <Switch
-                      checked={selectedSystemRoles.includes("partner")}
-                      disabled={!isAdmin}
-                      onCheckedChange={(checked) =>
-                        requestRoleChange(selected.id, selected.display_name || "User", "partner", checked)
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-border p-3">
-                    <div className="flex items-center gap-2">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                      <span className="text-sm font-medium text-foreground">{lang === "my" ? "ရပ်ဆိုင်းထား" : "Suspended"}</span>
-                    </div>
-                    <Switch
-                      checked={!!selected.is_suspended}
-                      onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
+                {/* Sticky footer */}
+                <div className="flex gap-2 border-t border-border bg-card p-4">
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex-1 rounded-xl"
                     onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}
                   >
-                    <span className="mr-1.5">👁</span> {lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
+                    {lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
                   </Button>
                   {isAdmin && (
                     <Button
