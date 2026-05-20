@@ -192,6 +192,7 @@ const App = () => (
               <Route path="/admin/payments" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPayments /></SystemRoleGuard>} />
               <Route path="/admin/employers" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/admin/guides/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEditGuide /></SystemRoleGuard>} />
+              <Route path="/admin/moderation" element={<SystemRoleGuard allowedRoles={["admin","moderator"]}><ModeratorDashboard /></SystemRoleGuard>} />
 
               {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />
