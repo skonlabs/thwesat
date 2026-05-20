@@ -56,8 +56,8 @@ const AdminDashboard = () => {
     { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments?status=pending", urgent: (counts?.pendingPayments || 0) > 0 },
     { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
-    { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Posts" }, count: counts?.pendingPosts || 0, path: "/moderator?tab=posts", urgent: false },
-    { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/moderator?tab=posts", urgent: (counts?.reports || 0) > 0 },
+    { icon: MessageCircle, label: { my: "စစ်ဆေးရန် ပို့စ်", en: "Pending Posts" }, count: counts?.pendingPosts || 0, path: "/admin/moderation?tab=posts", urgent: false },
+    { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/moderation?tab=posts", urgent: (counts?.reports || 0) > 0 },
   ];
 
   const managementLinks = [
