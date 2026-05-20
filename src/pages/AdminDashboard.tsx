@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: WalletCards, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
     { label: { my: "Partner Finance", en: "Partner Finance" }, path: "/admin/partner-finance", icon: WalletCards, desc: { my: "Rev share", en: "Rev share" } },
     { label: { my: "အလုပ်များ", en: "Jobs" }, path: "/admin/jobs", icon: Briefcase, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
-    { label: { my: "စစ်ဆေးရေး", en: "Moderation" }, path: "/moderator", icon: Shield, desc: { my: "ပို့စ်/Report", en: "Posts & Reports" } },
+    { label: { my: "စစ်ဆေးရေး", en: "Moderation" }, path: "/admin/moderation", icon: Shield, desc: { my: "ပို့စ်/Report", en: "Posts & Reports" } },
     { label: { my: "ခွဲခြမ်းစိတ်ဖြာ", en: "Analytics" }, path: "/admin/analytics", icon: BarChart3, desc: { my: "ကြည့်ရှု", en: "View" } },
   ];
 
