@@ -185,8 +185,10 @@ const App = () => (
 
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
               <Route path="/mentor/preferences" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorPreferences /></AppRoleGuard>} />
-              <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
-              <Route path="/admin/partner-finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
+              <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinanceHub /></SystemRoleGuard>} />
+              <Route path="/admin/finance/legacy" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
+              <Route path="/admin/partner-finance" element={<Navigate to="/admin/finance?tab=partners" replace />} />
+              <Route path="/admin/partner-finance/legacy" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
               <Route path="/admin/partners" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartners /></SystemRoleGuard>} />
 
               {/* Admin sub-pages */}
