@@ -39,17 +39,27 @@ function nowYangon() {
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
 }
 
-export default function AdminPartnerFinance({ hideHeader = false }: { hideHeader?: boolean } = {}) {
+export default function AdminPartnerFinance({
+  hideHeader = false,
+  lockedPartnerId = null,
+  readOnly = false,
+}: {
+  hideHeader?: boolean;
+  /** When set, pre-selects this partner and hides the picker (partner self-view). */
+  lockedPartnerId?: string | null;
+  /** When true, hides admin-only actions (finalize, overrides, new partner). */
+  readOnly?: boolean;
+} = {}) {
   const { lang } = useLanguage();
   const { data: partners, isLoading: loadingPartners } = usePartners();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(lockedPartnerId);
   const _now = nowYangon();
   const [year, setYear] = useState<number>(_now.year);
   const [month, setMonth] = useState<number>(_now.month);
 
   const partner = useMemo<Partner | null>(
-    () => partners?.find((p) => p.id === selectedId) ?? partners?.[0] ?? null,
-    [partners, selectedId],
+    () => partners?.find((p) => p.id === (lockedPartnerId ?? selectedId)) ?? (lockedPartnerId ? null : partners?.[0]) ?? null,
+    [partners, selectedId, lockedPartnerId],
   );
 
   return (
