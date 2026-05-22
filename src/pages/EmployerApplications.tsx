@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { useRoleLabels } from "@/hooks/use-role-labels";
-import { calculatePlacementFee, PLACEMENT_FEE_PERCENT } from "@/lib/finance";
+import { calculatePlacementFee, PLACEMENT_FEE_PERCENT, roundMmk } from "@/lib/finance";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
