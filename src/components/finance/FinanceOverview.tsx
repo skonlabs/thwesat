@@ -82,10 +82,10 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   const approved = (payments || []).filter((p) => p.status === "approved");
   const pending = (payments || []).filter((p) => p.status === "pending");
   const nprOf = (p: any) => {
-    if (p.npr_amount != null) return Number(p.npr_amount);
+    if (p.npr_amount != null) return roundMmk(Number(p.npr_amount));
     const gross = Number(p.amount || 0);
-    if (p.payment_type === "mentor_session") return gross * PLATFORM_MENTOR_CUT;
-    return Math.max(0, gross - Number(p.third_party_payout || 0));
+    if (p.payment_type === "mentor_session") return roundMmk(gross * PLATFORM_MENTOR_CUT);
+    return roundMmk(Math.max(0, gross - Number(p.third_party_payout || 0)));
   };
   const platformRevenue = approved.reduce((s, p) => s + nprOf(p), 0);
   const pendingValue = pending.reduce((s, p) => s + Number(p.amount || 0), 0);
