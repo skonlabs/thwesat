@@ -345,7 +345,7 @@ function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: n
   );
 }
 
-function PaymentRow({ p, onSave, lang }: { p: any; onSave: (patch: any) => Promise<void>; lang: "en" | "my" }) {
+function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) => Promise<void>; lang: "en" | "my"; locked?: boolean }) {
   const [tpp, setTpp] = useState<string>(p.third_party_payout != null ? String(p.third_party_payout) : "");
   const [npr, setNpr] = useState<string>(p.npr_amount != null ? String(p.npr_amount) : "");
   const [cls, setCls] = useState<string>(p.revenue_classification || "new");
