@@ -227,7 +227,7 @@ const AdminEmployers = () => {
                   <Building2 className="h-7 w-7" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground">{selected.company_name || "Unnamed"}</h2>
+                  <h2 className="text-lg font-bold text-foreground">{selected.company_name || selected.profile?.display_name || selected.profile?.email || "Unnamed"}</h2>
                   <p className="text-xs text-muted-foreground">{selected.profile?.email}</p>
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${(statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).color}`}>
                     {lang === "my" ? (statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).label.my : (statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).label.en}
