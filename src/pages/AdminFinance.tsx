@@ -64,6 +64,13 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
   const approved = allPayments.filter((p) => p.status === "approved");
   const pending = allPayments.filter((p) => p.status === "pending");
 
+  // Gross = full approved collections (what the platform received from users)
+  const grossRevenueRows = approved.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
+  // Mentor share = the 85% portion of mentor_session payments owed to mentors
+  const mentorShareRows = approved
+    .filter((p) => p.payment_type === "mentor_session")
+    .map((p) => ({ amount: Number(p.amount) * (1 - PLATFORM_CUT_PERCENT), currency: p.currency }));
+  // Net Platform Revenue = Gross − mentor share (= placement fees + platform's 15% cut)
   const platformRevenueRows = approved.flatMap((p) => {
     if (p.payment_type === "mentor_session") {
       return [{ amount: Number(p.amount) * PLATFORM_CUT_PERCENT, currency: p.currency }];
