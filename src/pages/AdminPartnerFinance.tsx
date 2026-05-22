@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Check, AlertTriangle } from "lucide-react";
+import { Plus, Check, AlertTriangle, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { roundMmk } from "@/lib/finance";
+import { periodBoundsYangon } from "@/lib/partner-finance";
 import { useLanguage } from "@/hooks/use-language";
 import {
   usePartners,
@@ -119,10 +120,26 @@ export default function AdminPartnerFinance({ hideHeader = false }: { hideHeader
   );
 }
 
-// ───────────── Statement tab ─────────────
+// ───────────── Statement tab (visual waterfall) ─────────────
 function StatementTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
   const { data, isLoading } = usePartnerStatementPreview(partner, year, month);
+  const { data: payments } = usePartnerPeriodPayments(partner, year, month);
+  const { data: allReversals } = usePaymentReversals();
+  const { data: attributions } = usePartnerAttributions(partner.id);
   const finalize = useFinalizeStatement();
+  const [drill, setDrill] = useState<null | "gross" | "reversals" | "buckets" | "tier" | "bonus" | "cap" | "quality">(null);
+
+  // Period-scoped reversals for this partner's attributed users.
+  const periodReversals = useMemo(() => {
+    if (!allReversals || !payments) return [];
+    const { start, endExclusive } = periodBoundsYangon(year, month);
+    const paymentIds = new Set(payments.map((p: any) => p.id));
+    return allReversals.filter((r: any) => {
+      if (!paymentIds.has(r.payment_request_id)) return false;
+      const t = new Date(r.occurred_at).getTime();
+      return t >= new Date(start).getTime() && t < new Date(endExclusive).getTime();
+    });
+  }, [allReversals, payments, year, month]);
 
   if (isLoading || !data) return <Card className="p-8 text-sm text-muted-foreground">{tt(lang, "Computing…", "တွက်ချက်နေသည်…")}</Card>;
 
@@ -133,14 +150,13 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
     fraud_rate_pct:   { name: "Fraud",       cmp: "≤", suffix: "%" },
     onboarding_pct:   { name: "Onboarding",  cmp: "≥", suffix: "%" },
   };
+  const failingMetrics = Object.entries(data.quality_gate_breakdown || {}).filter(([, v]: any) => !v.pass);
   const blockers: string[] = [];
   if (!data.quality_gate_passed) {
-    const failing = Object.entries(data.quality_gate_breakdown || {})
-      .filter(([, v]: any) => !v.pass)
-      .map(([k, v]: any) => {
-        const meta = QG_LABELS[k] || { name: k, cmp: "?", suffix: "" };
-        return `${meta.name} ${v.value}${meta.suffix} (${tt(lang, "need", "လို")} ${meta.cmp}${v.threshold}${meta.suffix})`;
-      });
+    const failing = failingMetrics.map(([k, v]: any) => {
+      const meta = QG_LABELS[k] || { name: k, cmp: "?", suffix: "" };
+      return `${meta.name} ${v.value}${meta.suffix} (${tt(lang, "need", "လို")} ${meta.cmp}${v.threshold}${meta.suffix})`;
+    });
     blockers.push(`${tt(lang, "Quality gate failed", "Quality gate မအောင်ပါ")} — ${failing.join(", ") || tt(lang, "missing inputs", "input လို")}.`);
   }
   if (!data.active_growth_requirement_met) blockers.push(`${tt(lang, "Active Growth requirement not met", "Active Growth စံ မပြည့်ပါ")} (Growth share = ${pct(data.active_growth_ratio)}, ${tt(lang, "need", "လို")} ≥25%).`);
@@ -149,55 +165,157 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
     "Growth NPR ≥ 80M Ks — ကိုယ်တိုင် tier ခွင့်ပြုချက် လိုအပ်သည် (partner_tier_approvals row မရှိမချင်း growth payout = 0)။"
   ));
 
+  const net = Number(data.net_collected_attributed_npr || 0);
+  const growth = Number(data.growth_npr || 0);
+  const y2 = Number(data.maintenance_y2_npr || 0);
+  const y3 = Number(data.maintenance_y3_npr || 0);
+  const growthPayout = Number(data.growth_payout || 0);
+  const maintPayout = Number(data.maintenance_payout || 0);
+  const bonusPayout = Number(data.bonus_payout || 0);
+  const uncapped = Number(data.total_payout_uncapped || 0);
+  const capValue = roundMmk(net * Number(partner.payout_cap_pct || 0));
+  const total = Number(data.total_payout || 0);
+
+  // Stacked bar segments
+  const segs = net > 0 ? [
+    { key: "growth", label: tt(lang, "Growth", "Growth"), pct: (growth / net) * 100, color: "bg-emerald-500", value: growth },
+    { key: "y2", label: tt(lang, "Y2", "Y2"), pct: (y2 / net) * 100, color: "bg-sky-500", value: y2 },
+    { key: "y3", label: tt(lang, "Y3+", "Y3+"), pct: (y3 / net) * 100, color: "bg-violet-500", value: y3 },
+  ] : [];
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label={tt(lang, "Gross Attributed NPR", "Gross Attributed NPR")} value={fmt(data.gross_attributed_npr)} />
-        <Stat label={tt(lang, "Reversals", "ပြန်နုတ်")} value={fmt(data.reversals_npr)} tone="warn" />
-        <Stat label={tt(lang, "Net Collected NPR", "Net Collected NPR")} value={fmt(data.net_collected_attributed_npr)} />
-        <Stat label={tt(lang, "Total Payout", "စုစုပေါင်း ပေးချေ")} value={fmt(data.total_payout)} tone="ok" />
+      {/* HERO — Final payout */}
+      <Card className="bg-gradient-to-br from-primary/10 to-accent/5 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{tt(lang, "Final payout for this period", "ဤကာလအတွက် နောက်ဆုံး ပေးချေငွေ")}</p>
+            <p className="mt-1 text-3xl font-bold text-foreground">{fmt(total)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{year} / {String(month).padStart(2, "0")} · {partner.name}</p>
+          </div>
+          <div className="text-right text-xs text-muted-foreground">
+            <p>{tt(lang, "Net NPR", "Net NPR")} {fmt(net)}</p>
+            <p>{tt(lang, "Effective rate", "ထိရောက်နှုန်း")} {net > 0 ? ((total / net) * 100).toFixed(1) : "0"}%</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* WATERFALL — clickable steps */}
+      <div className="space-y-2">
+        <StepCard
+          n={1}
+          icon="="
+          title={tt(lang, "Gross Attributed NPR", "Gross Attributed NPR")}
+          subtitle={tt(lang, `${data.payments_count} approved Ks payments from attributed users`, `attributed user များမှ ခွင့်ပြုထား ပေးချေမှု ${data.payments_count} ခု`)}
+          value={fmt(data.gross_attributed_npr)}
+          onClick={() => setDrill("gross")}
+        />
+        <StepCard
+          n={2}
+          icon="−"
+          title={tt(lang, "Reversals (refunds, chargebacks, fraud)", "ပြန်နုတ်မှု (ပြန်အမ်း, chargeback, လိမ်လည်)")}
+          subtitle={tt(lang, `${periodReversals.length} reversal events in period`, `ဤကာလ ပြန်နုတ်မှု ${periodReversals.length} ခု`)}
+          value={`− ${fmt(data.reversals_npr)}`}
+          tone="warn"
+          onClick={() => setDrill("reversals")}
+        />
+        <StepCard
+          n={3}
+          icon="="
+          title={tt(lang, "Net Collected NPR", "Net Collected NPR")}
+          subtitle={tt(lang, "Split into age buckets — tap to inspect", "သက်တမ်း buckets ၃ ခု ခွဲ — အသေးစိတ်ကြည့်ရန် နှိပ်")}
+          value={fmt(net)}
+          highlight
+          onClick={() => setDrill("buckets")}
+        >
+          {net > 0 && (
+            <div className="mt-3 space-y-1.5">
+              <div className="flex h-2.5 overflow-hidden rounded-full bg-muted">
+                {segs.map((s) => s.pct > 0 && (
+                  <div key={s.key} className={s.color} style={{ width: `${s.pct}%` }} title={`${s.label} ${s.pct.toFixed(1)}%`} />
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+                {segs.map((s) => (
+                  <div key={s.key} className="flex items-center gap-1.5">
+                    <span className={`h-2 w-2 rounded-full ${s.color}`} />
+                    <span>{s.label}: <span className="font-medium text-foreground">{fmt(s.value)}</span> ({s.pct.toFixed(0)}%)</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </StepCard>
+
+        <StepCard
+          n={4}
+          icon="×"
+          title={tt(lang, "Apply payout rates per bucket", "bucket တစ်ခုစီ ပေးချေနှုန်း တွက်")}
+          subtitle={`Growth × ${pct(data.growth_tier_pct)} + Y2 × 7.5% + Y3+ × 5%`}
+          value={fmt(growthPayout + maintPayout)}
+          onClick={() => setDrill("tier")}
+        >
+          <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+            <FormulaChip label={tt(lang, "Growth", "Growth")} formula={`${fmt(growth)} × ${pct(data.growth_tier_pct)}`} result={fmt(growthPayout)} dim={growthPayout === 0 && growth > 0} />
+            <FormulaChip label="Y2" formula={`${fmt(y2)} × 7.5%`} result={fmt(roundMmk(y2 * 0.075))} />
+            <FormulaChip label="Y3+" formula={`${fmt(y3)} × 5%`} result={fmt(roundMmk(y3 * 0.05))} />
+          </div>
+        </StepCard>
+
+        <StepCard
+          n={5}
+          icon="+"
+          title={tt(lang, "Growth bonus (MoM growth)", "Growth ဘောနပ်စ် (MoM)")}
+          subtitle={`MoM ${pct(data.mom_growth_pct)} → +${pct(data.growth_bonus_pct)} of Growth NPR`}
+          value={`+ ${fmt(bonusPayout)}`}
+          tone={bonusPayout > 0 ? "ok" : undefined}
+          onClick={() => setDrill("bonus")}
+        />
+
+        <StepCard
+          n={6}
+          icon="="
+          title={tt(lang, "Subtotal (uncapped)", "စုစုပေါင်း (မကန့်သတ်)")}
+          value={fmt(uncapped)}
+        />
+
+        <StepCard
+          n={7}
+          icon={data.cap_applied ? "⌐" : "✓"}
+          title={tt(lang, `Cap check — max ${pct(partner.payout_cap_pct)} of Net`, `ကန့်သတ် — Net ၏ အများဆုံး ${pct(partner.payout_cap_pct)}`)}
+          subtitle={data.cap_applied
+            ? tt(lang, `Capped: ${fmt(uncapped)} → ${fmt(total)} (cap = ${fmt(capValue)})`, `ကန့်သတ်: ${fmt(uncapped)} → ${fmt(total)}`)
+            : tt(lang, `No cap applied (cap would be ${fmt(capValue)})`, `မကန့်သတ်ပါ (cap = ${fmt(capValue)})`)}
+          value={fmt(total)}
+          tone={data.cap_applied ? "warn" : "ok"}
+          highlight
+          onClick={() => setDrill("cap")}
+        />
       </div>
 
-      <Card className="p-3 text-xs text-muted-foreground">
-        {tt(lang,
-          `${data.payments_count} approved Ks payments · ${data.eligible_attributions_count}/${data.attributed_users_count} attributions eligible for onboarding metric · onboarding ${data.onboarding_pct?.toFixed(1)}%`,
-          `${data.payments_count} ခု ခွင့်ပြုထား · ${data.eligible_attributions_count}/${data.attributed_users_count} attribution များ onboarding metric အတွက် ဝင်ဆံ့သည် · onboarding ${data.onboarding_pct?.toFixed(1)}%`
-        )}
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold">{tt(lang, "Buckets (gross → net of reversals)", "အုပ်စုများ (gross → net)")}</h3>
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <Row k={tt(lang, "Growth (≤12mo)", "Growth (≤၁၂လ)")} v={`${fmt(data.growth_npr_gross)} → ${fmt(data.growth_npr)}`} />
-          <Row k={tt(lang, "Maintenance Y2 (13-24mo)", "Maintenance Y2 (၁၃-၂၄လ)")} v={`${fmt(data.maintenance_y2_npr_gross)} → ${fmt(data.maintenance_y2_npr)}`} />
-          <Row k={tt(lang, "Maintenance Y3+ (25mo+)", "Maintenance Y3+ (၂၅လ+)")} v={`${fmt(data.maintenance_y3_npr_gross)} → ${fmt(data.maintenance_y3_npr)}`} />
+      {/* Quality gate strip */}
+      <Card
+        role="button"
+        onClick={() => setDrill("quality")}
+        className={`flex cursor-pointer items-center justify-between p-3 transition-colors hover:bg-muted/40 ${data.quality_gate_passed ? "border-emerald-500/40" : "border-warning/40 bg-warning/5"}`}
+      >
+        <div className="flex items-center gap-3">
+          <Shield className={`h-5 w-5 ${data.quality_gate_passed ? "text-emerald-500" : "text-warning"}`} />
+          <div>
+            <p className="text-sm font-semibold">{tt(lang, "Quality Gate", "Quality Gate")}: {data.quality_gate_passed ? tt(lang, "Pass", "ဖြတ်") : tt(lang, "Fail", "မဖြတ်")}</p>
+            <p className="text-[11px] text-muted-foreground">
+              {tt(lang, `Active Growth ratio ${pct(data.active_growth_ratio)} (need ≥25%)`, `Active Growth အချိုး ${pct(data.active_growth_ratio)} (လို ≥25%)`)}
+              {failingMetrics.length > 0 && ` · ${failingMetrics.length} ${tt(lang, "metric(s) failing", "metric မအောင်")}`}
+            </p>
+          </div>
         </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold">{tt(lang, "Tier & Bonus", "Tier & ဘောနပ်စ်")}</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-          <Row k={tt(lang, "Growth Tier", "Growth Tier")} v={pct(data.growth_tier_pct)} />
-          <Row k={tt(lang, "MoM Growth", "MoM တိုးတက်မှု")} v={pct(data.mom_growth_pct)} />
-          <Row k={tt(lang, "Growth Bonus", "Growth ဘောနပ်စ်")} v={`+${pct(data.growth_bonus_pct)}`} />
-          <Row k={tt(lang, "Active Growth Ratio", "Active Growth အချိုး")} v={pct(data.active_growth_ratio)} />
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="mb-3 text-sm font-semibold">{tt(lang, "Payout Breakdown", "ပေးချေမှု ခွဲခြားချက်")}</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-          <Row k={tt(lang, "Growth Payout", "Growth ပေးချေ")} v={fmt(data.growth_payout)} />
-          <Row k={tt(lang, "Maintenance Payout", "Maintenance ပေးချေ")} v={fmt(data.maintenance_payout)} />
-          <Row k={tt(lang, "Bonus Payout", "ဘောနပ်စ် ပေးချေ")} v={fmt(data.bonus_payout)} />
-          <Row k={`${tt(lang, "Cap", "ကန့်သတ်")} (${pct(partner.payout_cap_pct)} ${tt(lang, "of Net", "of Net")})`} v={data.cap_applied ? `${tt(lang, "Capped — uncapped was", "ကန့်သတ်ထား — uncapped မှာ")} ${fmt(data.total_payout_uncapped)}` : tt(lang, "No", "မရှိ")} />
-        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Card>
 
       {blockers.length > 0 && (
         <Card className="border-warning/40 bg-warning/5 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-warning">
-            <AlertTriangle className="h-4 w-4" /> {tt(lang, "Blockers", "ပိတ်ဆို့မှုများ")}
+            <AlertTriangle className="h-4 w-4" /> {tt(lang, "Blockers — payout reduced", "ပိတ်ဆို့မှု — ပေးချေငွေ လျှော့")}
           </div>
           <ul className="ml-5 list-disc space-y-1 text-sm">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
         </Card>
@@ -216,21 +334,281 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
           <Check className="mr-2 h-4 w-4" /> {tt(lang, "Finalize statement", "ထုတ်ပြန်ချက် အပြီးသတ်ရန်")}
         </Button>
       </div>
+
+      {/* Drill-down sheets */}
+      <DrillSheet open={drill !== null} onClose={() => setDrill(null)} title={drillTitle(drill, lang)}>
+        {drill === "gross" && <GrossDrill payments={payments || []} lang={lang} />}
+        {drill === "reversals" && <ReversalsDrill reversals={periodReversals} lang={lang} />}
+        {drill === "buckets" && <BucketsDrill data={data} lang={lang} attributions={attributions || []} />}
+        {drill === "tier" && <TierDrill data={data} partner={partner} lang={lang} />}
+        {drill === "bonus" && <BonusDrill data={data} lang={lang} />}
+        {drill === "cap" && <CapDrill data={data} partner={partner} lang={lang} capValue={capValue} />}
+        {drill === "quality" && <QualityDrill data={data} lang={lang} qgLabels={QG_LABELS} />}
+      </DrillSheet>
     </div>
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: "ok" | "warn" }) {
-  const toneClass = tone === "ok" ? "border-emerald/30" : tone === "warn" ? "border-warning/30" : "border-border";
+function drillTitle(d: string | null, lang: "en" | "my"): string {
+  const t: Record<string, [string, string]> = {
+    gross: ["Gross Attributed NPR — payments", "Gross NPR — ပေးချေမှုများ"],
+    reversals: ["Reversals in period", "ဤကာလ ပြန်နုတ်မှုများ"],
+    buckets: ["Net NPR by age bucket", "Net NPR — bucket များ"],
+    tier: ["Tier rates breakdown", "Tier နှုန်း ခွဲခြားချက်"],
+    bonus: ["Growth bonus calculation", "Growth ဘောနပ်စ် တွက်ချက်"],
+    cap: ["Payout cap check", "ပေးချေငွေ ကန့်သတ်"],
+    quality: ["Quality Gate metrics", "Quality Gate metrics"],
+  };
+  if (!d) return "";
+  return lang === "my" ? t[d][1] : t[d][0];
+}
+
+function StepCard({ n, icon, title, subtitle, value, tone, highlight, onClick, children }: {
+  n: number; icon: string; title: string; subtitle?: string; value: string;
+  tone?: "ok" | "warn"; highlight?: boolean; onClick?: () => void; children?: React.ReactNode;
+}) {
+  const toneText = tone === "ok" ? "text-emerald-600 dark:text-emerald-400" : tone === "warn" ? "text-warning" : "text-foreground";
+  const border = highlight ? "border-primary/40" : "";
+  const Wrap: any = onClick ? "button" : "div";
   return (
-    <Card className={`p-3 ${toneClass}`}>
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-base font-bold">{value}</p>
+    <Wrap
+      onClick={onClick}
+      className={`flex w-full items-start gap-3 rounded-xl border bg-card p-4 text-left transition-colors ${border} ${onClick ? "hover:bg-muted/40" : ""}`}
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-base font-bold text-muted-foreground">{icon}</div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Step {n}</p>
+            <p className="text-sm font-semibold">{title}</p>
+            {subtitle && <p className="mt-0.5 text-[11px] text-muted-foreground">{subtitle}</p>}
+          </div>
+          <div className="flex items-center gap-2">
+            <p className={`whitespace-nowrap text-base font-bold ${toneText}`}>{value}</p>
+            {onClick && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          </div>
+        </div>
+        {children}
+      </div>
+    </Wrap>
+  );
+}
+
+function FormulaChip({ label, formula, result, dim }: { label: string; formula: string; result: string; dim?: boolean }) {
+  return (
+    <div className={`rounded-lg border bg-muted/30 p-2 ${dim ? "opacity-50" : ""}`}>
+      <p className="text-[10px] font-semibold uppercase text-muted-foreground">{label}</p>
+      <p className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">{formula}</p>
+      <p className="mt-0.5 text-xs font-bold">{result}</p>
+    </div>
+  );
+}
+
+function DrillSheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
+  return (
+    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
+      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+        <SheetHeader><SheetTitle>{title}</SheetTitle></SheetHeader>
+        <div className="mt-4 space-y-3">{children}</div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) {
+  if (payments.length === 0) return <p className="text-sm text-muted-foreground">{tt(lang, "No payments.", "ပေးချေမှု မရှိပါ။")}</p>;
+  const total = payments.reduce((s, p) => s + (p.npr_amount != null ? Number(p.npr_amount) : p.payment_type === "mentor_session" ? Number(p.amount) * 0.15 : Math.max(0, Number(p.amount) - Number(p.third_party_payout || 0))), 0);
+  return (
+    <>
+      <Card className="bg-muted/30 p-3 text-xs">
+        {tt(lang, `Sum of effective NPR = `, `အသက်ဝင် NPR စုစုပေါင်း = `)}<span className="font-bold">{fmt(total)}</span>
+      </Card>
+      <div className="divide-y rounded-lg border">
+        {payments.map((p) => {
+          const eff = p.npr_amount != null ? Number(p.npr_amount)
+            : p.payment_type === "mentor_session" ? Number(p.amount) * 0.15
+            : Math.max(0, Number(p.amount) - Number(p.third_party_payout || 0));
+          return (
+            <div key={p.id} className="flex items-center justify-between gap-2 p-3 text-xs">
+              <div className="min-w-0">
+                <p className="font-medium">{p.payment_type}</p>
+                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {tt(lang, "user", "သုံးစွဲသူ")} {String(p.user_id).slice(0, 8)}…</p>
+                <p className="font-mono text-[10px] text-muted-foreground">{tt(lang, "gross", "gross")} {fmt(p.amount)}{p.third_party_payout ? ` − 3rd ${fmt(p.third_party_payout)}` : ""}</p>
+              </div>
+              <p className="whitespace-nowrap font-bold">{fmt(roundMmk(eff))}</p>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function ReversalsDrill({ reversals, lang }: { reversals: any[]; lang: "en" | "my" }) {
+  if (reversals.length === 0) return <p className="text-sm text-muted-foreground">{tt(lang, "No reversals in this period.", "ဤကာလ ပြန်နုတ်မှု မရှိပါ။")}</p>;
+  const total = reversals.reduce((s, r) => s + Number(r.npr_amount || r.amount || 0), 0);
+  return (
+    <>
+      <Card className="bg-warning/5 p-3 text-xs">{tt(lang, "Total subtracted", "နုတ်ပြီး စုစုပေါင်း")} <span className="font-bold">{fmt(total)}</span></Card>
+      <div className="divide-y rounded-lg border">
+        {reversals.map((r) => (
+          <div key={r.id} className="flex items-center justify-between gap-2 p-3 text-xs">
+            <div>
+              <p className="font-medium">{r.reversal_type}</p>
+              <p className="text-muted-foreground">{new Date(r.occurred_at).toLocaleString()}</p>
+              {r.reason && <p className="text-muted-foreground">{r.reason}</p>}
+            </div>
+            <p className="font-bold text-warning">− {fmt(r.npr_amount || r.amount)}</p>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function BucketsDrill({ data, lang, attributions }: { data: any; lang: "en" | "my"; attributions: any[] }) {
+  return (
+    <>
+      <Card className="bg-muted/30 p-3 text-xs text-muted-foreground">
+        {tt(lang,
+          "Each payment is assigned to a bucket by the attributed user's account age at period end.",
+          "ပေးချေမှုတစ်ခုစီကို သုံးစွဲသူ၏ account သက်တမ်းအလိုက် bucket သတ်မှတ်သည်။"
+        )}
+      </Card>
+      <BucketRow label={tt(lang, "Growth (≤12 months)", "Growth (≤၁၂လ)")} gross={data.growth_npr_gross} net={data.growth_npr} color="bg-emerald-500" />
+      <BucketRow label={tt(lang, "Maintenance Y2 (13–24 months)", "Maintenance Y2 (၁၃–၂၄လ)")} gross={data.maintenance_y2_npr_gross} net={data.maintenance_y2_npr} color="bg-sky-500" />
+      <BucketRow label={tt(lang, "Maintenance Y3+ (25+ months)", "Maintenance Y3+ (၂၅လ+)")} gross={data.maintenance_y3_npr_gross} net={data.maintenance_y3_npr} color="bg-violet-500" />
+      <p className="pt-2 text-[11px] text-muted-foreground">
+        {tt(lang, `${attributions.length} attributed user(s) in total.`, `attributed သုံးစွဲသူ ${attributions.length} ဦး။`)}
+      </p>
+    </>
+  );
+}
+
+function BucketRow({ label, gross, net, color }: { label: string; gross: number; net: number; color: string }) {
+  const reversed = Math.max(0, gross - net);
+  return (
+    <Card className="p-3">
+      <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center gap-2">
+          <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
+          <span className="font-semibold">{label}</span>
+        </div>
+        <span className="font-bold">{fmt(net)}</span>
+      </div>
+      <p className="mt-1 font-mono text-[11px] text-muted-foreground">gross {fmt(gross)}{reversed > 0 ? ` − reversed ${fmt(reversed)}` : ""} = {fmt(net)}</p>
     </Card>
   );
 }
-function Row({ k, v }: { k: string; v: string }) {
-  return <div><div className="text-[10px] uppercase tracking-wide text-muted-foreground">{k}</div><div className="text-sm font-medium">{v}</div></div>;
+
+function TierDrill({ data, partner, lang }: { data: any; partner: Partner; lang: "en" | "my" }) {
+  const growth = Number(data.growth_npr || 0);
+  return (
+    <>
+      <Card className="bg-muted/30 p-3 text-xs">
+        {tt(lang, "Growth-tier % depends on Growth NPR size:", "Growth-tier % သည် Growth NPR ပမာဏပေါ်မူတည်သည်:")}
+        <ul className="ml-4 mt-1 list-disc space-y-0.5">
+          <li>&lt; 10M Ks → 15%</li>
+          <li>≥ 10M Ks → 20%</li>
+          <li>≥ 30M Ks → 25%</li>
+          <li>≥ 80M Ks → {tt(lang, "manual approval required", "ကိုယ်တိုင် ခွင့်ပြုချက် လို")}</li>
+        </ul>
+      </Card>
+      <Card className="p-3 text-sm">
+        <p className="font-semibold">{tt(lang, "This month", "ဤလ")}</p>
+        <p className="mt-1 font-mono text-xs">Growth NPR = {fmt(growth)} → {pct(data.growth_tier_pct)}</p>
+        <p className="mt-1 font-mono text-xs">Growth payout = {fmt(growth)} × {pct(data.growth_tier_pct)} = <span className="font-bold">{fmt(data.growth_payout)}</span></p>
+        <p className="mt-2 font-mono text-xs">Maintenance Y2 = {fmt(data.maintenance_y2_npr)} × 7.5% = {fmt(roundMmk(data.maintenance_y2_npr * 0.075))}</p>
+        <p className="mt-1 font-mono text-xs">Maintenance Y3+ = {fmt(data.maintenance_y3_npr)} × 5% = {fmt(roundMmk(data.maintenance_y3_npr * 0.05))}</p>
+        <p className="mt-1 font-mono text-xs font-bold">Maintenance payout = {fmt(data.maintenance_payout)}</p>
+      </Card>
+      {data.tier_approval_required && (
+        <Card className="border-warning/40 bg-warning/5 p-3 text-xs text-warning">
+          {tt(lang, "Growth NPR ≥ 80M — payout zeroed until partner_tier_approvals row exists.", "Growth NPR ≥ 80M — partner_tier_approvals row မရှိမချင်း payout = 0")}
+        </Card>
+      )}
+    </>
+  );
+}
+
+function BonusDrill({ data, lang }: { data: any; lang: "en" | "my" }) {
+  return (
+    <>
+      <Card className="bg-muted/30 p-3 text-xs">
+        {tt(lang, "MoM Growth bonus tiers:", "MoM တိုးတက်မှု ဘောနပ်စ်:")}
+        <ul className="ml-4 mt-1 list-disc space-y-0.5">
+          <li>≥ 15% MoM → +2%</li>
+          <li>≥ 25% MoM → +3%</li>
+          <li>≥ 40% MoM → +5%</li>
+        </ul>
+      </Card>
+      <Card className="p-3 text-sm">
+        <p className="font-mono text-xs">MoM growth = {pct(data.mom_growth_pct)}</p>
+        <p className="mt-1 font-mono text-xs">Bonus rate = +{pct(data.growth_bonus_pct)}</p>
+        <p className="mt-2 font-mono text-xs">Bonus = Growth NPR × bonus%</p>
+        <p className="mt-1 font-mono text-xs">= {fmt(data.growth_npr)} × {pct(data.growth_bonus_pct)} = <span className="font-bold">{fmt(data.bonus_payout)}</span></p>
+        {data.bonus_payout === 0 && data.growth_bonus_pct > 0 && (
+          <p className="mt-2 text-xs text-warning">{tt(lang, "Bonus zeroed — quality gate or active-growth requirement failed.", "Bonus = 0 — quality gate / active growth မအောင်")}</p>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function CapDrill({ data, partner, lang, capValue }: { data: any; partner: Partner; lang: "en" | "my"; capValue: number }) {
+  return (
+    <>
+      <Card className="bg-muted/30 p-3 text-xs">
+        {tt(lang,
+          `Total payout cannot exceed ${pct(partner.payout_cap_pct)} of Net Collected NPR.`,
+          `စုစုပေါင်း ပေးချေငွေသည် Net Collected NPR ၏ ${pct(partner.payout_cap_pct)} ထက် မပိုစေရ။`
+        )}
+      </Card>
+      <Card className="p-3 text-sm">
+        <p className="font-mono text-xs">Uncapped subtotal = {fmt(data.total_payout_uncapped)}</p>
+        <p className="mt-1 font-mono text-xs">Cap = {fmt(data.net_collected_attributed_npr)} × {pct(partner.payout_cap_pct)} = {fmt(capValue)}</p>
+        <p className="mt-2 font-mono text-xs font-bold">
+          Final = min(uncapped, cap) = {fmt(data.total_payout)}
+        </p>
+        {data.cap_applied && (
+          <p className="mt-2 text-xs text-warning">
+            {tt(lang, `Cap applied — partner loses ${fmt(data.total_payout_uncapped - data.total_payout)}.`, `ကန့်သတ်ထား — ${fmt(data.total_payout_uncapped - data.total_payout)} လျှော့`)}
+          </p>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function QualityDrill({ data, lang, qgLabels }: { data: any; lang: "en" | "my"; qgLabels: Record<string, { name: string; cmp: string; suffix: string }> }) {
+  const entries = Object.entries(data.quality_gate_breakdown || {});
+  return (
+    <>
+      <Card className={`p-3 text-sm ${data.quality_gate_passed ? "border-emerald-500/40" : "border-warning/40 bg-warning/5"}`}>
+        <p className="font-semibold">{tt(lang, "Status", "အခြေအနေ")}: {data.quality_gate_passed ? tt(lang, "Pass — all 5 metrics meet threshold", "ဖြတ် — ၅ မျိုးလုံး ဖြတ်") : tt(lang, "Fail — growth payout & bonus zeroed", "မဖြတ် — growth payout & bonus = 0")}</p>
+      </Card>
+      <div className="space-y-2">
+        {entries.map(([k, v]: any) => {
+          const m = qgLabels[k] || { name: k, cmp: "?", suffix: "" };
+          return (
+            <Card key={k} className={`flex items-center justify-between p-3 text-sm ${v.pass ? "" : "border-warning/40"}`}>
+              <div>
+                <p className="font-semibold">{m.name}</p>
+                <p className="text-[11px] text-muted-foreground">{tt(lang, "need", "လို")} {m.cmp} {v.threshold}{m.suffix}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`font-mono text-sm ${v.pass ? "text-emerald-600 dark:text-emerald-400" : "text-warning"}`}>{v.value}{m.suffix}</span>
+                {v.pass ? <Check className="h-4 w-4 text-emerald-500" /> : <X className="h-4 w-4 text-warning" />}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+      <Card className="p-3 text-xs text-muted-foreground">
+        {tt(lang, "Active Growth ratio", "Active Growth အချိုး")}: <span className="font-mono">{pct(data.active_growth_ratio)}</span> ({tt(lang, "need", "လို")} ≥25%) — {data.active_growth_requirement_met ? tt(lang, "OK", "OK") : tt(lang, "fails — growth payout zeroed", "မအောင် — growth payout = 0")}
+      </Card>
+    </>
+  );
 }
 
 // ───────────── Attributions tab ─────────────
