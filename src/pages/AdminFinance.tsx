@@ -64,23 +64,25 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
   const approved = allPayments.filter((p) => p.status === "approved");
   const pending = allPayments.filter((p) => p.status === "pending");
 
+  const allEarnings = earnings || [];
+  const pendingPayouts = allEarnings.filter((e) => e.status === "pending" && !e.paid_out_at);
+  const paidOutTotal = allEarnings.filter((e) => e.status === "paid" || e.paid_out_at);
+
   // Gross = full approved collections (what the platform received from users)
   const grossRevenueRows = approved.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
-  // Mentor share = the 85% portion of mentor_session payments owed to mentors
-  const mentorShareRows = approved
-    .filter((p) => p.payment_type === "mentor_session")
-    .map((p) => ({ amount: Number(p.amount) * (1 - PLATFORM_CUT_PERCENT), currency: p.currency }));
-  // Net Platform Revenue = Gross − mentor share (= placement fees + platform's 15% cut)
+  // Mentor Share = total liability to mentors, derived from mentor_earnings ledger
+  // (single source of truth — reconciles with Owed + Paid Out, includes credit-funded bookings)
+  const mentorShareRows = allEarnings.map((e) => ({ amount: Number(e.amount), currency: e.currency }));
+  // Net Platform Revenue = placement fees (100%) + platform's 15% cut of mentor_session payments
   const platformRevenueRows = approved.flatMap((p) => {
     if (p.payment_type === "mentor_session") {
       return [{ amount: Number(p.amount) * PLATFORM_CUT_PERCENT, currency: p.currency }];
     }
-    return [{ amount: Number(p.amount), currency: p.currency }];
+    if (p.payment_type === "placement_fee") {
+      return [{ amount: Number(p.amount), currency: p.currency }];
+    }
+    return [];
   });
-
-  const allEarnings = earnings || [];
-  const pendingPayouts = allEarnings.filter((e) => e.status === "pending" && !e.paid_out_at);
-  const paidOutTotal = allEarnings.filter((e) => e.status === "paid" || e.paid_out_at);
 
   // Filtering
   const paymentCurrencies = useMemo(() => allPayments.map((p) => p.currency || "MMK"), [allPayments]);
