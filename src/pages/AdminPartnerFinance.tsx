@@ -419,6 +419,8 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
 // ───────────── Quality tab ─────────────
 function QualityTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
   const { data, refetch } = usePartnerQualityMetrics(partner.id);
+  const { data: statements } = usePartnerStatements(partner.id);
+  const locked = (statements || []).some((s: any) => s.period_year === year && s.period_month === month && s.status === "finalized");
   const existing = data?.find((d: any) => d.period_year === year && d.period_month === month);
   const [vals, setVals] = useState({
     l1_sla_pct: existing?.l1_sla_pct ?? "",
@@ -452,6 +454,11 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
   return (
     <Card className="space-y-3 p-4">
       <h3 className="text-sm font-semibold">{tt(lang, "Quality metrics", "Quality metrics")} — {year}/{String(month).padStart(2, "0")}</h3>
+      {locked && (
+        <div className="rounded-md border border-warning/40 bg-warning/10 p-2 text-xs">
+          🔒 {tt(lang, "Period finalized — quality metrics locked.", "ဤကာလ အပြီးသတ်ပြီး — Quality metrics ပိတ်ထားသည်။")}
+        </div>
+      )}
       <p className="text-xs text-muted-foreground">
         {tt(lang,
           "Onboarding-within-7d % is computed automatically from attributions (employer profile complete + ≥1 job within 7 days of joining). The four metrics below are admin-entered.",
@@ -459,24 +466,24 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
         )}
       </p>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
-        <NumField label="CSAT (≥4.0)" value={vals.csat_score} onChange={(v) => setVals({ ...vals, csat_score: v })} />
-        <NumField label={tt(lang, "Dispute % (≤1)", "Dispute % (≤၁)")} value={vals.dispute_rate_pct} onChange={(v) => setVals({ ...vals, dispute_rate_pct: v })} />
-        <NumField label={tt(lang, "Fraud % (≤0.5)", "Fraud % (≤၀.၅)")} value={vals.fraud_rate_pct} onChange={(v) => setVals({ ...vals, fraud_rate_pct: v })} />
+        <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} disabled={locked} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
+        <NumField label="CSAT (≥4.0)" value={vals.csat_score} disabled={locked} onChange={(v) => setVals({ ...vals, csat_score: v })} />
+        <NumField label={tt(lang, "Dispute % (≤1)", "Dispute % (≤၁)")} value={vals.dispute_rate_pct} disabled={locked} onChange={(v) => setVals({ ...vals, dispute_rate_pct: v })} />
+        <NumField label={tt(lang, "Fraud % (≤0.5)", "Fraud % (≤၀.၅)")} value={vals.fraud_rate_pct} disabled={locked} onChange={(v) => setVals({ ...vals, fraud_rate_pct: v })} />
       </div>
       <div>
         <Label className="text-xs">{tt(lang, "Notes", "မှတ်ချက်")}</Label>
-        <Input value={vals.notes} onChange={(e) => setVals({ ...vals, notes: e.target.value })} />
+        <Input value={vals.notes} onChange={(e) => setVals({ ...vals, notes: e.target.value })} disabled={locked} />
       </div>
-      <Button onClick={save} disabled={busy}>{tt(lang, "Save metrics", "Metrics သိမ်း")}</Button>
+      <Button onClick={save} disabled={busy || locked}>{tt(lang, "Save metrics", "Metrics သိမ်း")}</Button>
     </Card>
   );
 }
-function NumField({ label, value, onChange }: { label: string; value: any; onChange: (v: string) => void }) {
+function NumField({ label, value, onChange, disabled }: { label: string; value: any; onChange: (v: string) => void; disabled?: boolean }) {
   return (
     <div>
       <Label className="text-xs">{label}</Label>
-      <Input type="number" step="0.1" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
+      <Input type="number" step="0.1" value={value ?? ""} onChange={(e) => onChange(e.target.value)} disabled={disabled} />
     </div>
   );
 }
