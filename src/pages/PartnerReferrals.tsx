@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
  * Employer / Agent / Job Seeker signup. Each redeemed code attributes the
  * new user (and all their future revenue) to the originating partner.
  */
-const PartnerReferrals = () => {
+const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const qc = useQueryClient();
