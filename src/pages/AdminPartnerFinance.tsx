@@ -37,7 +37,7 @@ function nowYangon() {
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
 }
 
-export default function AdminPartnerFinance() {
+export default function AdminPartnerFinance({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const { lang } = useLanguage();
   const { data: partners, isLoading: loadingPartners } = usePartners();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -51,9 +51,9 @@ export default function AdminPartnerFinance() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={tt(lang, "Partner Finance", "Partner ငွေကြေး")} showBack />
-      <div className="mx-auto max-w-6xl space-y-4 px-5 md:px-8">
+    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+      {!hideHeader && <PageHeader title={tt(lang, "Partner Finance", "Partner ငွေကြေး")} showBack />}
+      <div className={hideHeader ? "space-y-4" : "mx-auto max-w-6xl space-y-4 px-5 md:px-8"}>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[200px] flex-1">
             <Label className="text-xs">{tt(lang, "Partner", "Partner")}</Label>

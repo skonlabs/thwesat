@@ -46,7 +46,7 @@ const typeLabels: Record<string, { my: string; en: string; icon: typeof CheckCir
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee", icon: Briefcase },
 };
 
-const AdminPayments = () => {
+const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { data: payments, isLoading } = useAllPaymentRequests();
@@ -174,9 +174,9 @@ const AdminPayments = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ငွေပေးချေမှု စီမံခန့်ခွဲမှု" : "Payment Management"} />
-      <div className="px-5">
+    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+      {!hideHeader && <PageHeader title={lang === "my" ? "ငွေပေးချေမှု စီမံခန့်ခွဲမှု" : "Payment Management"} />}
+      <div className={hideHeader ? "" : "px-5"}>
         {/* Receiving payment accounts editor */}
         <div className="mb-4">
           <PaymentAccountsEditor />
