@@ -72,7 +72,7 @@ const DesktopNav = () => {
   const partner: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
-    { labelMy: "ငွေပေး", labelEn: "Payments", path: "/partner/payments" },
+    { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/partner/finance" },
     { labelMy: "သုံးသူ", labelEn: "Users", path: "/partner/users" },
   ];
 
