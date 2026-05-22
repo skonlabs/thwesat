@@ -10,6 +10,7 @@ import {
   BarChart3,
   CheckCircle2,
   Eye,
+  Tag,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
