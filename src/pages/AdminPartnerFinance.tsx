@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Check, AlertTriangle, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
+import { Plus, Check, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -151,19 +151,6 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
     onboarding_pct:   { name: "Onboarding",  cmp: "≥", suffix: "%" },
   };
   const failingMetrics = Object.entries(data.quality_gate_breakdown || {}).filter(([, v]: any) => !v.pass);
-  const blockers: string[] = [];
-  if (!data.quality_gate_passed) {
-    const failing = failingMetrics.map(([k, v]: any) => {
-      const meta = QG_LABELS[k] || { name: k, cmp: "?", suffix: "" };
-      return `${meta.name} ${v.value}${meta.suffix} (${tt(lang, "need", "လို")} ${meta.cmp}${v.threshold}${meta.suffix})`;
-    });
-    blockers.push(`${tt(lang, "Quality gate failed", "Quality gate မအောင်ပါ")} — ${failing.join(", ") || tt(lang, "missing inputs", "input လို")}.`);
-  }
-  if (!data.active_growth_requirement_met) blockers.push(`${tt(lang, "Active Growth requirement not met", "Active Growth စံ မပြည့်ပါ")} (Growth share = ${pct(data.active_growth_ratio)}, ${tt(lang, "need", "လို")} ≥25%).`);
-  if (data.tier_approval_required) blockers.push(tt(lang,
-    "Growth NPR ≥ 80M Ks — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).",
-    "Growth NPR ≥ 80M Ks — ကိုယ်တိုင် tier ခွင့်ပြုချက် လိုအပ်သည် (partner_tier_approvals row မရှိမချင်း growth payout = 0)။"
-  ));
 
   const net = Number(data.net_collected_attributed_npr || 0);
   const growth = Number(data.growth_npr || 0);
@@ -312,14 +299,6 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Card>
 
-      {blockers.length > 0 && (
-        <Card className="border-warning/40 bg-warning/5 p-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-warning">
-            <AlertTriangle className="h-4 w-4" /> {tt(lang, "Blockers — payout reduced", "ပိတ်ဆို့မှု — ပေးချေငွေ လျှော့")}
-          </div>
-          <ul className="ml-5 list-disc space-y-1 text-sm">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
-        </Card>
-      )}
 
       <div className="flex justify-end">
         <Button
