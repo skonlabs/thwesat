@@ -7,6 +7,7 @@ import { ArrowRight, Coins, Clock, Users, TrendingUp, AlertTriangle } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
 import { PLATFORM_MENTOR_CUT } from "@/lib/partner-finance";
+import { roundMmk } from "@/lib/finance";
 
 /**
  * Shared finance overview used by Admin Finance Hub and (filtered) Partner Finance Hub.
