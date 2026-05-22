@@ -62,6 +62,10 @@ export default function AdminFinanceHub() {
           <TabsContent value="partners">
             <AdminPartnerFinance hideHeader />
           </TabsContent>
+
+          <TabsContent value="settings">
+            <PaymentAccountsEditor />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
