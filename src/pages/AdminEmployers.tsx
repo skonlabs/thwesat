@@ -198,8 +198,8 @@ const AdminEmployers = () => {
                     <Building2 className="h-5 w-5" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || "Unnamed Company"}</h3>
-                    <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.display_name} · {emp.industry || "—"}</p>
+                    <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || emp.profile?.display_name || emp.profile?.email || "Unnamed Company"}</h3>
+                    <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.email || emp.profile?.display_name} · {emp.industry || "—"}</p>
                     <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                       <Briefcase className="h-3 w-3" strokeWidth={1.5} />
                       {jobCountMap.get(emp.id) || 0} {lang === "my" ? "စုစုပေါင်းအလုပ်" : "total jobs"}
