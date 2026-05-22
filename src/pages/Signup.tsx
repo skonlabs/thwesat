@@ -73,14 +73,21 @@ const Signup = () => {
       return;
     }
 
-    // Pre-validate referral code if provided (must exist AND be unused)
+    // Pre-validate referral code if provided. Try partner code first (employer/agent/seeker
+    // revenue attribution), then fall back to the user invite-credit code.
+    let isPartnerCode = false;
     if (referralCode.trim()) {
-      const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
-      if (!refId) {
-        const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ သို့မဟုတ် အသုံးပြုပြီးသား ဖြစ်နေပါသည်" : "Invalid or already-used referral code";
-        setReferralError(msg);
-        toast({ title: msg, variant: "destructive" });
-        return;
+      const { data: partnerId } = await supabase.rpc("lookup_partner_referral_code", { _code: referralCode.trim() });
+      if (partnerId) {
+        isPartnerCode = true;
+      } else {
+        const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
+        if (!refId) {
+          const msg = lang === "my" ? "ညွှန်းဆိုကုဒ် မမှန်ကန်ပါ သို့မဟုတ် အသုံးပြုပြီးသား ဖြစ်နေပါသည်" : "Invalid or already-used referral code";
+          setReferralError(msg);
+          toast({ title: msg, variant: "destructive" });
+          return;
+        }
       }
       setReferralError(null);
     }
