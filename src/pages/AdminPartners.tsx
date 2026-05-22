@@ -84,7 +84,11 @@ const AdminPartners = () => {
   });
 
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["admin-partners"] });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["admin-partners"] });
+    qc.invalidateQueries({ queryKey: ["admin-partner-role-users"] });
+  };
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
