@@ -226,6 +226,19 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       date: s.paid_at || s.created_at,
     });
 
+    const spendToRow = (t: SpendTxn) => {
+      const action = t.note || t.ref_type || "spend";
+      return {
+        id: t.id,
+        title: action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        subtitle: `${shortRef(t.user_id)} · ${t.ref_type || ""}${t.ref_id ? " · " + shortRef(t.ref_id) : ""}`,
+        amount: Math.abs(Number(t.credits) || 0),
+        currency: "CREDITS",
+        status: "approved",
+        date: t.created_at,
+      };
+    };
+
     switch (selected) {
       case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
@@ -235,10 +248,15 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
       case "out.partner_owed": return { rows: partnerOwed.map(partnerToRow), loading: loadingPartner };
+      case "spend.jobseeker": return { rows: jsSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.employer": return { rows: empSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner]);
+  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner, loadingSpends]);
 
-  const selectedRow = [...inRows, ...outRows].find((r) => r.key === selected)!;
+  const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
+  const selectedIsSpend = selected.startsWith("spend.");
 
   return (
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
