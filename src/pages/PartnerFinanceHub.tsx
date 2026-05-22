@@ -89,6 +89,10 @@ export default function PartnerFinanceHub() {
               <FinanceOverview attributedUserIds={attributedIds} days={30} hidePlatformOnly />
             </TabsContent>
 
+            <TabsContent value="revenue">
+              <AdminFinance hideHeader attributedUserIds={attributedIds} partnerId={partnerId} />
+            </TabsContent>
+
             <TabsContent value="statements">
               <Card className="divide-y">
                 {(statements || []).length === 0 ? (
