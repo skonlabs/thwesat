@@ -165,15 +165,21 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
               {my ? "သုံးပြီးကုဒ်များ" : "Used codes"}
             </h3>
             <div className="grid gap-2">
-              {used.map((c) => (
-                <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                  <code className="flex-1 font-mono text-sm tracking-wider text-muted-foreground line-through">{c.code}</code>
-                  <span className="text-[11px] text-muted-foreground">
-                    {c.used_at ? new Date(c.used_at).toLocaleDateString() : ""}
-                  </span>
-                </div>
-              ))}
+              {used.map((c) => {
+                const prof = c.used_by_profile;
+                const who = prof?.full_name || prof?.email || (c.used_by ? `${String(c.used_by).slice(0, 8)}…` : (my ? "မသိ" : "Unknown"));
+                const when = c.used_at ? new Date(c.used_at).toLocaleString(my ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
+                return (
+                  <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                    <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <code className="font-mono text-sm tracking-wider text-muted-foreground line-through">{c.code}</code>
+                    <div className="ml-auto flex flex-col items-end text-right">
+                      <span className="text-[12px] font-medium text-foreground">{who}</span>
+                      {when && <span className="text-[10px] text-muted-foreground">{when}</span>}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
