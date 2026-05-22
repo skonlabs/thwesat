@@ -314,19 +314,21 @@ function StatementTab({ partner, year, month, lang, readOnly = false }: { partne
       </Card>
 
 
-      <div className="flex justify-end">
-        <Button
-          disabled={finalize.isPending}
-          onClick={async () => {
-            try {
-              await finalize.mutateAsync({ partner_id: partner.id, year, month, preview: data });
-              toast.success(tt(lang, "Statement finalized", "ထုတ်ပြန်ချက် အပြီးသတ်ပြီး"));
-            } catch (e: any) { toast.error(e.message || tt(lang, "Failed", "မအောင်မြင်ပါ")); }
-          }}
-        >
-          <Check className="mr-2 h-4 w-4" /> {tt(lang, "Finalize statement", "ထုတ်ပြန်ချက် အပြီးသတ်ရန်")}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-end">
+          <Button
+            disabled={finalize.isPending}
+            onClick={async () => {
+              try {
+                await finalize.mutateAsync({ partner_id: partner.id, year, month, preview: data });
+                toast.success(tt(lang, "Statement finalized", "ထုတ်ပြန်ချက် အပြီးသတ်ပြီး"));
+              } catch (e: any) { toast.error(e.message || tt(lang, "Failed", "မအောင်မြင်ပါ")); }
+            }}
+          >
+            <Check className="mr-2 h-4 w-4" /> {tt(lang, "Finalize statement", "ထုတ်ပြန်ချက် အပြီးသတ်ရန်")}
+          </Button>
+        </div>
+      )}
 
       {/* Drill-down sheets */}
       <DrillSheet open={drill !== null} onClose={() => setDrill(null)} title={drillTitle(drill, lang)}>
