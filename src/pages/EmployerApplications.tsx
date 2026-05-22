@@ -980,7 +980,7 @@ const EmployerApplications = () => {
               </div>
               {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
                 const fee = calculatePlacementFee(parseInt(placementSalary));
-                const commission = Math.round(fee * 0.10);
+                const commission = roundMmk(fee * 0.10);
                 const net = fee - commission;
                 const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (
