@@ -15,7 +15,7 @@ type Tab = "revenue" | "payouts";
 // TODO: fetch this from a platform_config table in future
 const PLATFORM_CUT_PERCENT = 0.15; // 15% platform fee — update if policy changes
 
-const AdminFinance = () => {
+const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("revenue");
