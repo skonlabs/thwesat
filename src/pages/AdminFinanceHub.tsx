@@ -6,6 +6,7 @@ import FinanceOverview from "@/components/finance/FinanceOverview";
 import AdminFinance from "./AdminFinance";
 import AdminPayments from "./AdminPayments";
 import AdminPartnerFinance from "./AdminPartnerFinance";
+import PaymentAccountsEditor from "@/components/admin/PaymentAccountsEditor";
 
 /**
  * Unified Admin Finance Hub. Consolidates Platform Revenue, Mentor Payouts,
