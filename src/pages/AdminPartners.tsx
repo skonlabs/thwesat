@@ -215,10 +215,104 @@ const AdminPartners = () => {
             })}
           </div>
         )}
+
+        <ReferralCodeUsage lang={lang} />
       </div>
     </div>
   );
 };
+
+// ───────────── Referral code usage ─────────────
+function ReferralCodeUsage({ lang }: { lang: "en" | "my" }) {
+  const [filter, setFilter] = useState<"all" | "used" | "unused">("used");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-partner-referral-usage", filter],
+    queryFn: async () => {
+      let q = (supabase as any)
+        .from("partner_referral_codes")
+        .select("id, code, status, used_by, used_at, created_at, partner_id")
+        .order("used_at", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (filter === "used") q = q.eq("status", "used");
+      if (filter === "unused") q = q.neq("status", "used");
+      const { data, error } = await q;
+      if (error) throw error;
+      const rows = (data ?? []) as Array<{
+        id: string; code: string; status: string; used_by: string | null;
+        used_at: string | null; created_at: string; partner_id: string;
+      }>;
+      const partnerIds = Array.from(new Set(rows.map((r) => r.partner_id)));
+      const userIds = Array.from(new Set(rows.map((r) => r.used_by).filter(Boolean) as string[]));
+      const [{ data: partners }, profilesRes] = await Promise.all([
+        (supabase as any).from("partners").select("id, name, code").in("id", partnerIds),
+        userIds.length
+          ? supabase.from("profiles").select("id, display_name, email, primary_role").in("id", userIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const partnerMap = new Map((partners ?? []).map((p: any) => [p.id, p]));
+      const profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, p]));
+      return rows.map((r) => ({
+        ...r,
+        partner: partnerMap.get(r.partner_id) as { name: string; code: string } | undefined,
+        profile: r.used_by ? (profileMap.get(r.used_by) as any) : null,
+      }));
+    },
+  });
+
+  return (
+    <Card className="p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">{tt(lang, "Referral code usage", "Referral code အသုံးပြုမှု")}</h3>
+        <div className="flex gap-1">
+          {(["used", "unused", "all"] as const).map((k) => (
+            <Button
+              key={k}
+              size="sm"
+              variant={filter === k ? "default" : "outline"}
+              onClick={() => setFilter(k)}
+              className="h-7 px-2 text-[11px]"
+            >
+              {tt(lang, k === "used" ? "Redeemed" : k === "unused" ? "Unused" : "All", k === "used" ? "သုံးပြီး" : k === "unused" ? "မသုံးရသေး" : "အားလုံး")}
+            </Button>
+          ))}
+        </div>
+      </div>
+      {isLoading ? (
+        <p className="text-xs text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</p>
+      ) : !data || data.length === 0 ? (
+        <p className="text-xs text-muted-foreground">{tt(lang, "No codes found.", "Code မရှိပါ။")}</p>
+      ) : (
+        <div className="divide-y divide-border">
+          {data.map((r) => (
+            <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-xs">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="font-mono text-[10px]">{r.code}</Badge>
+                  <span className="text-muted-foreground">→</span>
+                  <span className="font-medium">{r.partner?.name ?? "—"}</span>
+                  {r.partner?.code && <Badge variant="secondary" className="font-mono text-[10px]">{r.partner.code}</Badge>}
+                </div>
+                {r.profile ? (
+                  <div className="mt-0.5 text-muted-foreground">
+                    {tt(lang, "Used by", "သုံးသူ")}: <span className="text-foreground">{r.profile.display_name ?? "—"}</span>{" "}
+                    <span>({r.profile.email ?? r.used_by?.slice(0, 8)})</span>
+                    {r.profile.primary_role && <Badge variant="outline" className="ml-1 text-[10px]">{r.profile.primary_role}</Badge>}
+                  </div>
+                ) : (
+                  <div className="mt-0.5 text-muted-foreground">{tt(lang, "Not redeemed yet", "မသုံးရသေး")}</div>
+                )}
+              </div>
+              <div className="text-right text-[11px] text-muted-foreground">
+                {r.used_at ? new Date(r.used_at).toLocaleString() : new Date(r.created_at).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
 
 function NewPartnerSheet({
   lang,
