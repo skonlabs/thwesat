@@ -312,14 +312,6 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Card>
 
-      {blockers.length > 0 && (
-        <Card className="border-warning/40 bg-warning/5 p-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-warning">
-            <AlertTriangle className="h-4 w-4" /> {tt(lang, "Blockers — payout reduced", "ပိတ်ဆို့မှု — ပေးချေငွေ လျှော့")}
-          </div>
-          <ul className="ml-5 list-disc space-y-1 text-sm">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
-        </Card>
-      )}
 
       <div className="flex justify-end">
         <Button
