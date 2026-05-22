@@ -144,7 +144,7 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
     return Array.from(m.values()).sort((a, b) => b.total - a.total).slice(0, 6);
   }, [partnerStats, hidePlatformOnly]);
 
-  const fmt = (n: number) => `${Math.round(n).toLocaleString()} Ks`;
+  const fmt = (n: number) => `${roundMmk(n).toLocaleString()} Ks`;
 
   return (
     <div className="space-y-5">
