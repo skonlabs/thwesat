@@ -11,9 +11,10 @@ import { useLanguage } from "@/hooks/use-language";
 import FinanceOverview from "@/components/finance/FinanceOverview";
 import PartnerReferrals from "./PartnerReferrals";
 import AdminFinance from "./AdminFinance";
+import AdminPartnerFinance from "./AdminPartnerFinance";
 import { usePartners, usePartnerStatements, usePartnerAttributions, usePartnerStatementPreview } from "@/hooks/use-partner-finance";
 
-const TABS = ["overview", "revenue", "statements", "attributions", "referrals"] as const;
+const TABS = ["overview", "revenue", "revshare", "statements", "attributions", "referrals"] as const;
 type TabKey = typeof TABS[number];
 
 const fmt = (n: number) => `${(Math.round(Number(n || 0) / 100) * 100).toLocaleString()} Ks`;
