@@ -54,7 +54,7 @@ const TopupSheet = ({ open, onOpenChange, initialPackage, packages }: Props) => 
   // single global receiving account is loaded above as `acc`
 
   // Resolve effective top-up amount/credits depending on package vs custom
-  const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 1000) * 1000);
+  const customMmk = Math.max(0, Math.round((Number(customAmount) || 0) / 100) * 100);
   const effective = isCustom
     ? { mmk: customMmk, credits: customMmk, label: lang === "my" ? "စိတ်ကြိုက်ပမာဏ" : "Custom amount" }
     : pkg
