@@ -220,11 +220,25 @@ const AdminPartners = () => {
   );
 };
 
-function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => void }) {
+function NewPartnerSheet({
+  lang,
+  onDone,
+  presetUserId,
+  presetEmail,
+  presetName,
+  triggerLabel,
+}: {
+  lang: "en" | "my";
+  onDone: () => void;
+  presetUserId?: string;
+  presetEmail?: string;
+  presetName?: string;
+  triggerLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(presetName ?? "");
   const [code, setCode] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
+  const [contactEmail, setContactEmail] = useState(presetEmail ?? "");
   const [start, setStart] = useState(new Date().toISOString().slice(0, 10));
   const [busy, setBusy] = useState(false);
 
@@ -240,6 +254,7 @@ function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => vo
         code,
         contact_email: contactEmail || null,
         contract_start_date: start,
+        user_id: presetUserId ?? null,
       });
       if (error) throw error;
       setOpen(false);
@@ -257,10 +272,11 @@ function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => vo
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-1 h-4 w-4" /> {tt(lang, "New partner", "Partner အသစ်")}
+        <Button size="sm" variant={presetUserId ? "outline" : "default"}>
+          <Plus className="mr-1 h-4 w-4" /> {triggerLabel ?? tt(lang, "New partner", "Partner အသစ်")}
         </Button>
       </SheetTrigger>
+
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{tt(lang, "New partner", "Partner အသစ်")}</SheetTitle>
