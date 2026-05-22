@@ -46,7 +46,7 @@ const typeLabels: Record<string, { my: string; en: string; icon: typeof CheckCir
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee", icon: Briefcase },
 };
 
-const AdminPayments = () => {
+const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
   const { toast } = useToast();
   const { data: payments, isLoading } = useAllPaymentRequests();
