@@ -27,7 +27,7 @@ import {
   type Partner,
 } from "@/hooks/use-partner-finance";
 
-const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} Ks`;
+const fmt = (n: number) => `${roundMmk(n).toLocaleString()} Ks`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
 // Bilingual string picker. NPR/SLA/CSAT/Quality Gate stay English even in Burmese (industry terms).
