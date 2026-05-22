@@ -198,8 +198,8 @@ const AdminEmployers = () => {
                     <Building2 className="h-5 w-5" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || "Unnamed Company"}</h3>
-                    <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.display_name} · {emp.industry || "—"}</p>
+                    <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || emp.profile?.display_name || emp.profile?.email || "Unnamed Company"}</h3>
+                    <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.email || emp.profile?.display_name} · {emp.industry || "—"}</p>
                     <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                       <Briefcase className="h-3 w-3" strokeWidth={1.5} />
                       {jobCountMap.get(emp.id) || 0} {lang === "my" ? "စုစုပေါင်းအလုပ်" : "total jobs"}
@@ -227,7 +227,7 @@ const AdminEmployers = () => {
                   <Building2 className="h-7 w-7" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground">{selected.company_name || "Unnamed"}</h2>
+                  <h2 className="text-lg font-bold text-foreground">{selected.company_name || selected.profile?.display_name || selected.profile?.email || "Unnamed"}</h2>
                   <p className="text-xs text-muted-foreground">{selected.profile?.email}</p>
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${(statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).color}`}>
                     {lang === "my" ? (statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).label.my : (statusConfig[(selected.verification_status || "pending")] || statusConfig.pending).label.en}
