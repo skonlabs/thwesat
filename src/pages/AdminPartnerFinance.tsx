@@ -312,7 +312,9 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
 // ───────────── Payments & Overrides tab ─────────────
 function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
   const { data, isLoading } = usePartnerPeriodPayments(partner, year, month);
+  const { data: statements } = usePartnerStatements(partner.id);
   const update = useUpdatePaymentOverrides();
+  const locked = (statements || []).some((s: any) => s.period_year === year && s.period_month === month && s.status === "finalized");
 
   if (isLoading) return <Card className="p-4 text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</Card>;
   if (!data || data.length === 0) {
@@ -321,6 +323,13 @@ function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: n
 
   return (
     <div className="space-y-3">
+      {locked && (
+        <Card className="border-warning/40 bg-warning/10 p-3 text-xs">
+          🔒 {tt(lang,
+            "This period is finalized. Overrides are locked by the database; saves will fail with period_locked.",
+            "ဤကာလကို အပြီးသတ်ပြီးပါပြီ။ Override ပြင်ဆင်မှု ပိတ်ထားသည် (period_locked)။")}
+        </Card>
+      )}
       <Card className="p-3 text-xs text-muted-foreground">
         {tt(lang,
           "Edit per-payment third-party payout (e.g. agent/recruiter cut deducted before NPR), an explicit NPR override, or the revenue classification (new / expansion / reactivation). Changes recompute the statement preview live.",
@@ -329,14 +338,14 @@ function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: n
       </Card>
       <Card className="divide-y">
         {data.map((p: any) => (
-          <PaymentRow key={p.id} p={p} lang={lang} onSave={(patch) => update.mutateAsync({ id: p.id, ...patch })} />
+          <PaymentRow key={p.id} p={p} lang={lang} locked={locked} onSave={(patch) => update.mutateAsync({ id: p.id, ...patch })} />
         ))}
       </Card>
     </div>
   );
 }
 
-function PaymentRow({ p, onSave, lang }: { p: any; onSave: (patch: any) => Promise<void>; lang: "en" | "my" }) {
+function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) => Promise<void>; lang: "en" | "my"; locked?: boolean }) {
   const [tpp, setTpp] = useState<string>(p.third_party_payout != null ? String(p.third_party_payout) : "");
   const [npr, setNpr] = useState<string>(p.npr_amount != null ? String(p.npr_amount) : "");
   const [cls, setCls] = useState<string>(p.revenue_classification || "new");
@@ -382,15 +391,15 @@ function PaymentRow({ p, onSave, lang }: { p: any; onSave: (patch: any) => Promi
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <div>
           <Label className="text-[10px]">{tt(lang, "3rd-party payout", "3rd-party payout")}</Label>
-          <Input type="number" value={tpp} onChange={(e) => setTpp(e.target.value)} />
+          <Input type="number" value={tpp} onChange={(e) => setTpp(e.target.value)} disabled={locked} />
         </div>
         <div>
           <Label className="text-[10px]">{tt(lang, "NPR override", "NPR override")}</Label>
-          <Input type="number" value={npr} onChange={(e) => setNpr(e.target.value)} placeholder={tt(lang, "auto", "အလို")} />
+          <Input type="number" value={npr} onChange={(e) => setNpr(e.target.value)} placeholder={tt(lang, "auto", "အလို")} disabled={locked} />
         </div>
         <div>
           <Label className="text-[10px]">{tt(lang, "Classification", "ခွဲခြားမှု")}</Label>
-          <Select value={cls} onValueChange={setCls}>
+          <Select value={cls} onValueChange={setCls} disabled={locked}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="new">{tt(lang, "New", "အသစ်")}</SelectItem>
@@ -400,7 +409,7 @@ function PaymentRow({ p, onSave, lang }: { p: any; onSave: (patch: any) => Promi
           </Select>
         </div>
         <div className="flex items-end">
-          <Button size="sm" disabled={!dirty || busy} onClick={save} className="w-full">{tt(lang, "Save", "သိမ်း")}</Button>
+          <Button size="sm" disabled={!dirty || busy || locked} onClick={save} className="w-full">{tt(lang, "Save", "သိမ်း")}</Button>
         </div>
       </div>
     </div>
@@ -410,6 +419,8 @@ function PaymentRow({ p, onSave, lang }: { p: any; onSave: (patch: any) => Promi
 // ───────────── Quality tab ─────────────
 function QualityTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
   const { data, refetch } = usePartnerQualityMetrics(partner.id);
+  const { data: statements } = usePartnerStatements(partner.id);
+  const locked = (statements || []).some((s: any) => s.period_year === year && s.period_month === month && s.status === "finalized");
   const existing = data?.find((d: any) => d.period_year === year && d.period_month === month);
   const [vals, setVals] = useState({
     l1_sla_pct: existing?.l1_sla_pct ?? "",
@@ -443,6 +454,11 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
   return (
     <Card className="space-y-3 p-4">
       <h3 className="text-sm font-semibold">{tt(lang, "Quality metrics", "Quality metrics")} — {year}/{String(month).padStart(2, "0")}</h3>
+      {locked && (
+        <div className="rounded-md border border-warning/40 bg-warning/10 p-2 text-xs">
+          🔒 {tt(lang, "Period finalized — quality metrics locked.", "ဤကာလ အပြီးသတ်ပြီး — Quality metrics ပိတ်ထားသည်။")}
+        </div>
+      )}
       <p className="text-xs text-muted-foreground">
         {tt(lang,
           "Onboarding-within-7d % is computed automatically from attributions (employer profile complete + ≥1 job within 7 days of joining). The four metrics below are admin-entered.",
@@ -450,24 +466,24 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
         )}
       </p>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
-        <NumField label="CSAT (≥4.0)" value={vals.csat_score} onChange={(v) => setVals({ ...vals, csat_score: v })} />
-        <NumField label={tt(lang, "Dispute % (≤1)", "Dispute % (≤၁)")} value={vals.dispute_rate_pct} onChange={(v) => setVals({ ...vals, dispute_rate_pct: v })} />
-        <NumField label={tt(lang, "Fraud % (≤0.5)", "Fraud % (≤၀.၅)")} value={vals.fraud_rate_pct} onChange={(v) => setVals({ ...vals, fraud_rate_pct: v })} />
+        <NumField label="L1 SLA % (≥90)" value={vals.l1_sla_pct} disabled={locked} onChange={(v) => setVals({ ...vals, l1_sla_pct: v })} />
+        <NumField label="CSAT (≥4.0)" value={vals.csat_score} disabled={locked} onChange={(v) => setVals({ ...vals, csat_score: v })} />
+        <NumField label={tt(lang, "Dispute % (≤1)", "Dispute % (≤၁)")} value={vals.dispute_rate_pct} disabled={locked} onChange={(v) => setVals({ ...vals, dispute_rate_pct: v })} />
+        <NumField label={tt(lang, "Fraud % (≤0.5)", "Fraud % (≤၀.၅)")} value={vals.fraud_rate_pct} disabled={locked} onChange={(v) => setVals({ ...vals, fraud_rate_pct: v })} />
       </div>
       <div>
         <Label className="text-xs">{tt(lang, "Notes", "မှတ်ချက်")}</Label>
-        <Input value={vals.notes} onChange={(e) => setVals({ ...vals, notes: e.target.value })} />
+        <Input value={vals.notes} onChange={(e) => setVals({ ...vals, notes: e.target.value })} disabled={locked} />
       </div>
-      <Button onClick={save} disabled={busy}>{tt(lang, "Save metrics", "Metrics သိမ်း")}</Button>
+      <Button onClick={save} disabled={busy || locked}>{tt(lang, "Save metrics", "Metrics သိမ်း")}</Button>
     </Card>
   );
 }
-function NumField({ label, value, onChange }: { label: string; value: any; onChange: (v: string) => void }) {
+function NumField({ label, value, onChange, disabled }: { label: string; value: any; onChange: (v: string) => void; disabled?: boolean }) {
   return (
     <div>
       <Label className="text-xs">{label}</Label>
-      <Input type="number" step="0.1" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
+      <Input type="number" step="0.1" value={value ?? ""} onChange={(e) => onChange(e.target.value)} disabled={disabled} />
     </div>
   );
 }

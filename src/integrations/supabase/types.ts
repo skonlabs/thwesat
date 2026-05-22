@@ -1527,13 +1527,16 @@ export type Database = {
           gross_attributed_npr: number
           growth_bonus_pct: number
           growth_npr: number
+          growth_npr_gross: number | null
           growth_payout: number
           growth_tier_pct: number
           id: string
           maintenance_payout: number
           maintenance_y2_npr: number
+          maintenance_y2_npr_gross: number | null
           maintenance_y2_pct: number
           maintenance_y3_npr: number
+          maintenance_y3_npr_gross: number | null
           maintenance_y3_pct: number
           mom_growth_pct: number | null
           net_collected_attributed_npr: number
@@ -1563,13 +1566,16 @@ export type Database = {
           gross_attributed_npr?: number
           growth_bonus_pct?: number
           growth_npr?: number
+          growth_npr_gross?: number | null
           growth_payout?: number
           growth_tier_pct?: number
           id?: string
           maintenance_payout?: number
           maintenance_y2_npr?: number
+          maintenance_y2_npr_gross?: number | null
           maintenance_y2_pct?: number
           maintenance_y3_npr?: number
+          maintenance_y3_npr_gross?: number | null
           maintenance_y3_pct?: number
           mom_growth_pct?: number | null
           net_collected_attributed_npr?: number
@@ -1599,13 +1605,16 @@ export type Database = {
           gross_attributed_npr?: number
           growth_bonus_pct?: number
           growth_npr?: number
+          growth_npr_gross?: number | null
           growth_payout?: number
           growth_tier_pct?: number
           id?: string
           maintenance_payout?: number
           maintenance_y2_npr?: number
+          maintenance_y2_npr_gross?: number | null
           maintenance_y2_pct?: number
           maintenance_y3_npr?: number
+          maintenance_y3_npr_gross?: number | null
           maintenance_y3_pct?: number
           mom_growth_pct?: number | null
           net_collected_attributed_npr?: number
@@ -1721,6 +1730,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_statement_revisions: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          id: string
+          partner_id: string
+          payment_ids: string[]
+          period_month: number
+          period_year: number
+          reversal_ids: string[]
+          revision_no: number
+          snapshot: Json
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          id?: string
+          partner_id: string
+          payment_ids?: string[]
+          period_month: number
+          period_year: number
+          reversal_ids?: string[]
+          revision_no: number
+          snapshot: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          partner_id?: string
+          payment_ids?: string[]
+          period_month?: number
+          period_year?: number
+          reversal_ids?: string[]
+          revision_no?: number
+          snapshot?: Json
+        }
+        Relationships: []
       }
       partner_tier_approvals: {
         Row: {
@@ -2717,6 +2768,15 @@ export type Database = {
         Args: { _month: number; _partner_id: string; _year: number }
         Returns: Json
       }
+      admin_mark_partner_statement_paid: {
+        Args: {
+          _month: number
+          _partner_id: string
+          _payout_reference: string
+          _year: number
+        }
+        Returns: Json
+      }
       admin_set_payment_revenue_overrides: {
         Args: {
           _npr_amount: number
@@ -2775,6 +2835,10 @@ export type Database = {
       is_admin_or_partner: { Args: { _user_id: string }; Returns: boolean }
       is_employer_or_agent: { Args: { _user_id: string }; Returns: boolean }
       is_partner: { Args: { _user_id: string }; Returns: boolean }
+      is_partner_period_finalized: {
+        Args: { _partner_id: string; _ts: string }
+        Returns: boolean
+      }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       is_user_onboarded: { Args: { _user_id: string }; Returns: string }
       lookup_partner_referral_code: { Args: { _code: string }; Returns: string }
