@@ -37,21 +37,38 @@ type SpendTxn = {
   primary_role: string | null;
 };
 
-const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
+const AdminFinance = ({
+  hideHeader = false,
+  attributedUserIds = null,
+  partnerId = null,
+}: {
+  hideHeader?: boolean;
+  /** When set, scopes ledger queries to this set of user ids (partner view). */
+  attributedUserIds?: Set<string> | null;
+  /** When set, scopes partner statements to this partner (partner view). */
+  partnerId?: string | null;
+} = {}) => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
+  const isPartnerScope = !!attributedUserIds;
+  const scopedIds = attributedUserIds ? Array.from(attributedUserIds) : null;
+  const scopeKey = scopedIds ? [...scopedIds].sort().join(",") : "all";
   const [selected, setSelected] = useState<RowKey>("in.topups");
 
   const { data: payments, isLoading: loadingPayments } = useQuery({
-    queryKey: ["admin-finance-payments"],
+    queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
-      const { data } = await supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      if (isPartnerScope && scopedIds!.length === 0) return [];
+      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      if (isPartnerScope) q = q.in("user_id", scopedIds!);
+      const { data } = await q;
       return data || [];
     },
   });
 
   const { data: earnings, isLoading: loadingEarnings } = useQuery({
     queryKey: ["admin-finance-earnings"],
+    enabled: !isPartnerScope,
     queryFn: async () => {
       const { data } = await supabase.from("mentor_earnings").select("*").order("created_at", { ascending: false }).limit(1000);
       return data || [];
@@ -59,9 +76,10 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
   });
 
   const { data: topups, isLoading: loadingTopups } = useQuery({
-    queryKey: ["admin-finance-topups"],
+    queryKey: ["admin-finance-topups", scopeKey],
     queryFn: async () => {
-      const { data } = await supabase
+      if (isPartnerScope && scopedIds!.length === 0) return [];
+      let q = supabase
         .from("wallet_transactions")
         .select("*")
         .eq("kind", "topup")
@@ -69,28 +87,35 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
         .eq("ref_type", "topup_request")
         .order("created_at", { ascending: false })
         .limit(1000);
+      if (isPartnerScope) q = q.in("user_id", scopedIds!);
+      const { data } = await q;
       return data || [];
     },
   });
 
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
-    queryKey: ["admin-finance-partner-statements"],
+    queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
-      const { data } = await supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(500);
+      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(500);
+      if (partnerId) q = q.eq("partner_id", partnerId);
+      const { data } = await q;
       return data || [];
     },
   });
 
   const { data: spends, isLoading: loadingSpends } = useQuery<SpendTxn[]>({
-    queryKey: ["admin-finance-spends"],
+    queryKey: ["admin-finance-spends", scopeKey],
     queryFn: async () => {
-      const { data: txns } = await supabase
+      if (isPartnerScope && scopedIds!.length === 0) return [];
+      let q = supabase
         .from("wallet_transactions")
         .select("id,user_id,credits,note,ref_type,ref_id,created_at,kind")
         .lt("credits", 0)
         .eq("status", "completed")
         .order("created_at", { ascending: false })
         .limit(1000);
+      if (isPartnerScope) q = q.in("user_id", scopedIds!);
+      const { data: txns } = await q;
       const list = (txns || []).filter((t: any) => t.kind === "spend" || t.kind === "escrow_hold");
       const userIds = Array.from(new Set(list.map((t: any) => t.user_id)));
       if (userIds.length === 0) return [];
@@ -148,10 +173,12 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification", my: "အတည်ပြုရန်" }, amount: pendingTotal, tone: "warn" },
   ];
   const outRows: Row[] = [
-    { key: "out.mentor_paid", label: { en: "Mentor Payouts (Paid)", my: "Mentor ပေးချေပြီး" }, sub: { en: "Cash sent to mentors", my: "ပေးချေပြီး" }, amount: mentorPaidTotal },
-    { key: "out.mentor_owed", label: { en: "Mentor Payouts (Owed)", my: "Mentor ပေးရန်" }, sub: { en: "Liability — not yet paid", my: "မပေးရသေး" }, amount: mentorOwedTotal, tone: "warn" },
-    { key: "out.partner_paid", label: { en: "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
-    { key: "out.partner_owed", label: { en: "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
+    ...(isPartnerScope ? [] : [
+      { key: "out.mentor_paid" as RowKey, label: { en: "Mentor Payouts (Paid)", my: "Mentor ပေးချေပြီး" }, sub: { en: "Cash sent to mentors", my: "ပေးချေပြီး" }, amount: mentorPaidTotal },
+      { key: "out.mentor_owed" as RowKey, label: { en: "Mentor Payouts (Owed)", my: "Mentor ပေးရန်" }, sub: { en: "Liability — not yet paid", my: "မပေးရသေး" }, amount: mentorOwedTotal, tone: "warn" as const },
+    ]),
+    { key: "out.partner_paid", label: { en: isPartnerScope ? "Your Rev-share (Paid)" : "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
+    { key: "out.partner_owed", label: { en: isPartnerScope ? "Your Rev-share (Owed)" : "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
 
   // ===== Credits spent by role (internal — not cash movement) =====

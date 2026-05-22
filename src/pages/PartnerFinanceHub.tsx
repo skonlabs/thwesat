@@ -10,9 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
 import FinanceOverview from "@/components/finance/FinanceOverview";
 import PartnerReferrals from "./PartnerReferrals";
+import AdminFinance from "./AdminFinance";
 import { usePartners, usePartnerStatements, usePartnerAttributions, usePartnerStatementPreview } from "@/hooks/use-partner-finance";
 
-const TABS = ["overview", "statements", "attributions", "referrals"] as const;
+const TABS = ["overview", "revenue", "statements", "attributions", "referrals"] as const;
 type TabKey = typeof TABS[number];
 
 const fmt = (n: number) => `${(Math.round(Number(n || 0) / 100) * 100).toLocaleString()} Ks`;
@@ -53,6 +54,7 @@ export default function PartnerFinanceHub() {
 
   const labels: Record<TabKey, { en: string; my: string }> = {
     overview: { en: "Overview", my: "ခြုံငုံ" },
+    revenue: { en: "Revenue & Spend", my: "ဝင်ငွေ & သုံးစွဲ" },
     statements: { en: "Statements", my: "ထုတ်ပြန်ချက်" },
     attributions: { en: "Attributed Users", my: "Attribution သုံးစွဲသူ" },
     referrals: { en: "Referral Codes", my: "ညွှန်းကုဒ်" },
@@ -85,6 +87,10 @@ export default function PartnerFinanceHub() {
                 </div>
               )}
               <FinanceOverview attributedUserIds={attributedIds} days={30} hidePlatformOnly />
+            </TabsContent>
+
+            <TabsContent value="revenue">
+              <AdminFinance hideHeader attributedUserIds={attributedIds} partnerId={partnerId} />
             </TabsContent>
 
             <TabsContent value="statements">
