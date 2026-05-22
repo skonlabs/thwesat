@@ -13,7 +13,7 @@ import PaymentAccountsEditor from "@/components/admin/PaymentAccountsEditor";
  * Payment Queue, and Partner Revenue-Share behind one polished tab interface.
  * Each tab embeds the existing detail page so source-of-truth numbers stay 1:1.
  */
-const TABS = ["overview", "revenue", "queue", "partners"] as const;
+const TABS = ["overview", "revenue", "queue", "partners", "settings"] as const;
 type TabKey = typeof TABS[number];
 
 export default function AdminFinanceHub() {
