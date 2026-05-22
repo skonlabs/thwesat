@@ -391,15 +391,15 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <div>
           <Label className="text-[10px]">{tt(lang, "3rd-party payout", "3rd-party payout")}</Label>
-          <Input type="number" value={tpp} onChange={(e) => setTpp(e.target.value)} />
+          <Input type="number" value={tpp} onChange={(e) => setTpp(e.target.value)} disabled={locked} />
         </div>
         <div>
           <Label className="text-[10px]">{tt(lang, "NPR override", "NPR override")}</Label>
-          <Input type="number" value={npr} onChange={(e) => setNpr(e.target.value)} placeholder={tt(lang, "auto", "အလို")} />
+          <Input type="number" value={npr} onChange={(e) => setNpr(e.target.value)} placeholder={tt(lang, "auto", "အလို")} disabled={locked} />
         </div>
         <div>
           <Label className="text-[10px]">{tt(lang, "Classification", "ခွဲခြားမှု")}</Label>
-          <Select value={cls} onValueChange={setCls}>
+          <Select value={cls} onValueChange={setCls} disabled={locked}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="new">{tt(lang, "New", "အသစ်")}</SelectItem>
@@ -409,7 +409,7 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
           </Select>
         </div>
         <div className="flex items-end">
-          <Button size="sm" disabled={!dirty || busy} onClick={save} className="w-full">{tt(lang, "Save", "သိမ်း")}</Button>
+          <Button size="sm" disabled={!dirty || busy || locked} onClick={save} className="w-full">{tt(lang, "Save", "သိမ်း")}</Button>
         </div>
       </div>
     </div>
