@@ -1684,6 +1684,44 @@ export type Database = {
           },
         ]
       }
+      partner_referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          partner_id: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          partner_id: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          partner_id?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_referral_codes_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_tier_approvals: {
         Row: {
           approved_at: string
@@ -1740,6 +1778,7 @@ export type Database = {
           notes: string | null
           payout_cap_pct: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           code: string
@@ -1755,6 +1794,7 @@ export type Database = {
           notes?: string | null
           payout_cap_pct?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           code?: string
@@ -1770,6 +1810,7 @@ export type Database = {
           notes?: string | null
           payout_cap_pct?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2695,6 +2736,7 @@ export type Database = {
           status: string
         }[]
       }
+      current_partner_id: { Args: never; Returns: string }
       delete_user_cascade: {
         Args: { _target_user_id: string }
         Returns: undefined
@@ -2735,6 +2777,7 @@ export type Database = {
       is_partner: { Args: { _user_id: string }; Returns: boolean }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       is_user_onboarded: { Args: { _user_id: string }; Returns: string }
+      lookup_partner_referral_code: { Args: { _code: string }; Returns: string }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mark_session_complete: {
         Args: { _booking_id: string; _role: string }
@@ -2760,6 +2803,24 @@ export type Database = {
         Returns: Json
       }
       mentor_session_release: { Args: { _booking_id: string }; Returns: Json }
+      mint_partner_referral_codes: {
+        Args: { _count?: number }
+        Returns: {
+          code: string
+          created_at: string
+          id: string
+          partner_id: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "partner_referral_codes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       mint_referral_codes: {
         Args: { _count?: number; _owner_id: string }
         Returns: number
@@ -2792,6 +2853,10 @@ export type Database = {
       process_referral_reward: {
         Args: { _referrer_id: string }
         Returns: undefined
+      }
+      redeem_partner_referral_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: string
       }
       redeem_referral_code: {
         Args: { _code: string; _new_user_id: string }

@@ -10,6 +10,7 @@ import {
   BarChart3,
   CheckCircle2,
   Eye,
+  Tag,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
@@ -264,6 +265,7 @@ const PartnerDashboard = () => {
           <QuickLink icon={Briefcase} label={my ? "အလုပ်များ" : "All Jobs"} onClick={() => navigate("/partner/jobs")} />
           <QuickLink icon={Users} label={my ? "အသုံးပြုသူများ" : "All Users"} onClick={() => navigate("/partner/users")} />
           <QuickLink icon={CreditCard} label={my ? "ငွေပေးချေမှု" : "Payments"} onClick={() => navigate("/partner/payments")} />
+          <QuickLink icon={Tag} label={my ? "ညွှန်းဆိုကုဒ်" : "Referral Codes"} onClick={() => navigate("/partner/referrals")} />
         </div>
       </div>
     </div>

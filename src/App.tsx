@@ -64,6 +64,7 @@ import MentorBookings from "./pages/MentorBookings";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import PartnerDashboard from "./pages/PartnerDashboard";
+import PartnerReferrals from "./pages/PartnerReferrals";
 import AdminJobQueue from "./pages/AdminJobQueue";
 import AdminUsers from "./pages/AdminUsers";
 import AdminAnalytics from "./pages/AdminAnalytics";
@@ -208,6 +209,7 @@ const App = () => (
               <Route path="/partner/payments" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminPayments /></SystemRoleGuard>} />
               <Route path="/partner/employers" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/partner/posts" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><ModeratorDashboard /></SystemRoleGuard>} />
+              <Route path="/partner/referrals" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerReferrals /></SystemRoleGuard>} />
             </Route>
 
             {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
