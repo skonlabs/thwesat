@@ -151,19 +151,6 @@ function StatementTab({ partner, year, month, lang }: { partner: Partner; year: 
     onboarding_pct:   { name: "Onboarding",  cmp: "≥", suffix: "%" },
   };
   const failingMetrics = Object.entries(data.quality_gate_breakdown || {}).filter(([, v]: any) => !v.pass);
-  const blockers: string[] = [];
-  if (!data.quality_gate_passed) {
-    const failing = failingMetrics.map(([k, v]: any) => {
-      const meta = QG_LABELS[k] || { name: k, cmp: "?", suffix: "" };
-      return `${meta.name} ${v.value}${meta.suffix} (${tt(lang, "need", "လို")} ${meta.cmp}${v.threshold}${meta.suffix})`;
-    });
-    blockers.push(`${tt(lang, "Quality gate failed", "Quality gate မအောင်ပါ")} — ${failing.join(", ") || tt(lang, "missing inputs", "input လို")}.`);
-  }
-  if (!data.active_growth_requirement_met) blockers.push(`${tt(lang, "Active Growth requirement not met", "Active Growth စံ မပြည့်ပါ")} (Growth share = ${pct(data.active_growth_ratio)}, ${tt(lang, "need", "လို")} ≥25%).`);
-  if (data.tier_approval_required) blockers.push(tt(lang,
-    "Growth NPR ≥ 80M Ks — manual tier approval required (growth payout zeroed until partner_tier_approvals row exists).",
-    "Growth NPR ≥ 80M Ks — ကိုယ်တိုင် tier ခွင့်ပြုချက် လိုအပ်သည် (partner_tier_approvals row မရှိမချင်း growth payout = 0)။"
-  ));
 
   const net = Number(data.net_collected_attributed_npr || 0);
   const growth = Number(data.growth_npr || 0);
