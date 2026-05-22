@@ -105,9 +105,40 @@ const AdminPartners = () => {
           <NewPartnerSheet lang={lang} onDone={refresh} />
         </div>
 
+        {unlinkedPartnerUsers.length > 0 && (
+          <Card className="border-amber-300/60 bg-amber-50/50 p-4 dark:bg-amber-950/20">
+            <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+              {tt(
+                lang,
+                "Users with partner role but no partner record",
+                "Partner role ရှိပြီး partner record မရှိသူများ",
+              )}
+            </p>
+            <div className="mt-2 space-y-2">
+              {unlinkedPartnerUsers.map((u) => (
+                <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-background/60 p-2">
+                  <div className="min-w-0 text-xs">
+                    <div className="font-medium text-foreground">{u.display_name ?? "—"}</div>
+                    <div className="text-muted-foreground">{u.email ?? u.id.slice(0, 8)}</div>
+                  </div>
+                  <NewPartnerSheet
+                    lang={lang}
+                    onDone={refresh}
+                    presetUserId={u.id}
+                    presetEmail={u.email ?? ""}
+                    presetName={u.display_name ?? ""}
+                    triggerLabel={tt(lang, "Create partner record", "Partner record ဖန်တီး")}
+                  />
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {isLoading ? (
           <Card className="p-8 text-center text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</Card>
         ) : !partners || partners.length === 0 ? (
+
           <Card className="p-8 text-center text-sm text-muted-foreground">
             {tt(lang, "No partners yet.", "Partner မရှိသေးပါ။")}
           </Card>
