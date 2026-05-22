@@ -6,13 +6,14 @@ import FinanceOverview from "@/components/finance/FinanceOverview";
 import AdminFinance from "./AdminFinance";
 import AdminPayments from "./AdminPayments";
 import AdminPartnerFinance from "./AdminPartnerFinance";
+import PaymentAccountsEditor from "@/components/admin/PaymentAccountsEditor";
 
 /**
  * Unified Admin Finance Hub. Consolidates Platform Revenue, Mentor Payouts,
  * Payment Queue, and Partner Revenue-Share behind one polished tab interface.
  * Each tab embeds the existing detail page so source-of-truth numbers stay 1:1.
  */
-const TABS = ["overview", "revenue", "queue", "partners"] as const;
+const TABS = ["overview", "revenue", "queue", "partners", "settings"] as const;
 type TabKey = typeof TABS[number];
 
 export default function AdminFinanceHub() {
@@ -27,6 +28,7 @@ export default function AdminFinanceHub() {
     revenue: { en: "Revenue & Payouts", my: "ဝင်ငွေ & ပေးချေ" },
     queue: { en: "Payment Queue", my: "ပေးချေမှု တန်းစီ" },
     partners: { en: "Partner Rev-Share", my: "Partner ဝင်ငွေခွဲ" },
+    settings: { en: "Payment Settings", my: "ပေးချေမှု ဆက်တင်" },
   };
 
   return (
@@ -59,6 +61,10 @@ export default function AdminFinanceHub() {
 
           <TabsContent value="partners">
             <AdminPartnerFinance hideHeader />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <PaymentAccountsEditor />
           </TabsContent>
         </Tabs>
       </div>
