@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Check, AlertTriangle, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
+import { Plus, Check, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
