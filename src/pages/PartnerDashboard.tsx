@@ -100,7 +100,7 @@ const PartnerDashboard = () => {
       icon: CreditCard,
       label: { en: "Payments", my: "ငွေပေးချေမှုများ" },
       count: counts?.pendingPayments || 0,
-      path: "/partner/payments?status=pending",
+      path: "/partner/finance?tab=attributions&status=pending",
       tone: "amber" as const,
     },
     {
