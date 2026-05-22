@@ -54,6 +54,7 @@ export default function PartnerFinanceHub() {
 
   const labels: Record<TabKey, { en: string; my: string }> = {
     overview: { en: "Overview", my: "ခြုံငုံ" },
+    revenue: { en: "Revenue & Spend", my: "ဝင်ငွေ & သုံးစွဲ" },
     statements: { en: "Statements", my: "ထုတ်ပြန်ချက်" },
     attributions: { en: "Attributed Users", my: "Attribution သုံးစွဲသူ" },
     referrals: { en: "Referral Codes", my: "ညွှန်းကုဒ်" },
