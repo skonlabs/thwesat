@@ -233,7 +233,9 @@ export function useFeatureUnlocks(featureKey?: string) {
 }
 
 export function formatMMK(amount: number | null | undefined, _lang: "my" | "en" = "en"): string {
-  return `${Number(amount || 0).toLocaleString()} Ks`;
+  const n = Number(amount || 0);
+  const rounded = Math.round(n / 100) * 100;
+  return `${rounded.toLocaleString()} Ks`;
 }
 
 export function formatCredits(credits: number | null | undefined, _lang: "my" | "en" = "en"): string {

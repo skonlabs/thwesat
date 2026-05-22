@@ -11,17 +11,29 @@ export type Money = { amount: number; currency: string };
  */
 export const PLACEMENT_FEE_PERCENT = 0.08;
 
+/**
+ * MMK rounding rule: the smallest meaningful denomination handled on the
+ * platform is 100 Ks. Every MMK amount that is computed (fees, payouts,
+ * commissions, conversions) or displayed MUST flow through this helper so
+ * users never see fractional or sub-100 Ks values like "12,347 Ks".
+ */
+export function roundMmk(amount: number | null | undefined): number {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n / 100) * 100;
+}
+
 export function calculatePlacementFee(salary: number): number {
   if (!Number.isFinite(salary) || salary <= 0) return 0;
-  return Math.round(salary * PLACEMENT_FEE_PERCENT);
+  return roundMmk(salary * PLACEMENT_FEE_PERCENT);
 }
 
 export function formatMoney(amount: number, currency: string = "MMK", lang: "my" | "en" = "en") {
-  const rounded = Math.round(amount).toLocaleString();
   if ((currency || "").toUpperCase() === "CREDITS") {
+    const rounded = Math.round(Number(amount) || 0).toLocaleString();
     return lang === "my" ? `${rounded} credits` : `${rounded} credits`;
   }
-  return `${rounded} Ks`;
+  return `${roundMmk(amount).toLocaleString()} Ks`;
 }
 
 /** Aggregate a list of {amount, currency} into per-currency totals. */

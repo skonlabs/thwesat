@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { useRoleLabels } from "@/hooks/use-role-labels";
-import { calculatePlacementFee, PLACEMENT_FEE_PERCENT } from "@/lib/finance";
+import { calculatePlacementFee, PLACEMENT_FEE_PERCENT, roundMmk } from "@/lib/finance";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -980,7 +980,7 @@ const EmployerApplications = () => {
               </div>
               {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
                 const fee = calculatePlacementFee(parseInt(placementSalary));
-                const commission = Math.round(fee * 0.10);
+                const commission = roundMmk(fee * 0.10);
                 const net = fee - commission;
                 const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (

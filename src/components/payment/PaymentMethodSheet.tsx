@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useCreatePaymentRequest, uploadPaymentProof } from "@/hooks/use-payment";
 import { useReceivingAccount } from "@/hooks/use-app-config";
+import { roundMmk } from "@/lib/finance";
 import PaymentQR from "@/components/payment/PaymentQR";
 
 export type PaymentMethod = "kbzpay" | "cbpay" | "wavepay" | "ayapay";
@@ -176,7 +177,7 @@ const PaymentMethodSheet = ({
   const config = selected ? methodMeta[selected] : null;
   const accountInfo = selected ? buildAccountInfo(account) : [];
 
-  const displayAmount = `${amount.toLocaleString()} Ks`;
+  const displayAmount = `${roundMmk(amount).toLocaleString()} Ks`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

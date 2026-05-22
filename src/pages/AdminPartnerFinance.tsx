@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { roundMmk } from "@/lib/finance";
 import { useLanguage } from "@/hooks/use-language";
 import {
   usePartners,
@@ -26,7 +27,7 @@ import {
   type Partner,
 } from "@/hooks/use-partner-finance";
 
-const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} Ks`;
+const fmt = (n: number) => `${roundMmk(n).toLocaleString()} Ks`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
 // Bilingual string picker. NPR/SLA/CSAT/Quality Gate stay English even in Burmese (industry terms).
@@ -369,9 +370,9 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
     finally { setBusy(false); }
   };
 
-  const computedNpr = npr !== "" ? Number(npr)
-    : p.payment_type === "mentor_session" ? Number(p.amount || 0) * 0.15
-    : Math.max(0, Number(p.amount || 0) - Number(tpp || 0));
+  const computedNpr = npr !== "" ? roundMmk(Number(npr))
+    : p.payment_type === "mentor_session" ? roundMmk(Number(p.amount || 0) * 0.15)
+    : roundMmk(Math.max(0, Number(p.amount || 0) - Number(tpp || 0)));
 
   return (
     <div className="space-y-2 p-3 text-sm">

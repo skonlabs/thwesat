@@ -1,5 +1,6 @@
 // Partner revenue-share calculation engine — implements the ThweSat–Partner SOP.
 // All amounts are MMK NPR (Net Platform Revenue per txn). Pure functions; no I/O.
+import { roundMmk } from "./finance";
 
 export const PLATFORM_MENTOR_CUT = 0.15; // platform keeps 15% of mentor session
 export const DEFAULT_PAYOUT_CAP = 0.35;
@@ -23,13 +24,13 @@ export interface ReversalEntry {
 }
 
 export function nprForPayment(p: AttributedPayment): number {
-  if (p.npr_amount_override != null) return Number(p.npr_amount_override);
+  if (p.npr_amount_override != null) return roundMmk(Number(p.npr_amount_override));
   const gross = Number(p.amount || 0);
   const thirdParty = Number(p.third_party_payout || 0);
   if (p.payment_type === "mentor_session") {
-    return Math.max(0, gross * PLATFORM_MENTOR_CUT);
+    return roundMmk(Math.max(0, gross * PLATFORM_MENTOR_CUT));
   }
-  return Math.max(0, gross - thirdParty);
+  return roundMmk(Math.max(0, gross - thirdParty));
 }
 
 export type AgeBucket = "growth" | "maintenance_y2" | "maintenance_y3";
@@ -186,13 +187,13 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
 
   // Per SOP: Quality-gate OR Active-Growth-Requirement failure zeros BOTH growth
   // payout and bonus. Maintenance payouts are preserved (legacy revenue protection).
-  const growthPayout = gate && requirementMet ? growth * baseTier : 0;
-  const maintenancePayout = y2 * m_y2 + y3 * m_y3;
-  const bonusPayout = gate && requirementMet ? growth * bonus : 0;
+  const growthPayout = gate && requirementMet ? roundMmk(growth * baseTier) : 0;
+  const maintenancePayout = roundMmk(y2 * m_y2 + y3 * m_y3);
+  const bonusPayout = gate && requirementMet ? roundMmk(growth * bonus) : 0;
 
   const uncapped = growthPayout + maintenancePayout + bonusPayout;
-  const capValue = net * cap;
-  const total = Math.min(uncapped, capValue);
+  const capValue = roundMmk(net * cap);
+  const total = roundMmk(Math.min(uncapped, capValue));
   const capApplied = uncapped > capValue;
 
   return {
