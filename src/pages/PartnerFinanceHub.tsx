@@ -15,7 +15,7 @@ import { usePartners, usePartnerStatements, usePartnerAttributions, usePartnerSt
 const TABS = ["overview", "statements", "attributions", "referrals"] as const;
 type TabKey = typeof TABS[number];
 
-const fmt = (n: number) => `${Math.round(Number(n || 0)).toLocaleString()} Ks`;
+const fmt = (n: number) => `${(Math.round(Number(n || 0) / 100) * 100).toLocaleString()} Ks`;
 const pct = (n: number) => `${(Number(n || 0) * 100).toFixed(1)}%`;
 
 function nowYangon() {
