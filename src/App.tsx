@@ -45,6 +45,8 @@ import MentorFinance from "./pages/MentorFinance";
 import MentorPreferences from "./pages/MentorPreferences";
 import AdminFinance from "./pages/AdminFinance";
 import AdminPartnerFinance from "./pages/AdminPartnerFinance";
+import AdminFinanceHub from "./pages/AdminFinanceHub";
+import PartnerFinanceHub from "./pages/PartnerFinanceHub";
 import AdminPartners from "./pages/AdminPartners";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
