@@ -195,8 +195,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error as Error | null };
+    const uid = data.user?.id;
+    if (uid) {
+      // Block unverified employer/agent accounts from completing sign-in.
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("primary_role")
+        .eq("id", uid)
+        .maybeSingle();
+      const role = (prof as any)?.primary_role;
+      if (role === "employer" || role === "agent") {
+        const { data: emp } = await supabase
+          .from("employer_profiles")
+          .select("verification_status")
+          .eq("id", uid)
+          .maybeSingle();
+        const status = (emp as any)?.verification_status as string | undefined;
+        if (status && status !== "verified" && status !== "approved") {
+          try { await supabase.auth.signOut({ scope: "local" }); } catch { /* ignore */ }
+          return {
+            error: new Error(
+              status === "rejected"
+                ? "Your account was not approved. Please contact support."
+                : "Your account is pending verification. You'll be able to sign in once an admin approves it."
+            ),
+          };
+        }
+      }
+    }
+    return { error: null };
   };
 
   const signOut = async () => {
