@@ -154,6 +154,23 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     { key: "out.partner_owed", label: { en: "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
 
+  // ===== Credits spent by role (internal — not cash movement) =====
+  const allSpends = spends || [];
+  const spendByRole = (role: string) =>
+    allSpends.filter((t) => (t.primary_role || "").toLowerCase() === role);
+  const sumCredits = (rs: SpendTxn[]) => rs.reduce((a, b) => a + Math.abs(Number(b.credits) || 0), 0);
+  const jsSpends = spendByRole("jobseeker");
+  const empSpends = spendByRole("employer");
+  const agtSpends = spendByRole("agent");
+  const mtrSpends = spendByRole("mentor");
+  const spendRows: Row[] = [
+    { key: "spend.jobseeker", label: { en: "Job Seekers", my: "အလုပ်ရှာသူ" }, sub: { en: "Mentor bookings, CV rewrites, priority apply", my: "Booking / CV / priority" }, amount: sumCredits(jsSpends) },
+    { key: "spend.employer", label: { en: "Employers", my: "အလုပ်ရှင်" }, sub: { en: "Job posts, feature unlocks", my: "Job post / feature" }, amount: sumCredits(empSpends) },
+    { key: "spend.agent", label: { en: "Recruiting Agents", my: "ကြားခံ" }, sub: { en: "Job posts on behalf of clients", my: "Job post (client)" }, amount: sumCredits(agtSpends) },
+    { key: "spend.mentor", label: { en: "Mentors", my: "Mentor" }, sub: { en: "Own tool usage (CV, cover, bookings)", my: "Tool သုံးစွဲ" }, amount: sumCredits(mtrSpends) },
+  ];
+  const spendTotalCredits = spendRows.reduce((a, r) => a + r.amount, 0);
+
   // ===== Details for selected row =====
   const detail = useMemo(() => {
     const paymentToRow = (p: any, amountOverride?: number) => ({
