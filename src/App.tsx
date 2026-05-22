@@ -212,10 +212,11 @@ const App = () => (
               <Route path="/partner/jobs" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminJobQueue /></SystemRoleGuard>} />
               <Route path="/partner/users" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminUsers /></SystemRoleGuard>} />
               <Route path="/partner/analytics" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminAnalytics /></SystemRoleGuard>} />
-              <Route path="/partner/payments" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/partner/finance" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerFinanceHub /></SystemRoleGuard>} />
+              <Route path="/partner/payments" element={<Navigate to="/partner/finance?tab=attributions" replace />} />
               <Route path="/partner/employers" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/partner/posts" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><ModeratorDashboard /></SystemRoleGuard>} />
-              <Route path="/partner/referrals" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerReferrals /></SystemRoleGuard>} />
+              <Route path="/partner/referrals" element={<Navigate to="/partner/finance?tab=referrals" replace />} />
             </Route>
 
             {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
