@@ -37,7 +37,15 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
         .select("id, code, status, used_by, used_at, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as any[];
+      const rows = (data ?? []) as any[];
+      const userIds = Array.from(new Set(rows.map((r) => r.used_by).filter(Boolean)));
+      if (userIds.length === 0) return rows;
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds);
+      const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      return rows.map((r) => ({ ...r, used_by_profile: r.used_by ? byId.get(r.used_by) ?? null : null }));
     },
   });
 
