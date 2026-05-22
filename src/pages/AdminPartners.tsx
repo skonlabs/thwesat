@@ -46,8 +46,29 @@ const AdminPartners = () => {
   });
 
   const linkedIds = (partners ?? []).map((p) => p.user_id).filter(Boolean) as string[];
-  const { data: linkedProfiles } = useQuery({
-    queryKey: ["admin-partners-linked-profiles", linkedIds.sort().join(",")],
+
+  const { data: partnerRoleUsers } = useQuery({
+    queryKey: ["admin-partner-role-users"],
+    queryFn: async () => {
+      const { data: roles, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "partner");
+      if (error) throw error;
+      const ids = (roles ?? []).map((r: any) => r.user_id);
+      if (ids.length === 0) return [] as { id: string; display_name: string | null; email: string | null }[];
+      const { data: profs, error: pErr } = await supabase
+        .from("profiles")
+        .select("id, display_name, email")
+        .in("id", ids);
+      if (pErr) throw pErr;
+      return (profs ?? []) as { id: string; display_name: string | null; email: string | null }[];
+    },
+  });
+
+  const unlinkedPartnerUsers = (partnerRoleUsers ?? []).filter((u) => !linkedIds.includes(u.id));
+
+
     enabled: linkedIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
