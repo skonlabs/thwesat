@@ -370,9 +370,9 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
     finally { setBusy(false); }
   };
 
-  const computedNpr = npr !== "" ? Number(npr)
-    : p.payment_type === "mentor_session" ? Number(p.amount || 0) * 0.15
-    : Math.max(0, Number(p.amount || 0) - Number(tpp || 0));
+  const computedNpr = npr !== "" ? roundMmk(Number(npr))
+    : p.payment_type === "mentor_session" ? roundMmk(Number(p.amount || 0) * 0.15)
+    : roundMmk(Math.max(0, Number(p.amount || 0) - Number(tpp || 0)));
 
   return (
     <div className="space-y-2 p-3 text-sm">
