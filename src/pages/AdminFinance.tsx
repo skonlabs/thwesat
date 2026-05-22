@@ -219,6 +219,36 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
           />
         </div>
 
+        {/* Reconciliation message */}
+        <div className="mb-5 rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-2.5">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+            <div className="text-[12px] leading-relaxed text-muted-foreground">
+              <p className="mb-1.5 font-semibold text-foreground">
+                {lang === "my"
+                  ? "ဤအရေအတွက်များသည် မည်သို့ ဆက်စပ်နေသနည်း?"
+                  : "How do these numbers relate?"}
+              </p>
+              <p>
+                {lang === "my"
+                  ? (
+                    <>
+                      <strong className="text-foreground">ဝင်ငွေ</strong> တွင် Credit ဖြည့်ထားသော ငွေ (အသုံးမပြုရသေး) နှင့် Session ဝင်ငွေ <strong className="text-foreground">ရှေ့မှာ</strong> Mentor 85% share ထုတ်ပေးရမည့် gross amount ပါဝင်သည်။
+                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Placement ခ + Session ၏ 15%။
+                      {" "}သို့ဖြစ်ပါ၍ <strong className="text-foreground">ဝင်ငွေ ≠ Net Revenue + ထွက်ငွေ</strong> ဖြစ်သည် — ဝင်ငွေထဲတွင် ကုန်ကျမှု/ရှယ်ယာ မဟုတ်သော liability (Credit top-ups) ပါဝင်သောကြောင့် ဖြစ်သည်။
+                    </>
+                  ) : (
+                    <>
+                      <strong className="text-foreground">Money In</strong> includes credit top-ups (deferred revenue — not yet earned) and session payments <strong className="text-foreground">before</strong> the mentor&apos;s 85% share is deducted.
+                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Placement fees + 15% of sessions.
+                      {" "}That is why <strong className="text-foreground">Money In ≠ Net Revenue + Money Out</strong> — Money In contains liabilities (credit top-ups) that are not platform costs or revenue.
+                    </>
+                  )}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Two-column breakdown */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <BreakdownColumn
