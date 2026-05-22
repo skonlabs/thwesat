@@ -174,9 +174,9 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ငွေပေးချေမှု စီမံခန့်ခွဲမှု" : "Payment Management"} />
-      <div className="px-5">
+    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+      {!hideHeader && <PageHeader title={lang === "my" ? "ငွေပေးချေမှု စီမံခန့်ခွဲမှု" : "Payment Management"} />}
+      <div className={hideHeader ? "" : "px-5"}>
         {/* Receiving payment accounts editor */}
         <div className="mb-4">
           <PaymentAccountsEditor />
