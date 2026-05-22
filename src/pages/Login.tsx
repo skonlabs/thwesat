@@ -84,8 +84,13 @@ const Login = () => {
       // The only exception is "email not confirmed" which doesn't reveal
       // whether an account exists (it only shows after a successful password match).
       let msg = lang === "my" ? "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ကန်ပါ" : "Incorrect email or password.";
-      if (error.message?.toLowerCase().includes("email not confirmed")) {
+      const raw = error.message || "";
+      const lower = raw.toLowerCase();
+      if (lower.includes("email not confirmed")) {
         msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
+      } else if (lower.includes("pending verification") || lower.includes("not approved")) {
+        // Surface admin-approval gating verbatim so the user understands why.
+        msg = raw;
       }
 
       if (next >= MAX_ATTEMPTS) {
