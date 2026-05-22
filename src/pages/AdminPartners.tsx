@@ -46,6 +46,28 @@ const AdminPartners = () => {
   });
 
   const linkedIds = (partners ?? []).map((p) => p.user_id).filter(Boolean) as string[];
+
+  const { data: partnerRoleUsers } = useQuery({
+    queryKey: ["admin-partner-role-users"],
+    queryFn: async () => {
+      const { data: roles, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "partner");
+      if (error) throw error;
+      const ids = (roles ?? []).map((r: any) => r.user_id);
+      if (ids.length === 0) return [] as { id: string; display_name: string | null; email: string | null }[];
+      const { data: profs, error: pErr } = await supabase
+        .from("profiles")
+        .select("id, display_name, email")
+        .in("id", ids);
+      if (pErr) throw pErr;
+      return (profs ?? []) as { id: string; display_name: string | null; email: string | null }[];
+    },
+  });
+
+  const unlinkedPartnerUsers = (partnerRoleUsers ?? []).filter((u) => !linkedIds.includes(u.id));
+
   const { data: linkedProfiles } = useQuery({
     queryKey: ["admin-partners-linked-profiles", linkedIds.sort().join(",")],
     enabled: linkedIds.length > 0,
@@ -61,7 +83,12 @@ const AdminPartners = () => {
     },
   });
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["admin-partners"] });
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["admin-partners"] });
+    qc.invalidateQueries({ queryKey: ["admin-partner-role-users"] });
+  };
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -78,9 +105,40 @@ const AdminPartners = () => {
           <NewPartnerSheet lang={lang} onDone={refresh} />
         </div>
 
+        {unlinkedPartnerUsers.length > 0 && (
+          <Card className="border-amber-300/60 bg-amber-50/50 p-4 dark:bg-amber-950/20">
+            <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+              {tt(
+                lang,
+                "Users with partner role but no partner record",
+                "Partner role ရှိပြီး partner record မရှိသူများ",
+              )}
+            </p>
+            <div className="mt-2 space-y-2">
+              {unlinkedPartnerUsers.map((u) => (
+                <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-background/60 p-2">
+                  <div className="min-w-0 text-xs">
+                    <div className="font-medium text-foreground">{u.display_name ?? "—"}</div>
+                    <div className="text-muted-foreground">{u.email ?? u.id.slice(0, 8)}</div>
+                  </div>
+                  <NewPartnerSheet
+                    lang={lang}
+                    onDone={refresh}
+                    presetUserId={u.id}
+                    presetEmail={u.email ?? ""}
+                    presetName={u.display_name ?? ""}
+                    triggerLabel={tt(lang, "Create partner record", "Partner record ဖန်တီး")}
+                  />
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {isLoading ? (
           <Card className="p-8 text-center text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</Card>
         ) : !partners || partners.length === 0 ? (
+
           <Card className="p-8 text-center text-sm text-muted-foreground">
             {tt(lang, "No partners yet.", "Partner မရှိသေးပါ။")}
           </Card>
@@ -162,11 +220,25 @@ const AdminPartners = () => {
   );
 };
 
-function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => void }) {
+function NewPartnerSheet({
+  lang,
+  onDone,
+  presetUserId,
+  presetEmail,
+  presetName,
+  triggerLabel,
+}: {
+  lang: "en" | "my";
+  onDone: () => void;
+  presetUserId?: string;
+  presetEmail?: string;
+  presetName?: string;
+  triggerLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(presetName ?? "");
   const [code, setCode] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
+  const [contactEmail, setContactEmail] = useState(presetEmail ?? "");
   const [start, setStart] = useState(new Date().toISOString().slice(0, 10));
   const [busy, setBusy] = useState(false);
 
@@ -182,6 +254,7 @@ function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => vo
         code,
         contact_email: contactEmail || null,
         contract_start_date: start,
+        user_id: presetUserId ?? null,
       });
       if (error) throw error;
       setOpen(false);
@@ -199,10 +272,11 @@ function NewPartnerSheet({ lang, onDone }: { lang: "en" | "my"; onDone: () => vo
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm">
-          <Plus className="mr-1 h-4 w-4" /> {tt(lang, "New partner", "Partner အသစ်")}
+        <Button size="sm" variant={presetUserId ? "outline" : "default"}>
+          <Plus className="mr-1 h-4 w-4" /> {triggerLabel ?? tt(lang, "New partner", "Partner အသစ်")}
         </Button>
       </SheetTrigger>
+
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{tt(lang, "New partner", "Partner အသစ်")}</SheetTitle>
