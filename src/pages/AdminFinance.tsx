@@ -289,6 +289,14 @@ const AdminFinance = ({
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
       {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className={hideHeader ? "" : "px-5"}>
+        {isPartnerScope && scopedIds!.length === 0 && (
+          <div className="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-muted-foreground">
+            {lang === "my"
+              ? "သင်နှင့် ချိတ်ဆက်ထားသော attributed user မရှိသေးပါ။ Referral link မှ user အသစ်ဝင်လာသည်နှင့် ဤနေရာတွင် ဝင်ငွေ / သုံးစွဲ ဒေတာ ပေါ်လာပါမည်။"
+              : "No attributed users yet. Revenue and spend numbers will appear here as users sign up via your referral link and start transacting."}
+          </div>
+        )}
+
 
         {/* HERO: Money In → Net Platform → Money Out */}
         <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
