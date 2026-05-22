@@ -20,7 +20,22 @@ type RowKey =
   | "out.mentor_paid"
   | "out.mentor_owed"
   | "out.partner_paid"
-  | "out.partner_owed";
+  | "out.partner_owed"
+  | "spend.jobseeker"
+  | "spend.employer"
+  | "spend.agent"
+  | "spend.mentor";
+
+type SpendTxn = {
+  id: string;
+  user_id: string;
+  credits: number;
+  note: string | null;
+  ref_type: string | null;
+  ref_id: string | null;
+  created_at: string;
+  primary_role: string | null;
+};
 
 const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
