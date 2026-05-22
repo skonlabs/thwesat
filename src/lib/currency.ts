@@ -1,9 +1,10 @@
 // Unified currency formatting helper used across jobs, mentors, plans, payments.
-// MMK is rounded to nearest 1000 (project rule from memory).
+// MMK is rounded to the nearest 100 Ks (smallest denomination in circulation).
+import { roundMmk } from "./finance";
+
 export function formatCurrency(amount: number | null | undefined, _currency?: string | null, lang: "my" | "en" = "en"): string {
   if (amount == null || isNaN(amount)) return lang === "my" ? "ညှိနှိုင်း" : "Negotiable";
-  const rounded = Math.round(amount / 1000) * 1000;
-  return `${rounded.toLocaleString()} Ks`;
+  return `${roundMmk(amount).toLocaleString()} Ks`;
 }
 
 export function formatCurrencyRange(min: number | null | undefined, max: number | null | undefined, currency: string | null | undefined, lang: "my" | "en" = "en", per?: "mo" | "hr"): string {
