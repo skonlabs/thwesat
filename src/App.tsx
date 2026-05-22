@@ -196,7 +196,7 @@ const App = () => (
               <Route path="/admin/edit-job/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><EmployerEditJob /></SystemRoleGuard>} />
               <Route path="/admin/users" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminUsers /></SystemRoleGuard>} />
               <Route path="/admin/analytics" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminAnalytics /></SystemRoleGuard>} />
-              <Route path="/admin/payments" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/admin/payments" element={<Navigate to="/admin/finance?tab=queue" replace />} />
               <Route path="/admin/employers" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/admin/guides/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEditGuide /></SystemRoleGuard>} />
               <Route path="/admin/moderation" element={<SystemRoleGuard allowedRoles={["admin","moderator"]}><ModeratorDashboard /></SystemRoleGuard>} />
