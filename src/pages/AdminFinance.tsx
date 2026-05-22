@@ -103,20 +103,53 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
       {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className={hideHeader ? "" : "px-5"}>
-        {/* Top totals */}
-        <div className="mb-4 grid grid-cols-2 gap-3">
+        {/* Revenue waterfall: Gross → Mentor share → Net Platform */}
+        <div className="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "စုစုပေါင်း ဝင်ငွေ (Gross)" : "Gross Revenue"}
+            </p>
+            <p className="mt-1 text-base font-bold text-foreground">{formatTotals(grossRevenueRows, lang)}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {lang === "my" ? "အတည်ပြုပြီး ပေးချေမှု အားလုံး" : "All approved user payments"}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? `Mentor ဝေစု (${(1 - PLATFORM_CUT_PERCENT) * 100}%)` : `− Mentor Share (${(1 - PLATFORM_CUT_PERCENT) * 100}%)`}
+            </p>
+            <p className="mt-1 text-base font-bold text-foreground">{formatTotals(mentorShareRows, lang)}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {lang === "my" ? "Mentor session များမှ ဖြတ်ထား" : "Owed back to mentors from sessions"}
+            </p>
+          </div>
           <div className="rounded-xl border border-emerald/30 bg-card p-3.5">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              {lang === "my" ? "Platform ဝင်ငွေ" : "Platform Revenue"}
+              {lang === "my" ? "Net Platform ဝင်ငွေ" : "= Net Platform Revenue"}
             </p>
             <p className="mt-1 text-base font-bold text-foreground">{formatTotals(platformRevenueRows, lang)}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {lang === "my" ? `Placement fees + ${PLATFORM_CUT_PERCENT * 100}% session cut` : `Placement fees + ${PLATFORM_CUT_PERCENT * 100}% session cut`}
+            </p>
           </div>
+        </div>
+
+        {/* Liabilities & queue */}
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-warning/30 bg-card p-3.5">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              {lang === "my" ? "စစ်ဆေးရန်" : "Pending Review"}
+              {lang === "my" ? "စစ်ဆေးရန် ပေးချေမှု" : "Pending Review"}
             </p>
             <p className="mt-1 text-base font-bold text-foreground">
               {formatTotals(pending.map((p) => ({ amount: Number(p.amount), currency: p.currency })), lang)}
+            </p>
+          </div>
+          <div className="rounded-xl border border-warning/30 bg-card p-3.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "Mentor ပေးရန် (Liability)" : "Mentor Owed (Liability)"}
+            </p>
+            <p className="mt-1 text-base font-bold text-foreground">
+              {formatTotals(pendingPayouts.map((e) => ({ amount: Number(e.amount), currency: e.currency })), lang)}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3.5">
@@ -127,15 +160,8 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
               {formatTotals(paidOutTotal.map((e) => ({ amount: Number(e.amount), currency: e.currency })), lang)}
             </p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-3.5">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              {lang === "my" ? "Mentor ပေးရန်" : "Mentor Owed"}
-            </p>
-            <p className="mt-1 text-base font-bold text-foreground">
-              {formatTotals(pendingPayouts.map((e) => ({ amount: Number(e.amount), currency: e.currency })), lang)}
-            </p>
-          </div>
         </div>
+
 
         {/* Tabs */}
         <div className="mb-4 flex gap-2">
