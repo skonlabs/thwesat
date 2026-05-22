@@ -420,6 +420,7 @@ function BreakdownColumn({
   onSelect,
   lang,
   accent,
+  unit = "MMK",
 }: {
   title: string;
   total: number;
@@ -429,13 +430,14 @@ function BreakdownColumn({
   onSelect: (k: RowKey) => void;
   lang: "my" | "en";
   accent: "emerald" | "default";
+  unit?: string;
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card">
       <div className="flex items-baseline justify-between border-b border-border p-4">
         <h3 className="text-sm font-bold text-foreground">{title}</h3>
         <div className="text-right">
-          <p className="text-base font-bold text-foreground">{formatMoney(total, "MMK", lang)}</p>
+          <p className="text-base font-bold text-foreground">{formatMoney(total, unit, lang)}</p>
           {totalLabel && <p className="text-[10px] text-muted-foreground">{totalLabel}</p>}
         </div>
       </div>
@@ -461,7 +463,7 @@ function BreakdownColumn({
               </div>
               <div className="text-right">
                 <p className={`text-sm font-bold ${r.tone === "warn" ? "text-warning" : accent === "emerald" ? "text-emerald" : "text-foreground"}`}>
-                  {formatMoney(r.amount, "MMK", lang)}
+                  {formatMoney(r.amount, unit, lang)}
                 </p>
               </div>
               <ChevronRight className={`h-4 w-4 transition-colors ${active ? "text-primary" : "text-muted-foreground/40"}`} />
