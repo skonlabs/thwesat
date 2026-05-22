@@ -95,6 +95,10 @@ export default function PartnerFinanceHub() {
               <AdminFinance hideHeader attributedUserIds={attributedIds} partnerId={partnerId} />
             </TabsContent>
 
+            <TabsContent value="revshare">
+              <AdminPartnerFinance hideHeader lockedPartnerId={partnerId} readOnly />
+            </TabsContent>
+
             <TabsContent value="statements">
               <Card className="divide-y">
                 {(statements || []).length === 0 ? (
