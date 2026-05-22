@@ -93,8 +93,8 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
   }, [allEarnings, status, currency]);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />
+    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+      {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className="px-5">
         {/* Top totals */}
         <div className="mb-4 grid grid-cols-2 gap-3">
