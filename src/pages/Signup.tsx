@@ -107,10 +107,11 @@ const Signup = () => {
     const { data: { user: newUser } } = await supabase.auth.getUser();
     if (newUser) {
       if (referralCode.trim()) {
-        const { error: redeemError } = await supabase.rpc("redeem_referral_code", {
-          _code: referralCode.trim(),
-          _new_user_id: newUser.id,
-        });
+        const rpcName = isPartnerCode ? "redeem_partner_referral_code" : "redeem_referral_code";
+        const rpcArgs = isPartnerCode
+          ? { _code: referralCode.trim(), _user_id: newUser.id }
+          : { _code: referralCode.trim(), _new_user_id: newUser.id };
+        const { error: redeemError } = await supabase.rpc(rpcName as any, rpcArgs as any);
         if (redeemError) {
           console.error("Referral redeem failed:", redeemError);
           toast({
