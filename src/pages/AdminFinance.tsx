@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, ArrowDownRight, ArrowUpRight, TrendingUp, ChevronRight } from "lucide-react";
+import { Check, ArrowDownRight, ArrowUpRight, TrendingUp, ChevronRight, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/use-language";
