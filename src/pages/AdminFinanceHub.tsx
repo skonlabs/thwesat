@@ -28,6 +28,7 @@ export default function AdminFinanceHub() {
     revenue: { en: "Revenue & Payouts", my: "ဝင်ငွေ & ပေးချေ" },
     queue: { en: "Payment Queue", my: "ပေးချေမှု တန်းစီ" },
     partners: { en: "Partner Rev-Share", my: "Partner ဝင်ငွေခွဲ" },
+    settings: { en: "Payment Settings", my: "ပေးချေမှု ဆက်တင်" },
   };
 
   return (
