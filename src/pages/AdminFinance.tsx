@@ -81,6 +81,25 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     },
   });
 
+  const { data: spends, isLoading: loadingSpends } = useQuery<SpendTxn[]>({
+    queryKey: ["admin-finance-spends"],
+    queryFn: async () => {
+      const { data: txns } = await supabase
+        .from("wallet_transactions")
+        .select("id,user_id,credits,note,ref_type,ref_id,created_at,kind")
+        .lt("credits", 0)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      const list = (txns || []).filter((t: any) => t.kind === "spend" || t.kind === "escrow_hold");
+      const userIds = Array.from(new Set(list.map((t: any) => t.user_id)));
+      if (userIds.length === 0) return [];
+      const { data: profs } = await supabase.from("profiles").select("id,primary_role").in("id", userIds);
+      const roleById = new Map((profs || []).map((p: any) => [p.id, p.primary_role]));
+      return list.map((t: any) => ({ ...t, primary_role: roleById.get(t.user_id) || null }));
+    },
+  });
+
   const markPaid = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await (supabase as any).rpc("mentor_payout_mark_paid", { _earning_id: id, _note: null });
