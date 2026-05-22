@@ -68,7 +68,8 @@ const AdminPartners = () => {
 
   const unlinkedPartnerUsers = (partnerRoleUsers ?? []).filter((u) => !linkedIds.includes(u.id));
 
-
+  const { data: linkedProfiles } = useQuery({
+    queryKey: ["admin-partners-linked-profiles", linkedIds.sort().join(",")],
     enabled: linkedIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -81,6 +82,7 @@ const AdminPartners = () => {
       return map;
     },
   });
+
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-partners"] });
 
