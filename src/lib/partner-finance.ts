@@ -24,13 +24,13 @@ export interface ReversalEntry {
 }
 
 export function nprForPayment(p: AttributedPayment): number {
-  if (p.npr_amount_override != null) return Number(p.npr_amount_override);
+  if (p.npr_amount_override != null) return roundMmk(Number(p.npr_amount_override));
   const gross = Number(p.amount || 0);
   const thirdParty = Number(p.third_party_payout || 0);
   if (p.payment_type === "mentor_session") {
-    return Math.max(0, gross * PLATFORM_MENTOR_CUT);
+    return roundMmk(Math.max(0, gross * PLATFORM_MENTOR_CUT));
   }
-  return Math.max(0, gross - thirdParty);
+  return roundMmk(Math.max(0, gross - thirdParty));
 }
 
 export type AgeBucket = "growth" | "maintenance_y2" | "maintenance_y3";
