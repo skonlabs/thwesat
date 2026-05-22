@@ -1,6 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, ArrowDownCircle, ArrowUpCircle, Wallet, Clock, Banknote, PiggyBank } from "lucide-react";
+import {
+  Check,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Wallet,
+  Clock,
+  Banknote,
+  PiggyBank,
+  Coins,
+  Briefcase,
+  Handshake,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useLanguage } from "@/hooks/use-language";
@@ -14,17 +25,21 @@ import { paymentTypeLabels, shortRef, formatTotals, formatMoney } from "@/lib/fi
 const PLATFORM_CUT_PERCENT = 0.15;
 
 type ViewKey =
-  | "gross"
+  | "topups"
+  | "placement_in"
+  | "session_in"
   | "pending_in"
   | "net_platform"
   | "mentor_share"
   | "mentor_owed"
-  | "mentor_paid";
+  | "mentor_paid"
+  | "partner_owed"
+  | "partner_paid";
 
 const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
-  const [view, setView] = useState<ViewKey>("gross");
+  const [view, setView] = useState<ViewKey>("topups");
 
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["admin-finance-payments"],
@@ -50,6 +65,33 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     },
   });
 
+  const { data: topups, isLoading: loadingTopups } = useQuery({
+    queryKey: ["admin-finance-topups"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("wallet_transactions")
+        .select("*")
+        .eq("kind", "topup")
+        .eq("status", "completed")
+        .eq("ref_type", "topup_request")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      return data || [];
+    },
+  });
+
+  const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
+    queryKey: ["admin-finance-partner-statements"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("partner_monthly_statements")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      return data || [];
+    },
+  });
+
   const markPaid = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await (supabase as any).rpc("mentor_payout_mark_paid", {
@@ -67,31 +109,39 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
   // ===== Aggregates =====
   const allPayments = payments || [];
   const allEarnings = earnings || [];
+  const allTopups = topups || [];
+  const allPartner = partnerStmts || [];
 
   const approved = allPayments.filter((p) => p.status === "approved");
   const pending = allPayments.filter((p) => p.status === "pending");
+  const approvedPlacement = approved.filter((p) => p.payment_type === "placement_fee");
+  const approvedSession = approved.filter((p) => p.payment_type === "mentor_session");
 
   // Incoming
-  const grossRows = approved.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
+  const topupRows = allTopups.map((t) => ({ amount: Number(t.mmk_amount || 0), currency: "MMK" }));
+  const placementRows = approvedPlacement.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
+  const sessionRows = approvedSession.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
   const pendingRows = pending.map((p) => ({ amount: Number(p.amount), currency: p.currency }));
 
-  // Platform Net (placement fees 100% + 15% of mentor_session approved)
-  const netPlatformRows = approved.flatMap((p) => {
-    if (p.payment_type === "mentor_session") {
-      return [{ amount: Number(p.amount) * PLATFORM_CUT_PERCENT, currency: p.currency }];
-    }
-    if (p.payment_type === "placement_fee") {
-      return [{ amount: Number(p.amount), currency: p.currency }];
-    }
-    return [];
-  });
+  // Platform Net = placement fees (100%) + 15% of direct session payments
+  // NOTE: credit topups are deferred revenue (liability) until credits are spent
+  const netPlatformRows = [
+    ...placementRows,
+    ...sessionRows.map((r) => ({ amount: r.amount * PLATFORM_CUT_PERCENT, currency: r.currency })),
+  ];
 
-  // Mentor liability — derived from mentor_earnings (single source of truth)
+  // Mentor liability — derived from mentor_earnings (source of truth)
   const pendingPayouts = allEarnings.filter((e) => e.status === "pending" && !e.paid_out_at);
   const paidPayouts = allEarnings.filter((e) => e.status === "paid" || e.paid_out_at);
   const mentorShareRows = allEarnings.map((e) => ({ amount: Number(e.amount), currency: e.currency }));
   const mentorOwedRows = pendingPayouts.map((e) => ({ amount: Number(e.amount), currency: e.currency }));
   const mentorPaidRows = paidPayouts.map((e) => ({ amount: Number(e.amount), currency: e.currency }));
+
+  // Partner payouts
+  const partnerOwed = allPartner.filter((s) => s.status === "finalized" && !s.paid_at);
+  const partnerPaid = allPartner.filter((s) => !!s.paid_at);
+  const partnerOwedRows = partnerOwed.map((s) => ({ amount: Number(s.total_payout || 0), currency: s.currency || "MMK" }));
+  const partnerPaidRows = partnerPaid.map((s) => ({ amount: Number(s.total_payout || 0), currency: s.currency || "MMK" }));
 
   // ===== Card definitions =====
   type Card = {
@@ -101,22 +151,40 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     hint: { en: string; my: string };
     icon: typeof Wallet;
     tone: string;
-    group: "in" | "platform" | "out";
+    group: "in" | "platform" | "mentor" | "partner";
   };
 
   const cards: Card[] = [
     {
-      key: "gross",
-      label: { en: "Gross Revenue", my: "စုစုပေါင်း ဝင်ငွေ" },
-      rows: grossRows,
-      hint: { en: "All approved user payments", my: "အတည်ပြုပြီး ပေးချေမှု အားလုံး" },
+      key: "topups",
+      label: { en: "Credit Top-ups", my: "Credit ဖြည့်ခြင်း" },
+      rows: topupRows,
+      hint: { en: "Cash from job seekers & mentees", my: "Job seeker / mentee ထံမှ" },
+      icon: Coins,
+      tone: "border-emerald/30 bg-emerald/5",
+      group: "in",
+    },
+    {
+      key: "placement_in",
+      label: { en: "Placement Fees", my: "ခန့်အပ်ခ" },
+      rows: placementRows,
+      hint: { en: "Paid by employers", my: "Employer မှ ပေးချေ" },
+      icon: Briefcase,
+      tone: "border-emerald/30 bg-emerald/5",
+      group: "in",
+    },
+    {
+      key: "session_in",
+      label: { en: "Direct Session Payments", my: "Session ပေးချေ" },
+      rows: sessionRows,
+      hint: { en: "Non-credit session bookings", my: "Credit မဟုတ်သော session" },
       icon: ArrowDownCircle,
       tone: "border-emerald/30 bg-emerald/5",
       group: "in",
     },
     {
       key: "pending_in",
-      label: { en: "Pending Review", my: "စစ်ဆေးရန် ပေးချေမှု" },
+      label: { en: "Pending Review", my: "စစ်ဆေးရန်" },
       rows: pendingRows,
       hint: { en: "Awaiting admin verification", my: "အတည်ပြုရန် ကျန်" },
       icon: Clock,
@@ -127,7 +195,7 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       key: "net_platform",
       label: { en: "Net Platform Revenue", my: "Net ပလက်ဖောင်း ဝင်ငွေ" },
       rows: netPlatformRows,
-      hint: { en: "Placement fees + 15% session cut", my: "Placement fees + 15% cut" },
+      hint: { en: "Placement fees + 15% direct session cut", my: "Placement + 15% session cut" },
       icon: PiggyBank,
       tone: "border-primary/30 bg-primary/5",
       group: "platform",
@@ -139,7 +207,7 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       hint: { en: "= Owed + Paid Out", my: "= ပေးရန် + ပေးချေပြီး" },
       icon: Wallet,
       tone: "border-border bg-card",
-      group: "out",
+      group: "mentor",
     },
     {
       key: "mentor_owed",
@@ -148,7 +216,7 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       hint: { en: "Liability — not yet paid", my: "မပေးရသေး" },
       icon: ArrowUpCircle,
       tone: "border-warning/30 bg-warning/5",
-      group: "out",
+      group: "mentor",
     },
     {
       key: "mentor_paid",
@@ -157,7 +225,25 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       hint: { en: "Cash already sent to mentors", my: "ပေးချေပြီး" },
       icon: Banknote,
       tone: "border-emerald/30 bg-emerald/5",
-      group: "out",
+      group: "mentor",
+    },
+    {
+      key: "partner_owed",
+      label: { en: "Partner Owed", my: "Partner ပေးရန်" },
+      rows: partnerOwedRows,
+      hint: { en: "Finalized rev-share, unpaid", my: "Finalized, မပေးရသေး" },
+      icon: Handshake,
+      tone: "border-warning/30 bg-warning/5",
+      group: "partner",
+    },
+    {
+      key: "partner_paid",
+      label: { en: "Partner Paid Out", my: "Partner ပေးချေပြီး" },
+      rows: partnerPaidRows,
+      hint: { en: "Rev-share already paid", my: "ပေးချေပြီး" },
+      icon: Handshake,
+      tone: "border-emerald/30 bg-emerald/5",
+      group: "partner",
     },
   ];
 
@@ -204,48 +290,99 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
         ) : null,
     });
 
+    const topupToRow = (t: any) => ({
+      id: t.id,
+      title: lang === "my" ? "Credit ဖြည့်" : "Credit Top-up",
+      subtitle: `${shortRef(t.user_id)} · ${t.credits?.toLocaleString() || 0} credits`,
+      amount: Number(t.mmk_amount || 0),
+      currency: "MMK",
+      status: "approved",
+      date: t.created_at,
+    });
+
+    const partnerToRow = (s: any) => ({
+      id: s.id,
+      title: lang === "my" ? "Partner Rev-share" : "Partner Rev-share",
+      subtitle: `${shortRef(s.partner_id)} · ${s.period_year}-${String(s.period_month).padStart(2, "0")}`,
+      amount: Number(s.total_payout || 0),
+      currency: s.currency || "MMK",
+      status: s.paid_at ? "approved" : "pending",
+      date: s.paid_at || s.created_at,
+    });
+
     switch (view) {
-      case "gross":
-        return approved.map((p) => paymentToRow(p));
+      case "topups":
+        return allTopups.map(topupToRow);
+      case "placement_in":
+        return approvedPlacement.map((p) => paymentToRow(p));
+      case "session_in":
+        return approvedSession.map((p) => paymentToRow(p));
       case "pending_in":
         return pending.map((p) => paymentToRow(p));
       case "net_platform":
-        return approved
-          .filter((p) => p.payment_type === "placement_fee" || p.payment_type === "mentor_session")
-          .map((p) =>
-            p.payment_type === "mentor_session"
-              ? paymentToRow(p, Number(p.amount) * PLATFORM_CUT_PERCENT, "15% cut")
-              : paymentToRow(p),
-          );
+        return [
+          ...approvedPlacement.map((p) => paymentToRow(p)),
+          ...approvedSession.map((p) => paymentToRow(p, Number(p.amount) * PLATFORM_CUT_PERCENT, "15% cut")),
+        ];
       case "mentor_share":
         return allEarnings.map(earningToRow);
       case "mentor_owed":
         return pendingPayouts.map(earningToRow);
       case "mentor_paid":
         return paidPayouts.map(earningToRow);
+      case "partner_owed":
+        return partnerOwed.map(partnerToRow);
+      case "partner_paid":
+        return partnerPaid.map(partnerToRow);
       default:
         return [];
     }
-  }, [view, approved, pending, allEarnings, pendingPayouts, paidPayouts, lang, markPaid]);
+  }, [view, approvedPlacement, approvedSession, pending, allEarnings, pendingPayouts, paidPayouts, allTopups, partnerOwed, partnerPaid, lang, markPaid]);
 
   const activeCard = cards.find((c) => c.key === view)!;
-  const isLoading = view === "mentor_share" || view === "mentor_owed" || view === "mentor_paid"
-    ? loadingEarnings
-    : loadingPayments;
+  const isLoading =
+    view === "topups" ? loadingTopups :
+    view === "mentor_share" || view === "mentor_owed" || view === "mentor_paid" ? loadingEarnings :
+    view === "partner_owed" || view === "partner_paid" ? loadingPartner :
+    loadingPayments;
 
-  // Reconciliation note
+  // Reconciliation
   const sum = (rows: { amount: number }[]) => rows.reduce((a, r) => a + Number(r.amount || 0), 0);
-  const reconciles = Math.round(sum(mentorOwedRows) + sum(mentorPaidRows)) === Math.round(sum(mentorShareRows));
+  const mentorReconciles = Math.round(sum(mentorOwedRows) + sum(mentorPaidRows)) === Math.round(sum(mentorShareRows));
+  const totalCashIn = sum(topupRows) + sum(placementRows) + sum(sessionRows);
+  const totalCashOut = sum(mentorPaidRows) + sum(partnerPaidRows);
 
   return (
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
       {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className={hideHeader ? "" : "px-5"}>
+        {/* Top-line ribbon */}
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-emerald/30 bg-emerald/5 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "ဝင်ငွေ စုစုပေါင်း" : "Total Cash In"}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">{formatMoney(totalCashIn, "MMK", lang)}</p>
+          </div>
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "Net Platform" : "Net Platform Revenue"}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">{formatTotals(netPlatformRows, lang)}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {lang === "my" ? "ပေးချေပြီး စုစုပေါင်း" : "Total Cash Out"}
+            </p>
+            <p className="mt-1 text-lg font-bold text-foreground">{formatMoney(totalCashOut, "MMK", lang)}</p>
+          </div>
+        </div>
+
         {/* INCOMING */}
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {lang === "my" ? "ဝင်ငွေ" : "Incoming"}
         </p>
-        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
           {cards.filter((c) => c.group === "in").map((c) => (
             <CardButton key={c.key} card={c} active={view === c.key} onClick={() => setView(c.key)} lang={lang} />
           ))}
@@ -261,36 +398,48 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
           ))}
         </div>
 
-        {/* OUTGOING */}
+        {/* MENTOR */}
         <div className="mb-2 flex items-baseline justify-between">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {lang === "my" ? "Mentor ပေးချေမှု" : "Owed to Mentors"}
           </p>
-          {!reconciles && (
+          {!mentorReconciles && (
             <span className="text-[10px] text-warning">
               {lang === "my" ? "ကိန်းဂဏန်း မညီသေး" : "Totals don’t reconcile"}
             </span>
           )}
         </div>
-        <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          {cards.filter((c) => c.group === "out").map((c) => (
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          {cards.filter((c) => c.group === "mentor").map((c) => (
             <CardButton key={c.key} card={c} active={view === c.key} onClick={() => setView(c.key)} lang={lang} />
           ))}
         </div>
 
-        {/* Reconciliation summary */}
+        {/* PARTNER */}
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {lang === "my" ? "Partner ပေးချေမှု" : "Owed to Partners"}
+        </p>
+        <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+          {cards.filter((c) => c.group === "partner").map((c) => (
+            <CardButton key={c.key} card={c} active={view === c.key} onClick={() => setView(c.key)} lang={lang} />
+          ))}
+        </div>
+
+        {/* Reconciliation strip */}
         <div className="mb-5 rounded-xl border border-border bg-muted/30 p-3 text-[11px] text-muted-foreground">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="font-semibold text-foreground">
               {lang === "my" ? "စစ်ဆေးခြင်း" : "Reconciliation"}
             </span>
-            <span>Gross = {formatTotals(grossRows, lang)}</span>
-            <span>·</span>
-            <span>Net Platform + Mentor Share ≈ Gross (drift = credit-funded sessions)</span>
-            <span>·</span>
-            <span className={reconciles ? "text-emerald" : "text-warning"}>
-              Owed + Paid = {formatMoney(sum(mentorOwedRows) + sum(mentorPaidRows), "MMK", lang)} ↔ Share = {formatTotals(mentorShareRows, lang)}
+            <span>
+              Cash In = Top-ups {formatMoney(sum(topupRows), "MMK", lang)} + Placement {formatMoney(sum(placementRows), "MMK", lang)} + Direct Sessions {formatMoney(sum(sessionRows), "MMK", lang)}
             </span>
+            <span>·</span>
+            <span className={mentorReconciles ? "text-emerald" : "text-warning"}>
+              Mentor Owed + Paid = {formatMoney(sum(mentorOwedRows) + sum(mentorPaidRows), "MMK", lang)} ↔ Share = {formatTotals(mentorShareRows, lang)}
+            </span>
+            <span>·</span>
+            <span>Credit top-ups are deferred revenue — recognized as platform revenue only when credits are spent on sessions/features.</span>
           </div>
         </div>
 
