@@ -312,7 +312,9 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
 // ───────────── Payments & Overrides tab ─────────────
 function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
   const { data, isLoading } = usePartnerPeriodPayments(partner, year, month);
+  const { data: statements } = usePartnerStatements(partner.id);
   const update = useUpdatePaymentOverrides();
+  const locked = (statements || []).some((s: any) => s.period_year === year && s.period_month === month && s.status === "finalized");
 
   if (isLoading) return <Card className="p-4 text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</Card>;
   if (!data || data.length === 0) {
@@ -321,6 +323,13 @@ function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: n
 
   return (
     <div className="space-y-3">
+      {locked && (
+        <Card className="border-warning/40 bg-warning/10 p-3 text-xs">
+          🔒 {tt(lang,
+            "This period is finalized. Overrides are locked by the database; saves will fail with period_locked.",
+            "ဤကာလကို အပြီးသတ်ပြီးပါပြီ။ Override ပြင်ဆင်မှု ပိတ်ထားသည် (period_locked)။")}
+        </Card>
+      )}
       <Card className="p-3 text-xs text-muted-foreground">
         {tt(lang,
           "Edit per-payment third-party payout (e.g. agent/recruiter cut deducted before NPR), an explicit NPR override, or the revenue classification (new / expansion / reactivation). Changes recompute the statement preview live.",
@@ -329,7 +338,7 @@ function PaymentsTab({ partner, year, month, lang }: { partner: Partner; year: n
       </Card>
       <Card className="divide-y">
         {data.map((p: any) => (
-          <PaymentRow key={p.id} p={p} lang={lang} onSave={(patch) => update.mutateAsync({ id: p.id, ...patch })} />
+          <PaymentRow key={p.id} p={p} lang={lang} locked={locked} onSave={(patch) => update.mutateAsync({ id: p.id, ...patch })} />
         ))}
       </Card>
     </div>
