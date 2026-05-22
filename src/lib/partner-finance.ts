@@ -187,13 +187,13 @@ export function computeMonthlyStatement(args: ComputeArgs): MonthlyComputation {
 
   // Per SOP: Quality-gate OR Active-Growth-Requirement failure zeros BOTH growth
   // payout and bonus. Maintenance payouts are preserved (legacy revenue protection).
-  const growthPayout = gate && requirementMet ? growth * baseTier : 0;
-  const maintenancePayout = y2 * m_y2 + y3 * m_y3;
-  const bonusPayout = gate && requirementMet ? growth * bonus : 0;
+  const growthPayout = gate && requirementMet ? roundMmk(growth * baseTier) : 0;
+  const maintenancePayout = roundMmk(y2 * m_y2 + y3 * m_y3);
+  const bonusPayout = gate && requirementMet ? roundMmk(growth * bonus) : 0;
 
   const uncapped = growthPayout + maintenancePayout + bonusPayout;
-  const capValue = net * cap;
-  const total = Math.min(uncapped, capValue);
+  const capValue = roundMmk(net * cap);
+  const total = roundMmk(Math.min(uncapped, capValue));
   const capApplied = uncapped > capValue;
 
   return {
