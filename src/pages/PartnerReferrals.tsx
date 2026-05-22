@@ -42,7 +42,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
       if (userIds.length === 0) return rows;
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, full_name, email")
+        .select("id, display_name, email")
         .in("id", userIds);
       const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
       return rows.map((r) => ({ ...r, used_by_profile: r.used_by ? byId.get(r.used_by) ?? null : null }));
@@ -167,7 +167,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
             <div className="grid gap-2">
               {used.map((c) => {
                 const prof = c.used_by_profile;
-                const who = prof?.full_name || prof?.email || (c.used_by ? `${String(c.used_by).slice(0, 8)}…` : (my ? "မသိ" : "Unknown"));
+                const who = prof?.display_name || prof?.email || (c.used_by ? `${String(c.used_by).slice(0, 8)}…` : (my ? "မသိ" : "Unknown"));
                 const when = c.used_at ? new Date(c.used_at).toLocaleString(my ? "my-MM" : undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
                 return (
                   <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3">
