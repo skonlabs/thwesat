@@ -173,10 +173,12 @@ const AdminFinance = ({
     { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification", my: "အတည်ပြုရန်" }, amount: pendingTotal, tone: "warn" },
   ];
   const outRows: Row[] = [
-    { key: "out.mentor_paid", label: { en: "Mentor Payouts (Paid)", my: "Mentor ပေးချေပြီး" }, sub: { en: "Cash sent to mentors", my: "ပေးချေပြီး" }, amount: mentorPaidTotal },
-    { key: "out.mentor_owed", label: { en: "Mentor Payouts (Owed)", my: "Mentor ပေးရန်" }, sub: { en: "Liability — not yet paid", my: "မပေးရသေး" }, amount: mentorOwedTotal, tone: "warn" },
-    { key: "out.partner_paid", label: { en: "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
-    { key: "out.partner_owed", label: { en: "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
+    ...(isPartnerScope ? [] : [
+      { key: "out.mentor_paid" as RowKey, label: { en: "Mentor Payouts (Paid)", my: "Mentor ပေးချေပြီး" }, sub: { en: "Cash sent to mentors", my: "ပေးချေပြီး" }, amount: mentorPaidTotal },
+      { key: "out.mentor_owed" as RowKey, label: { en: "Mentor Payouts (Owed)", my: "Mentor ပေးရန်" }, sub: { en: "Liability — not yet paid", my: "မပေးရသေး" }, amount: mentorOwedTotal, tone: "warn" as const },
+    ]),
+    { key: "out.partner_paid", label: { en: isPartnerScope ? "Your Rev-share (Paid)" : "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
+    { key: "out.partner_owed", label: { en: isPartnerScope ? "Your Rev-share (Owed)" : "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
 
   // ===== Credits spent by role (internal — not cash movement) =====
