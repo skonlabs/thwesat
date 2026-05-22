@@ -100,7 +100,7 @@ const PartnerDashboard = () => {
       icon: CreditCard,
       label: { en: "Payments", my: "ငွေပေးချေမှုများ" },
       count: counts?.pendingPayments || 0,
-      path: "/partner/payments?status=pending",
+      path: "/partner/finance?tab=attributions&status=pending",
       tone: "amber" as const,
     },
     {
@@ -264,8 +264,9 @@ const PartnerDashboard = () => {
           <QuickLink icon={BarChart3} label={my ? "ခွဲခြမ်းစိတ်ဖြာ" : "Analytics"} onClick={() => navigate("/partner/analytics")} />
           <QuickLink icon={Briefcase} label={my ? "အလုပ်များ" : "All Jobs"} onClick={() => navigate("/partner/jobs")} />
           <QuickLink icon={Users} label={my ? "အသုံးပြုသူများ" : "All Users"} onClick={() => navigate("/partner/users")} />
-          <QuickLink icon={CreditCard} label={my ? "ငွေပေးချေမှု" : "Payments"} onClick={() => navigate("/partner/payments")} />
-          <QuickLink icon={Tag} label={my ? "ညွှန်းဆိုကုဒ်" : "Referral Codes"} onClick={() => navigate("/partner/referrals")} />
+          <QuickLink icon={CreditCard} label={my ? "ငွေကြေး" : "Finance"} onClick={() => navigate("/partner/finance")} />
+          <QuickLink icon={Tag} label={my ? "ညွှန်းဆိုကုဒ်" : "Referral Codes"} onClick={() => navigate("/partner/finance?tab=referrals")} />
+
         </div>
       </div>
     </div>

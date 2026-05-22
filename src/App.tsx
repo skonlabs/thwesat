@@ -45,6 +45,8 @@ import MentorFinance from "./pages/MentorFinance";
 import MentorPreferences from "./pages/MentorPreferences";
 import AdminFinance from "./pages/AdminFinance";
 import AdminPartnerFinance from "./pages/AdminPartnerFinance";
+import AdminFinanceHub from "./pages/AdminFinanceHub";
+import PartnerFinanceHub from "./pages/PartnerFinanceHub";
 import AdminPartners from "./pages/AdminPartners";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
@@ -183,8 +185,10 @@ const App = () => (
 
               <Route path="/mentor/finance" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorFinance /></AppRoleGuard>} />
               <Route path="/mentor/preferences" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorPreferences /></AppRoleGuard>} />
-              <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
-              <Route path="/admin/partner-finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
+              <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinanceHub /></SystemRoleGuard>} />
+              <Route path="/admin/finance/legacy" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
+              <Route path="/admin/partner-finance" element={<Navigate to="/admin/finance?tab=partners" replace />} />
+              <Route path="/admin/partner-finance/legacy" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
               <Route path="/admin/partners" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartners /></SystemRoleGuard>} />
 
               {/* Admin sub-pages */}
@@ -192,7 +196,7 @@ const App = () => (
               <Route path="/admin/edit-job/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><EmployerEditJob /></SystemRoleGuard>} />
               <Route path="/admin/users" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminUsers /></SystemRoleGuard>} />
               <Route path="/admin/analytics" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminAnalytics /></SystemRoleGuard>} />
-              <Route path="/admin/payments" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/admin/payments" element={<Navigate to="/admin/finance?tab=queue" replace />} />
               <Route path="/admin/employers" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/admin/guides/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEditGuide /></SystemRoleGuard>} />
               <Route path="/admin/moderation" element={<SystemRoleGuard allowedRoles={["admin","moderator"]}><ModeratorDashboard /></SystemRoleGuard>} />
@@ -208,10 +212,11 @@ const App = () => (
               <Route path="/partner/jobs" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminJobQueue /></SystemRoleGuard>} />
               <Route path="/partner/users" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminUsers /></SystemRoleGuard>} />
               <Route path="/partner/analytics" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminAnalytics /></SystemRoleGuard>} />
-              <Route path="/partner/payments" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminPayments /></SystemRoleGuard>} />
+              <Route path="/partner/finance" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerFinanceHub /></SystemRoleGuard>} />
+              <Route path="/partner/payments" element={<Navigate to="/partner/finance?tab=attributions" replace />} />
               <Route path="/partner/employers" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/partner/posts" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><ModeratorDashboard /></SystemRoleGuard>} />
-              <Route path="/partner/referrals" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><PartnerReferrals /></SystemRoleGuard>} />
+              <Route path="/partner/referrals" element={<Navigate to="/partner/finance?tab=referrals" replace />} />
             </Route>
 
             {/* Full-bleed onboarding flows (auth required, no AppLayout chrome so the
