@@ -1,5 +1,6 @@
 // Partner revenue-share calculation engine — implements the ThweSat–Partner SOP.
 // All amounts are MMK NPR (Net Platform Revenue per txn). Pure functions; no I/O.
+import { roundMmk } from "./finance";
 
 export const PLATFORM_MENTOR_CUT = 0.15; // platform keeps 15% of mentor session
 export const DEFAULT_PAYOUT_CAP = 0.35;
