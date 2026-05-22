@@ -289,13 +289,22 @@ const AdminFinance = ({
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
       {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className={hideHeader ? "" : "px-5"}>
-        {isPartnerScope && scopedIds!.length === 0 && (
-          <div className="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-muted-foreground">
-            {lang === "my"
-              ? "သင်နှင့် ချိတ်ဆက်ထားသော attributed user မရှိသေးပါ။ Referral link မှ user အသစ်ဝင်လာသည်နှင့် ဤနေရာတွင် ဝင်ငွေ / သုံးစွဲ ဒေတာ ပေါ်လာပါမည်။"
-              : "No attributed users yet. Revenue and spend numbers will appear here as users sign up via your referral link and start transacting."}
-          </div>
-        )}
+        {isPartnerScope && (() => {
+          const noUsers = scopedIds!.length === 0;
+          const noActivity = !noUsers && moneyInTotal === 0 && moneyOutTotal === 0 && spendTotalCredits === 0;
+          if (!noUsers && !noActivity) return null;
+          return (
+            <div className="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-muted-foreground">
+              {noUsers
+                ? (lang === "my"
+                    ? "သင်နှင့် ချိတ်ဆက်ထားသော attributed user မရှိသေးပါ။ Referral link မှ user အသစ်ဝင်လာသည်နှင့် ဤနေရာတွင် ဝင်ငွေ / သုံးစွဲ ဒေတာ ပေါ်လာပါမည်။"
+                    : "No attributed users yet. Revenue and spend numbers will appear here as users sign up via your referral link and start transacting.")
+                : (lang === "my"
+                    ? `သင်တွင် attributed user ${scopedIds!.length} ဦး ရှိသော်လည်း ဤလအတွင်း ငွေပေးချေမှု / သုံးစွဲမှု မှတ်တမ်း မရှိသေးပါ။`
+                    : `You have ${scopedIds!.length} attributed user${scopedIds!.length === 1 ? "" : "s"}, but none have completed any payments or credit spends yet — numbers below will populate once they transact.`)}
+            </div>
+          );
+        })()}
 
 
         {/* HERO: Money In → Net Platform → Money Out */}
