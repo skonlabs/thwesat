@@ -45,6 +45,7 @@ import MentorFinance from "./pages/MentorFinance";
 import MentorPreferences from "./pages/MentorPreferences";
 import AdminFinance from "./pages/AdminFinance";
 import AdminPartnerFinance from "./pages/AdminPartnerFinance";
+import AdminPartners from "./pages/AdminPartners";
 import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
 import CareerTracks from "./pages/CareerTracks";
@@ -184,6 +185,7 @@ const App = () => (
               <Route path="/mentor/preferences" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorPreferences /></AppRoleGuard>} />
               <Route path="/admin/finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminFinance /></SystemRoleGuard>} />
               <Route path="/admin/partner-finance" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartnerFinance /></SystemRoleGuard>} />
+              <Route path="/admin/partners" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminPartners /></SystemRoleGuard>} />
 
               {/* Admin sub-pages */}
               <Route path="/admin/jobs" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminJobQueue /></SystemRoleGuard>} />
