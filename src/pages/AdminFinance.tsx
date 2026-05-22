@@ -20,7 +20,22 @@ type RowKey =
   | "out.mentor_paid"
   | "out.mentor_owed"
   | "out.partner_paid"
-  | "out.partner_owed";
+  | "out.partner_owed"
+  | "spend.jobseeker"
+  | "spend.employer"
+  | "spend.agent"
+  | "spend.mentor";
+
+type SpendTxn = {
+  id: string;
+  user_id: string;
+  credits: number;
+  note: string | null;
+  ref_type: string | null;
+  ref_id: string | null;
+  created_at: string;
+  primary_role: string | null;
+};
 
 const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => {
   const { lang } = useLanguage();
@@ -63,6 +78,25 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     queryFn: async () => {
       const { data } = await supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(500);
       return data || [];
+    },
+  });
+
+  const { data: spends, isLoading: loadingSpends } = useQuery<SpendTxn[]>({
+    queryKey: ["admin-finance-spends"],
+    queryFn: async () => {
+      const { data: txns } = await supabase
+        .from("wallet_transactions")
+        .select("id,user_id,credits,note,ref_type,ref_id,created_at,kind")
+        .lt("credits", 0)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      const list = (txns || []).filter((t: any) => t.kind === "spend" || t.kind === "escrow_hold");
+      const userIds = Array.from(new Set(list.map((t: any) => t.user_id)));
+      if (userIds.length === 0) return [];
+      const { data: profs } = await supabase.from("profiles").select("id,primary_role").in("id", userIds);
+      const roleById = new Map((profs || []).map((p: any) => [p.id, p.primary_role]));
+      return list.map((t: any) => ({ ...t, primary_role: roleById.get(t.user_id) || null }));
     },
   });
 
@@ -120,6 +154,23 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
     { key: "out.partner_owed", label: { en: "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
 
+  // ===== Credits spent by role (internal — not cash movement) =====
+  const allSpends = spends || [];
+  const spendByRole = (role: string) =>
+    allSpends.filter((t) => (t.primary_role || "").toLowerCase() === role);
+  const sumCredits = (rs: SpendTxn[]) => rs.reduce((a, b) => a + Math.abs(Number(b.credits) || 0), 0);
+  const jsSpends = spendByRole("jobseeker");
+  const empSpends = spendByRole("employer");
+  const agtSpends = spendByRole("agent");
+  const mtrSpends = spendByRole("mentor");
+  const spendRows: Row[] = [
+    { key: "spend.jobseeker", label: { en: "Job Seekers", my: "အလုပ်ရှာသူ" }, sub: { en: "Mentor bookings, CV rewrites, priority apply", my: "Booking / CV / priority" }, amount: sumCredits(jsSpends) },
+    { key: "spend.employer", label: { en: "Employers", my: "အလုပ်ရှင်" }, sub: { en: "Job posts, feature unlocks", my: "Job post / feature" }, amount: sumCredits(empSpends) },
+    { key: "spend.agent", label: { en: "Recruiting Agents", my: "ကြားခံ" }, sub: { en: "Job posts on behalf of clients", my: "Job post (client)" }, amount: sumCredits(agtSpends) },
+    { key: "spend.mentor", label: { en: "Mentors", my: "Mentor" }, sub: { en: "Own tool usage (CV, cover, bookings)", my: "Tool သုံးစွဲ" }, amount: sumCredits(mtrSpends) },
+  ];
+  const spendTotalCredits = spendRows.reduce((a, r) => a + r.amount, 0);
+
   // ===== Details for selected row =====
   const detail = useMemo(() => {
     const paymentToRow = (p: any, amountOverride?: number) => ({
@@ -175,6 +226,19 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       date: s.paid_at || s.created_at,
     });
 
+    const spendToRow = (t: SpendTxn) => {
+      const action = t.note || t.ref_type || "spend";
+      return {
+        id: t.id,
+        title: action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        subtitle: `${shortRef(t.user_id)} · ${t.ref_type || ""}${t.ref_id ? " · " + shortRef(t.ref_id) : ""}`,
+        amount: Math.abs(Number(t.credits) || 0),
+        currency: "CREDITS",
+        status: "approved",
+        date: t.created_at,
+      };
+    };
+
     switch (selected) {
       case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
@@ -184,10 +248,15 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
       case "out.partner_owed": return { rows: partnerOwed.map(partnerToRow), loading: loadingPartner };
+      case "spend.jobseeker": return { rows: jsSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.employer": return { rows: empSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
+      case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner]);
+  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner, loadingSpends]);
 
-  const selectedRow = [...inRows, ...outRows].find((r) => r.key === selected)!;
+  const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
+  const selectedIsSpend = selected.startsWith("spend.");
 
   return (
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
@@ -272,6 +341,25 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
           />
         </div>
 
+        {/* Credits spent by role (internal activity, not cash movement) */}
+        <div className="mt-5">
+          <BreakdownColumn
+            title={lang === "my" ? "Credits သုံးစွဲမှု — အခန်းကဏ္ဍအလိုက်" : "Credits Spent on Platform — By Role"}
+            total={spendTotalCredits}
+            rows={spendRows}
+            selected={selected}
+            onSelect={setSelected}
+            lang={lang}
+            accent="default"
+            unit="CREDITS"
+            totalLabel={
+              lang === "my"
+                ? "ပလက်ဖောင်းအတွင်း သုံးစွဲမှု (ငွေသား မဟုတ်)"
+                : "Internal credit activity — not cash"
+            }
+          />
+        </div>
+
         {/* Details */}
         <div className="mt-6">
           <div className="mb-3 flex items-center gap-2">
@@ -279,7 +367,7 @@ const AdminFinance = ({ hideHeader = false }: { hideHeader?: boolean } = {}) => 
               {lang === "my" ? selectedRow.label.my : selectedRow.label.en}
             </h3>
             <span className="text-xs text-muted-foreground">
-              · {detail?.rows.length || 0} {lang === "my" ? "ခု" : "records"} · {formatMoney(selectedRow.amount, "MMK", lang)}
+              · {detail?.rows.length || 0} {lang === "my" ? "ခု" : "records"} · {formatMoney(selectedRow.amount, selectedIsSpend ? "CREDITS" : "MMK", lang)}
             </span>
           </div>
           <FinanceLedger
@@ -332,6 +420,7 @@ function BreakdownColumn({
   onSelect,
   lang,
   accent,
+  unit = "MMK",
 }: {
   title: string;
   total: number;
@@ -341,13 +430,14 @@ function BreakdownColumn({
   onSelect: (k: RowKey) => void;
   lang: "my" | "en";
   accent: "emerald" | "default";
+  unit?: string;
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card">
       <div className="flex items-baseline justify-between border-b border-border p-4">
         <h3 className="text-sm font-bold text-foreground">{title}</h3>
         <div className="text-right">
-          <p className="text-base font-bold text-foreground">{formatMoney(total, "MMK", lang)}</p>
+          <p className="text-base font-bold text-foreground">{formatMoney(total, unit, lang)}</p>
           {totalLabel && <p className="text-[10px] text-muted-foreground">{totalLabel}</p>}
         </div>
       </div>
@@ -373,7 +463,7 @@ function BreakdownColumn({
               </div>
               <div className="text-right">
                 <p className={`text-sm font-bold ${r.tone === "warn" ? "text-warning" : accent === "emerald" ? "text-emerald" : "text-foreground"}`}>
-                  {formatMoney(r.amount, "MMK", lang)}
+                  {formatMoney(r.amount, unit, lang)}
                 </p>
               </div>
               <ChevronRight className={`h-4 w-4 transition-colors ${active ? "text-primary" : "text-muted-foreground/40"}`} />

@@ -16,8 +16,12 @@ export function calculatePlacementFee(salary: number): number {
   return Math.round(salary * PLACEMENT_FEE_PERCENT);
 }
 
-export function formatMoney(amount: number, _currency: string, lang: "my" | "en" = "en") {
-  return `${Math.round(amount).toLocaleString()} Ks`;
+export function formatMoney(amount: number, currency: string = "MMK", lang: "my" | "en" = "en") {
+  const rounded = Math.round(amount).toLocaleString();
+  if ((currency || "").toUpperCase() === "CREDITS") {
+    return lang === "my" ? `${rounded} credits` : `${rounded} credits`;
+  }
+  return `${rounded} Ks`;
 }
 
 /** Aggregate a list of {amount, currency} into per-currency totals. */
