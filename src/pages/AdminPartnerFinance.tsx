@@ -67,23 +67,25 @@ export default function AdminPartnerFinance({
       {!hideHeader && <PageHeader title={tt(lang, "Partner Finance", "Partner ငွေကြေး")} showBack />}
       <div className={hideHeader ? "space-y-4" : "mx-auto max-w-6xl space-y-4 px-5 md:px-8"}>
         <div className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[200px] flex-1">
-            <Label className="text-xs">{tt(lang, "Partner", "Partner")}</Label>
-            {loadingPartners ? (
-              <div className="h-10 animate-pulse rounded-md bg-muted" />
-            ) : partners && partners.length > 0 ? (
-              <Select value={partner?.id} onValueChange={setSelectedId}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {partners.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name} ({p.code})</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="text-sm text-muted-foreground">{tt(lang, "No partners yet.", "Partner မရှိသေးပါ။")}</p>
-            )}
-          </div>
+          {!lockedPartnerId && (
+            <div className="min-w-[200px] flex-1">
+              <Label className="text-xs">{tt(lang, "Partner", "Partner")}</Label>
+              {loadingPartners ? (
+                <div className="h-10 animate-pulse rounded-md bg-muted" />
+              ) : partners && partners.length > 0 ? (
+                <Select value={partner?.id} onValueChange={setSelectedId}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {partners.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name} ({p.code})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-sm text-muted-foreground">{tt(lang, "No partners yet.", "Partner မရှိသေးပါ။")}</p>
+              )}
+            </div>
+          )}
           <div>
             <Label className="text-xs">{tt(lang, "Year", "ခုနှစ်")}</Label>
             <Input type="number" className="w-24" value={year} onChange={(e) => setYear(Number(e.target.value))} />
@@ -99,7 +101,7 @@ export default function AdminPartnerFinance({
               </SelectContent>
             </Select>
           </div>
-          <NewPartnerSheet lang={lang} />
+          {!readOnly && <NewPartnerSheet lang={lang} />}
         </div>
 
         {partner ? (
@@ -107,22 +109,24 @@ export default function AdminPartnerFinance({
             <TabsList>
               <TabsTrigger value="statement">{tt(lang, "Monthly Statement", "လစဉ် ထုတ်ပြန်ချက်")}</TabsTrigger>
               <TabsTrigger value="attributions">{tt(lang, "Attributions", "Attribution များ")}</TabsTrigger>
-              <TabsTrigger value="payments">{tt(lang, "Payments & Overrides", "ငွေပေးချေမှု & ပြင်ဆင်")}</TabsTrigger>
+              {!readOnly && <TabsTrigger value="payments">{tt(lang, "Payments & Overrides", "ငွေပေးချေမှု & ပြင်ဆင်")}</TabsTrigger>}
               <TabsTrigger value="quality">{tt(lang, "Quality Gate", "Quality Gate")}</TabsTrigger>
               <TabsTrigger value="reversals">{tt(lang, "Reversals", "ပြန်လည် နုတ်ယူ")}</TabsTrigger>
               <TabsTrigger value="history">{tt(lang, "Statement History", "မှတ်တမ်း")}</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="statement"><StatementTab partner={partner} year={year} month={month} lang={lang} /></TabsContent>
+            <TabsContent value="statement"><StatementTab partner={partner} year={year} month={month} lang={lang} readOnly={readOnly} /></TabsContent>
             <TabsContent value="attributions"><AttributionsTab partner={partner} lang={lang} /></TabsContent>
-            <TabsContent value="payments"><PaymentsTab partner={partner} year={year} month={month} lang={lang} /></TabsContent>
+            {!readOnly && <TabsContent value="payments"><PaymentsTab partner={partner} year={year} month={month} lang={lang} /></TabsContent>}
             <TabsContent value="quality"><QualityTab partner={partner} year={year} month={month} lang={lang} /></TabsContent>
             <TabsContent value="reversals"><ReversalsTab lang={lang} /></TabsContent>
             <TabsContent value="history"><HistoryTab partner={partner} lang={lang} /></TabsContent>
           </Tabs>
         ) : (
           <Card className="p-8 text-center text-sm text-muted-foreground">
-            {tt(lang, "Add your first partner to begin computing revenue-share statements.", "Revenue-share ထုတ်ပြန်ချက် တွက်ချက်ရန် ပထမဆုံး partner ထည့်ပါ။")}
+            {lockedPartnerId
+              ? tt(lang, "Loading partner…", "Partner ဖွင့်နေသည်…")
+              : tt(lang, "Add your first partner to begin computing revenue-share statements.", "Revenue-share ထုတ်ပြန်ချက် တွက်ချက်ရန် ပထမဆုံး partner ထည့်ပါ။")}
           </Card>
         )}
       </div>
