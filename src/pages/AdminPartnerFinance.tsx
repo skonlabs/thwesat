@@ -135,7 +135,7 @@ export default function AdminPartnerFinance({
 }
 
 // ───────────── Statement tab (visual waterfall) ─────────────
-function StatementTab({ partner, year, month, lang }: { partner: Partner; year: number; month: number; lang: "en" | "my" }) {
+function StatementTab({ partner, year, month, lang, readOnly = false }: { partner: Partner; year: number; month: number; lang: "en" | "my"; readOnly?: boolean }) {
   const { data, isLoading } = usePartnerStatementPreview(partner, year, month);
   const { data: payments } = usePartnerPeriodPayments(partner, year, month);
   const { data: allReversals } = usePaymentReversals();
