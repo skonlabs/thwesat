@@ -51,9 +51,11 @@ const ResetPassword = () => {
   }, []);
 
   const pwLongEnough = password.length >= PASSWORD_MIN_LENGTH;
+  const pwHasUpper = /[A-Z]/.test(password);
   const pwHasNumber = /[0-9]/.test(password);
+  const pwHasSpecial = SPECIAL_CHAR_REGEX.test(password);
   const pwMatch = password.length > 0 && password === confirmPassword;
-  const canSubmit = pwLongEnough && pwHasNumber && pwMatch && !isLoading;
+  const canSubmit = pwLongEnough && pwHasUpper && pwHasNumber && pwHasSpecial && pwMatch && !isLoading;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
