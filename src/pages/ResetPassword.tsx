@@ -173,6 +173,23 @@ const ResetPassword = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
+            {/* Password complexity helper */}
+            {password.length > 0 && (
+              <ul className="mt-2 space-y-1 text-xs">
+                <li className={pwLongEnough ? "text-emerald" : "text-muted-foreground"}>
+                  {pwLongEnough ? "✓" : "○"} {lang === "my" ? "အနည်းဆုံး ၈ လုံး" : "At least 8 characters"}
+                </li>
+                <li className={pwHasUpper ? "text-emerald" : "text-muted-foreground"}>
+                  {pwHasUpper ? "✓" : "○"} {lang === "my" ? "စာလုံးကြီး တစ်လုံး" : "At least one uppercase letter"}
+                </li>
+                <li className={pwHasNumber ? "text-emerald" : "text-muted-foreground"}>
+                  {pwHasNumber ? "✓" : "○"} {lang === "my" ? "နံပါတ် တစ်လုံး" : "At least one number"}
+                </li>
+                <li className={pwHasSpecial ? "text-emerald" : "text-muted-foreground"}>
+                  {pwHasSpecial ? "✓" : "○"} {lang === "my" ? "အထူးအက္ခရာ တစ်လုံး" : "At least one special character"}
+                </li>
+              </ul>
+            )}
           </div>
           <div>
             <Label className="mb-1.5 block text-xs font-medium text-muted-foreground">
