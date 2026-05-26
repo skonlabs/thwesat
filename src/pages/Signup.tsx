@@ -49,7 +49,9 @@ const Signup = () => {
   // Derived password checks
   const pwLongEnough = password.length >= PASSWORD_MIN_LENGTH;
   const pwHasNumber = /[0-9]/.test(password);
-  const pwValid = pwLongEnough && pwHasNumber;
+  const pwHasUpper = /[A-Z]/.test(password);
+  const pwHasSpecial = SPECIAL_CHAR_REGEX.test(password);
+  const pwValid = pwLongEnough && pwHasNumber && pwHasUpper && pwHasSpecial;
 
   // Auto-fill referral code from URL param
   useEffect(() => {
