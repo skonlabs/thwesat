@@ -16,10 +16,16 @@ import AuthShell from "@/components/AuthShell";
 import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 const PASSWORD_MIN_LENGTH = 8;
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
 
 /** Returns true if password satisfies all complexity requirements */
 function passwordMeetsRequirements(pw: string) {
-  return pw.length >= PASSWORD_MIN_LENGTH && /[0-9]/.test(pw);
+  return (
+    pw.length >= PASSWORD_MIN_LENGTH &&
+    /[A-Z]/.test(pw) &&
+    /[0-9]/.test(pw) &&
+    SPECIAL_CHAR_REGEX.test(pw)
+  );
 }
 
 const Signup = () => {
@@ -43,7 +49,9 @@ const Signup = () => {
   // Derived password checks
   const pwLongEnough = password.length >= PASSWORD_MIN_LENGTH;
   const pwHasNumber = /[0-9]/.test(password);
-  const pwValid = pwLongEnough && pwHasNumber;
+  const pwHasUpper = /[A-Z]/.test(password);
+  const pwHasSpecial = SPECIAL_CHAR_REGEX.test(password);
+  const pwValid = pwLongEnough && pwHasNumber && pwHasUpper && pwHasSpecial;
 
   // Auto-fill referral code from URL param
   useEffect(() => {
@@ -252,9 +260,19 @@ const Signup = () => {
                 text={lang === "my" ? "အနည်းဆုံး ၈ လုံး" : "At least 8 characters"}
               />
               <RequirementRow
+                met={pwHasUpper}
+                show={password.length > 0}
+                text={lang === "my" ? "စာလုံးကြီး တစ်လုံးပါရမည်" : "At least one uppercase letter"}
+              />
+              <RequirementRow
                 met={pwHasNumber}
                 show={password.length > 0}
                 text={lang === "my" ? "နံပါတ် တစ်လုံးပါရမည်" : "At least one number"}
+              />
+              <RequirementRow
+                met={pwHasSpecial}
+                show={password.length > 0}
+                text={lang === "my" ? "အထူးအက္ခရာ တစ်လုံးပါရမည်" : "At least one special character"}
               />
             </div>
           </div>
