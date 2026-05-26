@@ -12,6 +12,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 import AuthShell from "@/components/AuthShell";
 
 const PASSWORD_MIN_LENGTH = 8;
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
 
 const ResetPassword = () => {
   const navigate = useNavigate();
