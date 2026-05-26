@@ -76,12 +76,16 @@ const ForgotPassword = () => {
     if (resendCountdown > 0) return;
 
     setIsLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+    const { error } = await supabase.functions.invoke("send-password-reset", {
+      body: {
+        email: email.trim(),
+        redirectTo: `${window.location.origin}/reset-password`,
+        lang,
+      },
     });
     setIsLoading(false);
     if (error) {
-      toast({ title: error.message, variant: "destructive" });
+      toast({ title: error.message || "Failed to send reset email", variant: "destructive" });
       return;
     }
     sessionStorage.setItem(RATE_LIMIT_KEY, String(Date.now()));
