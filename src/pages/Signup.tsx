@@ -16,10 +16,16 @@ import AuthShell from "@/components/AuthShell";
 import SocialAuthButtons from "@/components/SocialAuthButtons";
 
 const PASSWORD_MIN_LENGTH = 8;
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
 
 /** Returns true if password satisfies all complexity requirements */
 function passwordMeetsRequirements(pw: string) {
-  return pw.length >= PASSWORD_MIN_LENGTH && /[0-9]/.test(pw);
+  return (
+    pw.length >= PASSWORD_MIN_LENGTH &&
+    /[A-Z]/.test(pw) &&
+    /[0-9]/.test(pw) &&
+    SPECIAL_CHAR_REGEX.test(pw)
+  );
 }
 
 const Signup = () => {
