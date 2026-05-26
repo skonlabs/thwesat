@@ -146,8 +146,8 @@ const ResetPassword = () => {
         </h1>
         <p className="mb-8 text-sm text-muted-foreground">
           {lang === "my"
-            ? "အနည်းဆုံး ၈ လုံး၊ နံပါတ် ၁ လုံး ပါရမည်။"
-            : "At least 8 characters, including a number."}
+            ? "အနည်းဆုံး ၈ လုံး၊ စာလုံးကြီး ၁ လုံး၊ နံပါတ် ၁ လုံးနှင့် အထူးအက္ခရာ ၁ လုံး ပါရမည်။"
+            : "At least 8 characters with one uppercase letter, one number, and one special character."}
         </p>
 
         <div className="space-y-4">
