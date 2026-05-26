@@ -260,9 +260,19 @@ const Signup = () => {
                 text={lang === "my" ? "အနည်းဆုံး ၈ လုံး" : "At least 8 characters"}
               />
               <RequirementRow
+                met={pwHasUpper}
+                show={password.length > 0}
+                text={lang === "my" ? "စာလုံးကြီး တစ်လုံးပါရမည်" : "At least one uppercase letter"}
+              />
+              <RequirementRow
                 met={pwHasNumber}
                 show={password.length > 0}
                 text={lang === "my" ? "နံပါတ် တစ်လုံးပါရမည်" : "At least one number"}
+              />
+              <RequirementRow
+                met={pwHasSpecial}
+                show={password.length > 0}
+                text={lang === "my" ? "အထူးအက္ခရာ တစ်လုံးပါရမည်" : "At least one special character"}
               />
             </div>
           </div>
