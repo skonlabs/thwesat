@@ -3311,6 +3311,10 @@ export type Database = {
       }
       tick_expire_subscriptions: { Args: never; Returns: undefined }
       try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
+      unlock_contact_with_quota: {
+        Args: { _target_id: string; _target_type: string }
+        Returns: Json
+      }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
       validate_delegate_token: {
         Args: { _token: string }
