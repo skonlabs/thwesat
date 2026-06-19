@@ -50,6 +50,107 @@ export type Database = {
         }
         Relationships: []
       }
+      addon_products: {
+        Row: {
+          created_at: string
+          duration_days: number | null
+          id: string
+          is_active: boolean
+          is_recurring: boolean
+          key: string
+          kind: string
+          label_en: string
+          label_my: string | null
+          mmk: number
+          role_scope: string
+          sort_order: number
+          unlock_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_days?: number | null
+          id?: string
+          is_active?: boolean
+          is_recurring?: boolean
+          key: string
+          kind: string
+          label_en: string
+          label_my?: string | null
+          mmk: number
+          role_scope?: string
+          sort_order?: number
+          unlock_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_days?: number | null
+          id?: string
+          is_active?: boolean
+          is_recurring?: boolean
+          key?: string
+          kind?: string
+          label_en?: string
+          label_my?: string | null
+          mmk?: number
+          role_scope?: string
+          sort_order?: number
+          unlock_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      addon_purchases: {
+        Row: {
+          addon_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          mmk_paid: number
+          starts_at: string
+          status: string
+          units_total: number
+          units_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          addon_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          mmk_paid: number
+          starts_at?: string
+          status?: string
+          units_total?: number
+          units_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          addon_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          mmk_paid?: number
+          starts_at?: string
+          status?: string
+          units_total?: number
+          units_used?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addon_purchases_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "addon_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -1030,6 +1131,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      launch_promo_config: {
+        Row: {
+          ends_at: string
+          id: number
+          is_active: boolean
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          ends_at?: string
+          id?: number
+          is_active?: boolean
+          starts_at?: string
+          updated_at?: string
+        }
+        Update: {
+          ends_at?: string
+          id?: number
+          is_active?: boolean
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       mentor_availability_slots: {
         Row: {
@@ -2314,6 +2439,221 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payment_requests: {
+        Row: {
+          addon_id: string | null
+          admin_note: string | null
+          created_at: string
+          cycle: string | null
+          id: string
+          launch_price_applied: boolean
+          mmk_amount: number
+          payment_method: string | null
+          plan_id: string | null
+          proof_url: string | null
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_reference: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          addon_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          cycle?: string | null
+          id?: string
+          launch_price_applied?: boolean
+          mmk_amount: number
+          payment_method?: string | null
+          plan_id?: string | null
+          proof_url?: string | null
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          addon_id?: string | null
+          admin_note?: string | null
+          created_at?: string
+          cycle?: string | null
+          id?: string
+          launch_price_applied?: boolean
+          mmk_amount?: number
+          payment_method?: string | null
+          plan_id?: string | null
+          proof_url?: string | null
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payment_requests_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "addon_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payment_requests_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          active_jobs_quota: number
+          created_at: string
+          id: string
+          is_active: boolean
+          is_unlimited_jobs: boolean
+          launch_mmk: number
+          monthly_mmk: number
+          role: string
+          sort_order: number
+          tier: string
+          unlock_quota: number
+          updated_at: string
+        }
+        Insert: {
+          active_jobs_quota?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_unlimited_jobs?: boolean
+          launch_mmk?: number
+          monthly_mmk: number
+          role: string
+          sort_order?: number
+          tier: string
+          unlock_quota?: number
+          updated_at?: string
+        }
+        Update: {
+          active_jobs_quota?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_unlimited_jobs?: boolean
+          launch_mmk?: number
+          monthly_mmk?: number
+          role?: string
+          sort_order?: number
+          tier?: string
+          unlock_quota?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_quotas: {
+        Row: {
+          active_jobs_quota: number
+          active_jobs_used: number
+          featured_jobs_total: number
+          featured_jobs_used: number
+          is_unlimited_jobs: boolean
+          unlocks_total: number
+          unlocks_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_jobs_quota?: number
+          active_jobs_used?: number
+          featured_jobs_total?: number
+          featured_jobs_used?: number
+          is_unlimited_jobs?: boolean
+          unlocks_total?: number
+          unlocks_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_jobs_quota?: number
+          active_jobs_used?: number
+          featured_jobs_total?: number
+          featured_jobs_used?: number
+          is_unlimited_jobs?: boolean
+          unlocks_total?: number
+          unlocks_used?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          auto_renew: boolean
+          cancelled_at: string | null
+          created_at: string
+          current_period_end: string
+          cycle: string
+          id: string
+          launch_ends_at: string | null
+          launch_price_applied: boolean
+          mmk_paid: number
+          plan_id: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end: string
+          cycle: string
+          id?: string
+          launch_ends_at?: string | null
+          launch_price_applied?: boolean
+          mmk_paid?: number
+          plan_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          cycle?: string
+          id?: string
+          launch_ends_at?: string | null
+          launch_price_applied?: boolean
+          mmk_paid?: number
+          plan_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topup_requests: {
         Row: {
           admin_note: string | null
@@ -2787,7 +3127,19 @@ export type Database = {
         Returns: undefined
       }
       approve_job: { Args: { _job_id: string }; Returns: Json }
+      approve_subscription_payment: {
+        Args: { p_admin_note?: string; p_request_id: string }
+        Returns: undefined
+      }
       can_notify: { Args: { _target_user_id: string }; Returns: boolean }
+      compute_subscription_price: {
+        Args: { p_cycle: string; p_plan_id: string }
+        Returns: {
+          launch_applied: boolean
+          launch_ends_at: string
+          mmk: number
+        }[]
+      }
       consume_delegate_token: {
         Args: { _session_id: string; _token: string }
         Returns: {
@@ -2927,6 +3279,10 @@ export type Database = {
         Returns: Json
       }
       refresh_job_featured: { Args: { _job_id: string }; Returns: undefined }
+      reject_subscription_payment: {
+        Args: { p_admin_note?: string; p_request_id: string }
+        Returns: undefined
+      }
       review_payment_request: {
         Args: { _admin_note?: string; _new_status: string; _payment_id: string }
         Returns: Json
@@ -2949,6 +3305,7 @@ export type Database = {
         Args: { _suspended: boolean; _user_id: string }
         Returns: Json
       }
+      tick_expire_subscriptions: { Args: never; Returns: undefined }
       try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
       validate_delegate_token: {
