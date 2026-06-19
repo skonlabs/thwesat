@@ -167,10 +167,11 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   const statusMix = useMemo(() => {
     const groups = { pending: 0, approved: 0, rejected: 0, revoked: 0 } as Record<string, number>;
     (payments || []).forEach((p) => { const s = (p.status || "pending") as string; groups[s] = (groups[s] || 0) + 1; });
+    (subPayments || []).forEach((p: any) => { const s = (p.status || "pending") as string; groups[s] = (groups[s] || 0) + 1; });
     const colors: Record<string, string> = { pending: "hsl(var(--warning))", approved: "hsl(var(--emerald))", rejected: "hsl(var(--destructive))", revoked: "hsl(var(--muted-foreground))" };
     const labels: Record<string, string> = { pending: my ? "စောင့်ဆိုင်း" : "Pending", approved: my ? "အတည်ပြု" : "Approved", rejected: my ? "ငြင်းပယ်" : "Rejected", revoked: my ? "ရုပ်သိမ်း" : "Revoked" };
     return Object.entries(groups).map(([k, v]) => ({ name: labels[k], value: v, color: colors[k] })).filter((d) => d.value > 0);
-  }, [payments, my]);
+  }, [payments, subPayments, my]);
 
   // Top partners by lifetime liability
   const topPartners = useMemo(() => {
