@@ -188,9 +188,7 @@ const Pricing = () => {
                   className={`mt-4 w-full rounded-xl py-2.5 text-sm font-bold transition ${
                     isCurrent
                       ? "cursor-not-allowed bg-muted text-muted-foreground"
-                      : popular
-                      ? "bg-primary text-primary-foreground hover:opacity-90"
-                      : "bg-foreground text-background hover:opacity-90"
+                      : "bg-primary text-primary-foreground hover:opacity-90"
                   }`}
                 >
                   {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "ဤ Package ကို ရယူပါ" : "Get this plan"}
