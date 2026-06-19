@@ -144,26 +144,22 @@ export function isLaunchActive(promo?: LaunchPromo | null): boolean {
   return now >= new Date(promo.starts_at).getTime() && now <= new Date(promo.ends_at).getTime();
 }
 
-/** Compute price (MMK) the user actually pays right now for a given plan + cycle */
+/** Compute the price the user actually pays right now for a given plan + cycle.
+ *  Promo behavior: when a launch promo is active, the first 3 months are free for ALL plans.
+ *  The user pays the standard plan price upfront; the paid period starts after the promo ends.
+ *  Yearly is always billed as 11 × monthly (one month free).
+ */
 export function computePrice(plan: SubscriptionPlan, cycle: BillingCycle, launchActive: boolean): {
   mmk: number;
+  originalYearlyMmk: number; // monthly × 12 (for strike-through on yearly)
   launchApplied: boolean;
   monthsCovered: number;
 } {
+  const originalYearlyMmk = plan.monthly_mmk * 12;
   if (cycle === "monthly") {
-    if (launchActive) return { mmk: plan.launch_mmk, launchApplied: true, monthsCovered: 1 };
-    return { mmk: plan.monthly_mmk, launchApplied: false, monthsCovered: 1 };
+    return { mmk: plan.monthly_mmk, originalYearlyMmk, launchApplied: launchActive, monthsCovered: 1 };
   }
-  // yearly = 11 months billed (1 month free)
-  if (launchActive) {
-    // 3 months at launch + 8 months at standard (rest of the 11)
-    return {
-      mmk: plan.launch_mmk * 3 + plan.monthly_mmk * 8,
-      launchApplied: true,
-      monthsCovered: 12,
-    };
-  }
-  return { mmk: plan.monthly_mmk * 11, launchApplied: false, monthsCovered: 12 };
+  return { mmk: plan.monthly_mmk * 11, originalYearlyMmk, launchApplied: launchActive, monthsCovered: 12 };
 }
 
 export function useMySubscription() {
