@@ -55,7 +55,22 @@ const AdminFinance = ({
   const isPartnerScope = !!attributedUserIds;
   const scopedIds = attributedUserIds ? Array.from(attributedUserIds) : null;
   const scopeKey = scopedIds ? [...scopedIds].sort().join(",") : "all";
-  const [selected, setSelected] = useState<RowKey>("in.topups");
+  const [selected, setSelected] = useState<RowKey>("in.subscription");
+
+  // Subscription + add-on payments (new monetization model).
+  const { data: subPayments, isLoading: loadingSubs } = useQuery({
+    queryKey: ["admin-finance-subs", scopeKey],
+    queryFn: async () => {
+      if (isPartnerScope && scopedIds!.length === 0) return [];
+      let q = (supabase as any).from("subscription_payment_requests")
+        .select("id,user_id,request_type,plan_id,cycle,addon_id,mmk_amount,launch_price_applied,payment_method,status,created_at,reviewed_at")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      if (isPartnerScope) q = q.in("user_id", scopedIds!);
+      const { data } = await q;
+      return (data || []) as any[];
+    },
+  });
 
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["admin-finance-payments", scopeKey],
