@@ -15,8 +15,7 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
-import { useSpendCredits, useActionPrice, useWallet, useCreditPackages, formatCredits } from "@/hooks/use-wallet";
-import TopupSheet from "@/components/wallet/TopupSheet";
+import { useMyQuotas, useMySubscription } from "@/hooks/use-subscription";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { HQ_COUNTRIES } from "@/lib/countries";
@@ -93,18 +92,18 @@ const EmployerPostJob = () => {
     setSkillInput("");
   };
   const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
-  const spend = useSpendCredits();
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const postPrice = useActionPrice("job_post");
-  const featurePrice = useActionPrice("featured_job");
-  const { data: wallet } = useWallet();
-  const totalCost = (postPrice?.price_credits ?? 0) + (isFeatured ? featurePrice?.price_credits ?? 0 : 0);
-  const balance = wallet?.balance_credits ?? 0;
-  const insufficient = balance < totalCost;
-  const [topupOpen, setTopupOpen] = useState(false);
-  const { data: creditPackages = [] } = useCreditPackages();
+  const { data: quotas } = useMyQuotas();
+  const { data: subscription } = useMySubscription();
+  const jobsRemaining = quotas?.is_unlimited_jobs
+    ? Infinity
+    : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
+  const featuredRemaining = Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0));
+  const noJobsLeft = !subscription || (jobsRemaining !== Infinity && jobsRemaining <= 0);
+  const noFeaturedLeft = isFeatured && featuredRemaining <= 0;
+  const insufficient = noJobsLeft || noFeaturedLeft;
   const isContract = roleType === "remote_contract";
 
   
@@ -155,8 +154,14 @@ const EmployerPostJob = () => {
       return;
     }
     if (insufficient) {
-      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", description: lang === "my" ? "ငွေဖြည့်ပါ" : "Top up your wallet first", variant: "destructive" });
-      setTopupOpen(true);
+      toast({
+        title: noJobsLeft
+          ? (lang === "my" ? "အလုပ်တင်ခွင့် ကုန်ပါပြီ" : "Job quota exhausted")
+          : (lang === "my" ? "Featured slot မရှိပါ" : "No featured slots left"),
+        description: lang === "my" ? "Package အဆင့်မြှင့်ပါ" : "Upgrade your plan to continue",
+        variant: "destructive",
+      });
+      navigate("/pricing");
       return;
     }
     setSubmitting(true);
@@ -188,19 +193,19 @@ const EmployerPostJob = () => {
         client_logo_url: isAgent && postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
         posted_by_label: isAgent ? postedByLabel : "self",
       };
-      const { error: rpcErr } = await (supabase as any).rpc("post_job_with_credits", {
+      const { error: rpcErr } = await (supabase as any).rpc("post_job_with_quota", {
         _payload: payload,
         _featured: isFeatured,
       });
       if (rpcErr) throw rpcErr;
-      qc.invalidateQueries({ queryKey: ["wallet"] });
-      qc.invalidateQueries({ queryKey: ["wallet-transactions"] });
-      qc.invalidateQueries({ queryKey: ["feature-unlocks"] });
+      qc.invalidateQueries({ queryKey: ["my-quotas"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
       setSuccessOpen(true);
     } catch (e: any) {
       const msg = e?.message || "";
-      if (msg.includes("insufficient_balance")) {
-        toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
+      if (msg.includes("quota_exhausted_jobs") || msg.includes("quota_exhausted_featured")) {
+        toast({ title: lang === "my" ? "Package အဆင့်မြှင့်ပါ" : "Upgrade your plan", variant: "destructive" });
+        navigate("/pricing");
       } else {
         toast({ title: lang === "my" ? "အမှားဖြစ်ပါသည်" : "Error submitting job", description: msg, variant: "destructive" });
       }
@@ -443,15 +448,18 @@ const EmployerPostJob = () => {
                   checked={isFeatured}
                   onCheckedChange={(v) => setIsFeatured(!!v)}
                   className="mt-0.5"
+                  disabled={featuredRemaining <= 0}
                 />
                 <div>
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <Star className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
                     {lang === "my" ? "Featured အဆင့်တင်" : "Mark as Featured"}
-                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">+{formatCredits(featurePrice?.price_credits ?? 0, lang)}</span>
+                    <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days."}
+                    {featuredRemaining <= 0
+                      ? (lang === "my" ? "Featured slot ဝယ်ပါ" : "Buy a Featured Job add-on from /pricing")
+                      : (lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days.")}
                   </p>
                 </div>
               </label>
@@ -500,16 +508,20 @@ const EmployerPostJob = () => {
               </div>
             )}
             <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
+              <div className="w-full rounded-xl border border-border bg-card p-3 text-[11px]">
+                <div className="flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
+                {isFeatured && <div className="mt-1 flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
+                {!subscription && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Active subscription required"}</p>}
+              </div>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting || insufficient}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? `${formatCredits(totalCost, lang)} ပေး၍ တင်မည်` : `Post for ${formatCredits(totalCost, lang)}`)}
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
               </Button>
               {insufficient && (
                 <p className="mt-2 w-full text-center text-[11px] text-destructive">
-                  {lang === "my" ? `${formatCredits(totalCost - balance, lang)} လိုအပ်သည်။ ` : `Need ${formatCredits(totalCost - balance, lang)} more. `}
-                  <button type="button" className="underline" onClick={() => setTopupOpen(true)}>{lang === "my" ? "ငွေဖြည့်မည်" : "Top up"}</button>
+                  <button type="button" className="underline" onClick={() => navigate("/pricing")}>{lang === "my" ? "Package အဆင့်မြှင့်ရန်" : "Upgrade plan"}</button>
                 </p>
               )}
             </div>
