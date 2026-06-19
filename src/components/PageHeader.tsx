@@ -8,6 +8,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useNotifications } from "@/hooks/use-notifications-data";
 import { useConversations } from "@/hooks/use-messages-data";
 import { useWallet } from "@/hooks/use-wallet";
+import WalletChip from "@/components/WalletChip";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
 

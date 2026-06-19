@@ -8,6 +8,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useUnreadMessageCount, useUnreadNotificationCount } from "@/hooks/use-unread-counts";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallet } from "@/hooks/use-wallet";
+import WalletChip from "@/components/WalletChip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import LanguageToggle from "@/components/LanguageToggle";
 
