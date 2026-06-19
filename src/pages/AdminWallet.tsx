@@ -11,8 +11,8 @@ import { getPaymentProofSignedUrl } from "@/hooks/use-payment";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 
-type Tab = "subscriptions" | "topups" | "adjust" | "prices" | "packages";
-const TABS: Tab[] = ["subscriptions", "topups", "adjust", "prices", "packages"];
+type Tab = "subscriptions" | "topups" | "adjust";
+const TABS: Tab[] = ["subscriptions", "topups", "adjust"];
 
 const AdminWallet = () => {
   const { lang } = useLanguage();
@@ -38,11 +38,9 @@ const AdminWallet = () => {
   const topupStatusFilter = searchParams.get("status");
 
   const tabLabels: Record<Tab, { en: string; my: string }> = {
-    subscriptions: { en: "Subscriptions", my: "Package" },
-    topups: { en: "Top-ups (legacy)", my: "ငွေဖြည့်" },
-    adjust: { en: "Adjust", my: "ပြင်ဆင်" },
-    prices: { en: "Prices (legacy)", my: "ဈေးနှုန်း" },
-    packages: { en: "Packages (legacy)", my: "ပက်ကေ့ဂျ်" },
+    subscriptions: { en: "Subscriptions & Add-ons", my: "Package" },
+    topups: { en: "Top-ups (legacy)", my: "ငွေဖြည့် (ယခင်)" },
+    adjust: { en: "Manual Adjust", my: "ပြင်ဆင်" },
   };
 
   const { data: subRequests = [] } = useQuery({
@@ -250,39 +248,6 @@ const AdminWallet = () => {
           </div>
         )}
 
-        {tab === "prices" && (
-          <div className="space-y-2">
-            {prices.map((p: any) => (
-              <div key={p.action_key} className="rounded-xl border border-border bg-card p-3 text-xs">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0">
-                    <div className="font-bold">{my && p.label_my ? p.label_my : p.label_en}</div>
-                    <div className="text-[10px] text-muted-foreground">{p.action_key} · {p.duration_days ? `${p.duration_days}${my ? "ရက်" : "d"}` : (my ? "တစ်ကြိမ်" : "one-time")}</div>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Input type="number" defaultValue={p.price_credits} className="h-8 w-24 text-xs" onBlur={(e) => {
-                      const v = Number(e.target.value);
-                      if (v !== p.price_credits) updatePrice.mutate({ key: p.action_key, price: v });
-                    }} />
-                    <span className="text-[10px] text-muted-foreground">Ks</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === "packages" && (
-          <div className="space-y-2">
-            {packages.map((p: any) => (
-              <div key={p.id} className="rounded-xl border border-border bg-card p-3 text-xs">
-                <div className="font-bold">{my && p.name_my ? p.name_my : p.name_en}</div>
-                <div className="text-[10px] text-muted-foreground">{p.price_mmk.toLocaleString()} Ks → {p.credits.toLocaleString()} Ks + {p.bonus_credits.toLocaleString()} Ks {my ? "ဘောနပ်စ်" : "bonus"}</div>
-              </div>
-            ))}
-            <p className="pt-2 text-[10px] text-muted-foreground">{my ? "ပက်ကေ့ဂျ်များကို ယာယီ SQL editor မှ ပြင်ဆင်ပါ။" : "Edit packages via the SQL editor for now."}</p>
-          </div>
-        )}
       </div>
     </div>
   );
