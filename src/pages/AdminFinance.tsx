@@ -13,6 +13,8 @@ import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 const PLATFORM_CUT_PERCENT = 0.15;
 
 type RowKey =
+  | "in.subscription"
+  | "in.addon"
   | "in.topups"
   | "in.placement"
   | "in.session"
