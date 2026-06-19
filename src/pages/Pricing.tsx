@@ -122,7 +122,6 @@ const Pricing = () => {
           {sortedPlans.map((plan) => {
             const Icon = TIER_ICON[plan.tier] ?? Sparkles;
             const priceInfo = computePrice(plan, cycle, launchActive);
-            const isStarterFree = plan.tier === "starter" && launchActive && priceInfo.mmk === 0;
             const isCurrent = currentSub?.plan_id === plan.id;
             const popular = plan.tier === "growth";
 
@@ -145,28 +144,26 @@ const Pricing = () => {
                 </div>
 
                 <div className="mt-3">
-                  {isStarterFree ? (
+                  {cycle === "yearly" ? (
                     <>
-                      <div className="text-3xl font-bold text-primary">{my ? "အခမဲ့" : "Free"}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {my ? `ထို့နောက် ${formatMMK(plan.monthly_mmk)} / လ` : `Then ${formatMMK(plan.monthly_mmk)} / mo`}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xs text-muted-foreground line-through tabular-nums">
+                          {formatMMK(priceInfo.originalYearlyMmk)}
+                        </span>
                       </div>
+                      <div className="text-2xl font-bold tabular-nums">{formatMMK(priceInfo.mmk)}</div>
+                      <div className="text-[11px] text-muted-foreground">{my ? "/ နှစ် (၁၁ လ စျေး)" : "/ year (pay 11, get 12)"}</div>
                     </>
                   ) : (
                     <>
                       <div className="text-2xl font-bold tabular-nums">{formatMMK(priceInfo.mmk)}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {cycle === "monthly" ? (my ? "/ လ" : "/ month") : my ? "/ နှစ်" : "/ year"}
-                      </div>
-                      {priceInfo.launchApplied && cycle === "monthly" && (
-                        <div className="mt-1 inline-block rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-bold">
-                          {my ? "ပထမ ၃ လ ပရိုမို" : "Launch · first 3 mo"}
-                        </div>
-                      )}
-                      {!priceInfo.launchApplied && cycle === "monthly" && plan.launch_mmk < plan.monthly_mmk && plan.launch_mmk > 0 && (
-                        <div className="text-[10px] text-muted-foreground line-through">{formatMMK(plan.monthly_mmk)}</div>
-                      )}
+                      <div className="text-[11px] text-muted-foreground">{my ? "/ လ" : "/ month"}</div>
                     </>
+                  )}
+                  {launchActive && (
+                    <div className="mt-1 inline-block rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-bold">
+                      {my ? "ပထမ ၃ လ အခမဲ့" : "First 3 months free"}
+                    </div>
                   )}
                 </div>
 
@@ -196,7 +193,7 @@ const Pricing = () => {
                       : "bg-foreground text-background hover:opacity-90"
                   }`}
                 >
-                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "ရွေးချယ်ရန်" : "Subscribe"}
+                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "ဤ Package ကို ရယူပါ" : "Get this plan"}
                 </button>
               </div>
             );
