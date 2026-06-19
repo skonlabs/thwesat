@@ -97,14 +97,18 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   // KPIs
   const approved = (payments || []).filter((p) => p.status === "approved");
   const pending = (payments || []).filter((p) => p.status === "pending");
+  const subApproved = (subPayments || []).filter((p: any) => p.status === "approved");
+  const subPending = (subPayments || []).filter((p: any) => p.status === "pending");
   const nprOf = (p: any) => {
     if (p.npr_amount != null) return roundMmk(Number(p.npr_amount));
     const gross = Number(p.amount || 0);
     if (p.payment_type === "mentor_session") return roundMmk(gross * PLATFORM_MENTOR_CUT);
     return roundMmk(Math.max(0, gross - Number(p.third_party_payout || 0)));
   };
-  const platformRevenue = approved.reduce((s, p) => s + nprOf(p), 0);
-  const pendingValue = pending.reduce((s, p) => s + Number(p.amount || 0), 0);
+  const subscriptionRevenue = subApproved.reduce((s: number, p: any) => s + roundMmk(Number(p.mmk_amount || 0)), 0);
+  const platformRevenue = approved.reduce((s, p) => s + nprOf(p), 0) + subscriptionRevenue;
+  const pendingValue = pending.reduce((s, p) => s + Number(p.amount || 0), 0)
+    + subPending.reduce((s: number, p: any) => s + Number(p.mmk_amount || 0), 0);
   const mentorOwed = (earnings || []).filter((e: any) => e.status === "pending" && !e.paid_out_at).reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
   const partnerOwed = (partnerStats || []).filter((s: any) => s.status === "finalized" && !s.paid_at).reduce((sum: number, s: any) => sum + Number(s.total_payout || 0), 0);
 
