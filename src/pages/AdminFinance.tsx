@@ -360,7 +360,7 @@ const AdminFinance = ({
             label={lang === "my" ? "Net Platform ဝင်ငွေ" : "Net Platform Revenue"}
             amount={netPlatform}
             tone="primary"
-            sub={lang === "my" ? "Placement + 15% session cut" : "Placement fees + 15% session cut"}
+            sub={lang === "my" ? "Subscription + Add-on + Placement + 15% session" : "Subscriptions + Add-ons + Placement + 15% session"}
           />
           <HeroCard
             icon={ArrowUpRight}
