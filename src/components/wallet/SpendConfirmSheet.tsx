@@ -33,15 +33,20 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
 
-  // unlock_contact is migrated to subscription quotas
+  // Subscription-quota-driven actions (new pricing model)
   const isQuotaUnlock = actionKey === "unlock_contact";
+  const isQuotaFeatured = actionKey === "featured_job";
+  const isQuotaAction = isQuotaUnlock || isQuotaFeatured;
+
   const unlocksLeft = Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
-  const noSubscription = isQuotaUnlock && !quotas;
-  const quotaExhausted = isQuotaUnlock && !!quotas && unlocksLeft <= 0;
+  const featuredLeft = Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0));
+  const remaining = isQuotaUnlock ? unlocksLeft : featuredLeft;
+  const noSubscription = isQuotaAction && !quotas;
+  const quotaExhausted = isQuotaAction && !!quotas && remaining <= 0;
 
   const balance = wallet?.balance_credits ?? 0;
   const cost = price?.price_credits ?? 0;
-  const insufficient = !isQuotaUnlock && balance < cost;
+  const insufficient = !isQuotaAction && balance < cost;
 
   const submit = async () => {
     setBusy(true);
@@ -55,6 +60,16 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
         queryClient.invalidateQueries({ queryKey: ["subscription-quotas"] });
         queryClient.invalidateQueries({ queryKey: ["feature-unlocks"] });
         onSuccess?.({ unlock: data?.unlock, already_unlocked: data?.already_unlocked });
+        onOpenChange(false);
+      } else if (isQuotaFeatured) {
+        const { data, error } = await (supabase as any).rpc("feature_job_with_quota", {
+          _job_id: targetId,
+        });
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ["subscription-quotas"] });
+        queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+        queryClient.invalidateQueries({ queryKey: ["jobs"] });
+        onSuccess?.({ unlock: data?.job_id, already_unlocked: data?.already_featured });
         onOpenChange(false);
       } else {
         if (!price) return;
@@ -71,8 +86,8 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
       }
     } catch (e: any) {
       const msg = e?.message || "";
-      if (msg.includes("no_unlocks_remaining")) {
-        toast.error(lang === "my" ? "Unlock လက်ကျန် မရှိတော့ပါ" : "No unlocks remaining");
+      if (msg.includes("no_unlocks_remaining") || msg.includes("quota_exhausted_featured")) {
+        toast.error(lang === "my" ? "လက်ကျန် မရှိတော့ပါ" : "No quota remaining");
       } else if (msg.includes("no_active_subscription")) {
         toast.error(lang === "my" ? "Subscription တစ်ခု လိုအပ်သည်" : "An active subscription is required");
       } else if (msg.includes("insufficient_balance")) {
@@ -85,10 +100,12 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
     }
   };
 
-  if (!isQuotaUnlock && !price) return null;
+  if (!isQuotaAction && !price) return null;
 
   const title = isQuotaUnlock
     ? (lang === "my" ? "ဆက်သွယ်ရန် အချက်အလက် ဖွင့်ရန်" : "Unlock candidate contact")
+    : isQuotaFeatured
+    ? (lang === "my" ? "Job ကို Featured အဖြစ် တင်ရန်" : "Feature this job")
     : (lang === "my" ? price!.label_my : price!.label_en);
 
   return (
