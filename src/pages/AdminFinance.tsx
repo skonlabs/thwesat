@@ -166,28 +166,38 @@ const AdminFinance = ({
   const partnerOwed = allPartner.filter((s) => s.status === "finalized" && !s.paid_at);
   const partnerPaid = allPartner.filter((s) => !!s.paid_at);
 
+  const allSubs = subPayments || [];
+  const approvedSubs = allSubs.filter((p: any) => p.status === "approved" && p.request_type === "subscription");
+  const approvedAddons = allSubs.filter((p: any) => p.status === "approved" && p.request_type === "addon");
+  const pendingSubs = allSubs.filter((p: any) => p.status === "pending");
+
   const sum = (n: number[]) => n.reduce((a, b) => a + (Number(b) || 0), 0);
   const topupsTotal = sum(allTopups.map((t) => Number(t.mmk_amount || 0)));
   const placementTotal = sum(approvedPlacement.map((p) => Number(p.amount)));
   const sessionTotal = sum(approvedSession.map((p) => Number(p.amount)));
-  const pendingTotal = sum(pending.map((p) => Number(p.amount)));
+  const subscriptionTotal = sum(approvedSubs.map((p: any) => Number(p.mmk_amount || 0)));
+  const addonTotal = sum(approvedAddons.map((p: any) => Number(p.mmk_amount || 0)));
+  const pendingTotal = sum(pending.map((p) => Number(p.amount))) + sum(pendingSubs.map((p: any) => Number(p.mmk_amount || 0)));
   const mentorPaidTotal = sum(paidPayouts.map((e) => Number(e.amount)));
   const mentorOwedTotal = sum(pendingPayouts.map((e) => Number(e.amount)));
   const partnerPaidTotal = sum(partnerPaid.map((s) => Number(s.total_payout || 0)));
   const partnerOwedTotal = sum(partnerOwed.map((s) => Number(s.total_payout || 0)));
 
-  const moneyInTotal = topupsTotal + placementTotal + sessionTotal;
+  const moneyInTotal = topupsTotal + placementTotal + sessionTotal + subscriptionTotal + addonTotal;
   const moneyOutTotal = mentorPaidTotal + partnerPaidTotal;
-  const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT;
+  // Subscriptions + add-ons are 100% NPR (no third-party payout).
+  const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT + subscriptionTotal + addonTotal;
   const liabilityTotal = mentorOwedTotal + partnerOwedTotal;
 
   // Row definitions: simple breakdown lines for IN and OUT
   type Row = { key: RowKey; label: { en: string; my: string }; sub: { en: string; my: string }; amount: number; tone?: "warn" };
   const inRows: Row[] = [
-    { key: "in.topups", label: { en: "Credit Top-ups", my: "Credit ဖြည့်" }, sub: { en: "From job seekers & mentees", my: "Job seeker / mentee" }, amount: topupsTotal },
+    { key: "in.subscription", label: { en: "Subscriptions", my: "Subscription" }, sub: { en: "Employer & Agent monthly/yearly plans", my: "Employer & Agent လစဉ်/နှစ်စဉ်" }, amount: subscriptionTotal },
+    { key: "in.addon", label: { en: "Add-ons", my: "Add-on" }, sub: { en: "Unlocks, featured jobs, matching pack", my: "Unlock / Featured / Matching" }, amount: addonTotal },
+    { key: "in.topups", label: { en: "Credit Top-ups (legacy)", my: "Credit ဖြည့် (ဟောင်း)" }, sub: { en: "Pre-subscription model", my: "Subscription မတိုင်မီ" }, amount: topupsTotal },
     { key: "in.placement", label: { en: "Placement Fees", my: "ခန့်အပ်ခ" }, sub: { en: "From employers", my: "Employer မှ" }, amount: placementTotal },
     { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Non-credit bookings", my: "Credit မဟုတ်" }, amount: sessionTotal },
-    { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification", my: "အတည်ပြုရန်" }, amount: pendingTotal, tone: "warn" },
+    { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification (all sources)", my: "အတည်ပြုရန် (အားလုံး)" }, amount: pendingTotal, tone: "warn" },
   ];
   const outRows: Row[] = [
     ...(isPartnerScope ? [] : [
