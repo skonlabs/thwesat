@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, pendingSubs, totalEmployers, mentors] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
-        // Match the destination view (/admin/users?role=employer) which filters profiles.primary_role
+        supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
       ]);
@@ -36,13 +36,14 @@ const AdminDashboard = () => {
         reports: reports.count || 0,
         pendingPayments: (pendingPayments as any).count || 0,
         pendingTopups: (pendingTopups as any).count || 0,
+        pendingSubs: (pendingSubs as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
       };
     },
   });
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingTopups || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingTopups || 0) + (counts?.pendingSubs || 0) + (counts?.reports || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
@@ -52,7 +53,8 @@ const AdminDashboard = () => {
   ];
 
   const pendingItems = [
-    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups" }, count: counts?.pendingTopups || 0, path: "/admin/wallet?tab=topups&status=pending", urgent: (counts?.pendingTopups || 0) > 0 },
+    { icon: WalletCards, label: { my: "Package တောင်းခံမှု", en: "Pending Subscriptions" }, count: counts?.pendingSubs || 0, path: "/admin/wallet", urgent: (counts?.pendingSubs || 0) > 0 },
+    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups (legacy)" }, count: counts?.pendingTopups || 0, path: "/admin/wallet?tab=topups&status=pending", urgent: (counts?.pendingTopups || 0) > 0 },
     { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments?status=pending", urgent: (counts?.pendingPayments || 0) > 0 },
     { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },

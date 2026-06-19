@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Edit3, MapPin, Globe, Wallet, TrendingUp, Bookmark, ChevronRight } from "lucide-react";
-import { useWallet } from "@/hooks/use-wallet";
+import { Edit3, MapPin, Globe, Sparkles, TrendingUp, Bookmark, ChevronRight, KeyRound } from "lucide-react";
 import { useApplications, useSavedJobIds } from "@/hooks/use-jobs";
+import { useMySubscription, useMyQuotas, useSubscriptionPlans, planLabel } from "@/hooks/use-subscription";
 import type { NavigateFunction } from "react-router-dom";
 
 interface Props {
@@ -41,32 +41,42 @@ export default function ProfileDashboardHero({
   displayName, headline, location, remoteReady, avatarUrl, avatarInitials,
   completionPct, isJobseeker, lang, onEdit, onNavigate,
 }: Props) {
-  const { data: wallet } = useWallet();
   const { data: applications = [] } = useApplications();
   const { data: savedIds = [] } = useSavedJobIds();
-  const credits = wallet?.balance_credits ?? 0;
+  const { data: sub } = useMySubscription();
+  const { data: quotas } = useMyQuotas();
+  const { data: plans = [] } = useSubscriptionPlans();
+  const plan = plans.find((p) => p.id === sub?.plan_id);
+  const unlocksLeft = Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
+  const planTile = {
+    icon: Sparkles,
+    label: lang === "my" ? "Package" : "Plan",
+    value: plan ? planLabel(plan.tier) : (lang === "my" ? "မရှိ" : "None"),
+    accent: true as const,
+    onClick: () => onNavigate(plan ? "/wallet" : "/pricing"),
+  };
+  const unlocksTile = {
+    icon: KeyRound,
+    label: lang === "my" ? "Unlock" : "Unlocks",
+    value: unlocksLeft.toLocaleString(),
+    accent: false as const,
+    onClick: () => onNavigate("/wallet"),
+  };
 
   const stats = isJobseeker
     ? [
-        {
-          icon: Wallet, label: lang === "my" ? "Credits" : "Credits",
-          value: credits.toLocaleString(), accent: true, onClick: () => onNavigate("/wallet"),
-        },
+        planTile,
         {
           icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာ" : "Applications",
-          value: applications.length.toString(), onClick: () => onNavigate("/applications"),
+          value: applications.length.toString(), accent: false as const, onClick: () => onNavigate("/applications"),
         },
         {
           icon: Bookmark, label: lang === "my" ? "သိမ်းထား" : "Saved",
-          value: savedIds.length.toString(), onClick: () => onNavigate("/jobs/saved"),
+          value: savedIds.length.toString(), accent: false as const, onClick: () => onNavigate("/jobs/saved"),
         },
       ]
-    : [
-        {
-          icon: Wallet, label: lang === "my" ? "Credits" : "Credits",
-          value: credits.toLocaleString(), accent: true, onClick: () => onNavigate("/wallet"),
-        },
-      ];
+    : [planTile, unlocksTile];
+
 
   return (
     <motion.section

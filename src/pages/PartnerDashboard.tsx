@@ -38,6 +38,7 @@ const PartnerDashboard = () => {
         pendingEmployers,
         pendingPayments,
         pendingTopups,
+        pendingSubs,
         approvedJobsToday,
         totalUsers,
         activeJobs,
@@ -51,6 +52,7 @@ const PartnerDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase
           .from("jobs")
           .select("id", { count: "exact", head: true })
@@ -69,6 +71,7 @@ const PartnerDashboard = () => {
         pendingEmployers: pendingEmployers.count || 0,
         pendingPayments: (pendingPayments as any).count || 0,
         pendingTopups: (pendingTopups as any).count || 0,
+        pendingSubs: (pendingSubs as any).count || 0,
         approvedJobsToday: approvedJobsToday.count || 0,
         totalUsers: totalUsers.count || 0,
         activeJobs: activeJobs.count || 0,
@@ -85,7 +88,8 @@ const PartnerDashboard = () => {
     (counts?.pendingPosts || 0) +
     (counts?.pendingEmployers || 0) +
     (counts?.pendingPayments || 0) +
-    (counts?.pendingTopups || 0);
+    (counts?.pendingTopups || 0) +
+    (counts?.pendingSubs || 0);
 
   // Review queues — partner's primary work surface
   const reviewQueues = [
