@@ -3266,6 +3266,10 @@ export type Database = {
         Args: { _featured?: boolean; _payload: Json }
         Returns: Json
       }
+      post_job_with_quota: {
+        Args: { _featured?: boolean; _payload: Json }
+        Returns: Json
+      }
       process_referral_reward: {
         Args: { _referrer_id: string }
         Returns: undefined
