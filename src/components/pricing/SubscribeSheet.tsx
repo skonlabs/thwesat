@@ -199,7 +199,7 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
               </div>
 
               <Button onClick={submit} disabled={uploading || !proofFile} className="w-full rounded-xl">
-                {uploading ? (my ? "တင်နေသည်..." : "Submitting...") : my ? "တင်သွင်းမည်" : "Submit for review"}
+                {uploading ? (my ? "တင်နေသည်..." : "Submitting...") : my ? "ပေးချေမှု တင်သွင်းရန်" : "Submit payment for review"}
               </Button>
             </div>
           )}
