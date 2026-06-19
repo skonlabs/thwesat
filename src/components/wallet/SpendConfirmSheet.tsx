@@ -5,7 +5,7 @@ import { Sparkles, AlertCircle, Lock } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useNavigate } from "react-router-dom";
 import { useWallet, useActionPrice, useSpendCredits, formatCredits } from "@/hooks/use-wallet";
-import { useQuotas } from "@/hooks/use-subscription";
+import { useMyQuotas } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
   const navigate = useNavigate();
   const price = useActionPrice(actionKey);
   const { data: wallet } = useWallet();
-  const { data: quotas } = useQuotas();
+  const { data: quotas } = useMyQuotas();
   const spend = useSpendCredits();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
