@@ -657,7 +657,7 @@ const EmployerPostJob = () => {
         </SheetContent>
       </Sheet>
 
-      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
+
 
       <Sheet open={successOpen} onOpenChange={setSuccessOpen}>
         <SheetContent side="bottom" className="bottom-16 mx-auto max-w-md rounded-t-2xl">
