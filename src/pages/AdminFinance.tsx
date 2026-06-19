@@ -391,9 +391,9 @@ const AdminFinance = ({
                     </>
                   ) : (
                     <>
-                      <strong className="text-foreground">Money In</strong> includes credit top-ups (deferred revenue — not yet earned) and session payments <strong className="text-foreground">before</strong> the mentor&apos;s 85% share is deducted.
-                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Placement fees + 15% of sessions.
-                      {" "}That is why <strong className="text-foreground">Money In ≠ Net Revenue + Money Out</strong> — Money In contains liabilities (credit top-ups) that are not platform costs or revenue.
+                      <strong className="text-foreground">Money In</strong> includes subscription &amp; add-on cash, legacy credit top-ups (deferred revenue), and session payments <strong className="text-foreground">before</strong> the mentor&apos;s 85% share is deducted.
+                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Subscriptions + Add-ons + Placement fees + 15% of sessions.
+                      {" "}That is why <strong className="text-foreground">Money In ≠ Net Revenue + Money Out</strong> — Money In contains liabilities (legacy credit top-ups) that are not platform revenue.
                     </>
                   )}
               </p>
