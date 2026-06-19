@@ -191,7 +191,7 @@ const Pricing = () => {
                       : "bg-primary text-primary-foreground hover:opacity-90"
                   }`}
                 >
-                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "ဤ Package ကို ရယူပါ" : "Get this plan"}
+                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "Subscribe" : "Subscribe"}
                 </button>
               </div>
             );

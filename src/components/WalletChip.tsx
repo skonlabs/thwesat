@@ -21,10 +21,10 @@ const WalletChip = () => {
       <button
         onClick={() => navigate("/pricing")}
         className="flex h-8 items-center gap-1 rounded-full bg-accent px-2.5 text-[11px] font-bold text-accent-foreground transition-colors hover:opacity-90"
-        aria-label={lang === "my" ? "Package ဝယ်ရန်" : "Subscribe"}
+        aria-label={lang === "my" ? "Package ဝယ်ရန်" : "Packages"}
       >
         <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-        <span>{lang === "my" ? "Package" : "Subscribe"}</span>
+        <span>{lang === "my" ? "Package" : "Packages"}</span>
       </button>
     );
   }
