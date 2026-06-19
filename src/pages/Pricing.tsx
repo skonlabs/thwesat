@@ -73,8 +73,8 @@ const Pricing = () => {
             </div>
             <div className="mt-0.5 text-xs text-muted-foreground">
               {my
-                ? `ပထမ ၃ လ — ပရိုမိုးရှင်း စျေးနှုန်း။ ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""} အထိ။`
-                : `Pay the launch price for your first 3 months. Promo ends ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""}.`}
+                ? `မည်သည့် Package မဆို ပထမ ၃ လ အခမဲ့။ ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""} အထိ။`
+                : `First 3 months free on any plan. Promo ends ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""}.`}
             </div>
           </div>
         )}
