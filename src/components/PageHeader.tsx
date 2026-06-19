@@ -111,14 +111,8 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
           </button>
           <div className="flex items-center gap-1">
             <LanguageToggle />
-            <button
-              onClick={() => navigate("/wallet")}
-              className="relative flex h-8 items-center gap-1 rounded-full bg-sidebar-accent px-2 text-[11px] font-bold text-shell-foreground transition-colors active:bg-sidebar-accent/80"
-              aria-label={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"}
-            >
-              <Coins className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-              <span className="tabular-nums">{(wallet?.balance_credits ?? 0).toLocaleString()}</span>
-            </button>
+            <WalletChip />
+
             <button
               onClick={() => navigate("/notifications")}
               className="relative flex h-8 w-8 items-center justify-center rounded-lg text-shell-foreground/70 transition-colors active:bg-sidebar-accent"
