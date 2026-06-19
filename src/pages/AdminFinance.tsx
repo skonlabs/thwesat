@@ -293,11 +293,23 @@ const AdminFinance = ({
       };
     };
 
+    const subToRow = (p: any) => ({
+      id: p.id,
+      title: p.request_type === "addon" ? (lang === "my" ? "Add-on ဝယ်ယူ" : "Add-on Purchase") : (lang === "my" ? "Subscription" : "Subscription"),
+      subtitle: `${(p.payment_method || "").toUpperCase()} · ${p.cycle ? p.cycle.toUpperCase() + " · " : ""}${p.launch_price_applied ? "LAUNCH · " : ""}${shortRef(p.id)}`,
+      amount: Number(p.mmk_amount || 0),
+      currency: "MMK",
+      status: p.status,
+      date: p.created_at,
+    });
+
     switch (selected) {
+      case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };
+      case "in.addon": return { rows: approvedAddons.map(subToRow), loading: loadingSubs };
       case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.session": return { rows: approvedSession.map((p) => paymentToRow(p)), loading: loadingPayments };
-      case "in.pending": return { rows: pending.map((p) => paymentToRow(p)), loading: loadingPayments };
+      case "in.pending": return { rows: [...pending.map((p) => paymentToRow(p)), ...pendingSubs.map(subToRow)], loading: loadingPayments || loadingSubs };
       case "out.mentor_paid": return { rows: paidPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
@@ -307,7 +319,7 @@ const AdminFinance = ({
       case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
       case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner, loadingSpends]);
+  }, [selected, allTopups, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, loadingSpends]);
 
   const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
   const selectedIsSpend = selected.startsWith("spend.");
