@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Check, Sparkles, Zap, Crown, Rocket } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/use-language";
-import { useAuth } from "@/hooks/use-auth";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import {
   useSubscriptionPlans,
   useAddonProducts,
@@ -12,7 +12,6 @@ import {
   computePrice,
   formatMMK,
   planLabel,
-  planRoleFor,
   type SubscriptionPlan,
   type AddonProduct,
   type BillingCycle,
@@ -34,8 +33,10 @@ const TIER_ICON: Record<string, any> = {
 const Pricing = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
-  const { effectiveRole } = useAuth() as any;
-  const detected: PlanRole = planRoleFor(effectiveRole) ?? "employer";
+  const { allowedRoles } = useUserRoles();
+  const detected: PlanRole = allowedRoles.includes("agent")
+    ? "recruiting_agent"
+    : "employer";
   const [role, setRole] = useState<PlanRole>(detected);
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [selection, setSelection] = useState<Selection | null>(null);
