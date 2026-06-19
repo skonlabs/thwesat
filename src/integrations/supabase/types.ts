@@ -3154,6 +3154,7 @@ export type Database = {
         Returns: undefined
       }
       enroll_career_track: { Args: { _track_id: string }; Returns: Json }
+      feature_job_with_quota: { Args: { _job_id: string }; Returns: Json }
       get_applicant_contact: {
         Args: { _applicant_id: string }
         Returns: {
