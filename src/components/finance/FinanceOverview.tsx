@@ -56,6 +56,22 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
     },
   });
 
+  // Subscription + add-on payment requests (new monetization model).
+  // Treated as 100% NPR (no third-party payout).
+  const { data: subPayments } = useQuery({
+    queryKey: ["finance-overview-subscriptions", days, attributedUserIds ? Array.from(attributedUserIds).sort().join(",") : "all"],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("subscription_payment_requests")
+        .select("id,user_id,request_type,mmk_amount,status,created_at,reviewed_at")
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: false })
+        .limit(2000);
+      let rows = (data || []) as any[];
+      if (attributedUserIds) rows = rows.filter((r) => attributedUserIds.has(r.user_id));
+      return rows;
+    },
+  });
+
   const { data: earnings } = useQuery({
     queryKey: ["finance-overview-earnings"],
     enabled: !hidePlatformOnly,
@@ -81,18 +97,22 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   // KPIs
   const approved = (payments || []).filter((p) => p.status === "approved");
   const pending = (payments || []).filter((p) => p.status === "pending");
+  const subApproved = (subPayments || []).filter((p: any) => p.status === "approved");
+  const subPending = (subPayments || []).filter((p: any) => p.status === "pending");
   const nprOf = (p: any) => {
     if (p.npr_amount != null) return roundMmk(Number(p.npr_amount));
     const gross = Number(p.amount || 0);
     if (p.payment_type === "mentor_session") return roundMmk(gross * PLATFORM_MENTOR_CUT);
     return roundMmk(Math.max(0, gross - Number(p.third_party_payout || 0)));
   };
-  const platformRevenue = approved.reduce((s, p) => s + nprOf(p), 0);
-  const pendingValue = pending.reduce((s, p) => s + Number(p.amount || 0), 0);
+  const subscriptionRevenue = subApproved.reduce((s: number, p: any) => s + roundMmk(Number(p.mmk_amount || 0)), 0);
+  const platformRevenue = approved.reduce((s, p) => s + nprOf(p), 0) + subscriptionRevenue;
+  const pendingValue = pending.reduce((s, p) => s + Number(p.amount || 0), 0)
+    + subPending.reduce((s: number, p: any) => s + Number(p.mmk_amount || 0), 0);
   const mentorOwed = (earnings || []).filter((e: any) => e.status === "pending" && !e.paid_out_at).reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
   const partnerOwed = (partnerStats || []).filter((s: any) => s.status === "finalized" && !s.paid_at).reduce((sum: number, s: any) => sum + Number(s.total_payout || 0), 0);
 
-  // Daily revenue series (NPR per day)
+  // Daily revenue series (NPR per day) — merges payment_requests + subscription_payment_requests
   const buckets = useMemo(() => {
     const map = new Map<string, { date: string; label: string; revenue: number; pending: number; bookings: number }>();
     const today = new Date();
@@ -107,28 +127,51 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
       if (p.status === "approved") e.revenue += nprOf(p);
       else if (p.status === "pending") e.pending += Number(p.amount || 0);
     });
+    (subPayments || []).forEach((p: any) => {
+      const k = dayKey(new Date(p.created_at as string));
+      const e = map.get(k); if (!e) return;
+      if (p.status === "approved") e.revenue += roundMmk(Number(p.mmk_amount || 0));
+      else if (p.status === "pending") e.pending += Number(p.mmk_amount || 0);
+    });
     return Array.from(map.values());
-  }, [payments, days]);
+  }, [payments, subPayments, days]);
 
-  // Type mix (donut)
+  // Type mix (donut) — now includes subscription/add-on buckets
   const typeMix = useMemo(() => {
     const m = new Map<string, number>();
     approved.forEach((p) => {
       const t = p.payment_type === "mentor_session" ? "mentor" : p.payment_type === "placement_fee" ? "placement" : "other";
       m.set(t, (m.get(t) || 0) + nprOf(p));
     });
-    const colors: Record<string, string> = { placement: "hsl(var(--primary))", mentor: "hsl(var(--accent))", other: "hsl(var(--muted-foreground))" };
-    const labels: Record<string, string> = { placement: my ? "Placement Fee" : "Placement Fee", mentor: my ? "Mentor (15%)" : "Mentor (15%)", other: my ? "အခြား" : "Other" };
+    subApproved.forEach((p: any) => {
+      const t = p.request_type === "addon" ? "addon" : "subscription";
+      m.set(t, (m.get(t) || 0) + roundMmk(Number(p.mmk_amount || 0)));
+    });
+    const colors: Record<string, string> = {
+      subscription: "hsl(var(--primary))",
+      addon: "hsl(var(--accent))",
+      placement: "hsl(var(--emerald))",
+      mentor: "hsl(var(--warning))",
+      other: "hsl(var(--muted-foreground))",
+    };
+    const labels: Record<string, string> = {
+      subscription: my ? "Subscription" : "Subscription",
+      addon: my ? "Add-on" : "Add-on",
+      placement: my ? "Placement Fee" : "Placement Fee",
+      mentor: my ? "Mentor (15%)" : "Mentor (15%)",
+      other: my ? "အခြား" : "Other",
+    };
     return Array.from(m.entries()).map(([k, v]) => ({ name: labels[k], value: Math.round(v), color: colors[k] })).filter((d) => d.value > 0);
-  }, [approved, my]);
+  }, [approved, subApproved, my]);
 
   const statusMix = useMemo(() => {
     const groups = { pending: 0, approved: 0, rejected: 0, revoked: 0 } as Record<string, number>;
     (payments || []).forEach((p) => { const s = (p.status || "pending") as string; groups[s] = (groups[s] || 0) + 1; });
+    (subPayments || []).forEach((p: any) => { const s = (p.status || "pending") as string; groups[s] = (groups[s] || 0) + 1; });
     const colors: Record<string, string> = { pending: "hsl(var(--warning))", approved: "hsl(var(--emerald))", rejected: "hsl(var(--destructive))", revoked: "hsl(var(--muted-foreground))" };
     const labels: Record<string, string> = { pending: my ? "စောင့်ဆိုင်း" : "Pending", approved: my ? "အတည်ပြု" : "Approved", rejected: my ? "ငြင်းပယ်" : "Rejected", revoked: my ? "ရုပ်သိမ်း" : "Revoked" };
     return Object.entries(groups).map(([k, v]) => ({ name: labels[k], value: v, color: colors[k] })).filter((d) => d.value > 0);
-  }, [payments, my]);
+  }, [payments, subPayments, my]);
 
   // Top partners by lifetime liability
   const topPartners = useMemo(() => {

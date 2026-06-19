@@ -13,6 +13,8 @@ import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 const PLATFORM_CUT_PERCENT = 0.15;
 
 type RowKey =
+  | "in.subscription"
+  | "in.addon"
   | "in.topups"
   | "in.placement"
   | "in.session"
@@ -53,7 +55,22 @@ const AdminFinance = ({
   const isPartnerScope = !!attributedUserIds;
   const scopedIds = attributedUserIds ? Array.from(attributedUserIds) : null;
   const scopeKey = scopedIds ? [...scopedIds].sort().join(",") : "all";
-  const [selected, setSelected] = useState<RowKey>("in.topups");
+  const [selected, setSelected] = useState<RowKey>("in.subscription");
+
+  // Subscription + add-on payments (new monetization model).
+  const { data: subPayments, isLoading: loadingSubs } = useQuery({
+    queryKey: ["admin-finance-subs", scopeKey],
+    queryFn: async () => {
+      if (isPartnerScope && scopedIds!.length === 0) return [];
+      let q = (supabase as any).from("subscription_payment_requests")
+        .select("id,user_id,request_type,plan_id,cycle,addon_id,mmk_amount,launch_price_applied,payment_method,status,created_at,reviewed_at")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      if (isPartnerScope) q = q.in("user_id", scopedIds!);
+      const { data } = await q;
+      return (data || []) as any[];
+    },
+  });
 
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["admin-finance-payments", scopeKey],
@@ -149,28 +166,38 @@ const AdminFinance = ({
   const partnerOwed = allPartner.filter((s) => s.status === "finalized" && !s.paid_at);
   const partnerPaid = allPartner.filter((s) => !!s.paid_at);
 
+  const allSubs = subPayments || [];
+  const approvedSubs = allSubs.filter((p: any) => p.status === "approved" && p.request_type === "subscription");
+  const approvedAddons = allSubs.filter((p: any) => p.status === "approved" && p.request_type === "addon");
+  const pendingSubs = allSubs.filter((p: any) => p.status === "pending");
+
   const sum = (n: number[]) => n.reduce((a, b) => a + (Number(b) || 0), 0);
   const topupsTotal = sum(allTopups.map((t) => Number(t.mmk_amount || 0)));
   const placementTotal = sum(approvedPlacement.map((p) => Number(p.amount)));
   const sessionTotal = sum(approvedSession.map((p) => Number(p.amount)));
-  const pendingTotal = sum(pending.map((p) => Number(p.amount)));
+  const subscriptionTotal = sum(approvedSubs.map((p: any) => Number(p.mmk_amount || 0)));
+  const addonTotal = sum(approvedAddons.map((p: any) => Number(p.mmk_amount || 0)));
+  const pendingTotal = sum(pending.map((p) => Number(p.amount))) + sum(pendingSubs.map((p: any) => Number(p.mmk_amount || 0)));
   const mentorPaidTotal = sum(paidPayouts.map((e) => Number(e.amount)));
   const mentorOwedTotal = sum(pendingPayouts.map((e) => Number(e.amount)));
   const partnerPaidTotal = sum(partnerPaid.map((s) => Number(s.total_payout || 0)));
   const partnerOwedTotal = sum(partnerOwed.map((s) => Number(s.total_payout || 0)));
 
-  const moneyInTotal = topupsTotal + placementTotal + sessionTotal;
+  const moneyInTotal = topupsTotal + placementTotal + sessionTotal + subscriptionTotal + addonTotal;
   const moneyOutTotal = mentorPaidTotal + partnerPaidTotal;
-  const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT;
+  // Subscriptions + add-ons are 100% NPR (no third-party payout).
+  const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT + subscriptionTotal + addonTotal;
   const liabilityTotal = mentorOwedTotal + partnerOwedTotal;
 
   // Row definitions: simple breakdown lines for IN and OUT
   type Row = { key: RowKey; label: { en: string; my: string }; sub: { en: string; my: string }; amount: number; tone?: "warn" };
   const inRows: Row[] = [
-    { key: "in.topups", label: { en: "Credit Top-ups", my: "Credit ဖြည့်" }, sub: { en: "From job seekers & mentees", my: "Job seeker / mentee" }, amount: topupsTotal },
+    { key: "in.subscription", label: { en: "Subscriptions", my: "Subscription" }, sub: { en: "Employer & Agent monthly/yearly plans", my: "Employer & Agent လစဉ်/နှစ်စဉ်" }, amount: subscriptionTotal },
+    { key: "in.addon", label: { en: "Add-ons", my: "Add-on" }, sub: { en: "Unlocks, featured jobs, matching pack", my: "Unlock / Featured / Matching" }, amount: addonTotal },
+    { key: "in.topups", label: { en: "Credit Top-ups (legacy)", my: "Credit ဖြည့် (ဟောင်း)" }, sub: { en: "Pre-subscription model", my: "Subscription မတိုင်မီ" }, amount: topupsTotal },
     { key: "in.placement", label: { en: "Placement Fees", my: "ခန့်အပ်ခ" }, sub: { en: "From employers", my: "Employer မှ" }, amount: placementTotal },
     { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Non-credit bookings", my: "Credit မဟုတ်" }, amount: sessionTotal },
-    { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification", my: "အတည်ပြုရန်" }, amount: pendingTotal, tone: "warn" },
+    { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification (all sources)", my: "အတည်ပြုရန် (အားလုံး)" }, amount: pendingTotal, tone: "warn" },
   ];
   const outRows: Row[] = [
     ...(isPartnerScope ? [] : [
@@ -266,11 +293,23 @@ const AdminFinance = ({
       };
     };
 
+    const subToRow = (p: any) => ({
+      id: p.id,
+      title: p.request_type === "addon" ? (lang === "my" ? "Add-on ဝယ်ယူ" : "Add-on Purchase") : (lang === "my" ? "Subscription" : "Subscription"),
+      subtitle: `${(p.payment_method || "").toUpperCase()} · ${p.cycle ? p.cycle.toUpperCase() + " · " : ""}${p.launch_price_applied ? "LAUNCH · " : ""}${shortRef(p.id)}`,
+      amount: Number(p.mmk_amount || 0),
+      currency: "MMK",
+      status: p.status,
+      date: p.created_at,
+    });
+
     switch (selected) {
+      case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };
+      case "in.addon": return { rows: approvedAddons.map(subToRow), loading: loadingSubs };
       case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.session": return { rows: approvedSession.map((p) => paymentToRow(p)), loading: loadingPayments };
-      case "in.pending": return { rows: pending.map((p) => paymentToRow(p)), loading: loadingPayments };
+      case "in.pending": return { rows: [...pending.map((p) => paymentToRow(p)), ...pendingSubs.map(subToRow)], loading: loadingPayments || loadingSubs };
       case "out.mentor_paid": return { rows: paidPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
@@ -280,7 +319,7 @@ const AdminFinance = ({
       case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
       case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingEarnings, loadingPartner, loadingSpends]);
+  }, [selected, allTopups, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, loadingSpends]);
 
   const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
   const selectedIsSpend = selected.startsWith("spend.");
@@ -321,7 +360,7 @@ const AdminFinance = ({
             label={lang === "my" ? "Net Platform ဝင်ငွေ" : "Net Platform Revenue"}
             amount={netPlatform}
             tone="primary"
-            sub={lang === "my" ? "Placement + 15% session cut" : "Placement fees + 15% session cut"}
+            sub={lang === "my" ? "Subscription + Add-on + Placement + 15% session" : "Subscriptions + Add-ons + Placement + 15% session"}
           />
           <HeroCard
             icon={ArrowUpRight}
@@ -352,9 +391,9 @@ const AdminFinance = ({
                     </>
                   ) : (
                     <>
-                      <strong className="text-foreground">Money In</strong> includes credit top-ups (deferred revenue — not yet earned) and session payments <strong className="text-foreground">before</strong> the mentor&apos;s 85% share is deducted.
-                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Placement fees + 15% of sessions.
-                      {" "}That is why <strong className="text-foreground">Money In ≠ Net Revenue + Money Out</strong> — Money In contains liabilities (credit top-ups) that are not platform costs or revenue.
+                      <strong className="text-foreground">Money In</strong> includes subscription &amp; add-on cash, legacy credit top-ups (deferred revenue), and session payments <strong className="text-foreground">before</strong> the mentor&apos;s 85% share is deducted.
+                      {" "}<strong className="text-foreground">Net Platform Revenue</strong> = Subscriptions + Add-ons + Placement fees + 15% of sessions.
+                      {" "}That is why <strong className="text-foreground">Money In ≠ Net Revenue + Money Out</strong> — Money In contains liabilities (legacy credit top-ups) that are not platform revenue.
                     </>
                   )}
               </p>
