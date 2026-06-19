@@ -115,7 +115,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
           <SheetTitle className="text-base">{title}</SheetTitle>
         </SheetHeader>
         <div className="space-y-4 px-5 py-4">
-          {isQuotaUnlock ? (
+          {isQuotaAction ? (
             <>
               <div className="rounded-xl bg-gradient-to-br from-primary/5 to-accent/10 p-4">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary">
@@ -123,20 +123,24 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
                   {lang === "my" ? "ရရှိမည့် အကျိုးကျေးဇူး" : "What you'll get"}
                 </div>
                 <p className="mt-1.5 text-sm">
-                  {lang === "my"
-                    ? "ကိုယ်စားလှယ်တစ်ဦး၏ email နှင့် ဖုန်းနံပါတ်ကို ကြည့်ရှုနိုင်ပါမည်။"
-                    : "See this candidate's email and phone number."}
+                  {isQuotaUnlock
+                    ? (lang === "my"
+                      ? "ကိုယ်စားလှယ်တစ်ဦး၏ email နှင့် ဖုန်းနံပါတ်ကို ကြည့်ရှုနိုင်ပါမည်။"
+                      : "See this candidate's email and phone number.")
+                    : (lang === "my"
+                      ? "Job ကို ၃၀ ရက်ကြာ Featured အဖြစ် ထိပ်ဆုံးတွင် ပြသပါမည်။"
+                      : "Promote this job to the top of search results for 30 days.")}
                 </p>
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
                 <div>
                   <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "ကုန်ကျမည်" : "Cost"}</div>
-                  <div className="text-xl font-bold text-foreground">1 Unlock</div>
+                  <div className="text-xl font-bold text-foreground">{isQuotaUnlock ? "1 Unlock" : "1 Slot"}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-[10px] uppercase text-muted-foreground">{lang === "my" ? "လက်ကျန်" : "Remaining"}</div>
                   <div className={`text-xl font-bold tabular-nums ${quotaExhausted || noSubscription ? "text-destructive" : "text-foreground"}`}>
-                    {quotas ? unlocksLeft.toLocaleString() : "—"}
+                    {quotas ? remaining.toLocaleString() : "—"}
                   </div>
                 </div>
               </div>
@@ -145,7 +149,7 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
                 <>
                   <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
                     <Lock className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{lang === "my" ? "Subscription တစ်ခု လိုအပ်ပါသည်။" : "An active subscription is required to unlock contacts."}</span>
+                    <span>{lang === "my" ? "Subscription တစ်ခု လိုအပ်ပါသည်။" : "An active subscription is required."}</span>
                   </div>
                   <Button onClick={() => { onOpenChange(false); navigate("/pricing"); }} className="w-full rounded-xl">
                     {lang === "my" ? "Plan ရွေးမည်" : "Choose a plan"}
@@ -155,15 +159,23 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
                 <>
                   <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{lang === "my" ? "Unlock လက်ကျန် မရှိတော့ပါ။ Unlock pack ထပ်ဝယ်ပါ။" : "You're out of unlocks. Buy an unlock pack to continue."}</span>
+                    <span>
+                      {isQuotaUnlock
+                        ? (lang === "my" ? "Unlock လက်ကျန် မရှိတော့ပါ။ Unlock pack ထပ်ဝယ်ပါ။" : "You're out of unlocks. Buy an unlock pack to continue.")
+                        : (lang === "my" ? "Featured slot မရှိတော့ပါ။ Featured Job add-on ထပ်ဝယ်ပါ။" : "No featured slots left. Buy a Featured Job add-on.")}
+                    </span>
                   </div>
                   <Button onClick={() => { onOpenChange(false); navigate("/pricing"); }} className="w-full rounded-xl">
-                    {lang === "my" ? "Unlock Pack ဝယ်မည်" : "Buy unlock pack"}
+                    {isQuotaUnlock
+                      ? (lang === "my" ? "Unlock Pack ဝယ်မည်" : "Buy unlock pack")
+                      : (lang === "my" ? "Featured Job ဝယ်မည်" : "Buy featured slot")}
                   </Button>
                 </>
               ) : (
                 <Button onClick={submit} disabled={busy} className="w-full rounded-xl bg-primary">
-                  {busy ? "..." : (lang === "my" ? "1 Unlock သုံး၍ ဖွင့်မည်" : "Confirm — use 1 unlock")}
+                  {busy ? "..." : (isQuotaUnlock
+                    ? (lang === "my" ? "1 Unlock သုံး၍ ဖွင့်မည်" : "Confirm — use 1 unlock")
+                    : (lang === "my" ? "1 Slot သုံး၍ Featured လုပ်မည်" : "Confirm — use 1 featured slot"))}
                 </Button>
               )}
             </>
