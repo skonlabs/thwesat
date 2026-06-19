@@ -56,6 +56,22 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
     },
   });
 
+  // Subscription + add-on payment requests (new monetization model).
+  // Treated as 100% NPR (no third-party payout).
+  const { data: subPayments } = useQuery({
+    queryKey: ["finance-overview-subscriptions", days, attributedUserIds ? Array.from(attributedUserIds).sort().join(",") : "all"],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("subscription_payment_requests")
+        .select("id,user_id,request_type,mmk_amount,status,created_at,reviewed_at")
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: false })
+        .limit(2000);
+      let rows = (data || []) as any[];
+      if (attributedUserIds) rows = rows.filter((r) => attributedUserIds.has(r.user_id));
+      return rows;
+    },
+  });
+
   const { data: earnings } = useQuery({
     queryKey: ["finance-overview-earnings"],
     enabled: !hidePlatformOnly,
