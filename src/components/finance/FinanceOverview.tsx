@@ -112,7 +112,7 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   const mentorOwed = (earnings || []).filter((e: any) => e.status === "pending" && !e.paid_out_at).reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
   const partnerOwed = (partnerStats || []).filter((s: any) => s.status === "finalized" && !s.paid_at).reduce((sum: number, s: any) => sum + Number(s.total_payout || 0), 0);
 
-  // Daily revenue series (NPR per day)
+  // Daily revenue series (NPR per day) — merges payment_requests + subscription_payment_requests
   const buckets = useMemo(() => {
     const map = new Map<string, { date: string; label: string; revenue: number; pending: number; bookings: number }>();
     const today = new Date();
@@ -127,20 +127,42 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
       if (p.status === "approved") e.revenue += nprOf(p);
       else if (p.status === "pending") e.pending += Number(p.amount || 0);
     });
+    (subPayments || []).forEach((p: any) => {
+      const k = dayKey(new Date(p.created_at as string));
+      const e = map.get(k); if (!e) return;
+      if (p.status === "approved") e.revenue += roundMmk(Number(p.mmk_amount || 0));
+      else if (p.status === "pending") e.pending += Number(p.mmk_amount || 0);
+    });
     return Array.from(map.values());
-  }, [payments, days]);
+  }, [payments, subPayments, days]);
 
-  // Type mix (donut)
+  // Type mix (donut) — now includes subscription/add-on buckets
   const typeMix = useMemo(() => {
     const m = new Map<string, number>();
     approved.forEach((p) => {
       const t = p.payment_type === "mentor_session" ? "mentor" : p.payment_type === "placement_fee" ? "placement" : "other";
       m.set(t, (m.get(t) || 0) + nprOf(p));
     });
-    const colors: Record<string, string> = { placement: "hsl(var(--primary))", mentor: "hsl(var(--accent))", other: "hsl(var(--muted-foreground))" };
-    const labels: Record<string, string> = { placement: my ? "Placement Fee" : "Placement Fee", mentor: my ? "Mentor (15%)" : "Mentor (15%)", other: my ? "အခြား" : "Other" };
+    subApproved.forEach((p: any) => {
+      const t = p.request_type === "addon" ? "addon" : "subscription";
+      m.set(t, (m.get(t) || 0) + roundMmk(Number(p.mmk_amount || 0)));
+    });
+    const colors: Record<string, string> = {
+      subscription: "hsl(var(--primary))",
+      addon: "hsl(var(--accent))",
+      placement: "hsl(var(--emerald))",
+      mentor: "hsl(var(--warning))",
+      other: "hsl(var(--muted-foreground))",
+    };
+    const labels: Record<string, string> = {
+      subscription: my ? "Subscription" : "Subscription",
+      addon: my ? "Add-on" : "Add-on",
+      placement: my ? "Placement Fee" : "Placement Fee",
+      mentor: my ? "Mentor (15%)" : "Mentor (15%)",
+      other: my ? "အခြား" : "Other",
+    };
     return Array.from(m.entries()).map(([k, v]) => ({ name: labels[k], value: Math.round(v), color: colors[k] })).filter((d) => d.value > 0);
-  }, [approved, my]);
+  }, [approved, subApproved, my]);
 
   const statusMix = useMemo(() => {
     const groups = { pending: 0, approved: 0, rejected: 0, revoked: 0 } as Record<string, number>;
