@@ -11,35 +11,51 @@ import { getPaymentProofSignedUrl } from "@/hooks/use-payment";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 
+type Tab = "subscriptions" | "topups" | "adjust" | "prices" | "packages";
+const TABS: Tab[] = ["subscriptions", "topups", "adjust", "prices", "packages"];
+
 const AdminWallet = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (["topups","adjust","prices","packages"] as const).includes(searchParams.get("tab") as any)
-    ? (searchParams.get("tab") as "topups" | "adjust" | "prices" | "packages")
-    : "topups";
-  const [tab, setTabState] = useState<"topups" | "adjust" | "prices" | "packages">(initialTab);
-  const setTab = (next: "topups" | "adjust" | "prices" | "packages") => {
+  const initialTab = (TABS as readonly string[]).includes(searchParams.get("tab") || "")
+    ? (searchParams.get("tab") as Tab)
+    : "subscriptions";
+  const [tab, setTabState] = useState<Tab>(initialTab);
+  const setTab = (next: Tab) => {
     setTabState(next);
     const p = new URLSearchParams(searchParams);
-    if (next === "topups") p.delete("tab"); else p.set("tab", next);
+    if (next === "subscriptions") p.delete("tab"); else p.set("tab", next);
     setSearchParams(p, { replace: true });
   };
   useEffect(() => {
     const urlT = searchParams.get("tab");
-    const valid = (["topups","adjust","prices","packages"] as const).includes(urlT as any) ? urlT as any : "topups";
+    const valid = (TABS as readonly string[]).includes(urlT || "") ? (urlT as Tab) : "subscriptions";
     if (valid !== tab) setTabState(valid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const topupStatusFilter = searchParams.get("status");
 
-  const tabLabels: Record<typeof tab, { en: string; my: string }> = {
-    topups: { en: "Top-ups", my: "ငွေဖြည့်" },
+  const tabLabels: Record<Tab, { en: string; my: string }> = {
+    subscriptions: { en: "Subscriptions", my: "Package" },
+    topups: { en: "Top-ups (legacy)", my: "ငွေဖြည့်" },
     adjust: { en: "Adjust", my: "ပြင်ဆင်" },
-    prices: { en: "Prices", my: "ဈေးနှုန်း" },
-    packages: { en: "Packages", my: "ပက်ကေ့ဂျ်" },
+    prices: { en: "Prices (legacy)", my: "ဈေးနှုန်း" },
+    packages: { en: "Packages (legacy)", my: "ပက်ကေ့ဂျ်" },
   };
+
+  const { data: subRequests = [] } = useQuery({
+    queryKey: ["admin-sub-requests"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("subscription_payment_requests")
+        .select("*, plan:subscription_plans(role,tier,monthly_mmk,launch_mmk), addon:addon_products(key,label_en,kind,mmk)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return data ?? [];
+    },
+  });
 
   const { data: topups = [] } = useQuery({
     queryKey: ["admin-topups"],
