@@ -125,15 +125,26 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
             <div className="space-y-4">
               <div className="rounded-xl bg-muted p-3">
                 <div className="text-[11px] text-muted-foreground">{my ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
+                {isSub && selection.cycle === "yearly" && priceInfo!.originalYearlyMmk > priceInfo!.mmk && (
+                  <div className="text-xs text-muted-foreground line-through tabular-nums">
+                    {formatMMK(priceInfo!.originalYearlyMmk)}
+                  </div>
+                )}
                 <div className="text-2xl font-bold text-primary">{formatMMK(mmk)}</div>
                 {isSub && priceInfo!.launchApplied && (
                   <div className="mt-1 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
-                    {my ? "ဖွင့်ပွဲ စျေးနှုန်း · ပထမ ၃ လ" : "Launch price · first 3 months"}
+                    {my ? "ပထမ ၃ လ အခမဲ့ — Package သည် ပရိုမို ပြီးနောက် စတင်ပါမည်"
+                        : "First 3 months free — your paid period starts after the promo ends"}
                   </div>
                 )}
                 {isSub && selection.cycle === "yearly" && (
                   <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                    {my ? "နှစ်စဉ် — တစ်လ အခမဲ့" : "Yearly — one month free"}
+                    {my ? "နှစ်စဉ် — ၁၁ လ စျေး၊ ၁၂ လ အသုံးပြုနိုင်" : "Yearly — pay 11 months, get 12"}
+                  </div>
+                )}
+                {!isSub && selection.addon.key === "matching" && (
+                  <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                    {my ? "ဝယ်ပြီးချိန်တွင် ချက်ချင်း စတင်ပါမည်" : "Starts immediately after purchase"}
                   </div>
                 )}
                 {!isSub && selection.addon.duration_days && (
