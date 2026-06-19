@@ -1,94 +1,159 @@
-# Comprehensive test coverage plan
 
-Current state: 29 tests across 5 files. Coverage is concentrated on payments, partner finance, and job-expiry helpers. The rest of the app (mentor flow, applications, messaging, agents, role-gating, admin moderation, wallet) has zero unit-test coverage.
+# Plan: Replace pricing model with Subscription Packages + Add-ons
 
-This plan adds ~60 focused tests organized **by role**, hitting the business logic that has actually broken in past audits — not just smoke tests.
+## 1. What exists today
 
-## What gets tested
+**Database**
+- `action_prices` — per-action credit cost (e.g. `job_post`=50,000, `unlock_contact`=25,000, `featured_job`=10,000, `priority_application`, `profile_boost`, etc.)
+- `credit_packages` — MMK → generic credits top-up packs (Starter/Popular/Value/Power) with bonus credits
+- `wallets` — single `balance_credits` per user, plus lifetime stats
+- `wallet_transactions` — credit ledger (topup, spend, refund…)
+- `topup_requests` — manual MMK proof-upload flow → admin approves → credits added
+- `feature_unlocks` — time-bound unlocks (featured jobs, profile boosts, etc.)
+- `payment_requests` — generic payment proof (used for placement fee, mentor sessions)
 
-### 1. Job Seeker role — `src/test/roles/job-seeker.test.ts` (~8 tests)
-- `useApplyToJob`: blocks duplicate application, blocks application to expired job, blocks self-apply to own employer post, requires CV when job is `application_method=platform`.
-- `useSavedJobs`: toggle add/remove idempotency.
-- Job filters: `useJobs` excludes `expires_at < now()`, excludes non-`active` status.
-- CV primary toggle: setting one CV primary unflags others (client-side state guard).
+**Pages / code**
+- `src/pages/Wallet.tsx` — shows credit balance, top-up packages, transaction history
+- `src/pages/AdminWallet.tsx` — admin review of `topup_requests`
+- `src/pages/AdminDashboard.tsx` — manage `action_prices` and `credit_packages`
+- `src/pages/EmployerPostJob.tsx` — spends credits via `SpendConfirmSheet` for job_post / featured_job
+- `src/pages/MentorBooking.tsx`, `src/pages/CareerTracks.tsx` — spend credits
+- `src/components/wallet/SpendConfirmSheet.tsx`, `src/components/profile/ProfileDashboardHero.tsx`, `DesktopNav.tsx`, `PageHeader.tsx` — show credit balance
+- `src/hooks/use-wallet.ts` — wallet hook
 
-### 2. Employer role — `src/test/roles/employer.test.ts` (~9 tests)
-- `useCreateJob`: payload includes `expires_at`, `posted_by_label`, sanitized payment methods; rejects empty title.
-- Job lifecycle hook: pause→active→closed transitions call correct status; closed→active is blocked client-side.
-- `useApplications` (employer view): groups by job, filters by status param.
-- Placement-fee calc: `placement_fee = salary × rate` with min/max clamp.
-- Featured-job credit spend: insufficient balance throws before RPC call.
+**Memory rule (will change)**
+- "No subscription/premium/Pro tier… Monetization = credits + placement_fee + mentor_session only" — will be replaced with a subscription rule.
 
-### 3. Recruiting Agent role — `src/test/roles/agent.test.ts` (~5 tests)
-- Agent posting: `useCreateJob` with `agent_client_id` injects `client_company_name` + `client_logo_url` from selected client.
-- `useAgentClients`: only returns rows where `agent_id = auth.uid()`; soft-delete sets `is_active=false`.
-- Role label mapping: `useRoleLabels` returns Agent labels (not Employer) when `effectiveRole==='agent'`.
+---
 
-### 4. Mentor role — `src/test/roles/mentor.test.ts` (~10 tests)
-- `useCreateBooking`: blocks double-booking same slot, marks slot `is_booked=true`.
-- `useUpdateBookingStatus`: pending→confirmed allowed for mentor only; mentee cannot self-confirm.
-- Mentee dedup: `mentor_mentees` upsert keyed on `(mentor_id, mentee_id)`, increments `sessions_completed` on `completed`.
-- Escrow release on completion: both `mentor_completed_at` AND `mentee_completed_at` required before release.
-- Decline with `decline_reason` refunds escrow.
-- Availability slot validation: end_time > start_time.
+## 2. What's new (target model)
 
-### 5. Admin / Moderator role — `src/test/roles/admin.test.ts` (~9 tests)
-- `useApprovePost`, `useRejectPost`, `useApproveJob`: write `moderation_reason`, set correct status.
-- Admin payment review: revoke path triggers refund tx; approve writes `mentor_earnings`.
-- `useToggleUserRole`: blocks demoting last admin.
-- `useAdminAnalytics`: aggregates correctly handle empty datasets (no NaN).
-- Action prices CRUD: only admin role can mutate.
+### Subscription packages (per role)
 
-### 6. Messaging — `src/test/messaging.test.ts` (~6 tests)
-- `useStartConversation`: dedupes — returns existing conversation when both participants already share one.
-- Optimistic send: appends client UUID, reconciles on server echo.
-- `useUnreadCounts`: ignores own messages, counts only `is_read=false`.
-- Polling cadence: 30s when tab visible, paused on `document.hidden`.
+**Recruiting Agents** (monthly MMK / launch first-3-months MMK / active jobs / candidate unlocks)
+- Starter — 30,000 / Free / 10 / 300
+- Growth — 100,000 / 50,000 / 50 / 1,500
+- Business — 300,000 / 150,000 / 200 / 5,000
+- Enterprise — 750,000 / 500,000 / Unlimited / 20,000
 
-### 7. Notifications — `src/test/notifications.test.ts` (~4 tests)
-- Mark-as-read mutation flips only the targeted ID.
-- `link_path` deep-link is preserved through render.
-- Unread badge count caps at 99+.
+**Employers**
+- Starter — 15,000 / Free / 5 / 100
+- Growth — 50,000 / 25,000 / 20 / 500
+- Business — 150,000 / 75,000 / 100 / 2,500
+- Enterprise — 500,000 / 250,000 / Unlimited / 10,000
 
-### 8. Wallet & credits — `src/test/wallet.test.ts` (~5 tests)
-- `useSpendCredits`: throws `insufficient_credits` before RPC when balance < cost.
-- `useTopupRequest`: blocks amount=0 and amount>MAX.
-- Bonus credits applied: `credits + bonus_credits` is what's debited from package.
-- MMK rounding: package prices snap to nearest 100 MMK in display.
+**Billing options on every package**
+- Monthly
+- Yearly = monthly × 11 (one month free)
+- Launch promo: time-bound global window — anyone subscribing inside the window pays Launch price for first 3 months, then auto-rolls to standard. Window dates configurable in admin.
 
-### 9. Role/auth guards — `src/test/role-guards.test.tsx` (~6 tests)
-- `AppRoleGuard`: redirects unauthorized role to `/`, allows matching role, allows admin override.
-- `effectiveRole` derivation: agent + employer → agent wins; jobseeker + mentor → preserves both.
-- Public crawler block: `/jobs` accessible to anon, `/admin/*` redirects.
+### Add-ons (same MMK for both roles, with role-specific extras)
+- 100 Candidate Unlocks — 10,000
+- 500 Candidate Unlocks — 40,000
+- 1,000 Candidate Unlocks — 75,000
+- Featured Job (30 days) — 15,000
+- Candidate Matching Pack — 25,000 / month (recurring add-on, expires after 30 days)
+- Employer Branding Page — 25,000 / month (employer-only, recurring add-on)
 
-### 10. Server-side RPC contracts — `src/test/server-contracts.test.ts` (~5 tests)
-Read-only checks via `supabase--read_query` baked into a Vitest suite using a service-role lookup. Verifies the **shape and existence** of:
-- `review_payment_request(_payment_id, _new_status, _admin_note)` exists.
-- `admin_compute_partner_statement(_partner_id, _year, _month)` exists.
-- `post_job_with_credits(_payload, _featured)` exists.
-- `match_jobs_for_user(_user_id, _limit)` exists.
-- Critical triggers present on `jobs`, `applications`, `mentor_bookings`.
+### Wallet (new shape)
+Replace the "credit balance" with **quota counters per user**:
+- Active subscription: package name, billing cycle (monthly/yearly), price paid, started_at, current period end, auto-renew status, on-launch-promo flag, promo ends_at
+- Active Jobs: quota / used / remaining (Unlimited shown as ∞)
+- Candidate Unlocks: total (subscription + add-on packs) / used / remaining
+- Featured Jobs (30-day slots): total / used / remaining
+- Candidate Matching Pack: Active until {date} | Expired
+- Employer Branding Page (employer only): Active until {date} | Expired
+- Purchase history (subscriptions + add-ons)
 
-(This catches the class of bug where a migration is reverted but the frontend still calls the RPC.)
+---
 
-## What is explicitly NOT covered
+## 3. Pages affected
 
-- Visual regression / screenshot tests (out of scope).
-- E2E browser flows (would need Playwright; separate decision).
-- Edge function execution (those are tested via `supabase--test_edge_functions` separately on demand).
-- RLS enforcement (can only be tested with multiple JWTs; needs integration env).
+| Page | Change |
+|---|---|
+| `src/pages/Wallet.tsx` | Full rewrite: show current package, quotas, add-ons status, upgrade/downgrade buttons, add-on purchase, billing history. Remove credit balance & generic top-up packages. |
+| `src/pages/AdminWallet.tsx` | Review subscription & add-on payment proofs (instead of credit top-ups). New columns: package, cycle, launch-price applied. |
+| `src/pages/AdminDashboard.tsx` | New "Packages & Add-ons" config screen (edit prices, launch window, active flags). Remove `action_prices` / `credit_packages` editors. |
+| `src/pages/EmployerPostJob.tsx` | Replace credit spend with **quota check**: blocks post if Active Jobs quota reached or no active subscription; "Make featured" consumes 1 Featured Job slot (or prompts buy add-on). |
+| Job-post flow for Agents | Same quota logic on agent-side posting screens. |
+| `src/pages/MentorBooking.tsx` | Decoupled from credits — mentor sessions become direct MMK payment via existing `payment_requests` (placement-fee-style). |
+| `src/pages/CareerTracks.tsx` | Same: direct MMK payment, not credits. |
+| Candidate unlock points (search results, applications, etc.) | Replace credit spend with **Candidate Unlock counter** decrement; block when 0 with "Buy unlocks" CTA. |
+| `src/components/wallet/SpendConfirmSheet.tsx` | Replaced by `UseQuotaSheet` / `BuyAddOnSheet`. |
+| `src/components/profile/ProfileDashboardHero.tsx`, `DesktopNav.tsx`, `PageHeader.tsx` | Replace "credits: N" chip with package name + unlocks-remaining badge. |
+| `src/hooks/use-wallet.ts` | Rewrite to return `{ subscription, quotas, addOns }`. |
+| New: `src/pages/Pricing.tsx` (public) | Role tabs (Agent / Employer), 4 package cards each, monthly/yearly toggle, launch-promo strip, add-ons section, CTA to subscribe. |
+| Employer Branding Page (new) | Public page rendered when an employer has the active add-on; gated link from their profile. |
+| Onboarding (Agent / Employer) | After signup, prompt "Pick a plan" → Pricing page. Starter (Free during launch) selectable instantly. |
 
-## Execution order
+---
 
-1. Read each hook + page being tested to lock current contract.
-2. Write suites in the order above.
-3. Run `bunx vitest run` after each suite, fix failures (real bugs OR test bugs) before moving on.
-4. Final report: total tests, any production bugs uncovered along the way.
+## 4. Database changes (new schema)
 
-## Estimate
+**New tables**
+- `subscription_plans(id, role, tier, monthly_mmk, launch_mmk, active_jobs_quota, unlock_quota, is_unlimited_jobs, sort_order, is_active)` — seeded with the 8 rows above.
+- `addon_products(id, key, label, role_scope, mmk, kind ('unlock_pack'|'featured_job'|'matching'|'branding'), unlock_amount, duration_days, is_recurring, is_active)` — seeded with the 6 add-ons.
+- `subscriptions(id, user_id, plan_id, cycle ('monthly'|'yearly'), started_at, current_period_end, status, launch_price_applied, launch_ends_at, auto_renew, cancelled_at)`
+- `subscription_quotas(user_id PK, active_jobs_quota, active_jobs_used, unlocks_total, unlocks_used, featured_jobs_total, featured_jobs_used)` — denormalized counters (kept in sync by triggers / RPCs).
+- `addon_purchases(id, user_id, addon_id, mmk_paid, starts_at, expires_at, units_total, units_used, status)`
+- `subscription_payment_requests(id, user_id, plan_id, cycle, addon_id, mmk_amount, payment_method, proof_url, sender_reference, status, admin_note, reviewed_by, reviewed_at, …)` — same shape as `topup_requests`, replaces it for subscription flow.
+- `launch_promo_config(id PK=1, starts_at, ends_at, is_active)` — single row, admin-edited.
 
-~60 new tests, ~10 new files under `src/test/roles/` and `src/test/`. Likely uncovers 3–6 small production bugs that get fixed inline. Roughly a single focused work session.
+**Deprecate (mark inactive, keep for history)**
+- `credit_packages`, `action_prices`, `topup_requests`, `feature_unlocks`, `wallets.balance_credits`. Existing rows preserved; no new writes from the app.
 
-## Open question
+All new tables get GRANTs + RLS (user reads own; service_role full; admins via `has_role`).
 
-Want me to ship all 10 suites in one go, or stage it (Job Seeker + Employer + Mentor first, then Admin + cross-cutting)? Shipping all at once is faster but the diff will be large.
+Triggers:
+- On `subscriptions` insert (paid) → upsert `subscription_quotas` to plan values (additive for upgrades / reset on new period).
+- On `jobs` insert/delete → bump `active_jobs_used` (skip when plan is_unlimited_jobs).
+- On candidate unlock action → bump `unlocks_used` (fail if remaining ≤ 0).
+- On featured_job add-on purchase → bump `featured_jobs_total`.
+
+---
+
+## 5. Flows
+
+**Subscribe**
+1. User picks package + cycle on Pricing page.
+2. App computes price: launch window active → launch_mmk for first 3 months (then standard); yearly → monthly × 11.
+3. Insert `subscription_payment_requests` (pending) + upload proof → existing manual review UX.
+4. Admin approves in `AdminWallet` → creates `subscriptions`, sets `current_period_end` (+30 / +365 days), seeds `subscription_quotas`.
+
+**Add-on purchase**
+- Same proof-upload → admin-approve → applies (adds unlocks, or sets expiry for matching/branding/featured).
+
+**Renewal**
+- Manual: 7 days before `current_period_end`, notification + Wallet banner "Renew now". On approval of next payment, `current_period_end` extends and quotas reset (unlock add-on packs roll over their remaining balance separately).
+- No automatic recurring charge (matches current manual payment infrastructure).
+
+**Cancellation / downgrade**
+- Stays active until `current_period_end`, then `status='expired'`; user falls back to no plan (jobs above new quota become hidden/closed — to confirm policy).
+
+---
+
+## 6. Memory updates
+- Replace the "No subscription" core rule with: "Monetization = role-based subscription packages (Agent/Employer) with monthly/yearly billing + add-ons (unlock packs, featured job, candidate matching, employer branding). Mentor sessions and placement fees remain separate direct payments."
+- Add `mem://features/subscription-pricing` with the full price table, launch logic, yearly = ×11, quota rules.
+
+---
+
+## 7. Out of scope (call out)
+- Automatic recurring card billing (no gateway integration). All subscription payments use the existing manual proof-upload flow.
+- Pro-rated upgrades mid-cycle: v1 will simply start the new plan immediately and extend `current_period_end` by one cycle from approval date — confirm if pro-rate is desired.
+- Migration of existing credit balances → no automatic conversion. Existing users keep their `wallets.balance_credits` as historical record; UI hides it. Confirm if you want a one-time conversion (e.g. honour balance against future add-on purchases).
+
+---
+
+## 8. Implementation order
+1. Migration: new tables, GRANTs, RLS, triggers, seed `subscription_plans` + `addon_products` + `launch_promo_config`.
+2. `use-subscription` hook + replace `use-wallet`.
+3. New `Pricing.tsx` page + route + nav entry.
+4. Rewrite `Wallet.tsx` (quotas dashboard + purchase add-ons + history).
+5. Update job posting / featured / unlock-contact flows to quota checks.
+6. Switch mentor & career-track payments to direct MMK `payment_requests`.
+7. Admin: package/add-on/launch-promo editor + new approval queue in `AdminWallet`.
+8. Update header/profile chips. Update onboarding "pick a plan" step.
+9. Update memory files.
+
+Please confirm: (a) handling of existing `balance_credits` (drop vs convert), (b) downgrade behavior when active jobs exceed new quota, (c) whether mid-cycle upgrades should pro-rate.

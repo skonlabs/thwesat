@@ -1,123 +1,192 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wallet as WalletIcon, Plus, ArrowDownRight, ArrowUpRight, RefreshCw, Sparkles, Clock, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Wallet as WalletIcon,
+  Sparkles,
+  Briefcase,
+  Star,
+  Users,
+  Globe,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ArrowUpRight,
+} from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
-import { useWallet, useCreditPackages, useWalletTransactions, useMyTopupRequests, formatMMK, formatCredits, type CreditPackage } from "@/hooks/use-wallet";
-import TopupSheet from "@/components/wallet/TopupSheet";
+import {
+  useMySubscription,
+  useMyQuotas,
+  useMyAddonPurchases,
+  useMySubscriptionPaymentRequests,
+  useSubscriptionPlans,
+  useAddonProducts,
+  formatMMK,
+  planLabel,
+} from "@/hooks/use-subscription";
 
 const Wallet = () => {
   const { lang } = useLanguage();
+  const my = lang === "my";
   const navigate = useNavigate();
-  const { data: wallet, isLoading } = useWallet();
-  const { data: packages = [] } = useCreditPackages();
-  const { data: txs = [] } = useWalletTransactions(50);
-  const { data: topups = [] } = useMyTopupRequests();
-  const [topupOpen, setTopupOpen] = useState(false);
-  const [selectedPkg, setSelectedPkg] = useState<CreditPackage | null>(null);
 
-  const pendingTopups = useMemo(() => topups.filter((t) => t.status === "pending"), [topups]);
+  const { data: sub } = useMySubscription();
+  const { data: quotas } = useMyQuotas();
+  const { data: addonPurchases = [] } = useMyAddonPurchases();
+  const { data: payReqs = [] } = useMySubscriptionPaymentRequests();
+  const { data: allPlans = [] } = useSubscriptionPlans();
+  const { data: allAddons = [] } = useAddonProducts();
 
-  const balance = wallet?.balance_credits ?? 0;
+  const plan = useMemo(() => allPlans.find((p) => p.id === sub?.plan_id), [allPlans, sub?.plan_id]);
+  const addonsById = useMemo(() => Object.fromEntries(allAddons.map((a) => [a.id, a])), [allAddons]);
+
+  const pending = payReqs.filter((r) => r.status === "pending");
+  const matching = addonPurchases.find((p) => addonsById[p.addon_id]?.kind === "matching" && p.status === "active");
+  const branding = addonPurchases.find((p) => addonsById[p.addon_id]?.kind === "branding" && p.status === "active");
+
+  const remaining = (total: number, used: number) => Math.max(0, total - used);
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet"} />
-      <div className="px-5 space-y-5">
-        {/* Balance card */}
+      <PageHeader title={my ? "ပိုက်ဆံအိတ်" : "Wallet"} />
+      <div className="mx-auto w-full max-w-4xl px-5 space-y-5">
+        {/* Subscription card */}
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground shadow-lg">
           <div className="flex items-center gap-2 text-xs opacity-80">
             <WalletIcon className="h-4 w-4" />
-            <span>{lang === "my" ? "Wallet လက်ကျန်" : "Wallet balance"}</span>
+            <span>{my ? "လက်ရှိ Package" : "Current plan"}</span>
           </div>
-          <div className="mt-2 text-4xl font-bold tabular-nums">
-            {isLoading ? "—" : formatCredits(balance, lang)}
-          </div>
-          <div className="mt-1 text-xs opacity-75">
-            {lang === "my" ? "သင့် Wallet တွင် အသုံးပြုနိုင်သော ပမာဏ" : "Available to spend in your wallet"}
-          </div>
-          <button
-            onClick={() => { setSelectedPkg(null); setTopupOpen(true); }}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-accent-foreground shadow active:opacity-90"
-          >
-            <Plus className="h-4 w-4" />
-            {lang === "my" ? "ငွေဖြည့်မည်" : "Top up wallet"}
-          </button>
+
+          {sub && plan ? (
+            <>
+              <div className="mt-2 text-3xl font-bold">{planLabel(plan.tier)}</div>
+              <div className="mt-0.5 text-xs opacity-80">
+                {sub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"} ·{" "}
+                {my ? "သက်တမ်းကုန် " : "renews on "}
+                {new Date(sub.current_period_end).toLocaleDateString()}
+              </div>
+              {sub.launch_price_applied && sub.launch_ends_at && (
+                <div className="mt-2 inline-block rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-bold">
+                  {my ? `ပရိုမို ${new Date(sub.launch_ends_at).toLocaleDateString()} အထိ` : `Launch price until ${new Date(sub.launch_ends_at).toLocaleDateString()}`}
+                </div>
+              )}
+              <button
+                onClick={() => navigate("/pricing")}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-accent-foreground active:opacity-90"
+              >
+                <ArrowUpRight className="h-4 w-4" />
+                {my ? "Package ပြောင်းရန် / ထပ်ဖြည့်ရန်" : "Change plan / buy add-ons"}
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="mt-2 text-2xl font-bold">{my ? "Package မရှိသေးပါ" : "No active plan"}</div>
+              <div className="mt-0.5 text-xs opacity-80">
+                {my ? "Package တစ်ခု ရွေးချယ်၍ စတင်ပါ" : "Pick a plan to start posting jobs and unlocking candidates."}
+              </div>
+              <button
+                onClick={() => navigate("/pricing")}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-accent-foreground"
+              >
+                <Sparkles className="h-4 w-4" />
+                {my ? "Package ရွေးရန်" : "View pricing"}
+              </button>
+            </>
+          )}
         </div>
 
-        {pendingTopups.length > 0 && (
+        {pending.length > 0 && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
             <div className="flex items-center gap-1.5 font-semibold">
               <Clock className="h-3.5 w-3.5" />
-              {lang === "my"
-                ? `${pendingTopups.length} ခု စစ်ဆေးနေသည်`
-                : `${pendingTopups.length} top-up${pendingTopups.length > 1 ? "s" : ""} pending review`}
+              {my ? `${pending.length} ခု စစ်ဆေးနေသည်` : `${pending.length} payment${pending.length > 1 ? "s" : ""} pending review`}
             </div>
             <div className="mt-1 opacity-80">
-              {lang === "my" ? "Admin အတည်ပြုပြီးမှ Wallet ထဲသို့ ထည့်ပေးမည်။" : "Funds will appear after admin approval (usually within hours)."}
+              {my ? "Admin အတည်ပြုပြီးမှ Package သက်ဝင်ပါမည်။" : "Your plan/add-ons activate after admin approval."}
             </div>
           </div>
         )}
 
-        {/* Packages */}
+        {/* Quotas */}
         <section>
-          <h2 className="mb-2 text-sm font-bold">{lang === "my" ? "ငွေဖြည့် Package" : "Top-up packages"}</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {packages.map((p) => {
-              const total = p.credits + p.bonus_credits;
-              const badge = lang === "my" ? p.badge_my : p.badge_en;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => { setSelectedPkg(p); setTopupOpen(true); }}
-                  className="relative rounded-xl border border-border bg-card p-3 text-left transition active:scale-[0.98]"
-                >
-                  {badge && (
-                    <span className="absolute -top-1.5 right-2 rounded-full bg-accent px-1.5 py-0.5 text-[9px] font-bold text-accent-foreground">
-                      {badge}
-                    </span>
-                  )}
-                  <div className="text-xs font-semibold text-muted-foreground">{lang === "my" ? p.name_my : p.name_en}</div>
-                  <div className="mt-1 text-base font-bold">{formatCredits(total, lang)}</div>
-                  {p.bonus_credits > 0 && (
-                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400">+{p.bonus_credits.toLocaleString()} bonus</div>
-                  )}
-                  <div className="mt-1 text-xs text-primary">{formatMMK(p.price_mmk, lang)}</div>
-                </button>
-              );
-            })}
+          <h2 className="mb-2 text-sm font-bold">{my ? "သုံးစွဲမှု ခြေရာခံ" : "Usage tracker"}</h2>
+          <div className="grid gap-2 md:grid-cols-3">
+            <QuotaCard
+              icon={Briefcase}
+              label={my ? "Active Jobs" : "Active Jobs"}
+              total={quotas?.is_unlimited_jobs ? Infinity : quotas?.active_jobs_quota ?? 0}
+              used={quotas?.active_jobs_used ?? 0}
+              hint={my ? "လုပ်ငန်းတင်နိုင်သော အရေအတွက်" : "Job posts allowed in this period"}
+            />
+            <QuotaCard
+              icon={Users}
+              label={my ? "Candidate Unlocks" : "Candidate Unlocks"}
+              total={quotas?.unlocks_total ?? 0}
+              used={quotas?.unlocks_used ?? 0}
+              hint={my ? "ဆက်သွယ်ရန် Unlock ပြုထားသော ပမာဏ" : "Contact unlocks remaining"}
+            />
+            <QuotaCard
+              icon={Star}
+              label={my ? "Featured Job Slots" : "Featured Job Slots"}
+              total={quotas?.featured_jobs_total ?? 0}
+              used={quotas?.featured_jobs_used ?? 0}
+              hint={my ? "Add-on မှ ရရှိသော Featured slots" : "From featured-job add-ons"}
+            />
           </div>
         </section>
 
-        {/* Transactions */}
+        {/* Active recurring add-ons */}
         <section>
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-sm font-bold">{lang === "my" ? "မှတ်တမ်း" : "Recent activity"}</h2>
-            <button onClick={() => navigate("/payments/history")} className="text-xs text-primary">{lang === "my" ? "အားလုံး" : "View all"}</button>
+          <h2 className="mb-2 text-sm font-bold">{my ? "လက်ရှိ Add-ons" : "Active add-ons"}</h2>
+          <div className="space-y-2">
+            <AddonStatusRow
+              icon={Sparkles}
+              label={my ? "Candidate Matching Pack" : "Candidate Matching Pack"}
+              expiresAt={matching?.expires_at}
+            />
+            <AddonStatusRow
+              icon={Globe}
+              label={my ? "Employer Branding Page" : "Employer Branding Page"}
+              expiresAt={branding?.expires_at}
+            />
           </div>
-          {txs.length === 0 ? (
+        </section>
+
+        {/* Purchase history */}
+        <section>
+          <h2 className="mb-2 text-sm font-bold">{my ? "ဝယ်ယူမှု မှတ်တမ်း" : "Purchase history"}</h2>
+          {payReqs.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-              {lang === "my" ? "မှတ်တမ်း မရှိသေးပါ" : "No transactions yet"}
+              {my ? "မှတ်တမ်း မရှိသေးပါ" : "No purchases yet"}
             </div>
           ) : (
             <div className="space-y-1.5">
-              {txs.slice(0, 20).map((t) => {
-                const positive = t.credits > 0;
-                const Icon = t.kind === "topup" ? Plus : t.kind === "refund" ? RefreshCw : t.kind === "earning" ? Sparkles : positive ? ArrowUpRight : ArrowDownRight;
+              {payReqs.slice(0, 20).map((r) => {
+                const StatusIcon = r.status === "approved" ? CheckCircle2 : r.status === "rejected" ? XCircle : Clock;
+                const tone = r.status === "approved" ? "text-emerald-600" : r.status === "rejected" ? "text-destructive" : "text-amber-600";
+                const planRow = r.plan_id ? allPlans.find((p) => p.id === r.plan_id) : null;
+                const addonRow = r.addon_id ? addonsById[r.addon_id] : null;
+                const title =
+                  r.request_type === "subscription" && planRow
+                    ? `${planLabel(planRow.tier)} (${r.cycle === "yearly" ? "yearly" : "monthly"})`
+                    : addonRow
+                    ? (my && addonRow.label_my) || addonRow.label_en
+                    : my
+                    ? "ပေးပို့မှု"
+                    : "Payment";
                 return (
-                  <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`flex h-7 w-7 items-center justify-center rounded-full ${positive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate text-xs font-semibold">{txLabel(t, lang)}</div>
-                        <div className="text-[10px] text-muted-foreground">{new Date(t.created_at).toLocaleString()}</div>
+                  <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold">{title}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {formatMMK(r.mmk_amount)} · {new Date(r.created_at).toLocaleDateString()}
+                        {r.payment_method ? ` · ${r.payment_method.toUpperCase()}` : ""}
                       </div>
                     </div>
-                    <div className={`text-xs font-bold tabular-nums ${positive ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>
-                      {positive ? "+" : ""}{formatCredits(t.credits, lang)}
+                    <div className={`flex items-center gap-1 ${tone}`}>
+                      <StatusIcon className="h-3.5 w-3.5" />
+                      <span className="capitalize">{r.status}</span>
                     </div>
                   </div>
                 );
@@ -125,51 +194,79 @@ const Wallet = () => {
             </div>
           )}
         </section>
-
-        {topups.length > 0 && (
-          <section>
-            <h2 className="mb-2 text-sm font-bold">{lang === "my" ? "ငွေဖြည့်မှု မှတ်တမ်း" : "Top-up history"}</h2>
-            <div className="space-y-1.5">
-              {topups.slice(0, 10).map((t) => {
-                const StatusIcon = t.status === "approved" ? CheckCircle2 : t.status === "rejected" ? XCircle : Clock;
-                const tone = t.status === "approved" ? "text-emerald-600" : t.status === "rejected" ? "text-destructive" : "text-amber-600";
-                return (
-                  <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
-                    <div>
-                      <div className="font-semibold">{formatMMK(t.mmk_amount, lang)} → {formatCredits(t.credits_to_grant, lang)}</div>
-                      <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {new Date(t.created_at).toLocaleDateString()}</div>
-                    </div>
-                    <div className={`flex items-center gap-1 ${tone}`}>
-                      <StatusIcon className="h-3.5 w-3.5" />
-                      <span className="capitalize">{t.status}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
       </div>
-
-      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} initialPackage={selectedPkg ?? undefined} packages={packages} />
     </div>
   );
 };
 
-function txLabel(t: { kind: string; ref_type: string | null; ref_id: string | null; note: string | null }, lang: "my" | "en") {
-  if (t.note) return t.note;
-  const map: Record<string, { my: string; en: string }> = {
-    topup: { my: "ငွေဖြည့်မှု", en: "Top-up" },
-    spend: { my: "သုံးစွဲမှု", en: "Spend" },
-    earning: { my: "ဝင်ငွေ", en: "Earning" },
-    escrow_hold: { my: "Booking ထိန်းသိမ်း", en: "Booking hold" },
-    escrow_release: { my: "ပြန်ထုတ်", en: "Released" },
-    refund: { my: "ပြန်အမ်း", en: "Refund" },
-    adjustment: { my: "ပြုပြင်မှု", en: "Adjustment" },
-    migration: { my: "ပြောင်းရွှေ့မှု", en: "Migration" },
-    payout: { my: "Payout", en: "Payout" },
-  };
-  return (map[t.kind] && (lang === "my" ? map[t.kind].my : map[t.kind].en)) || t.kind;
-}
+const QuotaCard = ({
+  icon: Icon,
+  label,
+  total,
+  used,
+  hint,
+}: {
+  icon: any;
+  label: string;
+  total: number;
+  used: number;
+  hint: string;
+}) => {
+  const unlimited = total === Infinity;
+  const remaining = unlimited ? Infinity : Math.max(0, total - used);
+  const pct = unlimited || total === 0 ? 0 : Math.min(100, Math.round((used / total) * 100));
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </div>
+      <div className="mt-1 flex items-baseline gap-1">
+        <span className="text-2xl font-bold tabular-nums">{unlimited ? "∞" : remaining.toLocaleString()}</span>
+        {!unlimited && <span className="text-[11px] text-muted-foreground">/ {total.toLocaleString()}</span>}
+      </div>
+      <div className="text-[10px] text-muted-foreground">{hint}</div>
+      {!unlimited && total > 0 && (
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const AddonStatusRow = ({
+  icon: Icon,
+  label,
+  expiresAt,
+}: {
+  icon: any;
+  label: string;
+  expiresAt?: string | null;
+}) => {
+  const active = !!expiresAt && new Date(expiresAt).getTime() > Date.now();
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-border bg-card px-3 py-2.5 text-xs">
+      <div className="flex items-center gap-2">
+        <div className={`flex h-8 w-8 items-center justify-center rounded-full ${active ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div>
+          <div className="font-semibold">{label}</div>
+          <div className="text-[10px] text-muted-foreground">
+            {active ? `Active until ${new Date(expiresAt!).toLocaleDateString()}` : "Not active"}
+          </div>
+        </div>
+      </div>
+      <span
+        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+          active ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" : "bg-muted text-muted-foreground"
+        }`}
+      >
+        {active ? "Active" : "Inactive"}
+      </span>
+    </div>
+  );
+};
 
 export default Wallet;

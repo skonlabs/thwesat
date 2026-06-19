@@ -11,35 +11,51 @@ import { getPaymentProofSignedUrl } from "@/hooks/use-payment";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 
+type Tab = "subscriptions" | "topups" | "adjust" | "prices" | "packages";
+const TABS: Tab[] = ["subscriptions", "topups", "adjust", "prices", "packages"];
+
 const AdminWallet = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (["topups","adjust","prices","packages"] as const).includes(searchParams.get("tab") as any)
-    ? (searchParams.get("tab") as "topups" | "adjust" | "prices" | "packages")
-    : "topups";
-  const [tab, setTabState] = useState<"topups" | "adjust" | "prices" | "packages">(initialTab);
-  const setTab = (next: "topups" | "adjust" | "prices" | "packages") => {
+  const initialTab = (TABS as readonly string[]).includes(searchParams.get("tab") || "")
+    ? (searchParams.get("tab") as Tab)
+    : "subscriptions";
+  const [tab, setTabState] = useState<Tab>(initialTab);
+  const setTab = (next: Tab) => {
     setTabState(next);
     const p = new URLSearchParams(searchParams);
-    if (next === "topups") p.delete("tab"); else p.set("tab", next);
+    if (next === "subscriptions") p.delete("tab"); else p.set("tab", next);
     setSearchParams(p, { replace: true });
   };
   useEffect(() => {
     const urlT = searchParams.get("tab");
-    const valid = (["topups","adjust","prices","packages"] as const).includes(urlT as any) ? urlT as any : "topups";
+    const valid = (TABS as readonly string[]).includes(urlT || "") ? (urlT as Tab) : "subscriptions";
     if (valid !== tab) setTabState(valid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const topupStatusFilter = searchParams.get("status");
 
-  const tabLabels: Record<typeof tab, { en: string; my: string }> = {
-    topups: { en: "Top-ups", my: "ငွေဖြည့်" },
+  const tabLabels: Record<Tab, { en: string; my: string }> = {
+    subscriptions: { en: "Subscriptions", my: "Package" },
+    topups: { en: "Top-ups (legacy)", my: "ငွေဖြည့်" },
     adjust: { en: "Adjust", my: "ပြင်ဆင်" },
-    prices: { en: "Prices", my: "ဈေးနှုန်း" },
-    packages: { en: "Packages", my: "ပက်ကေ့ဂျ်" },
+    prices: { en: "Prices (legacy)", my: "ဈေးနှုန်း" },
+    packages: { en: "Packages (legacy)", my: "ပက်ကေ့ဂျ်" },
   };
+
+  const { data: subRequests = [] } = useQuery({
+    queryKey: ["admin-sub-requests"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("subscription_payment_requests")
+        .select("*, plan:subscription_plans(role,tier,monthly_mmk,launch_mmk), addon:addon_products(key,label_en,kind,mmk)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return data ?? [];
+    },
+  });
 
   const { data: topups = [] } = useQuery({
     queryKey: ["admin-topups"],
@@ -130,17 +146,66 @@ const AdminWallet = () => {
     if (url) window.open(url, "_blank");
   };
 
+  const reviewSub = useMutation({
+    mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
+      const fn = approve ? "approve_subscription_payment" : "reject_subscription_payment";
+      const { error } = await (supabase as any).rpc(fn, { p_request_id: id, p_admin_note: note ?? null });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-sub-requests"] });
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      qc.invalidateQueries({ queryKey: ["my-quotas"] });
+      qc.invalidateQueries({ queryKey: ["my-sub-payment-requests"] });
+    },
+    onError: (e: any) => toast.error(e?.message || (my ? "မအောင်မြင်ပါ" : "Failed")),
+  });
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ် စီမံ" : "Wallet Admin"} showBack />
       <div className="px-5">
         <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">
-          {(["topups", "adjust", "prices", "packages"] as const).map((t) => (
+          {TABS.map((t) => (
             <button key={t} onClick={() => setTab(t)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
               {my ? tabLabels[t].my : tabLabels[t].en}
             </button>
           ))}
         </div>
+
+        {tab === "subscriptions" && (
+          <div className="space-y-2">
+            {subRequests.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "Package တောင်းခံမှု မရှိပါ" : "No subscription requests"}</p>}
+            {subRequests.map((r: any) => {
+              const isSub = r.request_type === "subscription";
+              const title = isSub
+                ? `${r.plan?.role === "employer" ? "Employer" : "Agent"} · ${r.plan?.tier?.toUpperCase()} · ${r.cycle}`
+                : r.addon?.label_en || "Add-on";
+              return (
+                <div key={r.id} className="rounded-xl border border-border bg-card p-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <div className="font-bold">{title}</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {r.mmk_amount?.toLocaleString()} Ks · {r.payment_method?.toUpperCase()} · ref: {r.sender_reference || "—"}
+                        {r.launch_price_applied ? " · LAUNCH" : ""}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {r.user_id?.slice(0, 8)}… · {new Date(r.created_at).toLocaleString()}</div>
+                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${r.status === "approved" ? "bg-emerald-100 text-emerald-700" : r.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{r.status}</span>
+                  </div>
+                  {r.status === "pending" && (
+                    <div className="mt-2 flex gap-1.5">
+                      {r.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(r.proof_url)}><Eye className="mr-1 h-3 w-3" />{my ? "အထောက်အထား" : "Proof"}</Button>}
+                      <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => reviewSub.mutate({ id: r.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />{my ? "ခွင့်ပြု" : "Approve"}</Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt(my ? "ငြင်းပယ်ရသည့် အကြောင်းပြချက်?" : "Reject reason?") || (my ? "ငြင်းပယ်" : "Rejected"); reviewSub.mutate({ id: r.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {tab === "topups" && (
           <div className="space-y-2">
