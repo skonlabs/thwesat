@@ -145,28 +145,33 @@ const EmployerPostJob = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const validateBeforeConfirm = () => {
     const minVal = salaryNegotiable ? null : (salaryMin ? Math.max(0, parseInt(salaryMin)) : null);
     const maxVal = salaryNegotiable ? null : (salaryMax ? Math.max(0, parseInt(salaryMax)) : null);
     if (!salaryNegotiable && minVal !== null && maxVal !== null && minVal > maxVal) {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
-      return;
+      return false;
     }
     if (isAgent && postedByLabel === "client" && !selectedClient) {
       toast({ title: lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company", variant: "destructive" });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const openConfirm = () => {
+    if (!validateBeforeConfirm()) return;
+    setConfirmOpen(true);
+  };
+
+  const handleSubmit = async () => {
     if (insufficient) {
-      toast({
-        title: noJobsLeft
-          ? (lang === "my" ? "အလုပ်တင်ခွင့် ကုန်ပါပြီ" : "Job quota exhausted")
-          : (lang === "my" ? "Featured slot မရှိပါ" : "No featured slots left"),
-        description: lang === "my" ? "Package အဆင့်မြှင့်ပါ" : "Upgrade your plan to continue",
-        variant: "destructive",
-      });
       navigate("/pricing");
       return;
     }
+    const minVal = salaryNegotiable ? null : (salaryMin ? Math.max(0, parseInt(salaryMin)) : null);
+    const maxVal = salaryNegotiable ? null : (salaryMax ? Math.max(0, parseInt(salaryMax)) : null);
+
     setSubmitting(true);
     try {
       const { supabase } = await import("@/integrations/supabase/client");
