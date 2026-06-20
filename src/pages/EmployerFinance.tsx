@@ -14,6 +14,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 import { uploadPaymentProof } from "@/hooks/use-payment";
+import { useUserFinance } from "@/hooks/use-user-finance";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 /** Visual proof status for a placement-fee row. */
