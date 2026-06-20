@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
@@ -94,6 +95,7 @@ const EmployerPostJob = () => {
   const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const { data: quotas } = useMyQuotas();
   const { data: grants = [] } = useMyPackageGrants();
@@ -143,28 +145,33 @@ const EmployerPostJob = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const validateBeforeConfirm = () => {
     const minVal = salaryNegotiable ? null : (salaryMin ? Math.max(0, parseInt(salaryMin)) : null);
     const maxVal = salaryNegotiable ? null : (salaryMax ? Math.max(0, parseInt(salaryMax)) : null);
     if (!salaryNegotiable && minVal !== null && maxVal !== null && minVal > maxVal) {
       toast({ title: lang === "my" ? "အနည်းဆုံးလစာသည် အများဆုံးထက် ကြီး၍မရပါ" : "Min salary cannot exceed max salary", variant: "destructive" });
-      return;
+      return false;
     }
     if (isAgent && postedByLabel === "client" && !selectedClient) {
       toast({ title: lang === "my" ? "ကုမ္ပဏီ တစ်ခု ရွေးပါ" : "Please pick a client company", variant: "destructive" });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const openConfirm = () => {
+    if (!validateBeforeConfirm()) return;
+    setConfirmOpen(true);
+  };
+
+  const handleSubmit = async () => {
     if (insufficient) {
-      toast({
-        title: noJobsLeft
-          ? (lang === "my" ? "အလုပ်တင်ခွင့် ကုန်ပါပြီ" : "Job quota exhausted")
-          : (lang === "my" ? "Featured slot မရှိပါ" : "No featured slots left"),
-        description: lang === "my" ? "Package အဆင့်မြှင့်ပါ" : "Upgrade your plan to continue",
-        variant: "destructive",
-      });
       navigate("/pricing");
       return;
     }
+    const minVal = salaryNegotiable ? null : (salaryMin ? Math.max(0, parseInt(salaryMin)) : null);
+    const maxVal = salaryNegotiable ? null : (salaryMax ? Math.max(0, parseInt(salaryMax)) : null);
+
     setSubmitting(true);
     try {
       const { supabase } = await import("@/integrations/supabase/client");
@@ -201,6 +208,7 @@ const EmployerPostJob = () => {
       if (rpcErr) throw rpcErr;
       qc.invalidateQueries({ queryKey: ["my-quotas"] });
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      setConfirmOpen(false);
       setSuccessOpen(true);
     } catch (e: any) {
       const msg = e?.message || "";
@@ -516,7 +524,7 @@ const EmployerPostJob = () => {
               </div>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting || insufficient}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={openConfirm} disabled={submitting}>
                 <Coins className="mr-1.5 h-4 w-4" />
                 {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
               </Button>
@@ -688,6 +696,67 @@ const EmployerPostJob = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {insufficient
+                ? (lang === "my" ? "ပက်ကေ့ဂျ် မလုံလောက်ပါ" : "Not enough quota")
+                : (lang === "my" ? "အလုပ် တင်ရန် အတည်ပြုပါ" : "Confirm post job")}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                {insufficient ? (
+                  <p>
+                    {noJobsLeft
+                      ? (lang === "my" ? "သင့်အလုပ်တင်ခွင့် ကုန်ဆုံးပါပြီ။ ဆက်လက်တင်ရန် ပက်ကေ့ဂျ် ဝယ်ပါ။" : "You have no active job slots remaining. Buy a package to continue.")
+                      : (lang === "my" ? "Featured slot မရှိတော့ပါ။ Featured Job add-on ဝယ်ပါ။" : "No featured slots left. Buy a Featured Job add-on.")}
+                  </p>
+                ) : (
+                  <p>
+                    {lang === "my"
+                      ? "ဤလုပ်ဆောင်ချက်သည် သင့်ပက်ကေ့ဂျ်လက်ကျန်ကို သုံးပါမည်။"
+                      : "This action will use your package balance."}
+                  </p>
+                )}
+                <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Active job slot"}</span>
+                    <span className="font-semibold tabular-nums">
+                      {quotas?.is_unlimited_jobs
+                        ? "∞ → ∞"
+                        : `${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
+                      <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
+                    </span>
+                  </div>
+                  {isFeatured && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slot"}</span>
+                      <span className="font-semibold tabular-nums">
+                        {featuredRemaining} → {Math.max(0, featuredRemaining - 1)}
+                        <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={submitting}>{lang === "my" ? "မလုပ်တော့ပါ" : "Cancel"}</AlertDialogCancel>
+            {insufficient ? (
+              <AlertDialogAction onClick={() => { setConfirmOpen(false); navigate("/pricing"); }}>
+                {lang === "my" ? "ပက်ကေ့ဂျ် ဝယ်မည်" : "Buy package"}
+              </AlertDialogAction>
+            ) : (
+              <AlertDialogAction onClick={(e) => { e.preventDefault(); handleSubmit(); }} disabled={submitting}>
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Posting...") : (lang === "my" ? "အတည်ပြု၍ တင်မည်" : "Confirm & post")}
+              </AlertDialogAction>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
