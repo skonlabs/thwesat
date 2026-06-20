@@ -665,9 +665,9 @@ const MentorBooking = () => {
               <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
                 {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={bookingPending} onClick={handleConfirm}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {createBooking.isPending
+                {bookingPending
                   ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
                   : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
               </Button>
