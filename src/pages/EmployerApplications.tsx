@@ -277,7 +277,7 @@ const EmployerApplications = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-12">
       <PageHeader
         title={jobIdParam ? (scopedJobTitle || L.applications[lang]) : L.applications[lang]}
-        backPath={isAgent ? "/agent/dashboard" : "/employer/dashboard"}
+        backPath={isAgent ? "/dashboard" : "/dashboard"}
         onBack={jobIdParam ? () => setJobScope(undefined) : undefined}
         showBack
       />
