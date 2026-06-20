@@ -95,6 +95,7 @@ const EmployerPostJob = () => {
   const removeSkill = (s: string) => setSkills(skills.filter(x => x !== s));
   const qc = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const { data: quotas } = useMyQuotas();
   const { data: grants = [] } = useMyPackageGrants();
