@@ -157,11 +157,7 @@ const MentorBooking = () => {
       }
     }
 
-    if (insufficient) {
-      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
-      setTopupOpen(true);
-      return;
-    }
+    // (Wallet balance pre-check removed — the booking RPC enforces funding server-side.)
     let createdId: string | null = null;
     try {
       const result = await createBooking.mutateAsync({
