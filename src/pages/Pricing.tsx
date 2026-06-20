@@ -178,7 +178,8 @@ const Pricing = () => {
           {sortedPlans.map((plan) => {
             const Icon = TIER_ICON[plan.tier] ?? Sparkles;
             const priceInfo = computePrice(plan, cycle, launchActive);
-            const isCurrent = currentSub?.plan_id === plan.id;
+            const isCurrent = currentSub?.plan_id === plan.id && currentSub?.cycle === cycle;
+            const isScheduled = scheduledSub?.plan_id === plan.id && scheduledSub?.cycle === cycle;
             const popular = plan.tier === "growth";
 
             return (
