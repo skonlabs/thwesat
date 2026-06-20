@@ -516,20 +516,22 @@ const EmployerPostJob = () => {
                 <p className="text-[11px] text-foreground/80">{lang === "my" ? "⚠️ သံရုံးနှင့် ဆက်သွယ်ရပါသဖြင့် သတိပေးခြင်း ပါဝင်ပါမည်" : "⚠️ Embassy contact warning will be displayed"}</p>
               </div>
             )}
-            <div className="mx-auto flex w-full max-w-md flex-wrap gap-3 pt-2">
-              <div className="w-full rounded-xl border border-border bg-card p-3 text-[11px]">
-                <div className="flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
-                {isFeatured && <div className="mt-1 flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
+            <div className="mx-auto w-full max-w-md space-y-3 pt-2">
+              <div className="rounded-xl border border-border bg-card px-3 py-2 text-[11px]">
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
+                {isFeatured && <div className="mt-1 flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
                 {!hasPackage && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Package required"}</p>}
               </div>
-              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
-              <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={openConfirm} disabled={submitting}>
-                <Coins className="mr-1.5 h-4 w-4" />
-                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
+                <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
+                <Button variant="default" size="lg" className="flex-[2] rounded-xl" onClick={openConfirm} disabled={submitting}>
+                  <Coins className="mr-1.5 h-4 w-4" />
+                  {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
+                </Button>
+              </div>
               {insufficient && (
-                <p className="mt-2 w-full text-center text-[11px] text-destructive">
+                <p className="text-center text-[11px] text-destructive">
                   <button type="button" className="underline" onClick={() => navigate("/pricing")}>{lang === "my" ? "Package အဆင့်မြှင့်ရန်" : "Upgrade plan"}</button>
                 </p>
               )}
@@ -689,7 +691,7 @@ const EmployerPostJob = () => {
               <Button onClick={() => { setSuccessOpen(false); navigate(isAgent ? "/agent/jobs" : "/employer/jobs"); }} className="w-full rounded-xl">
                 {lang === "my" ? "ကျွန်ုပ်၏ အလုပ်များ ကြည့်ရန်" : "View my jobs"}
               </Button>
-              <Button variant="outline" onClick={() => { setSuccessOpen(false); navigate(isAgent ? "/agent/dashboard" : "/employer/dashboard"); }} className="w-full rounded-xl">
+              <Button variant="outline" onClick={() => { setSuccessOpen(false); navigate("/dashboard"); }} className="w-full rounded-xl">
                 {lang === "my" ? "Dashboard သို့" : "Back to dashboard"}
               </Button>
             </div>
