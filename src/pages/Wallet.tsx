@@ -107,8 +107,6 @@ const Wallet = () => {
   const grantsWithPlan = grants.map((g) => ({ ...g, plan: planById[g.plan_id] })).filter((g) => g.plan);
   const topGrant = [...grantsWithPlan].sort((a, b) => (tierRank[b.plan.tier] ?? 0) - (tierRank[a.plan.tier] ?? 0))[0];
 
-  const featuredJobs = (usage?.jobs ?? []).filter((j) => j.is_featured);
-
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ်" : "Wallet"} />
@@ -204,95 +202,69 @@ const Wallet = () => {
           </TabsList>
 
           {/* USAGE TAB */}
-          <TabsContent value="usage" className="space-y-5 pt-3">
-            {/* Job posts */}
-            <UsageSection
-              icon={Briefcase}
-              title={my ? "Job Posts သုံးစွဲမှု" : "Job Posts Used"}
-              count={usage?.jobs.length ?? 0}
-              emptyText={my ? "Job မတင်ရသေးပါ" : "No jobs posted yet"}
-            >
-              {(usage?.jobs ?? []).map((j) => (
-                <button
-                  key={j.id}
-                  onClick={() => navigate(`/jobs/${j.id}`)}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50 active:opacity-80"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="truncate font-semibold">{j.title}</span>
-                      {j.is_featured && (
-                        <span className="shrink-0 inline-flex items-center gap-0.5 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent-foreground">
-                          <Star className="h-2.5 w-2.5" />
-                          {my ? "Featured" : "Featured"}
+          <TabsContent value="usage" className="space-y-3 pt-3">
+            {((usage?.jobs?.length ?? 0) === 0 && (usage?.unlocks?.length ?? 0) === 0) ? (
+              <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                {my ? "သုံးစွဲမှတ်တမ်း မရှိသေးပါ" : "No usage yet"}
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {/* Job rows: combine job slot + featured slot into one row */}
+                {(usage?.jobs ?? []).map((j) => (
+                  <button
+                    key={`job-${j.id}`}
+                    onClick={() => navigate(`/jobs/${j.id}`)}
+                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50 active:opacity-80"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold">{j.title}</div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                        <span>{new Date(j.created_at).toLocaleDateString()}</span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-0.5 rounded bg-muted px-1 py-0.5 font-medium">
+                          <Briefcase className="h-2.5 w-2.5" />
+                          {my ? "Job slot 1" : "Job slot 1"}
                         </span>
-                      )}
+                        {j.is_featured && (
+                          <span className="inline-flex items-center gap-0.5 rounded bg-accent/20 px-1 py-0.5 font-medium text-accent-foreground">
+                            <Star className="h-2.5 w-2.5" />
+                            {my ? "Featured slot 1" : "Featured slot 1"}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="mt-0.5 text-[10px] text-muted-foreground">
-                      {new Date(j.created_at).toLocaleDateString()} · {my ? "1 Job slot" : "1 Job slot"}
-                      {j.is_featured ? ` · ${my ? "1 Featured slot" : "1 Featured slot"}` : ""}
+                    <div className="flex shrink-0 items-center gap-1">
+                      <StatusPill status={j.status} />
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <StatusPill status={j.status} />
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                </button>
-              ))}
-            </UsageSection>
+                  </button>
+                ))}
 
-            {/* Featured */}
-            <UsageSection
-              icon={Star}
-              title={my ? "Featured Slots သုံးစွဲမှု" : "Featured Slots Used"}
-              count={featuredJobs.length}
-              emptyText={my ? "Featured slot မသုံးရသေးပါ" : "No featured slots used"}
-            >
-              {featuredJobs.map((j) => (
-                <button
-                  key={j.id}
-                  onClick={() => navigate(`/jobs/${j.id}`)}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-semibold">{j.title}</div>
-                    <div className="mt-0.5 text-[10px] text-muted-foreground">
-                      {new Date(j.created_at).toLocaleDateString()} · 1 Featured slot
+                {/* Unlock rows */}
+                {(usage?.unlocks ?? []).map((u) => (
+                  <button
+                    key={`unlock-${u.id}`}
+                    onClick={() => navigate(`/profile/${u.target_id}`)}
+                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50 active:opacity-80"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold">
+                        {u.target_name || (my ? "ပရိုဖိုင်" : "Profile")}
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                        <span>{new Date(u.created_at).toLocaleDateString()}</span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-0.5 rounded bg-muted px-1 py-0.5 font-medium">
+                          <Users className="h-2.5 w-2.5" />
+                          {my ? "Unlock 1" : "Unlock 1"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <StatusPill status={j.status} />
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                </button>
-              ))}
-            </UsageSection>
-
-            {/* Unlocks */}
-            <UsageSection
-              icon={Users}
-              title={my ? "Candidate Unlocks သုံးစွဲမှု" : "Candidate Unlocks Used"}
-              count={usage?.unlocks.length ?? 0}
-              emptyText={my ? "Unlock မပြုရသေးပါ" : "No candidates unlocked yet"}
-            >
-              {(usage?.unlocks ?? []).map((u) => (
-                <button
-                  key={u.id}
-                  onClick={() => navigate(`/profile/${u.target_id}`)}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-semibold">
-                      {u.target_name || (my ? "ပရိုဖိုင်" : "Profile")}
-                    </div>
-                    <div className="mt-0.5 text-[10px] text-muted-foreground">
-                      {new Date(u.created_at).toLocaleDateString()} · 1 Unlock
-                    </div>
-                  </div>
-                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                </button>
-              ))}
-            </UsageSection>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* ADDONS TAB */}
@@ -354,35 +326,6 @@ const Wallet = () => {
     </div>
   );
 };
-
-const UsageSection = ({
-  icon: Icon,
-  title,
-  count,
-  emptyText,
-  children,
-}: {
-  icon: any;
-  title: string;
-  count: number;
-  emptyText: string;
-  children: React.ReactNode;
-}) => (
-  <section>
-    <div className="mb-2 flex items-center gap-1.5 text-sm font-bold">
-      <Icon className="h-4 w-4 text-primary" />
-      <span>{title}</span>
-      <span className="ml-auto text-xs font-normal text-muted-foreground">{count}</span>
-    </div>
-    {count === 0 ? (
-      <div className="rounded-xl border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
-        {emptyText}
-      </div>
-    ) : (
-      <div className="space-y-1.5">{children}</div>
-    )}
-  </section>
-);
 
 const StatusPill = ({ status }: { status: string }) => {
   const tone =
