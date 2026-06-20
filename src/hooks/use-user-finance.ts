@@ -21,6 +21,7 @@ export type UserFinanceRow = {
   payment_method: string | null;
   proof_url: string | null;
   reference: string | null;
+  admin_note: string | null;
   created_at: string;
   raw: any;
 };
