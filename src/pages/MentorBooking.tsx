@@ -69,7 +69,7 @@ const MentorBooking = () => {
     enabled: !!mentorId && !mentorLoading && !mentorProfile,
   });
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
-  const createBooking = useCreateBooking();
+  const [bookingPending, setBookingPending] = useState(false);
   const { startConversation } = useStartConversation();
   const { hasRole, isLoading: rolesLoading } = useUserRoles();
   const currentUserIsMentor = hasRole("mentor");
