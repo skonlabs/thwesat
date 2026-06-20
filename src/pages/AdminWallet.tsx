@@ -287,7 +287,7 @@ const AdminWallet = () => {
                   <div>
                     <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} Ks</div>
                     <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {my ? "ref" : "ref"}: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
-                    <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {t.user_id.slice(0, 8)}…</div>
+                    <UserLine userId={t.user_id} />
                   </div>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${t.status === "approved" ? "bg-emerald-100 text-emerald-700" : t.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{t.status}</span>
                 </div>
