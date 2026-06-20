@@ -8,7 +8,6 @@ import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { type StatusFilter } from "@/components/finance/FinanceFilters";
 import { formatMoney, shortRef } from "@/lib/finance";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 const MentorFinance = () => {
