@@ -39,7 +39,7 @@ const AdminWallet = () => {
         addonIds.length > 0 ? (supabase as any).from("addon_products").select("id,key,label_en,kind,mmk,is_per_unit").in("id", addonIds) : Promise.resolve({ data: [] }),
       ]);
       const planMap = new Map((plansRes.data || []).map((p: any) => [p.id, p]));
-      const addonMap = new Map((addonsRes.data || []).map((a: any) => [a.id, p]));
+      const addonMap = new Map((addonsRes.data || []).map((a: any) => [a.id, a]));
       return (reqs as any[]).map((r: any) => ({
         ...r,
         plan: planMap.get(r.plan_id) || null,
