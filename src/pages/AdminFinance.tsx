@@ -307,15 +307,26 @@ const AdminFinance = ({
       };
     };
 
-    const subToRow = (p: any) => ({
-      id: p.id,
-      title: p.request_type === "addon" ? (lang === "my" ? "Add-on ဝယ်ယူ" : "Add-on Purchase") : (lang === "my" ? "Subscription" : "Subscription"),
-      subtitle: `${(p.payment_method || "").toUpperCase()}${p.quantity > 1 ? " · ×" + p.quantity : ""} · ${shortRef(p.id)}`,
-      amount: Number(p.mmk_amount || 0),
-      currency: "MMK",
-      status: p.status,
-      date: p.created_at,
-    });
+    const subToRow = (p: any) => {
+      let title: string;
+      if (p.request_type === "addon") {
+        const a = planLookup?.addonMap.get(p.addon_id);
+        const name = a ? (lang === "my" ? a.my : a.en) : (lang === "my" ? "Add-on" : "Add-on");
+        title = `${name} Package`;
+      } else {
+        const tier = planLookup?.planMap.get(p.plan_id);
+        title = `${tier || "Subscription"} Package`;
+      }
+      return {
+        id: p.id,
+        title,
+        subtitle: `${(p.payment_method || "").toUpperCase()}${p.quantity > 1 ? " · ×" + p.quantity : ""} · ${shortRef(p.id)}`,
+        amount: Number(p.mmk_amount || 0),
+        currency: "MMK",
+        status: p.status,
+        date: p.created_at,
+      };
+    };
 
     switch (selected) {
       case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };
