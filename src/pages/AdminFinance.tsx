@@ -346,24 +346,6 @@ const AdminFinance = ({
           />
         </div>
 
-        {/* Credits spent by role (internal activity, not cash movement) */}
-        <div className="mt-5">
-          <BreakdownColumn
-            title={lang === "my" ? "Credits သုံးစွဲမှု — အခန်းကဏ္ဍအလိုက်" : "Credits Spent on Platform — By Role"}
-            total={spendTotalCredits}
-            rows={spendRows}
-            selected={selected}
-            onSelect={setSelected}
-            lang={lang}
-            accent="default"
-            unit="CREDITS"
-            totalLabel={
-              lang === "my"
-                ? "ပလက်ဖောင်းအတွင်း သုံးစွဲမှု (ငွေသား မဟုတ်)"
-                : "Internal credit activity — not cash"
-            }
-          />
-        </div>
 
         {/* Details */}
         <div className="mt-6">
