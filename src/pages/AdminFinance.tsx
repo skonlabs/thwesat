@@ -72,6 +72,20 @@ const AdminFinance = ({
     },
   });
 
+  const { data: planLookup } = useQuery({
+    queryKey: ["admin-finance-plan-lookup"],
+    queryFn: async () => {
+      const [plans, addons] = await Promise.all([
+        (supabase as any).from("subscription_plans").select("id,tier"),
+        (supabase as any).from("addon_products").select("id,label_en,label_my"),
+      ]);
+      const TIER: Record<string,string> = { free_trial:"Free Trial", starter:"Starter", growth:"Growth", business:"Business", enterprise:"Enterprise" };
+      const planMap = new Map<string,string>((plans.data||[]).map((p:any)=>[p.id, TIER[p.tier]||p.tier]));
+      const addonMap = new Map<string,{en:string;my:string}>((addons.data||[]).map((a:any)=>[a.id,{en:a.label_en,my:a.label_my||a.label_en}]));
+      return { planMap, addonMap };
+    },
+  });
+
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
