@@ -63,7 +63,7 @@ const AdminFinance = ({
     queryFn: async () => {
       if (isPartnerScope && scopedIds!.length === 0) return [];
       let q = (supabase as any).from("subscription_payment_requests")
-        .select("id,user_id,request_type,plan_id,cycle,addon_id,mmk_amount,launch_price_applied,payment_method,status,created_at,reviewed_at")
+        .select("id,user_id,request_type,plan_id,addon_id,quantity,mmk_amount,payment_method,status,created_at,reviewed_at")
         .order("created_at", { ascending: false })
         .limit(1000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
@@ -296,7 +296,7 @@ const AdminFinance = ({
     const subToRow = (p: any) => ({
       id: p.id,
       title: p.request_type === "addon" ? (lang === "my" ? "Add-on ဝယ်ယူ" : "Add-on Purchase") : (lang === "my" ? "Subscription" : "Subscription"),
-      subtitle: `${(p.payment_method || "").toUpperCase()} · ${p.cycle ? p.cycle.toUpperCase() + " · " : ""}${p.launch_price_applied ? "LAUNCH · " : ""}${shortRef(p.id)}`,
+      subtitle: `${(p.payment_method || "").toUpperCase()}${p.quantity > 1 ? " · ×" + p.quantity : ""} · ${shortRef(p.id)}`,
       amount: Number(p.mmk_amount || 0),
       currency: "MMK",
       status: p.status,

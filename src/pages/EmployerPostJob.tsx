@@ -15,7 +15,7 @@ import { useCreateJob, useEmployerProfile } from "@/hooks/use-employer-data";
 import PageHeader from "@/components/PageHeader";
 import CategoryCombobox from "@/components/employer/CategoryCombobox";
 import BilingualField from "@/components/employer/BilingualField";
-import { useMyQuotas, useMySubscription } from "@/hooks/use-subscription";
+import { useMyQuotas, useMyPackageGrants } from "@/hooks/use-subscription";
 import { Coins } from "lucide-react";
 import { SUPPORTED_JOB_PAYMENT_METHODS, sanitizeJobPaymentMethods } from "@/lib/payment-methods";
 import { HQ_COUNTRIES } from "@/lib/countries";
@@ -96,12 +96,13 @@ const EmployerPostJob = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const { data: quotas } = useMyQuotas();
-  const { data: subscription } = useMySubscription();
+  const { data: grants = [] } = useMyPackageGrants();
+  const hasPackage = grants.length > 0;
   const jobsRemaining = quotas?.is_unlimited_jobs
     ? Infinity
     : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
   const featuredRemaining = Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0));
-  const noJobsLeft = !subscription || (jobsRemaining !== Infinity && jobsRemaining <= 0);
+  const noJobsLeft = !hasPackage || (jobsRemaining !== Infinity && jobsRemaining <= 0);
   const noFeaturedLeft = isFeatured && featuredRemaining <= 0;
   const insufficient = noJobsLeft || noFeaturedLeft;
   const isContract = roleType === "remote_contract";
@@ -511,7 +512,7 @@ const EmployerPostJob = () => {
               <div className="w-full rounded-xl border border-border bg-card p-3 text-[11px]">
                 <div className="flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
                 {isFeatured && <div className="mt-1 flex justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
-                {!subscription && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Active subscription required"}</p>}
+                {!hasPackage && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Package required"}</p>}
               </div>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>

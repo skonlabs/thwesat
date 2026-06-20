@@ -48,7 +48,7 @@ const AdminWallet = () => {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("subscription_payment_requests")
-        .select("*, plan:subscription_plans(role,tier,monthly_mmk,launch_mmk), addon:addon_products(key,label_en,kind,mmk)")
+        .select("*, plan:subscription_plans(role,tier,price_mmk), addon:addon_products(key,label_en,kind,mmk,is_per_unit)")
         .order("created_at", { ascending: false })
         .limit(100);
       return data ?? [];
@@ -177,8 +177,8 @@ const AdminWallet = () => {
             {subRequests.map((r: any) => {
               const isSub = r.request_type === "subscription";
               const title = isSub
-                ? `${r.plan?.role === "employer" ? "Employer" : "Agent"} · ${r.plan?.tier?.toUpperCase()} · ${r.cycle}`
-                : r.addon?.label_en || "Add-on";
+                ? `Package · ${r.plan?.tier?.toUpperCase()}`
+                : `${r.addon?.label_en || "Add-on"}${r.quantity > 1 ? ` × ${r.quantity}` : ""}`;
               return (
                 <div key={r.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                   <div className="flex items-center justify-between">
@@ -186,7 +186,6 @@ const AdminWallet = () => {
                       <div className="font-bold">{title}</div>
                       <div className="text-[10px] text-muted-foreground">
                         {r.mmk_amount?.toLocaleString()} Ks · {r.payment_method?.toUpperCase()} · ref: {r.sender_reference || "—"}
-                        {r.launch_price_applied ? " · LAUNCH" : ""}
                       </div>
                       <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {r.user_id?.slice(0, 8)}… · {new Date(r.created_at).toLocaleString()}</div>
                     </div>

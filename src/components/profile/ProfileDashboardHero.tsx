@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Edit3, MapPin, Globe, Sparkles, TrendingUp, Bookmark, ChevronRight, KeyRound } from "lucide-react";
 import { useApplications, useSavedJobIds } from "@/hooks/use-jobs";
-import { useMySubscription, useMyQuotas, useSubscriptionPlans, planLabel } from "@/hooks/use-subscription";
+import { useMyPackageGrants, useMyQuotas, useSubscriptionPlans, planLabel } from "@/hooks/use-subscription";
 import type { NavigateFunction } from "react-router-dom";
 
 interface Props {
@@ -43,22 +43,30 @@ export default function ProfileDashboardHero({
 }: Props) {
   const { data: applications = [] } = useApplications();
   const { data: savedIds = [] } = useSavedJobIds();
-  const { data: sub } = useMySubscription();
+  const { data: grants = [] } = useMyPackageGrants();
   const { data: quotas } = useMyQuotas();
   const { data: plans = [] } = useSubscriptionPlans();
-  const plan = plans.find((p) => p.id === sub?.plan_id);
-  const unlocksLeft = Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
+  const planById = Object.fromEntries(plans.map((p) => [p.id, p]));
+  // Show the highest tier owned, with count if multiple
+  const tierRank: Record<string, number> = { free_trial: 0, starter: 1, growth: 2, business: 3, enterprise: 4 };
+  const topPlan = grants
+    .map((g) => planById[g.plan_id])
+    .filter(Boolean)
+    .sort((a: any, b: any) => (tierRank[b.tier] ?? 0) - (tierRank[a.tier] ?? 0))[0];
+  const unlocksLeft = quotas?.is_unlimited_unlocks ? Infinity : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
   const planTile = {
     icon: Sparkles,
     label: lang === "my" ? "Package" : "Plan",
-    value: plan ? planLabel(plan.tier) : (lang === "my" ? "မရှိ" : "None"),
+    value: topPlan
+      ? `${planLabel(topPlan.tier)}${grants.length > 1 ? ` +${grants.length - 1}` : ""}`
+      : (lang === "my" ? "မရှိ" : "None"),
     accent: true as const,
-    onClick: () => onNavigate(plan ? "/wallet" : "/pricing"),
+    onClick: () => onNavigate(topPlan ? "/wallet" : "/pricing"),
   };
   const unlocksTile = {
     icon: KeyRound,
     label: lang === "my" ? "Unlock" : "Unlocks",
-    value: unlocksLeft.toLocaleString(),
+    value: unlocksLeft === Infinity ? "∞" : unlocksLeft.toLocaleString(),
     accent: false as const,
     onClick: () => onNavigate("/wallet"),
   };

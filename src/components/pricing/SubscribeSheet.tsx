@@ -9,15 +9,10 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   type SubscriptionPlan,
   type AddonProduct,
-  type BillingCycle,
-  computePrice,
   planLabel,
   formatMMK,
   uploadSubscriptionProof,
   useCreateSubscriptionPaymentRequest,
-  useLaunchPromo,
-  isLaunchActive,
-  useMySubscription,
 } from "@/hooks/use-subscription";
 import { useReceivingAccount } from "@/hooks/use-app-config";
 import { PaymentMethodIcon } from "@/components/payment/PaymentMethodIcon";
@@ -26,8 +21,8 @@ import { SUPPORTED_PAYMENT_METHODS, getPlatformPaymentMethodLabel } from "@/lib/
 import { toast } from "sonner";
 
 type Selection =
-  | { kind: "subscription"; plan: SubscriptionPlan; cycle: BillingCycle }
-  | { kind: "addon"; addon: AddonProduct };
+  | { kind: "subscription"; plan: SubscriptionPlan }
+  | { kind: "addon"; addon: AddonProduct; quantity: number };
 
 interface Props {
   open: boolean;
@@ -42,9 +37,6 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
   const my = lang === "my";
   const { user } = useAuth();
   const { data: acc } = useReceivingAccount();
-  const { data: promo } = useLaunchPromo();
-  const { data: activeSub } = useMySubscription();
-  const launchActive = isLaunchActive(promo);
   const create = useCreateSubscriptionPaymentRequest();
 
   const [method, setMethod] = useState("kbzpay");
@@ -65,56 +57,52 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
   if (!selection) return null;
 
   const isSub = selection.kind === "subscription";
-  const priceInfo = isSub ? computePrice(selection.plan, selection.cycle, launchActive) : null;
-  const mmk = isSub ? priceInfo!.mmk : selection.addon.mmk;
+  const isFree = isSub && selection.plan.price_mmk === 0;
+  const quantity = !isSub ? selection.quantity : 1;
+  const mmk = isSub ? selection.plan.price_mmk : selection.addon.mmk * quantity;
+
   const title = isSub
-    ? `${planLabel(selection.plan.tier)} · ${selection.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}`
-    : (my && selection.addon.label_my) || selection.addon.label_en;
+    ? planLabel(selection.plan.tier)
+    : `${(my && selection.addon.label_my) || selection.addon.label_en}${selection.addon.is_per_unit ? ` × ${quantity}` : ""}`;
 
   const submit = async () => {
     if (!user) return;
-    if (!proofFile) {
+    if (!isFree && !proofFile) {
       toast.error(my ? "ငွေပေးသွင်းပြီး screenshot တင်ပေးပါ" : "Please upload your payment screenshot");
       return;
     }
     setUploading(true);
     try {
-      const path = await uploadSubscriptionProof(user.id, proofFile);
+      const proof_url = isFree
+        ? null
+        : await uploadSubscriptionProof(user.id, proofFile!);
+
       if (isSub) {
         await create.mutateAsync({
           request_type: "subscription",
           plan_id: selection.plan.id,
-          cycle: selection.cycle,
           addon_id: null,
+          quantity: 1,
           mmk_amount: mmk,
-          launch_price_applied: priceInfo!.launchApplied,
-          payment_method: method,
-          proof_url: path,
+          payment_method: isFree ? "free_trial" : method,
+          proof_url,
           sender_reference: reference || null,
         });
       } else {
         await create.mutateAsync({
           request_type: "addon",
           plan_id: null,
-          cycle: null,
           addon_id: selection.addon.id,
+          quantity,
           mmk_amount: mmk,
-          launch_price_applied: false,
           payment_method: method,
-          proof_url: path,
+          proof_url,
           sender_reference: reference || null,
         });
       }
       setStep("done");
     } catch (e: any) {
-      const msg = String(e?.message || "");
-      if (msg.includes("uniq_pending_subscription_request_per_user") || msg.toLowerCase().includes("duplicate")) {
-        toast.error(my
-          ? "သင်၌ စောင့်ဆိုင်းနေသော ပေးချေမှု ရှိပြီးသား ဖြစ်သည်။ Admin အတည်ပြုပြီးမှ ထပ်တင်နိုင်ပါမည်။"
-          : "You already have a pending plan request. Wait for admin review before submitting another.");
-      } else {
-        toast.error(msg || "Failed to submit");
-      }
+      toast.error(e?.message || "Failed to submit");
     } finally {
       setUploading(false);
     }
@@ -125,7 +113,7 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
       <SheetContent side="bottom" className="bottom-16 max-h-[85vh] overflow-y-auto rounded-t-2xl border-t p-0">
         <SheetHeader className="border-b px-5 py-3">
           <SheetTitle className="text-base">
-            {step === "done" ? (my ? "ပေးပို့ပြီး" : "Payment submitted") : title}
+            {step === "done" ? (my ? "ပေးပို့ပြီး" : "Submitted") : title}
           </SheetTitle>
         </SheetHeader>
 
@@ -133,89 +121,86 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
           {step === "pay" && (
             <div className="space-y-4">
               <div className="rounded-xl bg-muted p-3">
-                <div className="text-[11px] text-muted-foreground">{my ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}</div>
-                {isSub && selection.cycle === "yearly" && priceInfo!.originalYearlyMmk > priceInfo!.mmk && (
-                  <div className="text-xs text-muted-foreground line-through tabular-nums">
-                    {formatMMK(priceInfo!.originalYearlyMmk)}
-                  </div>
-                )}
+                <div className="text-[11px] text-muted-foreground">
+                  {isFree ? (my ? "ပမာဏ" : "Amount") : my ? "ပေးချေရမည့် ပမာဏ" : "Amount to pay"}
+                </div>
                 <div className="text-2xl font-bold text-primary">{formatMMK(mmk)}</div>
-                {isSub && priceInfo!.launchApplied && (
-                  <div className="mt-1 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
-                    {my ? "ပထမ ၃ လ အခမဲ့ — Package သည် ပရိုမို ပြီးနောက် စတင်ပါမည်"
-                        : "First 3 months free — your paid period starts after the promo ends"}
-                  </div>
-                )}
-                {isSub && selection.cycle === "yearly" && (
-                  <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                    {my ? "နှစ်စဉ် — ၁၁ လ စျေး၊ ၁၂ လ အသုံးပြုနိုင်" : "Yearly — pay 11 months, get 12"}
-                  </div>
-                )}
-                {isSub && activeSub && (
-                  <div className="mt-2 rounded-md bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
-                    {my
-                      ? `သင်၌ Package တစ်ခု ရှိနေပြီ — ဤ Package သည် လက်ရှိ Package သက်တမ်း ကုန်ဆုံးမည့် ${new Date(activeSub.current_period_end).toLocaleDateString()} တွင် စတင်ပါမည်။ ငွေပြန်အမ်းခြင်း မရှိပါ။`
-                      : `You already have an active plan — this plan will start on ${new Date(activeSub.current_period_end).toLocaleDateString()} when your current plan ends. No refund is issued.`}
-                  </div>
-                )}
-                {!isSub && selection.addon.key === "matching" && (
-                  <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                    {my ? "ဝယ်ပြီးချိန်တွင် ချက်ချင်း စတင်ပါမည်" : "Starts immediately after purchase"}
+                {!isSub && selection.addon.is_per_unit && (
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    {formatMMK(selection.addon.mmk)} × {quantity}
                   </div>
                 )}
                 {!isSub && selection.addon.duration_days && (
+                  <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                    {my ? `သက်တမ်း ${selection.addon.duration_days} ရက် (၁ နှစ်)` : `Active for 1 year`}
+                  </div>
+                )}
+                {isSub && !isFree && (
                   <div className="mt-1 text-[11px] text-muted-foreground">
-                    {my ? `သက်တမ်း ${selection.addon.duration_days} ရက်` : `Active for ${selection.addon.duration_days} days`}
+                    {my ? "တစ်ကြိမ်တည်း · သက်တမ်း မရှိ · စုစုပေါင်းသို့ ပေါင်းထည့်" : "One-time · never expires · stacks with what you own"}
+                  </div>
+                )}
+                {isFree && (
+                  <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                    {my ? "Admin အတည်ပြုပြီးမှ စမ်းသပ်ခွင့် စတင်ပါမည် (တစ်ကြိမ်သာ)" : "Free trial activates after admin approval (one per user)"}
                   </div>
                 )}
               </div>
 
-              <div>
-                <Label className="text-xs">{my ? "ပေးချေနည်း" : "Payment method"}</Label>
-                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-                  {METHODS.map((m) => (
-                    <button
-                      key={m.key}
-                      type="button"
-                      onClick={() => setMethod(m.key)}
-                      className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
-                        method === m.key ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
-                      }`}
-                    >
-                      <PaymentMethodIcon method={m.key} />
-                      <span>{m.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {!isFree && (
+                <>
+                  <div>
+                    <Label className="text-xs">{my ? "ပေးချေနည်း" : "Payment method"}</Label>
+                    <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                      {METHODS.map((m) => (
+                        <button
+                          key={m.key}
+                          type="button"
+                          onClick={() => setMethod(m.key)}
+                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
+                            method === m.key ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground"
+                          }`}
+                        >
+                          <PaymentMethodIcon method={m.key} />
+                          <span>{m.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {acc && (
-                <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3">
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{my ? "လွှဲရန် အကောင့်" : "Send to"}</div>
-                  <div className="mt-0.5 text-sm font-bold">{acc.account_name}</div>
-                  <div className="font-mono text-sm">{acc.account_number || acc.account_email}</div>
-                  {acc.qr_by_method?.[method] && (
-                    <div className="mt-3"><PaymentQR qrUrl={acc.qr_by_method[method]} size={140} /></div>
+                  {acc && (
+                    <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3">
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{my ? "လွှဲရန် အကောင့်" : "Send to"}</div>
+                      <div className="mt-0.5 text-sm font-bold">{acc.account_name}</div>
+                      <div className="font-mono text-sm">{acc.account_number || acc.account_email}</div>
+                      {acc.qr_by_method?.[method] && (
+                        <div className="mt-3"><PaymentQR qrUrl={acc.qr_by_method[method]} size={140} /></div>
+                      )}
+                    </div>
                   )}
-                </div>
+
+                  <div>
+                    <Label className="text-xs">{my ? "လွှဲပြီးသား Reference (optional)" : "Transfer reference (optional)"}</Label>
+                    <Input value={reference} onChange={(e) => setReference(e.target.value)} className="mt-1 h-9 text-xs" placeholder="e.g. TX-12345" maxLength={64} />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">{my ? "Payment Screenshot *" : "Payment screenshot *"}</Label>
+                    <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card py-4 text-xs text-muted-foreground hover:border-primary">
+                      <Upload className="h-4 w-4" />
+                      {proofFile ? proofFile.name : my ? "ပုံ ရွေးပါ" : "Choose image"}
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => setProofFile(e.target.files?.[0] || null)} />
+                    </label>
+                  </div>
+                </>
               )}
 
-              <div>
-                <Label className="text-xs">{my ? "လွှဲပြီးသား Reference (optional)" : "Transfer reference (optional)"}</Label>
-                <Input value={reference} onChange={(e) => setReference(e.target.value)} className="mt-1 h-9 text-xs" placeholder="e.g. TX-12345" maxLength={64} />
-              </div>
-
-              <div>
-                <Label className="text-xs">{my ? "Payment Screenshot *" : "Payment screenshot *"}</Label>
-                <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card py-4 text-xs text-muted-foreground hover:border-primary">
-                  <Upload className="h-4 w-4" />
-                  {proofFile ? proofFile.name : my ? "ပုံ ရွေးပါ" : "Choose image"}
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setProofFile(e.target.files?.[0] || null)} />
-                </label>
-              </div>
-
-              <Button onClick={submit} disabled={uploading || !proofFile} className="w-full rounded-xl">
-                {uploading ? (my ? "တင်နေသည်..." : "Submitting...") : my ? "ပေးချေမှု တင်သွင်းရန်" : "Submit payment for review"}
+              <Button onClick={submit} disabled={uploading || (!isFree && !proofFile)} className="w-full rounded-xl">
+                {uploading
+                  ? (my ? "တင်နေသည်..." : "Submitting...")
+                  : isFree
+                    ? (my ? "စမ်းသပ်ခွင့် တောင်းရန်" : "Request Free Trial")
+                    : (my ? "ပေးချေမှု တင်သွင်းရန်" : "Submit payment for review")}
               </Button>
             </div>
           )}
@@ -224,7 +209,7 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
             <div className="py-6 text-center">
               <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
               <p className="mt-3 text-sm font-semibold">
-                {my ? "Admin အတည်ပြုပြီးမှ သင်၏ Package သက်ဝင်ပါမည်" : "Your plan activates after admin approval"}
+                {my ? "Admin အတည်ပြုပြီးမှ စတင်ပါမည်" : "Activates after admin approval"}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {my ? "ပုံမှန်အားဖြင့် နာရီအနည်းငယ်အတွင်း" : "Usually within a few hours"}

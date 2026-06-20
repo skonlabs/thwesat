@@ -1,32 +1,29 @@
 import { useMemo, useState } from "react";
-import { Check, Sparkles, Zap, Crown, Rocket } from "lucide-react";
+import { Check, Sparkles, Zap, Crown, Rocket, Gift, Clock, Minus, Plus } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { useLanguage } from "@/hooks/use-language";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import {
   useSubscriptionPlans,
   useAddonProducts,
-  useLaunchPromo,
-  useMySubscription,
-  useMyScheduledSubscription,
-  useMyPendingSubscriptionRequest,
-  isLaunchActive,
-  computePrice,
+  useMyPackageGrants,
+  useMyPendingSubscriptionRequests,
+  useMyQuotas,
+  useMyAddonPurchases,
   formatMMK,
   planLabel,
+  planRoleFor,
   type SubscriptionPlan,
   type AddonProduct,
-  type BillingCycle,
-  type PlanRole,
 } from "@/hooks/use-subscription";
 import SubscribeSheet from "@/components/pricing/SubscribeSheet";
-import { Clock } from "lucide-react";
 
-type Selection =
-  | { kind: "subscription"; plan: SubscriptionPlan; cycle: BillingCycle }
-  | { kind: "addon"; addon: AddonProduct };
+export type PurchaseSelection =
+  | { kind: "subscription"; plan: SubscriptionPlan }
+  | { kind: "addon"; addon: AddonProduct; quantity: number };
 
 const TIER_ICON: Record<string, any> = {
+  free_trial: Gift,
   starter: Sparkles,
   growth: Zap,
   business: Rocket,
@@ -37,35 +34,40 @@ const Pricing = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
   const { allowedRoles } = useUserRoles();
-  const detected: PlanRole = allowedRoles.includes("agent")
-    ? "recruiting_agent"
-    : "employer";
-  const [role, setRole] = useState<PlanRole>(detected);
-  const [cycle, setCycle] = useState<BillingCycle>("monthly");
-  const [selection, setSelection] = useState<Selection | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const effectiveRole: "employer" | "recruiting_agent" =
+    allowedRoles.includes("agent") ? "recruiting_agent" : "employer";
 
-  const { data: plans = [] } = useSubscriptionPlans(role);
-  const { data: addons = [] } = useAddonProducts(role);
-  const { data: promo } = useLaunchPromo();
-  const { data: currentSub } = useMySubscription();
-  const { data: scheduledSub } = useMyScheduledSubscription();
-  const { data: pendingReq } = useMyPendingSubscriptionRequest();
-  const launchActive = isLaunchActive(promo);
-  const hasPending = !!pendingReq;
+  const [selection, setSelection] = useState<PurchaseSelection | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [qty, setQty] = useState<Record<string, number>>({});
+
+  const { data: plans = [] } = useSubscriptionPlans();
+  const { data: addons = [] } = useAddonProducts(effectiveRole);
+  const { data: grants = [] } = useMyPackageGrants();
+  const { data: pending = [] } = useMyPendingSubscriptionRequests();
+  const { data: quotas } = useMyQuotas();
+  const { data: addonPurchases = [] } = useMyAddonPurchases();
+
   const planById = useMemo(() => Object.fromEntries(plans.map((p) => [p.id, p])), [plans]);
-  const currentPlan = currentSub ? planById[currentSub.plan_id] : null;
-  const scheduledPlan = scheduledSub ? planById[scheduledSub.plan_id] : null;
+  const ownedPackageCounts = useMemo(() => {
+    const acc: Record<string, number> = {};
+    for (const g of grants) acc[g.plan_id] = (acc[g.plan_id] ?? 0) + 1;
+    return acc;
+  }, [grants]);
+  const hasFreeTrial = grants.some((g) => planById[g.plan_id]?.tier === "free_trial");
 
   const sortedPlans = useMemo(() => [...plans].sort((a, b) => a.sort_order - b.sort_order), [plans]);
 
-  const onSubscribe = (plan: SubscriptionPlan) => {
-    setSelection({ kind: "subscription", plan, cycle });
+  const getQty = (id: string) => Math.max(1, qty[id] ?? 1);
+  const setUnitQty = (id: string, v: number) => setQty((s) => ({ ...s, [id]: Math.max(1, Math.min(10000, v || 1)) }));
+
+  const onBuyPlan = (plan: SubscriptionPlan) => {
+    setSelection({ kind: "subscription", plan });
     setSheetOpen(true);
   };
-
   const onBuyAddon = (addon: AddonProduct) => {
-    setSelection({ kind: "addon", addon });
+    const quantity = addon.is_per_unit ? getQty(addon.id) : 1;
+    setSelection({ kind: "addon", addon, quantity });
     setSheetOpen(true);
   };
 
@@ -73,115 +75,58 @@ const Pricing = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={my ? "ဈေးနှုန်းများ" : "Pricing"} />
       <div className="mx-auto w-full max-w-6xl px-5 space-y-5">
-        {/* Launch promo banner */}
-        {launchActive && (
-          <div className="rounded-2xl bg-gradient-to-r from-accent/30 to-primary/15 px-4 py-3 text-sm">
-            <div className="flex items-center gap-2 font-bold">
-              <Sparkles className="h-4 w-4 text-accent-foreground" />
-              {my ? "ဖွင့်ပွဲ ပရိုမိုးရှင်း" : "Launch promotion"}
+        {/* Your totals */}
+        {(quotas || grants.length > 0) && (
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {my ? "သင်၏ စုစုပေါင်း ပိုင်ဆိုင်မှု" : "Your totals"}
             </div>
-            <div className="mt-0.5 text-xs text-muted-foreground">
+            <div className="mt-1 grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
+              <Totals
+                label={my ? "Active Jobs" : "Active Jobs"}
+                value={quotas?.is_unlimited_jobs ? "∞" : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
+                total={quotas?.is_unlimited_jobs ? null : quotas?.active_jobs_quota ?? 0}
+              />
+              <Totals
+                label={my ? "Candidate Unlocks" : "Candidate Unlocks"}
+                value={quotas?.is_unlimited_unlocks ? "∞" : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0)).toLocaleString()}
+                total={quotas?.is_unlimited_unlocks ? null : quotas?.unlocks_total ?? 0}
+              />
+              <Totals
+                label={my ? "Featured Jobs" : "Featured Jobs"}
+                value={Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0)).toLocaleString()}
+                total={quotas?.featured_jobs_total ?? 0}
+              />
+              <Totals
+                label={my ? "Packages" : "Packages owned"}
+                value={grants.length.toString()}
+                total={null}
+              />
+            </div>
+          </div>
+        )}
+
+        {pending.length > 0 && (
+          <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 px-4 py-3 text-sm">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">
+              <Clock className="h-3 w-3" /> {my ? "အတည်ပြုခြင်း စောင့်ဆိုင်းနေသည်" : "Awaiting approval"}
+            </div>
+            <div className="mt-0.5 text-xs">
               {my
-                ? `မည်သည့် Package မဆို ပထမ ၃ လ အခမဲ့။ ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""} အထိ။`
-                : `First 3 months free on any plan. Promo ends ${promo ? new Date(promo.ends_at).toLocaleDateString() : ""}.`}
+                ? `${pending.length} ခု စစ်ဆေးနေသည်။ နောက်ထပ် ဝယ်ယူနိုင်ပါသည် — အတည်ပြုပြီးချိန်တွင် ပိုင်ဆိုင်မှု ပေါင်းထည့်ပါမည်။`
+                : `You have ${pending.length} purchase${pending.length > 1 ? "s" : ""} waiting for admin/partner approval. You can still buy more — they'll be added to your totals once approved.`}
             </div>
           </div>
         )}
-
-        {/* Current plan / pending / scheduled status */}
-        {(currentSub || hasPending || scheduledSub) && (
-          <div className="space-y-2">
-            {currentSub && currentPlan && (
-              <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                  {my ? "လက်ရှိ Package" : "Your current plan"}
-                </div>
-                <div className="mt-0.5 font-bold">
-                  {planLabel(currentPlan.tier)} · {currentSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  {my ? "သက်တမ်း ကုန်မည့်ရက် " : "Renews / ends "}
-                  {new Date(currentSub.current_period_end).toLocaleDateString()}
-                </div>
-              </div>
-            )}
-            {scheduledSub && scheduledPlan && (
-              <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/5 px-4 py-3 text-sm">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                  <Clock className="h-3 w-3" /> {my ? "ပြောင်းရန် စီစဉ်ထား" : "Scheduled change"}
-                </div>
-                <div className="mt-0.5 font-bold">
-                  {planLabel(scheduledPlan.tier)} · {scheduledSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  {my ? "စတင်မည့်ရက် " : "Starts "}
-                  {new Date(scheduledSub.started_at).toLocaleDateString()}
-                </div>
-              </div>
-            )}
-            {hasPending && (
-              <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 px-4 py-3 text-sm">
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">
-                  <Clock className="h-3 w-3" /> {my ? "အတည်ပြုခြင်း စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
-                </div>
-                <div className="mt-0.5 text-xs">
-                  {my
-                    ? "သင်၏ ပေးချေမှု ပြန်လည် စစ်ဆေးနေသည်။ ပြီးသည်အထိ နောက်ထပ် Package တင်လို့ မရပါ။"
-                    : "Your payment is being reviewed. You can't submit another plan until it's approved or rejected."}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-
-        {/* Role tabs */}
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-full border border-border bg-card p-1">
-            {(["employer", "recruiting_agent"] as PlanRole[]).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
-                  role === r ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                }`}
-              >
-                {r === "employer" ? (my ? "အလုပ်ရှင်" : "Employers") : my ? "Recruiting Agents" : "Recruiting Agents"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Billing cycle toggle */}
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-full border border-border bg-card p-1 text-xs">
-            <button
-              onClick={() => setCycle("monthly")}
-              className={`rounded-full px-3 py-1 font-semibold ${cycle === "monthly" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-            >
-              {my ? "လစဉ်" : "Monthly"}
-            </button>
-            <button
-              onClick={() => setCycle("yearly")}
-              className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold ${cycle === "yearly" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-            >
-              {my ? "နှစ်စဉ်" : "Yearly"}
-              <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:text-emerald-300">
-                {my ? "၁ လ အခမဲ့" : "1 mo free"}
-              </span>
-            </button>
-          </div>
-        </div>
 
         {/* Plan cards */}
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
           {sortedPlans.map((plan) => {
             const Icon = TIER_ICON[plan.tier] ?? Sparkles;
-            const priceInfo = computePrice(plan, cycle, launchActive);
-            const isCurrent = currentSub?.plan_id === plan.id && currentSub?.cycle === cycle;
-            const isScheduled = scheduledSub?.plan_id === plan.id && scheduledSub?.cycle === cycle;
+            const owned = ownedPackageCounts[plan.id] ?? 0;
             const popular = plan.tier === "growth";
-
+            const isFreeTrial = plan.tier === "free_trial";
+            const disabled = isFreeTrial && hasFreeTrial;
             return (
               <div
                 key={plan.id}
@@ -194,6 +139,11 @@ const Pricing = () => {
                     {my ? "ရေပန်းစား" : "Popular"}
                   </span>
                 )}
+                {isFreeTrial && (
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                    {my ? "အခမဲ့ ၃ လ" : "Free 3 months"}
+                  </span>
+                )}
 
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4 text-primary" />
@@ -201,72 +151,55 @@ const Pricing = () => {
                 </div>
 
                 <div className="mt-3">
-                  {cycle === "yearly" ? (
-                    <>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xs text-muted-foreground line-through tabular-nums">
-                          {formatMMK(priceInfo.originalYearlyMmk)}
-                        </span>
-                      </div>
-                      <div className="text-2xl font-bold tabular-nums">{formatMMK(priceInfo.mmk)}</div>
-                      <div className="text-[11px] text-muted-foreground">{my ? "/ နှစ် (၁၁ လ စျေး)" : "/ year (pay 11, get 12)"}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-2xl font-bold tabular-nums">{formatMMK(priceInfo.mmk)}</div>
-                      <div className="text-[11px] text-muted-foreground">{my ? "/ လ" : "/ month"}</div>
-                    </>
-                  )}
-                  {launchActive && (
-                    <div className="mt-1 inline-block rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-bold">
-                      {my ? "ပထမ ၃ လ အခမဲ့" : "First 3 months free"}
-                    </div>
-                  )}
+                  <div className="text-2xl font-bold tabular-nums">{formatMMK(plan.price_mmk)}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {isFreeTrial
+                      ? (my ? "၃ လ စမ်းသပ်ခွင့် (တစ်ကြိမ်သာ)" : "3-month trial (one per user)")
+                      : (my ? "တစ်ကြိမ်တည်း · သက်တမ်း မရှိ" : "One-time · never expires")}
+                  </div>
                 </div>
 
                 <ul className="mt-4 space-y-1.5 text-xs">
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
-                        ? my ? "Unlimited Active Jobs / လ" : "Unlimited Active Jobs / month"
-                        : my ? `Active Jobs ${plan.active_jobs_quota} ခု / လ` : `${plan.active_jobs_quota} Active Jobs / month`
+                        ? my ? "Unlimited Active Jobs" : "Unlimited Active Jobs"
+                        : my ? `Active Jobs ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Active Jobs`
                     }
                   />
                   <FeatureRow
-                    text={my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု / လ` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks / month`}
+                    text={
+                      plan.is_unlimited_unlocks
+                        ? my ? "Unlimited Candidate Unlocks" : "Unlimited Candidate Unlocks"
+                        : my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`
+                    }
                   />
-                  <FeatureRow text={my ? "Wallet & အသုံးပြုမှု မှတ်တမ်း" : "Wallet & usage tracking"} />
-                  {plan.tier === "enterprise" && <FeatureRow text={my ? "ဦးစားပေး အကူအညီ" : "Priority support"} />}
+                  {!isFreeTrial && <FeatureRow text={my ? "ပိုင်ဆိုင်မှု စုစုပေါင်းတွင် ပေါင်းထည့်" : "Stacks with other packages you own"} />}
                 </ul>
-                <div className="mt-2 text-[10px] text-muted-foreground">
-                  {my ? "Active Jobs နှင့် Unlocks များသည် လစဉ် ပြန်လည် သတ်မှတ်ပါသည်။" : "Active jobs & unlocks reset every month."}
-                </div>
 
-                {(() => {
-                  const disabled = isCurrent || isScheduled || hasPending;
-                  const label = isCurrent
-                    ? (my ? "လက်ရှိ Package" : "Current plan")
-                    : isScheduled
-                      ? (my ? "စီစဉ်ထားပြီး" : "Scheduled")
-                      : hasPending
-                        ? (my ? "စောင့်ဆိုင်းနေသည်" : "Pending approval")
-                        : currentSub
-                          ? (my ? "Package ပြောင်းရန် (သက်တမ်းကုန်လျှင် စတင်)" : "Switch plan (starts after current ends)")
-                          : (my ? "Subscribe" : "Subscribe");
-                  return (
-                    <button
-                      disabled={disabled}
-                      onClick={() => onSubscribe(plan)}
-                      className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
-                        disabled
-                          ? "cursor-not-allowed bg-muted text-muted-foreground"
-                          : "bg-primary text-primary-foreground hover:opacity-90"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })()}
+                {owned > 0 && (
+                  <div className="mt-3 text-[10px] text-emerald-700 dark:text-emerald-400">
+                    {my ? `သင် ${owned} ကြိမ် ပိုင်ဆိုင်နေသည်` : `You own ${owned} ×`}
+                  </div>
+                )}
+
+                <button
+                  disabled={disabled}
+                  onClick={() => onBuyPlan(plan)}
+                  className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                    disabled
+                      ? "cursor-not-allowed bg-muted text-muted-foreground"
+                      : "bg-primary text-primary-foreground hover:opacity-90"
+                  }`}
+                >
+                  {disabled
+                    ? (my ? "သုံးပြီးပါပြီ" : "Already used")
+                    : isFreeTrial
+                      ? (my ? "စမ်းသပ်ခွင့် တောင်းရန်" : "Start Free Trial")
+                      : owned > 0
+                        ? (my ? "ထပ်မံ ဝယ်ရန်" : "Buy again")
+                        : (my ? "ဝယ်ရန်" : "Buy")}
+                </button>
               </div>
             );
           })}
@@ -276,29 +209,81 @@ const Pricing = () => {
         <section>
           <h2 className="mb-2 mt-4 text-sm font-bold">{my ? "Add-ons" : "Add-ons"}</h2>
           <p className="mb-3 text-xs text-muted-foreground">
-            {my ? "မည်သည့် Package ပေါ်တွင်မဆို ထပ်ဖြည့်နိုင်သည်။" : "Boost any plan with extra unlocks and features."}
+            {my ? "မည်သည့် Package ပေါ်တွင်မဆို ထပ်ဖြည့်နိုင်သည်။" : "Top up unlocks, feature your jobs, or add brand & matching for 1 year."}
           </p>
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-            {addons.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                <div className="min-w-0">
-                  <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {a.is_recurring && a.duration_days
-                      ? my
-                        ? `${formatMMK(a.mmk)} / လ`
-                        : `${formatMMK(a.mmk)} / month`
-                      : formatMMK(a.mmk)}
+            {addons.map((a) => {
+              const q = getQty(a.id);
+              const total = a.is_per_unit ? a.mmk * q : a.mmk;
+              const active1yr = addonPurchases.find(
+                (p) => p.addon_id === a.id && p.status === "active",
+              );
+              return (
+                <div key={a.id} className="rounded-xl border border-border bg-card p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {a.is_per_unit
+                          ? my
+                            ? `${formatMMK(a.mmk)} / တစ်ခု`
+                            : `${formatMMK(a.mmk)} each`
+                          : a.duration_days
+                            ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
+                            : formatMMK(a.mmk)}
+                      </div>
+                      {a.duration_days && (
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
+                        </div>
+                      )}
+                      {active1yr?.expires_at && (
+                        <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                          {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {a.is_per_unit && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <button
+                        onClick={() => setUnitQty(a.id, q - 1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-muted"
+                        aria-label="decrease"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        value={q}
+                        onChange={(e) => setUnitQty(a.id, parseInt(e.target.value || "1", 10))}
+                        className="h-7 w-16 rounded-md border border-border bg-background text-center text-xs tabular-nums"
+                      />
+                      <button
+                        onClick={() => setUnitQty(a.id, q + 1)}
+                        className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-muted"
+                        aria-label="increase"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                      <div className="ml-auto text-xs">
+                        <span className="text-muted-foreground">{my ? "စုစုပေါင်း " : "Total "}</span>
+                        <span className="font-bold tabular-nums">{formatMMK(total)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => onBuyAddon(a)}
+                    className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+                  >
+                    {my ? "ဝယ်ရန်" : "Buy"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => onBuyAddon(a)}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground"
-                >
-                  {my ? "ဝယ်ရန်" : "Buy"}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
@@ -307,6 +292,16 @@ const Pricing = () => {
     </div>
   );
 };
+
+const Totals = ({ label, value, total }: { label: string; value: string; total: number | null }) => (
+  <div className="rounded-lg bg-background/60 p-2">
+    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+    <div className="mt-0.5 text-base font-bold tabular-nums">
+      {value}
+      {total !== null && total > 0 && <span className="ml-1 text-[10px] font-normal text-muted-foreground">/ {total.toLocaleString()}</span>}
+    </div>
+  </div>
+);
 
 const FeatureRow = ({ text }: { text: string }) => (
   <li className="flex items-start gap-1.5">

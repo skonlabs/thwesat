@@ -56,6 +56,7 @@ export type Database = {
           duration_days: number | null
           id: string
           is_active: boolean
+          is_per_unit: boolean
           is_recurring: boolean
           key: string
           kind: string
@@ -72,6 +73,7 @@ export type Database = {
           duration_days?: number | null
           id?: string
           is_active?: boolean
+          is_per_unit?: boolean
           is_recurring?: boolean
           key: string
           kind: string
@@ -88,6 +90,7 @@ export type Database = {
           duration_days?: number | null
           id?: string
           is_active?: boolean
+          is_per_unit?: boolean
           is_recurring?: boolean
           key?: string
           kind?: string
@@ -1131,30 +1134,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      launch_promo_config: {
-        Row: {
-          ends_at: string
-          id: number
-          is_active: boolean
-          starts_at: string
-          updated_at: string
-        }
-        Insert: {
-          ends_at?: string
-          id?: number
-          is_active?: boolean
-          starts_at?: string
-          updated_at?: string
-        }
-        Update: {
-          ends_at?: string
-          id?: number
-          is_active?: boolean
-          starts_at?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       mentor_availability_slots: {
         Row: {
@@ -2444,13 +2423,12 @@ export type Database = {
           addon_id: string | null
           admin_note: string | null
           created_at: string
-          cycle: string | null
           id: string
-          launch_price_applied: boolean
           mmk_amount: number
           payment_method: string | null
           plan_id: string | null
           proof_url: string | null
+          quantity: number
           request_type: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -2463,13 +2441,12 @@ export type Database = {
           addon_id?: string | null
           admin_note?: string | null
           created_at?: string
-          cycle?: string | null
           id?: string
-          launch_price_applied?: boolean
           mmk_amount: number
           payment_method?: string | null
           plan_id?: string | null
           proof_url?: string | null
+          quantity?: number
           request_type: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -2482,13 +2459,12 @@ export type Database = {
           addon_id?: string | null
           admin_note?: string | null
           created_at?: string
-          cycle?: string | null
           id?: string
-          launch_price_applied?: boolean
           mmk_amount?: number
           payment_method?: string | null
           plan_id?: string | null
           proof_url?: string | null
+          quantity?: number
           request_type?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -2521,8 +2497,8 @@ export type Database = {
           id: string
           is_active: boolean
           is_unlimited_jobs: boolean
-          launch_mmk: number
-          monthly_mmk: number
+          is_unlimited_unlocks: boolean
+          price_mmk: number
           role: string
           sort_order: number
           tier: string
@@ -2535,8 +2511,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_unlimited_jobs?: boolean
-          launch_mmk?: number
-          monthly_mmk: number
+          is_unlimited_unlocks?: boolean
+          price_mmk?: number
           role: string
           sort_order?: number
           tier: string
@@ -2549,8 +2525,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_unlimited_jobs?: boolean
-          launch_mmk?: number
-          monthly_mmk?: number
+          is_unlimited_unlocks?: boolean
+          price_mmk?: number
           role?: string
           sort_order?: number
           tier?: string
@@ -2566,6 +2542,7 @@ export type Database = {
           featured_jobs_total: number
           featured_jobs_used: number
           is_unlimited_jobs: boolean
+          is_unlimited_unlocks: boolean
           unlocks_total: number
           unlocks_used: number
           updated_at: string
@@ -2577,6 +2554,7 @@ export type Database = {
           featured_jobs_total?: number
           featured_jobs_used?: number
           is_unlimited_jobs?: boolean
+          is_unlimited_unlocks?: boolean
           unlocks_total?: number
           unlocks_used?: number
           updated_at?: string
@@ -2588,6 +2566,7 @@ export type Database = {
           featured_jobs_total?: number
           featured_jobs_used?: number
           is_unlimited_jobs?: boolean
+          is_unlimited_unlocks?: boolean
           unlocks_total?: number
           unlocks_used?: number
           updated_at?: string
@@ -2597,14 +2576,8 @@ export type Database = {
       }
       subscriptions: {
         Row: {
-          auto_renew: boolean
-          cancelled_at: string | null
           created_at: string
-          current_period_end: string
-          cycle: string
           id: string
-          launch_ends_at: string | null
-          launch_price_applied: boolean
           mmk_paid: number
           plan_id: string
           started_at: string
@@ -2613,14 +2586,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          auto_renew?: boolean
-          cancelled_at?: string | null
           created_at?: string
-          current_period_end: string
-          cycle: string
           id?: string
-          launch_ends_at?: string | null
-          launch_price_applied?: boolean
           mmk_paid?: number
           plan_id: string
           started_at?: string
@@ -2629,14 +2596,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          auto_renew?: boolean
-          cancelled_at?: string | null
           created_at?: string
-          current_period_end?: string
-          cycle?: string
           id?: string
-          launch_ends_at?: string | null
-          launch_price_applied?: boolean
           mmk_paid?: number
           plan_id?: string
           started_at?: string
