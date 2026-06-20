@@ -144,6 +144,13 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
                     {my ? "နှစ်စဉ် — ၁၁ လ စျေး၊ ၁၂ လ အသုံးပြုနိုင်" : "Yearly — pay 11 months, get 12"}
                   </div>
                 )}
+                {isSub && activeSub && (
+                  <div className="mt-2 rounded-md bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                    {my
+                      ? `သင်၌ Package တစ်ခု ရှိနေပြီ — ဤ Package သည် လက်ရှိ Package သက်တမ်း ကုန်ဆုံးမည့် ${new Date(activeSub.current_period_end).toLocaleDateString()} တွင် စတင်ပါမည်။ ငွေပြန်အမ်းခြင်း မရှိပါ။`
+                      : `You already have an active plan — this plan will start on ${new Date(activeSub.current_period_end).toLocaleDateString()} when your current plan ends. No refund is issued.`}
+                  </div>
+                )}
                 {!isSub && selection.addon.key === "matching" && (
                   <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
                     {my ? "ဝယ်ပြီးချိန်တွင် ချက်ချင်း စတင်ပါမည်" : "Starts immediately after purchase"}
