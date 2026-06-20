@@ -1,77 +1,85 @@
-## Goal
+# Plan
 
-Replace the monthly/yearly subscription model with a one-time **package purchase** model. Packages stack quotas permanently; two add-ons have a 1-year expiry; Featured Jobs and Candidate Unlocks become per-unit purchases with quantity selection. Same prices for Agents and Employers. Free Trial becomes a regular (free) requestable package.
+## Scope reality check
 
-## New pricing (MMK)
+A "full purge" of `wallets`, `wallet_transactions`, `topup_requests`, `credit_packages`, `action_prices` cannot be a single migration — those tables back the entire credit-spending UX, not just admin screens. They are referenced by:
 
-**Packages (one-time, never expire, stackable):**
-| Package | Price | Active Jobs | Candidate Unlocks |
-|---|---|---|---|
-| Free Trial | 0 | 10 | 500 |
-| Starter | 350,000 | 5 | 500 |
-| Growth | 1,750,000 | 25 | 1,500 |
-| Business | 5,000,000 | 100 | 10,000 |
-| Enterprise | 10,000,000 | Unlimited | Unlimited |
+- `/wallet` page (`Wallet.tsx`)
+- `WalletChip` in headers everywhere
+- `TopupSheet` (top-up flow)
+- `SpendConfirmSheet` — used by **MentorBooking, CoverLetterGenerator, SkillGapAnalysis, CareerTracks, JobDetail, EmployerJobs, EmployerApplications, ProfileBuilder, AgentDashboard, EmployerDashboard**
+- Hooks: `use-wallet.ts`, `use-jobs.ts` (priority-apply spend), `use-user-finance.ts`
 
-Free Trial: one per user lifetime. Enterprise: marks quotas as unlimited (any active unlimited grant => unlimited for that user).
+If we drop the tables outright, every "spend N credits" button in the app throws. Subscription quotas (`subscription_quotas`) already exist but don't yet cover every spend point.
 
-**Add-ons:**
-- Candidate Unlocks — 1,000 MMK / unlock, user picks quantity (min 1)
-- Featured Jobs — 10,000 MMK / job, user picks quantity (min 1)
-- Agent Branding Page — 250,000 MMK, 1 year, Agents only
-- Employer Branding Page — 250,000 MMK, 1 year, Employers only
-- Candidate Matching Pack — 200,000 MMK, 1 year, both
+So I will do this in three phases — phase 1 ships now, phases 2 and 3 wait for your go-ahead.
 
-## Behavior
+## Task 1 — Wallet admin: name + email + click-through (ships now)
 
-1. No monthly/yearly cycles, no launch promo, no scheduled plans.
-2. Users can buy any package any number of times → quotas sum into a single pooled balance, permanent.
-3. Buy buttons stay enabled even when pending requests exist; show an info banner: "You have N package(s) awaiting approval. You can submit more."
-4. On admin approval: add package's `active_jobs_quota` and `unlock_quota` to the user's pooled totals (or flip `is_unlimited_jobs` / `unlocks_unlimited` if Enterprise).
-5. Add-on quantity: Unlock Pack and Featured Job get a number input; total = unit price × qty. On approval: increment pooled units (unlocks → unlocks_total; featured_jobs → featured_jobs_total).
-6. 1-year add-ons (Matching, Branding) activate on approval; expire 1 year later via tick function.
-7. Pricing page redesigned: package cards (no monthly/yearly toggle), add-on cards with qty steppers for unlock/featured.
+File: `src/pages/AdminWallet.tsx`
 
-## UI changes
+- For both Subscriptions and Top-ups tabs, fetch `profiles.display_name` + `get_user_contacts_admin` email for every `user_id` in the visible rows.
+- Replace `user: {id.slice(0,8)}…` with `{display_name} · {email}`.
+- Wrap each row's user block in a `Link` to `/admin/users/{id}` (existing admin user route — verified).
+- Adjust mark-paid email path to keep using `user_id` (unchanged).
 
-- **Pricing.tsx**: remove cycle toggle, launch promo banner, scheduled/current-plan section. Show "Your totals" summary (Active Jobs: X, Candidate Unlocks: Y, plus active 1-year add-ons with expiry dates). Show pending-requests banner. Package cards have "Buy" button. Add-on cards: Unlocks/Featured show quantity stepper + computed total; Branding/Matching show 1-year note.
-- **SubscribeSheet.tsx** → rename to **PurchaseSheet.tsx**: remove cycle/launch/active-sub messaging; for unlock/featured show qty; submit with computed total.
-- **WalletChip**: keep "Packages" label.
-- Remove "Subscribe" wording from buttons → "Buy".
+## Task 3 — Finance Hub data audit (ships now)
 
-## Backend changes
+I'll review each tab against live DB rows and fix anything wrong. Known/likely findings to confirm and fix:
 
-**Migration (schema + seed):**
-- `subscription_plans`: drop `monthly_mmk`, `launch_mmk`; add `price_mmk` (one-time). Add tier `free_trial`. Reseed all 5 packages with unified prices. Drop unique constraint allowing duplicate purchases.
-- `addon_products`: reseed — unlock pack & featured job become per-unit (mmk=unit price, unlock_amount=1 / 1 featured); add `is_per_unit boolean`. Branding/Matching keep duration_days=365.
-- `subscriptions` table: repurpose as "package_grants" (or keep name) — drop `cycle`, `current_period_end`, `launch_*`, `auto_renew`, `scheduled` status. Each approved package = one row, status `active`, no expiry.
-- `subscription_quotas`: keep pooled totals; add `unlocks_unlimited boolean`.
-- `subscription_payment_requests`: drop `cycle`, `launch_price_applied`; add `quantity int default 1` for per-unit add-ons. Drop the unique pending-request index.
-- `addon_purchases`: keep for 1-year add-ons; per-unit add-ons (unlocks/featured) instead bump quotas directly (no addon_purchases row needed) or store with expires_at=null.
-- `launch_promo_config`: drop table (or leave inert + remove all references).
-- **RPC `approve_subscription_payment`**: rewritten — on approval:
-  - Package → insert subscriptions row; add quotas to `subscription_quotas` (sum), flip unlimited flags if Enterprise; enforce Free Trial once per user.
-  - Per-unit addon (unlocks/featured) → add `quantity` to corresponding pooled total.
-  - 1-year addon (branding/matching) → insert addon_purchases row with expires_at = now()+365d.
-- **RPC `tick_expire_subscriptions`** → only expires 1-year add-ons now (no plan transitions).
-- Data migration: convert existing active subscriptions to equivalent new-model rows (best-effort map by tier), wipe scheduled/pending launch data.
+1. **Overview (`FinanceOverview.tsx`)** — re-verify all KPIs vs `subscription_payment_requests`, `payment_requests`, `mentor_earnings`, `partner_monthly_statements`. Current period filter is 30d; confirm queries respect it.
+2. **Revenue & Payouts (`AdminFinance.tsx`)** —
+   - `in.placement` row will be 0 (no placement payments in DB) — keep but label "(none yet)" if empty.
+   - `in.session` reads `payment_requests.payment_type='mentor_session'` ✓ matches DB (10 approved).
+   - Pending count merges `payment_requests.pending` + `subscription_payment_requests.pending` ✓.
+   - Title of subscription/addon details uses `<Tier> Package` — verify lookup with `planLookup`.
+3. **Payment Queue (`AdminPayments.tsx`)** — only shows `payment_requests`; `subscription_payment_requests` queue lives in `/admin/wallet`. Will merge subscription pending into the queue so admins have one place (or surface a tab — confirm preference if you want).
+4. **Partner Rev-Share / Monthly Statement / Attributions / Payments & Overrides / Quality Gate / Reversals / Statement History** (`AdminPartnerFinance.tsx`) — DB has 1 attribution, 0 statements, 0 reversals, 0 quality metrics. Will:
+   - Confirm preview computation (`usePartnerStatementPreview`) runs for current period even with 0 statements.
+   - Verify Attributions tab lists the 1 row with user name/email instead of raw UUID.
+   - Verify Quality Gate shows "no metrics yet" empty state instead of NaN.
+   - Verify Statement History empty state.
+   - Verify Reversals tab.
+5. **Per-screen empty states** — replace blank tables with clear "no data yet" copy.
 
-**Frontend hooks (`use-subscription.ts`):**
-- Remove `BillingCycle`, `computePrice`, `useLaunchPromo`, `isLaunchActive`, `useMyScheduledSubscription`, `useMySubscription` (single active).
-- Add `useMyPackageGrants()` (list), `useMyQuotaTotals()`, `useMyPendingRequests()` (count, not single).
-- `useCreateSubscriptionPaymentRequest` accepts `quantity`.
+I will report exact deltas inline as I touch each tab; no business-logic change without surfacing it first.
 
-## Files touched
+## Task 2 — Legacy purge (PHASED, needs your go-ahead per phase)
 
-- New migration (schema reset + reseed + RPC rewrite).
-- `src/hooks/use-subscription.ts` — rewrite types/hooks.
-- `src/pages/Pricing.tsx` — redesign.
-- `src/components/pricing/SubscribeSheet.tsx` — rewrite as purchase sheet with qty.
-- `src/components/WalletChip.tsx` — minor.
-- Admin payment approval UI (`AdminPayments.tsx`) — show quantity column for per-unit add-ons.
-- Any reads of `cycle` / `current_period_end` / `launch_price_applied` across the app — strip.
+### Phase 2A — UI removal + stop writing legacy data (safe, ready now)
 
-## Out of scope
+- Delete top-up flow: remove `TopupSheet`, `Wallet` top-up section, "Top up wallet" CTAs in `SpendConfirmSheet`, `InviteFriendsCard` credit references.
+- Remove legacy tabs from `AdminWallet` (`topups` tab) and `AdminFinance` (`in.topups` row, `topupsTotal`, the deferred-revenue paragraph).
+- Remove `topup_requests` counts from `AdminDashboard` / `PartnerDashboard`.
+- Make `SpendConfirmSheet` show a hard "subscription required" gate when the user has no quota — no credit fallback — and route to `/subscriptions` instead of `/wallet`.
+- Hide `WalletChip` everywhere; replace with a subscription/quota chip.
+- Hide `/wallet` route (redirect to `/subscriptions`).
+- Database: **no destructive SQL yet**. Just stop writing.
 
-- Job-seeker `profile_boost` — unchanged.
-- Wallet top-ups, mentor bookings, placement fees — unchanged.
+### Phase 2B — DB purge (destructive, separate migration after 2A is green)
+
+Migration (only after you confirm 2A is shipped and quotas cover every action):
+
+```sql
+DROP FUNCTION IF EXISTS public.wallet_topup_approve, public.wallet_topup_reject,
+                        public.wallet_adjust, public.wallet_spend_credits CASCADE;
+DROP TABLE IF EXISTS public.wallet_transactions, public.topup_requests,
+                     public.action_prices, public.credit_packages, public.wallets CASCADE;
+```
+
+Plus removing every remaining code path that references those names (hooks, types, tests).
+
+### Phase 2C — Cleanup
+
+- Delete `use-wallet.ts`, `src/components/wallet/`, `src/pages/Wallet.tsx`, `src/pages/AdminWallet.tsx` (or repurpose AdminWallet to just be the subscription queue).
+- Update tests: `src/test/wallet.test.ts`, `src/test/roles/job-seeker.test.ts`.
+
+## What ships in this turn
+
+Tasks **1** and **3** only. I will NOT touch the database or remove credit spending until you confirm: "go phase 2A" — that protects the 62 users currently holding ~7.6M Ks of credits while we wire up subscription quotas to cover the missing spend points.
+
+## Technical details
+
+- Admin user lookup: reuse `get_user_contacts_admin` RPC already used in `AdminPayments.tsx`.
+- AdminWallet rows: keep current card layout; add `<Link to={\`/admin/users/${id}\`}>` on the user line.
+- Empty-state component: reuse existing `FinanceLedger` `emptyText` prop where applicable.
