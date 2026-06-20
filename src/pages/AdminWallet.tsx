@@ -18,14 +18,19 @@ const AdminWallet = () => {
   const my = lang === "my";
   const qc = useQueryClient();
 
+  const [subFilter, setSubFilter] = useState<"pending" | "all">("pending");
+  const [topupFilter, setTopupFilter] = useState<"pending" | "all">("pending");
+
   const { data: subRequests = [], isLoading: loadingSubs } = useQuery({
-    queryKey: ["admin-sub-requests"],
+    queryKey: ["admin-sub-requests", subFilter],
     queryFn: async () => {
-      const { data: reqs } = await (supabase as any)
+      let q = (supabase as any)
         .from("subscription_payment_requests")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(500);
+      if (subFilter === "pending") q = q.eq("status", "pending");
+      const { data: reqs } = await q;
       if (!reqs || reqs.length === 0) return [];
       const planIds = [...new Set(reqs.filter((r: any) => r.plan_id).map((r: any) => r.plan_id))];
       const addonIds = [...new Set(reqs.filter((r: any) => r.addon_id).map((r: any) => r.addon_id))];
@@ -34,7 +39,7 @@ const AdminWallet = () => {
         addonIds.length > 0 ? (supabase as any).from("addon_products").select("id,key,label_en,kind,mmk,is_per_unit").in("id", addonIds) : Promise.resolve({ data: [] }),
       ]);
       const planMap = new Map((plansRes.data || []).map((p: any) => [p.id, p]));
-      const addonMap = new Map((addonsRes.data || []).map((a: any) => [a.id, a]));
+      const addonMap = new Map((addonsRes.data || []).map((a: any) => [a.id, p]));
       return (reqs as any[]).map((r: any) => ({
         ...r,
         plan: planMap.get(r.plan_id) || null,
@@ -45,13 +50,15 @@ const AdminWallet = () => {
 
   // Job Seeker / Mentor wallet top-ups (still active for those roles).
   const { data: topupRequests = [], isLoading: loadingTopups } = useQuery({
-    queryKey: ["admin-topup-requests"],
+    queryKey: ["admin-topup-requests", topupFilter],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from("topup_requests")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(500);
+      if (topupFilter === "pending") q = q.eq("status", "pending");
+      const { data } = await q;
       return (data as any[]) || [];
     },
   });
