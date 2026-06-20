@@ -688,10 +688,18 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
       <Card className="divide-y">
         {isLoading ? <div className="p-4 text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</div>
           : !data || data.length === 0 ? <div className="p-4 text-sm text-muted-foreground">{tt(lang, "No attributions yet.", "Attribution မရှိသေးပါ။")}</div>
-          : data.map((a: any) => (
+          : data.map((a: any) => {
+            const u = dir?.get(a.user_id);
+            const email = u?.email;
+            const linkTo = `/admin/users${email ? `?q=${encodeURIComponent(email)}` : ""}`;
+            return (
             <div key={a.id} className="flex items-center justify-between p-3 text-sm">
-              <div>
-                <div className="font-mono text-xs">{a.user_id}</div>
+              <div className="min-w-0">
+                <Link to={linkTo} className="block hover:text-primary hover:underline">
+                  <span className="font-semibold text-foreground">{u?.name || "User"}</span>
+                  {email && <span className="text-xs text-muted-foreground"> · {email}</span>}
+                </Link>
+                <div className="font-mono text-[10px] text-muted-foreground">{a.user_id}</div>
                 <div className="text-xs text-muted-foreground">
                   {tt(lang, channelLabels[a.channel]?.en || a.channel, channelLabels[a.channel]?.my || a.channel)} · {tt(lang, "attributed", "သတ်မှတ်")} {new Date(a.attributed_at).toLocaleDateString()}
                   {a.first_paid_at ? ` · ${tt(lang, "first paid", "ပထမ ပေးချေ")} ${new Date(a.first_paid_at).toLocaleDateString()}` : ` · ${tt(lang, "no paid txn yet", "ပေးချေမှု မရှိသေး")}`}
@@ -699,7 +707,8 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
               </div>
               <Badge variant={a.first_paid_at ? "default" : "secondary"}>{a.first_paid_at ? tt(lang, "Active", "Active") : tt(lang, "Pending", "စောင့်ဆိုင်း")}</Badge>
             </div>
-          ))}
+            );
+          })}
       </Card>
     </div>
   );
