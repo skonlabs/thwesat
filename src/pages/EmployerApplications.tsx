@@ -239,9 +239,9 @@ const EmployerApplications = () => {
       });
       if (error) throw error;
       // Local cache refresh for the apps list
-      await qc.invalidateQueries({ queryKey: ["employer-apps"] });
-      await qc.invalidateQueries({ queryKey: ["agent-apps"] });
-      await qc.invalidateQueries({ queryKey: ["user-finance"] });
+      await queryClient.invalidateQueries({ queryKey: ["employer-apps"] });
+      await queryClient.invalidateQueries({ queryKey: ["agent-apps"] });
+      await queryClient.invalidateQueries({ queryKey: ["user-finance"] });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ: " : "Failed to confirm placement: ") + (err?.message || "unknown"));
