@@ -244,7 +244,7 @@ const AdminFinance = ({
   }, [selected, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, lang, markPaid, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, planLookup]);
 
   const selectedRow = [...inRows, ...outRows].find((r) => r.key === selected)!;
-  const selectedIsSpend = selected.startsWith("spend.");
+  const selectedIsSpend = false;
 
   return (
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
