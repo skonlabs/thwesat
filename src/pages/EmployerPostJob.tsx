@@ -696,6 +696,67 @@ const EmployerPostJob = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {insufficient
+                ? (lang === "my" ? "ပက်ကေ့ဂျ် မလုံလောက်ပါ" : "Not enough quota")
+                : (lang === "my" ? "အလုပ် တင်ရန် အတည်ပြုပါ" : "Confirm post job")}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                {insufficient ? (
+                  <p>
+                    {noJobsLeft
+                      ? (lang === "my" ? "သင့်အလုပ်တင်ခွင့် ကုန်ဆုံးပါပြီ။ ဆက်လက်တင်ရန် ပက်ကေ့ဂျ် ဝယ်ပါ။" : "You have no active job slots remaining. Buy a package to continue.")
+                      : (lang === "my" ? "Featured slot မရှိတော့ပါ။ Featured Job add-on ဝယ်ပါ။" : "No featured slots left. Buy a Featured Job add-on.")}
+                  </p>
+                ) : (
+                  <p>
+                    {lang === "my"
+                      ? "ဤလုပ်ဆောင်ချက်သည် သင့်ပက်ကေ့ဂျ်လက်ကျန်ကို သုံးပါမည်။"
+                      : "This action will use your package balance."}
+                  </p>
+                )}
+                <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Active job slot"}</span>
+                    <span className="font-semibold tabular-nums">
+                      {quotas?.is_unlimited_jobs
+                        ? "∞ → ∞"
+                        : `${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
+                      <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
+                    </span>
+                  </div>
+                  {isFeatured && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slot"}</span>
+                      <span className="font-semibold tabular-nums">
+                        {featuredRemaining} → {Math.max(0, featuredRemaining - 1)}
+                        <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={submitting}>{lang === "my" ? "မလုပ်တော့ပါ" : "Cancel"}</AlertDialogCancel>
+            {insufficient ? (
+              <AlertDialogAction onClick={() => { setConfirmOpen(false); navigate("/pricing"); }}>
+                {lang === "my" ? "ပက်ကေ့ဂျ် ဝယ်မည်" : "Buy package"}
+              </AlertDialogAction>
+            ) : (
+              <AlertDialogAction onClick={(e) => { e.preventDefault(); handleSubmit(); }} disabled={submitting}>
+                {submitting ? (lang === "my" ? "တင်နေသည်..." : "Posting...") : (lang === "my" ? "အတည်ပြု၍ တင်မည်" : "Confirm & post")}
+              </AlertDialogAction>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
