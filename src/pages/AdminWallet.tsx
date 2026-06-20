@@ -157,6 +157,10 @@ const AdminWallet = () => {
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-2 pt-3">
+            <div className="mb-2 flex gap-1.5 text-[11px]">
+              <button onClick={() => setSubFilter("pending")} className={`rounded-full px-2.5 py-1 ${subFilter === "pending" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "စစ်ဆေးရန်" : "Pending"}</button>
+              <button onClick={() => setSubFilter("all")} className={`rounded-full px-2.5 py-1 ${subFilter === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "အားလုံး" : "All"}</button>
+            </div>
             {loadingSubs && (
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -198,6 +202,11 @@ const AdminWallet = () => {
                       <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { setRejectTarget({ id: r.id, kind: "sub" }); setRejectNote(""); }}>
                         <XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}
                       </Button>
+                    </div>
+                  )}
+                  {r.admin_note && (
+                    <div className="mt-2 rounded-md bg-muted/60 p-2 text-[10px] text-muted-foreground">
+                      <span className="font-semibold">{my ? "Admin မှတ်ချက်" : "Admin note"}:</span> {r.admin_note}
                     </div>
                   )}
                 </div>
