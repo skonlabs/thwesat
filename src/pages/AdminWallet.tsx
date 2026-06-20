@@ -275,7 +275,8 @@ const AdminWallet = () => {
                 <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">{my ? "ရှင်းရန်" : "Clear"}</button>
               </div>
             )}
-            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "ငွေဖြည့်တောင်းခံမှု မရှိပါ" : "No top-ups"}</p>}
+            {loadingTopups && <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}
+            {!loadingTopups && (topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "ငွေဖြည့်တောင်းခံမှု မရှိပါ" : "No top-ups"}</p>}
             {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).map((t: any) => (
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">
