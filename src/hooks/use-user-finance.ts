@@ -42,7 +42,7 @@ export function useUserFinance(userId: string | null | undefined) {
     enabled: !!userId,
     queryFn: async (): Promise<UserFinanceRow[]> => {
       if (!userId) return [];
-      const [pr, tr, sr] = await Promise.all([
+      const [pr, tr, sr, plans, addons] = await Promise.all([
         supabase
           .from("payment_requests")
           .select("*")
@@ -58,7 +58,17 @@ export function useUserFinance(userId: string | null | undefined) {
           .select("*")
           .eq("user_id", userId)
           .order("created_at", { ascending: false }),
+        (supabase as any).from("subscription_plans").select("id,tier"),
+        (supabase as any).from("addon_products").select("id,label_en,label_my"),
       ]);
+
+      const planMap = new Map<string, string>(
+        (plans?.data || []).map((p: any) => [p.id, TIER_LABEL[p.tier] || p.tier]),
+      );
+      const addonMap = new Map<string, { en: string; my: string }>(
+        (addons?.data || []).map((a: any) => [a.id, { en: a.label_en, my: a.label_my || a.label_en }]),
+      );
+
 
       const rows: UserFinanceRow[] = [];
 
