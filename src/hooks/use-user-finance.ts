@@ -77,6 +77,7 @@ export function useUserFinance(userId: string | null | undefined) {
           id: p.id,
           source: "payment_request",
           payment_type: p.payment_type,
+          display_label: null,
           amount: Number(p.amount || 0),
           currency: p.currency || "MMK",
           status: p.status,
@@ -94,6 +95,7 @@ export function useUserFinance(userId: string | null | undefined) {
           id: t.id,
           source: "topup_request",
           payment_type: "topup",
+          display_label: null,
           amount: Number(t.mmk_amount || 0),
           currency: "MMK",
           status: t.status,
@@ -107,10 +109,20 @@ export function useUserFinance(userId: string | null | undefined) {
       });
 
       (sr.data || []).forEach((s: any) => {
+        const isAddon = s.request_type === "addon";
+        let label: { en: string; my: string } | null = null;
+        if (isAddon && s.addon_id) {
+          const a = addonMap.get(s.addon_id);
+          if (a) label = { en: `${a.en} Package`, my: `${a.my} Package` };
+        } else if (!isAddon && s.plan_id) {
+          const tier = planMap.get(s.plan_id);
+          if (tier) label = { en: `${tier} Package`, my: `${tier} Package` };
+        }
         rows.push({
           id: s.id,
           source: "subscription_payment_request",
-          payment_type: s.request_type === "addon" ? "addon" : "subscription",
+          payment_type: isAddon ? "addon" : "subscription",
+          display_label: label,
           amount: Number(s.mmk_amount || 0),
           currency: "MMK",
           status: s.status,
@@ -122,6 +134,7 @@ export function useUserFinance(userId: string | null | undefined) {
           raw: s,
         });
       });
+
 
       rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
       return rows;
