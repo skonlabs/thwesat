@@ -234,7 +234,8 @@ const AdminWallet = () => {
 
         {tab === "subscriptions" && (
           <div className="space-y-2">
-            {subRequests.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "Package တောင်းခံမှု မရှိပါ" : "No subscription requests"}</p>}
+            {loadingSubs && <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}
+            {!loadingSubs && subRequests.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "Package တောင်းခံမှု မရှိပါ" : "No subscription requests"}</p>}
             {subRequests.map((r: any) => {
               const isSub = r.request_type === "subscription";
               const title = isSub
