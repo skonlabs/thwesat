@@ -92,7 +92,7 @@ const DesktopNav = () => {
           </span>
         </Link>
 
-        <nav className="ml-2 flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden lg:ml-4 lg:gap-1">
+        <nav className="ml-2 flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:ml-4 lg:gap-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {items.map((it) => {
             const [base] = it.path.split("?");
             const active = location.pathname === base || location.pathname.startsWith(base + "/");
