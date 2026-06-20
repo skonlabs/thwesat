@@ -11,9 +11,14 @@ import {
   CheckCircle2,
   XCircle,
   ArrowUpRight,
+  ChevronRight,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useLanguage } from "@/hooks/use-language";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useMyPackageGrants,
   useMyQuotas,
@@ -24,6 +29,59 @@ import {
   formatMMK,
   planLabel,
 } from "@/hooks/use-subscription";
+
+const S = supabase as any;
+
+interface UsageJob {
+  id: string;
+  title: string;
+  status: string;
+  is_featured: boolean;
+  created_at: string;
+}
+
+interface UsageUnlock {
+  id: string;
+  target_id: string;
+  target_type: string | null;
+  created_at: string;
+  target_name?: string;
+}
+
+function useUsageData() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["wallet-usage", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      if (!user) return { jobs: [] as UsageJob[], unlocks: [] as UsageUnlock[] };
+      const [{ data: jobs }, { data: unlocks }] = await Promise.all([
+        S.from("jobs")
+          .select("id,title,status,is_featured,created_at")
+          .eq("employer_id", user.id)
+          .order("created_at", { ascending: false }),
+        S.from("feature_unlocks")
+          .select("id,target_id,target_type,created_at")
+          .eq("user_id", user.id)
+          .eq("feature_key", "unlock_contact")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false }),
+      ]);
+      const unlockRows: UsageUnlock[] = (unlocks as UsageUnlock[]) ?? [];
+      const profileIds = Array.from(new Set(unlockRows.map((u) => u.target_id).filter(Boolean)));
+      let nameMap = new Map<string, string>();
+      if (profileIds.length) {
+        const { data: profs } = await S.from("profiles").select("id,full_name").in("id", profileIds);
+        nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.full_name as string]));
+      }
+      return {
+        jobs: (jobs as UsageJob[]) ?? [],
+        unlocks: unlockRows.map((u) => ({ ...u, target_name: nameMap.get(u.target_id) })),
+      };
+    },
+    staleTime: 30_000,
+  });
+}
 
 const Wallet = () => {
   const { lang } = useLanguage();
@@ -36,6 +94,7 @@ const Wallet = () => {
   const { data: payReqs = [] } = useMySubscriptionPaymentRequests();
   const { data: allPlans = [] } = useSubscriptionPlans();
   const { data: allAddons = [] } = useAddonProducts();
+  const { data: usage } = useUsageData();
 
   const planById = useMemo(() => Object.fromEntries(allPlans.map((p) => [p.id, p])), [allPlans]);
   const addonsById = useMemo(() => Object.fromEntries(allAddons.map((a) => [a.id, a])), [allAddons]);
@@ -47,6 +106,8 @@ const Wallet = () => {
   const tierRank: Record<string, number> = { free_trial: 0, starter: 1, growth: 2, business: 3, enterprise: 4 };
   const grantsWithPlan = grants.map((g) => ({ ...g, plan: planById[g.plan_id] })).filter((g) => g.plan);
   const topGrant = [...grantsWithPlan].sort((a, b) => (tierRank[b.plan.tier] ?? 0) - (tierRank[a.plan.tier] ?? 0))[0];
+
+  const featuredJobs = (usage?.jobs ?? []).filter((j) => j.is_featured);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -107,7 +168,7 @@ const Wallet = () => {
           </div>
         )}
 
-        {/* Quotas (pooled totals) */}
+        {/* Pooled balance summary */}
         <section>
           <h2 className="mb-2 text-sm font-bold">{my ? "သုံးစွဲမှု ခြေရာခံ" : "Pooled balance"}</h2>
           <div className="grid gap-2 md:grid-cols-3">
@@ -135,10 +196,107 @@ const Wallet = () => {
           </div>
         </section>
 
-        {/* Active 1-year add-ons */}
-        <section>
-          <h2 className="mb-2 text-sm font-bold">{my ? "လက်ရှိ Add-ons" : "Active add-ons"}</h2>
-          <div className="space-y-2">
+        <Tabs defaultValue="usage" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="usage">{my ? "သုံးစွဲမှု" : "Usage"}</TabsTrigger>
+            <TabsTrigger value="addons">{my ? "Add-ons" : "Add-ons"}</TabsTrigger>
+            <TabsTrigger value="history">{my ? "မှတ်တမ်း" : "History"}</TabsTrigger>
+          </TabsList>
+
+          {/* USAGE TAB */}
+          <TabsContent value="usage" className="space-y-5 pt-3">
+            {/* Job posts */}
+            <UsageSection
+              icon={Briefcase}
+              title={my ? "Job Posts သုံးစွဲမှု" : "Job Posts Used"}
+              count={usage?.jobs.length ?? 0}
+              emptyText={my ? "Job မတင်ရသေးပါ" : "No jobs posted yet"}
+            >
+              {(usage?.jobs ?? []).map((j) => (
+                <button
+                  key={j.id}
+                  onClick={() => navigate(`/jobs/${j.id}`)}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50 active:opacity-80"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate font-semibold">{j.title}</span>
+                      {j.is_featured && (
+                        <span className="shrink-0 inline-flex items-center gap-0.5 rounded-full bg-accent/20 px-1.5 py-0.5 text-[9px] font-bold text-accent-foreground">
+                          <Star className="h-2.5 w-2.5" />
+                          {my ? "Featured" : "Featured"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-muted-foreground">
+                      {new Date(j.created_at).toLocaleDateString()} · {my ? "1 Job slot" : "1 Job slot"}
+                      {j.is_featured ? ` · ${my ? "1 Featured slot" : "1 Featured slot"}` : ""}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <StatusPill status={j.status} />
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                </button>
+              ))}
+            </UsageSection>
+
+            {/* Featured */}
+            <UsageSection
+              icon={Star}
+              title={my ? "Featured Slots သုံးစွဲမှု" : "Featured Slots Used"}
+              count={featuredJobs.length}
+              emptyText={my ? "Featured slot မသုံးရသေးပါ" : "No featured slots used"}
+            >
+              {featuredJobs.map((j) => (
+                <button
+                  key={j.id}
+                  onClick={() => navigate(`/jobs/${j.id}`)}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold">{j.title}</div>
+                    <div className="mt-0.5 text-[10px] text-muted-foreground">
+                      {new Date(j.created_at).toLocaleDateString()} · 1 Featured slot
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <StatusPill status={j.status} />
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                </button>
+              ))}
+            </UsageSection>
+
+            {/* Unlocks */}
+            <UsageSection
+              icon={Users}
+              title={my ? "Candidate Unlocks သုံးစွဲမှု" : "Candidate Unlocks Used"}
+              count={usage?.unlocks.length ?? 0}
+              emptyText={my ? "Unlock မပြုရသေးပါ" : "No candidates unlocked yet"}
+            >
+              {(usage?.unlocks ?? []).map((u) => (
+                <button
+                  key={u.id}
+                  onClick={() => navigate(`/profile/${u.target_id}`)}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs hover:bg-muted/50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold">
+                      {u.target_name || (my ? "ပရိုဖိုင်" : "Profile")}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-muted-foreground">
+                      {new Date(u.created_at).toLocaleDateString()} · 1 Unlock
+                    </div>
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                </button>
+              ))}
+            </UsageSection>
+          </TabsContent>
+
+          {/* ADDONS TAB */}
+          <TabsContent value="addons" className="space-y-2 pt-3">
             <AddonStatusRow
               icon={Sparkles}
               label={my ? "Candidate Matching Pack" : "Candidate Matching Pack"}
@@ -149,52 +307,96 @@ const Wallet = () => {
               label={my ? "Branding Page" : "Branding Page"}
               expiresAt={branding?.expires_at}
             />
-          </div>
-        </section>
+          </TabsContent>
 
-        {/* Purchase history */}
-        <section>
-          <h2 className="mb-2 text-sm font-bold">{my ? "ဝယ်ယူမှု မှတ်တမ်း" : "Purchase history"}</h2>
-          {payReqs.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-              {my ? "မှတ်တမ်း မရှိသေးပါ" : "No purchases yet"}
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {payReqs.slice(0, 20).map((r) => {
-                const StatusIcon = r.status === "approved" ? CheckCircle2 : r.status === "rejected" ? XCircle : Clock;
-                const tone = r.status === "approved" ? "text-emerald-600" : r.status === "rejected" ? "text-destructive" : "text-amber-600";
-                const planRow = r.plan_id ? planById[r.plan_id] : null;
-                const addonRow = r.addon_id ? addonsById[r.addon_id] : null;
-                const title =
-                  r.request_type === "subscription" && planRow
-                    ? planLabel(planRow.tier)
-                    : addonRow
-                      ? `${(my && addonRow.label_my) || addonRow.label_en}${r.quantity > 1 ? ` × ${r.quantity}` : ""}`
-                      : my
-                        ? "ပေးပို့မှု"
-                        : "Payment";
-                return (
-                  <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">{title}</div>
-                      <div className="text-[10px] text-muted-foreground">
-                        {formatMMK(r.mmk_amount)} · {new Date(r.created_at).toLocaleDateString()}
-                        {r.payment_method ? ` · ${r.payment_method.toUpperCase()}` : ""}
+          {/* HISTORY TAB */}
+          <TabsContent value="history" className="pt-3">
+            {payReqs.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                {my ? "မှတ်တမ်း မရှိသေးပါ" : "No purchases yet"}
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {payReqs.slice(0, 50).map((r) => {
+                  const StatusIcon = r.status === "approved" ? CheckCircle2 : r.status === "rejected" ? XCircle : Clock;
+                  const tone = r.status === "approved" ? "text-emerald-600" : r.status === "rejected" ? "text-destructive" : "text-amber-600";
+                  const planRow = r.plan_id ? planById[r.plan_id] : null;
+                  const addonRow = r.addon_id ? addonsById[r.addon_id] : null;
+                  const title =
+                    r.request_type === "subscription" && planRow
+                      ? planLabel(planRow.tier)
+                      : addonRow
+                        ? `${(my && addonRow.label_my) || addonRow.label_en}${r.quantity > 1 ? ` × ${r.quantity}` : ""}`
+                        : my
+                          ? "ပေးပို့မှု"
+                          : "Payment";
+                  return (
+                    <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold">{title}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {formatMMK(r.mmk_amount)} · {new Date(r.created_at).toLocaleDateString()}
+                          {r.payment_method ? ` · ${r.payment_method.toUpperCase()}` : ""}
+                        </div>
+                      </div>
+                      <div className={`flex items-center gap-1 ${tone}`}>
+                        <StatusIcon className="h-3.5 w-3.5" />
+                        <span className="capitalize">{r.status}</span>
                       </div>
                     </div>
-                    <div className={`flex items-center gap-1 ${tone}`}>
-                      <StatusIcon className="h-3.5 w-3.5" />
-                      <span className="capitalize">{r.status}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
+  );
+};
+
+const UsageSection = ({
+  icon: Icon,
+  title,
+  count,
+  emptyText,
+  children,
+}: {
+  icon: any;
+  title: string;
+  count: number;
+  emptyText: string;
+  children: React.ReactNode;
+}) => (
+  <section>
+    <div className="mb-2 flex items-center gap-1.5 text-sm font-bold">
+      <Icon className="h-4 w-4 text-primary" />
+      <span>{title}</span>
+      <span className="ml-auto text-xs font-normal text-muted-foreground">{count}</span>
+    </div>
+    {count === 0 ? (
+      <div className="rounded-xl border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
+        {emptyText}
+      </div>
+    ) : (
+      <div className="space-y-1.5">{children}</div>
+    )}
+  </section>
+);
+
+const StatusPill = ({ status }: { status: string }) => {
+  const tone =
+    status === "active"
+      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+      : status === "pending" || status === "pending_approval"
+        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+        : status === "rejected" || status === "expired" || status === "closed"
+          ? "bg-destructive/15 text-destructive"
+          : "bg-muted text-muted-foreground";
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${tone}`}>
+      {status.replace(/_/g, " ")}
+    </span>
   );
 };
 
