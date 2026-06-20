@@ -486,47 +486,114 @@ const JobDetail = () => {
     <div className="min-h-screen bg-background pb-36 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
 
-      <main className="mx-auto w-full max-w-4xl px-4 pb-4 md:px-6">
+      <main className="mx-auto w-full max-w-7xl px-4 pb-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-5"
+          className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"
         >
-          <section className="border-b border-border pb-5">
-            <div className="flex items-start gap-3 md:gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent/15 md:h-14 md:w-14">
-                {clientLogo ? (
-                  <img src={clientLogo} alt={employerCompanyName} className="h-full w-full object-cover" />
-                ) : (
-                  <Briefcase className="h-6 w-6 text-accent md:h-7 md:w-7" strokeWidth={1.5} />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="min-w-0">
-                    <h1 className="text-xl font-bold leading-tight text-foreground md:text-3xl">{displayTitle}</h1>
+          <div className="space-y-5">
+            <section className="overflow-hidden rounded-lg border border-border bg-card">
+              <div className="border-b border-border bg-muted/20 p-5 md:p-7">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent/15 md:h-16 md:w-16">
+                    {clientLogo ? (
+                      <img src={clientLogo} alt={employerCompanyName} className="h-full w-full object-cover" />
+                    ) : (
+                      <Briefcase className="h-7 w-7 text-accent" strokeWidth={1.5} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {translateJobCategories(job, lang).map((cat) => (
+                        <span key={cat} className="rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-medium text-accent-foreground/80">
+                          {cat}
+                        </span>
+                      ))}
+                      {(() => {
+                        const m = (job as any).application_method || "platform";
+                        const label = m === "external" ? (lang === "my" ? "ပြင်ပလင့်ခ်" : "External URL") : m === "email" ? (lang === "my" ? "အီးမေးလ်ဖြင့်" : "Via Email") : (lang === "my" ? "ThweSat မှ" : "Via Platform");
+                        return (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary">
+                            <Send className="h-3 w-3" strokeWidth={1.5} /> {label}
+                          </span>
+                        );
+                      })()}
+                    </div>
+
+                    <h1 className="mt-3 text-2xl font-bold leading-tight text-foreground md:text-4xl">{displayTitle}</h1>
                     <button
                       type="button"
                       onClick={() => !clientName && job.employer_id && navigate(`/company/${job.employer_id}`)}
-                      className="mt-1 inline-flex max-w-full items-center gap-1.5 text-left text-sm font-medium text-muted-foreground hover:text-primary"
+                      className="mt-2 inline-flex max-w-full items-center gap-1.5 text-left text-sm font-medium text-muted-foreground hover:text-primary"
                     >
-                      <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+                      <Building2 className="h-4 w-4 shrink-0" strokeWidth={1.5} />
                       <span className="truncate">{employerCompanyName}</span>
                       {job.is_verified && <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={2} />}
                     </button>
                   </div>
-                  <div className="rounded-lg border border-border bg-muted/25 px-3 py-2 md:w-56">
-                    <p className="text-[10px] font-semibold uppercase text-muted-foreground">{lang === "my" ? "လစာ" : "Salary"}</p>
-                    <p className="mt-0.5 text-base font-bold leading-snug text-foreground">{salaryText}</p>
-                  </div>
                 </div>
+              </div>
 
+              <div className="grid border-b border-border sm:grid-cols-2 xl:grid-cols-4">
+                {[
+                  { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: translateJobLocation(job.location, lang) },
+                  { icon: Clock, label: lang === "my" ? "အလုပ်အမျိုးအစား" : "Type", value: translateJobType(job.role_type || job.job_type, lang) },
+                  { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: translatePaymentMethods(job.payment_methods, lang).join(", ") || "—" },
+                  { icon: Briefcase, label: lang === "my" ? "လျှောက်ထားသူ" : "Applicants", value: `${job.applicant_count || 0}` },
+                ].map((info) => (
+                  <div key={info.label} className="border-b border-border p-4 last:border-b-0 sm:odd:border-r xl:border-b-0 xl:border-r xl:last:border-r-0">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <info.icon className="h-4 w-4 text-accent" strokeWidth={1.5} />
+                      <p className="text-[10px] font-semibold uppercase">{info.label}</p>
+                    </div>
+                    <p className="mt-1.5 text-sm font-semibold leading-snug text-foreground">{info.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <article className="divide-y divide-border">
+                <section className="p-5 md:p-7">
+                  <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်အကြောင်း" : "Description"}</h2>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-foreground/85 md:text-[15px]">
+                    {pickLocalized(job.description, job.description_my, lang)}
+                  </p>
+                </section>
+
+                {requirementsList.length > 0 && (
+                  <section className="p-5 md:p-7">
+                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "လိုအပ်ချက်များ" : "Requirements"}</h2>
+                    <ul className="mt-3 grid gap-2.5 md:grid-cols-2">
+                      {requirementsList.map((req, i) => (
+                        <li key={i} className="flex items-start gap-2.5 text-sm leading-6 text-foreground/85 md:text-[15px]">
+                          <CheckCircle className="mt-1 h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={1.5} />
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                {(job.skills || []).length > 0 && (
+                  <section className="p-5 md:p-7">
+                    <h2 className="text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {translateJobTags(job.skills, lang).map((s) => (
+                        <span key={s} className="rounded-lg bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </article>
+            </section>
+          </div>
+
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            <section className="rounded-lg border border-border bg-card p-4 shadow-card">
+              <div className="border-b border-border pb-4">
+                <p className="text-[10px] font-semibold uppercase text-muted-foreground">{lang === "my" ? "လစာ" : "Salary"}</p>
+                <p className="mt-1 text-2xl font-bold leading-tight text-foreground">{salaryText}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {translateJobCategories(job, lang).map((cat) => (
-                    <span key={cat} className="rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-medium text-accent-foreground/80">
-                      {cat}
-                    </span>
-                  ))}
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
                     <Clock className="h-3 w-3" strokeWidth={1.5} /> {job.created_at ? new Date(job.created_at).toLocaleDateString() : ""}
                   </span>
@@ -535,139 +602,80 @@ const JobDetail = () => {
                       <Clock className="h-3 w-3" strokeWidth={1.5} /> {expired ? (lang === "my" ? "သက်တမ်းကုန်" : "Expired") : (lang === "my" ? "ကုန်ဆုံး" : "Expires")} {new Date((job as any).expires_at).toLocaleDateString()}
                     </span>
                   )}
-                  {(() => {
-                    const m = (job as any).application_method || "platform";
-                    const label = m === "external" ? (lang === "my" ? "ပြင်ပလင့်ခ်" : "External URL") : m === "email" ? (lang === "my" ? "အီးမေးလ်ဖြင့်" : "Via Email") : (lang === "my" ? "ThweSat မှ" : "Via Platform");
-                    return (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary">
-                        <Send className="h-3 w-3" strokeWidth={1.5} /> {label}
-                      </span>
-                    );
-                  })()}
-                </div>
-
-                <div className="mt-4 hidden flex-wrap items-center gap-2 md:flex">
-                  {actionButtons}
                 </div>
               </div>
-            </div>
-          </section>
 
-          <section className="grid overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: MapPin, label: lang === "my" ? "တည်နေရာ" : "Location", value: translateJobLocation(job.location, lang) },
-              { icon: Clock, label: lang === "my" ? "အလုပ်အမျိုးအစား" : "Type", value: translateJobType(job.role_type || job.job_type, lang) },
-              { icon: Globe, label: lang === "my" ? "ငွေပေးချေမှု" : "Payment", value: translatePaymentMethods(job.payment_methods, lang).join(", ") || "—" },
-              { icon: Briefcase, label: lang === "my" ? "လျှောက်ထားသူ" : "Applicants", value: `${job.applicant_count || 0}` },
-            ].map((info) => (
-              <div key={info.label} className="bg-background p-3.5">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <info.icon className="h-4 w-4 text-accent" strokeWidth={1.5} />
-                  <p className="text-[10px] font-semibold uppercase">{info.label}</p>
-                </div>
-                <p className="mt-1 text-sm font-semibold leading-snug text-foreground">{info.value}</p>
+              <div className="hidden gap-2 pt-4 md:flex md:flex-wrap">
+                {actionButtons}
               </div>
-            ))}
-          </section>
 
-          {job.is_diaspora_safe && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-emerald/20 bg-emerald/5 p-3">
-              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-emerald" strokeWidth={1.5} />
-              <div>
-                <p className="text-xs font-semibold text-emerald">{lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {lang === "my" ? "သံရုံးစာရွက်စာတမ်း မလိုအပ်ပါ" : "No embassy documentation required"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <article className="space-y-4">
-            <section className="rounded-lg border border-border bg-card p-5 md:p-6">
-              <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်အကြောင်း" : "Description"}</h2>
-              <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85 md:text-[15px]">
-                {pickLocalized(job.description, job.description_my, lang)}
-              </p>
+              <MentorCoachCue
+                variant={myApplication ? "interview" : "letter"}
+                context={displayTitle}
+                className="mt-4 shadow-none"
+              />
             </section>
 
-            {requirementsList.length > 0 && (
-              <section className="rounded-lg border border-border bg-card p-5 md:p-6">
-                <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "လိုအပ်ချက်များ" : "Requirements"}</h2>
-                <ul className="space-y-2">
-                  {requirementsList.map((req, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm leading-6 text-foreground/85 md:text-[15px]">
-                      <CheckCircle className="mt-1 h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={1.5} />
-                      <span>{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {(job.skills || []).length > 0 && (
-              <section className="rounded-lg border border-border bg-card p-5 md:p-6">
-                <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
-                <div className="flex flex-wrap gap-2">
-                  {translateJobTags(job.skills, lang).map((s) => (
-                    <span key={s} className="rounded-lg bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
-                  ))}
+            {job.is_diaspora_safe && (
+              <section className="flex items-start gap-2.5 rounded-lg border border-emerald/20 bg-emerald/5 p-3">
+                <Shield className="mt-0.5 h-4 w-4 shrink-0 text-emerald" strokeWidth={1.5} />
+                <div>
+                  <p className="text-xs font-semibold text-emerald">{lang === "my" ? "ပြည်ပ လုံခြုံ" : "Diaspora Safe"}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my" ? "သံရုံးစာရွက်စာတမ်း မလိုအပ်ပါ" : "No embassy documentation required"}
+                  </p>
                 </div>
               </section>
             )}
-          </article>
 
-          <section className="border-t border-border py-5">
-            <button
-              type="button"
-              onClick={() => job.employer_id && navigate(`/company/${job.employer_id}`)}
-              className="flex w-full items-center gap-3 text-left transition-opacity hover:opacity-80 active:opacity-60"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/8">
-                <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="truncate text-sm font-semibold text-foreground">{employerCompanyName}</h3>
-                  {employerDetails?.employer?.is_verified && <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={2} />}
-                </div>
-                <p className="truncate text-xs text-muted-foreground">{employerHeadline}</p>
-              </div>
-              <span className="shrink-0 text-xs font-medium text-primary">{lang === "my" ? "ကြည့်ရန်" : "View →"}</span>
-            </button>
-
-            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-              <div className="rounded-lg bg-muted/40 px-3 py-2">
-                <span className="block text-[10px] font-semibold uppercase">{lang === "my" ? "ရုံးချုပ်" : "HQ"}</span>
-                <p className="mt-0.5 font-medium text-foreground">{employerDetails?.employer?.hq_country || "—"}</p>
-              </div>
-              <div className="rounded-lg bg-muted/40 px-3 py-2">
-                <span className="block text-[10px] font-semibold uppercase">{lang === "my" ? "အရွယ်" : "Size"}</span>
-                <p className="mt-0.5 font-medium text-foreground">{employerDetails?.employer?.company_size || "—"}</p>
-              </div>
-            </div>
-
-            {employerDetails?.employer?.company_description && (
-              <p className="mt-3 text-sm leading-6 text-foreground/80">
-                {employerDetails.employer.company_description}
-              </p>
-            )}
-
-            {(employerDetails?.employer?.company_website || employerDetails?.profile?.website) && (
-              <a
-                href={employerDetails?.employer?.company_website || employerDetails?.profile?.website || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+            <section className="rounded-lg border border-border bg-card p-4">
+              <button
+                type="button"
+                onClick={() => job.employer_id && navigate(`/company/${job.employer_id}`)}
+                className="flex w-full items-center gap-3 text-left transition-opacity hover:opacity-80 active:opacity-60"
               >
-                {lang === "my" ? "ဝဘ်ဆိုဒ်" : "Website →"}
-              </a>
-            )}
-          </section>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/8">
+                  <Building2 className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="truncate text-sm font-semibold text-foreground">{employerCompanyName}</h3>
+                    {employerDetails?.employer?.is_verified && <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={2} />}
+                  </div>
+                  <p className="truncate text-xs text-muted-foreground">{employerHeadline}</p>
+                </div>
+                <span className="shrink-0 text-xs font-medium text-primary">{lang === "my" ? "ကြည့်ရန်" : "View →"}</span>
+              </button>
 
-          <MentorCoachCue
-            variant={myApplication ? "interview" : "letter"}
-            context={displayTitle}
-          />
+              <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-lg bg-muted/40 px-3 py-2">
+                  <span className="block text-[10px] font-semibold uppercase">{lang === "my" ? "ရုံးချုပ်" : "HQ"}</span>
+                  <p className="mt-0.5 font-medium text-foreground">{employerDetails?.employer?.hq_country || "—"}</p>
+                </div>
+                <div className="rounded-lg bg-muted/40 px-3 py-2">
+                  <span className="block text-[10px] font-semibold uppercase">{lang === "my" ? "အရွယ်" : "Size"}</span>
+                  <p className="mt-0.5 font-medium text-foreground">{employerDetails?.employer?.company_size || "—"}</p>
+                </div>
+              </div>
+
+              {employerDetails?.employer?.company_description && (
+                <p className="mt-3 line-clamp-4 text-sm leading-6 text-foreground/80">
+                  {employerDetails.employer.company_description}
+                </p>
+              )}
+
+              {(employerDetails?.employer?.company_website || employerDetails?.profile?.website) && (
+                <a
+                  href={employerDetails?.employer?.company_website || employerDetails?.profile?.website || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+                >
+                  {lang === "my" ? "ဝဘ်ဆိုဒ်" : "Website →"}
+                </a>
+              )}
+            </section>
+          </aside>
         </motion.div>
       </main>
 
