@@ -210,12 +210,21 @@ export function useCreateSubscriptionPaymentRequest() {
   return useMutation({
     mutationFn: async (req: Omit<SubscriptionPaymentRequest, "id" | "user_id" | "status" | "admin_note" | "reviewed_by" | "reviewed_at" | "created_at">) => {
       if (!user) throw new Error("Not authenticated");
-      const { data, error } = await S.from("subscription_payment_requests")
-        .insert({ ...req, user_id: user.id, status: "pending" })
-        .select()
-        .single();
+      // Server-side RPC validates that mmk_amount matches plan/addon price,
+      // enforces free_trial method only for 0-MMK plans, and rejects
+      // duplicate pending requests for the same plan.
+      const { data, error } = await (supabase as any).rpc("create_subscription_payment_request", {
+        _request_type: req.request_type,
+        _plan_id: req.plan_id ?? null,
+        _addon_id: req.addon_id ?? null,
+        _quantity: req.quantity ?? 1,
+        _mmk_amount: req.mmk_amount,
+        _payment_method: req.payment_method,
+        _proof_url: req.proof_url ?? null,
+        _sender_reference: req.sender_reference ?? null,
+      });
       if (error) throw error;
-      return data;
+      return { id: data } as any;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-sub-payment-requests"] });
@@ -224,9 +233,10 @@ export function useCreateSubscriptionPaymentRequest() {
   });
 }
 
+import { roundMmk } from "@/lib/finance";
+
 export function formatMMK(amount: number | null | undefined): string {
-  const n = Number(amount || 0);
-  return `${n.toLocaleString()} Ks`;
+  return `${roundMmk(amount as any).toLocaleString()} Ks`;
 }
 
 export function planLabel(tier: PlanTier): string {
