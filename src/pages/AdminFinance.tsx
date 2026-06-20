@@ -72,6 +72,20 @@ const AdminFinance = ({
     },
   });
 
+  const { data: planLookup } = useQuery({
+    queryKey: ["admin-finance-plan-lookup"],
+    queryFn: async () => {
+      const [plans, addons] = await Promise.all([
+        (supabase as any).from("subscription_plans").select("id,tier"),
+        (supabase as any).from("addon_products").select("id,label_en,label_my"),
+      ]);
+      const TIER: Record<string,string> = { free_trial:"Free Trial", starter:"Starter", growth:"Growth", business:"Business", enterprise:"Enterprise" };
+      const planMap = new Map<string,string>((plans.data||[]).map((p:any)=>[p.id, TIER[p.tier]||p.tier]));
+      const addonMap = new Map<string,{en:string;my:string}>((addons.data||[]).map((a:any)=>[a.id,{en:a.label_en,my:a.label_my||a.label_en}]));
+      return { planMap, addonMap };
+    },
+  });
+
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
@@ -293,15 +307,26 @@ const AdminFinance = ({
       };
     };
 
-    const subToRow = (p: any) => ({
-      id: p.id,
-      title: p.request_type === "addon" ? (lang === "my" ? "Add-on ဝယ်ယူ" : "Add-on Purchase") : (lang === "my" ? "Subscription" : "Subscription"),
-      subtitle: `${(p.payment_method || "").toUpperCase()}${p.quantity > 1 ? " · ×" + p.quantity : ""} · ${shortRef(p.id)}`,
-      amount: Number(p.mmk_amount || 0),
-      currency: "MMK",
-      status: p.status,
-      date: p.created_at,
-    });
+    const subToRow = (p: any) => {
+      let title: string;
+      if (p.request_type === "addon") {
+        const a = planLookup?.addonMap.get(p.addon_id);
+        const name = a ? (lang === "my" ? a.my : a.en) : (lang === "my" ? "Add-on" : "Add-on");
+        title = `${name} Package`;
+      } else {
+        const tier = planLookup?.planMap.get(p.plan_id);
+        title = `${tier || "Subscription"} Package`;
+      }
+      return {
+        id: p.id,
+        title,
+        subtitle: `${(p.payment_method || "").toUpperCase()}${p.quantity > 1 ? " · ×" + p.quantity : ""} · ${shortRef(p.id)}`,
+        amount: Number(p.mmk_amount || 0),
+        currency: "MMK",
+        status: p.status,
+        date: p.created_at,
+      };
+    };
 
     switch (selected) {
       case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };

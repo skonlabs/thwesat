@@ -200,8 +200,8 @@ const EmployerFinance = () => {
           rows={pagedFiltered.map((p) => ({
             id: p.id,
             title: lang === "my"
-              ? paymentTypeLabels[p.payment_type]?.my || p.payment_type
-              : paymentTypeLabels[p.payment_type]?.en || p.payment_type,
+              ? ((p as any).display_label?.my || paymentTypeLabels[p.payment_type]?.my || p.payment_type)
+              : ((p as any).display_label?.en || paymentTypeLabels[p.payment_type]?.en || p.payment_type),
             subtitle: `${p.payment_method?.toUpperCase?.() || ""} · ${shortRef(p.id)}`,
             amount: Number(p.amount),
             currency: p.currency,
@@ -302,8 +302,8 @@ const EmployerFinance = () => {
                 </p>
                 <p className="text-sm font-semibold text-foreground">
                   {lang === "my"
-                    ? paymentTypeLabels[detailFor.payment_type]?.my || detailFor.payment_type
-                    : paymentTypeLabels[detailFor.payment_type]?.en || detailFor.payment_type}
+                    ? ((detailFor as any).display_label?.my || paymentTypeLabels[detailFor.payment_type]?.my || detailFor.payment_type)
+                    : ((detailFor as any).display_label?.en || paymentTypeLabels[detailFor.payment_type]?.en || detailFor.payment_type)}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">

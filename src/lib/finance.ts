@@ -57,8 +57,8 @@ export const paymentTypeLabels: Record<string, { my: string; en: string }> = {
   mentor_session: { my: "Mentor Session", en: "Mentor Session" },
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee" },
   topup: { my: "Credit ဖြည့်", en: "Credit Top-up" },
-  subscription: { my: "Subscription", en: "Subscription" },
-  addon: { my: "Add-on", en: "Add-on" },
+  subscription: { my: "Subscription Package", en: "Subscription Package" },
+  addon: { my: "Add-on Package", en: "Add-on Package" },
 };
 
 export const paymentStatusLabels: Record<string, { my: string; en: string; tone: string }> = {
