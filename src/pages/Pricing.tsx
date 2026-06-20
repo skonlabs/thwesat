@@ -228,28 +228,45 @@ const Pricing = () => {
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
-                        ? my ? "Unlimited Active Jobs" : "Unlimited Active Jobs"
-                        : my ? `Active Jobs ${plan.active_jobs_quota} ခု` : `${plan.active_jobs_quota} Active Jobs`
+                        ? my ? "Unlimited Active Jobs / လ" : "Unlimited Active Jobs / month"
+                        : my ? `Active Jobs ${plan.active_jobs_quota} ခု / လ` : `${plan.active_jobs_quota} Active Jobs / month`
                     }
                   />
                   <FeatureRow
-                    text={my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`}
+                    text={my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု / လ` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks / month`}
                   />
                   <FeatureRow text={my ? "Wallet & အသုံးပြုမှု မှတ်တမ်း" : "Wallet & usage tracking"} />
                   {plan.tier === "enterprise" && <FeatureRow text={my ? "ဦးစားပေး အကူအညီ" : "Priority support"} />}
                 </ul>
+                <div className="mt-2 text-[10px] text-muted-foreground">
+                  {my ? "Active Jobs နှင့် Unlocks များသည် လစဉ် ပြန်လည် သတ်မှတ်ပါသည်။" : "Active jobs & unlocks reset every month."}
+                </div>
 
-                <button
-                  disabled={isCurrent}
-                  onClick={() => onSubscribe(plan)}
-                  className={`mt-4 w-full rounded-xl py-2.5 text-sm font-bold transition ${
-                    isCurrent
-                      ? "cursor-not-allowed bg-muted text-muted-foreground"
-                      : "bg-primary text-primary-foreground hover:opacity-90"
-                  }`}
-                >
-                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "Subscribe" : "Subscribe"}
-                </button>
+                {(() => {
+                  const disabled = isCurrent || isScheduled || hasPending;
+                  const label = isCurrent
+                    ? (my ? "လက်ရှိ Package" : "Current plan")
+                    : isScheduled
+                      ? (my ? "စီစဉ်ထားပြီး" : "Scheduled")
+                      : hasPending
+                        ? (my ? "စောင့်ဆိုင်းနေသည်" : "Pending approval")
+                        : currentSub
+                          ? (my ? "Package ပြောင်းရန် (သက်တမ်းကုန်လျှင် စတင်)" : "Switch plan (starts after current ends)")
+                          : (my ? "Subscribe" : "Subscribe");
+                  return (
+                    <button
+                      disabled={disabled}
+                      onClick={() => onSubscribe(plan)}
+                      className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                        disabled
+                          ? "cursor-not-allowed bg-muted text-muted-foreground"
+                          : "bg-primary text-primary-foreground hover:opacity-90"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })()}
               </div>
             );
           })}
