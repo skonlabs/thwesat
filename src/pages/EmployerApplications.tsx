@@ -230,7 +230,18 @@ const EmployerApplications = () => {
     }
     try {
       const fee = isAgent ? calculatePlacementFee(salary) : 0;
-      await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
+      // Atomic RPC: updates application + creates placement_fee payment_request
+      // invoice for the seeker so the finance ledger reflects the placement.
+      const { error } = await (supabase as any).rpc("placement_confirm_with_invoice", {
+        _application_id: selectedId,
+        _placement_salary: salary,
+        _placement_fee: fee,
+      });
+      if (error) throw error;
+      // Local cache refresh for the apps list
+      await qc.invalidateQueries({ queryKey: ["employer-apps"] });
+      await qc.invalidateQueries({ queryKey: ["agent-apps"] });
+      await qc.invalidateQueries({ queryKey: ["user-finance"] });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ: " : "Failed to confirm placement: ") + (err?.message || "unknown"));
