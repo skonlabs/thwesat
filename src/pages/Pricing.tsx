@@ -88,6 +88,53 @@ const Pricing = () => {
           </div>
         )}
 
+        {/* Current plan / pending / scheduled status */}
+        {(currentSub || hasPending || scheduledSub) && (
+          <div className="space-y-2">
+            {currentSub && currentPlan && (
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {my ? "လက်ရှိ Package" : "Your current plan"}
+                </div>
+                <div className="mt-0.5 font-bold">
+                  {planLabel(currentPlan.tier)} · {currentSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {my ? "သက်တမ်း ကုန်မည့်ရက် " : "Renews / ends "}
+                  {new Date(currentSub.current_period_end).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            {scheduledSub && scheduledPlan && (
+              <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/5 px-4 py-3 text-sm">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  <Clock className="h-3 w-3" /> {my ? "ပြောင်းရန် စီစဉ်ထား" : "Scheduled change"}
+                </div>
+                <div className="mt-0.5 font-bold">
+                  {planLabel(scheduledPlan.tier)} · {scheduledSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {my ? "စတင်မည့်ရက် " : "Starts "}
+                  {new Date(scheduledSub.started_at).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            {hasPending && (
+              <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 px-4 py-3 text-sm">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                  <Clock className="h-3 w-3" /> {my ? "အတည်ပြုခြင်း စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
+                </div>
+                <div className="mt-0.5 text-xs">
+                  {my
+                    ? "သင်၏ ပေးချေမှု ပြန်လည် စစ်ဆေးနေသည်။ ပြီးသည်အထိ နောက်ထပ် Package တင်လို့ မရပါ။"
+                    : "Your payment is being reviewed. You can't submit another plan until it's approved or rejected."}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
         {/* Role tabs */}
         <div className="flex justify-center">
           <div className="inline-flex rounded-full border border-border bg-card p-1">
