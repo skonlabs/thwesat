@@ -44,7 +44,7 @@ const AdminWallet = () => {
     adjust: { en: "Manual Adjust", my: "ပြင်ဆင်" },
   };
 
-  const { data: subRequests = [] } = useQuery({
+  const { data: subRequests = [], isLoading: loadingSubs } = useQuery({
     queryKey: ["admin-sub-requests"],
     queryFn: async () => {
       const { data: reqs } = await (supabase as any)
@@ -69,7 +69,7 @@ const AdminWallet = () => {
     },
   });
 
-  const { data: topups = [] } = useQuery({
+  const { data: topups = [], isLoading: loadingTopups } = useQuery({
     queryKey: ["admin-topups"],
     queryFn: async () => {
       const { data } = await (supabase as any).from("topup_requests").select("*").order("created_at", { ascending: false }).limit(100);
