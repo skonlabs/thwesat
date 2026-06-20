@@ -153,9 +153,25 @@ const AdminWallet = () => {
   const [adjustDelta, setAdjustDelta] = useState("");
   const [adjustNote, setAdjustNote] = useState("");
 
+  // Rejection dialog state
+  const [rejectTarget, setRejectTarget] = useState<{ id: string; type: "sub" | "topup" } | null>(null);
+  const [rejectNote, setRejectNote] = useState("");
+
   const viewProof = async (path: string) => {
     const url = await getPaymentProofSignedUrl(path);
     if (url) window.open(url, "_blank");
+  };
+
+  const handleConfirmReject = () => {
+    if (!rejectTarget) return;
+    const note = rejectNote.trim() || (my ? "ငြင်းပယ်" : "Rejected");
+    if (rejectTarget.type === "sub") {
+      reviewSub.mutate({ id: rejectTarget.id, approve: false, note });
+    } else {
+      review.mutate({ id: rejectTarget.id, approve: false, note });
+    }
+    setRejectTarget(null);
+    setRejectNote("");
   };
 
   const reviewSub = useMutation({
