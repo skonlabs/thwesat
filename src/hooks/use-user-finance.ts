@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export type UserFinanceRow = {
   id: string;
-  source: "payment_request" | "subscription_payment_request";
+  source: "payment_request" | "subscription_payment_request" | "topup_request";
   payment_type: string;
   /** Human-friendly label resolved from plan/addon name when available. */
   display_label: { my: string; en: string } | null;
@@ -75,7 +75,7 @@ export function useUserFinance(userId: string | null | undefined) {
       (tr.data || []).forEach((t: any) => {
         rows.push({
           id: t.id,
-          source: "payment_request",
+          source: "topup_request",
           payment_type: "wallet_topup",
           display_label: { en: "Wallet Top-up", my: "ပိုက်ဆံအိတ် ဖြည့်" },
           amount: Number(t.mmk_amount || 0),

@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { employerLabels as L } from "@/lib/employer-labels";
 import { useRoleLabels } from "@/hooks/use-role-labels";
-import { calculatePlacementFee, PLACEMENT_FEE_PERCENT, roundMmk } from "@/lib/finance";
+import { calculatePlacementFee, PLACEMENT_FEE_PERCENT, PLACEMENT_PLATFORM_COMMISSION, roundMmk } from "@/lib/finance";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
 import { getApplicationStatusMeta } from "@/lib/status-labels";
@@ -230,7 +230,18 @@ const EmployerApplications = () => {
     }
     try {
       const fee = isAgent ? calculatePlacementFee(salary) : 0;
-      await updateStatus.mutateAsync({ id: selectedId, status: "placed", placementSalary: salary, placementFee: fee });
+      // Atomic RPC: updates application + creates placement_fee payment_request
+      // invoice for the seeker so the finance ledger reflects the placement.
+      const { error } = await (supabase as any).rpc("placement_confirm_with_invoice", {
+        _application_id: selectedId,
+        _placement_salary: salary,
+        _placement_fee: fee,
+      });
+      if (error) throw error;
+      // Local cache refresh for the apps list
+      await queryClient.invalidateQueries({ queryKey: ["employer-apps"] });
+      await queryClient.invalidateQueries({ queryKey: ["agent-apps"] });
+      await queryClient.invalidateQueries({ queryKey: ["user-finance"] });
       setShowPlacement(false); setSelectedId(null); setPlacementSalary("");
     } catch (err: any) {
       toast.error((lang === "my" ? "ခန့်အပ်မှု မအောင်မြင်ပါ: " : "Failed to confirm placement: ") + (err?.message || "unknown"));
@@ -979,7 +990,7 @@ const EmployerApplications = () => {
               </div>
               {isAgent && placementSalary && parseInt(placementSalary) > 0 && (() => {
                 const fee = calculatePlacementFee(parseInt(placementSalary));
-                const commission = roundMmk(fee * 0.10);
+                const commission = roundMmk(fee * PLACEMENT_PLATFORM_COMMISSION);
                 const net = fee - commission;
                 const pct = Math.round(PLACEMENT_FEE_PERCENT * 100);
                 return (

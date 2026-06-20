@@ -18,14 +18,19 @@ const AdminWallet = () => {
   const my = lang === "my";
   const qc = useQueryClient();
 
+  const [subFilter, setSubFilter] = useState<"pending" | "all">("pending");
+  const [topupFilter, setTopupFilter] = useState<"pending" | "all">("pending");
+
   const { data: subRequests = [], isLoading: loadingSubs } = useQuery({
-    queryKey: ["admin-sub-requests"],
+    queryKey: ["admin-sub-requests", subFilter],
     queryFn: async () => {
-      const { data: reqs } = await (supabase as any)
+      let q = (supabase as any)
         .from("subscription_payment_requests")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(500);
+      if (subFilter === "pending") q = q.eq("status", "pending");
+      const { data: reqs } = await q;
       if (!reqs || reqs.length === 0) return [];
       const planIds = [...new Set(reqs.filter((r: any) => r.plan_id).map((r: any) => r.plan_id))];
       const addonIds = [...new Set(reqs.filter((r: any) => r.addon_id).map((r: any) => r.addon_id))];
@@ -45,13 +50,15 @@ const AdminWallet = () => {
 
   // Job Seeker / Mentor wallet top-ups (still active for those roles).
   const { data: topupRequests = [], isLoading: loadingTopups } = useQuery({
-    queryKey: ["admin-topup-requests"],
+    queryKey: ["admin-topup-requests", topupFilter],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from("topup_requests")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(500);
+      if (topupFilter === "pending") q = q.eq("status", "pending");
+      const { data } = await q;
       return (data as any[]) || [];
     },
   });
@@ -150,6 +157,10 @@ const AdminWallet = () => {
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-2 pt-3">
+            <div className="mb-2 flex gap-1.5 text-[11px]">
+              <button onClick={() => setSubFilter("pending")} className={`rounded-full px-2.5 py-1 ${subFilter === "pending" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "စစ်ဆေးရန်" : "Pending"}</button>
+              <button onClick={() => setSubFilter("all")} className={`rounded-full px-2.5 py-1 ${subFilter === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "အားလုံး" : "All"}</button>
+            </div>
             {loadingSubs && (
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -193,12 +204,21 @@ const AdminWallet = () => {
                       </Button>
                     </div>
                   )}
+                  {r.admin_note && (
+                    <div className="mt-2 rounded-md bg-muted/60 p-2 text-[10px] text-muted-foreground">
+                      <span className="font-semibold">{my ? "Admin မှတ်ချက်" : "Admin note"}:</span> {r.admin_note}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </TabsContent>
 
           <TabsContent value="topups" className="space-y-2 pt-3">
+            <div className="mb-2 flex gap-1.5 text-[11px]">
+              <button onClick={() => setTopupFilter("pending")} className={`rounded-full px-2.5 py-1 ${topupFilter === "pending" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "စစ်ဆေးရန်" : "Pending"}</button>
+              <button onClick={() => setTopupFilter("all")} className={`rounded-full px-2.5 py-1 ${topupFilter === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "အားလုံး" : "All"}</button>
+            </div>
             {loadingTopups && (
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />

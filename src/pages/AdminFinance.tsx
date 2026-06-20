@@ -9,8 +9,9 @@ import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import { Button } from "@/components/ui/button";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
+import { PLATFORM_MENTOR_CUT } from "@/lib/partner-finance";
 
-const PLATFORM_CUT_PERCENT = 0.15;
+const PLATFORM_CUT_PERCENT = PLATFORM_MENTOR_CUT;
 
 type RowKey =
   | "in.subscription"
@@ -49,7 +50,7 @@ const AdminFinance = ({
       let q = (supabase as any).from("subscription_payment_requests")
         .select("id,user_id,request_type,plan_id,addon_id,quantity,mmk_amount,payment_method,status,created_at,reviewed_at")
         .order("created_at", { ascending: false })
-        .limit(1000);
+        .limit(50000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
       const { data } = await q;
       return (data || []) as any[];
@@ -74,7 +75,7 @@ const AdminFinance = ({
     queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
       if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(50000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
       const { data } = await q;
       return data || [];
@@ -85,7 +86,7 @@ const AdminFinance = ({
     queryKey: ["admin-finance-earnings"],
     enabled: !isPartnerScope,
     queryFn: async () => {
-      const { data } = await supabase.from("mentor_earnings").select("*").order("created_at", { ascending: false }).limit(1000);
+      const { data } = await supabase.from("mentor_earnings").select("*").order("created_at", { ascending: false }).limit(50000);
       return data || [];
     },
   });
@@ -93,7 +94,7 @@ const AdminFinance = ({
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
     queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
-      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(500);
+      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(5000);
       if (partnerId) q = q.eq("partner_id", partnerId);
       const { data } = await q;
       return data || [];
@@ -151,7 +152,7 @@ const AdminFinance = ({
     { key: "in.subscription", label: { en: "Subscriptions", my: "Subscription" }, sub: { en: "Employer & Agent monthly/yearly plans", my: "Employer & Agent လစဉ်/နှစ်စဉ်" }, amount: subscriptionTotal },
     { key: "in.addon", label: { en: "Add-ons", my: "Add-on" }, sub: { en: "Unlocks, featured jobs, matching pack", my: "Unlock / Featured / Matching" }, amount: addonTotal },
     { key: "in.placement", label: { en: "Placement Fees", my: "ခန့်အပ်ခ" }, sub: { en: "From employers", my: "Employer မှ" }, amount: placementTotal },
-    { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Non-credit bookings", my: "Credit မဟုတ်" }, amount: sessionTotal },
+    { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Approved mentor session payments", my: "Mentor session" }, amount: sessionTotal },
     { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification (all sources)", my: "အတည်ပြုရန် (အားလုံး)" }, amount: pendingTotal, tone: "warn" },
   ];
   const outRows: Row[] = [

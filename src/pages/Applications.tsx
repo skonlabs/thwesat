@@ -125,12 +125,17 @@ const Applications = () => {
 
   const handleAcceptOffer = async () => {
     if (!selected) return;
+    // Salary defaults to the job listing; ideally the employer captures the
+    // negotiated salary via placement_confirm_with_invoice on their side. The
+    // seeker accepting only flips the application to "placed" — placement_fee
+    // invoice (if applicable) is created server-side by the RPC.
     const salary = Number(selected.jobs?.salary_max || selected.jobs?.salary_min || 0);
     const fee = salary > 0 ? calculatePlacementFee(salary) : 0;
-    const { error } = await supabase
-      .from("applications")
-      .update({ status: "placed", placement_salary: salary || null, placement_fee: fee || null })
-      .eq("id", selected.id);
+    const { error } = await (supabase as any).rpc("placement_confirm_with_invoice", {
+      _application_id: selected.id,
+      _placement_salary: salary || 1,
+      _placement_fee: fee,
+    });
     if (error) {
       toast.error(lang === "my" ? "လက်ခံ၍ မရပါ" : "Failed to accept offer");
       return;

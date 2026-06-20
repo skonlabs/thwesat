@@ -11,7 +11,7 @@ import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMentorProfile } from "@/hooks/use-mentor-data";
-import { useCreateBooking } from "@/hooks/use-mentor-bookings";
+
 import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -69,7 +69,7 @@ const MentorBooking = () => {
     enabled: !!mentorId && !mentorLoading && !mentorProfile,
   });
   const { data: availabilitySlots = [] } = useMentorAvailability(mentorId || undefined);
-  const createBooking = useCreateBooking();
+  const [bookingPending, setBookingPending] = useState(false);
   const { startConversation } = useStartConversation();
   const { hasRole, isLoading: rolesLoading } = useUserRoles();
   const currentUserIsMentor = hasRole("mentor");
@@ -157,43 +157,35 @@ const MentorBooking = () => {
       }
     }
 
-    // (Wallet balance pre-check removed — the booking RPC enforces funding server-side.)
-    let createdId: string | null = null;
+    // Atomic RPC: creates booking + escrow hold in a single transaction so a
+    // failed hold cannot leave an orphan booking row blocking the slot.
+    setBookingPending(true);
     try {
-      const result = await createBooking.mutateAsync({
-        mentor_id: mentorId,
-        mentee_id: user.id,
-        scheduled_date: selectedDateStr,
-        scheduled_time: selectedTime || "TBD",
-        topic: selectedTopic,
-        message,
-        goals,
-        booked_by: "mentee",
-        duration_minutes: selectedDuration,
-        credits_charged: sessionCredits,
-      });
-      createdId = result.id;
-      // Hold Ks in escrow
-      const { error: holdErr } = await (supabase as any).rpc("mentor_book_with_credits", {
-        _booking_id: result.id,
+      const { data, error } = await (supabase as any).rpc("mentor_create_booking_and_hold", {
+        _mentor_id: mentorId,
+        _scheduled_date: selectedDateStr,
+        _scheduled_time: selectedTime || "TBD",
+        _duration_minutes: selectedDuration,
+        _topic: selectedTopic,
+        _message: message,
+        _goals: goals,
         _credits: sessionCredits,
+        _booked_by: "mentee",
       });
-      if (holdErr) throw holdErr;
-      setCreatedBookingId(result.id);
+      if (error) throw error;
+      const bookingId = data?.booking_id || data?.id;
+      if (!bookingId) throw new Error("missing_booking_id");
+      setCreatedBookingId(bookingId);
       setStep(4);
     } catch (e: any) {
-      // Rollback orphan booking row if escrow failed so the slot doesn't stay locked.
-      if (createdId) {
-        await supabase.from("mentor_bookings").delete().eq("id", createdId);
-      }
       const raw = e?.message || "";
       const friendly =
         raw.includes("insufficient_balance")
           ? lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance"
-          : raw.includes("already_held")
-          ? lang === "my" ? "ဤ Booking ကို ငွေထိန်းသိမ်းပြီးဖြစ်သည်" : "This booking is already held"
-          : raw.includes("not_authorized")
-          ? lang === "my" ? "ဤ Booking ကို ပြုလုပ်ခွင့် မရှိပါ" : "Not authorized to book"
+          : raw.includes("slot_unavailable")
+          ? lang === "my" ? "ဤ အချိန် မရနိုင်တော့ပါ" : "This time slot is no longer available"
+          : raw.includes("not_authenticated")
+          ? lang === "my" ? "အကောင့်ဝင်ပါ" : "Please sign in"
           : raw || (lang === "my" ? "ချိန်းဆိုမှု မအောင်မြင်ပါ" : "Failed to create booking");
       toast({
         title: lang === "my" ? "ချိန်းဆို၍ မရပါ" : "Booking failed",
@@ -201,6 +193,8 @@ const MentorBooking = () => {
         variant: "destructive",
       });
       if (raw.includes("insufficient_balance")) navigate("/wallet");
+    } finally {
+      setBookingPending(false);
     }
   };
 
@@ -674,9 +668,9 @@ const MentorBooking = () => {
               <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
                 {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
               </Button>
-              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={bookingPending} onClick={handleConfirm}>
                 <Coins className="mr-1.5 h-4 w-4" />
-                {createBooking.isPending
+                {bookingPending
                   ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
                   : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
               </Button>

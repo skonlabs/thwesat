@@ -12,6 +12,15 @@ export type Money = { amount: number; currency: string };
 export const PLACEMENT_FEE_PERCENT = 0.08;
 
 /**
+ * Platform commission rate retained from the agent's placement fee
+ * (i.e. of the 8% paid by the seeker, the platform keeps 10% of that fee).
+ * Centralised so commission UI and partner-finance calculations cannot
+ * drift apart.
+ */
+export const PLACEMENT_PLATFORM_COMMISSION = 0.10;
+
+
+/**
  * MMK rounding rule: the smallest meaningful denomination handled on the
  * platform is 100 Ks. Every MMK amount that is computed (fees, payouts,
  * commissions, conversions) or displayed MUST flow through this helper so
@@ -41,7 +50,7 @@ export function sumByCurrency(rows: Money[]): Money[] {
   const map = new Map<string, number>();
   for (const r of rows) {
     if (!r || !r.amount) continue;
-    const c = "MMK";
+    const c = (r.currency || "MMK").toUpperCase();
     map.set(c, (map.get(c) || 0) + Number(r.amount));
   }
   return Array.from(map.entries()).map(([currency, amount]) => ({ currency, amount }));
@@ -56,7 +65,8 @@ export function formatTotals(rows: Money[], lang: "my" | "en" = "en"): string {
 export const paymentTypeLabels: Record<string, { my: string; en: string }> = {
   mentor_session: { my: "Mentor Session", en: "Mentor Session" },
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee" },
-  topup: { my: "Credit ဖြည့်", en: "Credit Top-up" },
+  topup: { my: "Wallet ဖြည့်", en: "Wallet Top-up" },
+  wallet_topup: { my: "Wallet ဖြည့်", en: "Wallet Top-up" },
   subscription: { my: "Subscription Package", en: "Subscription Package" },
   addon: { my: "Add-on Package", en: "Add-on Package" },
 };

@@ -8,7 +8,6 @@ import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { type StatusFilter } from "@/components/finance/FinanceFilters";
 import { formatMoney, shortRef } from "@/lib/finance";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 const MentorFinance = () => {
@@ -71,10 +70,9 @@ const MentorFinance = () => {
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
   const currencies = useMemo(() => all.map((e) => e.currency || "MMK"), [all]);
 
-  // mentor_profiles has no payment_methods column in the current schema.
-  // Treat any mentor as having a payment method configured for now; replace
-  // with a real check once the column exists.
-  const hasPaymentMethod = true;
+  // Payout method capture is not yet implemented in mentor_profiles.
+  // The reminder banner has been removed until a real payout_method column
+  // exists; admins coordinate payouts directly until then.
 
   const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
   const totalPendingApproval = useMemo(
@@ -97,20 +95,7 @@ const MentorFinance = () => {
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={lang === "my" ? "ဝင်ငွေ မှတ်တမ်း" : "Mentor Earnings"} showBack />
       <div className="px-5">
-        {!hasPaymentMethod && (
-          <Alert className="mb-4 border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
-            <AlertDescription className="flex items-center justify-between gap-3 text-sm">
-              <span>
-                {lang === "my"
-                  ? "ပေးချေမှု ရယူနိုင်ရန် Settings တွင် payout method သတ်မှတ်ပါ။"
-                  : "Set up your payout method in Settings to receive payouts."}
-              </span>
-              <Button variant="outline" size="sm" className="shrink-0 rounded-lg text-xs" onClick={() => navigate("/settings")}>
-                {lang === "my" ? "Settings" : "Settings"}
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Payout-method reminder removed — see comment above. */}
 
         {/* Stat cards */}
         <div className="mb-4 grid grid-cols-3 gap-2">
