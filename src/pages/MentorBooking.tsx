@@ -159,6 +159,7 @@ const MentorBooking = () => {
 
     // Atomic RPC: creates booking + escrow hold in a single transaction so a
     // failed hold cannot leave an orphan booking row blocking the slot.
+    setBookingPending(true);
     try {
       const { data, error } = await (supabase as any).rpc("mentor_create_booking_and_hold", {
         _mentor_id: mentorId,
@@ -192,6 +193,8 @@ const MentorBooking = () => {
         variant: "destructive",
       });
       if (raw.includes("insufficient_balance")) navigate("/wallet");
+    } finally {
+      setBookingPending(false);
     }
   };
 
