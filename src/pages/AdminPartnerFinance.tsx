@@ -39,6 +39,26 @@ function nowYangon() {
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
 }
 
+function useUserDirectoryLite(ids: string[]) {
+  const key = useMemo(() => Array.from(new Set(ids)).sort().join(","), [ids]);
+  return useQuery({
+    queryKey: ["partner-finance-user-dir", key],
+    enabled: ids.length > 0,
+    queryFn: async () => {
+      const uniq = Array.from(new Set(ids));
+      const [{ data: profs }, { data: contacts }] = await Promise.all([
+        supabase.from("profiles").select("id, display_name").in("id", uniq),
+        (supabase as any).rpc("get_user_contacts_admin", { _ids: uniq }),
+      ]);
+      const emailMap = new Map<string, string>((contacts || []).map((c: any) => [c.id, c.email]));
+      const map = new Map<string, { name: string; email: string | null }>();
+      (profs || []).forEach((p: any) => map.set(p.id, { name: p.display_name || "User", email: emailMap.get(p.id) ?? null }));
+      uniq.forEach((id) => { if (!map.has(id)) map.set(id, { name: "User", email: emailMap.get(id) ?? null }); });
+      return map;
+    },
+  });
+}
+
 export default function AdminPartnerFinance({
   hideHeader = false,
   lockedPartnerId = null,
