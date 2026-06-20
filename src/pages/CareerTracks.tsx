@@ -83,7 +83,7 @@ const CareerTracks = () => {
     },
   });
 
-  const balance = wallet?.balance_credits ?? 0;
+  // Wallet was removed — balance display & gate are subscription-driven now.
 
   return (
     <div className="min-h-screen bg-background pb-24">
