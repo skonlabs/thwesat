@@ -50,7 +50,7 @@ export function sumByCurrency(rows: Money[]): Money[] {
   const map = new Map<string, number>();
   for (const r of rows) {
     if (!r || !r.amount) continue;
-    const c = "MMK";
+    const c = (r.currency || "MMK").toUpperCase();
     map.set(c, (map.get(c) || 0) + Number(r.amount));
   }
   return Array.from(map.entries()).map(([currency, amount]) => ({ currency, amount }));
