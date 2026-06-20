@@ -225,7 +225,7 @@ const AdminWallet = () => {
                     <div className="mt-2 flex gap-1.5">
                       {r.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(r.proof_url)}><Eye className="mr-1 h-3 w-3" />{my ? "အထောက်အထား" : "Proof"}</Button>}
                       <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => reviewSub.mutate({ id: r.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />{my ? "ခွင့်ပြု" : "Approve"}</Button>
-                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt(my ? "ငြင်းပယ်ရသည့် အကြောင်းပြချက်?" : "Reject reason?") || (my ? "ငြင်းပယ်" : "Rejected"); reviewSub.mutate({ id: r.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { setRejectTarget({ id: r.id, type: "sub" }); setRejectNote(""); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
                     </div>
                   )}
                 </div>
