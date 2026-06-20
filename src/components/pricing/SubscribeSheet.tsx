@@ -43,6 +43,7 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
   const { user } = useAuth();
   const { data: acc } = useReceivingAccount();
   const { data: promo } = useLaunchPromo();
+  const { data: activeSub } = useMySubscription();
   const launchActive = isLaunchActive(promo);
   const create = useCreateSubscriptionPaymentRequest();
 
