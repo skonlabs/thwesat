@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export type UserFinanceRow = {
   id: string;
-  source: "payment_request" | "subscription_payment_request";
+  source: "payment_request" | "subscription_payment_request" | "topup_request";
   payment_type: string;
   /** Human-friendly label resolved from plan/addon name when available. */
   display_label: { my: string; en: string } | null;
