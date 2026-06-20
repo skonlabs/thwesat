@@ -402,7 +402,8 @@ const JobDetail = () => {
   const acceptingApplications = job.status === "active" && !expired;
   const clientName = (job as any).client_company_name as string | null;
   const clientLogo = (job as any).client_logo_url as string | null;
-  const employerCompanyName = clientName || employerDetails?.employer?.company_name || job.company;
+  const rawCompanyName = clientName || employerDetails?.employer?.company_name || employerDetails?.profile?.display_name || job.company;
+  const employerCompanyName = rawCompanyName && /@/.test(rawCompanyName) ? (lang === "my" ? "ကုမ္ပဏီ" : "Company") : rawCompanyName;
   const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
   const requirementsList = pickLocalized(job.requirements, job.requirements_my, lang)
