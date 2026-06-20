@@ -65,7 +65,8 @@ export function formatTotals(rows: Money[], lang: "my" | "en" = "en"): string {
 export const paymentTypeLabels: Record<string, { my: string; en: string }> = {
   mentor_session: { my: "Mentor Session", en: "Mentor Session" },
   placement_fee: { my: "ခန့်အပ်ခ", en: "Placement Fee" },
-  topup: { my: "Credit ဖြည့်", en: "Credit Top-up" },
+  topup: { my: "Wallet ဖြည့်", en: "Wallet Top-up" },
+  wallet_topup: { my: "Wallet ဖြည့်", en: "Wallet Top-up" },
   subscription: { my: "Subscription Package", en: "Subscription Package" },
   addon: { my: "Add-on Package", en: "Add-on Package" },
 };
