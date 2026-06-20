@@ -43,12 +43,26 @@ const AdminWallet = () => {
     },
   });
 
+  // Job Seeker / Mentor wallet top-ups (still active for those roles).
+  const { data: topupRequests = [], isLoading: loadingTopups } = useQuery({
+    queryKey: ["admin-topup-requests"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("topup_requests")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return (data as any[]) || [];
+    },
+  });
+
   // Resolve user display name + email for every visible user_id.
   const visibleUserIds = useMemo(() => {
     const s = new Set<string>();
     (subRequests || []).forEach((r: any) => r?.user_id && s.add(r.user_id));
+    (topupRequests || []).forEach((r: any) => r?.user_id && s.add(r.user_id));
     return Array.from(s);
-  }, [subRequests]);
+  }, [subRequests, topupRequests]);
 
   const { data: userDirectory } = useQuery({
     queryKey: ["admin-wallet-user-directory", visibleUserIds.sort().join(",")],
