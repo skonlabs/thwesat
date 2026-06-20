@@ -63,6 +63,8 @@ const AdminUsers = () => {
   useEffect(() => {
     const urlRole = searchParams.get("role") || "all";
     if (urlRole !== roleFilter) setRoleFilter(urlRole);
+    const urlQuery = searchParams.get("q") || "";
+    if (urlQuery !== search) setSearch(urlQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
