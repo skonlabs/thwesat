@@ -75,25 +75,16 @@ const EmployerFinance = () => {
     return () => { cancelled = true; };
   }, [detailFor]);
 
-  const { data: payments, isLoading, refetch } = useQuery({
-    queryKey: ["employer-finance", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await supabase
-        .from("payment_requests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!user,
-  });
+  const qc = useQueryClient();
+  const { data: payments, isLoading } = useUserFinance(user?.id);
+  const refetch = () => qc.invalidateQueries({ queryKey: ["user-finance", user?.id] });
 
   const all = payments || [];
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
   const due = all.filter((p) => p.status === "pending" && !p.proof_url);
   const paid = all.filter((p) => p.status === "approved");
   const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
+  const subsPaid = all.filter((p) => (p.payment_type === "subscription" || p.payment_type === "addon") && p.status === "approved");
 
   const kpiScoped = useMemo(() => {
     if (kpiFilter === "paid") return paid;
@@ -109,6 +100,7 @@ const EmployerFinance = () => {
   const pageStart = page * PAGE_SIZE;
   const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);
   const pagedFiltered = filtered.slice(pageStart, pageEnd);
+
 
   const handleUpload = async () => {
     if (!proofFor || !file || !user) return;
