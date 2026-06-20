@@ -184,6 +184,47 @@ export function useMySubscription() {
   });
 }
 
+export function useMyScheduledSubscription() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["my-scheduled-subscription", user?.id],
+    queryFn: async (): Promise<Subscription | null> => {
+      if (!user) return null;
+      const { data } = await S.from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "scheduled")
+        .order("started_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return (data as Subscription) ?? null;
+    },
+    enabled: !!user,
+    staleTime: 10_000,
+  });
+}
+
+export function useMyPendingSubscriptionRequest() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["my-pending-sub-request", user?.id],
+    queryFn: async (): Promise<SubscriptionPaymentRequest | null> => {
+      if (!user) return null;
+      const { data } = await S.from("subscription_payment_requests")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("request_type", "subscription")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return (data as SubscriptionPaymentRequest) ?? null;
+    },
+    enabled: !!user,
+    staleTime: 10_000,
+  });
+}
+
 export function useMyQuotas() {
   const { user } = useAuth();
   return useQuery({

@@ -8,6 +8,8 @@ import {
   useAddonProducts,
   useLaunchPromo,
   useMySubscription,
+  useMyScheduledSubscription,
+  useMyPendingSubscriptionRequest,
   isLaunchActive,
   computePrice,
   formatMMK,
@@ -18,6 +20,7 @@ import {
   type PlanRole,
 } from "@/hooks/use-subscription";
 import SubscribeSheet from "@/components/pricing/SubscribeSheet";
+import { Clock } from "lucide-react";
 
 type Selection =
   | { kind: "subscription"; plan: SubscriptionPlan; cycle: BillingCycle }
@@ -46,7 +49,13 @@ const Pricing = () => {
   const { data: addons = [] } = useAddonProducts(role);
   const { data: promo } = useLaunchPromo();
   const { data: currentSub } = useMySubscription();
+  const { data: scheduledSub } = useMyScheduledSubscription();
+  const { data: pendingReq } = useMyPendingSubscriptionRequest();
   const launchActive = isLaunchActive(promo);
+  const hasPending = !!pendingReq;
+  const planById = useMemo(() => Object.fromEntries(plans.map((p) => [p.id, p])), [plans]);
+  const currentPlan = currentSub ? planById[currentSub.plan_id] : null;
+  const scheduledPlan = scheduledSub ? planById[scheduledSub.plan_id] : null;
 
   const sortedPlans = useMemo(() => [...plans].sort((a, b) => a.sort_order - b.sort_order), [plans]);
 
@@ -78,6 +87,53 @@ const Pricing = () => {
             </div>
           </div>
         )}
+
+        {/* Current plan / pending / scheduled status */}
+        {(currentSub || hasPending || scheduledSub) && (
+          <div className="space-y-2">
+            {currentSub && currentPlan && (
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {my ? "လက်ရှိ Package" : "Your current plan"}
+                </div>
+                <div className="mt-0.5 font-bold">
+                  {planLabel(currentPlan.tier)} · {currentSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {my ? "သက်တမ်း ကုန်မည့်ရက် " : "Renews / ends "}
+                  {new Date(currentSub.current_period_end).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            {scheduledSub && scheduledPlan && (
+              <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/5 px-4 py-3 text-sm">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  <Clock className="h-3 w-3" /> {my ? "ပြောင်းရန် စီစဉ်ထား" : "Scheduled change"}
+                </div>
+                <div className="mt-0.5 font-bold">
+                  {planLabel(scheduledPlan.tier)} · {scheduledSub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {my ? "စတင်မည့်ရက် " : "Starts "}
+                  {new Date(scheduledSub.started_at).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            {hasPending && (
+              <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 px-4 py-3 text-sm">
+                <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                  <Clock className="h-3 w-3" /> {my ? "အတည်ပြုခြင်း စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
+                </div>
+                <div className="mt-0.5 text-xs">
+                  {my
+                    ? "သင်၏ ပေးချေမှု ပြန်လည် စစ်ဆေးနေသည်။ ပြီးသည်အထိ နောက်ထပ် Package တင်လို့ မရပါ။"
+                    : "Your payment is being reviewed. You can't submit another plan until it's approved or rejected."}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
 
         {/* Role tabs */}
         <div className="flex justify-center">
@@ -122,7 +178,8 @@ const Pricing = () => {
           {sortedPlans.map((plan) => {
             const Icon = TIER_ICON[plan.tier] ?? Sparkles;
             const priceInfo = computePrice(plan, cycle, launchActive);
-            const isCurrent = currentSub?.plan_id === plan.id;
+            const isCurrent = currentSub?.plan_id === plan.id && currentSub?.cycle === cycle;
+            const isScheduled = scheduledSub?.plan_id === plan.id && scheduledSub?.cycle === cycle;
             const popular = plan.tier === "growth";
 
             return (
@@ -171,28 +228,45 @@ const Pricing = () => {
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
-                        ? my ? "Unlimited Active Jobs" : "Unlimited Active Jobs"
-                        : my ? `Active Jobs ${plan.active_jobs_quota} ခု` : `${plan.active_jobs_quota} Active Jobs`
+                        ? my ? "Unlimited Active Jobs / လ" : "Unlimited Active Jobs / month"
+                        : my ? `Active Jobs ${plan.active_jobs_quota} ခု / လ` : `${plan.active_jobs_quota} Active Jobs / month`
                     }
                   />
                   <FeatureRow
-                    text={my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`}
+                    text={my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု / လ` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks / month`}
                   />
                   <FeatureRow text={my ? "Wallet & အသုံးပြုမှု မှတ်တမ်း" : "Wallet & usage tracking"} />
                   {plan.tier === "enterprise" && <FeatureRow text={my ? "ဦးစားပေး အကူအညီ" : "Priority support"} />}
                 </ul>
+                <div className="mt-2 text-[10px] text-muted-foreground">
+                  {my ? "Active Jobs နှင့် Unlocks များသည် လစဉ် ပြန်လည် သတ်မှတ်ပါသည်။" : "Active jobs & unlocks reset every month."}
+                </div>
 
-                <button
-                  disabled={isCurrent}
-                  onClick={() => onSubscribe(plan)}
-                  className={`mt-4 w-full rounded-xl py-2.5 text-sm font-bold transition ${
-                    isCurrent
-                      ? "cursor-not-allowed bg-muted text-muted-foreground"
-                      : "bg-primary text-primary-foreground hover:opacity-90"
-                  }`}
-                >
-                  {isCurrent ? (my ? "လက်ရှိ Package" : "Current plan") : my ? "Subscribe" : "Subscribe"}
-                </button>
+                {(() => {
+                  const disabled = isCurrent || isScheduled || hasPending;
+                  const label = isCurrent
+                    ? (my ? "လက်ရှိ Package" : "Current plan")
+                    : isScheduled
+                      ? (my ? "စီစဉ်ထားပြီး" : "Scheduled")
+                      : hasPending
+                        ? (my ? "စောင့်ဆိုင်းနေသည်" : "Pending approval")
+                        : currentSub
+                          ? (my ? "Package ပြောင်းရန် (သက်တမ်းကုန်လျှင် စတင်)" : "Switch plan (starts after current ends)")
+                          : (my ? "Subscribe" : "Subscribe");
+                  return (
+                    <button
+                      disabled={disabled}
+                      onClick={() => onSubscribe(plan)}
+                      className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                        disabled
+                          ? "cursor-not-allowed bg-muted text-muted-foreground"
+                          : "bg-primary text-primary-foreground hover:opacity-90"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })()}
               </div>
             );
           })}
