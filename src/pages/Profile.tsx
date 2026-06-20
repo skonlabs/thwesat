@@ -199,7 +199,7 @@ const Profile = () => {
   const jobseekerMenu = [
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: Briefcase, label: lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs", path: "/jobs/saved" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "Package အစီအစဉ်" : "Plans & Billing", highlight: true, path: "/pricing" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -208,7 +208,7 @@ const Profile = () => {
     { icon: Briefcase, label: lang === "my" ? "ကျွန်ုပ်၏ ကြော်ငြာများ" : "My Listings", path: "/employer/dashboard" },
     { icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာများ" : "Applications", path: "/employer/applications" },
     
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "Package အစီအစဉ်" : "Plans & Billing", highlight: true, path: "/pricing" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
@@ -216,7 +216,7 @@ const Profile = () => {
     { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
     { icon: CalendarClock, label: lang === "my" ? "အချိန်ဇယားနှင့် ရနိုင်မှု" : "Availability & Time Slots", path: "/mentor/preferences" },
     { icon: Users, label: lang === "my" ? "ချိန်းဆိုမှု တောင်းဆိုချက်များ" : "Booking Requests", path: "/mentors/bookings" },
-    { icon: Wallet, label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet", highlight: true, path: "/wallet" },
+    { icon: Wallet, label: lang === "my" ? "Package အစီအစဉ်" : "Plans & Billing", highlight: true, path: "/pricing" },
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 

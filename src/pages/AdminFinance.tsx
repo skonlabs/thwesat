@@ -15,29 +15,13 @@ const PLATFORM_CUT_PERCENT = 0.15;
 type RowKey =
   | "in.subscription"
   | "in.addon"
-  | "in.topups"
   | "in.placement"
   | "in.session"
   | "in.pending"
   | "out.mentor_paid"
   | "out.mentor_owed"
   | "out.partner_paid"
-  | "out.partner_owed"
-  | "spend.jobseeker"
-  | "spend.employer"
-  | "spend.agent"
-  | "spend.mentor";
-
-type SpendTxn = {
-  id: string;
-  user_id: string;
-  credits: number;
-  note: string | null;
-  ref_type: string | null;
-  ref_id: string | null;
-  created_at: string;
-  primary_role: string | null;
-};
+  | "out.partner_owed";
 
 const AdminFinance = ({
   hideHeader = false,
@@ -106,24 +90,6 @@ const AdminFinance = ({
     },
   });
 
-  const { data: topups, isLoading: loadingTopups } = useQuery({
-    queryKey: ["admin-finance-topups", scopeKey],
-    queryFn: async () => {
-      if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase
-        .from("wallet_transactions")
-        .select("*")
-        .eq("kind", "topup")
-        .eq("status", "completed")
-        .or("ref_type.eq.topup_request,ref_type.is.null")
-        .order("created_at", { ascending: false })
-        .limit(1000);
-      if (isPartnerScope) q = q.in("user_id", scopedIds!);
-      const { data } = await q;
-      return data || [];
-    },
-  });
-
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
     queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
@@ -131,28 +97,6 @@ const AdminFinance = ({
       if (partnerId) q = q.eq("partner_id", partnerId);
       const { data } = await q;
       return data || [];
-    },
-  });
-
-  const { data: spends, isLoading: loadingSpends } = useQuery<SpendTxn[]>({
-    queryKey: ["admin-finance-spends", scopeKey],
-    queryFn: async () => {
-      if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase
-        .from("wallet_transactions")
-        .select("id,user_id,credits,note,ref_type,ref_id,created_at,kind")
-        .lt("credits", 0)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false })
-        .limit(1000);
-      if (isPartnerScope) q = q.in("user_id", scopedIds!);
-      const { data: txns } = await q;
-      const list = (txns || []).filter((t: any) => t.kind === "spend" || t.kind === "escrow_hold");
-      const userIds = Array.from(new Set(list.map((t: any) => t.user_id)));
-      if (userIds.length === 0) return [];
-      const { data: profs } = await supabase.from("profiles").select("id,primary_role").in("id", userIds);
-      const roleById = new Map((profs || []).map((p: any) => [p.id, p.primary_role]));
-      return list.map((t: any) => ({ ...t, primary_role: roleById.get(t.user_id) || null }));
     },
   });
 
@@ -168,7 +112,6 @@ const AdminFinance = ({
   // ===== Aggregates =====
   const allPayments = payments || [];
   const allEarnings = earnings || [];
-  const allTopups = topups || [];
   const allPartner = partnerStmts || [];
 
   const approved = allPayments.filter((p) => p.status === "approved");
@@ -186,7 +129,6 @@ const AdminFinance = ({
   const pendingSubs = allSubs.filter((p: any) => p.status === "pending");
 
   const sum = (n: number[]) => n.reduce((a, b) => a + (Number(b) || 0), 0);
-  const topupsTotal = sum(allTopups.map((t) => Number(t.mmk_amount || 0)));
   const placementTotal = sum(approvedPlacement.map((p) => Number(p.amount)));
   const sessionTotal = sum(approvedSession.map((p) => Number(p.amount)));
   const subscriptionTotal = sum(approvedSubs.map((p: any) => Number(p.mmk_amount || 0)));
@@ -197,7 +139,7 @@ const AdminFinance = ({
   const partnerPaidTotal = sum(partnerPaid.map((s) => Number(s.total_payout || 0)));
   const partnerOwedTotal = sum(partnerOwed.map((s) => Number(s.total_payout || 0)));
 
-  const moneyInTotal = topupsTotal + placementTotal + sessionTotal + subscriptionTotal + addonTotal;
+  const moneyInTotal = placementTotal + sessionTotal + subscriptionTotal + addonTotal;
   const moneyOutTotal = mentorPaidTotal + partnerPaidTotal;
   // Subscriptions + add-ons are 100% NPR (no third-party payout).
   const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT + subscriptionTotal + addonTotal;
@@ -208,7 +150,6 @@ const AdminFinance = ({
   const inRows: Row[] = [
     { key: "in.subscription", label: { en: "Subscriptions", my: "Subscription" }, sub: { en: "Employer & Agent monthly/yearly plans", my: "Employer & Agent လစဉ်/နှစ်စဉ်" }, amount: subscriptionTotal },
     { key: "in.addon", label: { en: "Add-ons", my: "Add-on" }, sub: { en: "Unlocks, featured jobs, matching pack", my: "Unlock / Featured / Matching" }, amount: addonTotal },
-    { key: "in.topups", label: { en: "Credit Top-ups (legacy)", my: "Credit ဖြည့် (ဟောင်း)" }, sub: { en: "Pre-subscription model", my: "Subscription မတိုင်မီ" }, amount: topupsTotal },
     { key: "in.placement", label: { en: "Placement Fees", my: "ခန့်အပ်ခ" }, sub: { en: "From employers", my: "Employer မှ" }, amount: placementTotal },
     { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Non-credit bookings", my: "Credit မဟုတ်" }, amount: sessionTotal },
     { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification (all sources)", my: "အတည်ပြုရန် (အားလုံး)" }, amount: pendingTotal, tone: "warn" },
@@ -221,23 +162,6 @@ const AdminFinance = ({
     { key: "out.partner_paid", label: { en: isPartnerScope ? "Your Rev-share (Paid)" : "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
     { key: "out.partner_owed", label: { en: isPartnerScope ? "Your Rev-share (Owed)" : "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
-
-  // ===== Credits spent by role (internal — not cash movement) =====
-  const allSpends = spends || [];
-  const spendByRole = (role: string) =>
-    allSpends.filter((t) => (t.primary_role || "").toLowerCase() === role);
-  const sumCredits = (rs: SpendTxn[]) => rs.reduce((a, b) => a + Math.abs(Number(b.credits) || 0), 0);
-  const jsSpends = spendByRole("jobseeker");
-  const empSpends = spendByRole("employer");
-  const agtSpends = spendByRole("agent");
-  const mtrSpends = spendByRole("mentor");
-  const spendRows: Row[] = [
-    { key: "spend.jobseeker", label: { en: "Job Seekers", my: "အလုပ်ရှာသူ" }, sub: { en: "Mentor bookings, CV rewrites, priority apply", my: "Booking / CV / priority" }, amount: sumCredits(jsSpends) },
-    { key: "spend.employer", label: { en: "Employers", my: "အလုပ်ရှင်" }, sub: { en: "Job posts, feature unlocks", my: "Job post / feature" }, amount: sumCredits(empSpends) },
-    { key: "spend.agent", label: { en: "Recruiting Agents", my: "ကြားခံ" }, sub: { en: "Job posts on behalf of clients", my: "Job post (client)" }, amount: sumCredits(agtSpends) },
-    { key: "spend.mentor", label: { en: "Mentors", my: "Mentor" }, sub: { en: "Own tool usage (CV, cover, bookings)", my: "Tool သုံးစွဲ" }, amount: sumCredits(mtrSpends) },
-  ];
-  const spendTotalCredits = spendRows.reduce((a, r) => a + r.amount, 0);
 
   // ===== Details for selected row =====
   const detail = useMemo(() => {
@@ -275,15 +199,6 @@ const AdminFinance = ({
           </Button>
         ) : null,
     });
-    const topupToRow = (t: any) => ({
-      id: t.id,
-      title: lang === "my" ? "Credit ဖြည့်" : "Credit Top-up",
-      subtitle: `${shortRef(t.user_id)} · ${t.credits?.toLocaleString() || 0} credits`,
-      amount: Number(t.mmk_amount || 0),
-      currency: "MMK",
-      status: "approved",
-      date: t.created_at,
-    });
     const partnerToRow = (s: any) => ({
       id: s.id,
       title: lang === "my" ? "Partner Rev-share" : "Partner Rev-share",
@@ -293,19 +208,6 @@ const AdminFinance = ({
       status: s.paid_at ? "approved" : "pending",
       date: s.paid_at || s.created_at,
     });
-
-    const spendToRow = (t: SpendTxn) => {
-      const action = t.note || t.ref_type || "spend";
-      return {
-        id: t.id,
-        title: action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        subtitle: `${shortRef(t.user_id)} · ${t.ref_type || ""}${t.ref_id ? " · " + shortRef(t.ref_id) : ""}`,
-        amount: Math.abs(Number(t.credits) || 0),
-        currency: "CREDITS",
-        status: "approved",
-        date: t.created_at,
-      };
-    };
 
     const subToRow = (p: any) => {
       let title: string;
@@ -331,7 +233,6 @@ const AdminFinance = ({
     switch (selected) {
       case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };
       case "in.addon": return { rows: approvedAddons.map(subToRow), loading: loadingSubs };
-      case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.session": return { rows: approvedSession.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.pending": return { rows: [...pending.map((p) => paymentToRow(p)), ...pendingSubs.map(subToRow)], loading: loadingPayments || loadingSubs };
@@ -339,15 +240,11 @@ const AdminFinance = ({
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
       case "out.partner_owed": return { rows: partnerOwed.map(partnerToRow), loading: loadingPartner };
-      case "spend.jobseeker": return { rows: jsSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.employer": return { rows: empSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, loadingSpends]);
+  }, [selected, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, lang, markPaid, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, planLookup]);
 
-  const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
-  const selectedIsSpend = selected.startsWith("spend.");
+  const selectedRow = [...inRows, ...outRows].find((r) => r.key === selected)!;
+  const selectedIsSpend = false;
 
   return (
     <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
@@ -355,7 +252,7 @@ const AdminFinance = ({
       <div className={hideHeader ? "" : "px-5"}>
         {isPartnerScope && (() => {
           const noUsers = scopedIds!.length === 0;
-          const noActivity = !noUsers && moneyInTotal === 0 && moneyOutTotal === 0 && spendTotalCredits === 0;
+          const noActivity = !noUsers && moneyInTotal === 0 && moneyOutTotal === 0;
           if (!noUsers && !noActivity) return null;
           return (
             <div className="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-muted-foreground">
@@ -449,24 +346,6 @@ const AdminFinance = ({
           />
         </div>
 
-        {/* Credits spent by role (internal activity, not cash movement) */}
-        <div className="mt-5">
-          <BreakdownColumn
-            title={lang === "my" ? "Credits သုံးစွဲမှု — အခန်းကဏ္ဍအလိုက်" : "Credits Spent on Platform — By Role"}
-            total={spendTotalCredits}
-            rows={spendRows}
-            selected={selected}
-            onSelect={setSelected}
-            lang={lang}
-            accent="default"
-            unit="CREDITS"
-            totalLabel={
-              lang === "my"
-                ? "ပလက်ဖောင်းအတွင်း သုံးစွဲမှု (ငွေသား မဟုတ်)"
-                : "Internal credit activity — not cash"
-            }
-          />
-        </div>
 
         {/* Details */}
         <div className="mt-6">

@@ -16,8 +16,7 @@ import { useMentorAvailability } from "@/hooks/use-mentor-availability";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import PageHeader from "@/components/PageHeader";
-import { useWallet, useActionPrice, useCreditPackages, formatCredits } from "@/hooks/use-wallet";
-import TopupSheet from "@/components/wallet/TopupSheet";
+import { formatCredits } from "@/hooks/use-wallet";
 import { Coins } from "lucide-react";
 
 const topics = [
@@ -83,18 +82,15 @@ const MentorBooking = () => {
   const [message, setMessage] = useState("");
   const [goals, setGoals] = useState("");
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
-  const [topupOpen, setTopupOpen] = useState(false);
-  const { data: wallet } = useWallet();
-  const { data: creditPackages = [] } = useCreditPackages();
-  const sessionPrice = useActionPrice("mentor_session");
-  const baseCredits = sessionPrice?.price_credits ?? 5000;
+  const baseCredits = 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
   // Mentor's hourly rate (in MMK if set), otherwise fall back to base price.
   const sessionCredits = (hourlyRate > 0 ? Math.round((hourlyRate * selectedDuration) / 60) : baseCredits);
   const sessionAmount = sessionCredits;
   const currency = "MMK";
-  const balance = wallet?.balance_credits ?? 0;
-  const insufficient = balance < sessionCredits;
+  // Wallet was removed — balance check is delegated to the backend RPC.
+  const balance = sessionCredits;
+  const insufficient = false;
 
   // Dates that have available slots
   const availableDates = useMemo(() => {
@@ -161,11 +157,7 @@ const MentorBooking = () => {
       }
     }
 
-    if (insufficient) {
-      toast({ title: lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Insufficient wallet balance", variant: "destructive" });
-      setTopupOpen(true);
-      return;
-    }
+    // (Wallet balance pre-check removed — the booking RPC enforces funding server-side.)
     let createdId: string | null = null;
     try {
       const result = await createBooking.mutateAsync({
@@ -208,7 +200,7 @@ const MentorBooking = () => {
         description: friendly,
         variant: "destructive",
       });
-      if (raw.includes("insufficient_balance")) setTopupOpen(true);
+      if (raw.includes("insufficient_balance")) navigate("/pricing");
     }
   };
 
@@ -682,27 +674,17 @@ const MentorBooking = () => {
               <Button variant="outline" size="lg" className="rounded-xl" onClick={() => setStep(2)}>
                 {lang === "my" ? "ပြန်ပြင်ရန်" : "Edit"}
               </Button>
-              {insufficient ? (
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => setTopupOpen(true)}>
-                  <Coins className="mr-1.5 h-4 w-4" />
-                  {lang === "my"
-                    ? `${formatCredits(sessionCredits - balance, lang)} ဖြည့်ရန်`
-                    : `Top up ${formatCredits(sessionCredits - balance, lang)} more`}
-                </Button>
-              ) : (
-                <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
-                  <Coins className="mr-1.5 h-4 w-4" />
-                  {createBooking.isPending
-                    ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
-                    : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
-                </Button>
-              )}
+              <Button variant="default" size="lg" className="flex-1 rounded-xl" disabled={createBooking.isPending} onClick={handleConfirm}>
+                <Coins className="mr-1.5 h-4 w-4" />
+                {createBooking.isPending
+                  ? (lang === "my" ? "ချိန်းဆိုနေသည်..." : "Booking...")
+                  : (lang === "my" ? `${formatCredits(sessionCredits, lang)} ပေး၍ အတည်ပြုမည်` : `Confirm & Pay ${formatCredits(sessionCredits, lang)}`)}
+              </Button>
             </>
           )}
         </div>
       </div>
 
-      <TopupSheet open={topupOpen} onOpenChange={setTopupOpen} packages={creditPackages} />
     </div>
   );
 };

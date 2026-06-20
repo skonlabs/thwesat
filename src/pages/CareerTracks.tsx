@@ -7,7 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Coins, GraduationCap, CheckCircle2, Sparkles } from "lucide-react";
-import { useWallet } from "@/hooks/use-wallet";
+
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -29,7 +29,7 @@ const CareerTracks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { data: wallet } = useWallet();
+  
   const [selected, setSelected] = useState<Track | null>(null);
 
   const { data: tracks = [], isLoading } = useQuery({
@@ -78,12 +78,12 @@ const CareerTracks = () => {
       const m = e?.message || "";
       if (m.includes("insufficient_balance")) {
         toast.error(lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Not enough wallet balance");
-        navigate("/wallet");
+        navigate("/pricing");
       } else toast.error(m || "Failed");
     },
   });
 
-  const balance = wallet?.balance_credits ?? 0;
+  // Wallet was removed — balance display & gate are subscription-driven now.
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -164,16 +164,8 @@ const CareerTracks = () => {
                     <Coins className="h-4 w-4" /> {selected.price_credits.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{lang === "my" ? "လက်ကျန်" : "Balance"}</span>
-                  <span className="tabular-nums">{balance.toLocaleString()}</span>
-                </div>
                 {enrolledIds.has(selected.id) ? (
                   <Button disabled className="w-full">{lang === "my" ? "ပါဝင်ပြီး" : "Already enrolled"}</Button>
-                ) : balance < selected.price_credits ? (
-                  <Button onClick={() => navigate("/wallet")} className="w-full">
-                    {lang === "my" ? "ငွေဖြည့်ရန်" : "Top up wallet"}
-                  </Button>
                 ) : (
                   <Button onClick={() => enroll.mutate(selected.id)} disabled={enroll.isPending} className="w-full">
                     {enroll.isPending ? "..." : (lang === "my" ? "ဝင်ရောက်ရန်" : "Enroll now")}

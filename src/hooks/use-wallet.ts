@@ -1,4 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+/**
+ * Legacy wallet hooks — stubbed out as part of the wallet/credits removal.
+ * Database tables (wallets, wallet_transactions, topup_requests, credit_packages,
+ * action_prices) are kept for historical data but no longer read or written from the UI.
+ * The exported shapes are preserved so existing call sites continue to compile.
+ * `feature_unlocks` remains live and is still backed by its real table.
+ */
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -63,158 +70,43 @@ export interface TopupRequest {
   created_at: string;
 }
 
+const noopAsync = async (_args?: any) => { throw new Error("Wallet functionality has been removed."); };
+
 export function useWallet() {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ["wallet", user?.id],
-    queryFn: async (): Promise<Wallet | null> => {
-      if (!user) return null;
-      const { data } = await (supabase as any)
-        .from("wallets")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      return (data as Wallet) ?? { user_id: user.id, balance_credits: 0, lifetime_topup_mmk: 0, lifetime_spent_credits: 0 };
-    },
-    enabled: !!user,
-    staleTime: 10_000,
-  });
+  // Returns a permanently empty wallet so any UI showing balance renders "0 Ks".
+  return { data: null as Wallet | null, isLoading: false, isError: false };
 }
 
 export function useCreditPackages() {
-  return useQuery({
-    queryKey: ["credit-packages"],
-    queryFn: async (): Promise<CreditPackage[]> => {
-      const { data } = await (supabase as any)
-        .from("credit_packages")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-      return (data as CreditPackage[]) ?? [];
-    },
-    staleTime: 5 * 60_000,
-  });
+  return { data: [] as CreditPackage[], isLoading: false };
 }
 
 export function useActionPrices() {
-  return useQuery({
-    queryKey: ["action-prices"],
-    queryFn: async (): Promise<Record<string, ActionPrice>> => {
-      const { data } = await (supabase as any)
-        .from("action_prices")
-        .select("*")
-        .eq("is_active", true);
-      const map: Record<string, ActionPrice> = {};
-      (data as ActionPrice[] | null)?.forEach((p) => (map[p.action_key] = p));
-      return map;
-    },
-    staleTime: 5 * 60_000,
-  });
+  return { data: {} as Record<string, ActionPrice>, isLoading: false };
 }
 
-export function useActionPrice(key: string) {
-  const { data } = useActionPrices();
-  return data?.[key];
+export function useActionPrice(_key: string): ActionPrice | undefined {
+  return undefined;
 }
 
-export function useWalletTransactions(limit = 50) {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ["wallet-transactions", user?.id, limit],
-    queryFn: async (): Promise<WalletTx[]> => {
-      if (!user) return [];
-      const { data } = await (supabase as any)
-        .from("wallet_transactions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(limit);
-      return (data as WalletTx[]) ?? [];
-    },
-    enabled: !!user,
-  });
+export function useWalletTransactions(_limit = 50) {
+  return { data: [] as WalletTx[], isLoading: false };
 }
 
 export function useMyTopupRequests() {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ["topup-requests", user?.id],
-    queryFn: async (): Promise<TopupRequest[]> => {
-      if (!user) return [];
-      const { data } = await (supabase as any)
-        .from("topup_requests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      return (data as TopupRequest[]) ?? [];
-    },
-    enabled: !!user,
-  });
+  return { data: [] as TopupRequest[], isLoading: false };
 }
 
-export async function uploadTopupProof(userId: string, file: File): Promise<string> {
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-  // Random suffix prevents same-millisecond double-click collisions (audit C3).
-  const rand = Math.random().toString(36).slice(2, 8);
-  const path = `${userId}/topup/${Date.now()}-${rand}.${ext || "jpg"}`;
-  const { error } = await supabase.storage.from("payment-proofs").upload(path, file, { upsert: false });
-  if (error) throw error;
-  return path;
+export async function uploadTopupProof(_userId: string, _file: File): Promise<string> {
+  throw new Error("Top-ups have been removed.");
 }
 
 export function useCreateTopupRequest() {
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (req: {
-      package_id: string | null;
-      mmk_amount: number;
-      credits_to_grant: number;
-      payment_method: string;
-      proof_url?: string | null;
-      sender_reference?: string | null;
-    }) => {
-      if (!user) throw new Error("Not authenticated");
-      const { data, error } = await (supabase as any)
-        .from("topup_requests")
-        .insert({ ...req, user_id: user.id, status: "pending" })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["topup-requests"] });
-    },
-  });
+  return { mutate: noopAsync, mutateAsync: noopAsync, isPending: false };
 }
 
 export function useSpendCredits() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (args: {
-      action_key: string;
-      target_type?: string;
-      target_id?: string;
-      idempotency_key?: string;
-      metadata?: Record<string, any>;
-    }) => {
-      const { data, error } = await (supabase as any).rpc("wallet_spend", {
-        _action_key: args.action_key,
-        _target_type: args.target_type ?? null,
-        _target_id: args.target_id ?? null,
-        _idempotency_key: args.idempotency_key ?? null,
-        _metadata: args.metadata ?? {},
-      });
-      if (error) throw new Error(error.message);
-      return data as { ok: boolean; tx?: string; unlock?: string; price?: number; new_balance?: number; already_unlocked?: boolean };
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["wallet"] });
-      qc.invalidateQueries({ queryKey: ["wallet-transactions"] });
-      qc.invalidateQueries({ queryKey: ["feature-unlocks"] });
-    },
-  });
+  return { mutate: noopAsync, mutateAsync: noopAsync, isPending: false };
 }
 
 export function useFeatureUnlocks(featureKey?: string) {
