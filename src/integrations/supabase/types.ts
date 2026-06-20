@@ -3109,6 +3109,19 @@ export type Database = {
           status: string
         }[]
       }
+      create_subscription_payment_request: {
+        Args: {
+          _addon_id: string
+          _mmk_amount: number
+          _payment_method: string
+          _plan_id: string
+          _proof_url: string
+          _quantity: number
+          _request_type: string
+          _sender_reference: string
+        }
+        Returns: string
+      }
       current_partner_id: { Args: never; Returns: string }
       delete_user_cascade: {
         Args: { _target_user_id: string }
@@ -3172,6 +3185,20 @@ export type Database = {
         Args: { _booking_id: string; _credits: number }
         Returns: Json
       }
+      mentor_create_booking_and_hold: {
+        Args: {
+          _booked_by?: string
+          _credits: number
+          _duration_minutes: number
+          _goals: string
+          _mentor_id: string
+          _message: string
+          _scheduled_date: string
+          _scheduled_time: string
+          _topic: string
+        }
+        Returns: Json
+      }
       mentor_payout_mark_paid: {
         Args: { _earning_id: string; _note?: string }
         Returns: Json
@@ -3223,6 +3250,14 @@ export type Database = {
           end_at: string
           start_at: string
         }[]
+      }
+      placement_confirm_with_invoice: {
+        Args: {
+          _application_id: string
+          _placement_fee: number
+          _placement_salary: number
+        }
+        Returns: Json
       }
       post_job_with_credits: {
         Args: { _featured?: boolean; _payload: Json }
