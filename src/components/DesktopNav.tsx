@@ -59,7 +59,7 @@ const DesktopNav = () => {
   ];
   const admin: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
-    { labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
+    { labelMy: "အလုပ်", labelEn: "Job Postings", path: "/admin/jobs" },
     { labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
     { labelMy: "ခွဲခြမ်း", labelEn: "Analytics", path: "/admin/analytics" },
