@@ -115,7 +115,7 @@ const AdminFinance = ({
         .select("*")
         .eq("kind", "topup")
         .eq("status", "completed")
-        .eq("ref_type", "topup_request")
+        .or("ref_type.eq.topup_request,ref_type.is.null")
         .order("created_at", { ascending: false })
         .limit(1000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
