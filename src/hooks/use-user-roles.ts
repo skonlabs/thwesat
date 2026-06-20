@@ -24,6 +24,8 @@ export function useUserRoles() {
       return (count ?? 0) > 0;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const { data: systemRoles, isLoading: rolesLoading } = useQuery({
@@ -38,6 +40,8 @@ export function useUserRoles() {
       return data.map((r) => r.role);
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const isAdmin = systemRoles?.includes("admin") ?? false;
