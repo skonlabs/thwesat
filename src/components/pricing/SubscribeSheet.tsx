@@ -107,7 +107,14 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
       }
       setStep("done");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to submit");
+      const msg = String(e?.message || "");
+      if (msg.includes("uniq_pending_subscription_request_per_user") || msg.toLowerCase().includes("duplicate")) {
+        toast.error(my
+          ? "သင်၌ စောင့်ဆိုင်းနေသော ပေးချေမှု ရှိပြီးသား ဖြစ်သည်။ Admin အတည်ပြုပြီးမှ ထပ်တင်နိုင်ပါမည်။"
+          : "You already have a pending plan request. Wait for admin review before submitting another.");
+      } else {
+        toast.error(msg || "Failed to submit");
+      }
     } finally {
       setUploading(false);
     }
