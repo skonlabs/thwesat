@@ -83,7 +83,7 @@ export function useUserFinance(userId: string | null | undefined) {
           created_at: p.created_at,
           raw: p,
         });
-      });      });
+      });
 
       (sr.data || []).forEach((s: any) => {
         const isAddon = s.request_type === "addon";
