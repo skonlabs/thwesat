@@ -252,7 +252,7 @@ const AdminFinance = ({
       <div className={hideHeader ? "" : "px-5"}>
         {isPartnerScope && (() => {
           const noUsers = scopedIds!.length === 0;
-          const noActivity = !noUsers && moneyInTotal === 0 && moneyOutTotal === 0 && spendTotalCredits === 0;
+          const noActivity = !noUsers && moneyInTotal === 0 && moneyOutTotal === 0;
           if (!noUsers && !noActivity) return null;
           return (
             <div className="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-sm text-muted-foreground">
