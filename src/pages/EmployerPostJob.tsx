@@ -208,6 +208,7 @@ const EmployerPostJob = () => {
       if (rpcErr) throw rpcErr;
       qc.invalidateQueries({ queryKey: ["my-quotas"] });
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      setConfirmOpen(false);
       setSuccessOpen(true);
     } catch (e: any) {
       const msg = e?.message || "";
