@@ -9,8 +9,9 @@ import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import { Button } from "@/components/ui/button";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
+import { PLATFORM_MENTOR_CUT } from "@/lib/partner-finance";
 
-const PLATFORM_CUT_PERCENT = 0.15;
+const PLATFORM_CUT_PERCENT = PLATFORM_MENTOR_CUT;
 
 type RowKey =
   | "in.subscription"
