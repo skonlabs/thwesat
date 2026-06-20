@@ -42,7 +42,7 @@ export function useUserFinance(userId: string | null | undefined) {
     enabled: !!userId,
     queryFn: async (): Promise<UserFinanceRow[]> => {
       if (!userId) return [];
-      const [pr, sr, plans, addons] = await Promise.all([
+      const [pr, sr, tr, plans, addons] = await Promise.all([
         supabase
           .from("payment_requests")
           .select("*")
@@ -50,6 +50,11 @@ export function useUserFinance(userId: string | null | undefined) {
           .order("created_at", { ascending: false }),
         (supabase as any)
           .from("subscription_payment_requests")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false }),
+        (supabase as any)
+          .from("topup_requests")
           .select("*")
           .eq("user_id", userId)
           .order("created_at", { ascending: false }),
@@ -66,6 +71,24 @@ export function useUserFinance(userId: string | null | undefined) {
 
 
       const rows: UserFinanceRow[] = [];
+
+      (tr.data || []).forEach((t: any) => {
+        rows.push({
+          id: t.id,
+          source: "payment_request",
+          payment_type: "wallet_topup",
+          display_label: { en: "Wallet Top-up", my: "ပိုက်ဆံအိတ် ဖြည့်" },
+          amount: Number(t.mmk_amount || 0),
+          currency: "MMK",
+          status: t.status,
+          payment_method: t.payment_method,
+          proof_url: t.proof_url,
+          reference: t.sender_reference || null,
+          admin_note: t.admin_note || null,
+          created_at: t.created_at,
+          raw: t,
+        });
+      });
 
       (pr.data || []).forEach((p: any) => {
         rows.push({

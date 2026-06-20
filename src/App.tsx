@@ -49,6 +49,7 @@ import AdminFinanceHub from "./pages/AdminFinanceHub";
 import PartnerFinanceHub from "./pages/PartnerFinanceHub";
 import AdminPartners from "./pages/AdminPartners";
 import AdminWallet from "./pages/AdminWallet";
+import Wallet from "./pages/Wallet";
 import Pricing from "./pages/Pricing";
 import CareerTracks from "./pages/CareerTracks";
 import Settings from "./pages/Settings";
@@ -150,6 +151,7 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/finance" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SeekerFinance /></AppRoleGuard>} />
+              <Route path="/wallet" element={<AppRoleGuard allowedRoles={["jobseeker","mentor"]}><Wallet /></AppRoleGuard>} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["jobseeker"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
