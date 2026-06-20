@@ -200,8 +200,8 @@ const EmployerFinance = () => {
           rows={pagedFiltered.map((p) => ({
             id: p.id,
             title: lang === "my"
-              ? paymentTypeLabels[p.payment_type]?.my || p.payment_type
-              : paymentTypeLabels[p.payment_type]?.en || p.payment_type,
+              ? ((p as any).display_label?.my || paymentTypeLabels[p.payment_type]?.my || p.payment_type)
+              : ((p as any).display_label?.en || paymentTypeLabels[p.payment_type]?.en || p.payment_type),
             subtitle: `${p.payment_method?.toUpperCase?.() || ""} · ${shortRef(p.id)}`,
             amount: Number(p.amount),
             currency: p.currency,
