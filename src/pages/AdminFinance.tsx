@@ -50,7 +50,7 @@ const AdminFinance = ({
       let q = (supabase as any).from("subscription_payment_requests")
         .select("id,user_id,request_type,plan_id,addon_id,quantity,mmk_amount,payment_method,status,created_at,reviewed_at")
         .order("created_at", { ascending: false })
-        .limit(1000);
+        .limit(50000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
       const { data } = await q;
       return (data || []) as any[];
@@ -75,7 +75,7 @@ const AdminFinance = ({
     queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
       if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(1000);
+      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(50000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
       const { data } = await q;
       return data || [];
@@ -86,7 +86,7 @@ const AdminFinance = ({
     queryKey: ["admin-finance-earnings"],
     enabled: !isPartnerScope,
     queryFn: async () => {
-      const { data } = await supabase.from("mentor_earnings").select("*").order("created_at", { ascending: false }).limit(1000);
+      const { data } = await supabase.from("mentor_earnings").select("*").order("created_at", { ascending: false }).limit(50000);
       return data || [];
     },
   });
@@ -94,7 +94,7 @@ const AdminFinance = ({
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
     queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
-      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(500);
+      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(5000);
       if (partnerId) q = q.eq("partner_id", partnerId);
       const { data } = await q;
       return data || [];
