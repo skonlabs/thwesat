@@ -524,7 +524,7 @@ const EmployerPostJob = () => {
               </div>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
               <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setPreviewOpen(true)}>{lang === "my" ? "ကြိုကြည့်ရန်" : "Preview"}</Button>
-              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={handleSubmit} disabled={submitting || insufficient}>
+              <Button variant="default" size="lg" className="w-full rounded-xl" onClick={openConfirm} disabled={submitting}>
                 <Coins className="mr-1.5 h-4 w-4" />
                 {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
               </Button>
