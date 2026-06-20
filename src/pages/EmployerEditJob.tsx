@@ -215,7 +215,7 @@ const CHAR_LIMIT_REQ = 2000;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath="/employer/dashboard" />
+        <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath={isAgent ? "/agent/dashboard" : "/employer/dashboard"} />
         <div className="flex justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
       </div>
     );
@@ -225,7 +225,7 @@ const CHAR_LIMIT_REQ = 2000;
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath="/employer/dashboard" />
+      <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath={isAgent ? "/agent/dashboard" : "/employer/dashboard"} />
       {(job as any)?.updated_at && (
         <div className="px-5 pb-0 pt-3">
           <p className="text-[11px] text-muted-foreground">

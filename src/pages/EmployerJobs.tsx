@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy } from "lucide-react";
+import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy, Eye, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
@@ -304,9 +304,36 @@ const EmployerJobs = () => {
                   </div>
 
                   {/* Action cluster */}
-                  <div className="flex shrink-0 items-center gap-0.5">
-                    <Button size="sm" variant="default" className="h-8 rounded-lg px-3 text-xs" onClick={() => navigate(`${applicationsPath}?jobId=${listing.id}`)}>
-                      {lang === "my" ? "ကြည့်ရန်" : "Review"}
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded-lg px-2.5 text-xs"
+                      onClick={() => navigate(`/jobs/${listing.id}`)}
+                      title={lang === "my" ? "ကြည့်ရန်" : "View"}
+                    >
+                      <Eye className="h-3.5 w-3.5 md:mr-1" strokeWidth={1.75} />
+                      <span className="hidden md:inline">{lang === "my" ? "ကြည့်" : "View"}</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded-lg px-2.5 text-xs"
+                      onClick={() => navigate(editJobPath(listing.id))}
+                      title={lang === "my" ? "ပြင်ရန်" : "Edit"}
+                    >
+                      <Pencil className="h-3.5 w-3.5 md:mr-1" strokeWidth={1.75} />
+                      <span className="hidden md:inline">{lang === "my" ? "ပြင်" : "Edit"}</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="h-8 rounded-lg px-2.5 text-xs"
+                      onClick={() => navigate(`${applicationsPath}?jobId=${listing.id}`)}
+                      title={lang === "my" ? "လျှောက်ထားသူများ" : "Applicants"}
+                    >
+                      <Users className="h-3.5 w-3.5 md:mr-1" strokeWidth={1.75} />
+                      <span className="hidden md:inline">{lang === "my" ? "လျှောက်သူ" : "Applicants"}</span>
                     </Button>
                     <div className="relative">
                       <button
@@ -321,9 +348,6 @@ const EmployerJobs = () => {
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setStatusMenuId(null)} />
                           <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
-                            <button onClick={() => { setStatusMenuId(null); navigate(editJobPath(listing.id)); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
-                              <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ပြင်ရန်" : "Edit listing"}
-                            </button>
                             <button onClick={() => { setStatusMenuId(null); handleShare(listing); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
                               <Share2 className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မျှဝေရန်" : "Share link"}
                             </button>
