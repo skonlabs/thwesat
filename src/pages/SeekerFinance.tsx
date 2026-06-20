@@ -1,13 +1,12 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import FinanceLedger from "@/components/finance/FinanceLedger";
 import FinanceFilters, { applyFinanceFilters, type StatusFilter } from "@/components/finance/FinanceFilters";
 import { paymentTypeLabels, shortRef } from "@/lib/finance";
+import { useUserFinance } from "@/hooks/use-user-finance";
 
 const SeekerFinance = () => {
   const { lang } = useLanguage();
@@ -16,21 +15,8 @@ const SeekerFinance = () => {
   const [status, setStatus] = useState<StatusFilter>("all");
   const [currency, setCurrency] = useState<string>("all");
 
-  const { data: payments, isLoading } = useQuery({
-    queryKey: ["seeker-finance", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await supabase
-        .from("payment_requests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  const all = payments || [];
+  const { data: rows, isLoading } = useUserFinance(user?.id);
+  const all = rows || [];
   const approved = all.filter((p) => p.status === "approved");
   const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
   const pending = all.filter((p) => p.status === "pending" && !p.proof_url);
@@ -46,17 +32,17 @@ const SeekerFinance = () => {
           totals={[
             {
               label: { my: "ပေးချေပြီး", en: "Paid Out" },
-              rows: approved.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              rows: approved.map((p) => ({ amount: p.amount, currency: p.currency })),
               tone: "border-emerald/30",
             },
             {
               label: { my: "အတည်ပြုရန် စောင့်ဆိုင်း", en: "Pending Approval" },
-              rows: pendingApproval.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              rows: pendingApproval.map((p) => ({ amount: p.amount, currency: p.currency })),
               tone: "border-warning/30",
             },
             {
-              label: { my: "ပေးချေရန်" , en: "Pending" },
-              rows: pending.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
+              label: { my: "ပေးချေရန်", en: "Pending" },
+              rows: pending.map((p) => ({ amount: p.amount, currency: p.currency })),
               tone: "border-warning/30",
             },
           ]}
@@ -79,7 +65,7 @@ const SeekerFinance = () => {
               ? paymentTypeLabels[p.payment_type]?.my || p.payment_type
               : paymentTypeLabels[p.payment_type]?.en || p.payment_type,
             subtitle: `${p.payment_method?.toUpperCase?.() || ""} · ${shortRef(p.id)}`,
-            amount: Number(p.amount),
+            amount: p.amount,
             currency: p.currency,
             status: p.status,
             date: p.created_at,

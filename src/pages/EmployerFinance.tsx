@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+// useQuery no longer needed — finance data goes through useUserFinance.
 import { useNavigate } from "react-router-dom";
 import { Upload, FileCheck2, FileClock, FileWarning, Info } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { paymentTypeLabels, shortRef, formatMoney } from "@/lib/finance";
 import { uploadPaymentProof } from "@/hooks/use-payment";
+import { useUserFinance } from "@/hooks/use-user-finance";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 /** Visual proof status for a placement-fee row. */
@@ -73,25 +75,16 @@ const EmployerFinance = () => {
     return () => { cancelled = true; };
   }, [detailFor]);
 
-  const { data: payments, isLoading, refetch } = useQuery({
-    queryKey: ["employer-finance", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await supabase
-        .from("payment_requests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!user,
-  });
+  const qc = useQueryClient();
+  const { data: payments, isLoading } = useUserFinance(user?.id);
+  const refetch = () => qc.invalidateQueries({ queryKey: ["user-finance", user?.id] });
 
   const all = payments || [];
   const placementInvoices = all.filter((p) => p.payment_type === "placement_fee");
   const due = all.filter((p) => p.status === "pending" && !p.proof_url);
   const paid = all.filter((p) => p.status === "approved");
   const pendingApproval = all.filter((p) => p.status === "pending" && !!p.proof_url);
+  const subsPaid = all.filter((p) => (p.payment_type === "subscription" || p.payment_type === "addon") && p.status === "approved");
 
   const kpiScoped = useMemo(() => {
     if (kpiFilter === "paid") return paid;
@@ -107,6 +100,7 @@ const EmployerFinance = () => {
   const pageStart = page * PAGE_SIZE;
   const pageEnd = Math.min(pageStart + PAGE_SIZE, totalFiltered);
   const pagedFiltered = filtered.slice(pageStart, pageEnd);
+
 
   const handleUpload = async () => {
     if (!proofFor || !file || !user) return;
@@ -150,6 +144,11 @@ const EmployerFinance = () => {
               tone: "border-emerald/30",
               onClick: () => setKpiFilter(kpiFilter === "paid" ? "all" : "paid"),
               active: kpiFilter === "paid",
+            },
+            {
+              label: { my: "Subscription / Add-on", en: "Subscriptions & Add-ons" },
+              rows: subsPaid.map((p) => ({ amount: p.amount, currency: p.currency })),
+              tone: "border-primary/30",
             },
             {
               label: { my: "ပေးချေရန်", en: "Outstanding" },
