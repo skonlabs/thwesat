@@ -44,7 +44,7 @@ const DesktopNav = () => {
   ];
   const agent: NavItem[] = [
     { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { labelMy: "ခေါ်ယူမှု", labelEn: "Postings", path: "/agent/jobs" },
+    { labelMy: "ခေါ်ယူမှု", labelEn: "Job Postings", path: "/agent/jobs" },
     { labelMy: "ရှာဖွေ", labelEn: "Search Talent", path: "/agent/search" },
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/agent/finance" },
     { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
