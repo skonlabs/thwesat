@@ -432,6 +432,8 @@ function DrillSheet({ open, onClose, title, children }: { open: boolean; onClose
 }
 
 function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) {
+  const userIds = useMemo(() => payments.map((p) => p.user_id), [payments]);
+  const { data: dir } = useUserDirectoryLite(userIds);
   if (payments.length === 0) return <p className="text-sm text-muted-foreground">{tt(lang, "No payments.", "ပေးချေမှု မရှိပါ။")}</p>;
   const total = payments.reduce((s, p) => s + (p.npr_amount != null ? Number(p.npr_amount) : p.payment_type === "mentor_session" ? Number(p.amount) * 0.15 : Math.max(0, Number(p.amount) - Number(p.third_party_payout || 0))), 0);
   return (
