@@ -2,20 +2,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
-export type PlanRole = "employer" | "recruiting_agent";
-export type PlanTier = "starter" | "growth" | "business" | "enterprise";
-export type BillingCycle = "monthly" | "yearly";
+export type PlanRole = "employer" | "recruiting_agent" | "both";
+export type PlanTier = "free_trial" | "starter" | "growth" | "business" | "enterprise";
 export type AddonKind = "unlock_pack" | "featured_job" | "matching" | "branding";
 
 export interface SubscriptionPlan {
   id: string;
   role: PlanRole;
   tier: PlanTier;
-  monthly_mmk: number;
-  launch_mmk: number;
+  price_mmk: number;
   active_jobs_quota: number;
   is_unlimited_jobs: boolean;
   unlock_quota: number;
+  is_unlimited_unlocks: boolean;
   sort_order: number;
   is_active: boolean;
 }
@@ -31,22 +30,17 @@ export interface AddonProduct {
   unlock_amount: number;
   duration_days: number | null;
   is_recurring: boolean;
+  is_per_unit: boolean;
   sort_order: number;
   is_active: boolean;
 }
 
-export interface Subscription {
+export interface PackageGrant {
   id: string;
   user_id: string;
   plan_id: string;
-  cycle: BillingCycle;
-  status: "active" | "expired" | "cancelled";
+  status: "active";
   started_at: string;
-  current_period_end: string;
-  launch_price_applied: boolean;
-  launch_ends_at: string | null;
-  auto_renew: boolean;
-  cancelled_at: string | null;
   mmk_paid: number;
 }
 
@@ -57,6 +51,7 @@ export interface SubscriptionQuotas {
   active_jobs_used: number;
   unlocks_total: number;
   unlocks_used: number;
+  is_unlimited_unlocks: boolean;
   featured_jobs_total: number;
   featured_jobs_used: number;
 }
@@ -73,22 +68,14 @@ export interface AddonPurchase {
   status: "active" | "expired" | "consumed";
 }
 
-export interface LaunchPromo {
-  id: number;
-  starts_at: string;
-  ends_at: string;
-  is_active: boolean;
-}
-
 export interface SubscriptionPaymentRequest {
   id: string;
   user_id: string;
   request_type: "subscription" | "addon";
   plan_id: string | null;
-  cycle: BillingCycle | null;
   addon_id: string | null;
+  quantity: number;
   mmk_amount: number;
-  launch_price_applied: boolean;
   payment_method: string | null;
   proof_url: string | null;
   sender_reference: string | null;
@@ -101,13 +88,11 @@ export interface SubscriptionPaymentRequest {
 
 const S = supabase as any;
 
-export function useSubscriptionPlans(role?: PlanRole) {
+export function useSubscriptionPlans() {
   return useQuery({
-    queryKey: ["subscription-plans", role],
+    queryKey: ["subscription-plans"],
     queryFn: async (): Promise<SubscriptionPlan[]> => {
-      let q = S.from("subscription_plans").select("*").eq("is_active", true).order("sort_order");
-      if (role) q = q.eq("role", role);
-      const { data } = await q;
+      const { data } = await S.from("subscription_plans").select("*").eq("is_active", true).order("sort_order");
       return (data as SubscriptionPlan[]) ?? [];
     },
     staleTime: 5 * 60_000,
@@ -127,98 +112,37 @@ export function useAddonProducts(roleScope?: "employer" | "recruiting_agent") {
   });
 }
 
-export function useLaunchPromo() {
-  return useQuery({
-    queryKey: ["launch-promo"],
-    queryFn: async (): Promise<LaunchPromo | null> => {
-      const { data } = await S.from("launch_promo_config").select("*").eq("id", 1).maybeSingle();
-      return data as LaunchPromo | null;
-    },
-    staleTime: 60_000,
-  });
-}
-
-export function isLaunchActive(promo?: LaunchPromo | null): boolean {
-  if (!promo || !promo.is_active) return false;
-  const now = Date.now();
-  return now >= new Date(promo.starts_at).getTime() && now <= new Date(promo.ends_at).getTime();
-}
-
-/** Compute the price the user actually pays right now for a given plan + cycle.
- *  Promo behavior: when a launch promo is active, the first 3 months are free for ALL plans.
- *  The user pays the standard plan price upfront; the paid period starts after the promo ends.
- *  Yearly is always billed as 11 × monthly (one month free).
- */
-export function computePrice(plan: SubscriptionPlan, cycle: BillingCycle, launchActive: boolean): {
-  mmk: number;
-  originalYearlyMmk: number; // monthly × 12 (for strike-through on yearly)
-  launchApplied: boolean;
-  monthsCovered: number;
-} {
-  const originalYearlyMmk = plan.monthly_mmk * 12;
-  if (cycle === "monthly") {
-    return { mmk: plan.monthly_mmk, originalYearlyMmk, launchApplied: launchActive, monthsCovered: 1 };
-  }
-  return { mmk: plan.monthly_mmk * 11, originalYearlyMmk, launchApplied: launchActive, monthsCovered: 12 };
-}
-
-export function useMySubscription() {
+export function useMyPackageGrants() {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["my-subscription", user?.id],
-    queryFn: async (): Promise<Subscription | null> => {
-      if (!user) return null;
-      // Auto-expire stale rows first (best-effort, ignored on failure)
+    queryKey: ["my-package-grants", user?.id],
+    queryFn: async (): Promise<PackageGrant[]> => {
+      if (!user) return [];
       try { await S.rpc("tick_expire_subscriptions"); } catch {}
       const { data } = await S.from("subscriptions")
         .select("*")
         .eq("user_id", user.id)
         .eq("status", "active")
-        .order("started_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return (data as Subscription) ?? null;
+        .order("started_at", { ascending: false });
+      return (data as PackageGrant[]) ?? [];
     },
     enabled: !!user,
     staleTime: 10_000,
   });
 }
 
-export function useMyScheduledSubscription() {
+export function useMyPendingSubscriptionRequests() {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["my-scheduled-subscription", user?.id],
-    queryFn: async (): Promise<Subscription | null> => {
-      if (!user) return null;
-      const { data } = await S.from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("status", "scheduled")
-        .order("started_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      return (data as Subscription) ?? null;
-    },
-    enabled: !!user,
-    staleTime: 10_000,
-  });
-}
-
-export function useMyPendingSubscriptionRequest() {
-  const { user } = useAuth();
-  return useQuery({
-    queryKey: ["my-pending-sub-request", user?.id],
-    queryFn: async (): Promise<SubscriptionPaymentRequest | null> => {
-      if (!user) return null;
+    queryKey: ["my-pending-sub-requests", user?.id],
+    queryFn: async (): Promise<SubscriptionPaymentRequest[]> => {
+      if (!user) return [];
       const { data } = await S.from("subscription_payment_requests")
         .select("*")
         .eq("user_id", user.id)
-        .eq("request_type", "subscription")
         .eq("status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return (data as SubscriptionPaymentRequest) ?? null;
+        .order("created_at", { ascending: false });
+      return (data as SubscriptionPaymentRequest[]) ?? [];
     },
     enabled: !!user,
     staleTime: 10_000,
@@ -295,6 +219,7 @@ export function useCreateSubscriptionPaymentRequest() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-sub-payment-requests"] });
+      qc.invalidateQueries({ queryKey: ["my-pending-sub-requests"] });
     },
   });
 }
@@ -305,11 +230,12 @@ export function formatMMK(amount: number | null | undefined): string {
 }
 
 export function planLabel(tier: PlanTier): string {
+  if (tier === "free_trial") return "Free Trial";
   return tier.charAt(0).toUpperCase() + tier.slice(1);
 }
 
-/** Map app role -> plan role */
-export function planRoleFor(effectiveRole?: string): PlanRole | null {
+/** Map app role -> addon role_scope filter */
+export function planRoleFor(effectiveRole?: string): "employer" | "recruiting_agent" | null {
   if (effectiveRole === "employer") return "employer";
   if (effectiveRole === "agent") return "recruiting_agent";
   return null;
