@@ -664,7 +664,7 @@ const JobDetail = () => {
           </section>
 
           <MentorCoachCue
-            variant={myApplication ? "interview" : "applied"}
+            variant={myApplication ? "interview" : "letter"}
             context={displayTitle}
           />
         </motion.div>
