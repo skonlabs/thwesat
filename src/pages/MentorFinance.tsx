@@ -71,10 +71,9 @@ const MentorFinance = () => {
   const paidOut = all.filter((e) => e.status === "paid" || !!e.paid_out_at);
   const currencies = useMemo(() => all.map((e) => e.currency || "MMK"), [all]);
 
-  // mentor_profiles has no payment_methods column in the current schema.
-  // Treat any mentor as having a payment method configured for now; replace
-  // with a real check once the column exists.
-  const hasPaymentMethod = true;
+  // Payout method capture is not yet implemented in mentor_profiles.
+  // The reminder banner has been removed until a real payout_method column
+  // exists; admins coordinate payouts directly until then.
 
   const totalPaid = useMemo(() => paidOut.reduce((sum, e) => sum + Number(e.amount || 0), 0), [paidOut]);
   const totalPendingApproval = useMemo(
