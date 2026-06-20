@@ -58,7 +58,7 @@ const BottomNav = () => {
 
   const adminNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
-    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/admin/jobs" },
+    { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Job Postings", path: "/admin/jobs" },
     { icon: WalletCards, labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
     { icon: Users, labelMy: "သုံးသူ", labelEn: "Users", path: "/admin/users" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
