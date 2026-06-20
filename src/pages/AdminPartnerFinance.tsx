@@ -450,7 +450,7 @@ function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) 
             <div key={p.id} className="flex items-center justify-between gap-2 p-3 text-xs">
               <div className="min-w-0">
                 <p className="font-medium">{p.payment_type}</p>
-                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {tt(lang, "user", "သုံးစွဲသူ")} {String(p.user_id).slice(0, 8)}…</p>
+                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {dir?.get(p.user_id)?.name || (lang === "my" ? "သုံးစွဲသူ" : "User")}{dir?.get(p.user_id)?.email ? ` · ${dir!.get(p.user_id)!.email}` : ""}</p>
                 <p className="font-mono text-[10px] text-muted-foreground">{tt(lang, "gross", "gross")} {fmt(p.amount)}{p.third_party_payout ? ` − 3rd ${fmt(p.third_party_payout)}` : ""}</p>
               </div>
               <p className="whitespace-nowrap font-bold">{fmt(roundMmk(eff))}</p>
