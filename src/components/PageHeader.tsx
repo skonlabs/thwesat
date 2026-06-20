@@ -159,10 +159,10 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
           <button
             onClick={() => {
               if (onBack) return onBack();
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else if (backPath) {
+              if (backPath) {
                 navigate(backPath);
+              } else if (window.history.length > 1) {
+                navigate(-1);
               } else {
                 navigate("/dashboard");
               }
