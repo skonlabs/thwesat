@@ -52,7 +52,7 @@ const AdminDashboard = () => {
 
   const pendingItems = [
     { icon: WalletCards, label: { my: "Package တောင်းခံမှု", en: "Pending Subscriptions" }, count: counts?.pendingSubs || 0, path: "/admin/wallet", urgent: (counts?.pendingSubs || 0) > 0 },
-    { icon: WalletCards, label: { my: "ငွေဖြည့် တောင်းဆိုမှု", en: "Pending Top-ups (legacy)" }, count: counts?.pendingTopups || 0, path: "/admin/wallet?tab=topups&status=pending", urgent: (counts?.pendingTopups || 0) > 0 },
+    
     { icon: CreditCard, label: { my: "စစ်ဆေးရန် ငွေပေးချေမှု", en: "Pending Payments" }, count: counts?.pendingPayments || 0, path: "/admin/payments?status=pending", urgent: (counts?.pendingPayments || 0) > 0 },
     { icon: Briefcase, label: { my: "စစ်ဆေးရန် အလုပ်ခေါ်စာ", en: "Pending Job Listings" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
