@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+// useQuery no longer needed — finance data goes through useUserFinance.
 import { useNavigate } from "react-router-dom";
 import { Upload, FileCheck2, FileClock, FileWarning, Info } from "lucide-react";
 import { toast } from "sonner";
