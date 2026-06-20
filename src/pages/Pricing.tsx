@@ -49,7 +49,13 @@ const Pricing = () => {
   const { data: addons = [] } = useAddonProducts(role);
   const { data: promo } = useLaunchPromo();
   const { data: currentSub } = useMySubscription();
+  const { data: scheduledSub } = useMyScheduledSubscription();
+  const { data: pendingReq } = useMyPendingSubscriptionRequest();
   const launchActive = isLaunchActive(promo);
+  const hasPending = !!pendingReq;
+  const planById = useMemo(() => Object.fromEntries(plans.map((p) => [p.id, p])), [plans]);
+  const currentPlan = currentSub ? planById[currentSub.plan_id] : null;
+  const scheduledPlan = scheduledSub ? planById[scheduledSub.plan_id] : null;
 
   const sortedPlans = useMemo(() => [...plans].sort((a, b) => a.sort_order - b.sort_order), [plans]);
 
