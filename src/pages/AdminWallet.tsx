@@ -268,26 +268,6 @@ const AdminWallet = () => {
         </AnimatePresence>
       </div>
     </div>
-        <AnimatePresence>
-          {rejectTarget && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => { setRejectTarget(null); setRejectNote(""); }}>
-              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={(e) => e.stopPropagation()}>
-                <h3 className="mb-3 text-sm font-bold text-foreground">{my ? "ငြင်းပယ်ရန် အကြောင်းပြ" : "Rejection Reason"}</h3>
-                <Textarea value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} placeholder={my ? "အကြောင်းပြချက် ရေးပါ..." : "Enter reason..."} className="mb-4 rounded-xl text-xs" rows={3} />
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => { setRejectTarget(null); setRejectNote(""); }} className="flex-1 rounded-xl text-xs" size="sm">
-                    {my ? "မလုပ်တော့" : "Cancel"}
-                  </Button>
-                  <Button variant="destructive" onClick={handleConfirmReject} className="flex-1 rounded-xl text-xs" size="sm" disabled={reviewSub.isPending}>
-                    {my ? "ငြင်းပယ်" : "Reject"}
-                  </Button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
   );
 };
 
