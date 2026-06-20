@@ -122,13 +122,7 @@ const AdminWallet = () => {
     },
   });
 
-  const { data: packages = [] } = useQuery({
-    queryKey: ["admin-packages"],
-    queryFn: async () => {
-      const { data } = await (supabase as any).from("credit_packages").select("*").order("sort_order");
-      return data ?? [];
-    },
-  });
+  // (Legacy credit_packages query removed — data was fetched but never rendered.)
 
   const review = useMutation({
     mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
