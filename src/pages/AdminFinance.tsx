@@ -112,7 +112,6 @@ const AdminFinance = ({
   // ===== Aggregates =====
   const allPayments = payments || [];
   const allEarnings = earnings || [];
-  const allTopups = topups || [];
   const allPartner = partnerStmts || [];
 
   const approved = allPayments.filter((p) => p.status === "approved");
@@ -130,7 +129,6 @@ const AdminFinance = ({
   const pendingSubs = allSubs.filter((p: any) => p.status === "pending");
 
   const sum = (n: number[]) => n.reduce((a, b) => a + (Number(b) || 0), 0);
-  const topupsTotal = sum(allTopups.map((t) => Number(t.mmk_amount || 0)));
   const placementTotal = sum(approvedPlacement.map((p) => Number(p.amount)));
   const sessionTotal = sum(approvedSession.map((p) => Number(p.amount)));
   const subscriptionTotal = sum(approvedSubs.map((p: any) => Number(p.mmk_amount || 0)));
@@ -141,7 +139,7 @@ const AdminFinance = ({
   const partnerPaidTotal = sum(partnerPaid.map((s) => Number(s.total_payout || 0)));
   const partnerOwedTotal = sum(partnerOwed.map((s) => Number(s.total_payout || 0)));
 
-  const moneyInTotal = topupsTotal + placementTotal + sessionTotal + subscriptionTotal + addonTotal;
+  const moneyInTotal = placementTotal + sessionTotal + subscriptionTotal + addonTotal;
   const moneyOutTotal = mentorPaidTotal + partnerPaidTotal;
   // Subscriptions + add-ons are 100% NPR (no third-party payout).
   const netPlatform = placementTotal + sessionTotal * PLATFORM_CUT_PERCENT + subscriptionTotal + addonTotal;
@@ -152,7 +150,6 @@ const AdminFinance = ({
   const inRows: Row[] = [
     { key: "in.subscription", label: { en: "Subscriptions", my: "Subscription" }, sub: { en: "Employer & Agent monthly/yearly plans", my: "Employer & Agent လစဉ်/နှစ်စဉ်" }, amount: subscriptionTotal },
     { key: "in.addon", label: { en: "Add-ons", my: "Add-on" }, sub: { en: "Unlocks, featured jobs, matching pack", my: "Unlock / Featured / Matching" }, amount: addonTotal },
-    { key: "in.topups", label: { en: "Credit Top-ups (legacy)", my: "Credit ဖြည့် (ဟောင်း)" }, sub: { en: "Pre-subscription model", my: "Subscription မတိုင်မီ" }, amount: topupsTotal },
     { key: "in.placement", label: { en: "Placement Fees", my: "ခန့်အပ်ခ" }, sub: { en: "From employers", my: "Employer မှ" }, amount: placementTotal },
     { key: "in.session", label: { en: "Direct Session Payments", my: "Session ပေးချေ" }, sub: { en: "Non-credit bookings", my: "Credit မဟုတ်" }, amount: sessionTotal },
     { key: "in.pending", label: { en: "Pending Review", my: "စစ်ဆေးရန်" }, sub: { en: "Awaiting verification (all sources)", my: "အတည်ပြုရန် (အားလုံး)" }, amount: pendingTotal, tone: "warn" },
@@ -165,23 +162,6 @@ const AdminFinance = ({
     { key: "out.partner_paid", label: { en: isPartnerScope ? "Your Rev-share (Paid)" : "Partner Rev-share (Paid)", my: "Partner ပေးချေပြီး" }, sub: { en: "Already paid", my: "ပေးချေပြီး" }, amount: partnerPaidTotal },
     { key: "out.partner_owed", label: { en: isPartnerScope ? "Your Rev-share (Owed)" : "Partner Rev-share (Owed)", my: "Partner ပေးရန်" }, sub: { en: "Finalized, unpaid", my: "Finalized, မပေးရသေး" }, amount: partnerOwedTotal, tone: "warn" },
   ];
-
-  // ===== Credits spent by role (internal — not cash movement) =====
-  const allSpends = spends || [];
-  const spendByRole = (role: string) =>
-    allSpends.filter((t) => (t.primary_role || "").toLowerCase() === role);
-  const sumCredits = (rs: SpendTxn[]) => rs.reduce((a, b) => a + Math.abs(Number(b.credits) || 0), 0);
-  const jsSpends = spendByRole("jobseeker");
-  const empSpends = spendByRole("employer");
-  const agtSpends = spendByRole("agent");
-  const mtrSpends = spendByRole("mentor");
-  const spendRows: Row[] = [
-    { key: "spend.jobseeker", label: { en: "Job Seekers", my: "အလုပ်ရှာသူ" }, sub: { en: "Mentor bookings, CV rewrites, priority apply", my: "Booking / CV / priority" }, amount: sumCredits(jsSpends) },
-    { key: "spend.employer", label: { en: "Employers", my: "အလုပ်ရှင်" }, sub: { en: "Job posts, feature unlocks", my: "Job post / feature" }, amount: sumCredits(empSpends) },
-    { key: "spend.agent", label: { en: "Recruiting Agents", my: "ကြားခံ" }, sub: { en: "Job posts on behalf of clients", my: "Job post (client)" }, amount: sumCredits(agtSpends) },
-    { key: "spend.mentor", label: { en: "Mentors", my: "Mentor" }, sub: { en: "Own tool usage (CV, cover, bookings)", my: "Tool သုံးစွဲ" }, amount: sumCredits(mtrSpends) },
-  ];
-  const spendTotalCredits = spendRows.reduce((a, r) => a + r.amount, 0);
 
   // ===== Details for selected row =====
   const detail = useMemo(() => {
