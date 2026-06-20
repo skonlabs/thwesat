@@ -164,16 +164,8 @@ const CareerTracks = () => {
                     <Coins className="h-4 w-4" /> {selected.price_credits.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{lang === "my" ? "လက်ကျန်" : "Balance"}</span>
-                  <span className="tabular-nums">{balance.toLocaleString()}</span>
-                </div>
                 {enrolledIds.has(selected.id) ? (
                   <Button disabled className="w-full">{lang === "my" ? "ပါဝင်ပြီး" : "Already enrolled"}</Button>
-                ) : balance < selected.price_credits ? (
-                  <Button onClick={() => navigate("/wallet")} className="w-full">
-                    {lang === "my" ? "ငွေဖြည့်ရန်" : "Top up wallet"}
-                  </Button>
                 ) : (
                   <Button onClick={() => enroll.mutate(selected.id)} disabled={enroll.isPending} className="w-full">
                     {enroll.isPending ? "..." : (lang === "my" ? "ဝင်ရောက်ရန်" : "Enroll now")}
