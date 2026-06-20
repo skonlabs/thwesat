@@ -107,8 +107,6 @@ const Wallet = () => {
   const grantsWithPlan = grants.map((g) => ({ ...g, plan: planById[g.plan_id] })).filter((g) => g.plan);
   const topGrant = [...grantsWithPlan].sort((a, b) => (tierRank[b.plan.tier] ?? 0) - (tierRank[a.plan.tier] ?? 0))[0];
 
-  const featuredJobs = (usage?.jobs ?? []).filter((j) => j.is_featured);
-
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ်" : "Wallet"} />
