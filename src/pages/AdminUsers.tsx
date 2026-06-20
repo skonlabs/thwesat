@@ -50,7 +50,8 @@ const AdminUsers = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialRole = searchParams.get("role") || "all";
-  const [search, setSearch] = useState("");
+  const initialQuery = searchParams.get("q") || "";
+  const [search, setSearch] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState(initialRole);
