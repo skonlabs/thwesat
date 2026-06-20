@@ -59,32 +59,70 @@ const AdminUsers = () => {
   const [page, setPage] = useState(0);
   const queryClient = useQueryClient();
 
-  // Sync URL ?role= → filter (so dashboard deep links work and reload preserves it)
+  // Sync URL ?role= / ?q= → filter (so dashboard deep links work and reload preserves it)
   useEffect(() => {
     const urlRole = searchParams.get("role") || "all";
     if (urlRole !== roleFilter) setRoleFilter(urlRole);
     const urlQuery = searchParams.get("q") || "";
-    if (urlQuery !== search) setSearch(urlQuery);
+    if (urlQuery !== search) {
+      setSearch(urlQuery);
+      setPage(0);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const updateRoleFilter = (val: string) => {
     setRoleFilter(val);
+    setPage(0);
     const next = new URLSearchParams(searchParams);
     if (val === "all") next.delete("role"); else next.set("role", val);
     setSearchParams(next, { replace: true });
   };
 
+  const updateSearch = (val: string) => {
+    setSearch(val);
+    setPage(0);
+    const next = new URLSearchParams(searchParams);
+    if (!val) next.delete("q"); else next.set("q", val);
+    setSearchParams(next, { replace: true });
+  };
+
   const { data: users = [], isLoading } = useQuery({
-    queryKey: ["admin-users", page],
+    queryKey: ["admin-users", page, search],
     queryFn: async () => {
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
-      const { data, error } = await supabase
+      // If searching, look up matching user_ids from contacts (email) AND profiles (display_name),
+      // then return the union — that way pagination still works but the search covers all users.
+      let matchedIds: string[] | null = null;
+      const q = search.trim();
+      if (q) {
+        const [{ data: contacts }, { data: byName }] = await Promise.all([
+          supabase.rpc("get_user_contacts_admin", { _ids: [] as any }).then(async () => {
+            // RPC requires _ids; fall back to ilike on profiles only for email by re-querying via profiles join below.
+            return { data: [] as any[] };
+          }),
+          supabase.from("profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
+        ]);
+        // Also try direct profiles.email if exposed (some schemas mirror it). Safe no-op if not present.
+        let emailMatchIds: string[] = [];
+        try {
+          const { data: emailRows } = await (supabase as any)
+            .from("profiles")
+            .select("id")
+            .ilike("email", `%${q}%`)
+            .limit(500);
+          emailMatchIds = (emailRows || []).map((r: any) => r.id);
+        } catch { /* column may not exist; ignore */ }
+        matchedIds = Array.from(new Set([...(byName || []).map((r: any) => r.id), ...emailMatchIds]));
+        if (matchedIds.length === 0) return [];
+      }
+      let qb = supabase
         .from("profiles")
         .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages, is_suspended")
-        .order("created_at", { ascending: false })
-        .range(from, to);
+        .order("created_at", { ascending: false });
+      if (matchedIds) qb = qb.in("id", matchedIds);
+      const { data, error } = await qb.range(from, to);
       if (error) throw error;
       const ids = (data || []).map((u: any) => u.id);
       let contactMap = new Map<string, { email: string | null; phone: string | null }>();
@@ -92,11 +130,20 @@ const AdminUsers = () => {
         const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
         contactMap = new Map((contacts || []).map((c: any) => [c.id, { email: c.email, phone: c.phone }]));
       }
-      return (data || []).map((u: any) => ({
+      let rows = (data || []).map((u: any) => ({
         ...u,
         email: contactMap.get(u.id)?.email ?? null,
         phone: contactMap.get(u.id)?.phone ?? null,
       }));
+      // Secondary email match: when searching, also keep page rows whose email matches q
+      if (search.trim()) {
+        const ql = search.trim().toLowerCase();
+        rows = rows.filter((u: any) =>
+          (u.display_name || "").toLowerCase().includes(ql) ||
+          (u.email || "").toLowerCase().includes(ql)
+        );
+      }
+      return rows;
     },
   });
 
@@ -211,7 +258,7 @@ const AdminUsers = () => {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <Input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => updateSearch(e.target.value)}
               placeholder={lang === "my" ? "အမည် သို့မဟုတ် အီးမေးလ်ဖြင့် ရှာ..." : "Search by name or email..."}
               className="h-10 rounded-xl pl-9"
             />

@@ -44,7 +44,7 @@ const AdminWallet = () => {
     adjust: { en: "Manual Adjust", my: "ပြင်ဆင်" },
   };
 
-  const { data: subRequests = [] } = useQuery({
+  const { data: subRequests = [], isLoading: loadingSubs } = useQuery({
     queryKey: ["admin-sub-requests"],
     queryFn: async () => {
       const { data: reqs } = await (supabase as any)
@@ -69,7 +69,7 @@ const AdminWallet = () => {
     },
   });
 
-  const { data: topups = [] } = useQuery({
+  const { data: topups = [], isLoading: loadingTopups } = useQuery({
     queryKey: ["admin-topups"],
     queryFn: async () => {
       const { data } = await (supabase as any).from("topup_requests").select("*").order("created_at", { ascending: false }).limit(100);
@@ -122,13 +122,7 @@ const AdminWallet = () => {
     },
   });
 
-  const { data: packages = [] } = useQuery({
-    queryKey: ["admin-packages"],
-    queryFn: async () => {
-      const { data } = await (supabase as any).from("credit_packages").select("*").order("sort_order");
-      return data ?? [];
-    },
-  });
+  // (Legacy credit_packages query removed — data was fetched but never rendered.)
 
   const review = useMutation({
     mutationFn: async ({ id, approve, note }: { id: string; approve: boolean; note?: string }) => {
@@ -240,7 +234,8 @@ const AdminWallet = () => {
 
         {tab === "subscriptions" && (
           <div className="space-y-2">
-            {subRequests.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "Package တောင်းခံမှု မရှိပါ" : "No subscription requests"}</p>}
+            {loadingSubs && <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}
+            {!loadingSubs && subRequests.length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "Package တောင်းခံမှု မရှိပါ" : "No subscription requests"}</p>}
             {subRequests.map((r: any) => {
               const isSub = r.request_type === "subscription";
               const title = isSub
@@ -280,7 +275,8 @@ const AdminWallet = () => {
                 <button onClick={() => { const p = new URLSearchParams(searchParams); p.delete("status"); setSearchParams(p, { replace: true }); }} className="font-semibold text-primary">{my ? "ရှင်းရန်" : "Clear"}</button>
               </div>
             )}
-            {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "ငွေဖြည့်တောင်းခံမှု မရှိပါ" : "No top-ups"}</p>}
+            {loadingTopups && <div className="flex justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}
+            {!loadingTopups && (topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).length === 0 && <p className="py-8 text-center text-xs text-muted-foreground">{my ? "ငွေဖြည့်တောင်းခံမှု မရှိပါ" : "No top-ups"}</p>}
             {(topupStatusFilter ? topups.filter((t: any) => t.status === topupStatusFilter) : topups).map((t: any) => (
               <div key={t.id} className="rounded-xl border border-border bg-card p-3 text-xs">
                 <div className="flex items-center justify-between">

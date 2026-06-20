@@ -157,7 +157,7 @@ export default function AdminPartnerFinance({
 
 // ───────────── Statement tab (visual waterfall) ─────────────
 function StatementTab({ partner, year, month, lang, readOnly = false }: { partner: Partner; year: number; month: number; lang: "en" | "my"; readOnly?: boolean }) {
-  const { data, isLoading } = usePartnerStatementPreview(partner, year, month);
+  const { data, isLoading, isError, error, refetch } = usePartnerStatementPreview(partner, year, month);
   const { data: payments } = usePartnerPeriodPayments(partner, year, month);
   const { data: allReversals } = usePaymentReversals();
   const { data: attributions } = usePartnerAttributions(partner.id);
@@ -176,6 +176,13 @@ function StatementTab({ partner, year, month, lang, readOnly = false }: { partne
     });
   }, [allReversals, payments, year, month]);
 
+  if (isError) return (
+    <Card className="p-6 text-sm">
+      <p className="font-semibold text-destructive">{tt(lang, "Couldn't compute statement", "ဖော်ပြ၍ မရပါ")}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{(error as any)?.message || tt(lang, "Unexpected error", "မမျှော်လင့်သော အမှား")}</p>
+      <Button size="sm" variant="outline" className="mt-3 rounded-xl" onClick={() => refetch()}>{tt(lang, "Retry", "ပြန်ကြိုးစား")}</Button>
+    </Card>
+  );
   if (isLoading || !data) return <Card className="p-8 text-sm text-muted-foreground">{tt(lang, "Computing…", "တွက်ချက်နေသည်…")}</Card>;
 
   const QG_LABELS: Record<string, { name: string; cmp: string; suffix: string }> = {
@@ -450,7 +457,7 @@ function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) 
             <div key={p.id} className="flex items-center justify-between gap-2 p-3 text-xs">
               <div className="min-w-0">
                 <p className="font-medium">{p.payment_type}</p>
-                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {dir?.get(p.user_id)?.name || (lang === "my" ? "သုံးစွဲသူ" : "User")}{dir?.get(p.user_id)?.email ? ` · ${dir!.get(p.user_id)!.email}` : ""}</p>
+                <p className="text-muted-foreground">{p.reviewed_at ? new Date(p.reviewed_at).toLocaleDateString() : "—"} · {dir?.get(p.user_id)?.name || (lang === "my" ? "သုံးစွဲသူ" : "User")}{dir?.get(p.user_id)?.email ? ` · ${dir!.get(p.user_id)!.email}` : ""}</p>
                 <p className="font-mono text-[10px] text-muted-foreground">{tt(lang, "gross", "gross")} {fmt(p.amount)}{p.third_party_payout ? ` − 3rd ${fmt(p.third_party_payout)}` : ""}</p>
               </div>
               <p className="whitespace-nowrap font-bold">{fmt(roundMmk(eff))}</p>
