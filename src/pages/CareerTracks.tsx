@@ -78,7 +78,7 @@ const CareerTracks = () => {
       const m = e?.message || "";
       if (m.includes("insufficient_balance")) {
         toast.error(lang === "my" ? "Wallet လက်ကျန် မလုံလောက်ပါ" : "Not enough wallet balance");
-        navigate("/wallet");
+        navigate("/pricing");
       } else toast.error(m || "Failed");
     },
   });
