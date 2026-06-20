@@ -15,6 +15,8 @@ export type UserFinanceRow = {
   id: string;
   source: "payment_request" | "topup_request" | "subscription_payment_request";
   payment_type: string;
+  /** Human-friendly label resolved from plan/addon name when available. */
+  display_label: { my: string; en: string } | null;
   amount: number;
   currency: string;
   status: string;
@@ -24,6 +26,14 @@ export type UserFinanceRow = {
   admin_note: string | null;
   created_at: string;
   raw: any;
+};
+
+const TIER_LABEL: Record<string, string> = {
+  free_trial: "Free Trial",
+  starter: "Starter",
+  growth: "Growth",
+  business: "Business",
+  enterprise: "Enterprise",
 };
 
 export function useUserFinance(userId: string | null | undefined) {
