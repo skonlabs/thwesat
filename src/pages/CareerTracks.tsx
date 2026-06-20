@@ -29,7 +29,7 @@ const CareerTracks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { data: wallet } = useWallet();
+  
   const [selected, setSelected] = useState<Track | null>(null);
 
   const { data: tracks = [], isLoading } = useQuery({
