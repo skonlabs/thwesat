@@ -199,15 +199,6 @@ const AdminFinance = ({
           </Button>
         ) : null,
     });
-    const topupToRow = (t: any) => ({
-      id: t.id,
-      title: lang === "my" ? "Credit ဖြည့်" : "Credit Top-up",
-      subtitle: `${shortRef(t.user_id)} · ${t.credits?.toLocaleString() || 0} credits`,
-      amount: Number(t.mmk_amount || 0),
-      currency: "MMK",
-      status: "approved",
-      date: t.created_at,
-    });
     const partnerToRow = (s: any) => ({
       id: s.id,
       title: lang === "my" ? "Partner Rev-share" : "Partner Rev-share",
@@ -217,19 +208,6 @@ const AdminFinance = ({
       status: s.paid_at ? "approved" : "pending",
       date: s.paid_at || s.created_at,
     });
-
-    const spendToRow = (t: SpendTxn) => {
-      const action = t.note || t.ref_type || "spend";
-      return {
-        id: t.id,
-        title: action.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        subtitle: `${shortRef(t.user_id)} · ${t.ref_type || ""}${t.ref_id ? " · " + shortRef(t.ref_id) : ""}`,
-        amount: Math.abs(Number(t.credits) || 0),
-        currency: "CREDITS",
-        status: "approved",
-        date: t.created_at,
-      };
-    };
 
     const subToRow = (p: any) => {
       let title: string;
@@ -255,7 +233,6 @@ const AdminFinance = ({
     switch (selected) {
       case "in.subscription": return { rows: approvedSubs.map(subToRow), loading: loadingSubs };
       case "in.addon": return { rows: approvedAddons.map(subToRow), loading: loadingSubs };
-      case "in.topups": return { rows: allTopups.map(topupToRow), loading: loadingTopups };
       case "in.placement": return { rows: approvedPlacement.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.session": return { rows: approvedSession.map((p) => paymentToRow(p)), loading: loadingPayments };
       case "in.pending": return { rows: [...pending.map((p) => paymentToRow(p)), ...pendingSubs.map(subToRow)], loading: loadingPayments || loadingSubs };
@@ -263,14 +240,10 @@ const AdminFinance = ({
       case "out.mentor_owed": return { rows: pendingPayouts.map(earningToRow), loading: loadingEarnings };
       case "out.partner_paid": return { rows: partnerPaid.map(partnerToRow), loading: loadingPartner };
       case "out.partner_owed": return { rows: partnerOwed.map(partnerToRow), loading: loadingPartner };
-      case "spend.jobseeker": return { rows: jsSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.employer": return { rows: empSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.agent": return { rows: agtSpends.map(spendToRow), loading: loadingSpends };
-      case "spend.mentor": return { rows: mtrSpends.map(spendToRow), loading: loadingSpends };
     }
-  }, [selected, allTopups, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, jsSpends, empSpends, agtSpends, mtrSpends, lang, markPaid, loadingTopups, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, loadingSpends]);
+  }, [selected, approvedPlacement, approvedSession, pending, pendingSubs, approvedSubs, approvedAddons, paidPayouts, pendingPayouts, partnerPaid, partnerOwed, lang, markPaid, loadingPayments, loadingSubs, loadingEarnings, loadingPartner, planLookup]);
 
-  const selectedRow = [...inRows, ...outRows, ...spendRows].find((r) => r.key === selected)!;
+  const selectedRow = [...inRows, ...outRows].find((r) => r.key === selected)!;
   const selectedIsSpend = selected.startsWith("spend.");
 
   return (
