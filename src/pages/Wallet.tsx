@@ -13,10 +13,9 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import {
-  useMySubscription,
+  useMyPackageGrants,
   useMyQuotas,
   useMyAddonPurchases,
   useMySubscriptionPaymentRequests,
@@ -31,59 +30,59 @@ const Wallet = () => {
   const my = lang === "my";
   const navigate = useNavigate();
 
-  const { data: sub } = useMySubscription();
+  const { data: grants = [] } = useMyPackageGrants();
   const { data: quotas } = useMyQuotas();
   const { data: addonPurchases = [] } = useMyAddonPurchases();
   const { data: payReqs = [] } = useMySubscriptionPaymentRequests();
   const { data: allPlans = [] } = useSubscriptionPlans();
   const { data: allAddons = [] } = useAddonProducts();
 
-  const plan = useMemo(() => allPlans.find((p) => p.id === sub?.plan_id), [allPlans, sub?.plan_id]);
+  const planById = useMemo(() => Object.fromEntries(allPlans.map((p) => [p.id, p])), [allPlans]);
   const addonsById = useMemo(() => Object.fromEntries(allAddons.map((a) => [a.id, a])), [allAddons]);
 
   const pending = payReqs.filter((r) => r.status === "pending");
   const matching = addonPurchases.find((p) => addonsById[p.addon_id]?.kind === "matching" && p.status === "active");
   const branding = addonPurchases.find((p) => addonsById[p.addon_id]?.kind === "branding" && p.status === "active");
 
-  const remaining = (total: number, used: number) => Math.max(0, total - used);
+  const tierRank: Record<string, number> = { free_trial: 0, starter: 1, growth: 2, business: 3, enterprise: 4 };
+  const grantsWithPlan = grants.map((g) => ({ ...g, plan: planById[g.plan_id] })).filter((g) => g.plan);
+  const topGrant = [...grantsWithPlan].sort((a, b) => (tierRank[b.plan.tier] ?? 0) - (tierRank[a.plan.tier] ?? 0))[0];
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ်" : "Wallet"} />
       <div className="mx-auto w-full max-w-4xl px-5 space-y-5">
-        {/* Subscription card */}
+        {/* Hero card */}
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground shadow-lg">
           <div className="flex items-center gap-2 text-xs opacity-80">
             <WalletIcon className="h-4 w-4" />
-            <span>{my ? "လက်ရှိ Package" : "Current plan"}</span>
+            <span>{my ? "သင်၏ Package များ" : "Your packages"}</span>
           </div>
 
-          {sub && plan ? (
+          {topGrant ? (
             <>
-              <div className="mt-2 text-3xl font-bold">{planLabel(plan.tier)}</div>
-              <div className="mt-0.5 text-xs opacity-80">
-                {sub.cycle === "yearly" ? (my ? "နှစ်စဉ်" : "Yearly") : my ? "လစဉ်" : "Monthly"} ·{" "}
-                {my ? "သက်တမ်းကုန် " : "renews on "}
-                {new Date(sub.current_period_end).toLocaleDateString()}
+              <div className="mt-2 text-3xl font-bold">
+                {planLabel(topGrant.plan.tier)}
+                {grants.length > 1 && <span className="ml-2 text-base opacity-80">+ {grants.length - 1} more</span>}
               </div>
-              {sub.launch_price_applied && sub.launch_ends_at && (
-                <div className="mt-2 inline-block rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-bold">
-                  {my ? `ပရိုမို ${new Date(sub.launch_ends_at).toLocaleDateString()} အထိ` : `Launch price until ${new Date(sub.launch_ends_at).toLocaleDateString()}`}
-                </div>
-              )}
+              <div className="mt-0.5 text-xs opacity-80">
+                {my
+                  ? `${grants.length} Package ပိုင်ဆိုင်နေသည် · သက်တမ်း မရှိ`
+                  : `${grants.length} package${grants.length > 1 ? "s" : ""} owned · never expire`}
+              </div>
               <button
                 onClick={() => navigate("/pricing")}
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-accent-foreground active:opacity-90"
               >
                 <ArrowUpRight className="h-4 w-4" />
-                {my ? "Package ပြောင်းရန် / ထပ်ဖြည့်ရန်" : "Change plan / buy add-ons"}
+                {my ? "ထပ်မံ ဝယ်ရန် / Add-on" : "Buy more / add-ons"}
               </button>
             </>
           ) : (
             <>
-              <div className="mt-2 text-2xl font-bold">{my ? "Package မရှိသေးပါ" : "No active plan"}</div>
+              <div className="mt-2 text-2xl font-bold">{my ? "Package မရှိသေးပါ" : "No packages yet"}</div>
               <div className="mt-0.5 text-xs opacity-80">
-                {my ? "Package တစ်ခု ရွေးချယ်၍ စတင်ပါ" : "Pick a plan to start posting jobs and unlocking candidates."}
+                {my ? "Package တစ်ခု ရွေးချယ်၍ စတင်ပါ" : "Pick a package to start posting jobs and unlocking candidates."}
               </div>
               <button
                 onClick={() => navigate("/pricing")}
@@ -100,31 +99,31 @@ const Wallet = () => {
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
             <div className="flex items-center gap-1.5 font-semibold">
               <Clock className="h-3.5 w-3.5" />
-              {my ? `${pending.length} ခု စစ်ဆေးနေသည်` : `${pending.length} payment${pending.length > 1 ? "s" : ""} pending review`}
+              {my ? `${pending.length} ခု စစ်ဆေးနေသည်` : `${pending.length} purchase${pending.length > 1 ? "s" : ""} pending review`}
             </div>
             <div className="mt-1 opacity-80">
-              {my ? "Admin အတည်ပြုပြီးမှ Package သက်ဝင်ပါမည်။" : "Your plan/add-ons activate after admin approval."}
+              {my ? "Admin အတည်ပြုပြီးမှ ပိုင်ဆိုင်မှု ထဲ ပေါင်းထည့်ပါမည်။" : "Approved purchases are added to your totals automatically."}
             </div>
           </div>
         )}
 
-        {/* Quotas */}
+        {/* Quotas (pooled totals) */}
         <section>
-          <h2 className="mb-2 text-sm font-bold">{my ? "သုံးစွဲမှု ခြေရာခံ" : "Usage tracker"}</h2>
+          <h2 className="mb-2 text-sm font-bold">{my ? "သုံးစွဲမှု ခြေရာခံ" : "Pooled balance"}</h2>
           <div className="grid gap-2 md:grid-cols-3">
             <QuotaCard
               icon={Briefcase}
               label={my ? "Active Jobs" : "Active Jobs"}
               total={quotas?.is_unlimited_jobs ? Infinity : quotas?.active_jobs_quota ?? 0}
               used={quotas?.active_jobs_used ?? 0}
-              hint={my ? "လုပ်ငန်းတင်နိုင်သော အရေအတွက်" : "Job posts allowed in this period"}
+              hint={my ? "လုပ်ငန်းတင်နိုင်သော အရေအတွက်" : "Job posts available"}
             />
             <QuotaCard
               icon={Users}
               label={my ? "Candidate Unlocks" : "Candidate Unlocks"}
-              total={quotas?.unlocks_total ?? 0}
+              total={quotas?.is_unlimited_unlocks ? Infinity : quotas?.unlocks_total ?? 0}
               used={quotas?.unlocks_used ?? 0}
-              hint={my ? "ဆက်သွယ်ရန် Unlock ပြုထားသော ပမာဏ" : "Contact unlocks remaining"}
+              hint={my ? "ဆက်သွယ်ရန် Unlock ပြုနိုင်သော ပမာဏ" : "Contact unlocks remaining"}
             />
             <QuotaCard
               icon={Star}
@@ -136,7 +135,7 @@ const Wallet = () => {
           </div>
         </section>
 
-        {/* Active recurring add-ons */}
+        {/* Active 1-year add-ons */}
         <section>
           <h2 className="mb-2 text-sm font-bold">{my ? "လက်ရှိ Add-ons" : "Active add-ons"}</h2>
           <div className="space-y-2">
@@ -147,7 +146,7 @@ const Wallet = () => {
             />
             <AddonStatusRow
               icon={Globe}
-              label={my ? "Employer Branding Page" : "Employer Branding Page"}
+              label={my ? "Branding Page" : "Branding Page"}
               expiresAt={branding?.expires_at}
             />
           </div>
@@ -165,16 +164,16 @@ const Wallet = () => {
               {payReqs.slice(0, 20).map((r) => {
                 const StatusIcon = r.status === "approved" ? CheckCircle2 : r.status === "rejected" ? XCircle : Clock;
                 const tone = r.status === "approved" ? "text-emerald-600" : r.status === "rejected" ? "text-destructive" : "text-amber-600";
-                const planRow = r.plan_id ? allPlans.find((p) => p.id === r.plan_id) : null;
+                const planRow = r.plan_id ? planById[r.plan_id] : null;
                 const addonRow = r.addon_id ? addonsById[r.addon_id] : null;
                 const title =
                   r.request_type === "subscription" && planRow
-                    ? `${planLabel(planRow.tier)} (${r.cycle === "yearly" ? "yearly" : "monthly"})`
+                    ? planLabel(planRow.tier)
                     : addonRow
-                    ? (my && addonRow.label_my) || addonRow.label_en
-                    : my
-                    ? "ပေးပို့မှု"
-                    : "Payment";
+                      ? `${(my && addonRow.label_my) || addonRow.label_en}${r.quantity > 1 ? ` × ${r.quantity}` : ""}`
+                      : my
+                        ? "ပေးပို့မှု"
+                        : "Payment";
                 return (
                   <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-xs">
                     <div className="min-w-0">
