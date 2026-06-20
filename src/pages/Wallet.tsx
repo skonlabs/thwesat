@@ -327,35 +327,6 @@ const Wallet = () => {
   );
 };
 
-const UsageSection = ({
-  icon: Icon,
-  title,
-  count,
-  emptyText,
-  children,
-}: {
-  icon: any;
-  title: string;
-  count: number;
-  emptyText: string;
-  children: React.ReactNode;
-}) => (
-  <section>
-    <div className="mb-2 flex items-center gap-1.5 text-sm font-bold">
-      <Icon className="h-4 w-4 text-primary" />
-      <span>{title}</span>
-      <span className="ml-auto text-xs font-normal text-muted-foreground">{count}</span>
-    </div>
-    {count === 0 ? (
-      <div className="rounded-xl border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
-        {emptyText}
-      </div>
-    ) : (
-      <div className="space-y-1.5">{children}</div>
-    )}
-  </section>
-);
-
 const StatusPill = ({ status }: { status: string }) => {
   const tone =
     status === "active"
