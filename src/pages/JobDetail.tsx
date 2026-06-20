@@ -402,7 +402,8 @@ const JobDetail = () => {
   const acceptingApplications = job.status === "active" && !expired;
   const clientName = (job as any).client_company_name as string | null;
   const clientLogo = (job as any).client_logo_url as string | null;
-  const employerCompanyName = clientName || employerDetails?.employer?.company_name || job.company;
+  const rawCompanyName = clientName || employerDetails?.employer?.company_name || employerDetails?.profile?.display_name || job.company;
+  const employerCompanyName = rawCompanyName && /@/.test(rawCompanyName) ? (lang === "my" ? "ကုမ္ပဏီ" : "Company") : rawCompanyName;
   const employerHeadline = employerDetails?.profile?.headline || employerDetails?.employer?.industry || translateJobCategory(job.category, lang);
 
   const requirementsList = pickLocalized(job.requirements, job.requirements_my, lang)
@@ -581,18 +582,18 @@ const JobDetail = () => {
             </div>
           )}
 
-          <article className="divide-y divide-border">
-            <section className="grid gap-3 py-5 md:grid-cols-[150px_minmax(0,1fr)] md:gap-6 md:py-6">
-              <h2 className="text-xs font-semibold uppercase text-muted-foreground">{lang === "my" ? "အလုပ်အကြောင်း" : "Description"}</h2>
-              <p className="whitespace-pre-line text-sm leading-7 text-foreground/85 md:text-[15px]">
+          <article className="space-y-4">
+            <section className="rounded-lg border border-border bg-card p-5 md:p-6">
+              <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "အလုပ်အကြောင်း" : "Description"}</h2>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85 md:text-[15px]">
                 {pickLocalized(job.description, job.description_my, lang)}
               </p>
             </section>
 
             {requirementsList.length > 0 && (
-              <section className="grid gap-3 py-5 md:grid-cols-[150px_minmax(0,1fr)] md:gap-6 md:py-6">
-                <h2 className="text-xs font-semibold uppercase text-muted-foreground">{lang === "my" ? "လိုအပ်ချက်များ" : "Requirements"}</h2>
-                <ul className="space-y-2.5">
+              <section className="rounded-lg border border-border bg-card p-5 md:p-6">
+                <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "လိုအပ်ချက်များ" : "Requirements"}</h2>
+                <ul className="space-y-2">
                   {requirementsList.map((req, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm leading-6 text-foreground/85 md:text-[15px]">
                       <CheckCircle className="mt-1 h-3.5 w-3.5 shrink-0 text-emerald" strokeWidth={1.5} />
@@ -604,8 +605,8 @@ const JobDetail = () => {
             )}
 
             {(job.skills || []).length > 0 && (
-              <section className="grid gap-3 py-5 md:grid-cols-[150px_minmax(0,1fr)] md:gap-6 md:py-6">
-                <h2 className="text-xs font-semibold uppercase text-muted-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
+              <section className="rounded-lg border border-border bg-card p-5 md:p-6">
+                <h2 className="mb-3 text-sm font-semibold text-foreground">{lang === "my" ? "ကျွမ်းကျင်မှုများ" : "Skills"}</h2>
                 <div className="flex flex-wrap gap-2">
                   {translateJobTags(job.skills, lang).map((s) => (
                     <span key={s} className="rounded-lg bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary">{s}</span>
@@ -664,7 +665,7 @@ const JobDetail = () => {
           </section>
 
           <MentorCoachCue
-            variant={myApplication ? "interview" : "applied"}
+            variant={myApplication ? "interview" : "letter"}
             context={displayTitle}
           />
         </motion.div>
