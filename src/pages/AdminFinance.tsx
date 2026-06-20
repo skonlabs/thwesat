@@ -90,24 +90,6 @@ const AdminFinance = ({
     },
   });
 
-  const { data: topups, isLoading: loadingTopups } = useQuery({
-    queryKey: ["admin-finance-topups", scopeKey],
-    queryFn: async () => {
-      if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase
-        .from("wallet_transactions")
-        .select("*")
-        .eq("kind", "topup")
-        .eq("status", "completed")
-        .or("ref_type.eq.topup_request,ref_type.is.null")
-        .order("created_at", { ascending: false })
-        .limit(1000);
-      if (isPartnerScope) q = q.in("user_id", scopedIds!);
-      const { data } = await q;
-      return data || [];
-    },
-  });
-
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
     queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
@@ -115,28 +97,6 @@ const AdminFinance = ({
       if (partnerId) q = q.eq("partner_id", partnerId);
       const { data } = await q;
       return data || [];
-    },
-  });
-
-  const { data: spends, isLoading: loadingSpends } = useQuery<SpendTxn[]>({
-    queryKey: ["admin-finance-spends", scopeKey],
-    queryFn: async () => {
-      if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase
-        .from("wallet_transactions")
-        .select("id,user_id,credits,note,ref_type,ref_id,created_at,kind")
-        .lt("credits", 0)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false })
-        .limit(1000);
-      if (isPartnerScope) q = q.in("user_id", scopedIds!);
-      const { data: txns } = await q;
-      const list = (txns || []).filter((t: any) => t.kind === "spend" || t.kind === "escrow_hold");
-      const userIds = Array.from(new Set(list.map((t: any) => t.user_id)));
-      if (userIds.length === 0) return [];
-      const { data: profs } = await supabase.from("profiles").select("id,primary_role").in("id", userIds);
-      const roleById = new Map((profs || []).map((p: any) => [p.id, p.primary_role]));
-      return list.map((t: any) => ({ ...t, primary_role: roleById.get(t.user_id) || null }));
     },
   });
 
