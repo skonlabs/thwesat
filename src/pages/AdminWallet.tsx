@@ -215,6 +215,10 @@ const AdminWallet = () => {
           </TabsContent>
 
           <TabsContent value="topups" className="space-y-2 pt-3">
+            <div className="mb-2 flex gap-1.5 text-[11px]">
+              <button onClick={() => setTopupFilter("pending")} className={`rounded-full px-2.5 py-1 ${topupFilter === "pending" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "စစ်ဆေးရန်" : "Pending"}</button>
+              <button onClick={() => setTopupFilter("all")} className={`rounded-full px-2.5 py-1 ${topupFilter === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{my ? "အားလုံး" : "All"}</button>
+            </div>
             {loadingTopups && (
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
