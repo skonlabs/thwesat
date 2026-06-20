@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -152,9 +153,25 @@ const AdminWallet = () => {
   const [adjustDelta, setAdjustDelta] = useState("");
   const [adjustNote, setAdjustNote] = useState("");
 
+  // Rejection dialog state
+  const [rejectTarget, setRejectTarget] = useState<{ id: string; type: "sub" | "topup" } | null>(null);
+  const [rejectNote, setRejectNote] = useState("");
+
   const viewProof = async (path: string) => {
     const url = await getPaymentProofSignedUrl(path);
     if (url) window.open(url, "_blank");
+  };
+
+  const handleConfirmReject = () => {
+    if (!rejectTarget) return;
+    const note = rejectNote.trim() || (my ? "ငြင်းပယ်" : "Rejected");
+    if (rejectTarget.type === "sub") {
+      reviewSub.mutate({ id: rejectTarget.id, approve: false, note });
+    } else {
+      review.mutate({ id: rejectTarget.id, approve: false, note });
+    }
+    setRejectTarget(null);
+    setRejectNote("");
   };
 
   const reviewSub = useMutation({
@@ -208,7 +225,7 @@ const AdminWallet = () => {
                     <div className="mt-2 flex gap-1.5">
                       {r.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(r.proof_url)}><Eye className="mr-1 h-3 w-3" />{my ? "အထောက်အထား" : "Proof"}</Button>}
                       <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => reviewSub.mutate({ id: r.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />{my ? "ခွင့်ပြု" : "Approve"}</Button>
-                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt(my ? "ငြင်းပယ်ရသည့် အကြောင်းပြချက်?" : "Reject reason?") || (my ? "ငြင်းပယ်" : "Rejected"); reviewSub.mutate({ id: r.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { setRejectTarget({ id: r.id, type: "sub" }); setRejectNote(""); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
                     </div>
                   )}
                 </div>
@@ -240,7 +257,7 @@ const AdminWallet = () => {
                   <div className="mt-2 flex gap-1.5">
                     {t.proof_url && <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => viewProof(t.proof_url)}><Eye className="mr-1 h-3 w-3" />{my ? "အထောက်အထား" : "Proof"}</Button>}
                     <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={() => review.mutate({ id: t.id, approve: true })}><CheckCircle2 className="mr-1 h-3 w-3" />{my ? "ခွင့်ပြု" : "Approve"}</Button>
-                    <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { const note = prompt(my ? "ငြင်းပယ်ရသည့် အကြောင်းပြချက်?" : "Reject reason?") || (my ? "ငြင်းပယ်" : "Rejected"); review.mutate({ id: t.id, approve: false, note }); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => { setRejectTarget({ id: t.id, type: "topup" }); setRejectNote(""); }}><XCircle className="mr-1 h-3 w-3" />{my ? "ငြင်းပယ်" : "Reject"}</Button>
                   </div>
                 )}
               </div>
@@ -260,6 +277,21 @@ const AdminWallet = () => {
           </div>
         )}
 
+        {/* Reject reason modal */}
+        <AnimatePresence>
+          {rejectTarget && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/40 px-6" onClick={() => { setRejectTarget(null); setRejectNote(""); }}>
+              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-sm rounded-2xl bg-card p-6" onClick={(e) => e.stopPropagation()}>
+                <h3 className="mb-3 text-sm font-bold text-foreground">{my ? "ငြင်းပယ်ရန် အကြောင်းပြ" : "Rejection Reason"}</h3>
+                <Textarea value={rejectNote} onChange={(e) => setRejectNote(e.target.value)} placeholder={my ? "အကြောင်းပြချက် ရေးပါ..." : "Enter reason..."} className="mb-4 rounded-xl text-xs" rows={3} />
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => { setRejectTarget(null); setRejectNote(""); }} className="flex-1 rounded-xl text-xs" size="sm">{my ? "မလုပ်တော့" : "Cancel"}</Button>
+                  <Button variant="destructive" onClick={handleConfirmReject} className="flex-1 rounded-xl text-xs" size="sm" disabled={reviewSub.isPending || review.isPending}>{my ? "ငြင်းပယ်" : "Reject"}</Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
