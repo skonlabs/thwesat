@@ -152,13 +152,6 @@ export type Database = {
             referencedRelation: "addon_products"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_ap_addon"
-            columns: ["addon_id"]
-            isOneToOne: false
-            referencedRelation: "addon_products"
-            referencedColumns: ["id"]
-          },
         ]
       }
       admin_audit_log: {
@@ -2482,20 +2475,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_spr_addon"
-            columns: ["addon_id"]
-            isOneToOne: false
-            referencedRelation: "addon_products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_spr_plan"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_plans"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "subscription_payment_requests_addon_id_fkey"
             columns: ["addon_id"]
             isOneToOne: false
@@ -2627,13 +2606,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_sub_plan"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "subscription_plans"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "subscriptions_plan_id_fkey"
             columns: ["plan_id"]
