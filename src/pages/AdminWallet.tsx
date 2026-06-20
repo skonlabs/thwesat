@@ -254,7 +254,8 @@ const AdminWallet = () => {
                       <div className="text-[10px] text-muted-foreground">
                         {r.mmk_amount?.toLocaleString()} Ks · {r.payment_method?.toUpperCase()} · ref: {r.sender_reference || "—"}
                       </div>
-                      <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {r.user_id?.slice(0, 8)}… · {new Date(r.created_at).toLocaleString()}</div>
+                      <UserLine userId={r.user_id} />
+                      <div className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${r.status === "approved" ? "bg-emerald-100 text-emerald-700" : r.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{r.status}</span>
                   </div>
