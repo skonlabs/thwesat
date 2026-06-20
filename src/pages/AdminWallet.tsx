@@ -77,6 +77,43 @@ const AdminWallet = () => {
     },
   });
 
+  // Resolve user display name + email for every user_id shown in either tab.
+  const visibleUserIds = useMemo(() => {
+    const s = new Set<string>();
+    (subRequests || []).forEach((r: any) => r?.user_id && s.add(r.user_id));
+    (topups || []).forEach((t: any) => t?.user_id && s.add(t.user_id));
+    return Array.from(s);
+  }, [subRequests, topups]);
+
+  const { data: userDirectory } = useQuery({
+    queryKey: ["admin-wallet-user-directory", visibleUserIds.sort().join(",")],
+    enabled: visibleUserIds.length > 0,
+    queryFn: async () => {
+      const [{ data: profs }, { data: contacts }] = await Promise.all([
+        supabase.from("profiles").select("id, display_name").in("id", visibleUserIds),
+        (supabase as any).rpc("get_user_contacts_admin", { _ids: visibleUserIds }),
+      ]);
+      const emailMap = new Map<string, string>((contacts || []).map((c: any) => [c.id, c.email]));
+      const map = new Map<string, { name: string; email: string | null }>();
+      (profs || []).forEach((p: any) => map.set(p.id, { name: p.display_name || "User", email: emailMap.get(p.id) ?? null }));
+      visibleUserIds.forEach((id) => { if (!map.has(id)) map.set(id, { name: "User", email: emailMap.get(id) ?? null }); });
+      return map;
+    },
+  });
+
+  const UserLine = ({ userId }: { userId: string }) => {
+    const u = userDirectory?.get(userId);
+    const name = u?.name || (my ? "သုံးစွဲသူ" : "User");
+    const email = u?.email;
+    const linkTo = `/admin/users${email ? `?q=${encodeURIComponent(email)}` : ""}`;
+    return (
+      <Link to={linkTo} className="block text-[10px] text-muted-foreground hover:text-primary hover:underline">
+        <span className="font-semibold text-foreground">{name}</span>
+        {email ? <span> · {email}</span> : <span> · {userId.slice(0, 8)}…</span>}
+      </Link>
+    );
+  };
+
   const { data: prices = [] } = useQuery({
     queryKey: ["admin-action-prices"],
     queryFn: async () => {
