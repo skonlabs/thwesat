@@ -258,7 +258,7 @@ const AdminUsers = () => {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <Input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => updateSearch(e.target.value)}
               placeholder={lang === "my" ? "အမည် သို့မဟုတ် အီးမေးလ်ဖြင့် ရှာ..." : "Search by name or email..."}
               className="h-10 rounded-xl pl-9"
             />
