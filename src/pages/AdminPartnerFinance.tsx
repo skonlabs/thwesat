@@ -629,6 +629,8 @@ function QualityDrill({ data, lang, qgLabels }: { data: any; lang: "en" | "my"; 
 // ───────────── Attributions tab ─────────────
 function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my" }) {
   const { data, isLoading, refetch } = usePartnerAttributions(partner.id);
+  const userIds = useMemo(() => (data || []).map((a: any) => a.user_id), [data]);
+  const { data: dir } = useUserDirectoryLite(userIds);
   const [userId, setUserId] = useState("");
   const [channel, setChannel] = useState("manual");
   const [busy, setBusy] = useState(false);
