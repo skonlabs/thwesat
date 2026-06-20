@@ -50,7 +50,8 @@ const AdminUsers = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialRole = searchParams.get("role") || "all";
-  const [search, setSearch] = useState("");
+  const initialQuery = searchParams.get("q") || "";
+  const [search, setSearch] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState(initialRole);
@@ -62,6 +63,8 @@ const AdminUsers = () => {
   useEffect(() => {
     const urlRole = searchParams.get("role") || "all";
     if (urlRole !== roleFilter) setRoleFilter(urlRole);
+    const urlQuery = searchParams.get("q") || "";
+    if (urlQuery !== search) setSearch(urlQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 

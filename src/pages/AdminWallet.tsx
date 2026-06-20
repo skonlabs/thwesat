@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,6 +76,43 @@ const AdminWallet = () => {
       return data ?? [];
     },
   });
+
+  // Resolve user display name + email for every user_id shown in either tab.
+  const visibleUserIds = useMemo(() => {
+    const s = new Set<string>();
+    (subRequests || []).forEach((r: any) => r?.user_id && s.add(r.user_id));
+    (topups || []).forEach((t: any) => t?.user_id && s.add(t.user_id));
+    return Array.from(s);
+  }, [subRequests, topups]);
+
+  const { data: userDirectory } = useQuery({
+    queryKey: ["admin-wallet-user-directory", visibleUserIds.sort().join(",")],
+    enabled: visibleUserIds.length > 0,
+    queryFn: async () => {
+      const [{ data: profs }, { data: contacts }] = await Promise.all([
+        supabase.from("profiles").select("id, display_name").in("id", visibleUserIds),
+        (supabase as any).rpc("get_user_contacts_admin", { _ids: visibleUserIds }),
+      ]);
+      const emailMap = new Map<string, string>((contacts || []).map((c: any) => [c.id, c.email]));
+      const map = new Map<string, { name: string; email: string | null }>();
+      (profs || []).forEach((p: any) => map.set(p.id, { name: p.display_name || "User", email: emailMap.get(p.id) ?? null }));
+      visibleUserIds.forEach((id) => { if (!map.has(id)) map.set(id, { name: "User", email: emailMap.get(id) ?? null }); });
+      return map;
+    },
+  });
+
+  const UserLine = ({ userId }: { userId: string }) => {
+    const u = userDirectory?.get(userId);
+    const name = u?.name || (my ? "သုံးစွဲသူ" : "User");
+    const email = u?.email;
+    const linkTo = `/admin/users${email ? `?q=${encodeURIComponent(email)}` : ""}`;
+    return (
+      <Link to={linkTo} className="block text-[10px] text-muted-foreground hover:text-primary hover:underline">
+        <span className="font-semibold text-foreground">{name}</span>
+        {email ? <span> · {email}</span> : <span> · {userId.slice(0, 8)}…</span>}
+      </Link>
+    );
+  };
 
   const { data: prices = [] } = useQuery({
     queryKey: ["admin-action-prices"],
@@ -217,7 +254,8 @@ const AdminWallet = () => {
                       <div className="text-[10px] text-muted-foreground">
                         {r.mmk_amount?.toLocaleString()} Ks · {r.payment_method?.toUpperCase()} · ref: {r.sender_reference || "—"}
                       </div>
-                      <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {r.user_id?.slice(0, 8)}… · {new Date(r.created_at).toLocaleString()}</div>
+                      <UserLine userId={r.user_id} />
+                      <div className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${r.status === "approved" ? "bg-emerald-100 text-emerald-700" : r.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{r.status}</span>
                   </div>
@@ -249,7 +287,7 @@ const AdminWallet = () => {
                   <div>
                     <div className="font-bold">{t.mmk_amount.toLocaleString()} Ks → {t.credits_to_grant.toLocaleString()} Ks</div>
                     <div className="text-[10px] text-muted-foreground">{t.payment_method.toUpperCase()} · {my ? "ref" : "ref"}: {t.sender_reference || "—"} · {new Date(t.created_at).toLocaleString()}</div>
-                    <div className="text-[10px] text-muted-foreground">{my ? "သုံးစွဲသူ" : "user"}: {t.user_id.slice(0, 8)}…</div>
+                    <UserLine userId={t.user_id} />
                   </div>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${t.status === "approved" ? "bg-emerald-100 text-emerald-700" : t.status === "rejected" ? "bg-destructive/10 text-destructive" : "bg-amber-100 text-amber-700"}`}>{t.status}</span>
                 </div>

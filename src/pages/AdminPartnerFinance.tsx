@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { Plus, Check, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,26 @@ const tt = (lang: "en" | "my", en: string, my: string) => (lang === "my" ? my : 
 function nowYangon() {
   const d = new Date(Date.now() + (6 * 60 + 30) * 60_000);
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+}
+
+function useUserDirectoryLite(ids: string[]) {
+  const key = useMemo(() => Array.from(new Set(ids)).sort().join(","), [ids]);
+  return useQuery({
+    queryKey: ["partner-finance-user-dir", key],
+    enabled: ids.length > 0,
+    queryFn: async () => {
+      const uniq = Array.from(new Set(ids));
+      const [{ data: profs }, { data: contacts }] = await Promise.all([
+        supabase.from("profiles").select("id, display_name").in("id", uniq),
+        (supabase as any).rpc("get_user_contacts_admin", { _ids: uniq }),
+      ]);
+      const emailMap = new Map<string, string>((contacts || []).map((c: any) => [c.id, c.email]));
+      const map = new Map<string, { name: string; email: string | null }>();
+      (profs || []).forEach((p: any) => map.set(p.id, { name: p.display_name || "User", email: emailMap.get(p.id) ?? null }));
+      uniq.forEach((id) => { if (!map.has(id)) map.set(id, { name: "User", email: emailMap.get(id) ?? null }); });
+      return map;
+    },
+  });
 }
 
 export default function AdminPartnerFinance({
@@ -411,6 +432,8 @@ function DrillSheet({ open, onClose, title, children }: { open: boolean; onClose
 }
 
 function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) {
+  const userIds = useMemo(() => payments.map((p) => p.user_id), [payments]);
+  const { data: dir } = useUserDirectoryLite(userIds);
   if (payments.length === 0) return <p className="text-sm text-muted-foreground">{tt(lang, "No payments.", "ပေးချေမှု မရှိပါ။")}</p>;
   const total = payments.reduce((s, p) => s + (p.npr_amount != null ? Number(p.npr_amount) : p.payment_type === "mentor_session" ? Number(p.amount) * 0.15 : Math.max(0, Number(p.amount) - Number(p.third_party_payout || 0))), 0);
   return (
@@ -427,7 +450,7 @@ function GrossDrill({ payments, lang }: { payments: any[]; lang: "en" | "my" }) 
             <div key={p.id} className="flex items-center justify-between gap-2 p-3 text-xs">
               <div className="min-w-0">
                 <p className="font-medium">{p.payment_type}</p>
-                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {tt(lang, "user", "သုံးစွဲသူ")} {String(p.user_id).slice(0, 8)}…</p>
+                <p className="text-muted-foreground">{new Date(p.reviewed_at).toLocaleDateString()} · {dir?.get(p.user_id)?.name || (lang === "my" ? "သုံးစွဲသူ" : "User")}{dir?.get(p.user_id)?.email ? ` · ${dir!.get(p.user_id)!.email}` : ""}</p>
                 <p className="font-mono text-[10px] text-muted-foreground">{tt(lang, "gross", "gross")} {fmt(p.amount)}{p.third_party_payout ? ` − 3rd ${fmt(p.third_party_payout)}` : ""}</p>
               </div>
               <p className="whitespace-nowrap font-bold">{fmt(roundMmk(eff))}</p>
@@ -609,6 +632,8 @@ function QualityDrill({ data, lang, qgLabels }: { data: any; lang: "en" | "my"; 
 // ───────────── Attributions tab ─────────────
 function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my" }) {
   const { data, isLoading, refetch } = usePartnerAttributions(partner.id);
+  const userIds = useMemo(() => (data || []).map((a: any) => a.user_id), [data]);
+  const { data: dir } = useUserDirectoryLite(userIds);
   const [userId, setUserId] = useState("");
   const [channel, setChannel] = useState("manual");
   const [busy, setBusy] = useState(false);
@@ -666,10 +691,18 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
       <Card className="divide-y">
         {isLoading ? <div className="p-4 text-sm text-muted-foreground">{tt(lang, "Loading…", "ဖွင့်နေသည်…")}</div>
           : !data || data.length === 0 ? <div className="p-4 text-sm text-muted-foreground">{tt(lang, "No attributions yet.", "Attribution မရှိသေးပါ။")}</div>
-          : data.map((a: any) => (
+          : data.map((a: any) => {
+            const u = dir?.get(a.user_id);
+            const email = u?.email;
+            const linkTo = `/admin/users${email ? `?q=${encodeURIComponent(email)}` : ""}`;
+            return (
             <div key={a.id} className="flex items-center justify-between p-3 text-sm">
-              <div>
-                <div className="font-mono text-xs">{a.user_id}</div>
+              <div className="min-w-0">
+                <Link to={linkTo} className="block hover:text-primary hover:underline">
+                  <span className="font-semibold text-foreground">{u?.name || "User"}</span>
+                  {email && <span className="text-xs text-muted-foreground"> · {email}</span>}
+                </Link>
+                <div className="font-mono text-[10px] text-muted-foreground">{a.user_id}</div>
                 <div className="text-xs text-muted-foreground">
                   {tt(lang, channelLabels[a.channel]?.en || a.channel, channelLabels[a.channel]?.my || a.channel)} · {tt(lang, "attributed", "သတ်မှတ်")} {new Date(a.attributed_at).toLocaleDateString()}
                   {a.first_paid_at ? ` · ${tt(lang, "first paid", "ပထမ ပေးချေ")} ${new Date(a.first_paid_at).toLocaleDateString()}` : ` · ${tt(lang, "no paid txn yet", "ပေးချေမှု မရှိသေး")}`}
@@ -677,7 +710,8 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
               </div>
               <Badge variant={a.first_paid_at ? "default" : "secondary"}>{a.first_paid_at ? tt(lang, "Active", "Active") : tt(lang, "Pending", "စောင့်ဆိုင်း")}</Badge>
             </div>
-          ))}
+            );
+          })}
       </Card>
     </div>
   );
