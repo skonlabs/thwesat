@@ -46,12 +46,25 @@ const AdminWallet = () => {
   const { data: subRequests = [] } = useQuery({
     queryKey: ["admin-sub-requests"],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      const { data: reqs } = await (supabase as any)
         .from("subscription_payment_requests")
-        .select("*, plan:subscription_plans(role,tier,price_mmk), addon:addon_products(key,label_en,kind,mmk,is_per_unit)")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
-      return data ?? [];
+      if (!reqs || reqs.length === 0) return [];
+      const planIds = [...new Set(reqs.filter((r: any) => r.plan_id).map((r: any) => r.plan_id))];
+      const addonIds = [...new Set(reqs.filter((r: any) => r.addon_id).map((r: any) => r.addon_id))];
+      const [plansRes, addonsRes] = await Promise.all([
+        planIds.length > 0 ? (supabase as any).from("subscription_plans").select("id,role,tier,price_mmk").in("id", planIds) : Promise.resolve({ data: [] }),
+        addonIds.length > 0 ? (supabase as any).from("addon_products").select("id,key,label_en,kind,mmk,is_per_unit").in("id", addonIds) : Promise.resolve({ data: [] }),
+      ]);
+      const planMap = new Map((plansRes.data || []).map((p: any) => [p.id, p]));
+      const addonMap = new Map((addonsRes.data || []).map((a: any) => [a.id, a]));
+      return (reqs as any[]).map((r: any) => ({
+        ...r,
+        plan: planMap.get(r.plan_id) || null,
+        addon: addonMap.get(r.addon_id) || null,
+      }));
     },
   });
 

@@ -195,7 +195,7 @@ const Pricing = () => {
                   {disabled
                     ? (my ? "သုံးပြီးပါပြီ" : "Already used")
                     : isFreeTrial
-                      ? (my ? "စမ်းသပ်ခွင့် တောင်းရန်" : "Start Free Trial")
+                      ? (my ? "အခမဲ့ စမ်းသပ်ခွင့် တောင်းရန်" : "Request Free Trial")
                       : owned > 0
                         ? (my ? "ထပ်မံ ဝယ်ရန်" : "Buy again")
                         : (my ? "ဝယ်ရန်" : "Buy")}
