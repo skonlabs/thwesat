@@ -200,7 +200,7 @@ const MentorBooking = () => {
         description: friendly,
         variant: "destructive",
       });
-      if (raw.includes("insufficient_balance")) setTopupOpen(true);
+      if (raw.includes("insufficient_balance")) navigate("/pricing");
     }
   };
 
