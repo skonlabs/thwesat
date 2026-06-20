@@ -7,7 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Coins, GraduationCap, CheckCircle2, Sparkles } from "lucide-react";
-import { useWallet } from "@/hooks/use-wallet";
+
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
