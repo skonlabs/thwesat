@@ -70,7 +70,7 @@ export interface TopupRequest {
   created_at: string;
 }
 
-const noopAsync = async () => { throw new Error("Wallet functionality has been removed."); };
+const noopAsync = async (_args?: any) => { throw new Error("Wallet functionality has been removed."); };
 
 export function useWallet() {
   // Returns a permanently empty wallet so any UI showing balance renders "0 Ks".
