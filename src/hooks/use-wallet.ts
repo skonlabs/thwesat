@@ -250,5 +250,5 @@ export function formatMMK(amount: number | null | undefined, _lang: "my" | "en" 
 }
 
 export function formatCredits(credits: number | null | undefined, _lang: "my" | "en" = "en"): string {
-  return `${Number(credits || 0).toLocaleString()} Ks`;
+  return `${Number(credits || 0).toLocaleString()} credits`;
 }
