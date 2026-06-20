@@ -63,6 +63,7 @@ export function useUserFinance(userId: string | null | undefined) {
           payment_method: p.payment_method,
           proof_url: p.proof_url,
           reference: p.reference_id || null,
+          admin_note: p.admin_note || null,
           created_at: p.created_at,
           raw: p,
         });
@@ -79,6 +80,7 @@ export function useUserFinance(userId: string | null | undefined) {
           payment_method: t.payment_method,
           proof_url: t.proof_url,
           reference: t.sender_reference || null,
+          admin_note: t.admin_note || null,
           created_at: t.created_at,
           raw: t,
         });
@@ -95,6 +97,7 @@ export function useUserFinance(userId: string | null | undefined) {
           payment_method: s.payment_method,
           proof_url: s.proof_url,
           reference: s.sender_reference || null,
+          admin_note: s.admin_note || null,
           created_at: s.created_at,
           raw: s,
         });
