@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, pendingSubs, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, totalEmployers, mentors] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -22,7 +22,6 @@ const AdminDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
@@ -35,7 +34,6 @@ const AdminDashboard = () => {
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
         pendingPayments: (pendingPayments as any).count || 0,
-        pendingTopups: (pendingTopups as any).count || 0,
         pendingSubs: (pendingSubs as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
@@ -43,7 +41,7 @@ const AdminDashboard = () => {
     },
   });
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingTopups || 0) + (counts?.pendingSubs || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingSubs || 0) + (counts?.reports || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
@@ -66,7 +64,6 @@ const AdminDashboard = () => {
     { label: { my: "အသုံးပြုသူများ", en: "Users" }, path: "/admin/users", icon: Users, desc: { my: "စီမံခန့်ခွဲ", en: "Manage" } },
     { label: { my: "အလုပ်ရှင်များ", en: "Employers" }, path: "/admin/employers", icon: Building2, desc: { my: "စစ်ဆေး", en: "Verify" } },
     { label: { my: "ငွေပေးချေမှု", en: "Payments" }, path: "/admin/payments", icon: CreditCard, desc: { my: "စစ်ဆေး", en: "Review" } },
-    { label: { my: "Wallet/Top-ups", en: "Wallet & Top-ups" }, path: "/admin/wallet", icon: WalletCards, desc: { my: "စီမံ", en: "Manage" } },
     { label: { my: "ငွေကြေး", en: "Finances" }, path: "/admin/finance", icon: WalletCards, desc: { my: "ဝင်ငွေ/Payouts", en: "Revenue & Payouts" } },
     { label: { my: "Partner Finance", en: "Partner Finance" }, path: "/admin/partner-finance", icon: WalletCards, desc: { my: "Rev share", en: "Rev share" } },
     { label: { my: "Partner အကောင့်", en: "Partner Accounts" }, path: "/admin/partners", icon: Users, desc: { my: "User ချိတ်", en: "Link users" } },

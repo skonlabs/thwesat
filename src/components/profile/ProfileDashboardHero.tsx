@@ -61,14 +61,14 @@ export default function ProfileDashboardHero({
       ? `${planLabel(topPlan.tier)}${grants.length > 1 ? ` +${grants.length - 1}` : ""}`
       : (lang === "my" ? "မရှိ" : "None"),
     accent: true as const,
-    onClick: () => onNavigate(topPlan ? "/wallet" : "/pricing"),
+    onClick: () => onNavigate("/pricing"),
   };
   const unlocksTile = {
     icon: KeyRound,
     label: lang === "my" ? "Unlock" : "Unlocks",
     value: unlocksLeft === Infinity ? "∞" : unlocksLeft.toLocaleString(),
     accent: false as const,
-    onClick: () => onNavigate("/wallet"),
+    onClick: () => onNavigate("/pricing"),
   };
 
   const stats = isJobseeker

@@ -7,7 +7,6 @@ import { useRole } from "@/hooks/use-role";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useNotifications } from "@/hooks/use-notifications-data";
 import { useConversations } from "@/hooks/use-messages-data";
-import { useWallet } from "@/hooks/use-wallet";
 import WalletChip from "@/components/WalletChip";
 import LanguageToggle from "@/components/LanguageToggle";
 import logo from "@/assets/logo.svg";
@@ -30,7 +29,6 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(({ title, backPat
   const { allowedRoles } = useUserRoles();
   const { data: notifications = [] } = useNotifications();
   const { data: conversations = [] } = useConversations();
-  const { data: wallet } = useWallet();
   const unreadNotifCount = notifications.filter((n: any) => !n.is_read).length;
   const unreadMsgCount = conversations.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
   const [logoOpacity, setLogoOpacity] = useState(1);

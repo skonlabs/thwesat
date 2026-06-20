@@ -62,7 +62,7 @@ const EmployerDashboard = () => {
     { icon: Briefcase, my: "ခေါ်စာများ", en: "My Jobs", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
     { icon: Plus, my: "အလုပ်တင်", en: "Post Job", path: "/employer/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Users, my: "လျှောက်သူများ", en: "Applicants", path: "/employer/applications", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: Wallet, my: "ခရက်ဒစ်", en: "Wallet", path: "/wallet", bg: "bg-accent/20", fg: "text-gold-dark" },
+    { icon: CreditCard, my: "Package", en: "Subscriptions", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
     { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Settings, my: "ကုမ္ပဏီ", en: "Company", path: "/employer/edit-company", bg: "bg-accent/10", fg: "text-accent" },
   ];

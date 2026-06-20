@@ -48,7 +48,6 @@ import AdminPartnerFinance from "./pages/AdminPartnerFinance";
 import AdminFinanceHub from "./pages/AdminFinanceHub";
 import PartnerFinanceHub from "./pages/PartnerFinanceHub";
 import AdminPartners from "./pages/AdminPartners";
-import Wallet from "./pages/Wallet";
 import AdminWallet from "./pages/AdminWallet";
 import Pricing from "./pages/Pricing";
 import CareerTracks from "./pages/CareerTracks";
@@ -151,7 +150,6 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
               <Route path="/finance" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SeekerFinance /></AppRoleGuard>} />
-              <Route path="/wallet" element={<Wallet />} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["jobseeker"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
@@ -169,7 +167,7 @@ const App = () => (
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
               <Route path="/employer/jobs" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobs /></AppRoleGuard>} />
               <Route path="/employer/applications" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerApplications /></AppRoleGuard>} />
-              <Route path="/employer/subscription" element={<Navigate to="/wallet" replace />} />
+              <Route path="/employer/subscription" element={<Navigate to="/pricing" replace />} />
               <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
               <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditJob /></AppRoleGuard>} />
               <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />

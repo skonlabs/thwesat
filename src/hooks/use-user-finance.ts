@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export type UserFinanceRow = {
   id: string;
-  source: "payment_request" | "topup_request" | "subscription_payment_request";
+  source: "payment_request" | "subscription_payment_request";
   payment_type: string;
   /** Human-friendly label resolved from plan/addon name when available. */
   display_label: { my: string; en: string } | null;
@@ -42,14 +42,9 @@ export function useUserFinance(userId: string | null | undefined) {
     enabled: !!userId,
     queryFn: async (): Promise<UserFinanceRow[]> => {
       if (!userId) return [];
-      const [pr, tr, sr, plans, addons] = await Promise.all([
+      const [pr, sr, plans, addons] = await Promise.all([
         supabase
           .from("payment_requests")
-          .select("*")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("topup_requests")
           .select("*")
           .eq("user_id", userId)
           .order("created_at", { ascending: false }),
@@ -88,25 +83,7 @@ export function useUserFinance(userId: string | null | undefined) {
           created_at: p.created_at,
           raw: p,
         });
-      });
-
-      (tr.data || []).forEach((t: any) => {
-        rows.push({
-          id: t.id,
-          source: "topup_request",
-          payment_type: "topup",
-          display_label: null,
-          amount: Number(t.mmk_amount || 0),
-          currency: "MMK",
-          status: t.status,
-          payment_method: t.payment_method,
-          proof_url: t.proof_url,
-          reference: t.sender_reference || null,
-          admin_note: t.admin_note || null,
-          created_at: t.created_at,
-          raw: t,
-        });
-      });
+      });      });
 
       (sr.data || []).forEach((s: any) => {
         const isAddon = s.request_type === "addon";
