@@ -146,6 +146,11 @@ const EmployerFinance = () => {
               active: kpiFilter === "paid",
             },
             {
+              label: { my: "Subscription / Add-on", en: "Subscriptions & Add-ons" },
+              rows: subsPaid.map((p) => ({ amount: p.amount, currency: p.currency })),
+              tone: "border-primary/30",
+            },
+            {
               label: { my: "ပေးချေရန်", en: "Outstanding" },
               rows: due.map((p) => ({ amount: Number(p.amount), currency: p.currency })),
               tone: "border-warning/30",
