@@ -12,6 +12,15 @@ export type Money = { amount: number; currency: string };
 export const PLACEMENT_FEE_PERCENT = 0.08;
 
 /**
+ * Platform commission rate retained from the agent's placement fee
+ * (i.e. of the 8% paid by the seeker, the platform keeps 10% of that fee).
+ * Centralised so commission UI and partner-finance calculations cannot
+ * drift apart.
+ */
+export const PLACEMENT_PLATFORM_COMMISSION = 0.10;
+
+
+/**
  * MMK rounding rule: the smallest meaningful denomination handled on the
  * platform is 100 Ks. Every MMK amount that is computed (fees, payouts,
  * commissions, conversions) or displayed MUST flow through this helper so
