@@ -44,7 +44,6 @@ const BottomNav = () => {
   const agentNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "ခေါ်ယူမှု", labelEn: "Postings", path: "/agent/jobs" },
-    { icon: Users, labelMy: "ကိုယ်စားလှယ်", labelEn: "Candidates", path: "/agent/candidates" },
     { icon: CheckCircle, labelMy: "ခန့်အပ်မှု", labelEn: "Placements", path: "/agent/candidates?filter=placed" },
     { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
   ];
