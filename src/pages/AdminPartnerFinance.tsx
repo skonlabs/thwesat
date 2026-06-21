@@ -84,7 +84,7 @@ export default function AdminPartnerFinance({
   );
 
   return (
-    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+    <div className={hideHeader ? "" : "min-h-dvh bg-background pb-24"}>
       {!hideHeader && <PageHeader title={tt(lang, "Partner Finance", "Partner ငွေကြေး")} showBack />}
       <div className={hideHeader ? "space-y-4" : "mx-auto max-w-6xl space-y-4 px-5 md:px-8"}>
         <div className="flex flex-wrap items-end gap-3">

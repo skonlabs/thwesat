@@ -147,7 +147,7 @@ const AdminWallet = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ် & ပေးချေမှု" : "Wallet & Payments"} showBack />
       <div className="px-5">
         <Tabs defaultValue="subscriptions" className="w-full">

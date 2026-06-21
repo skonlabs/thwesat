@@ -248,7 +248,7 @@ const AdminFinance = ({
   const selectedIsSpend = false;
 
   return (
-    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24"}>
+    <div className={hideHeader ? "" : "min-h-dvh bg-background pb-24"}>
       {!hideHeader && <PageHeader title={lang === "my" ? "ငွေကြေး စီမံခန့်ခွဲမှု" : "Platform Finances"} showBack />}
       <div className={hideHeader ? "" : "px-5"}>
         {isPartnerScope && (() => {

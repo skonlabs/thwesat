@@ -285,7 +285,7 @@ const EmployerApplications = () => {
     catch (err: any) { toast.error((lang === "my" ? "မအောင်မြင်ပါ: " : "Failed: ") + (err?.message || "unknown")); }
   };
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-12">
+    <div className="min-h-dvh bg-background pb-24 md:pb-12">
       <PageHeader
         title={jobIdParam ? (scopedJobTitle || L.applications[lang]) : L.applications[lang]}
         backPath={jobIdParam ? (isAgent ? "/agent/jobs" : "/employer/jobs") : "/dashboard"}

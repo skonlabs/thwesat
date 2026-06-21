@@ -219,7 +219,7 @@ const AdminJobQueue = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ခေါ်စာ စီမံခန့်ခွဲ" : "Job Management"} />
       <div className="px-5">
         {/* Summary cards */}

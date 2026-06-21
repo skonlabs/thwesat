@@ -56,7 +56,7 @@ export default function Unsubscribe() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+    <div className="min-h-dvh flex items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="text-xl font-bold text-primary mb-2">

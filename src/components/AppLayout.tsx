@@ -87,7 +87,7 @@ const AppLayout = () => {
   const isGuest = !user;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       {isGuest ? <GuestHeader /> : <DesktopNav />}
       <div className="mx-auto max-w-lg md:max-w-5xl lg:max-w-6xl xl:max-w-7xl">
         <PullToRefresh onRefresh={handleRefresh} disabled={ptrDisabled}>

@@ -79,7 +79,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
   const used = codes?.filter((c) => c.status === "used") ?? [];
 
   return (
-    <div className={hideHeader ? "" : "min-h-screen bg-background pb-24 md:pb-12"}>
+    <div className={hideHeader ? "" : "min-h-dvh bg-background pb-24 md:pb-12"}>
       {!hideHeader && <PageHeader title={my ? "ညွှန်းဆိုကုဒ်များ" : "Referral Codes"} />}
       <div className={hideHeader ? "" : "mx-auto max-w-4xl px-5 md:px-8 md:pt-2"}>
         {/* Intro */}

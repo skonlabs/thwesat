@@ -287,7 +287,7 @@ const Jobs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်အကိုင်များ" : "Jobs"} />
       <div className="border-b border-border bg-background px-5 pb-4 pt-3 md:px-8">
         <div className="mx-auto max-w-7xl">

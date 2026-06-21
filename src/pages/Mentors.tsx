@@ -123,7 +123,7 @@ const Mentors = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူများ" : "Mentors"} />
       <div className="px-5 pt-4">
         <div className="mb-3 flex gap-2">

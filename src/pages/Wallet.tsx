@@ -27,7 +27,7 @@ const Wallet = () => {
   const balance = wallet?.balance_credits ?? 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ်" : "Wallet"} />
       <div className="mx-auto w-full max-w-3xl space-y-5 px-5">
         {/* Balance card */}

@@ -96,7 +96,7 @@ const EmployerOnboarding = () => {
 
   if (step === 3) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
         <div className="flex flex-col items-center px-5 pt-10 text-center">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald/10">
@@ -124,11 +124,11 @@ const EmployerOnboarding = () => {
       { icon: Zap, en: "Post a job in under 5 minutes", my: "၅ မိနစ်အတွင်း အလုပ်ခေါ်ယူနိုင်" },
     ];
     return (
-      <div className="landing-dark relative min-h-screen overflow-hidden bg-shell text-shell-foreground">
+      <div className="landing-dark relative min-h-dvh overflow-hidden bg-shell text-shell-foreground">
         <div className="pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-32 -left-24 h-[24rem] w-[24rem] rounded-full bg-sidebar-accent/70 blur-[100px]" />
 
-        <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pt-6 md:max-w-lg md:px-8">
+        <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 pt-6 md:max-w-lg md:px-8">
           <div className="flex items-center justify-between">
             <button onClick={() => navigate(-1)} className="text-sm text-shell-foreground/60 hover:text-shell-foreground">
               ← {lang === "my" ? "နောက်သို့" : "Back"}
@@ -183,7 +183,7 @@ const EmployerOnboarding = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "စာရင်းသွင်းခြင်း" : "Account Setup"} showBack />
       <div className="px-5">
         <div className="mb-5 flex items-center gap-2">

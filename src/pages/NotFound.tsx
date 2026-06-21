@@ -9,7 +9,7 @@ const NotFound = () => {
   const { lang } = useLanguage();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-5">
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-5">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

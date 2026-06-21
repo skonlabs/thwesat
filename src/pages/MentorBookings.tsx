@@ -174,7 +174,7 @@ const MentorBookings = () => {
   const todayCount = bookings.filter((b: any) => b.scheduled_date === today && (b.status === "confirmed" || b.status === "pending")).length;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "Booking များ" : "Bookings"} backPath="/mentors/dashboard" />
       <div className="px-5">
         {/* Editorial intro */}

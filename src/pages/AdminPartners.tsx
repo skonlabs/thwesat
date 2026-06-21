@@ -91,7 +91,7 @@ const AdminPartners = () => {
 
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={tt(lang, "Partner Accounts", "Partner အကောင့်များ")} showBack />
       <div className="mx-auto max-w-4xl space-y-4 px-5 md:px-8">
         <div className="flex items-center justify-between">

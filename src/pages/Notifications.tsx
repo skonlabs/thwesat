@@ -179,7 +179,7 @@ const Notifications = () => {
   const showGroupHeaders = groupedSections.length > 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "အကြောင်းကြားချက်" : "Notifications"} showBack />
 
       <div className="mx-auto w-full max-w-3xl px-5">

@@ -132,7 +132,7 @@ const ChatView = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background">
       <PageHeader title={otherProfile?.display_name || (lang === "my" ? "မက်ဆေ့ချ်" : "Chat")} backPath="/messages" />
       <div className="border-b border-border bg-card px-5 py-2.5">
         <div className="flex items-center justify-between gap-3">

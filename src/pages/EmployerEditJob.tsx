@@ -214,7 +214,7 @@ const CHAR_LIMIT_REQ = 2000;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath={isAgent ? "/dashboard" : "/dashboard"} />
         <div className="flex justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
       </div>
@@ -224,7 +224,7 @@ const CHAR_LIMIT_REQ = 2000;
   const methodPreview = getApplicationMethodLabel(applicationMethod, lang);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ် ပြင်ဆင်ရန်" : "Edit Job"} backPath={isAgent ? "/dashboard" : "/dashboard"} />
       {(job as any)?.updated_at && (
         <div className="px-5 pb-0 pt-3">

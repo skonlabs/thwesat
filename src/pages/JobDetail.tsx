@@ -351,7 +351,7 @@ const JobDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-dvh bg-background pb-24">
         <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
         <div className="px-5">
           <div className="space-y-4">
@@ -385,7 +385,7 @@ const JobDetail = () => {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath="/jobs" />
         <div className="flex flex-col items-center py-20 text-center px-5">
           <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
@@ -483,7 +483,7 @@ const JobDetail = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-36 md:pb-12">
+    <div className="min-h-dvh bg-background pb-36 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ် အသေးစိတ်" : "Job Detail"} backPath={fromSaved ? "/jobs/saved" : "/jobs"} />
 
       <main className="mx-auto w-full max-w-7xl px-4 pb-4 md:px-6">

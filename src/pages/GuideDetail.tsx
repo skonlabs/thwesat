@@ -236,7 +236,7 @@ const GuideDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
         <div className="flex items-center justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -247,7 +247,7 @@ const GuideDetail = () => {
 
   if (!guide) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
         <div className="flex flex-col items-center py-16 text-center px-5">
           <p className="text-sm text-muted-foreground">{lang === "my" ? "လမ်းညွှန်ချက် မတွေ့ပါ" : "Guide not found"}</p>
@@ -261,7 +261,7 @@ const GuideDetail = () => {
   const noCount = counts?.no ?? 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်" : "Guide"} backPath="/guides" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

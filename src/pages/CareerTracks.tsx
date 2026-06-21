@@ -86,7 +86,7 @@ const CareerTracks = () => {
   // Wallet was removed — balance display & gate are subscription-driven now.
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "Career Tracks" : "Career Tracks"} />
       <div className="px-5 space-y-3">
         <div className="rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">

@@ -121,11 +121,11 @@ const MentorDetail = () => {
   };
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+    return <div className="flex min-h-dvh items-center justify-center bg-background"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
   }
 
   if (!mentor) {
-    return <div className="min-h-screen bg-background p-5"><PageHeader title="Mentor" backPath="/mentors" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
+    return <div className="min-h-dvh bg-background p-5"><PageHeader title="Mentor" backPath="/mentors" /><p className="text-center text-muted-foreground">{lang === "my" ? "မတွေ့ပါ" : "Not found"}</p></div>;
   }
 
   const displayName = mentor.profile?.display_name || "Mentor";
@@ -138,7 +138,7 @@ const MentorDetail = () => {
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ" : "Mentor"} backPath="/mentors" />
       <div className="px-5">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

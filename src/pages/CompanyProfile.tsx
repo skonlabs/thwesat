@@ -42,7 +42,7 @@ const CompanyProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
@@ -50,7 +50,7 @@ const CompanyProfile = () => {
 
   if (!data?.employer) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-dvh bg-background pb-24">
         <PageHeader title={lang === "my" ? "ကုမ္ပဏီ" : "Company"} showBack />
         <div className="flex flex-col items-center py-16 text-center px-5">
           <Building2 className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
@@ -83,7 +83,7 @@ const CompanyProfile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ကုမ္ပဏီ ပရိုဖိုင်" : "Company Profile"} showBack />
 
       {/* Hero / Cover */}
