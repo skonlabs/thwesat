@@ -78,6 +78,7 @@ const EmployerApplications = () => {
   const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
   const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
   const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
+  const unlockedSet = new Set((contactUnlocks || []).map((u: any) => u.target_id));
   const { data: quotas } = useMyQuotas();
   const unlocksLeft = quotas?.is_unlimited_unlocks
     ? Infinity
