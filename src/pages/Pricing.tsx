@@ -99,21 +99,18 @@ const Pricing = () => {
               />
               <Totals
                 label={my ? "Add-Ons" : "Add-Ons"}
-                value={
-                  (() => {
-                    const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
-                    if (owned.length === 0) return my ? "မရှိ" : "None";
-                    const names = owned
-                      .map((p) => {
-                        const a = addons.find((x) => x.id === p.addon_id);
-                        return (my && a?.label_my) || a?.label_en || "";
-                      })
-                      .filter(Boolean);
-                    return names.join(", ");
-                  })()
-                }
+                value=""
                 total={null}
-                isText
+                listItems={(() => {
+                  const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
+                  if (owned.length === 0) return [my ? "မရှိ" : "None"];
+                  return owned
+                    .map((p) => {
+                      const a = addons.find((x) => x.id === p.addon_id);
+                      return (my && a?.label_my) || a?.label_en || "";
+                    })
+                    .filter(Boolean);
+                })()}
               />
 
             </div>
@@ -232,7 +229,7 @@ const Pricing = () => {
           <p className="mb-3 text-xs text-muted-foreground">
             {my ? "မည်သည့် Package ပေါ်တွင်မဆို ထပ်ဖြည့်နိုင်သည်။" : "Top up unlocks, feature your jobs, or add brand & matching for 1 year."}
           </p>
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
@@ -252,8 +249,22 @@ const Pricing = () => {
                           ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
                           : formatMMK(a.mmk)}
                     </div>
+                    {a.kind === "matching" && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        {my
+                          ? "သင့်ရဲ့ job နှင့် ကိုက်ညီသော အကောင်းဆုံး candidate များကို ရှာဖွေပေးပြီး၊ စိစစ်ရွေးချယ်ထားသော အမည်စာရင်းကို တိုက်ရိုက် ပေးပို့ပါသည်။"
+                          : "We match your jobs to top candidates in our talent pool and deliver a curated shortlist straight to your inbox."}
+                      </p>
+                    )}
+                    {a.kind === "branding" && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        {my
+                          ? "ကုမ္ပဏီ logo, ဓာတ်ပုံများ, မိတ်ဆက်စာ နှင့် ဖွင့်ထားသော job အားလုံးကို ပြသမည့် သတ်မှတ်ထားသော ကိုယ်ပိုင် branding စာမျက်နှာ။"
+                          : "A dedicated public profile page with your logo, photos, company story, and all your open jobs — share one link with candidates anywhere."}
+                      </p>
+                    )}
                     {a.duration_days && (
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                      <div className="text-[10px] text-muted-foreground mt-1">
                         {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
                       </div>
                     )}
@@ -312,19 +323,27 @@ const Pricing = () => {
   );
 };
 
-const Totals = ({ label, value, total, isText }: { label: string; value: string; total: number | null; isText?: boolean }) => (
+const Totals = ({ label, value, total, listItems }: { label: string; value: string; total: number | null; listItems?: string[] }) => (
   <div className="rounded-xl border border-border bg-muted/30 p-3">
     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {label}
     </div>
-    <div className="mt-1.5 flex items-baseline gap-1.5">
-      <span className={`${isText ? "text-sm" : "text-xl"} font-bold tabular-nums text-foreground`}>{value}</span>
-      {total !== null && total > 0 && (
-        <span className="text-xs font-medium text-muted-foreground">
-          / {total.toLocaleString()}
-        </span>
-      )}
-    </div>
+    {listItems ? (
+      <ul className="mt-1.5 space-y-0.5 text-xs font-semibold text-foreground">
+        {listItems.map((item, i) => (
+          <li key={i} className="truncate">{item}</li>
+        ))}
+      </ul>
+    ) : (
+      <div className="mt-1.5 flex items-baseline gap-1.5">
+        <span className="text-xl font-bold tabular-nums text-foreground">{value}</span>
+        {total !== null && total > 0 && (
+          <span className="text-xs font-medium text-muted-foreground">
+            / {total.toLocaleString()}
+          </span>
+        )}
+      </div>
+    )}
   </div>
 );
 
