@@ -17,7 +17,7 @@ type NavItem = { labelMy: string; labelEn: string; path: string };
 const DesktopNav = () => {
   const { lang } = useLanguage();
   const { role } = useRole();
-  const { isAdmin, isModerator, isPartner } = useUserRoles();
+  const { isAdmin, isPartner } = useUserRoles();
   const { profile } = useAuth();
   const { data: unreadMessages = 0 } = useUnreadMessageCount();
   const { data: unreadNotifications = 0 } = useUnreadNotificationCount();
@@ -62,11 +62,6 @@ const DesktopNav = () => {
     { labelMy: "ငွေကြေး", labelEn: "Finance", path: "/admin/finance" },
     { labelMy: "ခွဲခြမ်း", labelEn: "Analytics", path: "/admin/analytics" },
   ];
-  const mod: NavItem[] = [
-    { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
-    { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
-  ];
   const partner: NavItem[] = [
     { labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
@@ -74,7 +69,7 @@ const DesktopNav = () => {
     { labelMy: "သုံးသူ", labelEn: "Users", path: "/partner/users" },
   ];
 
-  const items = isAdmin ? admin : isPartner ? partner : isModerator ? mod : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
+  const items = isAdmin ? admin : isPartner ? partner : role === "employer" ? employer : role === "agent" ? agent : role === "mentor" ? mentor : seeker;
 
   const initials = ((profile as any)?.display_name || (profile as any)?.full_name || "U").split(" ").map((s: string) => s[0]).slice(0, 2).join("").toUpperCase();
 
@@ -113,8 +108,8 @@ const DesktopNav = () => {
           <button onClick={() => navigate("/jobs")} className="hidden h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground lg:flex">
             <Search className="h-4 w-4" strokeWidth={1.75} />
           </button>
-          {!isAdmin && !isPartner && !isModerator && <WalletChip />}
-          {!isAdmin && !isPartner && !isModerator && <SubscriptionChip />}
+          {!isAdmin && !isPartner && <WalletChip />}
+          {!isAdmin && !isPartner && <SubscriptionChip />}
           <button onClick={() => navigate("/messages")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground">
             <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
             {unreadMessages > 0 && (
