@@ -81,13 +81,22 @@ const Signup = () => {
       return;
     }
 
-    // Pre-validate referral code if provided. Try partner code first (employer/agent/seeker
-    // revenue attribution), then fall back to the user invite-credit code.
+    // Pre-validate referral code if provided.
+    // - Employers & Recruiters MUST use a partner-generated code (P-XXXXXXXX).
+    // - Job Seekers & Mentors use a user invite code (TS-XXXXXX), but a partner code is also accepted.
     let isPartnerCode = false;
+    const isEmployerOrAgent = selectedRole === "employer" || selectedRole === "agent";
     if (referralCode.trim()) {
       const { data: partnerId } = await supabase.rpc("lookup_partner_referral_code", { _code: referralCode.trim() });
       if (partnerId) {
         isPartnerCode = true;
+      } else if (isEmployerOrAgent) {
+        const msg = lang === "my"
+          ? "ဤကုဒ်သည် Partner ထုတ်ပေးသော ကုဒ် မဟုတ်ပါ သို့မဟုတ် အသုံးပြုပြီးသား ဖြစ်နေပါသည် (P-XXXXXXXX)"
+          : "This is not a valid Partner-issued code or it has already been used (format: P-XXXXXXXX)";
+        setReferralError(msg);
+        toast({ title: msg, variant: "destructive" });
+        return;
       } else {
         const { data: refId } = await supabase.rpc("lookup_referrer_by_code", { _code: referralCode.trim() });
         if (!refId) {
@@ -99,6 +108,7 @@ const Signup = () => {
       }
       setReferralError(null);
     }
+
 
     // "agent" is a distinct app role that shares employer screens & onboarding.
     const appRole: UserRole = selectedRole;
@@ -294,7 +304,7 @@ const Signup = () => {
                 <Input
                   value={referralCode}
                   onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralError(null); }}
-                  placeholder="TS-XXXXXX"
+                  placeholder={selectedRole === "employer" || selectedRole === "agent" ? "P-XXXXXXXX" : "TS-XXXXXX"}
                   className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm uppercase focus-visible:ring-primary/30"
                 />
               </div>
