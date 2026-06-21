@@ -182,22 +182,6 @@ const EmployerDashboard = () => {
           </>
         )}
 
-        {/* Finance shortcut */}
-        <button
-          onClick={() => navigate("/employer/finance")}
-          className="mb-5 flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/20">
-              <CreditCard className="h-4 w-4 text-gold-dark" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">{lang === "my" ? "ငွေကြေး မှတ်တမ်း" : "Finance Ledger"}</p>
-              <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပေးချေမှု မှတ်တမ်းများ ကြည့်ရန်" : "View earnings & payouts"}</p>
-            </div>
-          </div>
-          <span className="text-xs text-muted-foreground">→</span>
-        </button>
       </div>
     </div>
   );
