@@ -217,13 +217,22 @@ const AdminEmployers = () => {
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((emp: any, i: number) => {
               const st = statusConfig[(emp.verification_status || "pending")] || statusConfig.pending;
+              const isAgent = emp.profile?.primary_role === "agent";
+              const roleLabel = isAgent
+                ? (lang === "my" ? "ခေါ်ယူရေး" : "Recruiter")
+                : (lang === "my" ? "အလုပ်ရှင်" : "Employer");
               return (
                 <motion.button key={emp.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} onClick={() => setSelectedId(emp.id)} className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left active:bg-muted/30">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Building2 className="h-5 w-5" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || emp.profile?.display_name || emp.profile?.email || "Unnamed Company"}</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="truncate text-sm font-semibold text-foreground">{emp.company_name || emp.profile?.display_name || emp.profile?.email || "Unnamed"}</h3>
+                      <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${isAgent ? "bg-accent/20 text-gold-dark" : "bg-primary/10 text-primary"}`}>
+                        {roleLabel}
+                      </span>
+                    </div>
                     <p className="truncate text-[10px] text-muted-foreground">{emp.profile?.email || emp.profile?.display_name} · {emp.industry || "—"}</p>
                     <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                       <Briefcase className="h-3 w-3" strokeWidth={1.5} />
