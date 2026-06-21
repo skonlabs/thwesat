@@ -40,6 +40,8 @@ const AdminEmployers = () => {
     : "all";
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState(initialTab);
+  const initialRoleFilter = searchParams.get("role") === "employer" || searchParams.get("role") === "agent" ? searchParams.get("role")! : "all";
+  const [roleFilter, setRoleFilter] = useState<string>(initialRoleFilter);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -63,7 +65,7 @@ const AdminEmployers = () => {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, created_at")
+        .select("id, display_name, avatar_url, created_at, primary_role")
         .in("id", ids);
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
@@ -154,9 +156,11 @@ const AdminEmployers = () => {
     const matchesTab = tab === "all" 
       || (tab === "approved" && (status === "verified" || status === "approved"))
       || (tab !== "approved" && status === tab);
+    const role = e.profile?.primary_role || "employer";
+    const matchesRole = roleFilter === "all" || role === roleFilter;
     const q = search.toLowerCase();
     const matchesSearch = !q || (e.company_name || "").toLowerCase().includes(q) || (e.profile?.display_name || "").toLowerCase().includes(q) || (e.profile?.email || "").toLowerCase().includes(q);
-    return matchesTab && matchesSearch;
+    return matchesTab && matchesRole && matchesSearch;
   });
 
   const selected = employers.find((e: any) => e.id === selectedId);
@@ -164,7 +168,7 @@ const AdminEmployers = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24">
-      <PageHeader title={lang === "my" ? "အလုပ်ရှင် စီမံခန့်ခွဲ" : "Employer Management"} showBack />
+      <PageHeader title={lang === "my" ? "အလုပ်ရှင် & ခေါ်ယူရေး စီမံခန့်ခွဲ" : "Employers & Recruiters"} showBack />
       <div className="px-5">
         <Tabs value={tab} onValueChange={setTab} className="mb-4">
           <TabsList className="w-full">
@@ -176,6 +180,27 @@ const AdminEmployers = () => {
             <TabsTrigger value="all" className="flex-1 text-xs">{lang === "my" ? "အားလုံး" : "All"}</TabsTrigger>
           </TabsList>
         </Tabs>
+
+        {/* Role filter chips */}
+        <div className="mb-4 flex gap-2">
+          {[
+            { v: "all", label: { en: "All", my: "အားလုံး" } },
+            { v: "employer", label: { en: "Employers", my: "အလုပ်ရှင်" } },
+            { v: "agent", label: { en: "Recruiters", my: "ခေါ်ယူရေး" } },
+          ].map((r) => (
+            <button
+              key={r.v}
+              onClick={() => setRoleFilter(r.v)}
+              className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-colors ${
+                roleFilter === r.v
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {lang === "my" ? r.label.my : r.label.en}
+            </button>
+          ))}
+        </div>
 
         <div className="relative mb-4">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
