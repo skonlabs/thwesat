@@ -297,11 +297,6 @@ const Pricing = () => {
                         {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
                       </div>
                     )}
-                    {active1yr?.expires_at && (
-                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                        {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
-                      </div>
-                    )}
                   </div>
 
                   {a.is_per_unit && (
