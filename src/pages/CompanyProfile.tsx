@@ -24,7 +24,10 @@ const CompanyProfile = () => {
     queryFn: async () => {
       if (!id) return null;
       const [empRes, profRes, jobsRes] = await Promise.all([
-        supabase.from("employer_profiles").select("*").eq("id", id).maybeSingle(),
+        // Read from the public-safe view so anonymous visitors never see
+        // contact_email / contact_phone (those columns live only on the
+        // base employer_profiles table and are guarded by authenticated RLS).
+        supabase.from("employer_profiles_public" as any).select("*").eq("id", id).maybeSingle(),
         supabase.from("profiles").select("display_name, avatar_url, headline, website").eq("id", id).maybeSingle(),
         supabase.from("jobs").select("id, title, title_my, location, job_type, created_at, applicant_count").eq("employer_id", id).eq("status", "active").order("created_at", { ascending: false }).limit(20),
       ]);
