@@ -3063,6 +3063,10 @@ export type Database = {
         Args: { _month: number; _partner_id: string; _year: number }
         Returns: Json
       }
+      admin_confirm_user_email: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       admin_delete_employer: {
         Args: { _employer_id: string }
         Returns: undefined
