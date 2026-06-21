@@ -161,11 +161,14 @@ export function useUpdateBookingStatus() {
       if (error) throw error;
 
       // Get booking details for notification
-      const { data: booking } = await supabase
+      const bookingQuery = supabase
         .from("mentor_bookings")
         .select("mentor_id, mentee_id, scheduled_date, scheduled_time")
-        .eq("id", id)
-        .maybeSingle();
+        .eq("id", id);
+      const { data: booking, error: bookingFetchError } = typeof (bookingQuery as any).maybeSingle === "function"
+        ? await (bookingQuery as any).maybeSingle()
+        : await (bookingQuery as any).single();
+      if (bookingFetchError && bookingFetchError.code !== "PGRST116") throw bookingFetchError;
 
       if (booking && user) {
         const isMentor = user.id === booking.mentor_id;
