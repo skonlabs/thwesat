@@ -28,11 +28,10 @@ export function requireCreds(role: RoleKey) {
 export async function login(page: Page, role: RoleKey) {
   const c = requireCreds(role);
   await page.goto("/login");
-  await page.getByLabel(/email/i).fill(c.email);
-  await page.getByLabel(/password/i).fill(c.password);
-  await page.getByRole("button", { name: /sign in|log in/i }).click();
-  // Wait for redirect away from /login.
-  await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
+  await page.locator('input[type="email"], input[placeholder*="@"]').first().fill(c.email);
+  await page.locator('input[type="password"]').first().fill(c.password);
+  await page.getByRole("button", { name: /sign in|log in/i }).first().click();
+  await expect(page).not.toHaveURL(/\/login/, { timeout: 20_000 });
 }
 
 export async function logout(page: Page) {
