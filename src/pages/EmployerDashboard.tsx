@@ -59,12 +59,11 @@ const EmployerDashboard = () => {
 
   const quickActions = [
     { icon: UserSearch, my: "ဝန်ထမ်းရှာ", en: "Find Talent", path: "/employer/search", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: Briefcase, my: "ခေါ်စာများ", en: "My Jobs", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
+    { icon: Briefcase, my: "ကျွန်ုပ်၏ ခေါ်စာများ", en: "My Postings", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
     { icon: Plus, my: "အလုပ်တင်", en: "Post Job", path: "/employer/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Users, my: "လျှောက်သူများ", en: "Applicants", path: "/employer/applications", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: CreditCard, my: "Package", en: "Subscriptions", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
-    { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-    { icon: Settings, my: "ကုမ္ပဏီ", en: "Company", path: "/employer/edit-company", bg: "bg-accent/10", fg: "text-accent" },
+    { icon: CreditCard, my: "Package & Add-ons", en: "Packages & Add-ons", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
+    { icon: CreditCard, my: "ငွေကြေး", en: "Finance", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   ];
 
   return (
