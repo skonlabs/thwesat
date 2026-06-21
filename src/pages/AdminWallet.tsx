@@ -161,11 +161,11 @@ const AdminWallet = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24">
-      <PageHeader title={my ? "ပိုက်ဆံအိတ် & ပေးချေမှု" : "Wallet & Payments"} showBack />
+      <PageHeader title={my ? "ပေးချေမှုများ" : "Payments"} showBack />
       <div className="px-5">
         <Tabs defaultValue={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="subscriptions">{my ? "Package ပေးချေမှု" : "Subscriptions"}</TabsTrigger>
+            <TabsTrigger value="subscriptions">{my ? "Packages & Add-ons" : "Packages and Add-ons"}</TabsTrigger>
             <TabsTrigger value="topups">{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</TabsTrigger>
           </TabsList>
 
