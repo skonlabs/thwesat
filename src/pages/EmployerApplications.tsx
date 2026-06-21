@@ -609,6 +609,7 @@ const EmployerApplications = () => {
                     })();
                     const canShortlist = !["shortlisted", "interview", "interviewed", "offered", "placed", "rejected"].includes(app.status);
                     const canReject = app.status !== "rejected" && app.status !== "placed";
+                    const rowUnlocked = unlockedSet.has(app.applicant_id);
                     return (
                       <motion.div
                         key={app.id}
