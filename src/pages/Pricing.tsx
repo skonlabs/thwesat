@@ -249,14 +249,14 @@ const Pricing = () => {
                           ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
                           : formatMMK(a.mmk)}
                     </div>
-                    {a.kind === "unlock" && (
+                    {a.kind === "unlock_pack" && (
                       <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
                         {my
                           ? "သင့် job အတွက် apply လာသူများ၏ အသေးစိတ် CV နှင့် contact information ကို one-click နှင့် ပြန်ဖွင့်နိုင်မှာဖြစ်ပါသည်။"
                           : "Instantly reveal full CVs, contact details, and experience for every candidate who applies to your jobs — one click each."}
                       </p>
                     )}
-                    {a.kind === "featured" && (
+                    {a.kind === "featured_job" && (
                       <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
                         {my
                           ? "သင့် job ကို search ရလဒ်များ၏ အပေါ်ဆုံးတွင် ပရိုမိုရှင်း လုပ်ပေးပြီး၊ candidate များ၏ မျက်နှာစာတွင် ပို၍ ထင်ရှားစေပါသည်။"
