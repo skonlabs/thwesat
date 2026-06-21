@@ -85,7 +85,7 @@ const Pricing = () => {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Totals
-                label={my ? "Active Jobs" : "Active Jobs"}
+                label={my ? "အလုပ်ခေါ်စာများ" : "JOB POSTINGS"}
                 value={quotas?.is_unlimited_jobs ? "∞" : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
                 total={quotas?.is_unlimited_jobs ? null : quotas?.active_jobs_quota ?? 0}
               />
@@ -206,7 +206,7 @@ const Pricing = () => {
                 <button
                   disabled={disabled}
                   onClick={() => onBuyPlan(plan)}
-                  className={`mt-2 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                  className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
                     disabled
                       ? "cursor-not-allowed bg-muted text-muted-foreground"
                       : "bg-primary text-primary-foreground hover:opacity-90"
@@ -323,7 +323,7 @@ const Pricing = () => {
 
                   <button
                     onClick={() => onBuyAddon(a)}
-                    className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+                    className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
                   >
                     {my ? "ဝယ်ရန်" : "Buy"}
                   </button>
