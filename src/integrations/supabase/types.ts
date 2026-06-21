@@ -2494,6 +2494,7 @@ export type Database = {
         Row: {
           active_jobs_quota: number
           created_at: string
+          featured_jobs_quota: number
           id: string
           is_active: boolean
           is_unlimited_jobs: boolean
@@ -2508,6 +2509,7 @@ export type Database = {
         Insert: {
           active_jobs_quota?: number
           created_at?: string
+          featured_jobs_quota?: number
           id?: string
           is_active?: boolean
           is_unlimited_jobs?: boolean
@@ -2522,6 +2524,7 @@ export type Database = {
         Update: {
           active_jobs_quota?: number
           created_at?: string
+          featured_jobs_quota?: number
           id?: string
           is_active?: boolean
           is_unlimited_jobs?: boolean

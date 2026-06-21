@@ -98,10 +98,24 @@ const Pricing = () => {
                 total={quotas?.featured_jobs_total ?? 0}
               />
               <Totals
-                label={my ? "Packages" : "Packages owned"}
-                value={grants.length.toString()}
+                label={my ? "Add-Ons" : "Add-Ons"}
+                value={
+                  (() => {
+                    const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
+                    if (owned.length === 0) return my ? "မရှိ" : "None";
+                    const names = owned
+                      .map((p) => {
+                        const a = addons.find((x) => x.id === p.addon_id);
+                        return (my && a?.label_my) || a?.label_en || "";
+                      })
+                      .filter(Boolean);
+                    return names.join(", ");
+                  })()
+                }
                 total={null}
+                isText
               />
+
             </div>
           </div>
         )}
@@ -159,7 +173,7 @@ const Pricing = () => {
                   </div>
                 </div>
 
-                <ul className="mt-4 space-y-1.5 text-xs">
+                <ul className="mt-4 flex-1 space-y-1.5 text-xs">
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
@@ -167,6 +181,15 @@ const Pricing = () => {
                         : my ? `Active Jobs ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Active Jobs`
                     }
                   />
+                  {plan.featured_jobs_quota > 0 && (
+                    <FeatureRow
+                      text={
+                        my
+                          ? `Featured Jobs ${plan.featured_jobs_quota.toLocaleString()} ခု`
+                          : `${plan.featured_jobs_quota.toLocaleString()} Featured Jobs`
+                      }
+                    />
+                  )}
                   <FeatureRow
                     text={
                       plan.is_unlimited_unlocks
@@ -177,16 +200,14 @@ const Pricing = () => {
                   {!isFreeTrial && <FeatureRow text={my ? "ပိုင်ဆိုင်မှု စုစုပေါင်းတွင် ပေါင်းထည့်" : "Stacks with other packages you own"} />}
                 </ul>
 
-                {owned > 0 && (
-                  <div className="mt-3 text-[10px] text-emerald-700 dark:text-emerald-400">
-                    {my ? `သင် ${owned} ကြိမ် ပိုင်ဆိုင်နေသည်` : `You own ${owned} ×`}
-                  </div>
-                )}
+                <div className="mt-3 min-h-[16px] text-[10px] text-emerald-700 dark:text-emerald-400">
+                  {owned > 0 ? (my ? `သင် ${owned} ကြိမ် ပိုင်ဆိုင်နေသည်` : `You own ${owned} ×`) : ""}
+                </div>
 
                 <button
                   disabled={disabled}
                   onClick={() => onBuyPlan(plan)}
-                  className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                  className={`mt-2 w-full rounded-xl py-2.5 text-sm font-bold transition ${
                     disabled
                       ? "cursor-not-allowed bg-muted text-muted-foreground"
                       : "bg-primary text-primary-foreground hover:opacity-90"
@@ -219,30 +240,28 @@ const Pricing = () => {
                 (p) => p.addon_id === a.id && p.status === "active",
               );
               return (
-                <div key={a.id} className="rounded-xl border border-border bg-card p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {a.is_per_unit
-                          ? my
-                            ? `${formatMMK(a.mmk)} / တစ်ခု`
-                            : `${formatMMK(a.mmk)} each`
-                          : a.duration_days
-                            ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
-                            : formatMMK(a.mmk)}
-                      </div>
-                      {a.duration_days && (
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                          {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
-                        </div>
-                      )}
-                      {active1yr?.expires_at && (
-                        <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                          {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
-                        </div>
-                      )}
+                <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
+                  <div className="flex-1">
+                    <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {a.is_per_unit
+                        ? my
+                          ? `${formatMMK(a.mmk)} / တစ်ခု`
+                          : `${formatMMK(a.mmk)} each`
+                        : a.duration_days
+                          ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
+                          : formatMMK(a.mmk)}
                     </div>
+                    {a.duration_days && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
+                      </div>
+                    )}
+                    {active1yr?.expires_at && (
+                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                        {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
 
                   {a.is_per_unit && (
@@ -293,13 +312,13 @@ const Pricing = () => {
   );
 };
 
-const Totals = ({ label, value, total }: { label: string; value: string; total: number | null }) => (
+const Totals = ({ label, value, total, isText }: { label: string; value: string; total: number | null; isText?: boolean }) => (
   <div className="rounded-xl border border-border bg-muted/30 p-3">
     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {label}
     </div>
     <div className="mt-1.5 flex items-baseline gap-1.5">
-      <span className="text-xl font-bold tabular-nums text-foreground">{value}</span>
+      <span className={`${isText ? "text-sm" : "text-xl"} font-bold tabular-nums text-foreground`}>{value}</span>
       {total !== null && total > 0 && (
         <span className="text-xs font-medium text-muted-foreground">
           / {total.toLocaleString()}
