@@ -81,14 +81,35 @@ const Login = () => {
       setFailedAttempts(next);
 
       // Always use a generic message to prevent email enumeration.
-      // The only exception is "email not confirmed" which doesn't reveal
-      // whether an account exists (it only shows after a successful password match).
       let msg = lang === "my" ? "အီးမေးလ် သို့မဟုတ် စကားဝှက် မမှန်ကန်ပါ" : "Incorrect email or password.";
       const raw = error.message || "";
       const lower = raw.toLowerCase();
       if (lower.includes("email not confirmed")) {
-        msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
-      } else if (lower.includes("pending verification") || lower.includes("not approved")) {
+        // Check if this is actually an employer/agent pending admin approval —
+        // their accounts can appear "unconfirmed" before review completes.
+        let empStatus: string | null = null;
+        try {
+          const { data } = await (await import("@/integrations/supabase/client")).supabase
+            .rpc("lookup_employer_verification_status", { _email: email.trim() });
+          empStatus = (data as string | null) ?? null;
+        } catch { /* ignore */ }
+        if (empStatus === "pending" || empStatus === "unverified" || empStatus === null) {
+          // Default employer/agent path → under review wording when status is pending/unverified.
+          if (empStatus === "pending" || empStatus === "unverified") {
+            msg = lang === "my"
+              ? "သင်၏ အကောင့်ကို စိစစ်နေဆဲဖြစ်ပါသည်။ Admin မှ အတည်ပြုပြီးပါက အသိပေးပါမည်။"
+              : "Your account is under review. You'll be able to sign in once an admin approves it.";
+          } else {
+            msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
+          }
+        } else if (empStatus === "rejected") {
+          msg = lang === "my"
+            ? "သင်၏ အကောင့်ကို ခွင့်ပြုခြင်း မပြုခဲ့ပါ။ ကျေးဇူးပြု၍ ပံ့ပိုးကူညီရေး အဖွဲ့ကို ဆက်သွယ်ပါ။"
+            : "Your account was not approved. Please contact support.";
+        } else {
+          msg = lang === "my" ? "အီးမေးလ် အတည်မပြုရသေးပါ" : "Please verify your email before signing in.";
+        }
+      } else if (lower.includes("pending verification") || lower.includes("not approved") || lower.includes("under review")) {
         // Surface admin-approval gating verbatim so the user understands why.
         msg = raw;
       }

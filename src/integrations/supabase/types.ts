@@ -3170,6 +3170,10 @@ export type Database = {
       }
       is_profile_complete: { Args: { _user_id: string }; Returns: boolean }
       is_user_onboarded: { Args: { _user_id: string }; Returns: string }
+      lookup_employer_verification_status: {
+        Args: { _email: string }
+        Returns: string
+      }
       lookup_partner_referral_code: { Args: { _code: string }; Returns: string }
       lookup_referrer_by_code: { Args: { _code: string }; Returns: string }
       mark_session_complete: {
