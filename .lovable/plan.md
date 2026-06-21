@@ -1,55 +1,64 @@
+# Test Case Workbook Generation Plan
 
-## 1. Unified "Employers/Recruiters Approvals"
+Produce a single Excel file `test-cases.xlsx` containing one tab per role plus cross-cutting tabs, with one row per atomic test case covering every screen, button, icon, and money-related action discovered in the codebase.
 
-Reuse existing `employer_profiles` for agents (already pre-seeded at signup). One queue, one schema, one flow — mirrors employer verification exactly.
+## Deliverable
 
-**Backend (migration)**
-- Backfill: for every `profiles.primary_role = 'agent'` user without a row in `employer_profiles`, insert one with `verification_status = 'pending'`. Defensive — covers agents created before signup pre-seed.
-- Trigger `ensure_employer_profile_on_role`: after `profiles` insert/update, if `primary_role IN ('employer','agent')` and no `employer_profiles` row exists → insert pending row.
-- No schema change to `employer_profiles` itself — `verification_status` already exists.
+`/mnt/documents/thwesat-test-cases.xlsx` — downloadable from chat.
 
-**Frontend gates (mirror employer)**
-- Agents must already be blocked the same way employers are. Confirm + harden:
-  - `AgentDashboard` already shows the "complete profile" banner when `!is_verified`. Change to a stronger "Pending approval" banner that distinguishes *needs profile data* vs *waiting on admin review*.
-  - Gate `post-job`, `search-talent`, `unlock candidate`, `start conversation` for agents on `verification_status === 'verified'` (same checks as employer paths already use).
+## Workbook structure (tabs)
 
-**Admin/Partner UI**
-- Rename labels on `AdminDashboard` + `PartnerDashboard`: `Employer Verifications` → `Employers/Recruiters Approvals` (and Burmese: `အလုပ်ရှင်/ခေါ်ယူရေး အတည်ပြုရန်`).
-- Rename `AdminEmployers` page header: `Employer Management` → `Employers & Recruiters`.
-- Add a Role badge column (Employer / Recruiter) derived from joined `profiles.primary_role`.
-- Add a role filter chip row (All / Employers / Recruiters) alongside the existing status tabs.
-- Search/cards stay the same.
+1. **README** — legend, columns, how to use, scope statement (excludes performance & security per request).
+2. **Auth & Onboarding** — shared signup/login/forgot/reset/email-confirm/role-gate/site-gate/delegate-access flows (apply to all roles).
+3. **Job Seeker** — Dashboard, Jobs, JobDetail, SavedJobs, Applications, Mentors browse, MentorDetail, MentorBooking, Guides, GuideDetail, Community, Messages, ChatView, Notifications, Profile, EditProfile, AI Tools (Profile Builder, Cover Letter, Skill Gap), Wallet, SeekerFinance, PaymentHistory, BecomeMentor, Settings.
+4. **Employer** — EmployerDashboard, EmployerOnboarding, PostJob, EditJob, EmployerJobs (list + actions), EmployerApplications (incl. placement modal), SearchTalent, EditCompany, CompanyProfile, EmployerFinance, Pricing/SubscribeSheet, PaymentMethod sheets, Notifications, Messages.
+5. **Recruiting Agent** — AgentDashboard, AgentClients (CRUD), PostJob (as agent), Jobs, Candidates, SearchTalent, Agent Profile, AgentFinance, Pricing/Subscribe, vocabulary swap (Client/Candidate/Listing), Messages, Notifications.
+6. **Mentor** — MentorDashboard, MentorBookings, MentorMentees, AvailabilityManager, MentorPreferences, MentorFinance, Wallet, Public mentor profile, booking accept/reject flows, Messages.
+7. **Admin** — AdminDashboard, AdminUsers (incl. role toggles, status), AdminEmployers (approve/reject + auto-email-confirm), AdminJobQueue, AdminPayments (legacy redirect → finance queue), AdminFinanceHub (Overview/Queue/Subscriptions/Partners/Legacy tabs), AdminPartnerFinance, AdminPartners, AdminAnalytics, AdminWallet, ModeratorDashboard view, AdminEditGuide, Edit Job as admin, Moderation queue actions.
+8. **Moderator** — ModeratorDashboard, job/post approvals, blocked-from-admin-finance enforcement.
+9. **Partner** — PartnerDashboard, PartnerReferrals (P-XXXXXXXX generation, usage marking, one-time enforcement), PartnerFinanceHub (Attributions/Referrals tabs), partner-scoped Users/Jobs/Employers/Analytics mirrors, partner wallet, blocked-from-admin-only routes.
+10. **Money & Finance (cross-role)** — every monetary path end-to-end: MMK rounding (100 Ks), formatCurrency, placement fee 8% + 10% platform commission, mentor session payments, wallet top-ups, subscription monthly/yearly (yearly = monthly × 11), add-on packs, manual payment proof upload → admin approve/reject → user notification, payment status badges, partner revenue share, finance ledger totals per currency, KPI counts on each role's dashboard, agent placement modal math, MMK display formatting in every list/card, refund/revoke flows.
+11. **Dashboard Drilldowns (cross-role)** — every numeric stat on every dashboard, URL search-param deep links, role-aware vocabulary, profile completion logic, scam-alert dismissal, subscription chip, wallet chip visibility rules.
+12. **Notifications & Messaging (cross-role)** — 30s polling, unread counts, deep links, client-side UUIDs, RLS bypass paths.
 
-## 2. Partner referral tagging — verification pass
+## Row schema (columns) for every test tab
 
-`Signup.tsx` already calls `lookup_partner_referral_code` → `redeem_partner_referral_code` after `signUp`. Risks to fix:
-- If email confirmation is required, `getUser()` returns null right after `signUp` → the partner attribution is silently skipped. **Fix:** use the user id returned by `signUp` (already in `data.user`) instead of a second `getUser()` round-trip; if still null, fall back to a deferred enqueue (write the code into a one-row `pending_referral_redemptions` table keyed by email, drained by an auth trigger on first session). Simpler alternative: extend `redeem_partner_referral_code` so it can be re-applied idempotently the first time the user authenticates (lookup user by email + code). I'll go with the latter — single migration, no new table.
-- Add Vitest covering: employer signup with partner code → `partner_attributions` row present; agent signup with partner code → row present; invalid code → user still created, no row.
+`ID | Area | Screen / Route | Component / Element | Precondition | Steps | Test Data | Expected Result | Type (UI/Functional/Money/Negative) | Priority (P0/P1/P2) | Automation Hint (selector / RPC / table)`
 
-## 3. Admin/Partner Users list — show email + Message
+IDs are role-prefixed and zero-padded (e.g. `JS-0042`, `EMP-0117`, `MON-0058`) so failures route to owners instantly.
 
-`/admin/users` (also served at `/partner/users`):
-- Email is already fetched via `get_user_contacts_admin`. Currently shown inline in the row. Add a copy-to-clipboard button next to it for desktop.
-- Add a `Message` icon-button on each row (admin + partner only). Click → calls existing `useStartConversation` and navigates to `/messages/:id`. Hidden for any non-admin/non-partner viewer (page is already system-role-gated, so this is just adding the action).
+## Coverage methodology (to guarantee nothing is missed)
 
-## 4. Tests / verification
+For each role tab, generation walks three sources in order:
+1. **Routes** from `src/App.tsx` filtered by `AppRoleGuard` / `SystemRoleGuard` for that role.
+2. **Page file** for each route: enumerate every `<Button>`, icon button, link, form field, modal, bottom sheet, tab, filter, and toast trigger → one UI test + one functional test minimum per interactive element.
+3. **Hooks/RPCs** the page calls (`use-*.ts`) → one happy-path + one negative test per mutation; one empty-state + one populated-state test per query.
 
-- `e2e/agent.spec.ts`: assert pending agent cannot reach `/agent/post-job` (redirected to onboarding/pending banner).
-- Manual sanity in preview: sign up agent with partner referral code → verify (a) row appears in admin approvals with Recruiter badge, (b) `partner_attributions` row exists, (c) blocked from posting until approved, (d) notification fired on approve/reject.
+Money tab additionally walks `src/lib/finance.ts`, `src/lib/currency.ts`, `use-user-finance.ts`, `use-wallet.ts`, `use-subscription.ts`, `use-payment.ts`, `use-partner-finance.ts`, all `payment_requests` / `subscription_payment_requests` / `topup_requests` flows, and every admin approval RPC.
 
-## Files touched
+Expected volume: ~700–1000 rows total (Auth ~60, Seeker ~180, Employer ~150, Agent ~110, Mentor ~110, Admin ~180, Moderator ~30, Partner ~70, Money ~120, Dashboards ~60, Notif/Msg ~40).
 
-```text
-supabase/migrations/<new>.sql          backfill + ensure-row trigger + idempotent partner redeem
-src/pages/AdminDashboard.tsx           rename label
-src/pages/PartnerDashboard.tsx         rename label
-src/pages/AdminEmployers.tsx           role badge, role filter, page title
-src/pages/AdminUsers.tsx               email copy + Message action
-src/pages/AgentDashboard.tsx           pending-approval banner
-src/pages/Signup.tsx                   use signUp().data.user.id; surface failure
-src/hooks/use-employer-data.ts         (only if needed) expose verification_status cleanly
-e2e/agent.spec.ts                      pending-agent gate test
-src/test/partner-finance-rpc.test.tsx  partner-attribution-on-signup test (or new file)
-```
+## Formatting
 
-No new tables, no changes to RLS beyond the backfill migration.
+- Frozen header row, bold navy header (`#1B1740`) with gold (`#FFBE5C`) underline matching brand.
+- Column widths tuned (Steps 60, Expected 50, others auto).
+- Wrap text on Steps/Expected.
+- Priority cells color-coded (P0 red, P1 amber, P2 grey).
+- Type cells color-coded (Money gold, Negative light-red).
+- Autofilter on header row of every test tab.
+
+## Out of scope (per request)
+
+- No performance/load tests.
+- No security/penetration tests (RLS, XSS, CSRF, auth-bypass, rate-limiting).
+- No infra, deploy, or migration tests.
+
+## Technical implementation
+
+Single Python script using `openpyxl`:
+1. Define role → list-of-test-case-dicts in code, generated from the route+component walk above.
+2. Build workbook, apply styles, autofilter, freeze panes.
+3. Save to `/mnt/documents/thwesat-test-cases.xlsx`.
+4. Print row counts per tab as verification.
+
+No app code changes. No migrations. No new dependencies beyond `openpyxl` (already used by xlsx skill).
