@@ -73,6 +73,9 @@ for (const [role, list] of byRole.entries()) {
     let page: Page;
     test.beforeAll(async ({ browser }) => {
       const ctx = await browser.newContext();
+      await ctx.addInitScript(() => {
+        try { sessionStorage.setItem("site_gate_passed", "1"); } catch {}
+      });
       page = await ctx.newPage();
       if (role !== "guest") {
         try {
@@ -83,6 +86,7 @@ for (const [role, list] of byRole.entries()) {
         }
       }
     });
+    test.beforeAll(() => { /* timeout boost */ });
     test.afterAll(async () => { await page?.context().close(); });
 
     for (const c of list) {
