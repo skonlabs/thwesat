@@ -1,85 +1,56 @@
-# Plan
+## Goal
+Find why "save / load" actions (top-ups, payments, bookings, etc.) silently fail across multiple roles and produce a single round of targeted fixes — instead of chasing one button at a time.
 
-## Scope reality check
+## What the signals tell us so far
+- Auth log shows `bad_jwt: invalid claim: missing sub claim` on `GET /user` from `thwesat.com` — separate from the running preview session. Worth confirming this isn't a stale localStorage token issue on production after the recent `signOut` cleanup changes.
+- Console shows only an unrelated Radix `DialogContent` aria warning.
+- Recent migration `20260621033118` added `WITH CHECK` clauses that subquery the **same row being updated** on `applications`, `mentor_bookings`, and `jobs`:
+  ```sql
+  WITH CHECK (... AND applicant_id = (SELECT applicant_id FROM applications a WHERE a.id = applications.id))
+  ```
+  This pattern can fail or behave unexpectedly under RLS because the subquery itself is also RLS-filtered. Likely culprit for "update booking", "withdraw application", "edit job", "mark placed" failures.
+- Same migration dropped six `Partners update …` policies — partner-side write actions for jobs/profiles/posts/contact messages will now 403.
+- `20260621031717` did `REVOKE SELECT ON employer_profiles FROM anon` — public job detail / company pages that still read the base table (not the `_public` view) would break for logged-out visitors only.
+- `20260620191130` introduced `mentor_create_booking_and_hold` and `placement_confirm_with_invoice` RPCs — if any call site is still hitting the old direct-insert path, or if grants/signatures don't match, mentor booking + placement confirmation fail.
 
-A "full purge" of `wallets`, `wallet_transactions`, `topup_requests`, `credit_packages`, `action_prices` cannot be a single migration — those tables back the entire credit-spending UX, not just admin screens. They are referenced by:
+## Investigation passes
+I'll run these in order and report findings before changing anything.
 
-- `/wallet` page (`Wallet.tsx`)
-- `WalletChip` in headers everywhere
-- `TopupSheet` (top-up flow)
-- `SpendConfirmSheet` — used by **MentorBooking, CoverLetterGenerator, SkillGapAnalysis, CareerTracks, JobDetail, EmployerJobs, EmployerApplications, ProfileBuilder, AgentDashboard, EmployerDashboard**
-- Hooks: `use-wallet.ts`, `use-jobs.ts` (priority-apply spend), `use-user-finance.ts`
+### Pass A — Reproduce + capture exact errors per role
+For each role (seeker, mentor, employer, agent, admin, partner), I'll log in with the test account, exercise the failing surfaces, and collect the precise PostgREST error code + message:
+1. Seeker: top-up create, withdraw application, save job, book mentor, accept placement.
+2. Mentor: accept/decline booking, mark complete, withdraw earnings, edit availability.
+3. Employer: post job, edit job, change application status, mark placement, subscribe.
+4. Agent: same as employer surfaces (shared screens, different labels).
+5. Admin: approve top-up, approve/reject payment, change user role, moderate job/post.
+6. Partner: view attributed payments, statements, monthly revenue share.
 
-If we drop the tables outright, every "spend N credits" button in the app throws. Subscription quotas (`subscription_quotas`) already exist but don't yet cover every spend point.
+I'll capture failures from network panel + console, not just "didn't work".
 
-So I will do this in three phases — phase 1 ships now, phases 2 and 3 wait for your go-ahead.
+### Pass B — Audit the suspect RLS / RPC changes
+- Diff every policy and grant introduced or dropped between `20260620191130` and `20260621033118` against current call sites in `src/hooks/*` and `src/pages/*`.
+- Verify each `WITH CHECK (... = (SELECT … FROM same_table))` clause actually permits a legitimate owner UPDATE by running the exact SQL the client sends as the affected user (via `supabase--read_query` with `SET LOCAL request.jwt.claim.sub`).
+- Confirm grants exist on every table touched in the last 4 migrations (`employer_profiles`, `applications`, `jobs`, `mentor_bookings`, `payment_requests`, RPC EXECUTE grants).
+- Run `supabase--linter` and inspect for new errors after the recent security tightening.
 
-## Task 1 — Wallet admin: name + email + click-through (ships now)
+### Pass C — Audit triggers + RPCs
+- Check that `mentor_create_booking_and_hold`, `placement_confirm_with_invoice`, `review_payment_request`, `wallet_spend` are all `EXECUTE`-grantable to `authenticated` and return the JSON shapes the hooks expect.
+- Scan `pg_trigger` for triggers on touched tables that might now reference dropped columns or roles.
 
-File: `src/pages/AdminWallet.tsx`
+### Pass D — Frontend audit
+- Find call sites that still write directly to tables that now require an RPC (mentor booking, placement confirm).
+- Find call sites using `.single()` on rows the user may not be able to see (returns PGRST116 → looks like a failure).
+- Verify role checks in nav + guards match the actual role of failing test accounts (the agent / partner roles use shared employer screens — RLS may not include them in newer policies).
 
-- For both Subscriptions and Top-ups tabs, fetch `profiles.display_name` + `get_user_contacts_admin` email for every `user_id` in the visible rows.
-- Replace `user: {id.slice(0,8)}…` with `{display_name} · {email}`.
-- Wrap each row's user block in a `Link` to `/admin/users/{id}` (existing admin user route — verified).
-- Adjust mark-paid email path to keep using `user_id` (unchanged).
+### Pass E — Apply fixes in one migration + matching frontend edits
+Group the SQL fixes into a single migration:
+1. Replace fragile `WITH CHECK (col = (SELECT col FROM same_table …))` with column-equality based on `OLD.col` via a `BEFORE UPDATE` trigger, OR drop the ownership re-check (policy already gates by `auth.uid()`).
+2. Re-add the necessary partner write policies (scoped to attributed users) if any partner UI legitimately needs them; otherwise hide the buttons in the frontend instead.
+3. Restore any missing `GRANT EXECUTE` / `GRANT SELECT, INSERT, UPDATE, DELETE` on the audited tables.
+4. Update frontend hooks to call the new RPCs (mentor booking, placement confirm) where they still do direct table writes.
 
-## Task 3 — Finance Hub data audit (ships now)
+Verify by re-running Pass A for every failing flow until each returns success and the relevant test in `src/test/` and `e2e/` is green.
 
-I'll review each tab against live DB rows and fix anything wrong. Known/likely findings to confirm and fix:
-
-1. **Overview (`FinanceOverview.tsx`)** — re-verify all KPIs vs `subscription_payment_requests`, `payment_requests`, `mentor_earnings`, `partner_monthly_statements`. Current period filter is 30d; confirm queries respect it.
-2. **Revenue & Payouts (`AdminFinance.tsx`)** —
-   - `in.placement` row will be 0 (no placement payments in DB) — keep but label "(none yet)" if empty.
-   - `in.session` reads `payment_requests.payment_type='mentor_session'` ✓ matches DB (10 approved).
-   - Pending count merges `payment_requests.pending` + `subscription_payment_requests.pending` ✓.
-   - Title of subscription/addon details uses `<Tier> Package` — verify lookup with `planLookup`.
-3. **Payment Queue (`AdminPayments.tsx`)** — only shows `payment_requests`; `subscription_payment_requests` queue lives in `/admin/wallet`. Will merge subscription pending into the queue so admins have one place (or surface a tab — confirm preference if you want).
-4. **Partner Rev-Share / Monthly Statement / Attributions / Payments & Overrides / Quality Gate / Reversals / Statement History** (`AdminPartnerFinance.tsx`) — DB has 1 attribution, 0 statements, 0 reversals, 0 quality metrics. Will:
-   - Confirm preview computation (`usePartnerStatementPreview`) runs for current period even with 0 statements.
-   - Verify Attributions tab lists the 1 row with user name/email instead of raw UUID.
-   - Verify Quality Gate shows "no metrics yet" empty state instead of NaN.
-   - Verify Statement History empty state.
-   - Verify Reversals tab.
-5. **Per-screen empty states** — replace blank tables with clear "no data yet" copy.
-
-I will report exact deltas inline as I touch each tab; no business-logic change without surfacing it first.
-
-## Task 2 — Legacy purge (PHASED, needs your go-ahead per phase)
-
-### Phase 2A — UI removal + stop writing legacy data (safe, ready now)
-
-- Delete top-up flow: remove `TopupSheet`, `Wallet` top-up section, "Top up wallet" CTAs in `SpendConfirmSheet`, `InviteFriendsCard` credit references.
-- Remove legacy tabs from `AdminWallet` (`topups` tab) and `AdminFinance` (`in.topups` row, `topupsTotal`, the deferred-revenue paragraph).
-- Remove `topup_requests` counts from `AdminDashboard` / `PartnerDashboard`.
-- Make `SpendConfirmSheet` show a hard "subscription required" gate when the user has no quota — no credit fallback — and route to `/subscriptions` instead of `/wallet`.
-- Hide `WalletChip` everywhere; replace with a subscription/quota chip.
-- Hide `/wallet` route (redirect to `/subscriptions`).
-- Database: **no destructive SQL yet**. Just stop writing.
-
-### Phase 2B — DB purge (destructive, separate migration after 2A is green)
-
-Migration (only after you confirm 2A is shipped and quotas cover every action):
-
-```sql
-DROP FUNCTION IF EXISTS public.wallet_topup_approve, public.wallet_topup_reject,
-                        public.wallet_adjust, public.wallet_spend_credits CASCADE;
-DROP TABLE IF EXISTS public.wallet_transactions, public.topup_requests,
-                     public.action_prices, public.credit_packages, public.wallets CASCADE;
-```
-
-Plus removing every remaining code path that references those names (hooks, types, tests).
-
-### Phase 2C — Cleanup
-
-- Delete `use-wallet.ts`, `src/components/wallet/`, `src/pages/Wallet.tsx`, `src/pages/AdminWallet.tsx` (or repurpose AdminWallet to just be the subscription queue).
-- Update tests: `src/test/wallet.test.ts`, `src/test/roles/job-seeker.test.ts`.
-
-## What ships in this turn
-
-Tasks **1** and **3** only. I will NOT touch the database or remove credit spending until you confirm: "go phase 2A" — that protects the 62 users currently holding ~7.6M Ks of credits while we wire up subscription quotas to cover the missing spend points.
-
-## Technical details
-
-- Admin user lookup: reuse `get_user_contacts_admin` RPC already used in `AdminPayments.tsx`.
-- AdminWallet rows: keep current card layout; add `<Link to={\`/admin/users/${id}\`}>` on the user line.
-- Empty-state component: reuse existing `FinanceLedger` `emptyText` prop where applicable.
+## Open questions before I start
+- Can you list 2–3 of the **specific buttons** that fail today (with the role) and, if possible, the red toast text or browser network response body? It will let me skip Pass A for those and go straight to the root cause.
+- Are failures appearing only on the **published** site (`thwesat.com`), only in the **preview**, or both? The `bad_jwt` log row suggests at least the published site has a stale-session problem.
