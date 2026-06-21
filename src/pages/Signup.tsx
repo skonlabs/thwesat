@@ -304,7 +304,7 @@ const Signup = () => {
                 <Input
                   value={referralCode}
                   onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralError(null); }}
-                  placeholder="TS-XXXXXX"
+                  placeholder={selectedRole === "employer" || selectedRole === "agent" ? "P-XXXXXXXX" : "TS-XXXXXX"}
                   className="h-12 rounded-xl border-border bg-muted/30 pl-10 text-sm uppercase focus-visible:ring-primary/30"
                 />
               </div>
