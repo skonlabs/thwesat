@@ -8,6 +8,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useUnreadMessageCount, useUnreadNotificationCount } from "@/hooks/use-unread-counts";
 import { useAuth } from "@/hooks/use-auth";
 import WalletChip from "@/components/WalletChip";
+import SubscriptionChip from "@/components/SubscriptionChip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import LanguageToggle from "@/components/LanguageToggle";
 
@@ -113,6 +114,7 @@ const DesktopNav = () => {
             <Search className="h-4 w-4" strokeWidth={1.75} />
           </button>
           {!isAdmin && !isPartner && !isModerator && <WalletChip />}
+          {!isAdmin && !isPartner && !isModerator && <SubscriptionChip />}
           <button onClick={() => navigate("/messages")} className="relative flex h-9 w-9 items-center justify-center rounded-full text-shell-foreground/70 hover:bg-sidebar-accent hover:text-shell-foreground">
             <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
             {unreadMessages > 0 && (
