@@ -65,7 +65,7 @@ const AdminEmployers = () => {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, created_at, primary_role")
+        .select("id, display_name, avatar_url, created_at, primary_role, bio, headline, location, phone, website, languages, skills, experience, role_title")
         .in("id", ids);
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
