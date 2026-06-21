@@ -161,24 +161,28 @@ const ModeratorDashboard = () => {
       payment: "/admin/payments",
     };
     const link_path = linkPathMap[itemType];
-    await Promise.all(
-      adminUserIds.map((adminId: string) =>
-        supabase.from("notifications").insert({
-          user_id: adminId,
-          notification_type: "escalation_request",
-          title: "Escalation request",
-          description: `Moderator escalated ${itemType} ${itemId} for review`,
-          link_path,
-        })
-      )
-    );
-    toast.success(lang === "my" ? "Admin ထံ ပို့ပြီး" : "Escalated to admin");
+    try {
+      await Promise.all(
+        adminUserIds.map((adminId: string) =>
+          supabase.from("notifications").insert({
+            user_id: adminId,
+            notification_type: "escalation_request",
+            title: "Escalation request",
+            description: `Moderator escalated ${itemType} ${itemId} for review`,
+            link_path,
+          })
+        )
+      );
+      toast.success(lang === "my" ? "Admin ထံ ပို့ပြီး" : "Escalated to admin");
+    } catch (e: any) {
+      toast.error(e?.message || (lang === "my" ? "ပို့၍ မရပါ" : "Failed to escalate"));
+    }
   };
 
   // ─── MUTATIONS ───
   const approvePost = useMutation({
     mutationFn: async (id: string) => {
-      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
       const { error } = await supabase.from("community_posts").update({ is_approved: true, moderated_by: user?.id }).eq("id", id);
       if (error) throw error;
       if (post?.author_id) {
@@ -194,6 +198,7 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); toast.success(lang === "my" ? "အတည်ပြုပြီး" : "Post approved"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အတည်ပြု၍ မရပါ" : "Failed to approve post")),
   });
 
   const removePost = useMutation({
