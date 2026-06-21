@@ -399,7 +399,7 @@ const Profile = () => {
         )}
 
         {/* Profile Boost */}
-        {effectiveRole === "jobseeker" && (
+        {!isSystemRole && (effectiveRole === "jobseeker" || effectiveRole === "mentor") && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-50 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/10 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
