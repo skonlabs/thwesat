@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { useMemo, useState } from "react";
 import { Check, Sparkles, Zap, Crown, Rocket, Gift, Clock, Minus, Plus } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -31,6 +32,7 @@ const TIER_ICON: Record<string, any> = {
 };
 
 const Pricing = () => {
+  const { user } = useAuth();
   const { lang } = useLanguage();
   const my = lang === "my";
   const { allowedRoles } = useUserRoles();
@@ -76,7 +78,7 @@ const Pricing = () => {
       <PageHeader title={my ? "ဈေးနှုန်းများ" : "Pricing"} />
       <div className="mx-auto w-full max-w-6xl px-5 space-y-5">
         {/* Your totals */}
-        {(quotas || grants.length > 0) && (
+        {user && (
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
             <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {my ? "သင်၏ စုစုပေါင်း ပိုင်ဆိုင်မှု" : "Your totals"}
