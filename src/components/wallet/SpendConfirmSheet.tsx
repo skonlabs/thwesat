@@ -140,15 +140,9 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
               </div>
 
               {noSubscription ? (
-                <>
-                  <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
-                    <Lock className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{lang === "my" ? "Subscription တစ်ခု လိုအပ်ပါသည်။" : "An active subscription is required."}</span>
-                  </div>
-                  <Button onClick={() => { onOpenChange(false); navigate("/pricing"); }} className="w-full rounded-xl">
-                    {lang === "my" ? "Plan ရွေးမည်" : "Choose a plan"}
-                  </Button>
-                </>
+                <Button onClick={() => { onOpenChange(false); navigate("/pricing"); }} className="w-full rounded-xl">
+                  {lang === "my" ? "Plan ရွေးမည်" : "Choose a plan"}
+                </Button>
               ) : quotaExhausted ? (
                 <>
                   <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
