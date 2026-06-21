@@ -45,7 +45,7 @@ const AdminDashboard = () => {
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
-    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
+    { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာများ", en: "Job Postings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
     { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/users?role=employer" },
     { icon: Shield, label: { my: "လမ်းညွှန်", en: "Mentors" }, value: counts?.totalMentors?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/users?role=mentor" },
   ];

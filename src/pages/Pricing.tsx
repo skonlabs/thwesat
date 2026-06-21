@@ -189,8 +189,8 @@ const Pricing = () => {
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
-                        ? my ? "Unlimited Active Jobs" : "Unlimited Active Jobs"
-                        : my ? `Active Jobs ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Active Jobs`
+                        ? my ? "Unlimited Job Postings" : "Unlimited Job Postings"
+                        : my ? `Job Postings ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Job Postings`
                     }
                   />
                   {plan.featured_jobs_quota > 0 && (
