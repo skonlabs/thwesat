@@ -173,7 +173,7 @@ const Pricing = () => {
                   </div>
                 </div>
 
-                <ul className="mt-4 space-y-1.5 text-xs">
+                <ul className="mt-4 flex-1 space-y-1.5 text-xs">
                   <FeatureRow
                     text={
                       plan.is_unlimited_jobs
@@ -181,6 +181,15 @@ const Pricing = () => {
                         : my ? `Active Jobs ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Active Jobs`
                     }
                   />
+                  {plan.featured_jobs_quota > 0 && (
+                    <FeatureRow
+                      text={
+                        my
+                          ? `Featured Jobs ${plan.featured_jobs_quota.toLocaleString()} ခု`
+                          : `${plan.featured_jobs_quota.toLocaleString()} Featured Jobs`
+                      }
+                    />
+                  )}
                   <FeatureRow
                     text={
                       plan.is_unlimited_unlocks
@@ -191,16 +200,14 @@ const Pricing = () => {
                   {!isFreeTrial && <FeatureRow text={my ? "ပိုင်ဆိုင်မှု စုစုပေါင်းတွင် ပေါင်းထည့်" : "Stacks with other packages you own"} />}
                 </ul>
 
-                {owned > 0 && (
-                  <div className="mt-3 text-[10px] text-emerald-700 dark:text-emerald-400">
-                    {my ? `သင် ${owned} ကြိမ် ပိုင်ဆိုင်နေသည်` : `You own ${owned} ×`}
-                  </div>
-                )}
+                <div className="mt-3 min-h-[16px] text-[10px] text-emerald-700 dark:text-emerald-400">
+                  {owned > 0 ? (my ? `သင် ${owned} ကြိမ် ပိုင်ဆိုင်နေသည်` : `You own ${owned} ×`) : ""}
+                </div>
 
                 <button
                   disabled={disabled}
                   onClick={() => onBuyPlan(plan)}
-                  className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                  className={`mt-2 w-full rounded-xl py-2.5 text-sm font-bold transition ${
                     disabled
                       ? "cursor-not-allowed bg-muted text-muted-foreground"
                       : "bg-primary text-primary-foreground hover:opacity-90"
