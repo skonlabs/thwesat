@@ -86,6 +86,13 @@ const AdminEmployers = () => {
       }).eq("id", id);
       if (error) throw error;
 
+      // Auto-confirm the user's email on approval so they can sign in.
+      if (status === "verified" || status === "approved") {
+        try { await supabase.rpc("admin_confirm_user_email", { _user_id: id }); } catch (e) { console.warn("confirm email failed", e); }
+      }
+
+
+
       // Notify employer about verification status
       const isVerified = status === "verified";
       await supabase.from("notifications").insert({
