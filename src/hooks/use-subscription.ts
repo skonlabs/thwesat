@@ -15,6 +15,7 @@ export interface SubscriptionPlan {
   is_unlimited_jobs: boolean;
   unlock_quota: number;
   is_unlimited_unlocks: boolean;
+  featured_jobs_quota: number;
   sort_order: number;
   is_active: boolean;
 }
