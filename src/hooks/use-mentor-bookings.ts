@@ -164,7 +164,7 @@ export function useUpdateBookingStatus() {
         .from("mentor_bookings")
         .select("mentor_id, mentee_id, scheduled_date, scheduled_time")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (booking && user) {
         const isMentor = user.id === booking.mentor_id;
