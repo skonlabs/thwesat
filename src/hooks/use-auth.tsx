@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, displayName: string, role: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, displayName: string, role: string) => Promise<{ error: Error | null; userId?: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string, role: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -184,14 +184,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         emailRedirectTo: window.location.origin,
       },
     });
-    if (!error) {
-      // Update the profile role after signup trigger creates it
-      const { data: { user: newUser } } = await supabase.auth.getUser();
-      if (newUser) {
-        await supabase.from("profiles").update({ primary_role: role, display_name: displayName }).eq("id", newUser.id);
-      }
+    // Use the user id from the signUp response directly — reliable even when
+    // email confirmation is required (in which case there is no active session
+    // and supabase.auth.getUser() returns null, silently dropping downstream
+    // updates like partner referral attribution).
+    const newUserId = data?.user?.id ?? null;
+    if (!error && newUserId) {
+      await supabase.from("profiles").update({ primary_role: role, display_name: displayName }).eq("id", newUserId);
     }
-    return { error: error as Error | null };
+    return { error: error as Error | null, userId: newUserId };
   };
 
   const signIn = async (email: string, password: string) => {
