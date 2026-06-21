@@ -300,12 +300,12 @@ const Settings = () => {
         { icon: Shield, label: lang === "my" ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy Policy", value: "", action: () => setShowPrivacyPolicy(true) },
       ],
     },
-    {
+    ...(showPaymentHistory ? [{
       title: lang === "my" ? "ငွေပေးချေမှု" : "Billing",
       items: [
         { icon: Receipt, label: lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း" : "Payment History", value: "", action: () => navigate("/payments/history") },
       ],
-    },
+    }] : []),
   ];
 
   return (
