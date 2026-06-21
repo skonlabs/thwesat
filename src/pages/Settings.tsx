@@ -34,13 +34,10 @@ const Settings = () => {
   const { data: activeToken } = useActiveDelegateToken();
   const generateTokenMutation = useGenerateDelegateToken();
   const revokeTokenMutation = useRevokeDelegateToken();
-  const { hasRole } = useUserRoles();
+  const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("jobseeker");
-  const isAdmin = hasRole("admin");
-  const isAgent = hasRole("agent");
-  const isPartner = hasRole("partner");
-  const showPaymentHistory = !isAdmin && !isAgent && !isPartner;
+  const showPaymentHistory = !isAdmin && !isPartner && !isSystemRole;
 
   // Toggles
   const [emailNotifications, setEmailNotifications] = useState(() => {
