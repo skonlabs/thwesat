@@ -40,8 +40,8 @@ const Wallet = () => {
           </div>
           <div className="mt-1 text-[11px] opacity-75">
             {my
-              ? "Mentor session ချိန်းဆိုခြင်း၊ Career Tracks အသုံးပြုခြင်းတို့အတွက် သုံးနိုင်ပါသည်။"
-              : "Use your balance for mentor bookings and career tracks."}
+              ? "Mentor session ချိန်းဆိုခြင်းအတွက် သုံးနိုင်ပါသည်။"
+              : "Use your balance for mentor bookings."}
           </div>
           <div className="mt-4 flex gap-2">
             <Button
