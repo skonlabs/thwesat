@@ -241,29 +241,27 @@ const Pricing = () => {
               );
               return (
                 <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {a.is_per_unit
-                          ? my
-                            ? `${formatMMK(a.mmk)} / တစ်ခု`
-                            : `${formatMMK(a.mmk)} each`
-                          : a.duration_days
-                            ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
-                            : formatMMK(a.mmk)}
-                      </div>
-                      {a.duration_days && (
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                          {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
-                        </div>
-                      )}
-                      {active1yr?.expires_at && (
-                        <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                          {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
-                        </div>
-                      )}
+                  <div className="flex-1">
+                    <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {a.is_per_unit
+                        ? my
+                          ? `${formatMMK(a.mmk)} / တစ်ခု`
+                          : `${formatMMK(a.mmk)} each`
+                        : a.duration_days
+                          ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
+                          : formatMMK(a.mmk)}
                     </div>
+                    {a.duration_days && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
+                      </div>
+                    )}
+                    {active1yr?.expires_at && (
+                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                        {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
 
                   {a.is_per_unit && (
