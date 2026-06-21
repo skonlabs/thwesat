@@ -788,22 +788,24 @@ const EmployerApplications = () => {
                 </div>
               )}
 
-              <div className="mb-4 grid grid-cols-2 gap-2">
+              <div className={`mb-4 grid gap-2 ${isContactUnlocked ? "grid-cols-2" : "grid-cols-1"}`}>
                 <Button variant="outline" size="sm" className="rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.applicant_id}`); }}>
                   <EyeIcon className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
                   {lang === "my" ? "ပရိုဖိုင် ကြည့်ရန်" : "View Profile"}
                 </Button>
-                <Button variant="default" size="sm" className="rounded-xl" onClick={() => {
-                  const jobTitle = selected.jobs?.title || "your application";
-                  const seed = lang === "my"
-                    ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက် သင့်လျှောက်လွှာနှင့် ပတ်သက်၍...`
-                    : `Hi, regarding your application for "${jobTitle}"...`;
-                  setSelectedId(null);
-                  startConversation(selected.applicant_id, { initialMessage: seed });
-                }}>
-                  <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
-                  {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
-                </Button>
+                {isContactUnlocked && (
+                  <Button variant="default" size="sm" className="rounded-xl" onClick={() => {
+                    const jobTitle = selected.jobs?.title || "your application";
+                    const seed = lang === "my"
+                      ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက် သင့်လျှောက်လွှာနှင့် ပတ်သက်၍...`
+                      : `Hi, regarding your application for "${jobTitle}"...`;
+                    setSelectedId(null);
+                    startConversation(selected.applicant_id, { initialMessage: seed });
+                  }}>
+                    <MessageCircle className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                    {lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                  </Button>
+                )}
               </div>
 
 
