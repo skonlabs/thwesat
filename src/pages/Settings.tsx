@@ -34,9 +34,10 @@ const Settings = () => {
   const { data: activeToken } = useActiveDelegateToken();
   const generateTokenMutation = useGenerateDelegateToken();
   const revokeTokenMutation = useRevokeDelegateToken();
-  const { hasRole } = useUserRoles();
+  const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("jobseeker");
+  const showPaymentHistory = !isAdmin && !isPartner && !isSystemRole;
 
   // Toggles
   const [emailNotifications, setEmailNotifications] = useState(() => {
@@ -299,12 +300,12 @@ const Settings = () => {
         { icon: Shield, label: lang === "my" ? "ကိုယ်ရေးကာကွယ်မှု" : "Privacy Policy", value: "", action: () => setShowPrivacyPolicy(true) },
       ],
     },
-    {
+    ...(showPaymentHistory ? [{
       title: lang === "my" ? "ငွေပေးချေမှု" : "Billing",
       items: [
         { icon: Receipt, label: lang === "my" ? "ငွေပေးချေမှု မှတ်တမ်း" : "Payment History", value: "", action: () => navigate("/payments/history") },
       ],
-    },
+    }] : []),
   ];
 
   return (
