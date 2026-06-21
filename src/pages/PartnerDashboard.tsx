@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import PageHeader from "@/components/PageHeader";
 import DashboardHero from "@/components/DashboardHero";
 
 /**
@@ -131,7 +130,6 @@ const PartnerDashboard = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      <PageHeader title={my ? "Partner Portal" : "Partner Portal"} />
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Partner"
