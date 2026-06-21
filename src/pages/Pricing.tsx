@@ -32,6 +32,7 @@ const TIER_ICON: Record<string, any> = {
 };
 
 const Pricing = () => {
+  const { user } = useAuth();
   const { lang } = useLanguage();
   const my = lang === "my";
   const { allowedRoles } = useUserRoles();
