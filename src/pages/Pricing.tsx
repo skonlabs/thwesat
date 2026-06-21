@@ -113,13 +113,15 @@ const Pricing = () => {
                 total={null}
                 listItems={(() => {
                   const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
-                  if (owned.length === 0) return [my ? "မရှိ" : "None"];
+                  if (owned.length === 0) return [{ label: my ? "မရှိ" : "None" }];
                   return owned
                     .map((p) => {
                       const a = addons.find((x) => x.id === p.addon_id);
-                      return (my && a?.label_my) || a?.label_en || "";
+                      const name = (my && a?.label_my) || a?.label_en || "";
+                      const expiry = p.expires_at ? new Date(p.expires_at).toLocaleDateString() : "";
+                      return { label: name, detail: expiry ? (my ? `သက်တမ်း ${expiry}` : `Until ${expiry}`) : "" };
                     })
-                    .filter(Boolean);
+                    .filter((x) => x.label);
                 })()}
               />
 
