@@ -1,56 +1,55 @@
-## Goal
-Find why "save / load" actions (top-ups, payments, bookings, etc.) silently fail across multiple roles and produce a single round of targeted fixes — instead of chasing one button at a time.
 
-## What the signals tell us so far
-- Auth log shows `bad_jwt: invalid claim: missing sub claim` on `GET /user` from `thwesat.com` — separate from the running preview session. Worth confirming this isn't a stale localStorage token issue on production after the recent `signOut` cleanup changes.
-- Console shows only an unrelated Radix `DialogContent` aria warning.
-- Recent migration `20260621033118` added `WITH CHECK` clauses that subquery the **same row being updated** on `applications`, `mentor_bookings`, and `jobs`:
-  ```sql
-  WITH CHECK (... AND applicant_id = (SELECT applicant_id FROM applications a WHERE a.id = applications.id))
-  ```
-  This pattern can fail or behave unexpectedly under RLS because the subquery itself is also RLS-filtered. Likely culprit for "update booking", "withdraw application", "edit job", "mark placed" failures.
-- Same migration dropped six `Partners update …` policies — partner-side write actions for jobs/profiles/posts/contact messages will now 403.
-- `20260621031717` did `REVOKE SELECT ON employer_profiles FROM anon` — public job detail / company pages that still read the base table (not the `_public` view) would break for logged-out visitors only.
-- `20260620191130` introduced `mentor_create_booking_and_hold` and `placement_confirm_with_invoice` RPCs — if any call site is still hitting the old direct-insert path, or if grants/signatures don't match, mentor booking + placement confirmation fail.
+## 1. Unified "Employers/Recruiters Approvals"
 
-## Investigation passes
-I'll run these in order and report findings before changing anything.
+Reuse existing `employer_profiles` for agents (already pre-seeded at signup). One queue, one schema, one flow — mirrors employer verification exactly.
 
-### Pass A — Reproduce + capture exact errors per role
-For each role (seeker, mentor, employer, agent, admin, partner), I'll log in with the test account, exercise the failing surfaces, and collect the precise PostgREST error code + message:
-1. Seeker: top-up create, withdraw application, save job, book mentor, accept placement.
-2. Mentor: accept/decline booking, mark complete, withdraw earnings, edit availability.
-3. Employer: post job, edit job, change application status, mark placement, subscribe.
-4. Agent: same as employer surfaces (shared screens, different labels).
-5. Admin: approve top-up, approve/reject payment, change user role, moderate job/post.
-6. Partner: view attributed payments, statements, monthly revenue share.
+**Backend (migration)**
+- Backfill: for every `profiles.primary_role = 'agent'` user without a row in `employer_profiles`, insert one with `verification_status = 'pending'`. Defensive — covers agents created before signup pre-seed.
+- Trigger `ensure_employer_profile_on_role`: after `profiles` insert/update, if `primary_role IN ('employer','agent')` and no `employer_profiles` row exists → insert pending row.
+- No schema change to `employer_profiles` itself — `verification_status` already exists.
 
-I'll capture failures from network panel + console, not just "didn't work".
+**Frontend gates (mirror employer)**
+- Agents must already be blocked the same way employers are. Confirm + harden:
+  - `AgentDashboard` already shows the "complete profile" banner when `!is_verified`. Change to a stronger "Pending approval" banner that distinguishes *needs profile data* vs *waiting on admin review*.
+  - Gate `post-job`, `search-talent`, `unlock candidate`, `start conversation` for agents on `verification_status === 'verified'` (same checks as employer paths already use).
 
-### Pass B — Audit the suspect RLS / RPC changes
-- Diff every policy and grant introduced or dropped between `20260620191130` and `20260621033118` against current call sites in `src/hooks/*` and `src/pages/*`.
-- Verify each `WITH CHECK (... = (SELECT … FROM same_table))` clause actually permits a legitimate owner UPDATE by running the exact SQL the client sends as the affected user (via `supabase--read_query` with `SET LOCAL request.jwt.claim.sub`).
-- Confirm grants exist on every table touched in the last 4 migrations (`employer_profiles`, `applications`, `jobs`, `mentor_bookings`, `payment_requests`, RPC EXECUTE grants).
-- Run `supabase--linter` and inspect for new errors after the recent security tightening.
+**Admin/Partner UI**
+- Rename labels on `AdminDashboard` + `PartnerDashboard`: `Employer Verifications` → `Employers/Recruiters Approvals` (and Burmese: `အလုပ်ရှင်/ခေါ်ယူရေး အတည်ပြုရန်`).
+- Rename `AdminEmployers` page header: `Employer Management` → `Employers & Recruiters`.
+- Add a Role badge column (Employer / Recruiter) derived from joined `profiles.primary_role`.
+- Add a role filter chip row (All / Employers / Recruiters) alongside the existing status tabs.
+- Search/cards stay the same.
 
-### Pass C — Audit triggers + RPCs
-- Check that `mentor_create_booking_and_hold`, `placement_confirm_with_invoice`, `review_payment_request`, `wallet_spend` are all `EXECUTE`-grantable to `authenticated` and return the JSON shapes the hooks expect.
-- Scan `pg_trigger` for triggers on touched tables that might now reference dropped columns or roles.
+## 2. Partner referral tagging — verification pass
 
-### Pass D — Frontend audit
-- Find call sites that still write directly to tables that now require an RPC (mentor booking, placement confirm).
-- Find call sites using `.single()` on rows the user may not be able to see (returns PGRST116 → looks like a failure).
-- Verify role checks in nav + guards match the actual role of failing test accounts (the agent / partner roles use shared employer screens — RLS may not include them in newer policies).
+`Signup.tsx` already calls `lookup_partner_referral_code` → `redeem_partner_referral_code` after `signUp`. Risks to fix:
+- If email confirmation is required, `getUser()` returns null right after `signUp` → the partner attribution is silently skipped. **Fix:** use the user id returned by `signUp` (already in `data.user`) instead of a second `getUser()` round-trip; if still null, fall back to a deferred enqueue (write the code into a one-row `pending_referral_redemptions` table keyed by email, drained by an auth trigger on first session). Simpler alternative: extend `redeem_partner_referral_code` so it can be re-applied idempotently the first time the user authenticates (lookup user by email + code). I'll go with the latter — single migration, no new table.
+- Add Vitest covering: employer signup with partner code → `partner_attributions` row present; agent signup with partner code → row present; invalid code → user still created, no row.
 
-### Pass E — Apply fixes in one migration + matching frontend edits
-Group the SQL fixes into a single migration:
-1. Replace fragile `WITH CHECK (col = (SELECT col FROM same_table …))` with column-equality based on `OLD.col` via a `BEFORE UPDATE` trigger, OR drop the ownership re-check (policy already gates by `auth.uid()`).
-2. Re-add the necessary partner write policies (scoped to attributed users) if any partner UI legitimately needs them; otherwise hide the buttons in the frontend instead.
-3. Restore any missing `GRANT EXECUTE` / `GRANT SELECT, INSERT, UPDATE, DELETE` on the audited tables.
-4. Update frontend hooks to call the new RPCs (mentor booking, placement confirm) where they still do direct table writes.
+## 3. Admin/Partner Users list — show email + Message
 
-Verify by re-running Pass A for every failing flow until each returns success and the relevant test in `src/test/` and `e2e/` is green.
+`/admin/users` (also served at `/partner/users`):
+- Email is already fetched via `get_user_contacts_admin`. Currently shown inline in the row. Add a copy-to-clipboard button next to it for desktop.
+- Add a `Message` icon-button on each row (admin + partner only). Click → calls existing `useStartConversation` and navigates to `/messages/:id`. Hidden for any non-admin/non-partner viewer (page is already system-role-gated, so this is just adding the action).
 
-## Open questions before I start
-- Can you list 2–3 of the **specific buttons** that fail today (with the role) and, if possible, the red toast text or browser network response body? It will let me skip Pass A for those and go straight to the root cause.
-- Are failures appearing only on the **published** site (`thwesat.com`), only in the **preview**, or both? The `bad_jwt` log row suggests at least the published site has a stale-session problem.
+## 4. Tests / verification
+
+- `e2e/agent.spec.ts`: assert pending agent cannot reach `/agent/post-job` (redirected to onboarding/pending banner).
+- Manual sanity in preview: sign up agent with partner referral code → verify (a) row appears in admin approvals with Recruiter badge, (b) `partner_attributions` row exists, (c) blocked from posting until approved, (d) notification fired on approve/reject.
+
+## Files touched
+
+```text
+supabase/migrations/<new>.sql          backfill + ensure-row trigger + idempotent partner redeem
+src/pages/AdminDashboard.tsx           rename label
+src/pages/PartnerDashboard.tsx         rename label
+src/pages/AdminEmployers.tsx           role badge, role filter, page title
+src/pages/AdminUsers.tsx               email copy + Message action
+src/pages/AgentDashboard.tsx           pending-approval banner
+src/pages/Signup.tsx                   use signUp().data.user.id; surface failure
+src/hooks/use-employer-data.ts         (only if needed) expose verification_status cleanly
+e2e/agent.spec.ts                      pending-agent gate test
+src/test/partner-finance-rpc.test.tsx  partner-attribution-on-signup test (or new file)
+```
+
+No new tables, no changes to RLS beyond the backfill migration.

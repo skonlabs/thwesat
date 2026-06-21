@@ -115,7 +115,7 @@ const PartnerDashboard = () => {
     },
     {
       icon: Building2,
-      label: { en: "Employer Verifications", my: "အလုပ်ရှင် အတည်ပြုရန်" },
+      label: { en: "Employers/Recruiters Approvals", my: "အလုပ်ရှင်/ခေါ်ယူရေး အတည်ပြုရန်" },
       count: counts?.pendingEmployers || 0,
       path: "/partner/employers?status=pending",
       tone: "primary" as const,
