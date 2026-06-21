@@ -38,6 +38,7 @@ const PartnerDashboard = () => {
         pendingEmployers,
         pendingPayments,
         pendingSubs,
+        pendingTopups,
         approvedJobsToday,
         totalUsers,
         activeJobs,
@@ -51,6 +52,7 @@ const PartnerDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase
           .from("jobs")
           .select("id", { count: "exact", head: true })
@@ -67,7 +69,7 @@ const PartnerDashboard = () => {
         pendingJobs: pendingJobs.count || 0,
         pendingPosts: pendingPosts.count || 0,
         pendingEmployers: pendingEmployers.count || 0,
-        pendingPayments: (pendingPayments as any).count || 0,
+        pendingPayments: ((pendingPayments as any).count || 0) + ((pendingTopups as any).count || 0),
         pendingSubs: (pendingSubs as any).count || 0,
         approvedJobsToday: approvedJobsToday.count || 0,
         totalUsers: totalUsers.count || 0,
@@ -91,16 +93,16 @@ const PartnerDashboard = () => {
   const reviewQueues = [
     {
       icon: Briefcase,
-      label: { en: "Job Listings", my: "အလုပ်ခေါ်စာများ" },
+      label: { en: "Job Listing Approvals", my: "အလုပ်ခေါ်စာ အတည်ပြုရန်" },
       count: counts?.pendingJobs || 0,
       path: "/partner/jobs?status=pending",
       tone: "primary" as const,
     },
     {
       icon: CreditCard,
-      label: { en: "Payments", my: "ငွေပေးချေမှုများ" },
+      label: { en: "Payment Approvals", my: "ငွေပေးချေမှု အတည်ပြုရန်" },
       count: counts?.pendingPayments || 0,
-      path: "/partner/finance?tab=attributions&status=pending",
+      path: "/partner/wallet?tab=topups",
       tone: "amber" as const,
     },
     {
@@ -112,7 +114,7 @@ const PartnerDashboard = () => {
     },
     {
       icon: MessageCircle,
-      label: { en: "Community Posts", my: "Community ပို့စ်များ" },
+      label: { en: "Community Post Approvals", my: "Community ပို့စ် အတည်ပြုရန်" },
       count: counts?.pendingPosts || 0,
       path: "/partner/posts?tab=posts",
       tone: "muted" as const,

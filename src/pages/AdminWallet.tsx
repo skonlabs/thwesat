@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,8 @@ const AdminWallet = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
   const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "topups" ? "topups" : "subscriptions";
 
   const [subFilter, setSubFilter] = useState<"pending" | "all">("pending");
   const [topupFilter, setTopupFilter] = useState<"pending" | "all">("pending");
@@ -150,7 +152,7 @@ const AdminWallet = () => {
     <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={my ? "ပိုက်ဆံအိတ် & ပေးချေမှု" : "Wallet & Payments"} showBack />
       <div className="px-5">
-        <Tabs defaultValue="subscriptions" className="w-full">
+        <Tabs defaultValue={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="subscriptions">{my ? "Package ပေးချေမှု" : "Subscriptions"}</TabsTrigger>
             <TabsTrigger value="topups">{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</TabsTrigger>
