@@ -180,6 +180,26 @@ const AdminUsers = () => {
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
+  // Sync draft state whenever a different user is opened or role data refreshes
+  useEffect(() => {
+    if (selected) {
+      setDraftRoles(new Set(roleMap.get(selected.id) || []));
+      setDraftSuspended(!!selected.is_suspended);
+    } else {
+      setDraftRoles(new Set());
+      setDraftSuspended(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, allUserRoles, selected?.is_suspended]);
+
+  const initialRoles = new Set(selectedSystemRoles);
+  const rolesChanged =
+    selected &&
+    (draftRoles.size !== initialRoles.size ||
+      [...draftRoles].some((r) => !initialRoles.has(r)));
+  const suspendChanged = selected && draftSuspended !== !!selected.is_suspended;
+  const hasUnsavedChanges = !!(rolesChanged || suspendChanged);
+
   const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
