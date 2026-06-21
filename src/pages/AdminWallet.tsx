@@ -134,10 +134,21 @@ const AdminWallet = () => {
   const [rejectTarget, setRejectTarget] = useState<{ id: string; kind: "sub" | "topup" } | null>(null);
   const [rejectNote, setRejectNote] = useState("");
 
+  const [proofState, setProofState] = useState<{ url: string | null; loading: boolean; error: boolean } | null>(null);
   const viewProof = async (path: string) => {
-    const url = await getPaymentProofSignedUrl(path);
-    if (url) window.open(url, "_blank");
+    setProofState({ url: null, loading: true, error: false });
+    try {
+      const url = await getPaymentProofSignedUrl(path);
+      if (!url) {
+        setProofState({ url: null, loading: false, error: true });
+        return;
+      }
+      setProofState({ url, loading: false, error: false });
+    } catch {
+      setProofState({ url: null, loading: false, error: true });
+    }
   };
+  const isPdfUrl = (u: string) => /\.pdf(\?|$)/i.test(u);
 
   const handleConfirmReject = () => {
     if (!rejectTarget) return;
