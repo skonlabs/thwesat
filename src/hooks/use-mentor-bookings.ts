@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 export function useMentorBookings(asMentor = true) {
   const { user } = useAuth();
@@ -248,6 +249,7 @@ export function useUpdateBookingStatus() {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
+    onError: (e: any) => toast.error(e?.message || "Failed to update booking"),
   });
 }
 
