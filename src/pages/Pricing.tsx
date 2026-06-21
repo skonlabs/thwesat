@@ -98,10 +98,24 @@ const Pricing = () => {
                 total={quotas?.featured_jobs_total ?? 0}
               />
               <Totals
-                label={my ? "Packages" : "Packages owned"}
-                value={grants.length.toString()}
+                label={my ? "Add-Ons" : "Add-Ons"}
+                value={
+                  (() => {
+                    const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
+                    if (owned.length === 0) return my ? "မရှိ" : "None";
+                    const names = owned
+                      .map((p) => {
+                        const a = addons.find((x) => x.id === p.addon_id);
+                        return (my && a?.label_my) || a?.label_en || "";
+                      })
+                      .filter(Boolean);
+                    return names.join(", ");
+                  })()
+                }
                 total={null}
+                isText
               />
+
             </div>
           </div>
         )}
