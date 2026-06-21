@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import PageHeader from "@/components/PageHeader";
+
 import DashboardHero from "@/components/DashboardHero";
 
 const AdminDashboard = () => {
