@@ -737,9 +737,9 @@ const EmployerApplications = () => {
 
       <AnimatePresence>
         {selected && !showReject && !showPlacement && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bottom-16 z-[60] flex items-end justify-center bg-foreground/40" onClick={() => setSelectedId(null)}>
-            <motion.div initial={{ y: 400 }} animate={{ y: 0 }} exit={{ y: 400 }} className="w-full max-w-md md:max-w-2xl rounded-t-3xl bg-card p-6 pb-8 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted-foreground/20" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40 flex items-center justify-center bg-foreground/40 p-4" onClick={() => setSelectedId(null)}>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 8 }} className="w-full max-w-md md:max-w-2xl rounded-2xl bg-card p-6 pb-8 max-h-[85vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="flex flex-1 items-start gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
