@@ -229,7 +229,7 @@ const Pricing = () => {
           <p className="mb-3 text-xs text-muted-foreground">
             {my ? "မည်သည့် Package ပေါ်တွင်မဆို ထပ်ဖြည့်နိုင်သည်။" : "Top up unlocks, feature your jobs, or add brand & matching for 1 year."}
           </p>
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
