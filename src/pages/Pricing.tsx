@@ -170,6 +170,9 @@ const Pricing = () => {
                   <Icon className="h-4 w-4 text-primary" />
                   <h3 className="text-sm font-bold">{planLabel(plan.tier)}</h3>
                 </div>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                  {TIER_DESC[plan.tier]?.[my ? "my" : "en"] ?? ""}
+                </p>
 
                 <div className="mt-3">
                   <div className="text-2xl font-bold tabular-nums">{formatMMK(plan.price_mmk)}</div>
