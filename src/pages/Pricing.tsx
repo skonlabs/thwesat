@@ -240,7 +240,7 @@ const Pricing = () => {
                 (p) => p.addon_id === a.id && p.status === "active",
               );
               return (
-                <div key={a.id} className="rounded-xl border border-border bg-card p-3">
+                <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
