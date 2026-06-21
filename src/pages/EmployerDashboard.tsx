@@ -59,12 +59,11 @@ const EmployerDashboard = () => {
 
   const quickActions = [
     { icon: UserSearch, my: "ဝန်ထမ်းရှာ", en: "Find Talent", path: "/employer/search", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: Briefcase, my: "ခေါ်စာများ", en: "My Jobs", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
+    { icon: Briefcase, my: "ကျွန်ုပ်၏ ခေါ်စာများ", en: "My Postings", path: "/employer/jobs", bg: "bg-primary/10", fg: "text-primary" },
     { icon: Plus, my: "အလုပ်တင်", en: "Post Job", path: "/employer/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Users, my: "လျှောက်သူများ", en: "Applicants", path: "/employer/applications", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: CreditCard, my: "Package", en: "Subscriptions", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
-    { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
-    { icon: Settings, my: "ကုမ္ပဏီ", en: "Company", path: "/employer/edit-company", bg: "bg-accent/10", fg: "text-accent" },
+    { icon: CreditCard, my: "Package & Add-ons", en: "Packages & Add-ons", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
+    { icon: CreditCard, my: "ငွေကြေး", en: "Finance", path: "/employer/finance", bg: "bg-emerald/10", fg: "text-emerald" },
   ];
 
   return (
@@ -133,7 +132,7 @@ const EmployerDashboard = () => {
 
         {/* Quick actions */}
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
-        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-7">
+        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-6">
           {quickActions.map((a, i) => (
             <motion.button
               key={a.path + a.en}
@@ -183,22 +182,6 @@ const EmployerDashboard = () => {
           </>
         )}
 
-        {/* Finance shortcut */}
-        <button
-          onClick={() => navigate("/employer/finance")}
-          className="mb-5 flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors active:bg-muted/30"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/20">
-              <CreditCard className="h-4 w-4 text-gold-dark" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">{lang === "my" ? "ငွေကြေး မှတ်တမ်း" : "Finance Ledger"}</p>
-              <p className="text-[10px] text-muted-foreground">{lang === "my" ? "ပေးချေမှု မှတ်တမ်းများ ကြည့်ရန်" : "View earnings & payouts"}</p>
-            </div>
-          </div>
-          <span className="text-xs text-muted-foreground">→</span>
-        </button>
       </div>
     </div>
   );
