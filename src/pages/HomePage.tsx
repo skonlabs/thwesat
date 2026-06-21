@@ -10,7 +10,7 @@ import { useMatchedJobs } from "@/hooks/use-matched-jobs";
 import { useMentorProfiles } from "@/hooks/use-mentor-data";
 import { useAllProfiles } from "@/hooks/use-profiles";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import PageHeader from "@/components/PageHeader";
+
 import InviteFriendsCard from "@/components/InviteFriendsCard";
 import MentorCoachCue from "@/components/MentorCoachCue";
 import SeekerWelcomeTour from "@/components/SeekerWelcomeTour";
