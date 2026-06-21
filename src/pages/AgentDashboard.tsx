@@ -70,8 +70,8 @@ const AgentDashboard = () => {
     { icon: Briefcase, my: "ခေါ်ယူမှု", en: "Open Postings", path: "/agent/jobs", bg: "bg-primary/10", fg: "text-primary" },
     { icon: Plus, my: "ခေါ်စာ တင်ရန်", en: "Post Job", path: "/agent/post-job", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Users, my: "ကိုယ်စားလှယ်များ", en: "Candidates", path: "/agent/candidates", bg: "bg-primary/10", fg: "text-primary" },
-    { icon: CreditCard, my: "Package", en: "Subscriptions", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
-    { icon: CreditCard, my: "ဝင်ငွေ", en: "Earnings", path: "/agent/finance", bg: "bg-emerald/10", fg: "text-emerald" },
+    { icon: CreditCard, my: "Package & Add-ons", en: "Packages & Add-ons", path: "/pricing", bg: "bg-accent/20", fg: "text-gold-dark" },
+    { icon: CreditCard, my: "ငွေကြေး", en: "Finance", path: "/agent/finance", bg: "bg-emerald/10", fg: "text-emerald" },
     { icon: Settings, my: "ပရိုဖိုင်", en: "Profile", path: "/agent/profile", bg: "bg-accent/10", fg: "text-accent" },
   ];
 
