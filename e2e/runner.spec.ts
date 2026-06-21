@@ -72,8 +72,8 @@ for (const [role, list] of byRole.entries()) {
   test.describe.serial(`Role: ${role} (${list.length} cases)`, () => {
     test.describe.configure({ timeout: 120_000 });
     let page: Page;
-    test.beforeAll(async ({ browser }, testInfo) => {
-      testInfo.setTimeout(180_000);
+    test.beforeAll(async ({ browser }) => {
+      test.setTimeout(180_000);
       const ctx = await browser.newContext();
       await ctx.addInitScript(() => {
         try { sessionStorage.setItem("site_gate_passed", "1"); } catch {}
