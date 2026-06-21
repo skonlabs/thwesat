@@ -51,7 +51,7 @@ import AdminPartners from "./pages/AdminPartners";
 import AdminWallet from "./pages/AdminWallet";
 import Wallet from "./pages/Wallet";
 import Pricing from "./pages/Pricing";
-import CareerTracks from "./pages/CareerTracks";
+
 import Settings from "./pages/Settings";
 import EmployerOnboarding from "./pages/EmployerOnboarding";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -146,7 +146,7 @@ const App = () => (
               <Route path="/ai-tools/profile-builder" element={<AppRoleGuard allowedRoles={["jobseeker"]}><ProfileBuilder /></AppRoleGuard>} />
               <Route path="/ai-tools/cover-letter" element={<AppRoleGuard allowedRoles={["jobseeker"]}><CoverLetterGenerator /></AppRoleGuard>} />
               <Route path="/ai-tools/skill-gap" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SkillGapAnalysis /></AppRoleGuard>} />
-              <Route path="/career-tracks" element={<AppRoleGuard allowedRoles={["jobseeker"]}><CareerTracks /></AppRoleGuard>} />
+              
               <Route path="/premium" element={<Navigate to="/pricing" replace />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
