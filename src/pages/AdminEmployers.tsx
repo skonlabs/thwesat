@@ -269,33 +269,84 @@ const AdminEmployers = () => {
                 </div>
               </div>
 
-              <div className="mb-4 space-y-2 text-xs text-muted-foreground">
-                {selected.industry && <p className="flex items-center gap-2"><Building2 className="h-3.5 w-3.5" />{lang === "my" ? "လုပ်ငန်း" : "Industry"}: {selected.industry}</p>}
-                {selected.hq_country && <p className="flex items-center gap-2"><Globe className="h-3.5 w-3.5" />{lang === "my" ? "နိုင်ငံ" : "HQ"}: {selected.hq_country}</p>}
-                {selected.company_size && <p className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />{lang === "my" ? "အရွယ်အစား" : "Size"}: {selected.company_size}</p>}
-                {selected.contact_name && <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" />{lang === "my" ? "ဆက်သွယ်ရန်" : "Contact"}: {selected.contact_name}</p>}
-                {selected.contact_email && <p className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" />{selected.contact_email}</p>}
-                {selected.contact_phone && <p className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" />{selected.contact_phone}</p>}
-                {selected.company_website && (
-                  <a href={selected.company_website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary">
-                    <ExternalLink className="h-3.5 w-3.5" />{selected.company_website}
-                  </a>
-                )}
-                {selected.company_linkedin && (
-                  <a href={selected.company_linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary">
-                    <ExternalLink className="h-3.5 w-3.5" />LinkedIn
-                  </a>
-                )}
-              </div>
+              {(() => {
+                const isAgent = selected.profile?.primary_role === "agent";
+                const dash = "—";
+                const L = (en: string, my: string) => (lang === "my" ? my : en);
+                const Row = ({ icon: Icon, label, value }: { icon: any; label: string; value: any }) => (
+                  <div className="flex items-start gap-2 text-xs">
+                    <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+                    <span className="min-w-[110px] shrink-0 text-muted-foreground">{label}</span>
+                    <span className="flex-1 break-words text-foreground">{value || <span className="text-muted-foreground/60">{dash}</span>}</span>
+                  </div>
+                );
+                const p = selected.profile || {};
+                return (
+                  <>
+                    <div className="mb-4">
+                      <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{L("Account", "အကောင့်")}</h3>
+                      <div className="space-y-1.5">
+                        <Row icon={Users} label={L("Name", "အမည်")} value={p.display_name} />
+                        <Row icon={Mail} label={L("Email", "အီးမေးလ်")} value={p.email} />
+                        <Row icon={Phone} label={L("Phone", "ဖုန်း")} value={p.phone} />
+                        <Row icon={Globe} label={L("Location", "နေရာ")} value={p.location} />
+                        <Row icon={Briefcase} label={L("Role", "အခန်းကဏ္ဍ")} value={isAgent ? L("Recruiter", "ခေါ်ယူရေး") : L("Employer", "အလုပ်ရှင်")} />
+                        <Row icon={Clock} label={L("Joined", "စတင်ရက်")} value={new Date(p.created_at || selected.created_at).toLocaleDateString()} />
+                      </div>
+                    </div>
 
-              {selected.company_description && (
-                <div className="mb-4">
-                  <h3 className="mb-1 text-xs font-semibold text-foreground">{lang === "my" ? "ဖော်ပြချက်" : "Description"}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{selected.company_description}</p>
-                </div>
-              )}
+                    <div className="mb-4">
+                      <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                        {isAgent ? L("Agency Details", "အေဂျင်စီ အချက်အလက်") : L("Company Details", "ကုမ္ပဏီ အချက်အလက်")}
+                      </h3>
+                      <div className="space-y-1.5">
+                        <Row icon={Building2} label={isAgent ? L("Agency Name", "အေဂျင်စီအမည်") : L("Company", "ကုမ္ပဏီ")} value={selected.company_name} />
+                        <Row icon={Building2} label={L("Industry", "လုပ်ငန်း")} value={selected.industry} />
+                        <Row icon={Globe} label={L("HQ Country", "ရုံးချုပ်နိုင်ငံ")} value={selected.hq_country} />
+                        <Row icon={Users} label={L("Company Size", "အရွယ်အစား")} value={selected.company_size} />
+                        <Row icon={Globe} label={L("Website", "ဝက်ဘ်ဆိုက်")} value={selected.company_website ? (
+                          <a href={selected.company_website} target="_blank" rel="noopener noreferrer" className="text-primary underline">{selected.company_website}</a>
+                        ) : null} />
+                        <Row icon={ExternalLink} label="LinkedIn" value={selected.company_linkedin ? (
+                          <a href={selected.company_linkedin} target="_blank" rel="noopener noreferrer" className="text-primary underline">{selected.company_linkedin}</a>
+                        ) : null} />
+                      </div>
+                    </div>
 
-              <p className="mb-4 text-[10px] text-muted-foreground">{lang === "my" ? "စတင်ရက်" : "Joined"}: {new Date(selected.profile?.created_at || selected.created_at).toLocaleDateString()}</p>
+                    <div className="mb-4">
+                      <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{L("Primary Contact", "အဓိက ဆက်သွယ်ရန်")}</h3>
+                      <div className="space-y-1.5">
+                        <Row icon={Users} label={L("Contact Name", "အမည်")} value={selected.contact_name} />
+                        <Row icon={Mail} label={L("Contact Email", "အီးမေးလ်")} value={selected.contact_email} />
+                        <Row icon={Phone} label={L("Contact Phone", "ဖုန်း")} value={selected.contact_phone} />
+                      </div>
+                    </div>
+
+                    {(selected.company_description || p.bio || p.headline) && (
+                      <div className="mb-4 space-y-3">
+                        {p.headline && (
+                          <div>
+                            <h3 className="mb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{L("Headline", "ခေါင်းစဉ်")}</h3>
+                            <p className="text-xs text-foreground leading-relaxed">{p.headline}</p>
+                          </div>
+                        )}
+                        {selected.company_description && (
+                          <div>
+                            <h3 className="mb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{L("Description", "ဖော်ပြချက်")}</h3>
+                            <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">{selected.company_description}</p>
+                          </div>
+                        )}
+                        {p.bio && (
+                          <div>
+                            <h3 className="mb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{L("Bio", "ကိုယ်ရေးအကျဉ်း")}</h3>
+                            <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">{p.bio}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {(selected.verification_status || "pending") === "pending" && (
                 <div className="flex gap-3">
@@ -314,15 +365,13 @@ const AdminEmployers = () => {
                 </Button>
               )}
 
-              {/* Edit & Delete actions */}
-              <div className="mt-4 flex gap-3 border-t border-border pt-4">
-                <Button variant="outline" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}>
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ပရိုဖိုင်ကြည့်" : "View Profile"}
-                </Button>
-                <Button variant="destructive" size="sm" className="flex-1 rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
+              {/* Delete action */}
+              <div className="mt-4 border-t border-border pt-4">
+                <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}>
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />{lang === "my" ? "ဖျက်ရန်" : "Delete"}
                 </Button>
               </div>
+
             </motion.div>
           </motion.div>
         )}
