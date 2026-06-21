@@ -203,7 +203,7 @@ const ModeratorDashboard = () => {
 
   const removePost = useMutation({
     mutationFn: async (id: string) => {
-      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
       await supabase.from("community_posts").update({ moderated_by: user?.id, moderation_reason: removalReason }).eq("id", id);
       const { error } = await supabase.from("community_posts").delete().eq("id", id);
       if (error) throw error;
@@ -220,6 +220,7 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); setShowRemoval(false); setRemovalReason(""); toast.success(lang === "my" ? "ဖယ်ရှားပြီး" : "Post removed"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove post")),
   });
 
   const approveJob = useMutation({
@@ -233,7 +234,7 @@ const ModeratorDashboard = () => {
 
   const rejectJob = useMutation({
     mutationFn: async (id: string) => {
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).single();
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).maybeSingle();
       const { error } = await supabase.from("jobs").update({ status: "rejected", rejection_reason: jobRejectReason }).eq("id", id);
       if (error) throw error;
       // Notify employer with the rejection reason
