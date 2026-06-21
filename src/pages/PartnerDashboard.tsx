@@ -90,6 +90,12 @@ const PartnerDashboard = () => {
     (counts?.pendingPosts || 0) +
     (counts?.pendingEmployers || 0) +
     (counts?.pendingPayments || 0);
+  const firstReviewPath =
+    (counts?.pendingPayments || 0) > 0 ? "/partner/wallet" :
+    (counts?.pendingJobs || 0) > 0 ? "/partner/jobs?status=pending" :
+    (counts?.pendingEmployers || 0) > 0 ? "/partner/employers?status=pending" :
+    (counts?.pendingPosts || 0) > 0 ? "/partner/posts?tab=posts" :
+    "/partner/analytics";
 
   // Review queues — partner's primary work surface
   const reviewQueues = [
@@ -149,7 +155,7 @@ const PartnerDashboard = () => {
           }
           ctaLabelEn={totalQueue > 0 ? "Start reviewing" : "View analytics"}
           ctaLabelMy={totalQueue > 0 ? "စတင် စစ်ဆေး" : "ခွဲခြမ်းစိတ်ဖြာမှု"}
-          ctaPath={totalQueue > 0 ? "/partner/jobs" : "/partner/analytics"}
+          ctaPath={firstReviewPath}
         />
 
         {/* Today snapshot — partner-specific KPIs */}
