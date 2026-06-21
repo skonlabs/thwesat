@@ -31,6 +31,14 @@ const TIER_ICON: Record<string, any> = {
   enterprise: Crown,
 };
 
+const TIER_DESC: Record<string, { en: string; my: string }> = {
+  free_trial: { en: "Try everything risk-free — no commitment, no card.", my: "ဘေးကင်းစွာ စမ်းသပ်ပါ — ဘဏ်ကတ်မလိုပါ။" },
+  starter: { en: "Ideal for small teams posting a handful of jobs each month.", my: "လတိုင်း အလုပ်အနည်းငယ် တင်မည့် အသေးစား အဖွဲ့အစည်းများအတွက် အထူးသင့်။" },
+  growth: { en: "Best for growing companies with steady, regular hiring needs.", my: "ဆက်တိုက်လိုအပ်သော ကုမ္ပဏီများအတွက် အကောင်းဆုံး။" },
+  business: { en: "For established companies hiring at scale with dedicated support.", my: "အကြီးစားစာရင်း လျှောက်ထားမှုအတွက် အထူးအကူအညီ ရှိသည်။" },
+  enterprise: { en: "Large organizations with high-volume, multi-team recruitment.", my: "အဖွဲ့အများစု နှင့် လိုအပ်ချက်မြင့်သော အကြီးစားလုပ်ငန်းများ။" },
+};
+
 const Pricing = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
@@ -105,13 +113,15 @@ const Pricing = () => {
                 total={null}
                 listItems={(() => {
                   const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
-                  if (owned.length === 0) return [my ? "မရှိ" : "None"];
+                  if (owned.length === 0) return [{ label: my ? "မရှိ" : "None" }];
                   return owned
                     .map((p) => {
                       const a = addons.find((x) => x.id === p.addon_id);
-                      return (my && a?.label_my) || a?.label_en || "";
+                      const name = (my && a?.label_my) || a?.label_en || "";
+                      const expiry = p.expires_at ? new Date(p.expires_at).toLocaleDateString() : "";
+                      return { label: name, detail: expiry ? (my ? `သက်တမ်း ${expiry}` : `Until ${expiry}`) : "" };
                     })
-                    .filter(Boolean);
+                    .filter((x) => x.label);
                 })()}
               />
 
@@ -162,6 +172,9 @@ const Pricing = () => {
                   <Icon className="h-4 w-4 text-primary" />
                   <h3 className="text-sm font-bold">{planLabel(plan.tier)}</h3>
                 </div>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                  {TIER_DESC[plan.tier]?.[my ? "my" : "en"] ?? ""}
+                </p>
 
                 <div className="mt-3">
                   <div className="text-2xl font-bold tabular-nums">{formatMMK(plan.price_mmk)}</div>
@@ -235,9 +248,6 @@ const Pricing = () => {
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
-              const active1yr = addonPurchases.find(
-                (p) => p.addon_id === a.id && p.status === "active",
-              );
               return (
                 <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
                   <div className="flex-1">
@@ -282,11 +292,6 @@ const Pricing = () => {
                     {a.duration_days && (
                       <div className="text-[10px] text-muted-foreground mt-1">
                         {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
-                      </div>
-                    )}
-                    {active1yr?.expires_at && (
-                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                        {my ? "သက်တမ်း " : "Active until "}{new Date(active1yr.expires_at).toLocaleDateString()}
                       </div>
                     )}
                   </div>
@@ -339,15 +344,20 @@ const Pricing = () => {
   );
 };
 
-const Totals = ({ label, value, total, listItems }: { label: string; value: string; total: number | null; listItems?: string[] }) => (
+const Totals = ({ label, value, total, listItems }: { label: string; value: string; total: number | null; listItems?: { label: string; detail?: string }[] }) => (
   <div className="rounded-xl border border-border bg-muted/30 p-3">
     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {label}
     </div>
     {listItems ? (
-      <ul className="mt-1.5 space-y-0.5 text-xs font-semibold text-foreground">
+      <ul className="mt-1.5 space-y-0.5">
         {listItems.map((item, i) => (
-          <li key={i} className="truncate">{item}</li>
+          <li key={i} className="truncate">
+            <span className="text-xs font-semibold text-foreground">{item.label}</span>
+            {item.detail && (
+              <span className="ml-1 text-[10px] text-emerald-700 dark:text-emerald-400">{item.detail}</span>
+            )}
+          </li>
         ))}
       </ul>
     ) : (
