@@ -2,7 +2,7 @@ import { GraduationCap, Shield, Building2, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-type RoleType = "mentor" | "admin" | "moderator" | "employer" | "agent";
+type RoleType = "mentor" | "admin" | "employer" | "agent";
 
 interface RoleBadgeProps {
   type: RoleType;
@@ -19,11 +19,6 @@ const config: Record<RoleType, { label: string; icon: typeof GraduationCap; clas
     label: "Admin",
     icon: Shield,
     className: "bg-destructive/10 text-destructive border-destructive/30",
-  },
-  moderator: {
-    label: "Mod",
-    icon: Shield,
-    className: "bg-primary/10 text-primary border-primary/30",
   },
   employer: {
     label: "Employer",
@@ -50,13 +45,13 @@ export function RoleBadge({ type, size = "sm" }: RoleBadgeProps) {
 }
 
 /**
- * Fetches role flags for a given user (mentor profile, admin/moderator role, employer profile).
+ * Fetches role flags for a given user (mentor profile, admin role, employer profile).
  */
 export function useUserRoleFlags(userId: string | undefined) {
   return useQuery({
     queryKey: ["user-role-flags", userId],
     queryFn: async () => {
-      if (!userId) return { isMentor: false, isAdmin: false, isModerator: false, isEmployer: false, isAgent: false };
+      if (!userId) return { isMentor: false, isAdmin: false, isEmployer: false, isAgent: false };
       const [m, e, r, p] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
         (supabase as any).from("employer_profiles_public").select("id").eq("id", userId).maybeSingle(),
@@ -71,7 +66,6 @@ export function useUserRoleFlags(userId: string | undefined) {
         isEmployer,
         isAgent,
         isAdmin: roles.includes("admin"),
-        isModerator: roles.includes("moderator"),
       };
     },
     enabled: !!userId,
@@ -85,7 +79,6 @@ export function UserRoleBadges({ userId }: { userId: string | undefined }) {
   return (
     <>
       {data.isAdmin && <RoleBadge type="admin" />}
-      {data.isModerator && !data.isAdmin && <RoleBadge type="moderator" />}
       {data.isMentor && <RoleBadge type="mentor" />}
       {data.isEmployer && <RoleBadge type="employer" />}
       {data.isAgent && <RoleBadge type="agent" />}

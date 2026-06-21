@@ -12,7 +12,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { role, setRole } = useRole();
-  const { allowedRoles, isLoading, isSystemRole, isAdmin, isModerator, isPartner } = useUserRoles();
+  const { allowedRoles, isLoading, isSystemRole, isAdmin, isPartner } = useUserRoles();
   const { data: unreadMessages = 0 } = useUnreadMessageCount();
   const { data: unreadNotifications = 0 } = useUnreadNotificationCount();
 
@@ -64,13 +64,6 @@ const BottomNav = () => {
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
-  const moderatorNav: NavItem[] = [
-    { icon: LayoutDashboard, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
-    { icon: Shield, labelMy: "စစ်ဆေး", labelEn: "Moderate", path: "/moderator" },
-    { icon: MessageSquare, labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
-    { icon: User, labelMy: "အကောင့်", labelEn: "Account", path: "/profile" },
-  ];
-
   const partnerNav: NavItem[] = [
     { icon: LayoutDashboard, labelMy: "ပင်မ", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/partner/jobs" },
@@ -83,15 +76,13 @@ const BottomNav = () => {
     ? adminNav
     : isPartner
       ? partnerNav
-      : isModerator
-        ? moderatorNav
-        : role === "employer"
-          ? employerNav
-          : role === "agent"
-            ? agentNav
-            : role === "mentor"
-              ? mentorNav
-              : jobseekerNav;
+      : role === "employer"
+        ? employerNav
+        : role === "agent"
+          ? agentNav
+          : role === "mentor"
+            ? mentorNav
+            : jobseekerNav;
 
   const getBadge = (key?: "messages" | "notifications") => {
     if (key === "messages") return unreadMessages;
@@ -104,7 +95,7 @@ const BottomNav = () => {
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2 md:max-w-2xl lg:max-w-3xl">
         {navItems.map((item) => {
           const [itemPath, itemQuery] = item.path.split("?");
-          const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && itemPath !== "/moderator" && location.pathname.startsWith(itemPath + "/"));
+          const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && location.pathname.startsWith(itemPath + "/"));
           const currentFilter = new URLSearchParams(location.search).get("filter");
           const itemFilter = itemQuery ? new URLSearchParams(itemQuery).get("filter") : null;
           // Sibling routes share a pathname but differ by ?filter=. Match filter when relevant.

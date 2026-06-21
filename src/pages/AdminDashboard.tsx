@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
     queryFn: async () => {
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -23,6 +23,7 @@ const AdminDashboard = () => {
         supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
       ]);
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
         pendingPosts: pendingPosts.count || 0,
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
-        pendingPayments: (pendingPayments as any).count || 0,
+        pendingPayments: ((pendingPayments as any).count || 0) + ((pendingTopups as any).count || 0),
         pendingSubs: (pendingSubs as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
-    { icon: Briefcase, label: { my: "တက်ကြွ အလုပ်", en: "Active Jobs" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
+    { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာများ", en: "Job Postings" }, value: counts?.activeJobs?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/jobs?status=active" },
     { icon: Building2, label: { my: "အလုပ်ရှင်", en: "Employers" }, value: counts?.totalEmployers?.toString() || "0", color: "text-primary bg-primary/10", path: "/admin/users?role=employer" },
     { icon: Shield, label: { my: "လမ်းညွှန်", en: "Mentors" }, value: counts?.totalMentors?.toString() || "0", color: "text-emerald bg-emerald/10", path: "/admin/users?role=mentor" },
   ];

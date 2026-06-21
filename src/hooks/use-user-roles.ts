@@ -45,9 +45,9 @@ export function useUserRoles() {
   });
 
   const isAdmin = systemRoles?.includes("admin") ?? false;
-  const isModerator = systemRoles?.includes("moderator") ?? false;
+  const isModerator = false; // Moderator role retired — kept as a stub so legacy call sites keep compiling.
   const isPartner = systemRoles?.includes("partner") ?? false;
-  const isSystemRole = isAdmin || isModerator || isPartner;
+  const isSystemRole = isAdmin || isPartner;
   const primaryRole = (profile?.primary_role as UserRole) || "jobseeker";
   const isLoading = authLoading || mentorLoading || rolesLoading;
 

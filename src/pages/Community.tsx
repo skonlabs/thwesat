@@ -221,8 +221,8 @@ const Community = () => {
     if (error) {
       toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
     } else {
-      // Notify all admins/moderators about the new report
-      const { data: staff } = await supabase.from("user_roles").select("user_id, role").in("role", ["admin", "moderator"]);
+      // Notify all admins about the new report
+      const { data: staff } = await supabase.from("user_roles").select("user_id, role").in("role", ["admin"]);
       if (staff && staff.length) {
         await supabase.from("notifications").insert(
           staff.map((s: any) => ({
@@ -232,7 +232,7 @@ const Community = () => {
             title_my: "🚩 Community တိုင်ကြားမှု အသစ်",
             description: "A post has been reported and needs review.",
             description_my: "ပို့စ်တစ်ခု တိုင်ကြားခံရသည် — စစ်ဆေးရန် လိုအပ်ပါသည်။",
-            link_path: "/moderator",
+            link_path: "/admin/moderation",
           })),
         );
       }

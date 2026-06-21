@@ -157,11 +157,12 @@ const App = () => (
               <Route path="/settings" element={<Settings />} />
 
               {/* Unified dashboard — every role-specific dashboard URL redirects here.
-                  /dashboard renders Employer/Mentor/Admin/Moderator/Seeker view dynamically. */}
+                  /dashboard renders Employer/Mentor/Admin/Seeker view dynamically. */}
               <Route path="/employer/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/mentors/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/mentor/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+              {/* Legacy moderator URLs redirect to the unified dashboard. */}
               <Route path="/moderator" element={<Navigate to="/dashboard" replace />} />
               <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
 
@@ -201,7 +202,7 @@ const App = () => (
               <Route path="/admin/payments" element={<Navigate to="/admin/finance?tab=queue" replace />} />
               <Route path="/admin/employers" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEmployers /></SystemRoleGuard>} />
               <Route path="/admin/guides/:id" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminEditGuide /></SystemRoleGuard>} />
-              <Route path="/admin/moderation" element={<SystemRoleGuard allowedRoles={["admin","moderator"]}><ModeratorDashboard /></SystemRoleGuard>} />
+              <Route path="/admin/moderation" element={<SystemRoleGuard allowedRoles={["admin"]}><ModeratorDashboard /></SystemRoleGuard>} />
 
               {/* Mentor sub-pages */}
               <Route path="/mentor/bookings" element={<Navigate to="/mentors/bookings" replace />} />

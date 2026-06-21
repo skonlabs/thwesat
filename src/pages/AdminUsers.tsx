@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Crown, Trash2, Shield, ShieldCheck } from "lucide-react";
+import { Search, Crown, Trash2, Shield } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ const roleColors: Record<string, string> = {
 interface PendingRoleChange {
   userId: string;
   userName: string;
-  role: "admin" | "moderator" | "partner";
+  role: "admin" | "partner";
   action: "add" | "remove";
 }
 
@@ -209,7 +209,7 @@ const AdminUsers = () => {
   const requestRoleChange = (
     userId: string,
     userName: string,
-    role: "admin" | "moderator" | "partner",
+    role: "admin" | "partner",
     checked: boolean
   ) => {
     setPendingRoleChange({ userId, userName, role, action: checked ? "add" : "remove" });
@@ -324,7 +324,6 @@ const AdminUsers = () => {
               {filtered.map((user: any, i: number) => {
                 const sysRoles = roleMap.get(user.id) || [];
                 const isAdminUser = sysRoles.includes("admin");
-                const isModUser = sysRoles.includes("moderator");
                 const joinedDate = new Date(user.created_at).toLocaleDateString();
                 return (
                   <Tooltip key={user.id}>
@@ -344,7 +343,6 @@ const AdminUsers = () => {
                           <div className="flex items-center gap-2">
                             <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
                             {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
-                            {isModUser && <ShieldCheck className="h-3 w-3 shrink-0 text-emerald" />}
                           </div>
                           <p className="truncate text-[10px] text-muted-foreground">
                             {user.email} · {lang === "my" ? "စတင်ရက်" : "Joined"}: {joinedDate}
@@ -396,9 +394,6 @@ const AdminUsers = () => {
                       {selectedSystemRoles.includes("admin") && (
                         <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Admin</span>
                       )}
-                      {selectedSystemRoles.includes("moderator") && (
-                        <span className="rounded-full bg-emerald/10 px-2 py-0.5 text-[10px] font-medium text-emerald">Moderator</span>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -446,21 +441,6 @@ const AdminUsers = () => {
                           onCheckedChange={(checked) => {
                             const next = new Set(draftRoles);
                             checked ? next.add("admin") : next.delete("admin");
-                            setDraftRoles(next);
-                          }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between px-3 py-2.5">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="h-4 w-4 text-emerald" />
-                          <span className="text-sm font-medium text-foreground">Moderator</span>
-                        </div>
-                        <Switch
-                          checked={draftRoles.has("moderator")}
-                          disabled={!isAdmin}
-                          onCheckedChange={(checked) => {
-                            const next = new Set(draftRoles);
-                            checked ? next.add("moderator") : next.delete("moderator");
                             setDraftRoles(next);
                           }}
                         />

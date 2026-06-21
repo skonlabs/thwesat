@@ -152,7 +152,7 @@ const AdminAnalytics = () => {
         { label: { my: "ငွေပေးချေမှု", en: "Payments" }, value: metrics?.totalPayments?.toString() || "0", path: "/admin/payments" },
         { label: { my: "အတည်ပြုပြီး", en: "Approved" }, value: metrics?.approvedPayments?.toString() || "0", path: "/admin/payments" },
         { label: { my: "ပို့စ်များ", en: "Posts" }, value: metrics?.approvedPosts?.toString() || "0", path: "/community" },
-        { label: { my: "တိုင်ကြားချက်", en: "Reports" }, value: metrics?.pendingReports?.toString() || "0", path: "/moderator" },
+        { label: { my: "တိုင်ကြားချက်", en: "Reports" }, value: metrics?.pendingReports?.toString() || "0", path: "/admin/moderation" },
       ],
     },
   ];
