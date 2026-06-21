@@ -31,6 +31,11 @@ const TIER_ICON: Record<string, any> = {
   enterprise: Crown,
 };
 
+const TIER_DESC: Record<string, { en: string; my: string }> = {
+  free_trial: { en: "Try everything risk-free — no commitment, no card.", my: "ဘေးကင်းစွာ စမ်းသပ်ပါ — ဘဏ်ကတ်မလိုပါ။" },
+  starter: { en: "Ideal for small teams posting a handful of jobs each month.", my: "လတိုင်း အလုပ်အနည်းငယ် တင်မည့် အသေးစား အဖွဲ့အစည်းများအတွက် အထူးသင့်။" },
+  growth: { en: "Best for growing companies with steady, regular hiring needs.", my: 
+
 const Pricing = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
