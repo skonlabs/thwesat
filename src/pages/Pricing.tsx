@@ -248,9 +248,6 @@ const Pricing = () => {
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
-              const active1yr = addonPurchases.find(
-                (p) => p.addon_id === a.id && p.status === "active",
-              );
               return (
                 <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
                   <div className="flex-1">
