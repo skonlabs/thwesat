@@ -37,7 +37,10 @@ const Settings = () => {
   const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("jobseeker");
-  const showPaymentHistory = !isAdmin && !isPartner && !isSystemRole;
+  const isAgent = hasRole("agent");
+  const isEmployer = hasRole("employer");
+  // Payment History only for job seekers, mentors, employers — admin/agent/partner have a dedicated Finance page.
+  const showPaymentHistory = !isAdmin && !isPartner && !isSystemRole && !isAgent;
 
   // Toggles
   const [emailNotifications, setEmailNotifications] = useState(() => {
