@@ -249,8 +249,22 @@ const Pricing = () => {
                           ? my ? `${formatMMK(a.mmk)} · ၁ နှစ်` : `${formatMMK(a.mmk)} · 1 year`
                           : formatMMK(a.mmk)}
                     </div>
+                    {a.kind === "matching" && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        {my
+                          ? "သင့်ရဲ့ job နှင့် ကိုက်ညီသော အကောင်းဆုံး candidate များကို ရှာဖွေပေးပြီး၊ စိစစ်ရွေးချယ်ထားသော အမည်စာရင်းကို တိုက်ရိုက် ပေးပို့ပါသည်။"
+                          : "We match your jobs to top candidates in our talent pool and deliver a curated shortlist straight to your inbox."}
+                      </p>
+                    )}
+                    {a.kind === "branding" && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        {my
+                          ? "ကုမ္ပဏီ logo, ဓာတ်ပုံများ, မိတ်ဆက်စာ နှင့် ဖွင့်ထားသော job အားလုံးကို ပြသမည့် သတ်မှတ်ထားသော ကိုယ်ပိုင် branding စာမျက်နှာ။"
+                          : "A dedicated public profile page with your logo, photos, company story, and all your open jobs — share one link with candidates anywhere."}
+                      </p>
+                    )}
                     {a.duration_days && (
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                      <div className="text-[10px] text-muted-foreground mt-1">
                         {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
                       </div>
                     )}
