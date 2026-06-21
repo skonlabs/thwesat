@@ -6,8 +6,6 @@ import { useEmployerProfile } from "@/hooks/use-employer-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
-import PageHeader from "@/components/PageHeader";
-
 import WelcomeTourVideoCard from "@/components/WelcomeTourVideoCard";
 import DashboardHero from "@/components/DashboardHero";
 import { formatMoney } from "@/lib/finance";
@@ -75,8 +73,6 @@ const AgentDashboard = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      <PageHeader title={lang === "my" ? "ခေါ်ယူရေး အေဂျင့် ဒက်ရှ်ဘုတ်" : "Agent Dashboard"} />
-
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Recruiting Agent"

@@ -12,7 +12,6 @@ import { useMentorProfile } from "@/hooks/use-mentor-data";
 import { useMentorBookings, useMentorEarnings, useUpdateBookingStatus } from "@/hooks/use-mentor-bookings";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import PageHeader from "@/components/PageHeader";
 import DashboardHero from "@/components/DashboardHero";
 import { formatMoney } from "@/lib/finance";
 import { computeProfileCompletion } from "@/lib/profile-completion";
@@ -123,7 +122,6 @@ const MentorDashboard = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      <PageHeader title={lang === "my" ? "Mentor ပင်မ" : "Mentor Dashboard"} />
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
         <DashboardHero
           roleLabelEn="Mentor"
