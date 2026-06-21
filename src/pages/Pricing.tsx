@@ -99,21 +99,18 @@ const Pricing = () => {
               />
               <Totals
                 label={my ? "Add-Ons" : "Add-Ons"}
-                value={
-                  (() => {
-                    const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
-                    if (owned.length === 0) return my ? "မရှိ" : "None";
-                    const names = owned
-                      .map((p) => {
-                        const a = addons.find((x) => x.id === p.addon_id);
-                        return (my && a?.label_my) || a?.label_en || "";
-                      })
-                      .filter(Boolean);
-                    return names.join(", ");
-                  })()
-                }
+                value=""
                 total={null}
-                isText
+                listItems={(() => {
+                  const owned = addonPurchases.filter((p) => p.status === "active" && p.expires_at);
+                  if (owned.length === 0) return [my ? "မရှိ" : "None"];
+                  return owned
+                    .map((p) => {
+                      const a = addons.find((x) => x.id === p.addon_id);
+                      return (my && a?.label_my) || a?.label_en || "";
+                    })
+                    .filter(Boolean);
+                })()}
               />
 
             </div>
