@@ -132,7 +132,7 @@ const EmployerDashboard = () => {
 
         {/* Quick actions */}
         <h2 className="mb-3 text-sm font-bold text-foreground">{lang === "my" ? "အမြန်လုပ်ဆောင်ချက်" : "Quick Actions"}</h2>
-        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-7">
+        <div className="mb-5 grid grid-cols-3 gap-3 md:grid-cols-6">
           {quickActions.map((a, i) => (
             <motion.button
               key={a.path + a.en}
