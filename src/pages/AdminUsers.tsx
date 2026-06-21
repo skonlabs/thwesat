@@ -190,7 +190,7 @@ const AdminUsers = () => {
       setDraftSuspended(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, allUserRoles, selected?.is_suspended]);
+  }, [selectedId, allRoles, selected?.is_suspended]);
 
   const initialRoles = new Set(selectedSystemRoles);
   const rolesChanged =
