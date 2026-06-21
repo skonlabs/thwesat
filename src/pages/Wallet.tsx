@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Wallet as WalletIcon, Plus, ArrowDownLeft, ArrowUpRight, Clock, CheckCircle2, XCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ const statusStyle = (status: string) => {
 const Wallet = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
-  const navigate = useNavigate();
+  
   const { data: wallet, isLoading: loadingWallet } = useWallet();
   const { data: txs = [], isLoading: loadingTxs } = useWalletTransactions(50);
   const { data: topups = [], isLoading: loadingTopups } = useMyTopupRequests();
@@ -51,13 +50,6 @@ const Wallet = () => {
             >
               <Plus className="mr-1.5 h-4 w-4" />
               {my ? "ငွေဖြည့်ရန်" : "Top up"}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/mentors")}
-              className="flex-1 rounded-xl border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
-            >
-              {my ? "Mentor ရှာရန်" : "Find mentor"}
             </Button>
           </div>
         </div>

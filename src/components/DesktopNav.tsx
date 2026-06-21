@@ -27,8 +27,7 @@ const DesktopNav = () => {
     { labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
-    { labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
-    { labelMy: "ကိရိယာ", labelEn: "Tools", path: "/ai-tools" },
+    { labelMy: "အသက်မွေး ကိရိယာ", labelEn: "Career Tools", path: "/ai-tools" },
     { labelMy: "လမ်းညွှန်စာ", labelEn: "Guides", path: "/guides" },
     { labelMy: "အသိုင်း", labelEn: "Community", path: "/community" },
   ];

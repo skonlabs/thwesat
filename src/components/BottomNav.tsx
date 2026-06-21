@@ -29,7 +29,7 @@ const BottomNav = () => {
     { icon: Home, labelMy: "ဒက်ရှ်ဘုတ်", labelEn: "Dashboard", path: "/dashboard" },
     { icon: Briefcase, labelMy: "အလုပ်", labelEn: "Jobs", path: "/jobs" },
     { icon: Users, labelMy: "လမ်းညွှန်", labelEn: "Mentors", path: "/mentors" },
-    { icon: FileText, labelMy: "လျှောက်လွှာ", labelEn: "Applications", path: "/applications" },
+    { icon: FileText, labelMy: "အသက်မွေး ကိရိယာ", labelEn: "Career Tools", path: "/ai-tools" },
     { icon: User, labelMy: "ကျွန်ုပ်", labelEn: "Account", path: "/profile" },
   ];
 
