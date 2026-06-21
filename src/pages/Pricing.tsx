@@ -307,13 +307,13 @@ const Pricing = () => {
   );
 };
 
-const Totals = ({ label, value, total }: { label: string; value: string; total: number | null }) => (
+const Totals = ({ label, value, total, isText }: { label: string; value: string; total: number | null; isText?: boolean }) => (
   <div className="rounded-xl border border-border bg-muted/30 p-3">
     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {label}
     </div>
     <div className="mt-1.5 flex items-baseline gap-1.5">
-      <span className="text-xl font-bold tabular-nums text-foreground">{value}</span>
+      <span className={`${isText ? "text-sm" : "text-xl"} font-bold tabular-nums text-foreground`}>{value}</span>
       {total !== null && total > 0 && (
         <span className="text-xs font-medium text-muted-foreground">
           / {total.toLocaleString()}
