@@ -34,7 +34,10 @@ const TIER_ICON: Record<string, any> = {
 const TIER_DESC: Record<string, { en: string; my: string }> = {
   free_trial: { en: "Try everything risk-free — no commitment, no card.", my: "ဘေးကင်းစွာ စမ်းသပ်ပါ — ဘဏ်ကတ်မလိုပါ။" },
   starter: { en: "Ideal for small teams posting a handful of jobs each month.", my: "လတိုင်း အလုပ်အနည်းငယ် တင်မည့် အသေးစား အဖွဲ့အစည်းများအတွက် အထူးသင့်။" },
-  growth: { en: "Best for growing companies with steady, regular hiring needs.", my: 
+  growth: { en: "Best for growing companies with steady, regular hiring needs.", my: "ဆက်တိုက်လိုအပ်သော ကုမ္ပဏီများအတွက် အကောင်းဆုံး။" },
+  business: { en: "For established companies hiring at scale with dedicated support.", my: "အကြီးစားစာရင်း လျှောက်ထားမှုအတွက် အထူးအကူအညီ ရှိသည်။" },
+  enterprise: { en: "Large organizations with high-volume, multi-team recruitment.", my: "အဖွဲ့အများစု နှင့် လိုအပ်ချက်မြင့်သော အကြီးစားလုပ်ငန်းများ။" },
+};
 
 const Pricing = () => {
   const { user } = useAuth();
