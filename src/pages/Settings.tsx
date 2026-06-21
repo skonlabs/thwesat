@@ -37,6 +37,10 @@ const Settings = () => {
   const { hasRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("jobseeker");
+  const isAdmin = hasRole("admin");
+  const isAgent = hasRole("agent");
+  const isPartner = hasRole("partner");
+  const showPaymentHistory = !isAdmin && !isAgent && !isPartner;
 
   // Toggles
   const [emailNotifications, setEmailNotifications] = useState(() => {
