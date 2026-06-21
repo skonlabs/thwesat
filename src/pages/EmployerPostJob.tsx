@@ -684,8 +684,8 @@ const EmployerPostJob = () => {
             </h3>
             <p className="text-sm text-muted-foreground">
               {lang === "my"
-                ? "Moderator မှ စစ်ဆေးပြီးနောက် အလုပ်ရှာသူများ မြင်တွေ့နိုင်ပါမည်။ ပုံမှန်အားဖြင့် ၂၄ နာရီအတွင်း ပြီးစီးပါသည်။"
-                : "A moderator will review your post shortly. Once approved, it will be visible to candidates — usually within 24 hours."}
+                ? "ကျွန်ုပ်တို့၏ စစ်ဆေးရေး အဖွဲ့မှ စစ်ဆေးပြီးနောက် အလုပ်ရှာသူများ မြင်တွေ့နိုင်ပါမည်။ ပုံမှန်အားဖြင့် ၂၄ နာရီအတွင်း ပြီးစီးပါသည်။"
+                : "Our review team will check your post shortly. Once approved, it will be visible to candidates — usually within 24 hours."}
             </p>
             <div className="mt-2 flex w-full flex-col gap-2">
               <Button onClick={() => { setSuccessOpen(false); navigate(isAgent ? "/agent/jobs" : "/employer/jobs"); }} className="w-full rounded-xl">
