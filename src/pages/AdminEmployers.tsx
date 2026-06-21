@@ -280,7 +280,7 @@ const AdminEmployers = () => {
                     <span className="flex-1 break-words text-foreground">{value || <span className="text-muted-foreground/60">{dash}</span>}</span>
                   </div>
                 );
-                const p = selected.profile || {};
+                const p: any = selected.profile || {};
                 return (
                   <>
                     <div className="mb-4">
