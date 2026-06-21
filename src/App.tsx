@@ -153,6 +153,7 @@ const App = () => (
               <Route path="/finance" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SeekerFinance /></AppRoleGuard>} />
               <Route path="/wallet" element={<AppRoleGuard allowedRoles={["jobseeker","mentor"]}><Wallet /></AppRoleGuard>} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
+              <Route path="/partner/wallet" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["jobseeker"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
 
