@@ -27,6 +27,10 @@ const AdminDashboard = () => {
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
       ]);
+      const totalPaymentApprovals =
+        ((pendingPayments as any).count || 0) +
+        ((pendingTopups as any).count || 0) +
+        ((pendingSubs as any).count || 0);
       return {
         totalUsers: users.count || 0,
         activeJobs: jobs.count || 0,
@@ -34,7 +38,7 @@ const AdminDashboard = () => {
         pendingPosts: pendingPosts.count || 0,
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
-        pendingPayments: ((pendingPayments as any).count || 0) + ((pendingTopups as any).count || 0),
+        pendingPayments: totalPaymentApprovals,
         pendingSubs: (pendingSubs as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
@@ -42,7 +46,7 @@ const AdminDashboard = () => {
     },
   });
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.pendingSubs || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
@@ -52,9 +56,7 @@ const AdminDashboard = () => {
   ];
 
   const pendingItems = [
-    { icon: WalletCards, label: { my: "Package တောင်းခံမှု", en: "Pending Subscriptions" }, count: counts?.pendingSubs || 0, path: "/admin/wallet", urgent: (counts?.pendingSubs || 0) > 0 },
-    
-    { icon: CreditCard, label: { my: "ငွေပေးချေမှု အတည်ပြုရန်", en: "Payment Approvals" }, count: counts?.pendingPayments || 0, path: "/admin/wallet?tab=topups", urgent: (counts?.pendingPayments || 0) > 0 },
+    { icon: CreditCard, label: { my: "ငွေပေးချေမှု အတည်ပြုရန်", en: "Payment Approvals" }, count: counts?.pendingPayments || 0, path: "/admin/wallet", urgent: (counts?.pendingPayments || 0) > 0 },
     { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ အတည်ပြုရန်", en: "Job Listing Approvals" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင် အတည်ပြုရန်", en: "Employer Verifications" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
     { icon: MessageCircle, label: { my: "Community ပို့စ် အတည်ပြုရန်", en: "Community Post Approvals" }, count: counts?.pendingPosts || 0, path: "/admin/moderation?tab=posts", urgent: false },
@@ -83,7 +85,7 @@ const AdminDashboard = () => {
           subtitleMy={`${totalPending} ခု လုပ်ဆောင်ရန် စောင့်နေသည်`}
           ctaLabelEn={totalPending > 0 ? "Review payments" : "View analytics"}
           ctaLabelMy={totalPending > 0 ? "ငွေပေးချေမှု စစ်ဆေးရန်" : "ခွဲခြမ်းစိတ်ဖြာမှု"}
-          ctaPath={totalPending > 0 ? "/admin/payments" : "/admin/analytics"}
+          ctaPath={totalPending > 0 ? "/admin/wallet" : "/admin/analytics"}
         />
         {/* Overview Stats */}
         <div className="mb-4 grid grid-cols-4 gap-2">
