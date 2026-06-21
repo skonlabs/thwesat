@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Crown, Trash2, Shield } from "lucide-react";
+import { Search, Crown, Trash2, Shield, MessageCircle, Copy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import PageHeader from "@/components/PageHeader";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { useStartConversation } from "@/hooks/use-start-conversation";
 
 const roleColors: Record<string, string> = {
   jobseeker: "bg-muted text-muted-foreground",
@@ -46,7 +47,9 @@ const PAGE_SIZE = 100;
 
 const AdminUsers = () => {
   const { lang } = useLanguage();
-  const { isAdmin } = useUserRoles();
+  const { isAdmin, isPartner } = useUserRoles();
+  const canMessage = isAdmin || isPartner;
+  const { startConversation } = useStartConversation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialRole = searchParams.get("role") || "all";
@@ -328,30 +331,63 @@ const AdminUsers = () => {
                 return (
                   <Tooltip key={user.id}>
                     <TooltipTrigger asChild>
-                      <motion.button
-                        type="button"
+                      <motion.div
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.03 }}
-                        onClick={() => setSelectedId(user.id)}
-                        className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors"
+                        className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left transition-colors hover:bg-muted/20"
                       >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                          {(user.display_name || "U").slice(0, 2).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
-                            {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedId(user.id)}
+                          className="flex flex-1 min-w-0 items-center gap-3 text-left"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                            {(user.display_name || "U").slice(0, 2).toUpperCase()}
                           </div>
-                          <p className="truncate text-[10px] text-muted-foreground">
-                            {user.email} · {lang === "my" ? "စတင်ရက်" : "Joined"}: {joinedDate}
-                          </p>
-                        </div>
-                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>
-                          {user.primary_role}
-                        </span>
-                      </motion.button>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="truncate text-sm font-semibold text-foreground">{user.display_name || "User"}</h3>
+                              {isAdminUser && <Shield className="h-3 w-3 shrink-0 text-destructive" />}
+                            </div>
+                            <p className="truncate text-[10px] text-muted-foreground">
+                              {user.email || (lang === "my" ? "အီးမေးလ် မရှိ" : "no email")} · {lang === "my" ? "စတင်ရက်" : "Joined"}: {joinedDate}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>
+                            {user.primary_role}
+                          </span>
+                        </button>
+                        {canMessage && (
+                          <div className="flex shrink-0 items-center gap-1">
+                            {user.email && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard?.writeText(user.email);
+                                  toast.success(lang === "my" ? "အီးမေးလ် ကူးယူပြီး" : "Email copied");
+                                }}
+                                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                aria-label="Copy email"
+                              >
+                                <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startConversation(user.id);
+                              }}
+                              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                              aria-label="Message user"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            </button>
+                          </div>
+                        )}
+                      </motion.div>
                     </TooltipTrigger>
                     <TooltipContent side="top">
                       {lang === "my" ? `စတင်ရက်: ${joinedDate}` : `Joined: ${joinedDate}`}
