@@ -57,6 +57,9 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState(initialRole);
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
   const [page, setPage] = useState(0);
+  const [draftRoles, setDraftRoles] = useState<Set<string>>(new Set());
+  const [draftSuspended, setDraftSuspended] = useState<boolean>(false);
+  const [savingChanges, setSavingChanges] = useState(false);
   const queryClient = useQueryClient();
 
   // Sync URL ?role= / ?q= → filter (so dashboard deep links work and reload preserves it)
