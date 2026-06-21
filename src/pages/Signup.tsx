@@ -105,20 +105,21 @@ const Signup = () => {
     const needsEmployerProfile = selectedRole === "employer" || selectedRole === "agent";
 
     setIsLoading(true);
-    const { error } = await signUp(email, password, name, appRole);
+    const { error, userId: newUserId } = await signUp(email, password, name, appRole);
     setIsLoading(false);
     if (error) {
       toast({ title: lang === "my" ? "အကောင့်ဖွင့်မှု မအောင်မြင်ပါ" : error.message, variant: "destructive" });
       return;
     }
-    // Get the new user and persist role + referral
-    const { data: { user: newUser } } = await supabase.auth.getUser();
-    if (newUser) {
+    // Use the user id returned by signUp directly — this is reliable even when
+    // email confirmation is required (otherwise getUser() returns null and the
+    // partner referral attribution silently fails to write).
+    if (newUserId) {
       if (referralCode.trim()) {
         const rpcName = isPartnerCode ? "redeem_partner_referral_code" : "redeem_referral_code";
         const rpcArgs = isPartnerCode
-          ? { _code: referralCode.trim(), _user_id: newUser.id }
-          : { _code: referralCode.trim(), _new_user_id: newUser.id };
+          ? { _code: referralCode.trim(), _user_id: newUserId }
+          : { _code: referralCode.trim(), _new_user_id: newUserId };
         const { error: redeemError } = await supabase.rpc(rpcName as any, rpcArgs as any);
         if (redeemError) {
           console.error("Referral redeem failed:", redeemError);
@@ -130,11 +131,13 @@ const Signup = () => {
           });
         }
       }
-      await supabase.rpc("set_user_role", { _user_id: newUser.id, _role: "user" });
+      await supabase.rpc("set_user_role", { _user_id: newUserId, _role: "user" });
 
       // Pre-seed employer_profiles row for employers and agents (shared screens).
+      // A DB trigger also handles this defensively, but doing it here keeps the
+      // row available immediately for any client-side reads.
       if (needsEmployerProfile) {
-        await supabase.from("employer_profiles").upsert({ id: newUser.id } as any);
+        await supabase.from("employer_profiles").upsert({ id: newUserId } as any);
       }
     }
     setRole(appRole);
