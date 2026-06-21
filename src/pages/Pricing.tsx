@@ -296,8 +296,7 @@ const Pricing = () => {
 
                   <button
                     onClick={() => onBuyAddon(a)}
-                    className="mt-auto w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
-                    style={{ marginTop: "auto", marginBlockStart: "0.75rem" }}
+                    className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
                   >
                     {my ? "ဝယ်ရန်" : "Buy"}
                   </button>
