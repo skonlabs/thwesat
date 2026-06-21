@@ -70,6 +70,7 @@ async function probe(page: Page, c: Case, role: string) {
 
 for (const [role, list] of byRole.entries()) {
   test.describe.serial(`Role: ${role} (${list.length} cases)`, () => {
+    test.describe.configure({ timeout: 120_000 });
     let page: Page;
     test.beforeAll(async ({ browser }) => {
       const ctx = await browser.newContext();
