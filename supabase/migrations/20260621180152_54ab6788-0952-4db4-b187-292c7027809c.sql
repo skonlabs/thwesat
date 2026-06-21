@@ -1,0 +1,2 @@
+UPDATE public.addon_products SET label_en='Branding Page', label_my='Branding Page' WHERE key='branding_agent';
+UPDATE public.addon_products SET label_en='Branding Page', label_my='Branding Page' WHERE key='branding_emp';
