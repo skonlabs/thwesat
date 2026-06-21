@@ -62,7 +62,7 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
   // using insecure hardcoded defaults.
   if (!GATE_USER || !GATE_PASS) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="flex min-h-dvh items-center justify-center bg-background px-6">
         <div className="w-full max-w-xs space-y-4 rounded-2xl border border-border bg-card p-6 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <Info className="h-6 w-6 text-muted-foreground" />
@@ -112,7 +112,7 @@ const SiteGate = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-6">
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }

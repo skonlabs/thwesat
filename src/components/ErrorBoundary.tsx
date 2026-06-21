@@ -44,7 +44,7 @@ class ErrorBoundary extends Component<Props, State> {
       const lang = getLang();
       const my = lang === "my";
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
           <p className="text-lg font-semibold text-foreground">
             {my ? "တစ်ခုခု မှားယွင်းနေပါသည်" : "Something went wrong"}
           </p>

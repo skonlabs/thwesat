@@ -23,7 +23,7 @@ const AuthShell = ({ children, pitchEn, pitchMy }: AuthShellProps) => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-background md:grid md:grid-cols-2">
+    <div className="min-h-dvh w-full bg-background md:grid md:grid-cols-2">
       {/* Desktop brand panel */}
       <aside className="relative hidden overflow-hidden bg-shell text-shell-foreground md:flex md:flex-col md:justify-between md:p-10 lg:p-14">
         {/* Decorative glow */}
@@ -73,7 +73,7 @@ const AuthShell = ({ children, pitchEn, pitchMy }: AuthShellProps) => {
       </aside>
 
       {/* Form column */}
-      <main className="flex min-h-screen flex-col">
+      <main className="flex min-h-dvh flex-col">
         {children}
       </main>
     </div>
