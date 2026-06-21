@@ -1,9 +1,13 @@
 import { corsHeaders } from "https://esm.sh/@supabase/supabase-js@2.95.0/cors";
+import { requireUser } from "../_shared/require-auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  const { errorResponse } = await requireUser(req, corsHeaders as Record<string, string>);
+  if (errorResponse) return errorResponse;
 
   try {
     const { long_url } = await req.json();
