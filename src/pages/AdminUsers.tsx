@@ -57,6 +57,9 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState(initialRole);
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
   const [page, setPage] = useState(0);
+  const [draftRoles, setDraftRoles] = useState<Set<string>>(new Set());
+  const [draftSuspended, setDraftSuspended] = useState<boolean>(false);
+  const [savingChanges, setSavingChanges] = useState(false);
   const queryClient = useQueryClient();
 
   // Sync URL ?role= / ?q= → filter (so dashboard deep links work and reload preserves it)
@@ -176,6 +179,26 @@ const AdminUsers = () => {
 
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
+
+  // Sync draft state whenever a different user is opened or role data refreshes
+  useEffect(() => {
+    if (selected) {
+      setDraftRoles(new Set(roleMap.get(selected.id) || []));
+      setDraftSuspended(!!selected.is_suspended);
+    } else {
+      setDraftRoles(new Set());
+      setDraftSuspended(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, allRoles, selected?.is_suspended]);
+
+  const initialRoles = new Set(selectedSystemRoles);
+  const rolesChanged =
+    selected &&
+    (draftRoles.size !== initialRoles.size ||
+      [...draftRoles].some((r) => !initialRoles.has(r)));
+  const suspendChanged = selected && draftSuspended !== !!selected.is_suspended;
+  const hasUnsavedChanges = !!(rolesChanged || suspendChanged);
 
   const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
@@ -418,11 +441,13 @@ const AdminUsers = () => {
                           <span className="text-sm font-medium text-foreground">Admin</span>
                         </div>
                         <Switch
-                          checked={selectedSystemRoles.includes("admin")}
+                          checked={draftRoles.has("admin")}
                           disabled={!isAdmin}
-                          onCheckedChange={(checked) =>
-                            requestRoleChange(selected.id, selected.display_name || "User", "admin", checked)
-                          }
+                          onCheckedChange={(checked) => {
+                            const next = new Set(draftRoles);
+                            checked ? next.add("admin") : next.delete("admin");
+                            setDraftRoles(next);
+                          }}
                         />
                       </div>
                       <div className="flex items-center justify-between px-3 py-2.5">
@@ -431,11 +456,13 @@ const AdminUsers = () => {
                           <span className="text-sm font-medium text-foreground">Moderator</span>
                         </div>
                         <Switch
-                          checked={selectedSystemRoles.includes("moderator")}
+                          checked={draftRoles.has("moderator")}
                           disabled={!isAdmin}
-                          onCheckedChange={(checked) =>
-                            requestRoleChange(selected.id, selected.display_name || "User", "moderator", checked)
-                          }
+                          onCheckedChange={(checked) => {
+                            const next = new Set(draftRoles);
+                            checked ? next.add("moderator") : next.delete("moderator");
+                            setDraftRoles(next);
+                          }}
                         />
                       </div>
                       <div className="flex items-center justify-between px-3 py-2.5">
@@ -444,11 +471,13 @@ const AdminUsers = () => {
                           <span className="text-sm font-medium text-foreground">Partner</span>
                         </div>
                         <Switch
-                          checked={selectedSystemRoles.includes("partner")}
+                          checked={draftRoles.has("partner")}
                           disabled={!isAdmin}
-                          onCheckedChange={(checked) =>
-                            requestRoleChange(selected.id, selected.display_name || "User", "partner", checked)
-                          }
+                          onCheckedChange={(checked) => {
+                            const next = new Set(draftRoles);
+                            checked ? next.add("partner") : next.delete("partner");
+                            setDraftRoles(next);
+                          }}
                         />
                       </div>
                       <div className="flex items-center justify-between px-3 py-2.5">
@@ -457,9 +486,9 @@ const AdminUsers = () => {
                           <span className="text-sm font-medium text-foreground">{lang === "my" ? "ရပ်ဆိုင်းထား" : "Suspended"}</span>
                         </div>
                         <Switch
-                          checked={!!selected.is_suspended}
+                          checked={draftSuspended}
                           disabled={!isAdmin}
-                          onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
+                          onCheckedChange={(checked) => setDraftSuspended(checked)}
                         />
                       </div>
                     </div>
@@ -467,9 +496,41 @@ const AdminUsers = () => {
                 </div>
 
                 {/* Sticky footer */}
-                <div className="flex gap-2 border-t border-border bg-card p-4">
+                <div className="flex flex-wrap gap-2 border-t border-border bg-card p-4">
                   <Button
-                    variant="outline"
+                    variant="default"
+                    size="sm"
+                    className="flex-1 rounded-xl"
+                    disabled={!hasUnsavedChanges || savingChanges || !isAdmin}
+                    onClick={async () => {
+                      if (!selected) return;
+                      setSavingChanges(true);
+                      const initial = new Set(roleMap.get(selected.id) || []);
+                      const toAdd = [...draftRoles].filter((r) => !initial.has(r));
+                      const toRemove = [...initial].filter((r) => !draftRoles.has(r));
+                      let hadError = false;
+                      for (const role of toAdd) {
+                        const { error } = await supabase.rpc("set_user_role", { _user_id: selected.id, _role: role as any });
+                        if (error) { hadError = true; toast.error(`Failed to add ${role}: ${error.message}`); }
+                      }
+                      for (const role of toRemove) {
+                        const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: selected.id, _role: role });
+                        if (error) { hadError = true; toast.error(`Failed to remove ${role}: ${error.message}`); }
+                      }
+                      if (suspendChanged) {
+                        const { error } = await supabase.rpc("set_user_suspended" as any, { _user_id: selected.id, _suspended: draftSuspended });
+                        if (error) { hadError = true; toast.error(error.message || "Failed to update suspend status"); }
+                      }
+                      await queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
+                      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+                      setSavingChanges(false);
+                      if (!hadError) toast.success(lang === "my" ? "သိမ်းဆည်းပြီး" : "Changes saved");
+                    }}
+                  >
+                    {savingChanges ? (lang === "my" ? "သိမ်းနေသည်…" : "Saving…") : (lang === "my" ? "သိမ်းမည်" : "Save")}
+                  </Button>
+                  <Button
+                    variant="gold"
                     size="sm"
                     className="flex-1 rounded-xl"
                     onClick={() => { setSelectedId(null); navigate(`/profile/${selected.id}`); }}
@@ -485,6 +546,7 @@ const AdminUsers = () => {
                     >
                       <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
                     </Button>
+
                   )}
                 </div>
               </motion.div>
