@@ -78,6 +78,11 @@ const EmployerApplications = () => {
   const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
   const [contactUnlockApplicantId, setContactUnlockApplicantId] = useState<string | null>(null);
   const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
+  const { data: quotas } = useMyQuotas();
+  const unlocksLeft = quotas?.is_unlimited_unlocks
+    ? Infinity
+    : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
+  const unlocksLeftLabel = unlocksLeft === Infinity ? "∞" : unlocksLeft.toLocaleString();
   const queryClient = useQueryClient();
   const [postingSearch, setPostingSearch] = useState("");
   const [candidateSearch, setCandidateSearch] = useState("");
