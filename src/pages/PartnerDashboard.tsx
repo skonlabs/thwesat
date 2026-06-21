@@ -64,11 +64,15 @@ const PartnerDashboard = () => {
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "jobseeker"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "agent"),
       ]);
+      const totalPaymentApprovals =
+        ((pendingPayments as any).count || 0) +
+        ((pendingTopups as any).count || 0) +
+        ((pendingSubs as any).count || 0);
       return {
         pendingJobs: pendingJobs.count || 0,
         pendingPosts: pendingPosts.count || 0,
         pendingEmployers: pendingEmployers.count || 0,
-        pendingPayments: ((pendingPayments as any).count || 0) + ((pendingTopups as any).count || 0),
+        pendingPayments: totalPaymentApprovals,
         pendingSubs: (pendingSubs as any).count || 0,
         approvedJobsToday: approvedJobsToday.count || 0,
         totalUsers: totalUsers.count || 0,
@@ -85,8 +89,7 @@ const PartnerDashboard = () => {
     (counts?.pendingJobs || 0) +
     (counts?.pendingPosts || 0) +
     (counts?.pendingEmployers || 0) +
-    (counts?.pendingPayments || 0) +
-    (counts?.pendingSubs || 0);
+    (counts?.pendingPayments || 0);
 
   // Review queues — partner's primary work surface
   const reviewQueues = [
@@ -101,7 +104,7 @@ const PartnerDashboard = () => {
       icon: CreditCard,
       label: { en: "Payment Approvals", my: "ငွေပေးချေမှု အတည်ပြုရန်" },
       count: counts?.pendingPayments || 0,
-      path: "/partner/wallet?tab=topups",
+      path: "/partner/wallet",
       tone: "amber" as const,
     },
     {
