@@ -352,15 +352,20 @@ const Pricing = () => {
   );
 };
 
-const Totals = ({ label, value, total, listItems }: { label: string; value: string; total: number | null; listItems?: string[] }) => (
+const Totals = ({ label, value, total, listItems }: { label: string; value: string; total: number | null; listItems?: { label: string; detail?: string }[] }) => (
   <div className="rounded-xl border border-border bg-muted/30 p-3">
     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       {label}
     </div>
     {listItems ? (
-      <ul className="mt-1.5 space-y-0.5 text-xs font-semibold text-foreground">
+      <ul className="mt-1.5 space-y-0.5">
         {listItems.map((item, i) => (
-          <li key={i} className="truncate">{item}</li>
+          <li key={i} className="truncate">
+            <span className="text-xs font-semibold text-foreground">{item.label}</span>
+            {item.detail && (
+              <span className="ml-1 text-[10px] text-emerald-700 dark:text-emerald-400">{item.detail}</span>
+            )}
+          </li>
         ))}
       </ul>
     ) : (
