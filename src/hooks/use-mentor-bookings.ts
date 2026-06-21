@@ -106,11 +106,12 @@ async function sendBookingNotification({
   }
 
   if (!conversationId) {
-    const { data: conv } = await supabase.from("conversations").insert({}).select("id").single();
-    if (conv) {
-      conversationId = conv.id;
-      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: senderId });
-      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: recipientId });
+    const convId = crypto.randomUUID();
+    const { error: convError } = await supabase.from("conversations").insert({ id: convId });
+    if (!convError) {
+      conversationId = convId;
+      await supabase.from("conversation_participants").insert({ conversation_id: convId, user_id: senderId });
+      await supabase.from("conversation_participants").insert({ conversation_id: convId, user_id: recipientId });
     }
   }
 
