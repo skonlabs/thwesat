@@ -77,11 +77,11 @@ const Pricing = () => {
       <div className="mx-auto w-full max-w-6xl px-5 space-y-5">
         {/* Your totals */}
         {(quotas || grants.length > 0) && (
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {my ? "သင်၏ စုစုပေါင်း ပိုင်ဆိုင်မှု" : "Your totals"}
             </div>
-            <div className="mt-1 grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Totals
                 label={my ? "Active Jobs" : "Active Jobs"}
                 value={quotas?.is_unlimited_jobs ? "∞" : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
@@ -294,11 +294,17 @@ const Pricing = () => {
 };
 
 const Totals = ({ label, value, total }: { label: string; value: string; total: number | null }) => (
-  <div className="rounded-lg bg-background/60 p-2">
-    <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-    <div className="mt-0.5 text-base font-bold tabular-nums">
-      {value}
-      {total !== null && total > 0 && <span className="ml-1 text-[10px] font-normal text-muted-foreground">/ {total.toLocaleString()}</span>}
+  <div className="rounded-xl border border-border bg-muted/30 p-3">
+    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      {label}
+    </div>
+    <div className="mt-1.5 flex items-baseline gap-1.5">
+      <span className="text-xl font-bold tabular-nums text-foreground">{value}</span>
+      {total !== null && total > 0 && (
+        <span className="text-xs font-medium text-muted-foreground">
+          / {total.toLocaleString()}
+        </span>
+      )}
     </div>
   </div>
 );
