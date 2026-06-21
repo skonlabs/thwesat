@@ -11,6 +11,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { UserRoleBadges } from "@/components/RoleBadge";
+import { useFeatureUnlocks } from "@/hooks/use-wallet";
 
 const PublicProfile = () => {
   const { id } = useParams<{ id: string }>();
