@@ -14,6 +14,7 @@ import { useStartConversation } from "@/hooks/use-start-conversation";
 import PageHeader from "@/components/PageHeader";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import { useFeatureUnlocks } from "@/hooks/use-wallet";
+import { useMyQuotas } from "@/hooks/use-subscription";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
