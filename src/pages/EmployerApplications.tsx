@@ -659,9 +659,9 @@ const EmployerApplications = () => {
                           </div>
                         </button>
 
-                        {/* Inline quick actions — appear on hover (always-on for touch via opacity 100 on small screens) */}
-                        <div className="flex shrink-0 items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                          {canShortlist && (
+                        {/* Inline quick actions — always visible */}
+                        <div className="flex shrink-0 items-center gap-1">
+                          {rowUnlocked && canShortlist && (
                             <button
                               onClick={(e) => { e.stopPropagation(); quickStatus(app.id, "shortlisted"); }}
                               disabled={updateStatus.isPending}
@@ -671,18 +671,20 @@ const EmployerApplications = () => {
                               <CheckCircle className="h-4 w-4" strokeWidth={1.8} />
                             </button>
                           )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const jobTitle = app.jobs?.title || "your application";
-                              const seed = lang === "my" ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက်...` : `Hi, regarding your application for "${jobTitle}"...`;
-                              startConversation(app.applicant_id, { initialMessage: seed });
-                            }}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-primary hover:bg-primary/10"
-                            title={lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
-                          >
-                            <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
-                          </button>
+                          {rowUnlocked && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const jobTitle = app.jobs?.title || "your application";
+                                const seed = lang === "my" ? `မင်္ဂလာပါ၊ "${jobTitle}" အတွက်...` : `Hi, regarding your application for "${jobTitle}"...`;
+                                startConversation(app.applicant_id, { initialMessage: seed });
+                              }}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-primary hover:bg-primary/10"
+                              title={lang === "my" ? "မက်ဆေ့ချ်" : "Message"}
+                            >
+                              <MessageCircle className="h-4 w-4" strokeWidth={1.8} />
+                            </button>
+                          )}
                           {canReject && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setSelectedId(app.id); setShowReject(true); }}
