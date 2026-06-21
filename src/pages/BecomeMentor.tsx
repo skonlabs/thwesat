@@ -115,7 +115,7 @@ const BecomeMentor = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်သူ ဖြစ်လာပါ" : "Become a Mentor"} backPath="/mentors" />
 
       <div className="px-5">

@@ -89,7 +89,7 @@ const SearchTalent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-12">
+    <div className="min-h-dvh bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ဝန်ထမ်းရှာဖွေရန်" : "Search Talent"} showBack />
       <div className="mx-auto max-w-6xl px-5 md:px-8">
         <div className="mb-4 flex gap-2">

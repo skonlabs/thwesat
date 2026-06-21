@@ -180,7 +180,7 @@ const AdminAnalytics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ခွဲခြမ်းစိတ်ဖြာ" : "Analytics"} showBack />
 
       <div className="px-5 space-y-5">

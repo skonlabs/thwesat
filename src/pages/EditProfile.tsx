@@ -575,7 +575,7 @@ const EditProfile = () => {
   const initial = name ? name.charAt(0).toUpperCase() : "?";
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile"} backPath="/profile" />
       {isDirty && (
         <div className="mx-5 mt-2 flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-50/80 px-3 py-2.5 dark:bg-amber-900/20">

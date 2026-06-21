@@ -57,7 +57,7 @@ const PublicProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
@@ -65,7 +65,7 @@ const PublicProfile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-dvh bg-background pb-24">
         <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
         <div className="flex flex-col items-center py-16 text-center px-5">
           <p className="text-sm text-muted-foreground">{lang === "my" ? "ပရိုဖိုင် မတွေ့ပါ" : "Profile not found"}</p>
@@ -87,7 +87,7 @@ const PublicProfile = () => {
     }
     if (visibility === "private") {
       return (
-        <div className="min-h-screen bg-background pb-24">
+        <div className="min-h-dvh bg-background pb-24">
           <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
           <div className="flex flex-col items-center py-16 text-center px-5">
             <p className="text-sm font-semibold text-foreground">
@@ -107,7 +107,7 @@ const PublicProfile = () => {
       const isEmployerOrSystem = hasRole("employer") || hasRole("agent");
       if (!isEmployerOrSystem) {
         return (
-          <div className="min-h-screen bg-background pb-24">
+          <div className="min-h-dvh bg-background pb-24">
             <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
             <div className="flex flex-col items-center py-16 text-center px-5">
               <p className="text-sm font-semibold text-foreground">
@@ -133,7 +133,7 @@ const PublicProfile = () => {
   const readinessVisible = profile.primary_role === "jobseeker" && readiness.some(r => r.ok);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ပရိုဖိုင်" : "Profile"} showBack />
       <div className="px-5 pt-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

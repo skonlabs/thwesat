@@ -68,7 +68,7 @@ const EmployerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-12">
+    <div className="min-h-dvh bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် ပင်မ" : "Employer Dashboard"} />
 
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">

@@ -24,7 +24,7 @@ const SeekerFinance = () => {
   const currencies = useMemo(() => all.map((p) => p.currency || "MMK"), [all]);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ငွေကြေး မှတ်တမ်း" : "My Finances"} showBack />
       <div className="px-5">
         <FinanceLedger

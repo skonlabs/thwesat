@@ -207,7 +207,7 @@ const MentorBooking = () => {
   // Mentors themselves may book with anyone.
   if (!mentorId) {
     return (
-      <div className="min-h-screen bg-background pb-10">
+      <div className="min-h-dvh bg-background pb-10">
         <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath="/mentors" />
         <div className="px-5 pt-6 text-center">
           <p className="text-sm text-muted-foreground">
@@ -220,7 +220,7 @@ const MentorBooking = () => {
 
   if (mentorLoading || rolesLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
@@ -228,7 +228,7 @@ const MentorBooking = () => {
 
   if (!mentorProfile && !currentUserIsMentor) {
     return (
-      <div className="min-h-screen bg-background pb-10">
+      <div className="min-h-dvh bg-background pb-10">
         <PageHeader title={lang === "my" ? "ချိန်းဆိုရန်" : "Book Session"} backPath="/mentors" />
         <div className="mx-auto mt-10 max-w-md px-5 text-center">
           <div className="rounded-2xl border border-border bg-card p-6">

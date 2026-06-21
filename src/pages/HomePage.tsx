@@ -77,7 +77,7 @@ const HomePage = () => {
   const showCompletionBar = !rolesLoading && !isAdmin && !isModerator && completionPct < 100;
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-12">
+    <div className="min-h-dvh bg-background pb-24 md:pb-12">
       <PageHeader title={lang === "my" ? "ပင်မစာမျက်နှာ" : "Home"} />
 
       <div className="mx-auto max-w-7xl px-5 pt-5 md:grid md:grid-cols-[minmax(0,1fr)_300px] md:gap-6 md:px-8 md:pt-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">

@@ -63,7 +63,7 @@ export default function PartnerFinanceHub() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={my ? "ငွေကြေး ဗဟိုဌာန" : "Finance Hub"} />
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         {!partnerId ? (

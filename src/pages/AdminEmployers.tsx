@@ -163,7 +163,7 @@ const AdminEmployers = () => {
   const pendingCount = employers.filter((e: any) => (e.verification_status || "pending") === "pending").length;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "အလုပ်ရှင် စီမံခန့်ခွဲ" : "Employer Management"} showBack />
       <div className="px-5">
         <Tabs value={tab} onValueChange={setTab} className="mb-4">

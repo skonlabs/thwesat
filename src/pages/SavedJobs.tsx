@@ -49,7 +49,7 @@ const SavedJobs = () => {
   const savedEntries = (savedJobs || []).filter((s: any) => s.jobs);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "သိမ်းထားသော အလုပ်များ" : "Saved Jobs"} backPath="/jobs" />
       <div className="px-5 pb-24">
         <div className={savedEntries.length > 0 ? "grid gap-3 md:grid-cols-2 lg:grid-cols-3" : "space-y-3"}>

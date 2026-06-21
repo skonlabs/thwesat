@@ -92,7 +92,7 @@ const MentorFinance = () => {
   }, [all, status, currency]);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "ဝင်ငွေ မှတ်တမ်း" : "Mentor Earnings"} showBack />
       <div className="px-5">
         {/* Payout-method reminder removed — see comment above. */}

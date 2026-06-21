@@ -72,7 +72,7 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={my ? "ဈေးနှုန်းများ" : "Pricing"} />
       <div className="mx-auto w-full max-w-6xl px-5 space-y-5">
         {/* Your totals */}

@@ -49,12 +49,12 @@ const Onboarding = () => {
   const next = () => (isLast ? navigate("/signup") : setStep(step + 1));
 
   return (
-    <div className="landing-dark relative min-h-screen overflow-hidden bg-shell text-shell-foreground">
+    <div className="landing-dark relative min-h-dvh overflow-hidden bg-shell text-shell-foreground">
       {/* Decorative glows */}
       <div className="pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-[120px]" />
       <div className="pointer-events-none absolute -bottom-32 -left-24 h-[24rem] w-[24rem] rounded-full bg-sidebar-accent/70 blur-[100px]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pt-6 md:max-w-lg md:px-8">
+      <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 pt-6 md:max-w-lg md:px-8">
         {/* Top bar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

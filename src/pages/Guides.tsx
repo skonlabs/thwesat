@@ -97,7 +97,7 @@ const Guides = () => {
   const isSearching = searchQuery.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-dvh bg-background pb-24">
       <PageHeader title={lang === "my" ? "လမ်းညွှန်ချက်များ" : "Guides"} />
       <div className="px-5 pt-4">
         {/* Admin: Create button */}

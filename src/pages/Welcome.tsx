@@ -64,7 +64,7 @@ const Welcome = () => {
   ];
 
   return (
-    <div className="landing-dark min-h-screen bg-background text-foreground">
+    <div className="landing-dark min-h-dvh bg-background text-foreground">
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-shell bg-shell text-shell-foreground">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-8 md:py-4">
