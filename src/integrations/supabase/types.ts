@@ -3016,7 +3016,6 @@ export type Database = {
       }
     }
     Functions: {
-      _get_service_role_key: { Args: never; Returns: string }
       _mentor_session_release_internal: {
         Args: { _booking_id: string }
         Returns: undefined
