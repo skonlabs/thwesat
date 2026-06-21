@@ -167,48 +167,51 @@ const CHAR_LIMIT_REQ = 2000;
 
     let effectiveFeatured = isFeatured;
 
-    const { error } = await supabase.from("jobs").update({
-      title: titleEn,
-      title_my: titleMy || null,
-      description: descEn,
-      description_my: descMy || null,
-      requirements: requirementsEn,
-      requirements_my: requirementsMy || null,
-      role_type: roleType,
-      category: categories[0] || null,
-      categories,
-      salary_min: minVal,
-      salary_max: maxVal,
-      location: locationCountry || "Remote",
-      payment_methods: sanitizeJobPaymentMethods(selectedPayments),
-      requires_embassy: requiresEmbassy,
-      requires_work_permit: requiresWorkPermit,
-      visa_sponsorship: visaSponsorship,
-      is_featured: effectiveFeatured,
-      application_method: applicationMethod,
-      external_url: applicationMethod === "external" ? externalUrl.trim() : null,
-      expires_at: jobExpiryDateToIso(expiresOn),
-      job_type: roleType.includes("contract") ? "contract" : "full-time",
-      ...(isAgent ? {
-        company: postedByLabel === "client" && selectedClient
-          ? selectedClient.name
-          : (employerProfile?.company_name || ""),
-        agent_client_id: postedByLabel === "client" ? selectedClient?.id ?? null : null,
-        client_company_name: postedByLabel === "client" ? selectedClient?.name ?? null : null,
-        client_logo_url: postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
-        posted_by_label: postedByLabel,
-      } : {}),
-    } as any).eq("id", id);
-    setSaving(false);
-    if (error) {
-      toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update");
-    } else {
+    try {
+      const { error } = await supabase.from("jobs").update({
+        title: titleEn,
+        title_my: titleMy || null,
+        description: descEn,
+        description_my: descMy || null,
+        requirements: requirementsEn,
+        requirements_my: requirementsMy || null,
+        role_type: roleType,
+        category: categories[0] || null,
+        categories,
+        salary_min: minVal,
+        salary_max: maxVal,
+        location: locationCountry || "Remote",
+        payment_methods: sanitizeJobPaymentMethods(selectedPayments),
+        requires_embassy: requiresEmbassy,
+        requires_work_permit: requiresWorkPermit,
+        visa_sponsorship: visaSponsorship,
+        is_featured: effectiveFeatured,
+        application_method: applicationMethod,
+        external_url: applicationMethod === "external" ? externalUrl.trim() : null,
+        expires_at: jobExpiryDateToIso(expiresOn),
+        job_type: roleType.includes("contract") ? "contract" : "full-time",
+        ...(isAgent ? {
+          company: postedByLabel === "client" && selectedClient
+            ? selectedClient.name
+            : (employerProfile?.company_name || ""),
+          agent_client_id: postedByLabel === "client" ? selectedClient?.id ?? null : null,
+          client_company_name: postedByLabel === "client" ? selectedClient?.name ?? null : null,
+          client_logo_url: postedByLabel === "client" ? selectedClient?.logo_url ?? null : null,
+          posted_by_label: postedByLabel,
+        } : {}),
+      } as any).eq("id", id);
+      if (error) {
+        toast.error(lang === "my" ? "ပြင်ဆင်၍ မရပါ" : "Failed to update");
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
       setConfirmOpen(false);
       navigate(-1);
+    } finally {
+      setSaving(false);
     }
   };
 

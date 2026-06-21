@@ -161,24 +161,28 @@ const ModeratorDashboard = () => {
       payment: "/admin/payments",
     };
     const link_path = linkPathMap[itemType];
-    await Promise.all(
-      adminUserIds.map((adminId: string) =>
-        supabase.from("notifications").insert({
-          user_id: adminId,
-          notification_type: "escalation_request",
-          title: "Escalation request",
-          description: `Moderator escalated ${itemType} ${itemId} for review`,
-          link_path,
-        })
-      )
-    );
-    toast.success(lang === "my" ? "Admin ထံ ပို့ပြီး" : "Escalated to admin");
+    try {
+      await Promise.all(
+        adminUserIds.map((adminId: string) =>
+          supabase.from("notifications").insert({
+            user_id: adminId,
+            notification_type: "escalation_request",
+            title: "Escalation request",
+            description: `Moderator escalated ${itemType} ${itemId} for review`,
+            link_path,
+          })
+        )
+      );
+      toast.success(lang === "my" ? "Admin ထံ ပို့ပြီး" : "Escalated to admin");
+    } catch (e: any) {
+      toast.error(e?.message || (lang === "my" ? "ပို့၍ မရပါ" : "Failed to escalate"));
+    }
   };
 
   // ─── MUTATIONS ───
   const approvePost = useMutation({
     mutationFn: async (id: string) => {
-      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
       const { error } = await supabase.from("community_posts").update({ is_approved: true, moderated_by: user?.id }).eq("id", id);
       if (error) throw error;
       if (post?.author_id) {
@@ -194,11 +198,12 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); toast.success(lang === "my" ? "အတည်ပြုပြီး" : "Post approved"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အတည်ပြု၍ မရပါ" : "Failed to approve post")),
   });
 
   const removePost = useMutation({
     mutationFn: async (id: string) => {
-      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).single();
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
       await supabase.from("community_posts").update({ moderated_by: user?.id, moderation_reason: removalReason }).eq("id", id);
       const { error } = await supabase.from("community_posts").delete().eq("id", id);
       if (error) throw error;
@@ -215,6 +220,7 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); setShowRemoval(false); setRemovalReason(""); toast.success(lang === "my" ? "ဖယ်ရှားပြီး" : "Post removed"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove post")),
   });
 
   const approveJob = useMutation({
@@ -224,11 +230,12 @@ const ModeratorDashboard = () => {
       if (error) throw error;
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အလုပ် အတည်ပြု၍ မရပါ" : "Failed to approve job")),
   });
 
   const rejectJob = useMutation({
     mutationFn: async (id: string) => {
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).single();
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).maybeSingle();
       const { error } = await supabase.from("jobs").update({ status: "rejected", rejection_reason: jobRejectReason }).eq("id", id);
       if (error) throw error;
       // Notify employer with the rejection reason
@@ -245,6 +252,7 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setShowJobReject(false); setJobRejectReason(""); toast.success(lang === "my" ? "အလုပ် ပယ်ချပြီး" : "Job rejected"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အလုပ် ပယ်ချ၍ မရပါ" : "Failed to reject job")),
   });
 
   // Issue #13: Payment approval/rejection via review_payment_request RPC

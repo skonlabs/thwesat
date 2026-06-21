@@ -84,7 +84,7 @@ const AdminJobQueue = () => {
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
       // Get job info before update for notification
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).single();
+      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).maybeSingle();
       const { error } = await supabase.from("jobs").update({
         status,
         ...(rejectionReason ? { rejection_reason: rejectionReason } : {}),
@@ -111,6 +111,7 @@ const AdminJobQueue = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
       queryClient.invalidateQueries({ queryKey: ["admin-analytics"] });
     },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ပြောင်း၍ မရပါ" : "Failed to update job")),
   });
 
   const handleApprove = (id: string) => {

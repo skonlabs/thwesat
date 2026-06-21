@@ -458,6 +458,7 @@ const AdminUsers = () => {
                         </div>
                         <Switch
                           checked={!!selected.is_suspended}
+                          disabled={!isAdmin}
                           onCheckedChange={(checked) => toggleSuspend(selected.id, checked)}
                         />
                       </div>

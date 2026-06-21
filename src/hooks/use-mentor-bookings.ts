@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 export function useMentorBookings(asMentor = true) {
   const { user } = useAuth();
@@ -106,11 +107,12 @@ async function sendBookingNotification({
   }
 
   if (!conversationId) {
-    const { data: conv } = await supabase.from("conversations").insert({}).select("id").single();
-    if (conv) {
-      conversationId = conv.id;
-      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: senderId });
-      await supabase.from("conversation_participants").insert({ conversation_id: conv.id, user_id: recipientId });
+    const convId = crypto.randomUUID();
+    const { error: convError } = await supabase.from("conversations").insert({ id: convId });
+    if (!convError) {
+      conversationId = convId;
+      await supabase.from("conversation_participants").insert({ conversation_id: convId, user_id: senderId });
+      await supabase.from("conversation_participants").insert({ conversation_id: convId, user_id: recipientId });
     }
   }
 
@@ -159,11 +161,14 @@ export function useUpdateBookingStatus() {
       if (error) throw error;
 
       // Get booking details for notification
-      const { data: booking } = await supabase
+      const bookingQuery = supabase
         .from("mentor_bookings")
         .select("mentor_id, mentee_id, scheduled_date, scheduled_time")
-        .eq("id", id)
-        .single();
+        .eq("id", id);
+      const { data: booking, error: bookingFetchError } = typeof (bookingQuery as any).maybeSingle === "function"
+        ? await (bookingQuery as any).maybeSingle()
+        : await (bookingQuery as any).single();
+      if (bookingFetchError && bookingFetchError.code !== "PGRST116") throw bookingFetchError;
 
       if (booking && user) {
         const isMentor = user.id === booking.mentor_id;
@@ -247,6 +252,7 @@ export function useUpdateBookingStatus() {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
+    onError: (e: any) => toast.error(e?.message || "Failed to update booking"),
   });
 }
 

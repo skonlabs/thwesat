@@ -168,7 +168,8 @@ const Profile = () => {
 
   const generateMoreCodes = async () => {
     if (!profile?.id) return;
-    await supabase.rpc("mint_referral_codes", { _owner_id: profile.id, _count: 10 });
+    const { error } = await supabase.rpc("mint_referral_codes", { _owner_id: profile.id, _count: 10 });
+    if (error) return;
     refetchCodes();
   };
 
