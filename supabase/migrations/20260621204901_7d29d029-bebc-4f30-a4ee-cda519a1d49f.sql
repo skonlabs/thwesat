@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.notify_staff_on_subscription_payment_request() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_staff_on_payment_request_review() FROM PUBLIC, anon, authenticated;
