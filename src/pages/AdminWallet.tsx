@@ -299,6 +299,50 @@ const AdminWallet = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Proof viewer modal */}
+        <AnimatePresence>
+          {proofState && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] flex items-center justify-center bg-foreground/60 p-4" onClick={() => setProofState(null)}>
+              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-card" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+                  <h3 className="text-sm font-bold text-foreground">{my ? "ပေးချေမှု အထောက်အထား" : "Payment Proof"}</h3>
+                  <div className="flex items-center gap-2">
+                    {proofState.url && (
+                      <a href={proofState.url} target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-primary hover:underline">
+                        {my ? "Tab အသစ်တွင် ဖွင့်" : "Open in new tab"}
+                      </a>
+                    )}
+                    <button onClick={() => setProofState(null)} className="rounded-md p-1 text-muted-foreground hover:bg-muted">
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex min-h-[300px] flex-1 items-center justify-center overflow-auto bg-muted/30 p-3">
+                  {proofState.loading && (
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  )}
+                  {!proofState.loading && proofState.error && (
+                    <p className="text-xs text-destructive">{my ? "အထောက်အထား ဖွင့်၍မရပါ" : "Could not load proof"}</p>
+                  )}
+                  {!proofState.loading && proofState.url && !proofState.error && (
+                    isPdfUrl(proofState.url) ? (
+                      <iframe src={proofState.url} title="proof" className="h-[75vh] w-full rounded-lg border border-border bg-white" />
+                    ) : (
+                      <img
+                        src={proofState.url}
+                        alt="proof"
+                        className="max-h-[75vh] w-auto max-w-full rounded-lg object-contain"
+                        onError={() => setProofState((p) => p ? { ...p, error: true } : p)}
+                      />
+                    )
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
     </div>
   );
