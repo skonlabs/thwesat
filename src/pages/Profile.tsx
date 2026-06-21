@@ -297,7 +297,7 @@ const Profile = () => {
         </motion.div>
         )}
 
-        {/* Admin/Moderator Role Badge */}
+        {/* Admin / Partner Role Badge */}
         {isSystemRole && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
             <div className="flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
@@ -305,7 +305,7 @@ const Profile = () => {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">{lang === "my" ? "အခန်းကဏ္ဍ" : "Role"}</p>
                 <p className="text-sm font-semibold text-primary">
-                  {isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : (lang === "my" ? "စစ်ဆေးသူ" : "Moderator")}
+                  {isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : (lang === "my" ? "ပါတနာ" : "Partner")}
                 </p>
               </div>
             </div>
