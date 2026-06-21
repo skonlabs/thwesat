@@ -230,6 +230,7 @@ const ModeratorDashboard = () => {
       if (error) throw error;
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setJobChecks(jobChecklist.map(() => false)); toast.success(lang === "my" ? "အလုပ် အတည်ပြုပြီး" : "Job approved"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အလုပ် အတည်ပြု၍ မရပါ" : "Failed to approve job")),
   });
 
   const rejectJob = useMutation({
@@ -251,6 +252,7 @@ const ModeratorDashboard = () => {
       }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedJobId(null); setShowJobReject(false); setJobRejectReason(""); toast.success(lang === "my" ? "အလုပ် ပယ်ချပြီး" : "Job rejected"); },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "အလုပ် ပယ်ချ၍ မရပါ" : "Failed to reject job")),
   });
 
   // Issue #13: Payment approval/rejection via review_payment_request RPC
