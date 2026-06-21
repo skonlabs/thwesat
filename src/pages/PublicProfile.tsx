@@ -37,8 +37,13 @@ const PublicProfile = () => {
   });
 
   const currentUserCanMessageAnyone = hasRole("mentor") || hasRole("employer") || hasRole("agent");
-  const canMessage = currentUserCanMessageAnyone || !!targetIsMessageable;
   const isHiringSide = hasRole("employer") || hasRole("agent");
+  // For hiring-side viewers messaging a seeker, gate Message on contact unlock.
+  const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
+  const targetIsSeeker = !!id && targetIsMessageable === false;
+  const targetContactUnlocked = !!id && (contactUnlocks || []).some((u: any) => u.target_id === id);
+  const hiringSideBlocked = isHiringSide && targetIsSeeker && !targetContactUnlocked;
+  const canMessage = (currentUserCanMessageAnyone || !!targetIsMessageable) && !hiringSideBlocked;
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", id],
