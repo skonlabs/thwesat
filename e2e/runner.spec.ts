@@ -1,4 +1,4 @@
-import { test, expect, Page, BrowserContext, TestInfo } from "@playwright/test";
+import { test, expect, Page, BrowserContext } from "@playwright/test";
 import fs from "fs";
 import { login, RoleKey } from "./_helpers";
 import { calculatePlacementFee, formatMoney, formatTotals, paymentStatusLabels, PLACEMENT_PLATFORM_COMMISSION, roundMmk, shortRef } from "../src/lib/finance";
@@ -55,7 +55,7 @@ async function resolveRoute(page: Page, route: string): Promise<string | null> {
   return hit ? new URL(hit, page.url()).pathname : null;
 }
 
-async function probeRoute(page: Page, c: Case, role: string, testInfo: TestInfo) {
+async function probeRoute(page: Page, c: Case, role: string) {
   const consoleErrors: string[] = [];
   const onErr = (msg: any) => { if (msg.type() === "error") consoleErrors.push(String(msg.text()).slice(0, 200)); };
   page.on("console", onErr);
@@ -169,7 +169,7 @@ test.describe.serial("Spreadsheet-driven test run", () => {
       for (const role of rolesFor(c)) {
         try {
           const page = await pageFor(browser, role);
-          const status = await probeRoute(page, c, role, testInfo);
+          const status = await probeRoute(page, c, role);
           if (status === "FAIL") final = "FAIL";
           if (status === "BLOCKED" && final !== "FAIL") final = "BLOCKED";
         } catch (e: any) {
