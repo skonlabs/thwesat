@@ -49,7 +49,7 @@ async function resolveRoute(page: Page, route: string): Promise<string | null> {
   if (!cfg) return null;
   if (route === "/access/:token") return cfg.list;
   await page.goto(cfg.list, { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => {});
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(400);
   const hrefs = await page.locator("a[href]").evaluateAll((els) => els.map((a) => (a as HTMLAnchorElement).getAttribute("href") || ""));
   const hit = hrefs.find((h) => cfg.pattern.test(new URL(h, window.location.origin).pathname));
   return hit ? new URL(hit, page.url()).pathname : null;
@@ -66,7 +66,7 @@ async function probeRoute(page: Page, c: Case, role: string) {
       return "BLOCKED";
     }
     const resp = await page.goto(route, { waitUntil: "domcontentloaded", timeout: 20_000 });
-    await page.waitForTimeout(900); // SPA settle
+    await page.waitForTimeout(500); // SPA settle
     const url = page.url();
     const httpStatus = resp?.status() ?? 0;
     const bodyText = await page.locator("body").innerText().catch(() => "");
@@ -81,6 +81,7 @@ async function probeRoute(page: Page, c: Case, role: string) {
     if (/admin-only guard for partner/i.test(c.component || "") && !/\/dashboard/.test(url)) { status = "FAIL"; notes.push("Partner was not redirected away from admin finance"); }
     if (/seeker-only guard/i.test(c.component || "") && !/\/dashboard/.test(url)) { status = "FAIL"; notes.push("Employer was not redirected away from seeker-only route"); }
     if (consoleErrors.length > 5) notes.push(`${consoleErrors.length} console errors`);
+    if (c.notes) notes.push(c.notes);
     let screenshot = "";
     if (status === "FAIL") {
       screenshot = `test-failure-screenshots/${c.id}.png`;
