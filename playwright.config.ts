@@ -10,7 +10,6 @@ import { defineConfig, devices } from "@playwright/test";
  *   E2E_AGENT_EMAIL / E2E_AGENT_PASSWORD
  *   E2E_MENTOR_EMAIL / E2E_MENTOR_PASSWORD
  *   E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD
- *   E2E_MODERATOR_EMAIL / E2E_MODERATOR_PASSWORD
  *   E2E_PARTNER_EMAIL / E2E_PARTNER_PASSWORD
  *
  * Tests that lack credentials are skipped (not failed) so partial runs work.

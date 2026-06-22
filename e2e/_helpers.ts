@@ -1,6 +1,6 @@
 import { Page, expect, test as base } from "@playwright/test";
 
-export type RoleKey = "seeker" | "employer" | "agent" | "mentor" | "admin" | "moderator" | "partner";
+export type RoleKey = "seeker" | "employer" | "agent" | "mentor" | "admin" | "partner";
 
 export function creds(role: RoleKey): { email: string; password: string } | null {
   const map: Record<RoleKey, [string, string]> = {
@@ -9,7 +9,6 @@ export function creds(role: RoleKey): { email: string; password: string } | null
     agent: ["E2E_AGENT_EMAIL", "E2E_AGENT_PASSWORD"],
     mentor: ["E2E_MENTOR_EMAIL", "E2E_MENTOR_PASSWORD"],
     admin: ["E2E_ADMIN_EMAIL", "E2E_ADMIN_PASSWORD"],
-    moderator: ["E2E_MODERATOR_EMAIL", "E2E_MODERATOR_PASSWORD"],
     partner: ["E2E_PARTNER_EMAIL", "E2E_PARTNER_PASSWORD"],
   };
   const [eKey, pKey] = map[role];
