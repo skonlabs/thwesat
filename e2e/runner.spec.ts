@@ -51,7 +51,8 @@ async function resolveRoute(page: Page, route: string): Promise<string | null> {
   await page.goto(cfg.list, { waitUntil: "domcontentloaded", timeout: 20_000 }).catch(() => {});
   await page.waitForTimeout(400);
   const hrefs = await page.locator("a[href]").evaluateAll((els) => els.map((a) => (a as HTMLAnchorElement).getAttribute("href") || ""));
-  const hit = hrefs.find((h) => cfg.pattern.test(new URL(h, window.location.origin).pathname));
+  const origin = new URL(page.url()).origin;
+  const hit = hrefs.find((h) => cfg.pattern.test(new URL(h, origin).pathname));
   return hit ? new URL(hit, page.url()).pathname : null;
 }
 
