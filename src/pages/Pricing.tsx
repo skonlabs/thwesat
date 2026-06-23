@@ -296,11 +296,6 @@ const Pricing = () => {
                           : "Need to post more jobs than your package allows? Buy any number of extra postings — they stack directly into your active job posting quota."}
                       </p>
                     )}
-                    {a.duration_days && (
-                      <div className="text-[10px] text-muted-foreground mt-1">
-                        {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
-                      </div>
-                    )}
                   </div>
 
                   {a.is_per_unit && (
