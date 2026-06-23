@@ -248,8 +248,14 @@ const Pricing = () => {
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
+              const isComingSoon = a.kind === "branding";
               return (
-                <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
+                <div key={a.id} className="relative flex flex-col rounded-xl border border-border bg-card p-3">
+                  {isComingSoon && (
+                    <span className="absolute right-2 top-2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-foreground shadow-sm">
+                      {my ? "မကြာမီ" : "Coming soon"}
+                    </span>
+                  )}
                   <div className="flex-1">
                     <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
                     <div className="text-[11px] text-muted-foreground">
