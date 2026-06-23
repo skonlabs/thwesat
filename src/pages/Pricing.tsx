@@ -289,6 +289,13 @@ const Pricing = () => {
                           : "A dedicated public profile page with your logo, photos, company story, and all your open jobs — share one link with candidates anywhere."}
                       </p>
                     )}
+                    {a.kind === "job_post" && (
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                        {my
+                          ? "သင့်ပက်ကေ့ဂျ်ထဲတွင် ပါဝင်သော အလုပ်ခေါ်စာ ကန့်သတ်ချက်ထက် ပိုလိုအပ်ပါက၊ လိုသလောက် အပိုဝယ်ယူနိုင်ပါသည်။ active job posting quota တွင် တိုက်ရိုက် တိုးပေါင်းပါမည်။"
+                          : "Need to post more jobs than your package allows? Buy any number of extra postings — they stack directly into your active job posting quota."}
+                      </p>
+                    )}
                     {a.duration_days && (
                       <div className="text-[10px] text-muted-foreground mt-1">
                         {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
