@@ -335,10 +335,15 @@ const Pricing = () => {
                   )}
 
                   <button
-                    onClick={() => onBuyAddon(a)}
-                    className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+                    onClick={() => !isComingSoon && onBuyAddon(a)}
+                    disabled={isComingSoon}
+                    className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                      isComingSoon
+                        ? "cursor-not-allowed bg-muted text-muted-foreground"
+                        : "bg-primary text-primary-foreground hover:opacity-90"
+                    }`}
                   >
-                    {my ? "ဝယ်ရန်" : "Buy"}
+                    {isComingSoon ? (my ? "မကြာမီ" : "Coming soon") : my ? "ဝယ်ရန်" : "Buy"}
                   </button>
                 </div>
               );
