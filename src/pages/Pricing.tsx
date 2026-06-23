@@ -292,14 +292,9 @@ const Pricing = () => {
                     {a.kind === "job_post" && (
                       <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
                         {my
-                          ? "သင့်ပက်ကေ့ဂျ်ထဲတွင် ပါဝင်သော အလုပ်ခေါ်စာ ကန့်သတ်ချက်ထက် ပိုလိုအပ်ပါက၊ လိုသလောက် အပိုဝယ်ယူနိုင်ပါသည်။ active job posting quota တွင် တိုက်ရိုက် တိုးပေါင်းပါမည်။"
-                          : "Need to post more jobs than your package allows? Buy any number of extra postings — they stack directly into your active job posting quota."}
+                          ? "သင့်ပက်ကေ့ဂျ်ထဲက အလုပ်ခေါ်စာ အရေအတွက် မလုံလောက်ပါက အပိုဝယ်ပါ။ active job quota တွင် တိုက်ရိုက် ပေါင်းထည့်ပြီး၊ သက်တမ်း မရှိပါ။"
+                          : "Add extra job posting slots when your package isn't enough. Stacks straight into your active job quota — never expires."}
                       </p>
-                    )}
-                    {a.duration_days && (
-                      <div className="text-[10px] text-muted-foreground mt-1">
-                        {my ? "သက်တမ်း ပြီးချိန်တွင် ပြန်လည် ဝယ်ယူရန် လိုအပ်ပါသည်" : "Renew after expiry"}
-                      </div>
                     )}
                   </div>
 
