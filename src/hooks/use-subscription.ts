@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export type PlanRole = "employer" | "recruiting_agent" | "both";
 export type PlanTier = "free_trial" | "starter" | "growth" | "business" | "enterprise";
-export type AddonKind = "unlock_pack" | "featured_job" | "matching" | "branding";
+export type AddonKind = "unlock_pack" | "featured_job" | "matching" | "branding" | "job_post";
 
 export interface SubscriptionPlan {
   id: string;
