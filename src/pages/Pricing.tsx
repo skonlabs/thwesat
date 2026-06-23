@@ -248,8 +248,14 @@ const Pricing = () => {
             {addons.map((a) => {
               const q = getQty(a.id);
               const total = a.is_per_unit ? a.mmk * q : a.mmk;
+              const isComingSoon = a.kind === "branding";
               return (
-                <div key={a.id} className="flex flex-col rounded-xl border border-border bg-card p-3">
+                <div key={a.id} className="relative flex flex-col rounded-xl border border-border bg-card p-3">
+                  {isComingSoon && (
+                    <span className="absolute right-2 top-2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-foreground shadow-sm">
+                      {my ? "မကြာမီ" : "Coming soon"}
+                    </span>
+                  )}
                   <div className="flex-1">
                     <div className="text-sm font-bold">{(my && a.label_my) || a.label_en}</div>
                     <div className="text-[11px] text-muted-foreground">
@@ -329,10 +335,15 @@ const Pricing = () => {
                   )}
 
                   <button
-                    onClick={() => onBuyAddon(a)}
-                    className="mt-3 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+                    onClick={() => !isComingSoon && onBuyAddon(a)}
+                    disabled={isComingSoon}
+                    className={`mt-3 w-full rounded-xl py-2.5 text-sm font-bold transition ${
+                      isComingSoon
+                        ? "cursor-not-allowed bg-muted text-muted-foreground"
+                        : "bg-primary text-primary-foreground hover:opacity-90"
+                    }`}
                   >
-                    {my ? "ဝယ်ရန်" : "Buy"}
+                    {isComingSoon ? (my ? "မကြာမီ" : "Coming soon") : my ? "ဝယ်ရန်" : "Buy"}
                   </button>
                 </div>
               );
