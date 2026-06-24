@@ -71,10 +71,11 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
   const [proofImageError, setProofImageError] = useState(false);
   const [proofLoadTimeout, setProofLoadTimeout] = useState(false);
 
-  // Fetch user profiles for display
-  const userIds = [...new Set((payments || []).map(p => p.user_id))];
+  // Fetch user profiles for display. Sort ids so the queryKey is stable across reorders.
+  const userIds = [...new Set((payments || []).map(p => p.user_id))].sort();
   const { data: profiles } = useQuery({
     queryKey: ["payment-user-profiles", userIds],
+    staleTime: 60_000,
     queryFn: async () => {
       if (userIds.length === 0) return [];
       const { data } = await supabase
@@ -87,6 +88,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     },
     enabled: userIds.length > 0,
   });
+
 
   const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
@@ -148,13 +150,12 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
         status,
         admin_note: adminNote,
       });
-      toast({
-        title: status === "approved"
-          ? (lang === "my" ? "အတည်ပြုပြီး" : "Payment Approved Successfully")
-          : status === "revoked"
-          ? (lang === "my" ? "ရုပ်သိမ်းပြီး" : "Payment Revoked")
-          : (lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected"),
-      });
+      // No success toast on approve (positive flow); confirm destructive actions only.
+      if (status === "rejected") {
+        toast({ title: lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected" });
+      } else if (status === "revoked") {
+        toast({ title: lang === "my" ? "ရုပ်သိမ်းပြီး" : "Payment Revoked" });
+      }
       setSelectedPayment(null);
       setAdminNote("");
       setConfirmAction(null);
@@ -162,6 +163,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
       toast({ title: lang === "my" ? "အမှား" : "Error", description: err?.message || "Failed to update payment", variant: "destructive" });
     }
   };
+
 
   const selectedPaymentProfile = selectedPayment ? profileMap.get(selectedPayment.user_id) : null;
 

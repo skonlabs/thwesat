@@ -13,7 +13,9 @@ const AdminDashboard = () => {
 
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
+    staleTime: 60_000,
     queryFn: async () => {
+
       const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),

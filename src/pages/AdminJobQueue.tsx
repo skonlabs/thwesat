@@ -57,15 +57,17 @@ const AdminJobQueue = () => {
   const [showBulkReject, setShowBulkReject] = useState(false);
   const [bulkRejectionReason, setBulkRejectionReason] = useState("");
 
-  // Fetch ALL jobs for admin (not just pending)
+  // Fetch ALL jobs for admin (not just pending). Bumped past the default 1k cap.
   const { data: allJobs = [], isLoading } = useQuery({
     queryKey: ["admin-all-jobs"],
+    staleTime: 30_000,
     queryFn: async () => {
-      const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false }).range(0, 4999);
       if (error) throw error;
       return data || [];
     },
   });
+
 
   const cutoff = sinceMs ? Date.now() - sinceMs : null;
   const jobsByStatus = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
@@ -83,26 +85,17 @@ const AdminJobQueue = () => {
 
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
-      // Get job info before update for notification
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).maybeSingle();
-      const { error } = await supabase.from("jobs").update({
-        status,
-        ...(rejectionReason ? { rejection_reason: rejectionReason } : {}),
-      }).eq("id", id);
-      if (error) throw error;
-
-      // Notify employer about job status
-      if (job) {
-        const isApproved = status === "active";
-        await supabase.from("notifications").insert({
-          user_id: job.employer_id,
-          notification_type: isApproved ? "job" : "job_rejected",
-          title: isApproved ? `Your job "${job.title}" has been approved!` : `Your job "${job.title}" was rejected`,
-          title_my: isApproved ? `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ အတည်ပြုပြီး!` : `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ ငြင်းပယ်ခံရပြီ`,
-          description: isApproved ? "Your job listing is now live and visible to job seekers." : (rejectionReason || "Your job listing did not meet our guidelines."),
-          description_my: isApproved ? "သင့်အလုပ်ကြော်ငြာကို အလုပ်ရှာဖွေသူများ မြင်နိုင်ပါပြီ။" : (rejectionReason || "သင့်အလုပ်ကြော်ငြာသည် လမ်းညွှန်ချက်များနှင့် ကိုက်ညီမှု မရှိပါ။"),
-          link_path: "/employer/dashboard",
-        });
+      // Route through audited atomic RPCs (writes admin_audit_log + notifies employer)
+      if (status === "active") {
+        const { error } = await (supabase as any).rpc("approve_job", { _job_id: id });
+        if (error) throw error;
+      } else if (status === "rejected") {
+        const { error } = await (supabase as any).rpc("reject_job", { _job_id: id, _reason: rejectionReason || null });
+        if (error) throw error;
+      } else {
+        // Other statuses (paused/closed) — direct update, no notification.
+        const { error } = await supabase.from("jobs").update({ status }).eq("id", id);
+        if (error) throw error;
       }
     },
     onSuccess: () => {
@@ -113,6 +106,7 @@ const AdminJobQueue = () => {
     },
     onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ပြောင်း၍ မရပါ" : "Failed to update job")),
   });
+
 
   const handleApprove = (id: string) => {
     updateJob.mutate({ id, status: "active" }, {
@@ -191,9 +185,10 @@ const AdminJobQueue = () => {
   };
 
   const handleDeleteJob = async (jobId: string) => {
-    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
+    // Audited admin-only delete (writes admin_audit_log).
+    const { error } = await (supabase as any).rpc("delete_job", { _job_id: jobId });
     if (error) {
-      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete job");
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : error.message || "Failed to delete job");
     } else {
       toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်ပြီး" : "Job deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
@@ -202,6 +197,7 @@ const AdminJobQueue = () => {
     }
     setDeleteConfirmId(null);
   };
+
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";

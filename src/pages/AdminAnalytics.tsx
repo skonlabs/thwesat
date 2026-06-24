@@ -53,7 +53,9 @@ const AdminAnalytics = () => {
 
   const { data: metrics } = useQuery({
     queryKey: ["admin-analytics-overview"],
+    staleTime: 60_000,
     queryFn: async () => {
+
       const [users, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
@@ -93,7 +95,9 @@ const AdminAnalytics = () => {
 
   const { data: trends, isLoading: trendsLoading } = useQuery({
     queryKey: ["admin-analytics-trends", range],
+    staleTime: 60_000,
     queryFn: async () => {
+
       const [signups, newJobs, newApplications, paymentsRange, bookingsRange, paymentMix] = await Promise.all([
         supabase.from("profiles").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("jobs").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),

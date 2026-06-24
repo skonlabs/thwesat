@@ -204,7 +204,16 @@ const ModeratorDashboard = () => {
   const removePost = useMutation({
     mutationFn: async (id: string) => {
       const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
+      // Write moderation metadata first so it persists in the audit log even though the row is then deleted.
       await supabase.from("community_posts").update({ moderated_by: user?.id, moderation_reason: removalReason }).eq("id", id);
+      await supabase.from("admin_audit_log").insert({
+        actor_id: user?.id,
+        action: "post_removed",
+        target_type: "community_post",
+        target_id: id,
+        details: { author_id: post?.author_id || null, reason: removalReason },
+      } as any);
+
       const { error } = await supabase.from("community_posts").delete().eq("id", id);
       if (error) throw error;
       if (post?.author_id) {
@@ -219,6 +228,7 @@ const ModeratorDashboard = () => {
         });
       }
     },
+
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["moderator-pending-posts"] }); queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] }); queryClient.invalidateQueries({ queryKey: ["admin-analytics"] }); setSelectedPostId(null); setShowRemoval(false); setRemovalReason(""); toast.success(lang === "my" ? "ဖယ်ရှားပြီး" : "Post removed"); },
     onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ဖယ်ရှား၍ မရပါ" : "Failed to remove post")),
   });

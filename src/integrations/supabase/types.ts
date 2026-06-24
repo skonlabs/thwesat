@@ -3178,6 +3178,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_verify_employer: {
+        Args: { _employer_id: string; _reason?: string; _status: string }
+        Returns: Json
+      }
       ai_rate_limit_check_and_increment: {
         Args: { _action: string; _daily_cap: number; _user_id: string }
         Returns: {
@@ -3221,6 +3225,7 @@ export type Database = {
         Returns: string
       }
       current_partner_id: { Args: never; Returns: string }
+      delete_job: { Args: { _job_id: string }; Returns: Json }
       delete_user_cascade: {
         Args: { _target_user_id: string }
         Returns: undefined
@@ -3396,6 +3401,7 @@ export type Database = {
         Returns: Json
       }
       refresh_job_featured: { Args: { _job_id: string }; Returns: undefined }
+      reject_job: { Args: { _job_id: string; _reason?: string }; Returns: Json }
       reject_subscription_payment: {
         Args: { p_admin_note?: string; p_request_id: string }
         Returns: undefined
