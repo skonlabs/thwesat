@@ -8,6 +8,7 @@ import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import { useRole } from "@/hooks/use-role";
 import { useEmployerJobs, useEmployerJobApplicantBreakdown } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,7 +35,8 @@ const EmployerJobs = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useEmployerJobs();
-  const isAgent = typeof window !== "undefined" && window.location.pathname.startsWith("/agent");
+  const { role: currentRole } = useRole();
+  const isAgent = currentRole === "agent";
   const postJobPath = isAgent ? "/agent/post-job" : "/employer/post-job";
   const applicationsPath = isAgent ? "/agent/candidates" : "/employer/applications";
   const editJobPath = (id: string) => isAgent ? `/agent/edit-job/${id}` : `/employer/edit-job/${id}`;

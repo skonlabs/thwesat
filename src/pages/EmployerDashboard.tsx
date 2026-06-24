@@ -30,7 +30,7 @@ const EmployerDashboard = () => {
         .select("status, placement_fee, placement_salary, updated_at, jobs!inner(id, title, company, employer_id)")
         .eq("jobs.employer_id", user.id);
       const list = (rows || []) as any[];
-      const active = list.filter((r) => ["applied", "shortlisted", "reviewing"].includes(r.status)).length;
+      const active = list.filter((r) => ["applied", "viewed", "shortlisted", "interview", "interviewed", "offered"].includes(r.status)).length;
       const interview = list.filter((r) => r.status === "interview").length;
       const hiredRows = list.filter((r) => r.status === "placed");
       const hired = hiredRows.length;

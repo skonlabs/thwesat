@@ -318,6 +318,7 @@ export function useEmployerApplications(jobId?: string) {
       return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];
     },
     enabled: !!user,
+    staleTime: 30_000,
     refetchInterval: 30000,
   });
 }
