@@ -108,26 +108,27 @@ const AdminUsers = () => {
       const to = from + PAGE_SIZE - 1;
       // If searching, look up matching user_ids from contacts (email) AND profiles (display_name),
       // then return the union — that way pagination still works but the search covers all users.
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["admin-users", page, debouncedSearch],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      // If searching, look up matching user_ids from profiles (display_name + email).
       let matchedIds: string[] | null = null;
-      const q = search.trim();
+      const q = debouncedSearch.trim();
       if (q) {
-        const [{ data: contacts }, { data: byName }] = await Promise.all([
-          supabase.rpc("get_user_contacts_admin", { _ids: [] as any }).then(async () => {
-            // RPC requires _ids; fall back to ilike on profiles only for email by re-querying via profiles join below.
-            return { data: [] as any[] };
-          }),
+        const [{ data: byName }, emailRowsResp] = await Promise.all([
           supabase.from("profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
+          (async () => {
+            try {
+              return await (supabase as any).from("profiles").select("id").ilike("email", `%${q}%`).limit(500);
+            } catch {
+              return { data: [] as any[] };
+            }
+          })(),
         ]);
-        // Also try direct profiles.email if exposed (some schemas mirror it). Safe no-op if not present.
-        let emailMatchIds: string[] = [];
-        try {
-          const { data: emailRows } = await (supabase as any)
-            .from("profiles")
-            .select("id")
-            .ilike("email", `%${q}%`)
-            .limit(500);
-          emailMatchIds = (emailRows || []).map((r: any) => r.id);
-        } catch { /* column may not exist; ignore */ }
+        const emailMatchIds = ((emailRowsResp as any)?.data || []).map((r: any) => r.id);
         matchedIds = Array.from(new Set([...(byName || []).map((r: any) => r.id), ...emailMatchIds]));
         if (matchedIds.length === 0) return [];
       }
@@ -149,9 +150,8 @@ const AdminUsers = () => {
         email: contactMap.get(u.id)?.email ?? null,
         phone: contactMap.get(u.id)?.phone ?? null,
       }));
-      // Secondary email match: when searching, also keep page rows whose email matches q
-      if (search.trim()) {
-        const ql = search.trim().toLowerCase();
+      if (q) {
+        const ql = q.toLowerCase();
         rows = rows.filter((u: any) =>
           (u.display_name || "").toLowerCase().includes(ql) ||
           (u.email || "").toLowerCase().includes(ql)
@@ -164,12 +164,14 @@ const AdminUsers = () => {
   // Fetch system roles for all users
   const { data: allRoles = [] } = useQuery({
     queryKey: ["admin-all-user-roles"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.from("user_roles").select("user_id, role");
       if (error) throw error;
       return data || [];
     },
   });
+
 
   const roleMap = new Map<string, string[]>();
   allRoles.forEach((r: any) => {
