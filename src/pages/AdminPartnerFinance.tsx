@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Plus, Check, Minus, Equal, Percent, Gift, Shield, ChevronRight, X } from "lucide-react";
@@ -26,6 +26,9 @@ import {
   usePaymentReversals,
   usePartnerPeriodPayments,
   useUpdatePaymentOverrides,
+  useAdminAttributeUser,
+  useAdminCreatePartner,
+  useAdminRecordReversal,
   type Partner,
 } from "@/hooks/use-partner-finance";
 
@@ -349,7 +352,6 @@ function StatementTab({ partner, year, month, lang, readOnly = false }: { partne
             onClick={async () => {
               try {
                 await finalize.mutateAsync({ partner_id: partner.id, year, month, preview: data });
-                toast.success(tt(lang, "Statement finalized", "ထုတ်ပြန်ချက် အပြီးသတ်ပြီး"));
               } catch (e: any) { toast.error(e.message || tt(lang, "Failed", "မအောင်မြင်ပါ")); }
             }}
           >
@@ -643,25 +645,23 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
   const { data: dir } = useUserDirectoryLite(userIds);
   const [userId, setUserId] = useState("");
   const [channel, setChannel] = useState("manual");
-  const [busy, setBusy] = useState(false);
+  const attribute = useAdminAttributeUser();
 
   const add = async () => {
     if (!userId.trim()) return;
-    setBusy(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      const { error } = await (supabase as any).from("partner_attributions").insert({
-        partner_id: partner.id,
-        user_id: userId.trim(),
-        channel,
-        created_by: u.user?.id,
-      });
-      if (error) throw error;
+      await attribute.mutateAsync({ partner_id: partner.id, user_id: userId.trim(), channel });
       setUserId("");
-      toast.success(tt(lang, "Attribution added", "Attribution ထည့်ပြီး"));
       refetch();
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        user_not_found: tt(lang, "No user with that ID", "ထို ID နှင့် တူသော အသုံးပြုသူ မရှိ"),
+        partner_not_found: tt(lang, "Partner not found", "Partner မတွေ့ပါ"),
+        invalid_channel: tt(lang, "Invalid channel", "Channel မမှန်ပါ"),
+        not_authorized: tt(lang, "Admin/Moderator only", "Admin/Moderator သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
 
   const channelLabels: Record<string, { en: string; my: string }> = {
@@ -691,7 +691,7 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={add} disabled={busy}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Attribute", "ထည့်")}</Button>
+          <Button onClick={add} disabled={attribute.isPending}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Attribute", "ထည့်")}</Button>
         </div>
       </Card>
 
@@ -779,7 +779,7 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
         npr_amount: npr === "" ? null : Number(npr),
         revenue_classification: cls,
       });
-      toast.success(tt(lang, "Saved", "သိမ်းပြီး"));
+      // success is silent per UX policy
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
@@ -860,7 +860,7 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
         recorded_by: u.user?.id,
       }, { onConflict: "partner_id,period_year,period_month" });
       if (error) throw error;
-      toast.success(tt(lang, "Quality metrics saved", "Quality metrics သိမ်းပြီး"));
+      // success is silent per UX policy
       refetch();
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
@@ -911,7 +911,6 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
   const [amount, setAmount] = useState("");
   const [npr, setNpr] = useState("");
   const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
 
   const typeLabels: Record<string, { en: string; my: string }> = {
     refund: { en: "Refund", my: "ပြန်အမ်း" },
@@ -921,25 +920,30 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
     fraud_writeoff: { en: "Fraud writeoff", my: "လိမ်လည် ဖျက်" },
   };
 
+  const record = useAdminRecordReversal();
+
   const add = async () => {
     if (!paymentId.trim() || !amount) return;
-    setBusy(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      const { error } = await (supabase as any).from("payment_reversals").insert({
+      await record.mutateAsync({
         payment_request_id: paymentId.trim(),
         reversal_type: type,
         amount: Number(amount),
         npr_amount: npr ? Number(npr) : null,
         reason: reason || null,
-        created_by: u.user?.id,
       });
-      if (error) throw error;
-      toast.success(tt(lang, "Reversal recorded", "ပြန်နုတ်မှု မှတ်ပြီး"));
       setPaymentId(""); setAmount(""); setNpr(""); setReason("");
       refetch();
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        payment_not_found: tt(lang, "No payment with that ID", "ထို ID နှင့် ပေးချေမှု မရှိ"),
+        amount_must_be_positive: tt(lang, "Amount must be greater than zero", "ပမာဏသည် ၀ ထက်ကြီးရမည်"),
+        amount_exceeds_payment: tt(lang, "Reversal exceeds original payment amount", "ပြန်နုတ်မှု မူရင်းပေးချေမှုထက် ပိုနေသည်"),
+        invalid_reversal_type: tt(lang, "Invalid reversal type", "Reversal အမျိုးအစား မမှန်ပါ"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
 
   return (
@@ -974,7 +978,7 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
           <Label className="text-xs">{tt(lang, "Reason", "အကြောင်းပြချက်")}</Label>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} />
         </div>
-        <Button onClick={add} disabled={busy}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Record", "မှတ်")}</Button>
+        <Button onClick={add} disabled={record.isPending}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Record", "မှတ်")}</Button>
       </Card>
 
       <Card className="divide-y">
@@ -1027,27 +1031,26 @@ function HistoryTab({ partner, lang }: { partner: Partner; lang: "en" | "my" }) 
   );
 }
 
-// ───────────── New partner sheet ─────────────
+// ───────────── New partner sheet (audited RPC) ─────────────
 function NewPartnerSheet({ lang }: { lang: "en" | "my" }) {
-  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [start, setStart] = useState(new Date().toISOString().slice(0, 10));
-  const [busy, setBusy] = useState(false);
+  const create = useAdminCreatePartner();
   const submit = async () => {
-    if (!name || !code) return;
-    setBusy(true);
+    if (!name.trim() || !code.trim()) return;
     try {
-      const { error } = await (supabase as any).from("partners").insert({
-        name, code, contract_start_date: start,
-      });
-      if (error) throw error;
-      toast.success(tt(lang, "Partner created", "Partner ဖန်တီးပြီး"));
-      qc.invalidateQueries({ queryKey: ["partners"] });
+      await create.mutateAsync({ name: name.trim(), code: code.trim(), contract_start_date: start });
       setOpen(false); setName(""); setCode("");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        duplicate_code: tt(lang, "That code is already taken", "ဤကုဒ်ကို သုံးပြီးဖြစ်နေသည်"),
+        invalid_code_format: tt(lang, "Code must be 2–32 chars: A–Z, 0–9, _ or -", "ကုဒ်သည် A–Z, 0–9, _ သို့မဟုတ် - ၂–၃၂ လုံး"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -1056,9 +1059,9 @@ function NewPartnerSheet({ lang }: { lang: "en" | "my" }) {
         <SheetHeader><SheetTitle>{tt(lang, "New partner", "Partner အသစ်")}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-3">
           <div><Label className="text-xs">{tt(lang, "Name", "နာမည်")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><Label className="text-xs">{tt(lang, "Code", "ကုဒ်")}</Label><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} /></div>
+          <div><Label className="text-xs">{tt(lang, "Code", "ကုဒ်")}</Label><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ACME_2026" /></div>
           <div><Label className="text-xs">{tt(lang, "Contract start", "စာချုပ် စတင်")}</Label><Input type="date" value={start} onChange={(e) => setStart(e.target.value)} /></div>
-          <Button onClick={submit} disabled={busy} className="w-full">{tt(lang, "Create", "ဖန်တီး")}</Button>
+          <Button onClick={submit} disabled={create.isPending} className="w-full">{tt(lang, "Create", "ဖန်တီး")}</Button>
         </div>
       </SheetContent>
     </Sheet>

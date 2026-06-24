@@ -1,18 +1,24 @@
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/use-language";
 import FinanceOverview from "@/components/finance/FinanceOverview";
 import PartnerReferrals from "./PartnerReferrals";
 import AdminFinance from "./AdminFinance";
 import AdminPartnerFinance from "./AdminPartnerFinance";
-import { usePartners, usePartnerStatements, usePartnerAttributions, usePartnerStatementPreview } from "@/hooks/use-partner-finance";
+import {
+  useCurrentPartner,
+  usePartnerStatements,
+  usePartnerAttributions,
+  usePartnerStatementPreview,
+} from "@/hooks/use-partner-finance";
 
 const TABS = ["overview", "revenue", "revshare", "statements", "attributions", "referrals"] as const;
 type TabKey = typeof TABS[number];
@@ -26,8 +32,9 @@ function nowYangon() {
 }
 
 /**
- * Partner-facing Finance Hub. Auto-resolves the current partner via
- * current_partner_id() and scopes every number to their attributed users only.
+ * Partner-facing Finance Hub. Auto-resolves the current partner via the
+ * `current_partner` RPC which returns ONLY the caller's record — partners
+ * never see the global partner list.
  */
 export default function PartnerFinanceHub() {
   const { lang } = useLanguage();
@@ -36,20 +43,17 @@ export default function PartnerFinanceHub() {
   const tab = (TABS.includes(sp.get("tab") as TabKey) ? sp.get("tab") : "overview") as TabKey;
   const setTab = (t: TabKey) => { const next = new URLSearchParams(sp); next.set("tab", t); setSp(next, { replace: true }); };
 
-  const { data: partnerId } = useQuery({
-    queryKey: ["current-partner-id"],
-    queryFn: async () => {
-      const { data } = await supabase.rpc("current_partner_id" as any);
-      return (data as string | null) ?? null;
-    },
-  });
-
-  const { data: partners } = usePartners();
-  const partner = useMemo(() => partners?.find((p) => p.id === partnerId) ?? null, [partners, partnerId]);
+  const { data: partner } = useCurrentPartner();
+  const partnerId = partner?.id ?? null;
 
   const { data: attributions } = usePartnerAttributions(partnerId);
-  const attributedIds = useMemo(() => new Set<string>((attributions || []).map((a: any) => a.user_id)), [attributions]);
-  const { year, month } = nowYangon();
+  const attributedIds = useMemo(
+    () => new Set<string>((attributions || []).map((a: any) => a.user_id)),
+    [attributions],
+  );
+  const _now = nowYangon();
+  const [year, setYear] = useState<number>(_now.year);
+  const [month, setMonth] = useState<number>(_now.month);
   const { data: preview } = usePartnerStatementPreview(partner as any, year, month);
   const { data: statements } = usePartnerStatements(partnerId);
 
@@ -80,6 +84,23 @@ export default function PartnerFinanceHub() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-5">
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <Label className="text-xs">{my ? "ခုနှစ်" : "Year"}</Label>
+                  <Input type="number" className="w-24" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label className="text-xs">{my ? "လ" : "Month"}</Label>
+                  <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+                    <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {preview && (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                   <PartnerKpi label={my ? "လက်ရှိလ Net NPR" : "MTD Net NPR"} value={fmt(preview.net_collected_attributed_npr)} />

@@ -30,6 +30,7 @@ const PartnerDashboard = () => {
 
   const { data: counts } = useQuery({
     queryKey: ["partner-dashboard-counts"],
+    staleTime: 30_000,
     queryFn: async () => {
       const [
         pendingJobs,
@@ -183,7 +184,7 @@ const PartnerDashboard = () => {
           />
           <SnapshotCard
             icon={Eye}
-            value={my ? "View only" : "View only"}
+            value={my ? "ကြည့်ရှုသာ" : "View only"}
             label={my ? "Partner အခွင့်အရေး" : "Your access"}
             tone="amber"
             isText
