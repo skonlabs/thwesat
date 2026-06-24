@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Star, SlidersHorizontal, X, Check } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, X, Check, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
+import { useBoostedProfileIds } from "@/hooks/use-subscription";
 import PageHeader from "@/components/PageHeader";
 import { UserRoleBadges } from "@/components/RoleBadge";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
@@ -32,6 +33,7 @@ const SearchTalent = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
+  const { data: boostedMap = {} } = useBoostedProfileIds();
   const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker");
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeSkill, setActiveSkill] = useSearchParamState("skill", "All");
@@ -67,6 +69,10 @@ const SearchTalent = () => {
   });
 
   const sorted = [...filtered].sort((a, b) => {
+    // Boosted profiles always rank first, regardless of sort order
+    const aBoost = !!boostedMap[a.id];
+    const bBoost = !!boostedMap[b.id];
+    if (aBoost !== bBoost) return aBoost ? -1 : 1;
     if (sortOrder === "name_az") return (a.display_name || "").localeCompare(b.display_name || "");
     if (sortOrder === "senior_first") {
       const seniorScore = (exp: string | null) => {
@@ -78,7 +84,6 @@ const SearchTalent = () => {
       };
       return seniorScore(b.experience) - seniorScore(a.experience);
     }
-    // newest first — fall through to original order (already sorted by query)
     return 0;
   });
 
@@ -194,14 +199,16 @@ const SearchTalent = () => {
             </AnimatePresence>
 
             <div className="space-y-3">
-              {sorted.map((talent, i) => (
+              {sorted.map((talent, i) => {
+                const isBoosted = !!boostedMap[talent.id];
+                return (
                 <motion.button
                   key={talent.id}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
                   onClick={() => navigate(`/profile/${talent.id}`)}
-                  className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30"
+                  className={`w-full rounded-xl border ${isBoosted ? "border-amber-400/60 bg-gradient-to-br from-amber-50/60 to-card dark:from-amber-950/20" : "border-border bg-card"} p-4 text-left active:bg-muted/30`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -213,6 +220,12 @@ const SearchTalent = () => {
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <h3 className="text-sm font-semibold text-foreground">{talent.display_name}</h3>
                             <UserRoleBadges userId={talent.id} />
+                            {isBoosted && (
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                                <Sparkles className="h-2.5 w-2.5" strokeWidth={2} />
+                                {lang === "my" ? "Boost" : "Boosted"}
+                              </span>
+                            )}
                           </div>
                           <p className="text-[11px] text-muted-foreground">{talent.headline || ""} {talent.experience ? `· ${talent.experience}` : ""}</p>
                         </div>
@@ -237,7 +250,8 @@ const SearchTalent = () => {
                     </div>
                   </div>
                 </motion.button>
-              ))}
+                );
+              })}
               {sorted.length === 0 && (
                 <div className="flex flex-col items-center py-16 text-center">
                   <Search className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />

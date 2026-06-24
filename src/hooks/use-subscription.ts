@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export type PlanRole = "employer" | "recruiting_agent" | "both";
 export type PlanTier = "free_trial" | "starter" | "growth" | "business" | "enterprise";
-export type AddonKind = "unlock_pack" | "featured_job" | "matching" | "branding" | "job_post";
+export type AddonKind = "unlock_pack" | "featured_job" | "matching" | "branding" | "job_post" | "profile_boost";
 
 export interface SubscriptionPlan {
   id: string;
@@ -26,7 +26,7 @@ export interface AddonProduct {
   label_en: string;
   label_my: string | null;
   kind: AddonKind;
-  role_scope: "both" | "employer" | "recruiting_agent";
+  role_scope: "both" | "employer" | "recruiting_agent" | "jobseeker";
   mmk: number;
   unlock_amount: number;
   duration_days: number | null;
@@ -250,4 +250,40 @@ export function planRoleFor(effectiveRole?: string): "employer" | "recruiting_ag
   if (effectiveRole === "employer") return "employer";
   if (effectiveRole === "agent") return "recruiting_agent";
   return null;
+}
+
+/** Fetch the Profile Boost add-on (jobseeker-scope) — single active row. */
+export function useProfileBoostAddon() {
+  return useQuery({
+    queryKey: ["profile-boost-addon"],
+    queryFn: async (): Promise<AddonProduct | null> => {
+      const { data } = await S.from("addon_products")
+        .select("*")
+        .eq("kind", "profile_boost")
+        .eq("is_active", true)
+        .order("sort_order")
+        .limit(1)
+        .maybeSingle();
+      return (data as AddonProduct) ?? null;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Map of currently-boosted profile user_ids → latest expires_at. */
+export function useBoostedProfileIds() {
+  return useQuery({
+    queryKey: ["boosted-profile-ids"],
+    queryFn: async (): Promise<Record<string, string | null>> => {
+      try { await S.rpc("tick_expire_profile_boosts"); } catch {}
+      const { data, error } = await S.rpc("get_boosted_profile_ids");
+      if (error) return {};
+      const map: Record<string, string | null> = {};
+      for (const r of (data ?? []) as Array<{ user_id: string; expires_at: string | null }>) {
+        map[r.user_id] = r.expires_at;
+      }
+      return map;
+    },
+    staleTime: 60_000,
+  });
 }

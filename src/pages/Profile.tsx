@@ -18,7 +18,9 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
-import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+
+import SubscribeSheet from "@/components/pricing/SubscribeSheet";
+import { useProfileBoostAddon, useMyPendingSubscriptionRequests } from "@/hooks/use-subscription";
 import { formatCredits, useFeatureUnlocks } from "@/hooks/use-wallet";
 import { Sparkles as SparklesIcon } from "lucide-react";
 import ProfileDashboardHero from "@/components/profile/ProfileDashboardHero";
@@ -44,6 +46,11 @@ const Profile = () => {
   const [boostOpen, setBoostOpen] = useState(false);
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
+  const { data: boostAddon } = useProfileBoostAddon();
+  const { data: pendingSubRequests = [] } = useMyPendingSubscriptionRequests();
+  const pendingBoost = !activeBoost && !!boostAddon && pendingSubRequests.some(
+    (r) => r.request_type === "addon" && r.addon_id === boostAddon.id
+  );
 
   // Fetch one-time-use referral codes for this user
   const { data: myCodes = [], refetch: refetchCodes } = useQuery({
@@ -410,15 +417,21 @@ const Profile = () => {
                 <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် Boost" : "Profile Boost"}</p>
                 {activeBoost ? (
                   <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${lang === "my" ? "သက်တမ်း" : "until"} ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                  </p>
+                ) : pendingBoost ? (
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                    {lang === "my" ? "Admin အတည်ပြုရန် စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
                   </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်" : "Get seen by employers first"}
+                    {lang === "my"
+                      ? (boostAddon ? `${boostAddon.mmk.toLocaleString()} Ks · ${boostAddon.duration_days ?? 30} ရက် ထိပ်တွင် ပေါ်စေမည်` : "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်")
+                      : (boostAddon ? `${boostAddon.mmk.toLocaleString()} Ks · Top of search for ${boostAddon.duration_days ?? 30} days` : "Get seen by employers first")}
                   </p>
                 )}
               </div>
-              {!activeBoost && (
+              {!activeBoost && !pendingBoost && boostAddon && (
                 <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
                   {lang === "my" ? "Boost ပေးရန်" : "Boost"}
                 </Button>
@@ -626,13 +639,10 @@ const Profile = () => {
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>
       </div>
-      <SpendConfirmSheet
+      <SubscribeSheet
         open={boostOpen}
         onOpenChange={setBoostOpen}
-        actionKey="profile_boost"
-        targetType="profile"
-        targetId={profile?.id || undefined}
-        idempotencyKey={`profile_boost:${profile?.id}:${Date.now()}`}
+        selection={boostAddon ? { kind: "addon", addon: boostAddon, quantity: 1 } : null}
       />
     </div>
   );
