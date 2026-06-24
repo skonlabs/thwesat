@@ -102,7 +102,12 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
       }
       setStep("done");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to submit");
+      const msg = e?.message || "";
+      if (msg.includes("duplicate_pending_request")) {
+        toast.error(my ? "ဤပစ္စည်းအတွက် ပေးချေမှု စောင့်ဆိုင်းနေပြီးပါပြီ" : "You already have a pending request for this — please wait for admin review");
+      } else {
+        toast.error(msg || "Failed to submit");
+      }
     } finally {
       setUploading(false);
     }
