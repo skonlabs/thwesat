@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { Navigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { Check, Sparkles, Zap, Crown, Rocket, Gift, Clock, Minus, Plus } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
