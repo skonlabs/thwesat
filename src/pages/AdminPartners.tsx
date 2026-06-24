@@ -308,6 +308,48 @@ function ReferralCodeUsage({ lang }: { lang: "en" | "my" }) {
   );
 }
 
+// ───────────── Unlink button (audited RPC + AlertDialog) ─────────────
+function UnlinkButton({ lang, partner, onDone }: { lang: "en" | "my"; partner: PartnerRow; onDone: () => void }) {
+  const [open, setOpen] = useState(false);
+  const unlink = useAdminUnlinkPartnerUser();
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <Unlink className="mr-1 h-3.5 w-3.5" />
+        {tt(lang, "Unlink", "ဖြုတ်")}
+      </Button>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{tt(lang, `Unlink user from ${partner.name}?`, `${partner.name} မှ အသုံးပြုသူကို ဖြုတ်ပါမည်လား?`)}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {tt(
+              lang,
+              "The user will lose access to the Partner Portal and cannot mint new referral codes. Existing attributions are preserved. This action is logged.",
+              "Partner Portal ဝင်ခွင့် ဆုံးရှုံးပြီး referral code အသစ် ထုတ်၍ မရတော့ပါ။ ရှိပြီး attribution များ ဆက်ရှိနေပါမည်။ ဤလုပ်ဆောင်ချက်ကို မှတ်တမ်းတင်ပါမည်။",
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{tt(lang, "Cancel", "မလုပ်တော့")}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              try {
+                await unlink.mutateAsync(partner.id);
+                setOpen(false);
+                onDone();
+              } catch (e: any) {
+                toast.error(e.message || "Unlink failed");
+              }
+            }}
+          >
+            {tt(lang, "Unlink", "ဖြုတ်")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function NewPartnerSheet({
   lang,
   onDone,
@@ -328,32 +370,34 @@ function NewPartnerSheet({
   const [code, setCode] = useState("");
   const [contactEmail, setContactEmail] = useState(presetEmail ?? "");
   const [start, setStart] = useState(new Date().toISOString().slice(0, 10));
-  const [busy, setBusy] = useState(false);
+  const create = useAdminCreatePartner();
 
   const submit = async () => {
-    if (!name || !code) {
+    if (!name.trim() || !code.trim()) {
       toast.error(tt(lang, "Name and code required", "နာမည်နှင့် ကုဒ် လိုအပ်သည်"));
       return;
     }
-    setBusy(true);
     try {
-      const { error } = await (supabase as any).from("partners").insert({
-        name,
-        code,
-        contact_email: contactEmail || null,
+      await create.mutateAsync({
+        name: name.trim(),
+        code: code.trim(),
+        contact_email: contactEmail.trim() || null,
         contract_start_date: start,
         user_id: presetUserId ?? null,
       });
-      if (error) throw error;
       setOpen(false);
       setName("");
       setCode("");
       setContactEmail("");
       onDone();
     } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setBusy(false);
+      const map: Record<string, string> = {
+        duplicate_code: tt(lang, "That code is already taken", "ဤကုဒ်ကို သုံးပြီးဖြစ်နေသည်"),
+        invalid_code_format: tt(lang, "Code must be 2–32 chars: A–Z, 0–9, _ or -", "ကုဒ်သည် A–Z, 0–9, _ သို့မဟုတ် - ၂–၃၂ လုံး"),
+        user_already_linked_to_partner: tt(lang, "That user is already linked to another partner", "ထိုအသုံးပြုသူသည် အခြား partner နှင့် ချိတ်ပြီးသား"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Create failed");
     }
   };
 
@@ -376,7 +420,7 @@ function NewPartnerSheet({
           </div>
           <div>
             <Label className="text-xs">{tt(lang, "Code", "ကုဒ်")}</Label>
-            <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
+            <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ACME_2026" />
           </div>
           <div>
             <Label className="text-xs">{tt(lang, "Contact email", "ဆက်သွယ်ရန် အီးမေးလ်")}</Label>
@@ -386,7 +430,7 @@ function NewPartnerSheet({
             <Label className="text-xs">{tt(lang, "Contract start", "စာချုပ် စတင်")}</Label>
             <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
           </div>
-          <Button onClick={submit} disabled={busy} className="w-full">
+          <Button onClick={submit} disabled={create.isPending} className="w-full">
             {tt(lang, "Create", "ဖန်တီး")}
           </Button>
         </div>
@@ -400,23 +444,32 @@ function LinkUserSheet({ lang, partner, onDone }: { lang: "en" | "my"; partner: 
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [found, setFound] = useState<{ id: string; display_name: string | null; email: string | null } | null>(null);
+  const linkRpc = useAdminLinkPartnerUser();
 
   const search = async () => {
     setFound(null);
-    if (!email.trim()) return;
+    const value = email.trim().toLowerCase();
+    if (!value) return;
     setBusy(true);
     try {
+      // Use case-insensitive exact match instead of ilike+maybeSingle which throws when
+      // duplicate-cased rows exist. Limit to 2 to detect the rare duplicate.
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, email")
-        .ilike("email", email.trim())
-        .maybeSingle();
+        .ilike("email", value)
+        .limit(2);
       if (error) throw error;
-      if (!data) {
+      const rows = data || [];
+      if (rows.length === 0) {
         toast.error(tt(lang, "No user with that email", "အီးမေးလ်နှင့် တူသော အသုံးပြုသူ မရှိ"));
         return;
       }
-      setFound(data as any);
+      if (rows.length > 1) {
+        toast.error(tt(lang, "Multiple users match — contact support", "အသုံးပြုသူ တစ်ဦးထက်ပို တွေ့ — support ဆက်သွယ်ပါ"));
+        return;
+      }
+      setFound(rows[0] as any);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -426,33 +479,18 @@ function LinkUserSheet({ lang, partner, onDone }: { lang: "en" | "my"; partner: 
 
   const link = async () => {
     if (!found) return;
-    setBusy(true);
     try {
-      // Ensure this user isn't already linked to another partner
-      const { data: existing } = await (supabase as any)
-        .from("partners")
-        .select("id, name")
-        .eq("user_id", found.id)
-        .maybeSingle();
-      if (existing && existing.id !== partner.id) {
-        toast.error(
-          tt(lang, `Already linked to ${existing.name}`, `${existing.name} နှင့် ချိတ်ဆက်ပြီးသား`),
-        );
-        return;
-      }
-      const { error } = await (supabase as any)
-        .from("partners")
-        .update({ user_id: found.id })
-        .eq("id", partner.id);
-      if (error) throw error;
+      await linkRpc.mutateAsync({ partner_id: partner.id, user_id: found.id });
       setOpen(false);
       setEmail("");
       setFound(null);
       onDone();
     } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setBusy(false);
+      const map: Record<string, string> = {
+        user_already_linked_to_partner: tt(lang, "That user is already linked to another partner", "ထိုအသုံးပြုသူသည် အခြား partner နှင့် ချိတ်ပြီးသား"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Link failed");
     }
   };
 
@@ -490,7 +528,7 @@ function LinkUserSheet({ lang, partner, onDone }: { lang: "en" | "my"; partner: 
             <Card className="p-3">
               <p className="text-sm font-medium">{found.display_name ?? "—"}</p>
               <p className="text-[11px] text-muted-foreground">{found.email}</p>
-              <Button onClick={link} disabled={busy} className="mt-3 w-full" size="sm">
+              <Button onClick={link} disabled={linkRpc.isPending} className="mt-3 w-full" size="sm">
                 <Link2 className="mr-1 h-3.5 w-3.5" />
                 {tt(lang, "Link this user", "ဤအသုံးပြုသူ ချိတ်ဆက်")}
               </Button>
