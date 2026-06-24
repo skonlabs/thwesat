@@ -47,6 +47,12 @@ const Profile = () => {
   const [boostOpen, setBoostOpen] = useState(false);
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
+  const { data: boostAddon } = useProfileBoostAddon();
+  const { data: addonPurchases = [] } = useMyAddonPurchases();
+  const pendingBoost = !activeBoost && addonPurchases.some(
+    (p) => boostAddon && p.addon_id === boostAddon.id && p.status === "active" && (!p.expires_at || new Date(p.expires_at) > new Date())
+  );
+  // Pending payment-review state is surfaced via SubscribeSheet's own success step.
 
   // Fetch one-time-use referral codes for this user
   const { data: myCodes = [], refetch: refetchCodes } = useQuery({
