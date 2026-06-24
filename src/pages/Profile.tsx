@@ -46,6 +46,13 @@ const Profile = () => {
   const [boostOpen, setBoostOpen] = useState(false);
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
+  // Show "expired" badge when the most recent boost has elapsed (server tick
+  // hasn't deactivated it yet, or the user simply hasn't renewed).
+  const recentlyExpiredBoost = !activeBoost
+    ? boostUnlocks
+        .filter((u: any) => u.expires_at && new Date(u.expires_at) <= new Date())
+        .sort((a: any, b: any) => new Date(b.expires_at).getTime() - new Date(a.expires_at).getTime())[0]
+    : null;
   const { data: boostAddon } = useProfileBoostAddon();
   const { data: pendingSubRequests = [] } = useMyPendingSubscriptionRequests();
   const pendingBoost = !activeBoost && !!boostAddon && pendingSubRequests.some(
@@ -423,6 +430,12 @@ const Profile = () => {
                   <p className="text-[11px] text-amber-700 dark:text-amber-300">
                     {lang === "my" ? "Admin အတည်ပြုရန် စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
                   </p>
+                ) : recentlyExpiredBoost ? (
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my"
+                      ? `သက်တမ်းကုန်ပြီ · ${new Date(recentlyExpiredBoost.expires_at).toLocaleDateString()} တွင် — ပြန်လည် ဝယ်ယူပါ`
+                      : `Expired on ${new Date(recentlyExpiredBoost.expires_at).toLocaleDateString()} — renew to stay on top`}
+                  </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
                     {lang === "my"
@@ -433,7 +446,7 @@ const Profile = () => {
               </div>
               {!activeBoost && !pendingBoost && boostAddon && (
                 <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
-                  {lang === "my" ? "Boost ပေးရန်" : "Boost"}
+                  {lang === "my" ? (recentlyExpiredBoost ? "ပြန်လည် Boost" : "Boost ပေးရန်") : (recentlyExpiredBoost ? "Renew" : "Boost")}
                 </Button>
               )}
             </div>

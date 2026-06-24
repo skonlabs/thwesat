@@ -9,6 +9,7 @@ export interface UserSettings {
   profile_visibility: string;
   session_expiry: string;
   push_notifications: boolean;
+  email_notifications: boolean;
   remember_device: boolean;
   telegram_linked: boolean;
   telegram_username: string | null;

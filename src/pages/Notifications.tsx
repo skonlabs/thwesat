@@ -9,6 +9,7 @@ import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead 
 import ListSkeleton from "@/components/ListSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
@@ -99,34 +100,21 @@ const Notifications = () => {
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Issue #40: email notification preference — load from user_settings first, fall back to localStorage
-  const [emailNotifications, setEmailNotifications] = useState<boolean>(() => {
-    return localStorage.getItem("email_notifications_enabled") !== "false";
-  });
+  // Email notification preference — sync with user_settings via the shared hook
+  const { data: userSettings } = useUserSettings();
+  const updateSettings = useUpdateUserSettings();
+  const [emailNotifications, setEmailNotifications] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!user?.id) return;
-    supabase
-      .from("user_settings" as any)
-      .select("email_notifications")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data && typeof (data as any).email_notifications === "boolean") {
-          setEmailNotifications((data as any).email_notifications);
-        }
-      });
-  }, [user?.id]);
+    if (userSettings && typeof userSettings.email_notifications === "boolean") {
+      setEmailNotifications(userSettings.email_notifications);
+    }
+  }, [userSettings]);
 
   const handleEmailNotificationToggle = async () => {
     const newValue = !emailNotifications;
     setEmailNotifications(newValue);
-    localStorage.setItem("email_notifications_enabled", String(newValue));
-    if (user?.id) {
-      await supabase
-        .from("user_settings" as any)
-        .upsert({ user_id: user.id, email_notifications: newValue } as any);
-    }
+    updateSettings.mutate({ email_notifications: newValue } as any);
   };
 
   const unreadCount = notifications.filter(n => !n.is_read).length;

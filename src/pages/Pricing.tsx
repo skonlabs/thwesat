@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { Navigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { Check, Sparkles, Zap, Crown, Rocket, Gift, Clock, Minus, Plus } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
@@ -44,8 +45,16 @@ const Pricing = () => {
   const { lang } = useLanguage();
   const my = lang === "my";
   const { allowedRoles } = useUserRoles();
-  const effectiveRole: "employer" | "recruiting_agent" =
-    allowedRoles.includes("agent") ? "recruiting_agent" : "employer";
+  const isEmployer = allowedRoles.includes("employer");
+  const isAgent = allowedRoles.includes("agent");
+  const effectiveRole: "employer" | "recruiting_agent" = isAgent ? "recruiting_agent" : "employer";
+
+  // Pricing page hosts employer/agent plans & add-ons only. Job seekers
+  // purchase their Profile Boost from the Profile page; redirect them there so
+  // they never see employer-scoped plans.
+  if (user && !isEmployer && !isAgent) {
+    return <Navigate to="/profile" replace />;
+  }
 
   const [selection, setSelection] = useState<PurchaseSelection | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
