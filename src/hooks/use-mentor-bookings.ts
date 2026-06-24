@@ -438,8 +438,13 @@ export function useMentorEarnings() {
         .eq("mentor_id", user.id);
       if (error) throw error;
       const now = new Date();
+      const curMonth = now.getMonth();
+      const curYear = now.getFullYear();
       const thisMonth = (data || [])
-        .filter(e => new Date(e.created_at || "").getMonth() === now.getMonth())
+        .filter(e => {
+          const d = new Date(e.created_at || "");
+          return d.getMonth() === curMonth && d.getFullYear() === curYear;
+        })
         .reduce((a, e) => a + Number(e.amount), 0);
       const allTime = (data || []).reduce((a, e) => a + Number(e.amount), 0);
       const withdrawable = (data || [])
