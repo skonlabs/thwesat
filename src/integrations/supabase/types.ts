@@ -223,6 +223,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_rate_limits: {
+        Row: {
+          action: string
+          count: number
+          day_bucket: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          count?: number
+          day_bucket?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          count?: number
+          day_bucket?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_config: {
         Row: {
           key: string
@@ -3153,6 +3177,13 @@ export type Database = {
           _third_party_payout: number
         }
         Returns: undefined
+      }
+      ai_rate_limit_check_and_increment: {
+        Args: { _action: string; _daily_cap: number; _user_id: string }
+        Returns: {
+          allowed: boolean
+          current_count: number
+        }[]
       }
       approve_job: { Args: { _job_id: string }; Returns: Json }
       approve_subscription_payment: {
