@@ -85,26 +85,17 @@ const AdminJobQueue = () => {
 
   const updateJob = useMutation({
     mutationFn: async ({ id, status, rejectionReason }: { id: string; status: string; rejectionReason?: string }) => {
-      // Get job info before update for notification
-      const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my").eq("id", id).maybeSingle();
-      const { error } = await supabase.from("jobs").update({
-        status,
-        ...(rejectionReason ? { rejection_reason: rejectionReason } : {}),
-      }).eq("id", id);
-      if (error) throw error;
-
-      // Notify employer about job status
-      if (job) {
-        const isApproved = status === "active";
-        await supabase.from("notifications").insert({
-          user_id: job.employer_id,
-          notification_type: isApproved ? "job" : "job_rejected",
-          title: isApproved ? `Your job "${job.title}" has been approved!` : `Your job "${job.title}" was rejected`,
-          title_my: isApproved ? `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ အတည်ပြုပြီး!` : `"${job.title_my || job.title}" အလုပ်ကြော်ငြာ ငြင်းပယ်ခံရပြီ`,
-          description: isApproved ? "Your job listing is now live and visible to job seekers." : (rejectionReason || "Your job listing did not meet our guidelines."),
-          description_my: isApproved ? "သင့်အလုပ်ကြော်ငြာကို အလုပ်ရှာဖွေသူများ မြင်နိုင်ပါပြီ။" : (rejectionReason || "သင့်အလုပ်ကြော်ငြာသည် လမ်းညွှန်ချက်များနှင့် ကိုက်ညီမှု မရှိပါ။"),
-          link_path: "/employer/dashboard",
-        });
+      // Route through audited atomic RPCs (writes admin_audit_log + notifies employer)
+      if (status === "active") {
+        const { error } = await (supabase as any).rpc("approve_job", { _job_id: id });
+        if (error) throw error;
+      } else if (status === "rejected") {
+        const { error } = await (supabase as any).rpc("reject_job", { _job_id: id, _reason: rejectionReason || null });
+        if (error) throw error;
+      } else {
+        // Other statuses (paused/closed) — direct update, no notification.
+        const { error } = await supabase.from("jobs").update({ status }).eq("id", id);
+        if (error) throw error;
       }
     },
     onSuccess: () => {
@@ -115,6 +106,7 @@ const AdminJobQueue = () => {
     },
     onError: (e: any) => toast.error(e?.message || (lang === "my" ? "ပြောင်း၍ မရပါ" : "Failed to update job")),
   });
+
 
   const handleApprove = (id: string) => {
     updateJob.mutate({ id, status: "active" }, {
