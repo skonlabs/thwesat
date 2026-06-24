@@ -92,7 +92,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-shell bg-shell pb-safe text-shell-foreground md:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2 md:max-w-2xl lg:max-w-3xl">
+      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2 md:max-w-2xl lg:max-w-3xl" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
         {navItems.map((item) => {
           const [itemPath, itemQuery] = item.path.split("?");
           const pathMatches = location.pathname === itemPath || (itemPath !== "/admin" && location.pathname.startsWith(itemPath + "/"));
