@@ -84,6 +84,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { role: effectiveRole } = useRole();
   const queryClient = useQueryClient();
 
   // Persist filter tab in URL query param so it survives navigation.
