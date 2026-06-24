@@ -42,11 +42,8 @@ const Settings = () => {
   // Payment History only for job seekers, mentors, employers — admin/agent/partner have a dedicated Finance page.
   const showPaymentHistory = !isAdmin && !isPartner && !isSystemRole && !isAgent;
 
-  // Toggles
-  const [emailNotifications, setEmailNotifications] = useState(() => {
-    // Persist email notification preference in localStorage until backend is wired.
-    return localStorage.getItem("email_notifications_enabled") !== "false";
-  });
+  // Toggles — hydrated from server-side user_settings (column email_notifications)
+  const [emailNotifications, setEmailNotifications] = useState<boolean>(true);
 
   // Values
   const [profileVisibility, setProfileVisibility] = useState("members");
@@ -59,6 +56,9 @@ const Settings = () => {
     setProfileVisibility(settings.profile_visibility);
     setSessionExpiry(settings.session_expiry);
     setTelegramLinked(settings.telegram_linked);
+    if (typeof settings.email_notifications === "boolean") {
+      setEmailNotifications(settings.email_notifications);
+    }
   }, [settings]);
 
   const persist = (patch: Record<string, unknown>) => {
