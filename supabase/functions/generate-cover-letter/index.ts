@@ -41,6 +41,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Daily rate limit (10 generations per user per UTC day).
+    const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: rl, error: rlErr } = await serviceClient.rpc("ai_rate_limit_check_and_increment", {
+      _user_id: user.id,
+      _action: "cover_letter",
+      _daily_cap: 10,
+    });
+    if (rlErr) console.error("cover-letter rate-limit rpc error:", rlErr);
+    const rlRow = Array.isArray(rl) ? rl[0] : rl;
+    if (rlRow && rlRow.allowed === false) {
+      return new Response(JSON.stringify({ error: "Daily limit reached (10/day). Try again tomorrow." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
       return new Response(JSON.stringify({ error: "AI service not configured" }), {
