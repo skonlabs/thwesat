@@ -8,6 +8,7 @@ import StatusHistorySheet from "@/components/StatusHistorySheet";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
+import { useRole } from "@/hooks/use-role";
 import { useEmployerJobs, useEmployerJobApplicantBreakdown } from "@/hooks/use-jobs";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
