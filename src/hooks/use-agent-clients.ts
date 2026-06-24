@@ -81,6 +81,13 @@ export function useDeleteAgentClient() {
 }
 
 export async function uploadAgentClientLogo(userId: string, file: File): Promise<string> {
+  const ALLOWED = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  if (!ALLOWED.includes((file.type || "").toLowerCase())) {
+    throw new Error("Only PNG, JPG, or WEBP images are allowed.");
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("File must be under 2MB.");
+  }
   const ext = file.name.split(".").pop()?.toLowerCase() || "png";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
