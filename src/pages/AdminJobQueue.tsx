@@ -57,15 +57,17 @@ const AdminJobQueue = () => {
   const [showBulkReject, setShowBulkReject] = useState(false);
   const [bulkRejectionReason, setBulkRejectionReason] = useState("");
 
-  // Fetch ALL jobs for admin (not just pending)
+  // Fetch ALL jobs for admin (not just pending). Bumped past the default 1k cap.
   const { data: allJobs = [], isLoading } = useQuery({
     queryKey: ["admin-all-jobs"],
+    staleTime: 30_000,
     queryFn: async () => {
-      const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false }).range(0, 4999);
       if (error) throw error;
       return data || [];
     },
   });
+
 
   const cutoff = sinceMs ? Date.now() - sinceMs : null;
   const jobsByStatus = filter === "all" ? allJobs : allJobs.filter((j: any) => j.status === filter);
