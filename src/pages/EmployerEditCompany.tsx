@@ -80,10 +80,28 @@ const EmployerEditCompany = () => {
 
   const togglePayment = (m: string) => { setSelectedPayments(prev => prev.includes(m) ? prev.filter(p => p !== m) : [...prev, m]); setIsDirty(true); };
 
+  const normalizeUrl = (raw: string): string => {
+    const v = (raw || "").trim();
+    if (!v) return "";
+    // Reject anything that isn't http(s) — blocks javascript:, data:, etc.
+    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    try {
+      const u = new URL(withScheme);
+      if (u.protocol !== "http:" && u.protocol !== "https:") return "";
+      return u.toString();
+    } catch {
+      return "";
+    }
+  };
+
   const handleSave = async () => {
+    const safeWebsite = normalizeUrl(website);
+    const safeLinkedin = normalizeUrl(linkedin);
+    if (website && !safeWebsite) { toast.error(lang === "my" ? "ဝဘ်ဆိုဒ် URL မမှန်ပါ" : "Invalid website URL"); return; }
+    if (linkedin && !safeLinkedin) { toast.error(lang === "my" ? "LinkedIn URL မမှန်ပါ" : "Invalid LinkedIn URL"); return; }
     try {
       await upsert.mutateAsync({
-        company_name: companyName, company_website: website, company_linkedin: linkedin,
+        company_name: companyName, company_website: safeWebsite, company_linkedin: safeLinkedin,
         company_description: description, industry, company_size: companySize, hq_country: hqCountry,
         full_address: fullAddress, what_we_do: whatWeDo, mission, vision, benefits,
         contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone,
