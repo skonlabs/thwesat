@@ -352,7 +352,6 @@ function StatementTab({ partner, year, month, lang, readOnly = false }: { partne
             onClick={async () => {
               try {
                 await finalize.mutateAsync({ partner_id: partner.id, year, month, preview: data });
-                toast.success(tt(lang, "Statement finalized", "ထုတ်ပြန်ချက် အပြီးသတ်ပြီး"));
               } catch (e: any) { toast.error(e.message || tt(lang, "Failed", "မအောင်မြင်ပါ")); }
             }}
           >
@@ -646,25 +645,23 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
   const { data: dir } = useUserDirectoryLite(userIds);
   const [userId, setUserId] = useState("");
   const [channel, setChannel] = useState("manual");
-  const [busy, setBusy] = useState(false);
+  const attribute = useAdminAttributeUser();
 
   const add = async () => {
     if (!userId.trim()) return;
-    setBusy(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      const { error } = await (supabase as any).from("partner_attributions").insert({
-        partner_id: partner.id,
-        user_id: userId.trim(),
-        channel,
-        created_by: u.user?.id,
-      });
-      if (error) throw error;
+      await attribute.mutateAsync({ partner_id: partner.id, user_id: userId.trim(), channel });
       setUserId("");
-      toast.success(tt(lang, "Attribution added", "Attribution ထည့်ပြီး"));
       refetch();
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        user_not_found: tt(lang, "No user with that ID", "ထို ID နှင့် တူသော အသုံးပြုသူ မရှိ"),
+        partner_not_found: tt(lang, "Partner not found", "Partner မတွေ့ပါ"),
+        invalid_channel: tt(lang, "Invalid channel", "Channel မမှန်ပါ"),
+        not_authorized: tt(lang, "Admin/Moderator only", "Admin/Moderator သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
 
   const channelLabels: Record<string, { en: string; my: string }> = {
