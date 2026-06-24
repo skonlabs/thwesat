@@ -185,9 +185,10 @@ const AdminJobQueue = () => {
   };
 
   const handleDeleteJob = async (jobId: string) => {
-    const { error } = await supabase.from("jobs").delete().eq("id", jobId);
+    // Audited admin-only delete (writes admin_audit_log).
+    const { error } = await (supabase as any).rpc("delete_job", { _job_id: jobId });
     if (error) {
-      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : "Failed to delete job");
+      toast.error(lang === "my" ? "ဖျက်၍ မရပါ" : error.message || "Failed to delete job");
     } else {
       toast.success(lang === "my" ? "အလုပ်ခေါ်စာ ဖျက်ပြီး" : "Job deleted");
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
@@ -196,6 +197,7 @@ const AdminJobQueue = () => {
     }
     setDeleteConfirmId(null);
   };
+
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return "";
