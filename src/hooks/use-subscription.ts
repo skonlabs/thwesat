@@ -26,7 +26,7 @@ export interface AddonProduct {
   label_en: string;
   label_my: string | null;
   kind: AddonKind;
-  role_scope: "both" | "employer" | "recruiting_agent";
+  role_scope: "both" | "employer" | "recruiting_agent" | "jobseeker";
   mmk: number;
   unlock_amount: number;
   duration_days: number | null;
