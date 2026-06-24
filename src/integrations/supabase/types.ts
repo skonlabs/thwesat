@@ -3144,6 +3144,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_attribute_user: {
+        Args: { _channel?: string; _partner_id: string; _user_id: string }
+        Returns: string
+      }
       admin_compute_partner_statement: {
         Args: { _month: number; _partner_id: string; _year: number }
         Returns: Json
@@ -3152,6 +3156,16 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      admin_create_partner: {
+        Args: {
+          _code: string
+          _contact_email?: string
+          _contract_start_date?: string
+          _name: string
+          _user_id?: string
+        }
+        Returns: string
+      }
       admin_delete_employer: {
         Args: { _employer_id: string }
         Returns: undefined
@@ -3159,6 +3173,10 @@ export type Database = {
       admin_finalize_partner_statement: {
         Args: { _month: number; _partner_id: string; _year: number }
         Returns: Json
+      }
+      admin_link_partner_user: {
+        Args: { _partner_id: string; _user_id: string }
+        Returns: undefined
       }
       admin_mark_partner_statement_paid: {
         Args: {
@@ -3169,6 +3187,16 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_record_payment_reversal: {
+        Args: {
+          _amount: number
+          _npr_amount?: number
+          _payment_request_id: string
+          _reason?: string
+          _reversal_type: string
+        }
+        Returns: string
+      }
       admin_set_payment_revenue_overrides: {
         Args: {
           _npr_amount: number
@@ -3176,6 +3204,10 @@ export type Database = {
           _revenue_classification: string
           _third_party_payout: number
         }
+        Returns: undefined
+      }
+      admin_unlink_partner_user: {
+        Args: { _partner_id: string }
         Returns: undefined
       }
       admin_verify_employer: {
@@ -3223,6 +3255,31 @@ export type Database = {
           _sender_reference: string
         }
         Returns: string
+      }
+      current_partner: {
+        Args: never
+        Returns: {
+          code: string
+          contact_email: string | null
+          contract_end_date: string | null
+          contract_start_date: string
+          created_at: string
+          id: string
+          is_active: boolean
+          maintenance_rate_y2: number
+          maintenance_rate_y3plus: number
+          name: string
+          notes: string | null
+          payout_cap_pct: number
+          updated_at: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "partners"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       current_partner_id: { Args: never; Returns: string }
       delete_job: { Args: { _job_id: string }; Returns: Json }
