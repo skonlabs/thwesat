@@ -9,6 +9,7 @@ import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead 
 import ListSkeleton from "@/components/ListSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
