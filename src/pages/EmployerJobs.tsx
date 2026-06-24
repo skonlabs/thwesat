@@ -357,6 +357,11 @@ const EmployerJobs = () => {
                             <button onClick={() => { setStatusMenuId(null); setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title }); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
                               <History className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မှတ်တမ်း" : "Status history"}
                             </button>
+                            {hasMatchingPack && (
+                              <button onClick={() => { setStatusMenuId(null); navigate(matchesPath(listing.id)); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-emerald hover:bg-emerald/10">
+                                <Target className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ကိုက်ညီသူများ ကြည့်" : "View matched candidates"}
+                              </button>
+                            )}
                             {listing.status === "active" && !listing.is_featured && (
                               <button onClick={() => { setStatusMenuId(null); setFeatureJobId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/40">
                                 <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်းတင်" : "Promote to Featured"}
