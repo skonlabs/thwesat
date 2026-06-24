@@ -71,10 +71,11 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
   const [proofImageError, setProofImageError] = useState(false);
   const [proofLoadTimeout, setProofLoadTimeout] = useState(false);
 
-  // Fetch user profiles for display
-  const userIds = [...new Set((payments || []).map(p => p.user_id))];
+  // Fetch user profiles for display. Sort ids so the queryKey is stable across reorders.
+  const userIds = [...new Set((payments || []).map(p => p.user_id))].sort();
   const { data: profiles } = useQuery({
     queryKey: ["payment-user-profiles", userIds],
+    staleTime: 60_000,
     queryFn: async () => {
       if (userIds.length === 0) return [];
       const { data } = await supabase
@@ -87,6 +88,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     },
     enabled: userIds.length > 0,
   });
+
 
   const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
