@@ -102,13 +102,6 @@ const AdminUsers = () => {
   };
 
   const { data: users = [], isLoading } = useQuery({
-    queryKey: ["admin-users", page, search],
-    queryFn: async () => {
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      // If searching, look up matching user_ids from contacts (email) AND profiles (display_name),
-      // then return the union — that way pagination still works but the search covers all users.
-  const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users", page, debouncedSearch],
     staleTime: 30_000,
     queryFn: async () => {
