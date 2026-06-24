@@ -199,14 +199,16 @@ const SearchTalent = () => {
             </AnimatePresence>
 
             <div className="space-y-3">
-              {sorted.map((talent, i) => (
+              {sorted.map((talent, i) => {
+                const isBoosted = !!boostedMap[talent.id];
+                return (
                 <motion.button
                   key={talent.id}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04 }}
                   onClick={() => navigate(`/profile/${talent.id}`)}
-                  className="w-full rounded-xl border border-border bg-card p-4 text-left active:bg-muted/30"
+                  className={`w-full rounded-xl border ${isBoosted ? "border-amber-400/60 bg-gradient-to-br from-amber-50/60 to-card dark:from-amber-950/20" : "border-border bg-card"} p-4 text-left active:bg-muted/30`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -218,6 +220,12 @@ const SearchTalent = () => {
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <h3 className="text-sm font-semibold text-foreground">{talent.display_name}</h3>
                             <UserRoleBadges userId={talent.id} />
+                            {isBoosted && (
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                                <Sparkles className="h-2.5 w-2.5" strokeWidth={2} />
+                                {lang === "my" ? "Boost" : "Boosted"}
+                              </span>
+                            )}
                           </div>
                           <p className="text-[11px] text-muted-foreground">{talent.headline || ""} {talent.experience ? `· ${talent.experience}` : ""}</p>
                         </div>
