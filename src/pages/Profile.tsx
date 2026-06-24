@@ -644,10 +644,6 @@ const Profile = () => {
         onOpenChange={setBoostOpen}
         selection={boostAddon ? { kind: "addon", addon: boostAddon, quantity: 1 } : null}
       />
-      {/* (SpendConfirmSheet retained import for backward compat) */}
-      {false && (
-        <SpendConfirmSheet open={false} onOpenChange={() => {}} actionKey="profile_boost" />
-      )}
     </div>
   );
 };
