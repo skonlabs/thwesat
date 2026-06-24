@@ -95,7 +95,9 @@ const AdminAnalytics = () => {
 
   const { data: trends, isLoading: trendsLoading } = useQuery({
     queryKey: ["admin-analytics-trends", range],
+    staleTime: 60_000,
     queryFn: async () => {
+
       const [signups, newJobs, newApplications, paymentsRange, bookingsRange, paymentMix] = await Promise.all([
         supabase.from("profiles").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("jobs").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
