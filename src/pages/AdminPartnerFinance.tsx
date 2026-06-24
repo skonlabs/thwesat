@@ -691,7 +691,7 @@ function AttributionsTab({ partner, lang }: { partner: Partner; lang: "en" | "my
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={add} disabled={busy}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Attribute", "ထည့်")}</Button>
+          <Button onClick={add} disabled={attribute.isPending}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Attribute", "ထည့်")}</Button>
         </div>
       </Card>
 
