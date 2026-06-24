@@ -1031,27 +1031,26 @@ function HistoryTab({ partner, lang }: { partner: Partner; lang: "en" | "my" }) 
   );
 }
 
-// ───────────── New partner sheet ─────────────
+// ───────────── New partner sheet (audited RPC) ─────────────
 function NewPartnerSheet({ lang }: { lang: "en" | "my" }) {
-  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [start, setStart] = useState(new Date().toISOString().slice(0, 10));
-  const [busy, setBusy] = useState(false);
+  const create = useAdminCreatePartner();
   const submit = async () => {
-    if (!name || !code) return;
-    setBusy(true);
+    if (!name.trim() || !code.trim()) return;
     try {
-      const { error } = await (supabase as any).from("partners").insert({
-        name, code, contract_start_date: start,
-      });
-      if (error) throw error;
-      toast.success(tt(lang, "Partner created", "Partner ဖန်တီးပြီး"));
-      qc.invalidateQueries({ queryKey: ["partners"] });
+      await create.mutateAsync({ name: name.trim(), code: code.trim(), contract_start_date: start });
       setOpen(false); setName(""); setCode("");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        duplicate_code: tt(lang, "That code is already taken", "ဤကုဒ်ကို သုံးပြီးဖြစ်နေသည်"),
+        invalid_code_format: tt(lang, "Code must be 2–32 chars: A–Z, 0–9, _ or -", "ကုဒ်သည် A–Z, 0–9, _ သို့မဟုတ် - ၂–၃၂ လုံး"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -1060,9 +1059,9 @@ function NewPartnerSheet({ lang }: { lang: "en" | "my" }) {
         <SheetHeader><SheetTitle>{tt(lang, "New partner", "Partner အသစ်")}</SheetTitle></SheetHeader>
         <div className="mt-4 space-y-3">
           <div><Label className="text-xs">{tt(lang, "Name", "နာမည်")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><Label className="text-xs">{tt(lang, "Code", "ကုဒ်")}</Label><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} /></div>
+          <div><Label className="text-xs">{tt(lang, "Code", "ကုဒ်")}</Label><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ACME_2026" /></div>
           <div><Label className="text-xs">{tt(lang, "Contract start", "စာချုပ် စတင်")}</Label><Input type="date" value={start} onChange={(e) => setStart(e.target.value)} /></div>
-          <Button onClick={submit} disabled={busy} className="w-full">{tt(lang, "Create", "ဖန်တီး")}</Button>
+          <Button onClick={submit} disabled={create.isPending} className="w-full">{tt(lang, "Create", "ဖန်တီး")}</Button>
         </div>
       </SheetContent>
     </Sheet>
