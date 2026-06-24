@@ -148,13 +148,12 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
         status,
         admin_note: adminNote,
       });
-      toast({
-        title: status === "approved"
-          ? (lang === "my" ? "အတည်ပြုပြီး" : "Payment Approved Successfully")
-          : status === "revoked"
-          ? (lang === "my" ? "ရုပ်သိမ်းပြီး" : "Payment Revoked")
-          : (lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected"),
-      });
+      // No success toast on approve (positive flow); confirm destructive actions only.
+      if (status === "rejected") {
+        toast({ title: lang === "my" ? "ပယ်ချပြီး" : "Payment Rejected" });
+      } else if (status === "revoked") {
+        toast({ title: lang === "my" ? "ရုပ်သိမ်းပြီး" : "Payment Revoked" });
+      }
       setSelectedPayment(null);
       setAdminNote("");
       setConfirmAction(null);
@@ -162,6 +161,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
       toast({ title: lang === "my" ? "အမှား" : "Error", description: err?.message || "Failed to update payment", variant: "destructive" });
     }
   };
+
 
   const selectedPaymentProfile = selectedPayment ? profileMap.get(selectedPayment.user_id) : null;
 
