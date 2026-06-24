@@ -430,6 +430,12 @@ const Profile = () => {
                   <p className="text-[11px] text-amber-700 dark:text-amber-300">
                     {lang === "my" ? "Admin အတည်ပြုရန် စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
                   </p>
+                ) : recentlyExpiredBoost ? (
+                  <p className="text-[11px] text-muted-foreground">
+                    {lang === "my"
+                      ? `သက်တမ်းကုန်ပြီ · ${new Date(recentlyExpiredBoost.expires_at).toLocaleDateString()} တွင် — ပြန်လည် ဝယ်ယူပါ`
+                      : `Expired on ${new Date(recentlyExpiredBoost.expires_at).toLocaleDateString()} — renew to stay on top`}
+                  </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
                     {lang === "my"
@@ -440,7 +446,7 @@ const Profile = () => {
               </div>
               {!activeBoost && !pendingBoost && boostAddon && (
                 <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
-                  {lang === "my" ? "Boost ပေးရန်" : "Boost"}
+                  {lang === "my" ? (recentlyExpiredBoost ? "ပြန်လည် Boost" : "Boost ပေးရန်") : (recentlyExpiredBoost ? "Renew" : "Boost")}
                 </Button>
               )}
             </div>
