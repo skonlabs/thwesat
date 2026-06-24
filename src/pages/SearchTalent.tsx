@@ -69,6 +69,10 @@ const SearchTalent = () => {
   });
 
   const sorted = [...filtered].sort((a, b) => {
+    // Boosted profiles always rank first, regardless of sort order
+    const aBoost = !!boostedMap[a.id];
+    const bBoost = !!boostedMap[b.id];
+    if (aBoost !== bBoost) return aBoost ? -1 : 1;
     if (sortOrder === "name_az") return (a.display_name || "").localeCompare(b.display_name || "");
     if (sortOrder === "senior_first") {
       const seniorScore = (exp: string | null) => {
@@ -80,7 +84,6 @@ const SearchTalent = () => {
       };
       return seniorScore(b.experience) - seniorScore(a.experience);
     }
-    // newest first — fall through to original order (already sorted by query)
     return 0;
   });
 
