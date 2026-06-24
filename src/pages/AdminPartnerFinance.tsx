@@ -979,7 +979,7 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
           <Label className="text-xs">{tt(lang, "Reason", "အကြောင်းပြချက်")}</Label>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} />
         </div>
-        <Button onClick={add} disabled={busy}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Record", "မှတ်")}</Button>
+        <Button onClick={add} disabled={record.isPending}><Plus className="mr-1 h-4 w-4" /> {tt(lang, "Record", "မှတ်")}</Button>
       </Card>
 
       <Card className="divide-y">
