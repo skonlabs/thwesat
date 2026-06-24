@@ -250,7 +250,8 @@ const SearchTalent = () => {
                     </div>
                   </div>
                 </motion.button>
-              ))}
+                );
+              })}
               {sorted.length === 0 && (
                 <div className="flex flex-col items-center py-16 text-center">
                   <Search className="mb-3 h-10 w-10 text-muted-foreground" strokeWidth={1} />
