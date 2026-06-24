@@ -203,7 +203,7 @@ const ModeratorDashboard = () => {
 
   const removePost = useMutation({
     mutationFn: async (id: string) => {
-      const { data: post } = await supabase.from("community_posts").select("author_id, content").eq("id", id).maybeSingle();
+      const { data: post } = await supabase.from("community_posts").select("author_id").eq("id", id).maybeSingle();
       // Write moderation metadata first so it persists in the audit log even though the row is then deleted.
       await supabase.from("community_posts").update({ moderated_by: user?.id, moderation_reason: removalReason }).eq("id", id);
       await supabase.from("admin_audit_log").insert({
@@ -211,8 +211,9 @@ const ModeratorDashboard = () => {
         action: "post_removed",
         target_type: "community_post",
         target_id: id,
-        details: { author_id: post?.author_id || null, reason: removalReason, content_preview: (post?.content || "").slice(0, 200) },
+        details: { author_id: post?.author_id || null, reason: removalReason },
       } as any);
+
       const { error } = await supabase.from("community_posts").delete().eq("id", id);
       if (error) throw error;
       if (post?.author_id) {
