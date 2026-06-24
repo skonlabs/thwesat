@@ -468,7 +468,7 @@ const EmployerPostJob = () => {
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
                     {featuredRemaining <= 0
                       ? (lang === "my" ? "Featured slot ဝယ်ပါ" : "Buy a Featured Job add-on from /pricing")
-                      : (lang === "my" ? "7 ရက် ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to top of search for 7 days.")}
+                      : (lang === "my" ? "ထိပ်ဆုံးတွင် ပြသမည်။" : "Pinned to the top of search results.")}
                   </p>
                 </div>
               </label>
