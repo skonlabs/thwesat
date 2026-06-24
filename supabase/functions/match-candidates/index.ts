@@ -108,6 +108,19 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Per-user daily rate limit to cap OpenAI embedding spend.
+    const { data: rl, error: rlErr } = await userClient.rpc("ai_rate_limit_check_and_increment", {
+      _action: "candidate_match",
+      _cap: 30,
+    });
+    if (rlErr) {
+      console.error("[match-candidates] rate-limit rpc error", rlErr);
+    } else if (rl && (rl as any).allowed === false) {
+      return new Response(JSON.stringify({ error: "rate_limited", retry_after: (rl as any).reset_at }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const admin = createClient(supabaseUrl, serviceKey);
 
     // 1) Ownership check.
