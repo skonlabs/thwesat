@@ -132,7 +132,9 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
                 )}
                 {!isSub && selection.addon.duration_days && (
                   <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                    {my ? `သက်တမ်း ${selection.addon.duration_days} ရက် (၁ နှစ်)` : `Active for 1 year`}
+                    {my
+                      ? `သက်တမ်း ${selection.addon.duration_days} ရက်`
+                      : `Active for ${selection.addon.duration_days} day${selection.addon.duration_days === 1 ? "" : "s"}`}
                   </div>
                 )}
                 {isSub && !isFree && (
