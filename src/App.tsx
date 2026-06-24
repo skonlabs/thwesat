@@ -176,6 +176,8 @@ const App = () => (
               <Route path="/employer/search" element={<AppRoleGuard allowedRoles={["employer"]}><SearchTalent /></AppRoleGuard>} />
               <Route path="/employer/edit-job/:id" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditJob /></AppRoleGuard>} />
               <Route path="/employer/edit-company" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerEditCompany /></AppRoleGuard>} />
+              <Route path="/employer/jobs/:id/matches" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerJobMatches /></AppRoleGuard>} />
+              <Route path="/agent/jobs/:id/matches" element={<AppRoleGuard allowedRoles={["agent"]}><EmployerJobMatches /></AppRoleGuard>} />
               <Route path="/employer/finance" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerFinance /></AppRoleGuard>} />
 
               {/* Agent Portal — uses shared components but lives under its own URL namespace */}
