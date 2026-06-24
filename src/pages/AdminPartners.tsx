@@ -198,28 +198,7 @@ const AdminPartners = () => {
                     </div>
                     <div className="flex gap-2">
                       {p.user_id ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={async () => {
-                            const ok = window.confirm(
-                              tt(lang, "Unlink this user from partner?", "ဤအသုံးပြုသူကို partner မှ ဖြုတ်ပါမည်လား။"),
-                            );
-                            if (!ok) return;
-                            const { error } = await (supabase as any)
-                              .from("partners")
-                              .update({ user_id: null })
-                              .eq("id", p.id);
-                            if (error) {
-                              toast.error(error.message);
-                              return;
-                            }
-                            refresh();
-                          }}
-                        >
-                          <Unlink className="mr-1 h-3.5 w-3.5" />
-                          {tt(lang, "Unlink", "ဖြုတ်")}
-                        </Button>
+                        <UnlinkButton lang={lang} partner={p} onDone={refresh} />
                       ) : (
                         <LinkUserSheet lang={lang} partner={p} onDone={refresh} />
                       )}
