@@ -80,50 +80,39 @@ const AdminEmployers = () => {
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
-      const { error } = await supabase.from("employer_profiles").update({
-        verification_status: status,
-        is_verified: status === "verified",
-      }).eq("id", id);
-      if (error) throw error;
-
-      // Auto-confirm the user's email on approval so they can sign in.
-      if (status === "verified" || status === "approved") {
-        try { await supabase.rpc("admin_confirm_user_email", { _user_id: id }); } catch (e) { console.warn("confirm email failed", e); }
-      }
-
-
-
-      // Notify employer about verification status
-      const isVerified = status === "verified";
-      await supabase.from("notifications").insert({
-        user_id: id,
-        notification_type: isVerified ? "system" : "system",
-        title: isVerified ? "Your employer account is verified! ✅" : "Employer verification update",
-        title_my: isVerified ? "သင့်အလုပ်ရှင်အကောင့် အတည်ပြုပြီ! ✅" : "အလုပ်ရှင် အတည်ပြုမှု အခြေအနေ",
-        description: isVerified ? "You can now post jobs and manage applications." : (reason || "Your employer profile was not approved."),
-        description_my: isVerified ? "အလုပ်များ တင်ပြီး လျှောက်လွှာများ စီမံနိုင်ပါပြီ။" : (reason || "သင့်အလုပ်ရှင်ပရိုဖိုင် အတည်ပြုခြင်း မရှိပါ။"),
-        link_path: "/employer/dashboard",
+      // Atomic audited RPC: updates verification_status, flips is_verified only for employer (not agent),
+      // confirms email on approval, notifies the user, and writes admin_audit_log.
+      const { error } = await (supabase as any).rpc("admin_verify_employer", {
+        _employer_id: id,
+        _status: status,
+        _reason: reason || null,
       });
+      if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["admin-employers"] });
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
       setSelectedId(null);
       setRejecting(false);
       setRejectReason("");
+      toast.success(
+        vars.status === "rejected"
+          ? (lang === "my" ? "ပယ်ချပြီး" : "Rejected")
+          : (lang === "my" ? "အတည်ပြုပြီး" : "Approved")
+      );
     },
+    onError: (e: any) => toast.error(e?.message || (lang === "my" ? "မအောင်မြင်ပါ" : "Failed")),
   });
 
   const handleApprove = (id: string) => {
     updateStatus.mutate({ id, status: "verified" });
-    toast.success(lang === "my" ? "အလုပ်ရှင် အတည်ပြုပြီး" : "Employer approved");
   };
 
   const handleReject = () => {
     if (!selectedId) return;
     updateStatus.mutate({ id: selectedId, status: "rejected", reason: rejectReason });
-    toast.success(lang === "my" ? "အလုပ်ရှင် ပယ်ချပြီး" : "Employer rejected");
   };
+
 
   const handleDeleteEmployer = async (id: string) => {
     try {
