@@ -947,6 +947,67 @@ export type Database = {
         }
         Relationships: []
       }
+      job_candidate_matches: {
+        Row: {
+          computed_at: string
+          job_id: string
+          score: number
+          seeker_user_id: string
+        }
+        Insert: {
+          computed_at?: string
+          job_id: string
+          score: number
+          seeker_user_id: string
+        }
+        Update: {
+          computed_at?: string
+          job_id?: string
+          score?: number
+          seeker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_candidate_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_candidate_rejections: {
+        Row: {
+          created_at: string
+          employer_user_id: string
+          id: string
+          job_id: string
+          seeker_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          employer_user_id: string
+          id?: string
+          job_id: string
+          seeker_user_id: string
+        }
+        Update: {
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+          job_id?: string
+          seeker_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_candidate_rejections_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_status_history: {
         Row: {
           changed_by: string | null
@@ -3183,6 +3244,13 @@ export type Database = {
       mark_session_complete: {
         Args: { _booking_id: string; _role: string }
         Returns: Json
+      }
+      match_candidates_for_job: {
+        Args: { _job_id: string; _limit?: number }
+        Returns: {
+          seeker_user_id: string
+          similarity: number
+        }[]
       }
       match_jobs_for_user: {
         Args: { _limit?: number; _user_id: string }
