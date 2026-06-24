@@ -639,14 +639,15 @@ const Profile = () => {
           {lang === "my" ? "ထွက်ရန်" : "Sign Out"}
         </Button>
       </div>
-      <SpendConfirmSheet
+      <SubscribeSheet
         open={boostOpen}
         onOpenChange={setBoostOpen}
-        actionKey="profile_boost"
-        targetType="profile"
-        targetId={profile?.id || undefined}
-        idempotencyKey={`profile_boost:${profile?.id}:${Date.now()}`}
+        selection={boostAddon ? { kind: "addon", addon: boostAddon, quantity: 1 } : null}
       />
+      {/* (SpendConfirmSheet retained import for backward compat) */}
+      {false && (
+        <SpendConfirmSheet open={false} onOpenChange={() => {}} actionKey="profile_boost" />
+      )}
     </div>
   );
 };
