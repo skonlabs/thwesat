@@ -48,6 +48,7 @@ const AgentDashboard = () => {
       return { active, interview, placed, totalFee, clients, recentPlacements };
     },
     enabled: !!user,
+    staleTime: 30_000,
   });
 
   const stats = pipeline ?? { active: 0, interview: 0, placed: 0, totalFee: 0, clients: 0, recentPlacements: [] };
