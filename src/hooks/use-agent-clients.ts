@@ -38,11 +38,24 @@ export function useUpsertAgentClient() {
   return useMutation({
     mutationFn: async (input: Partial<AgentClient> & { name: string }) => {
       if (!user) throw new Error("Not signed in");
+      // Validate website URL (block javascript:, data:, etc.).
+      let safeWebsite = "";
+      const raw = (input.website ?? "").trim();
+      if (raw) {
+        const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+        try {
+          const u = new URL(withScheme);
+          if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("bad scheme");
+          safeWebsite = u.toString();
+        } catch {
+          throw new Error("Invalid website URL");
+        }
+      }
       const payload: any = {
         agent_id: user.id,
         name: input.name,
         logo_url: input.logo_url ?? "",
-        website: input.website ?? "",
+        website: safeWebsite,
         industry: input.industry ?? "",
         notes: input.notes ?? "",
         is_active: input.is_active ?? true,
