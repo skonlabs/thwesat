@@ -282,7 +282,6 @@ const Settings = () => {
       items: [
         { icon: Mail, label: lang === "my" ? "အီးမေးလ် အကြောင်းကြားချက်" : "Email Notifications", description: lang === "my" ? "လျှောက်လွှာ / မက်ဆေ့ချ် / ဘွတ်ကင် ရရှိသောအခါ အီးမေးလ် ပို့ပါ" : "Email me for new applications, messages & bookings", toggle: true, toggleValue: emailNotifications, onToggle: () => {
           const v = !emailNotifications; setEmailNotifications(v);
-          localStorage.setItem("email_notifications_enabled", String(v));
           persist({ email_notifications: v } as any);
         } },
         { icon: Smartphone, label: lang === "my" ? "တယ်လီဂရမ် ချိတ်ဆက်" : "Telegram", value: telegramLinked ? (lang === "my" ? "ချိတ်ဆက်ပြီး" : "Linked") : (lang === "my" ? "မချိတ်ဆက်ရသေး" : "Not linked"), action: () => setShowTelegram(true) },
