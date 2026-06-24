@@ -118,12 +118,14 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
         {/* Generate */}
         <Button
           onClick={() => mint.mutate()}
-          disabled={!partnerId || mint.isPending}
+          disabled={!partnerId || mint.isPending || inCooldown}
           className="mb-6 w-full md:w-auto"
         >
           <Plus className="mr-1.5 h-4 w-4" />
           {mint.isPending
             ? my ? "ထုတ်လုပ်နေသည်..." : "Generating..."
+            : inCooldown
+            ? my ? "ခဏစောင့်ပါ..." : "Cooling down..."
             : my ? "ကုဒ် ၁၀ ခု ထုတ်လုပ်ရန်" : "Generate 10 codes"}
         </Button>
 
@@ -151,6 +153,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
                 <code className="flex-1 font-mono text-sm font-semibold tracking-wider text-foreground">{c.code}</code>
                 <button
                   onClick={() => copyCode(c.code)}
+                  aria-label={my ? `ကုဒ် ${c.code} ကို ကူးယူရန်` : `Copy referral code ${c.code}`}
                   className="flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-muted/70"
                 >
                   {copied === c.code ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
