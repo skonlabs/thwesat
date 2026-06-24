@@ -84,10 +84,10 @@ const MentorBooking = () => {
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
   const baseCredits = 5000;
   const hourlyRate = Number(mentorProfile?.hourly_rate || 0);
-  // Mentor's hourly rate (in MMK if set), otherwise fall back to base price.
+  // Mentor's hourly rate (in their preferred currency), otherwise fall back to base price.
   const sessionCredits = (hourlyRate > 0 ? Math.round((hourlyRate * selectedDuration) / 60) : baseCredits);
   const sessionAmount = sessionCredits;
-  const currency = "MMK";
+  const currency = (mentorProfile?.currency || "MMK").toUpperCase();
   // Wallet was removed — balance check is delegated to the backend RPC.
   const balance = sessionCredits;
   const insufficient = false;
