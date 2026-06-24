@@ -19,6 +19,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
   const qc = useQueryClient();
   const my = lang === "my";
   const [copied, setCopied] = useState<string | null>(null);
+  const [cooldownUntil, setCooldownUntil] = useState<number>(0);
 
   const { data: partnerId } = useQuery({
     queryKey: ["current-partner-id"],
@@ -56,6 +57,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
       return data;
     },
     onSuccess: () => {
+      setCooldownUntil(Date.now() + 10_000);
       qc.invalidateQueries({ queryKey: ["partner-referral-codes", partnerId] });
     },
     onError: (e: any) => {
@@ -66,6 +68,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
       });
     },
   });
+  const inCooldown = cooldownUntil > Date.now();
 
   const copyCode = async (code: string) => {
     try {
