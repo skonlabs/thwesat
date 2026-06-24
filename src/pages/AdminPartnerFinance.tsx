@@ -911,7 +911,6 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
   const [amount, setAmount] = useState("");
   const [npr, setNpr] = useState("");
   const [reason, setReason] = useState("");
-  const [busy, setBusy] = useState(false);
 
   const typeLabels: Record<string, { en: string; my: string }> = {
     refund: { en: "Refund", my: "ပြန်အမ်း" },
