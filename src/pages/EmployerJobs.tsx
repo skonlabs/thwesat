@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy, Eye, Users } from "lucide-react";
+import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy, Eye, Users, Target } from "lucide-react";
+import { useHasMatchingPack } from "@/hooks/use-matching-pack";
 import { Input } from "@/components/ui/input";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
