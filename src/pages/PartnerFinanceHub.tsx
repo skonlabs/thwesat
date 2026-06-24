@@ -84,6 +84,23 @@ export default function PartnerFinanceHub() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-5">
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <Label className="text-xs">{my ? "ခုနှစ်" : "Year"}</Label>
+                  <Input type="number" className="w-24" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label className="text-xs">{my ? "လ" : "Month"}</Label>
+                  <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+                    <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {preview && (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                   <PartnerKpi label={my ? "လက်ရှိလ Net NPR" : "MTD Net NPR"} value={fmt(preview.net_collected_attributed_npr)} />
