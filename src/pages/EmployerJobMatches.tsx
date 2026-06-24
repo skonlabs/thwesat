@@ -6,7 +6,6 @@ import { Sparkles, X, ExternalLink, MapPin, Loader2, ArrowLeft, RefreshCw } from
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/PageHeader";
-import AppLayout from "@/components/AppLayout";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
