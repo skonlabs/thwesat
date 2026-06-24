@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Star, SlidersHorizontal, X, Check } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, X, Check, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/hooks/use-language";
 import { useAllProfiles } from "@/hooks/use-profiles";
+import { useBoostedProfileIds } from "@/hooks/use-subscription";
 import PageHeader from "@/components/PageHeader";
 import { UserRoleBadges } from "@/components/RoleBadge";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
