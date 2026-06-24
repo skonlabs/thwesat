@@ -120,11 +120,33 @@ const Notifications = () => {
   const unreadCount = notifications.filter(n => !n.is_read).length;
   const filteredNotifs = filter === "unread" ? notifications.filter(n => !n.is_read) : notifications;
 
+  // Defensive rewriter: if a notification's link_path points to a route the
+  // current user can't access (e.g. /employer/* sent to a job seeker by mistake),
+  // redirect to a safe fallback per notification type.
+  const safeLinkFor = (notif: typeof notifications[0]): string | null => {
+    const path = notif.link_path;
+    if (!path) return null;
+    const isEmployerPath = path.startsWith("/employer");
+    const isAdminPath = path.startsWith("/admin");
+    const canSee = (isEmployerPath && (effectiveRole === "employer" || effectiveRole === "agent"))
+      || (isAdminPath && false) // admins reach their notifs from /admin already
+      || (!isEmployerPath && !isAdminPath);
+    if (canSee) return path;
+    // Fallbacks by type
+    switch (notif.notification_type) {
+      case "application": return "/applications";
+      case "booking": return "/mentors/bookings";
+      case "message": return "/messages";
+      default: return "/notifications";
+    }
+  };
+
   const handleClick = (notif: typeof notifications[0]) => {
     if (!notif.is_read) {
       markRead.mutate(notif.id);
     }
-    if (notif.link_path) navigate(notif.link_path);
+    const target = safeLinkFor(notif);
+    if (target) navigate(target);
   };
 
   const handleDeleteNotification = async (notifId: string) => {
