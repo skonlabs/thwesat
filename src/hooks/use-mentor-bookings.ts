@@ -29,6 +29,7 @@ export function useMentorBookings(asMentor = true) {
       }));
     },
     enabled: !!user,
+    staleTime: 30_000,
   });
 }
 
