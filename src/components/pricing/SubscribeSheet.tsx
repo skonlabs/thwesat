@@ -102,7 +102,12 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
       }
       setStep("done");
     } catch (e: any) {
-      toast.error(e?.message || "Failed to submit");
+      const msg = e?.message || "";
+      if (msg.includes("duplicate_pending_request")) {
+        toast.error(my ? "ဤပစ္စည်းအတွက် ပေးချေမှု စောင့်ဆိုင်းနေပြီးပါပြီ" : "You already have a pending request for this — please wait for admin review");
+      } else {
+        toast.error(msg || "Failed to submit");
+      }
     } finally {
       setUploading(false);
     }
@@ -132,7 +137,9 @@ const SubscribeSheet = ({ open, onOpenChange, selection }: Props) => {
                 )}
                 {!isSub && selection.addon.duration_days && (
                   <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400">
-                    {my ? `သက်တမ်း ${selection.addon.duration_days} ရက် (၁ နှစ်)` : `Active for 1 year`}
+                    {my
+                      ? `သက်တမ်း ${selection.addon.duration_days} ရက်`
+                      : `Active for ${selection.addon.duration_days} day${selection.addon.duration_days === 1 ? "" : "s"}`}
                   </div>
                 )}
                 {isSub && !isFree && (
