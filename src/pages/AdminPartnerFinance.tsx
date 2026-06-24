@@ -779,7 +779,7 @@ function PaymentRow({ p, onSave, lang, locked }: { p: any; onSave: (patch: any) 
         npr_amount: npr === "" ? null : Number(npr),
         revenue_classification: cls,
       });
-      toast.success(tt(lang, "Saved", "သိမ်းပြီး"));
+      // success is silent per UX policy
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
@@ -860,7 +860,7 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
         recorded_by: u.user?.id,
       }, { onConflict: "partner_id,period_year,period_month" });
       if (error) throw error;
-      toast.success(tt(lang, "Quality metrics saved", "Quality metrics သိမ်းပြီး"));
+      // success is silent per UX policy
       refetch();
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
@@ -921,25 +921,30 @@ function ReversalsTab({ lang }: { lang: "en" | "my" }) {
     fraud_writeoff: { en: "Fraud writeoff", my: "လိမ်လည် ဖျက်" },
   };
 
+  const record = useAdminRecordReversal();
+
   const add = async () => {
     if (!paymentId.trim() || !amount) return;
-    setBusy(true);
     try {
-      const { data: u } = await supabase.auth.getUser();
-      const { error } = await (supabase as any).from("payment_reversals").insert({
+      await record.mutateAsync({
         payment_request_id: paymentId.trim(),
         reversal_type: type,
         amount: Number(amount),
         npr_amount: npr ? Number(npr) : null,
         reason: reason || null,
-        created_by: u.user?.id,
       });
-      if (error) throw error;
-      toast.success(tt(lang, "Reversal recorded", "ပြန်နုတ်မှု မှတ်ပြီး"));
       setPaymentId(""); setAmount(""); setNpr(""); setReason("");
       refetch();
-    } catch (e: any) { toast.error(e.message); }
-    finally { setBusy(false); }
+    } catch (e: any) {
+      const map: Record<string, string> = {
+        payment_not_found: tt(lang, "No payment with that ID", "ထို ID နှင့် ပေးချေမှု မရှိ"),
+        amount_must_be_positive: tt(lang, "Amount must be greater than zero", "ပမာဏသည် ၀ ထက်ကြီးရမည်"),
+        amount_exceeds_payment: tt(lang, "Reversal exceeds original payment amount", "ပြန်နုတ်မှု မူရင်းပေးချေမှုထက် ပိုနေသည်"),
+        invalid_reversal_type: tt(lang, "Invalid reversal type", "Reversal အမျိုးအစား မမှန်ပါ"),
+        not_authorized: tt(lang, "Admin only", "Admin သာ"),
+      };
+      toast.error(map[e?.message as string] || e?.message || "Failed");
+    }
   };
 
   return (
