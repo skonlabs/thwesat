@@ -35,7 +35,8 @@ const EmployerJobs = () => {
   const { lang } = useLanguage();
   const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useEmployerJobs();
-  const isAgent = typeof window !== "undefined" && window.location.pathname.startsWith("/agent");
+  const { role: currentRole } = useRole();
+  const isAgent = currentRole === "agent";
   const postJobPath = isAgent ? "/agent/post-job" : "/employer/post-job";
   const applicationsPath = isAgent ? "/agent/candidates" : "/employer/applications";
   const editJobPath = (id: string) => isAgent ? `/agent/edit-job/${id}` : `/employer/edit-job/${id}`;
