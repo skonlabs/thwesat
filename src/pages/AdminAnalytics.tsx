@@ -53,7 +53,9 @@ const AdminAnalytics = () => {
 
   const { data: metrics } = useQuery({
     queryKey: ["admin-analytics-overview"],
+    staleTime: 60_000,
     queryFn: async () => {
+
       const [users, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
