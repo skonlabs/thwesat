@@ -76,8 +76,28 @@ const CoverLetterGenerator = () => {
     if (jt || co) {
       setForm((f) => ({ ...f, jobTitle: jt || f.jobTitle, company: co || f.company }));
     }
+    // Restore draft (only if no query-param prefill).
+    if (!jt && !co) {
+      try {
+        const raw = localStorage.getItem("cover_letter_draft");
+        if (raw) {
+          const draft = JSON.parse(raw);
+          setForm((f) => ({ ...f, ...draft }));
+        }
+      } catch {/* ignore */}
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Autosave draft (debounced via effect deps).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem("cover_letter_draft", JSON.stringify(form));
+      } catch {/* ignore */}
+    }, 400);
+    return () => clearTimeout(t);
+  }, [form]);
 
   // If a jobId was passed (came from Apply screen), fetch and prefill job description + requirements
   const jobIdParam = searchParams.get("jobId");

@@ -270,6 +270,7 @@ export function useApplications() {
       return data;
     },
     enabled: !!user,
+    staleTime: 15_000,
     refetchInterval: 30000,
   });
 }
