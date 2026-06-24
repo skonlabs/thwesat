@@ -63,7 +63,15 @@ const AdminUsers = () => {
   const [draftRoles, setDraftRoles] = useState<Set<string>>(new Set());
   const [draftSuspended, setDraftSuspended] = useState<boolean>(false);
   const [savingChanges, setSavingChanges] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialQuery);
   const queryClient = useQueryClient();
+
+  // Debounce the search input so the query doesn't re-fire on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
 
   // Sync URL ?role= / ?q= → filter (so dashboard deep links work and reload preserves it)
   useEffect(() => {
