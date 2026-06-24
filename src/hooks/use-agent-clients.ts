@@ -38,11 +38,24 @@ export function useUpsertAgentClient() {
   return useMutation({
     mutationFn: async (input: Partial<AgentClient> & { name: string }) => {
       if (!user) throw new Error("Not signed in");
+      // Validate website URL (block javascript:, data:, etc.).
+      let safeWebsite = "";
+      const raw = (input.website ?? "").trim();
+      if (raw) {
+        const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+        try {
+          const u = new URL(withScheme);
+          if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("bad scheme");
+          safeWebsite = u.toString();
+        } catch {
+          throw new Error("Invalid website URL");
+        }
+      }
       const payload: any = {
         agent_id: user.id,
         name: input.name,
         logo_url: input.logo_url ?? "",
-        website: input.website ?? "",
+        website: safeWebsite,
         industry: input.industry ?? "",
         notes: input.notes ?? "",
         is_active: input.is_active ?? true,
@@ -81,6 +94,13 @@ export function useDeleteAgentClient() {
 }
 
 export async function uploadAgentClientLogo(userId: string, file: File): Promise<string> {
+  const ALLOWED = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  if (!ALLOWED.includes((file.type || "").toLowerCase())) {
+    throw new Error("Only PNG, JPG, or WEBP images are allowed.");
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("File must be under 2MB.");
+  }
   const ext = file.name.split(".").pop()?.toLowerCase() || "png";
   const path = `${userId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
