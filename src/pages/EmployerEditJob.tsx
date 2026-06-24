@@ -165,9 +165,31 @@ const CHAR_LIMIT_REQ = 2000;
     const maxVal = salaryMax ? Math.max(0, parseInt(salaryMax)) : null;
     setSaving(true);
 
-    let effectiveFeatured = isFeatured;
+    let effectiveFeatured = wasFeatured;
 
     try {
+      // Featured toggle ON: must consume a quota slot via the secured RPC.
+      // Featured toggle OFF: the sync_job_quotas trigger refunds the slot
+      // automatically once we write is_featured = false below.
+      if (isFeatured && !wasFeatured) {
+        const { data, error } = await (supabase as any).rpc("feature_job_with_quota", { _job_id: id });
+        if (error) {
+          const msg = (error.message || "").toLowerCase();
+          if (msg.includes("quota_exhausted_featured")) {
+            toast.error(lang === "my" ? "Featured slot မရှိတော့ပါ" : "No featured slots left. Buy a Featured Job add-on.");
+          } else if (msg.includes("no_active_subscription")) {
+            toast.error(lang === "my" ? "Package လိုအပ်ပါသည်" : "An active subscription is required.");
+          } else {
+            toast.error(lang === "my" ? "Featured လုပ်၍ မရပါ" : "Could not feature this job.");
+          }
+          setSaving(false);
+          return;
+        }
+        effectiveFeatured = true;
+      } else if (!isFeatured && wasFeatured) {
+        effectiveFeatured = false;
+      }
+
       const { error } = await supabase.from("jobs").update({
         title: titleEn,
         title_my: titleMy || null,
@@ -208,6 +230,7 @@ const CHAR_LIMIT_REQ = 2000;
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["job", id] });
       queryClient.invalidateQueries({ queryKey: ["admin-all-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["my-quotas"] });
       setConfirmOpen(false);
       navigate(-1);
     } finally {
