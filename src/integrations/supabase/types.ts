@@ -3204,6 +3204,13 @@ export type Database = {
           unlocked: boolean
         }[]
       }
+      get_boosted_profile_ids: {
+        Args: never
+        Returns: {
+          expires_at: string
+          user_id: string
+        }[]
+      }
       get_my_contact_info: {
         Args: never
         Returns: {
@@ -3384,6 +3391,7 @@ export type Database = {
         Args: { _suspended: boolean; _user_id: string }
         Returns: Json
       }
+      tick_expire_profile_boosts: { Args: never; Returns: undefined }
       tick_expire_subscriptions: { Args: never; Returns: undefined }
       try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
       unlock_contact_with_quota: {
