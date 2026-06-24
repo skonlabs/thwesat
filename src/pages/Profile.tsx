@@ -417,15 +417,21 @@ const Profile = () => {
                 <p className="text-sm font-semibold text-foreground">{lang === "my" ? "ပရိုဖိုင် Boost" : "Profile Boost"}</p>
                 {activeBoost ? (
                   <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                    {lang === "my" ? "လက်ရှိ အသက်ဝင်နေသည်" : "Active"}{activeBoost.expires_at ? ` · ${lang === "my" ? "သက်တမ်း" : "until"} ${new Date(activeBoost.expires_at).toLocaleDateString()}` : ""}
+                  </p>
+                ) : pendingBoost ? (
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                    {lang === "my" ? "Admin အတည်ပြုရန် စောင့်ဆိုင်းနေသည်" : "Awaiting admin approval"}
                   </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
-                    {lang === "my" ? "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်" : "Get seen by employers first"}
+                    {lang === "my"
+                      ? (boostAddon ? `${boostAddon.mmk.toLocaleString()} Ks · ${boostAddon.duration_days ?? 30} ရက် ထိပ်တွင် ပေါ်စေမည်` : "အလုပ်ရှင်များ ရှေ့ဆုံး တွေ့စေရန်")
+                      : (boostAddon ? `${boostAddon.mmk.toLocaleString()} Ks · Top of search for ${boostAddon.duration_days ?? 30} days` : "Get seen by employers first")}
                   </p>
                 )}
               </div>
-              {!activeBoost && (
+              {!activeBoost && !pendingBoost && boostAddon && (
                 <Button size="sm" className="rounded-lg" onClick={() => setBoostOpen(true)}>
                   {lang === "my" ? "Boost ပေးရန်" : "Boost"}
                 </Button>
