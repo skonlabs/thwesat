@@ -46,6 +46,13 @@ const Profile = () => {
   const [boostOpen, setBoostOpen] = useState(false);
   const { data: boostUnlocks = [] } = useFeatureUnlocks("profile_boost");
   const activeBoost = boostUnlocks.find((u: any) => !u.expires_at || new Date(u.expires_at) > new Date());
+  // Show "expired" badge when the most recent boost has elapsed (server tick
+  // hasn't deactivated it yet, or the user simply hasn't renewed).
+  const recentlyExpiredBoost = !activeBoost
+    ? boostUnlocks
+        .filter((u: any) => u.expires_at && new Date(u.expires_at) <= new Date())
+        .sort((a: any, b: any) => new Date(b.expires_at).getTime() - new Date(a.expires_at).getTime())[0]
+    : null;
   const { data: boostAddon } = useProfileBoostAddon();
   const { data: pendingSubRequests = [] } = useMyPendingSubscriptionRequests();
   const pendingBoost = !activeBoost && !!boostAddon && pendingSubRequests.some(
