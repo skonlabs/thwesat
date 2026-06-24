@@ -122,8 +122,8 @@ const SpendConfirmSheet = ({ open, onOpenChange, actionKey, targetType, targetId
                       ? "ကိုယ်စားလှယ်တစ်ဦး၏ email နှင့် ဖုန်းနံပါတ်ကို ကြည့်ရှုနိုင်ပါမည်။"
                       : "See this candidate's email and phone number.")
                     : (lang === "my"
-                      ? "Job ကို ၃၀ ရက်ကြာ Featured အဖြစ် ထိပ်ဆုံးတွင် ပြသပါမည်။"
-                      : "Promote this job to the top of search results for 30 days.")}
+                      ? "Job ကို Featured အဖြစ် ထိပ်ဆုံးတွင် ပြသပါမည်။"
+                      : "Promote this job to the top of search results.")}
                 </p>
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">

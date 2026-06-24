@@ -1,53 +1,61 @@
-## Goal
+## Three-part request
 
-Execute the automatable subset of `thwesat-test-cases.xlsx` against the live preview, then deliver:
-1. `thwesat-test-results.xlsx` — original workbook + `Status`, `Actual Result`, `Notes` columns
-2. `failures-only.md` — concise list of failed IDs with expected vs actual
+### 1) Remove "30-day" auto-expiry copy completely
 
-## Credentials used
+No DB-level auto-expiry exists (we confirmed earlier — the boost is a permanent boolean on `jobs.is_featured`). Only the user-facing copy still says "30 days" / "for X days". I'll sweep every Featured copy string so the message is simply: "Featured placement at the top of search results" (EN) and the Burmese equivalent — no duration.
 
-- Admin: `test@test.com` / `test@123`
-- Agent: `another-agent3@test.com` / `Test@123`
-- Job Seeker: `test-jobseeker@test.com` / `test@123`
-- Mentor: `test-jobseeker@test.com` / `test@123` *(same as Job Seeker — assumes this account holds the mentor role; if it doesn't, Mentor tab marked "NOT RUN — account lacks mentor role")*
-- Employer: `test-employer@test.com` / `test@123`
-- Partner: `test-partner1@test.com` / `test@123`
+Files to update:
+- `src/components/wallet/SpendConfirmSheet.tsx` (line ~126)
+- `src/pages/EmployerPostJob.tsx` (Featured checkbox helper text)
+- `src/pages/Pricing.tsx` (Featured add-on description)
+- Any other "30 day"/"7 day" Featured references (will grep before edit)
 
-## Scope (per "Automate what's feasible only")
+### 2) Featured Job — end-to-end gap fixes
 
-**Will run automatically (Playwright against `https://id-preview--...lovable.app`):**
-- Auth & Onboarding: login flows, role-based redirects, unverified-employer block, error messages
-- Per-role: route reachability, dashboard renders, key UI elements present (buttons/links/labels), navigation between screens, list pages load, detail pages open, form field presence, modal/sheet open-close, filter chips, language toggle
-- Money & Finance: read-only — MMK formatting on rendered values, wallet balance display, subscription chip, finance ledger renders, KPI cards, pricing page totals (yearly = monthly × 11)
-- Dashboard Drilldowns: each numeric stat is a link, URL search-param deep links resolve, profile completion card
-- Notifications & Messaging: pages render, unread counts, polling behavior (observed over 35s window)
+Findings from the review:
 
-**Marked SKIPPED with reason (not failures):**
-- Anything requiring file upload (CV, payment proof, avatar, company logo)
-- Destructive money actions (top-up approval, payment proof creation, subscription purchase, withdrawal, refund)
-- Admin approvals that mutate other users (job approval, employer verification, payment approval) — read-only verification of queues only
-- Flows requiring email verification round-trip, OTP, Telegram link
-- Pure visual/design assertions ("looks correct", color values) beyond presence checks
-- Anything explicitly written as "manual verify"
+| Gap | Fix |
+|---|---|
+| **Featured slot is consumed but never refunded** when an employer toggles a job off-featured in `EmployerEditJob.tsx`, deletes the job, or admin rejects it. | Add a small server-side RPC `unfeature_job(_job_id)` that flips `is_featured=false` and decrements `featured_jobs_used` (clamped at 0) — wired into the edit page, delete flow, and admin reject. |
+| **Edit Job lets a non-featured job become featured for free** — there's no quota check; it just writes `is_featured=true`. | Edit page now calls `feature_job_with_quota` when toggling on; the form no longer writes `is_featured` directly. |
+| **`EmployerJobs.tsx` "Promote" button still shows** for jobs that are `pending` / `expired` / `closed`. Promoting an inactive job wastes a slot. | Gate the "Promote to Featured" button to `status === 'active'` jobs only (matches current condition already — keeping). Add same guard in RPC. |
+| **Duplicating a job correctly strips `is_featured`** (already done in `EmployerJobs.tsx` line 137). Verified. | No change. |
+| **Public surfaces** (`Welcome.tsx`, `Jobs.tsx`, `HomePage.tsx`) already filter expired listings and sort by `is_featured` desc. | No change. |
 
-## Execution
+### 3) Candidate Matching for jobs (uses Matching Pack add-on)
 
-1. Copy workbook → parse all 10 tabs with openpyxl → classify each row as `runnable` / `skipped` with reason
-2. Generate Playwright specs per role, one `test()` per runnable case, tagged with test ID
-3. Run sequentially (`workers: 1`) to avoid live-data races; auto-screenshot failures
-4. Parse JSON reporter output → write back into copied workbook + build failures markdown
-5. Inspect each failure screenshot before reporting — distinguish real bug vs selector drift vs missing fixture
+**Eligibility:** an employer/agent has an active, non-expired `addon_purchases` row with `addon.kind = 'matching'`. A helper hook `useHasMatchingPack()` is added so the UI can gate the feature per user.
 
-## Deliverables (both to `/mnt/documents`)
+**UI changes (only when pack is active):**
 
-- `thwesat-test-results.xlsx` — every row has `Status` ∈ {PASS, FAIL, SKIPPED, BLOCKED}, `Actual Result`, `Notes`
-- `failures-only.md` — grouped by role, each entry: ID • Screen • Expected • Actual • screenshot path
+- `EmployerJobs.tsx` — each job card gets a new action **"View matched candidates"** (alongside existing Promote / Edit / Duplicate).
+- New page **`/employer/jobs/:id/matches`** (`EmployerJobMatches.tsx`):
+  - Calls a new edge function `match-candidates` for the job.
+  - Shows **up to 10 candidates at a time**, with avatar, headline, skills, experience, and match score.
+  - Each candidate has **Reject** and **View profile** (deep-link to `/profile/:user_id`).
+  - When the user rejects ≥ 5 of the visible 10, a **"Show next matches"** button appears. Clicking it removes the rejected ones and tops the list back up to 10 from the next-best unseen candidates. The visible list never exceeds 10.
+  - Rejections are persisted per `(employer_user_id, job_id, seeker_user_id)` so the same rejected candidate isn't shown again in future sessions.
 
-Final chat reply will summarize: totals (pass/fail/skip), top failure clusters, and any product bugs surfaced (distinguished from automation limitations).
+**Backend changes:**
 
-## Technical notes
+- New table `job_candidate_rejections` (employer_user_id, job_id, seeker_user_id, created_at) + RLS so the employer only sees their own rows.
+- New table `job_candidate_matches` cache (job_id, seeker_user_id, score, computed_at) so we don't re-run OpenAI for every page-load; refreshed only when a job's text changes or on explicit "Refresh matches".
+- New edge function `match-candidates`:
+  - Verifies the caller owns the job AND has an active matching pack.
+  - For each seeker `profile` (with a non-empty headline/skills/bio), builds a compact JSON, then asks OpenAI (`text-embedding-3-small` for retrieval + cosine ranking — same pattern as the existing `match-jobs` function) to rank candidates against the job's text.
+  - Returns top N (default 30) excluding already-rejected seekers; the page slices 10 at a time.
+  - Caches results in `job_candidate_matches` for 24 h.
 
-- Reuses existing `e2e/_helpers.ts` login helper (already supports all 7 role keys)
-- Sets `BASE_URL` + 6 role env vars before invoking `bunx playwright test`
-- Run budget: ~15–25 min wall time depending on flake retries
-- No app code changes, no migrations, no new deps (Playwright + openpyxl already present)
+**Why embeddings, not chat-completion:** the existing `match-jobs` edge function already uses embeddings, the project is already wired for embedding-based matching, it's deterministic, ~100× cheaper than asking GPT to rank, and works at the scale of "all resumes in the system". "Uses OpenAI" remains true.
+
+### Technical details (for review)
+
+- New migration: `unfeature_job` RPC, `job_candidate_rejections` table + RLS + grants, `job_candidate_matches` table + RLS + grants.
+- New edge function: `supabase/functions/match-candidates/index.ts` (uses `OPENAI_API_KEY` — already configured for `match-jobs`).
+- New hook: `src/hooks/use-matching-pack.ts` (`useHasMatchingPack()`).
+- New page: `src/pages/EmployerJobMatches.tsx` + route registration in `src/App.tsx`.
+- `EmployerJobs.tsx`: add "View matches" action (gated), wire to new page.
+- `EmployerEditJob.tsx`: route featured-toggle through `feature_job_with_quota` / `unfeature_job`.
+- `SpendConfirmSheet.tsx`, `EmployerPostJob.tsx`, `Pricing.tsx`: drop "30 days" copy.
+
+No design tokens or routing patterns change. No new dependencies.

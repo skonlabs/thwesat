@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy, Eye, Users } from "lucide-react";
+import { Briefcase, Plus, Pause, Play, XCircle, RotateCcw, Pencil, Trash2, Loader2, MoreVertical, History, Sparkles, Share2, Search, CheckCircle, Copy, Eye, Users, Target } from "lucide-react";
+import { useHasMatchingPack } from "@/hooks/use-matching-pack";
 import { Input } from "@/components/ui/input";
 import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
 import StatusHistorySheet from "@/components/StatusHistorySheet";
@@ -37,7 +38,9 @@ const EmployerJobs = () => {
   const postJobPath = isAgent ? "/agent/post-job" : "/employer/post-job";
   const applicationsPath = isAgent ? "/agent/candidates" : "/employer/applications";
   const editJobPath = (id: string) => isAgent ? `/agent/edit-job/${id}` : `/employer/edit-job/${id}`;
+  const matchesPath = (id: string) => isAgent ? `/agent/jobs/${id}/matches` : `/employer/jobs/${id}/matches`;
   const { data: breakdown } = useEmployerJobApplicantBreakdown();
+  const { data: hasMatchingPack } = useHasMatchingPack();
   const [filter, setFilter] = useState(searchParams.get("status") || "all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
@@ -354,6 +357,11 @@ const EmployerJobs = () => {
                             <button onClick={() => { setStatusMenuId(null); setHistoryJob({ id: listing.id, title: lang === "my" && listing.title_my ? listing.title_my : listing.title }); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs font-medium text-foreground hover:bg-muted">
                               <History className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "မှတ်တမ်း" : "Status history"}
                             </button>
+                            {hasMatchingPack && (
+                              <button onClick={() => { setStatusMenuId(null); navigate(matchesPath(listing.id)); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-emerald hover:bg-emerald/10">
+                                <Target className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ကိုက်ညီသူများ ကြည့်" : "View matched candidates"}
+                              </button>
+                            )}
                             {listing.status === "active" && !listing.is_featured && (
                               <button onClick={() => { setStatusMenuId(null); setFeatureJobId(listing.id); }} className="flex w-full items-center gap-2 border-t border-border px-3 py-2.5 text-left text-xs font-medium text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/40">
                                 <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} /> {lang === "my" ? "ထိပ်တန်းတင်" : "Promote to Featured"}
