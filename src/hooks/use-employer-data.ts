@@ -44,7 +44,12 @@ export function useCreateJob() {
   return useMutation({
     mutationFn: async (job: Record<string, unknown>) => {
       if (!user) throw new Error(lang === "my" ? "အကောင့်ဝင်ထားခြင်း မရှိပါ" : "Not authenticated");
-      const { error } = await supabase.from("jobs").insert({ employer_id: user.id, ...job } as any);
+      // Route through quota-aware RPC so billing/quota enforcement cannot be bypassed.
+      const { is_featured, ...payload } = job as any;
+      const { error } = await (supabase as any).rpc("post_job_with_quota", {
+        _payload: payload,
+        _featured: !!is_featured,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
