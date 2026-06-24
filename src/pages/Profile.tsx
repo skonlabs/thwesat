@@ -18,7 +18,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageHeader from "@/components/PageHeader";
-import SpendConfirmSheet from "@/components/wallet/SpendConfirmSheet";
+
 import SubscribeSheet from "@/components/pricing/SubscribeSheet";
 import { useProfileBoostAddon, useMyPendingSubscriptionRequests } from "@/hooks/use-subscription";
 import { formatCredits, useFeatureUnlocks } from "@/hooks/use-wallet";
