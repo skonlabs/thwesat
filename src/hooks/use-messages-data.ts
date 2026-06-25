@@ -34,8 +34,6 @@ import { sanitizeText } from "@/lib/sanitize";
  * RPC or view, e.g.:
  *   CREATE OR REPLACE FUNCTION get_conversations(p_user_id uuid)
  *   that JOINs conversations with last-message and unread counts in one query.
- *
- * TODO: Replace with a single RPC call: get_conversations(user_id)
  */
 export function useConversations() {
   const { user } = useAuth();
