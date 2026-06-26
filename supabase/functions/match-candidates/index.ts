@@ -8,7 +8,7 @@
 //     similarity, excluding already-rejected ones for this job.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { encode as hexEncode } from "https://deno.land/std@0.224.0/encoding/hex.ts";
+import { encodeHex } from "https://deno.land/std@0.224.0/encoding/hex.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,7 +21,7 @@ const RESULT_LIMIT_DEFAULT = 30;
 
 async function sha256(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-  return new TextDecoder().decode(hexEncode(new Uint8Array(buf)));
+  return encodeHex(new Uint8Array(buf));
 }
 
 async function embedBatch(texts: string[], apiKey: string): Promise<number[][]> {
