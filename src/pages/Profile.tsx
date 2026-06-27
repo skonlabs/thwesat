@@ -99,11 +99,12 @@ const Profile = () => {
         .from("profiles")
         .select("id, display_name, avatar_url, created_at")
         .in("id", referredIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));
       return referrals.map(r => ({
-        ...profileMap.get(r.referred_id!),
+        ...(profileMap.get(r.referred_id!) || {}),
         referral_date: r.created_at,
-      })).filter(r => r.display_name);
+      })).filter((r: any) => r.display_name);
+
     },
     enabled: !!profile?.id,
   });
