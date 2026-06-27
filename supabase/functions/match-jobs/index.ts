@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
       admin.from("jobseeker_profiles")
         .select("user_id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding_input_hash")
         .eq("user_id", user.id).maybeSingle(),
-      admin.from("cv_documents")
+      admin.from("user_documents")
         .select("parsed_text")
         .eq("user_id", user.id)
         .order("is_primary", { ascending: false })

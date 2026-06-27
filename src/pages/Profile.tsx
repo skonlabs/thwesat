@@ -114,7 +114,7 @@ const Profile = () => {
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data } = await (supabase as any)
-        .from("cv_documents")
+        .from("user_documents")
         .select("*")
         .eq("user_id", profile.id)
         .order("created_at", { ascending: false });
@@ -155,7 +155,7 @@ const Profile = () => {
   const deleteCv = async (id: string, fileUrl: string) => {
     // Delete the row FIRST so a storage-cleanup failure can never leave a
     // dangling DB record pointing at a missing file.
-    const { error } = await (supabase as any).from("cv_documents").delete().eq("id", id);
+    const { error } = await (supabase as any).from("user_documents").delete().eq("id", id);
     if (error) return;
     const path = getCvStoragePath(fileUrl);
     if (path) {

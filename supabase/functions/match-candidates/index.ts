@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
       // Fetch primary CV for each (best-effort, bulk).
       const ids = profilesNeed.map((p: any) => p.id);
       const { data: cvs } = await admin
-        .from("cv_documents")
+        .from("user_documents")
         .select("user_id, parsed_text, is_primary, parsed_at")
         .in("user_id", ids);
       const cvByUser = new Map<string, any>();

@@ -44,7 +44,7 @@ const CoverLetterGenerator = () => {
     queryKey: ["user-cvs", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      const { data } = await (supabase as any).from("cv_documents").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
+      const { data } = await (supabase as any).from("user_documents").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
       return data || [];
     },
     enabled: !!session?.user?.id,

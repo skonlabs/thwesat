@@ -180,7 +180,7 @@ const Jobs = () => {
       const [{ data: profile }, { data: cv }] = await Promise.all([
         (supabase as any).from("profiles").select("skills, headline, bio, experience, location, preferred_work_types").eq("id", user!.id).maybeSingle(),
         (supabase as any)
-          .from("cv_documents")
+          .from("user_documents")
           .select("file_name, parsed_text, parsed_data")
           .eq("user_id", user!.id)
           .order("is_primary", { ascending: false })
