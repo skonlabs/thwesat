@@ -374,42 +374,6 @@ const Settings = () => {
                 : "For security, changing your password signs out all devices."}
             </p>
           </div>
-          {isJobSeeker && activeToken && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
-              <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <div className="flex-1">
-                <p className="text-[11px] font-medium text-foreground mb-1">
-                  {lang === "my" ? "Delegate Token ခွင့်ပြုချက်များ" : "Delegate token permissions"}
-                </p>
-                {activeToken.permissions && activeToken.permissions.length > 0 ? (
-                  <ul className="space-y-0.5">
-                    {activeToken.permissions.map((perm) => {
-                      const permissionLabels: Record<string, { en: string; my: string }> = {
-                        read_profile:   { en: "View your profile",          my: "သင့်ပရိုဖိုင် ကြည့်ရှုခွင့်" },
-                        read_jobs:      { en: "View your job applications",  my: "အလုပ်လျှောက်ထားမှုများ ကြည့်ရှုခွင့်" },
-                        profile_edit:   { en: "Edit your profile",           my: "သင့်ပရိုဖိုင် ပြင်ဆင်ခွင့်" },
-                        read_messages:  { en: "Read your messages",          my: "မက်ဆေ့ချ်များ ဖတ်ရှုခွင့်" },
-                        send_messages:  { en: "Send messages on your behalf",my: "မက်ဆေ့ချ် ပေးပို့ခွင့်" },
-                        manage_bookings:{ en: "Manage your bookings",        my: "ချိန်းဆိုမှုများ စီမံခန့်ခွဲခွင့်" },
-                      };
-                      const label = permissionLabels[perm];
-                      return (
-                        <li key={perm} className="text-[11px] text-muted-foreground">
-                          • {label ? (lang === "my" ? label.my : label.en) : perm}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <p className="text-[11px] text-muted-foreground">
-                    {lang === "my"
-                      ? "Delegate Token များသည် ယခုအချိန်တွင် ဖတ်ရှုရုံသာ ဝင်ရောက်ခွင့် ရရှိမည်ဖြစ်သည်။"
-                      : "Delegate tokens currently provide read-only access."}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
         </motion.div>
 
         {/* Danger Zone */}
