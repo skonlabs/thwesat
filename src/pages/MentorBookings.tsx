@@ -267,7 +267,7 @@ const MentorBookings = () => {
           <div className="space-y-3">
             {filtered.map((booking: any, i: number) => {
               const sc = statusConfig[booking.status] || statusConfig.pending;
-              const mentee = menteeMap.get(booking.mentee_id);
+              const mentee = menteeMap.get(booking.mentee_id) as any;
               const myCompleted = hasMyCompletion(booking);
               const fullyDone = bothCompleted(booking);
 
