@@ -69,7 +69,7 @@ const Settings = () => {
   const [showVisibility, setShowVisibility] = useState(false);
   const [showSessionExpiry, setShowSessionExpiry] = useState(false);
   const [showTelegram, setShowTelegram] = useState(false);
-  const [showToken, setShowToken] = useState(false);
+  
   const [showFontEncoding, setShowFontEncoding] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
