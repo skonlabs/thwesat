@@ -84,13 +84,14 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
         .in("id", userIds);
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
-      return (data || []).map((p) => ({ ...p, email: contactMap.get(p.id) ?? null }));
+      return (data || []).map((p: any) => ({ ...p, email: contactMap.get(p.id) ?? null }));
     },
     enabled: userIds.length > 0,
   });
 
 
-  const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+  const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));
+
 
   // Context data for selected payment
   const { data: bookingContext } = usePaymentBookingContext(selectedPayment?.booking_id);
