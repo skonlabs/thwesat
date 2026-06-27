@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (fetchingProfileRef.current) return fetchingProfileRef.current;
     const request = (async () => {
       const [{ data }, { data: contact }, { data: rolesData }] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("profiles")
           .select(
             "id, display_name, avatar_url, headline, bio, location, website, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"

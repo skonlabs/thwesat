@@ -51,7 +51,7 @@ function useUserDirectoryLite(ids: string[]) {
     queryFn: async () => {
       const uniq = Array.from(new Set(ids));
       const [{ data: profs }, { data: contacts }] = await Promise.all([
-        supabase.from("profiles").select("id, display_name").in("id", uniq),
+        (supabase as any).from("profiles").select("id, display_name").in("id", uniq),
         (supabase as any).rpc("get_user_contacts_admin", { _ids: uniq }),
       ]);
       const emailMap = new Map<string, string>((contacts || []).map((c: any) => [c.id, c.email]));

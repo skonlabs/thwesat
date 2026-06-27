@@ -91,7 +91,7 @@ const MentorBookings = () => {
         review_text: ratingText,
       });
       if (error) throw error;
-      const { data: reviewerProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      const { data: reviewerProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", user.id).maybeSingle();
       const reviewerName = reviewerProfile?.display_name || "A mentee";
       await supabase.from("notifications").insert({
         user_id: ratingMentorId,
@@ -117,7 +117,7 @@ const MentorBookings = () => {
     queryKey: ["booking-mentee-profiles", menteeIds],
     queryFn: async () => {
       if (!menteeIds.length) return [];
-      const { data } = await supabase.from("profiles").select("id, display_name, headline, avatar_url").in("id", menteeIds);
+      const { data } = await (supabase as any).from("profiles").select("id, display_name, headline, avatar_url").in("id", menteeIds);
       return data || [];
     },
     enabled: menteeIds.length > 0,

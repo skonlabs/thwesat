@@ -55,7 +55,7 @@ const MentorFinance = () => {
         .eq("mentor_id", user.id);
       const ids = (bookings || []).map((b) => b.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("payment_requests")
         .select("amount,currency,status,proof_url")
         .in("booking_id", ids)

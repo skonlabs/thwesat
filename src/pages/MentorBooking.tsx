@@ -59,7 +59,7 @@ const MentorBooking = () => {
     queryKey: ["booking-target-profile", mentorId],
     queryFn: async () => {
       if (!mentorId) return null;
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("profiles")
         .select("display_name, headline")
         .eq("id", mentorId)

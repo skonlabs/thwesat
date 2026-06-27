@@ -72,7 +72,7 @@ const AdminPartners = () => {
       if (error) throw error;
       const ids = (roles ?? []).map((r: any) => r.user_id);
       if (ids.length === 0) return [] as { id: string; display_name: string | null; email: string | null }[];
-      const { data: profs, error: pErr } = await supabase
+      const { data: profs, error: pErr } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, email")
         .in("id", ids);
@@ -87,7 +87,7 @@ const AdminPartners = () => {
     queryKey: ["admin-partners-linked-profiles", linkedIds.sort().join(",")],
     enabled: linkedIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, email")
         .in("id", linkedIds);
@@ -241,7 +241,7 @@ function ReferralCodeUsage({ lang }: { lang: "en" | "my" }) {
       const [{ data: partners }, profilesRes, rolesRes] = await Promise.all([
         (supabase as any).from("partners").select("id, name, code").in("id", partnerIds),
         userIds.length
-          ? supabase.from("profiles").select("id, display_name, email").in("id", userIds)
+          ? (supabase as any).from("profiles").select("id, display_name, email").in("id", userIds)
           : Promise.resolve({ data: [] as any[] }),
         userIds.length
           ? supabase.from("user_roles").select("user_id, role").in("user_id", userIds)
@@ -458,7 +458,7 @@ function LinkUserSheet({ lang, partner, onDone }: { lang: "en" | "my"; partner: 
     try {
       // Use case-insensitive exact match instead of ilike+maybeSingle which throws when
       // duplicate-cased rows exist. Limit to 2 to detect the rare duplicate.
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, email")
         .ilike("email", value)

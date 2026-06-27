@@ -17,13 +17,13 @@ const AdminDashboard = () => {
     queryFn: async () => {
 
       const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        (supabase as any).from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
-        supabase.from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),

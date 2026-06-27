@@ -98,7 +98,7 @@ function usePostComments(postId: string | null) {
       if (error) throw error;
       const authorIds = [...new Set((data || []).map(c => c.author_id))];
       if (!authorIds.length) return [];
-      const { data: profiles } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
+      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       const enriched = (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
       const topLevel = enriched.filter(c => !c.parent_id);
@@ -217,7 +217,7 @@ const Community = () => {
 
   const handleReport = async (postId: string) => {
     if (!user) return;
-    const { error } = await supabase.from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
+    const { error } = await (supabase as any).from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
     if (error) {
       toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
     } else {
@@ -630,7 +630,7 @@ const Community = () => {
                                                   if (!user) return;
                                                   // File a scam_report so it shows in the moderation queue,
                                                   // and notify staff (NOT the comment author).
-                                                  const { error: reportErr } = await supabase.from("scam_reports").insert({
+                                                  const { error: reportErr } = await (supabase as any).from("scam_reports").insert({
                                                     reported_entity_id: c.id,
                                                     reported_entity_type: "comment",
                                                     reporter_id: user.id,

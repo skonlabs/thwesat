@@ -50,7 +50,7 @@ export function useCommunityPosts(category?: string) {
 
       const authorIds = [...new Set((data || []).map((p) => p.author_id))];
       if (authorIds.length === 0) return [];
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location")
         .in("id", authorIds);

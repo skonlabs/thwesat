@@ -69,7 +69,7 @@ const MentorDashboard = () => {
     queryKey: ["mentee-profiles", menteeIds],
     queryFn: async () => {
       if (!menteeIds.length) return [];
-      const { data } = await supabase.from("profiles").select("id, display_name, headline, avatar_url").in("id", menteeIds);
+      const { data } = await (supabase as any).from("profiles").select("id, display_name, headline, avatar_url").in("id", menteeIds);
       return data || [];
     },
     enabled: menteeIds.length > 0,

@@ -64,7 +64,7 @@ const EmployerJobMatches = () => {
     queryKey: ["match-profiles", matchIds.sort().join(",")],
     enabled: matchIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, headline, bio, location, avatar_url, skills, experience")
         .in("id", matchIds);

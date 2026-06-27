@@ -18,7 +18,7 @@ export function useMentorBookings(asMentor = true) {
       if (error) throw error;
       const otherIds = [...new Set((data || []).map(b => asMentor ? b.mentee_id : b.mentor_id))];
       if (otherIds.length === 0) return (data || []).map(b => ({ ...b, otherProfile: null }));
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, headline, avatar_url")
         .in("id", otherIds);
@@ -51,7 +51,7 @@ async function sendBookingNotification({
   proposedTime?: string;
 }) {
   // Get sender name
-  const { data: senderProfile } = await supabase
+  const { data: senderProfile } = await (supabase as any)
     .from("profiles")
     .select("display_name")
     .eq("id", senderId)
@@ -209,8 +209,8 @@ export function useUpdateBookingStatus() {
           // Email both parties about the confirmed session
           const { sendAppEmail } = await import("@/lib/send-app-email");
           const [{ data: mentorProfile }, { data: menteeProfile }] = await Promise.all([
-            supabase.from("profiles").select("display_name").eq("id", booking.mentor_id).maybeSingle(),
-            supabase.from("profiles").select("display_name").eq("id", booking.mentee_id).maybeSingle(),
+            (supabase as any).from("profiles").select("display_name").eq("id", booking.mentor_id).maybeSingle(),
+            (supabase as any).from("profiles").select("display_name").eq("id", booking.mentee_id).maybeSingle(),
           ]);
           const mentorName = mentorProfile?.display_name || "Mentor";
           const menteeName = menteeProfile?.display_name || "Mentee";
@@ -303,7 +303,7 @@ export function useMarkSessionComplete() {
         const bothComplete = !!(rpcRes?.mentor_completed_at && rpcRes?.mentee_completed_at);
         // Don't pester the other side once the session is already completed.
         if (!bothComplete) {
-          const { data: senderProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+          const { data: senderProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", user.id).maybeSingle();
           const senderName = senderProfile?.display_name || (role === "mentor" ? "Your mentor" : "Your mentee");
           await supabase.from("notifications").insert({
             user_id: otherId,
@@ -411,7 +411,7 @@ export function useMentorMentees() {
       }
 
       const menteeIds = [...menteeMap.keys()];
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location")
         .in("id", menteeIds);

@@ -78,7 +78,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     staleTime: 60_000,
     queryFn: async () => {
       if (userIds.length === 0) return [];
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, avatar_url")
         .in("id", userIds);
@@ -100,7 +100,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     queryKey: ["payment-mentor-profile", bookingContext?.mentor_id],
     queryFn: async () => {
       if (!bookingContext?.mentor_id) return null;
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("profiles")
         .select("id, display_name")
         .eq("id", bookingContext.mentor_id)
