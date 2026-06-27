@@ -14,122 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _profiles_legacy: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          deletion_requested_at: string | null
-          deletion_scheduled_at: string | null
-          display_name: string
-          email: string | null
-          embedding: string | null
-          embedding_input_hash: string | null
-          embedding_updated_at: string | null
-          experience: string | null
-          has_laptop: boolean | null
-          has_payoneer: boolean | null
-          has_upwork: boolean | null
-          has_wise: boolean | null
-          headline: string | null
-          id: string
-          internet_stable: boolean | null
-          is_suspended: boolean
-          job_search_status: string
-          languages: string[] | null
-          last_seen_at: string | null
-          location: string | null
-          phone: string | null
-          preferred_work_types: string[] | null
-          referral_code: string | null
-          referred_by: string | null
-          remote_ready: boolean | null
-          role_title: string | null
-          skills: string[] | null
-          updated_at: string | null
-          visibility: string | null
-          website: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          deletion_requested_at?: string | null
-          deletion_scheduled_at?: string | null
-          display_name?: string
-          email?: string | null
-          embedding?: string | null
-          embedding_input_hash?: string | null
-          embedding_updated_at?: string | null
-          experience?: string | null
-          has_laptop?: boolean | null
-          has_payoneer?: boolean | null
-          has_upwork?: boolean | null
-          has_wise?: boolean | null
-          headline?: string | null
-          id: string
-          internet_stable?: boolean | null
-          is_suspended?: boolean
-          job_search_status?: string
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          phone?: string | null
-          preferred_work_types?: string[] | null
-          referral_code?: string | null
-          referred_by?: string | null
-          remote_ready?: boolean | null
-          role_title?: string | null
-          skills?: string[] | null
-          updated_at?: string | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          deletion_requested_at?: string | null
-          deletion_scheduled_at?: string | null
-          display_name?: string
-          email?: string | null
-          embedding?: string | null
-          embedding_input_hash?: string | null
-          embedding_updated_at?: string | null
-          experience?: string | null
-          has_laptop?: boolean | null
-          has_payoneer?: boolean | null
-          has_upwork?: boolean | null
-          has_wise?: boolean | null
-          headline?: string | null
-          id?: string
-          internet_stable?: boolean | null
-          is_suspended?: boolean
-          job_search_status?: string
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          phone?: string | null
-          preferred_work_types?: string[] | null
-          referral_code?: string | null
-          referred_by?: string | null
-          remote_ready?: boolean | null
-          role_title?: string | null
-          skills?: string[] | null
-          updated_at?: string | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       action_prices: {
         Row: {
           action_key: string
@@ -935,7 +819,6 @@ export type Database = {
       feature_unlocks: {
         Row: {
           created_at: string
-          credits_spent: number
           expires_at: string | null
           feature_key: string
           id: string
@@ -944,12 +827,10 @@ export type Database = {
           starts_at: string
           target_id: string | null
           target_type: string | null
-          transaction_id: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
-          credits_spent: number
           expires_at?: string | null
           feature_key: string
           id?: string
@@ -958,12 +839,10 @@ export type Database = {
           starts_at?: string
           target_id?: string | null
           target_type?: string | null
-          transaction_id?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
-          credits_spent?: number
           expires_at?: string | null
           feature_key?: string
           id?: string
@@ -972,18 +851,9 @@ export type Database = {
           starts_at?: string
           target_id?: string | null
           target_type?: string | null
-          transaction_id?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "feature_unlocks_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "wallet_transactions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       generated_documents: {
         Row: {
@@ -1129,19 +999,16 @@ export type Database = {
       }
       job_candidate_matches: {
         Row: {
-          computed_at: string
           job_id: string
           score: number
           seeker_user_id: string
         }
         Insert: {
-          computed_at?: string
           job_id: string
           score: number
           seeker_user_id: string
         }
         Update: {
-          computed_at?: string
           job_id?: string
           score?: number
           seeker_user_id?: string
@@ -1617,7 +1484,6 @@ export type Database = {
           mentor_id: string
           paid_at: string | null
           paid_out_at: string | null
-          payout_note: string | null
           status: string
           updated_at: string | null
         }
@@ -1630,7 +1496,6 @@ export type Database = {
           mentor_id: string
           paid_at?: string | null
           paid_out_at?: string | null
-          payout_note?: string | null
           status?: string
           updated_at?: string | null
         }
@@ -1643,7 +1508,6 @@ export type Database = {
           mentor_id?: string
           paid_at?: string | null
           paid_out_at?: string | null
-          payout_note?: string | null
           status?: string
           updated_at?: string | null
         }
@@ -1706,7 +1570,6 @@ export type Database = {
           languages: string[] | null
           last_seen_at: string | null
           location: string | null
-          mentoring_since: string | null
           rating_avg: number | null
           referral_code: string | null
           timezone: string
@@ -1733,7 +1596,6 @@ export type Database = {
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
-          mentoring_since?: string | null
           rating_avg?: number | null
           referral_code?: string | null
           timezone?: string
@@ -1760,7 +1622,6 @@ export type Database = {
           languages?: string[] | null
           last_seen_at?: string | null
           location?: string | null
-          mentoring_since?: string | null
           rating_avg?: number | null
           referral_code?: string | null
           timezone?: string
@@ -1880,7 +1741,6 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string | null
-          created_by_user_id: string | null
           description: string | null
           description_my: string | null
           id: string
@@ -1893,7 +1753,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          created_by_user_id?: string | null
           description?: string | null
           description_my?: string | null
           id?: string
@@ -1906,7 +1765,6 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          created_by_user_id?: string | null
           description?: string | null
           description_my?: string | null
           id?: string
@@ -1930,39 +1788,30 @@ export type Database = {
       partner_attributions: {
         Row: {
           attributed_at: string
-          attribution_source: string | null
           channel: string
           created_at: string
-          created_by: string | null
           first_paid_at: string | null
           id: string
-          onboarding_completed_at: string | null
           partner_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           attributed_at?: string
-          attribution_source?: string | null
           channel?: string
           created_at?: string
-          created_by?: string | null
           first_paid_at?: string | null
           id?: string
-          onboarding_completed_at?: string | null
           partner_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
           attributed_at?: string
-          attribution_source?: string | null
           channel?: string
           created_at?: string
-          created_by?: string | null
           first_paid_at?: string | null
           id?: string
-          onboarding_completed_at?: string | null
           partner_id?: string
           updated_at?: string
           user_id?: string
@@ -1983,12 +1832,8 @@ export type Database = {
           active_growth_requirement_met: boolean
           bonus_payout: number
           cap_applied: boolean
-          computation_inputs: Json
           created_at: string
-          created_by: string
           currency: string
-          finalized_at: string | null
-          finalized_by: string | null
           gross_attributed_npr: number
           growth_bonus_pct: number
           growth_npr: number
@@ -2006,9 +1851,7 @@ export type Database = {
           mom_growth_pct: number | null
           net_collected_attributed_npr: number
           paid_at: string | null
-          paid_by: string | null
           partner_id: string
-          payout_reference: string | null
           period_month: number
           period_year: number
           quality_gate_passed: boolean
@@ -2022,12 +1865,8 @@ export type Database = {
           active_growth_requirement_met?: boolean
           bonus_payout?: number
           cap_applied?: boolean
-          computation_inputs?: Json
           created_at?: string
-          created_by: string
           currency?: string
-          finalized_at?: string | null
-          finalized_by?: string | null
           gross_attributed_npr?: number
           growth_bonus_pct?: number
           growth_npr?: number
@@ -2045,9 +1884,7 @@ export type Database = {
           mom_growth_pct?: number | null
           net_collected_attributed_npr?: number
           paid_at?: string | null
-          paid_by?: string | null
           partner_id: string
-          payout_reference?: string | null
           period_month: number
           period_year: number
           quality_gate_passed?: boolean
@@ -2061,12 +1898,8 @@ export type Database = {
           active_growth_requirement_met?: boolean
           bonus_payout?: number
           cap_applied?: boolean
-          computation_inputs?: Json
           created_at?: string
-          created_by?: string
           currency?: string
-          finalized_at?: string | null
-          finalized_by?: string | null
           gross_attributed_npr?: number
           growth_bonus_pct?: number
           growth_npr?: number
@@ -2084,9 +1917,7 @@ export type Database = {
           mom_growth_pct?: number | null
           net_collected_attributed_npr?: number
           paid_at?: string | null
-          paid_by?: string | null
           partner_id?: string
-          payout_reference?: string | null
           period_month?: number
           period_year?: number
           quality_gate_passed?: boolean
@@ -2119,7 +1950,6 @@ export type Database = {
           maintenance_rate_y2: number | null
           maintenance_rate_y3plus: number | null
           notes: string | null
-          organization_name: string | null
           payout_cap_pct: number | null
           updated_at: string
           user_id: string
@@ -2137,7 +1967,6 @@ export type Database = {
           maintenance_rate_y2?: number | null
           maintenance_rate_y3plus?: number | null
           notes?: string | null
-          organization_name?: string | null
           payout_cap_pct?: number | null
           updated_at?: string
           user_id: string
@@ -2155,7 +1984,6 @@ export type Database = {
           maintenance_rate_y2?: number | null
           maintenance_rate_y3plus?: number | null
           notes?: string | null
-          organization_name?: string | null
           payout_cap_pct?: number | null
           updated_at?: string
           user_id?: string
@@ -2326,8 +2154,6 @@ export type Database = {
           proof_url: string | null
           reference_id: string | null
           revenue_classification: string
-          revenue_classification_override_at: string | null
-          revenue_classification_override_by: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
@@ -2348,8 +2174,6 @@ export type Database = {
           proof_url?: string | null
           reference_id?: string | null
           revenue_classification?: string
-          revenue_classification_override_at?: string | null
-          revenue_classification_override_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -2370,8 +2194,6 @@ export type Database = {
           proof_url?: string | null
           reference_id?: string | null
           revenue_classification?: string
-          revenue_classification_override_at?: string | null
-          revenue_classification_override_by?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -2385,7 +2207,6 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
-          created_by: string
           currency: string
           id: string
           npr_amount: number | null
@@ -2397,7 +2218,6 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
-          created_by: string
           currency?: string
           id?: string
           npr_amount?: number | null
@@ -2409,7 +2229,6 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
-          created_by?: string
           currency?: string
           id?: string
           npr_amount?: number | null
@@ -2782,7 +2601,6 @@ export type Database = {
           is_active: boolean
           is_unlimited_jobs: boolean
           is_unlimited_unlocks: boolean
-          plan_for_role: string
           price_mmk: number
           sort_order: number
           tier: string
@@ -2797,7 +2615,6 @@ export type Database = {
           is_active?: boolean
           is_unlimited_jobs?: boolean
           is_unlimited_unlocks?: boolean
-          plan_for_role: string
           price_mmk?: number
           sort_order?: number
           tier: string
@@ -2812,7 +2629,6 @@ export type Database = {
           is_active?: boolean
           is_unlimited_jobs?: boolean
           is_unlimited_unlocks?: boolean
-          plan_for_role?: string
           price_mmk?: number
           sort_order?: number
           tier?: string
@@ -3034,7 +2850,6 @@ export type Database = {
           session_expiry: string
           telegram_chat_id: string | null
           telegram_linked: boolean
-          telegram_linked_at: string | null
           telegram_username: string | null
           updated_at: string | null
           user_id: string
@@ -3051,7 +2866,6 @@ export type Database = {
           session_expiry?: string
           telegram_chat_id?: string | null
           telegram_linked?: boolean
-          telegram_linked_at?: string | null
           telegram_username?: string | null
           updated_at?: string | null
           user_id: string
@@ -3068,7 +2882,6 @@ export type Database = {
           session_expiry?: string
           telegram_chat_id?: string | null
           telegram_linked?: boolean
-          telegram_linked_at?: string | null
           telegram_username?: string | null
           updated_at?: string | null
           user_id?: string
@@ -3078,7 +2891,6 @@ export type Database = {
       wallet_transactions: {
         Row: {
           created_at: string
-          created_by: string | null
           credits: number
           id: string
           idempotency_key: string | null
@@ -3093,7 +2905,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
           credits: number
           id?: string
           idempotency_key?: string | null
@@ -3108,7 +2919,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
           credits?: number
           id?: string
           idempotency_key?: string | null
@@ -3263,98 +3073,6 @@ export type Database = {
           website: string | null
         }
         Relationships: []
-      }
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          display_name: string | null
-          email: string | null
-          experience: string | null
-          has_laptop: boolean | null
-          has_payoneer: boolean | null
-          has_upwork: boolean | null
-          has_wise: boolean | null
-          headline: string | null
-          id: string | null
-          internet_stable: boolean | null
-          languages: string[] | null
-          last_seen_at: string | null
-          location: string | null
-          phone: string | null
-          preferred_work_types: string[] | null
-          referral_code: string | null
-          remote_ready: boolean | null
-          role_title: string | null
-          skills: string[] | null
-          updated_at: string | null
-          visibility: string | null
-          website: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          email?: never
-          experience?: string | null
-          has_laptop?: boolean | null
-          has_payoneer?: boolean | null
-          has_upwork?: boolean | null
-          has_wise?: boolean | null
-          headline?: string | null
-          id?: string | null
-          internet_stable?: boolean | null
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          phone?: never
-          preferred_work_types?: string[] | null
-          referral_code?: string | null
-          remote_ready?: boolean | null
-          role_title?: string | null
-          skills?: string[] | null
-          updated_at?: string | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          email?: never
-          experience?: string | null
-          has_laptop?: boolean | null
-          has_payoneer?: boolean | null
-          has_upwork?: boolean | null
-          has_wise?: boolean | null
-          headline?: string | null
-          id?: string | null
-          internet_stable?: boolean | null
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          phone?: never
-          preferred_work_types?: string[] | null
-          referral_code?: string | null
-          remote_ready?: boolean | null
-          role_title?: string | null
-          skills?: string[] | null
-          updated_at?: string | null
-          visibility?: string | null
-          website?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       v_user_directory: {
         Row: {
