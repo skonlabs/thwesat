@@ -161,7 +161,7 @@ const AdminEmployers = () => {
     return matchesTab && matchesRole && matchesSearch;
   });
 
-  const selected = employers.find((e: any) => e.id === selectedId);
+  const selected: any = (employers as any[]).find((e: any) => e.id === selectedId);
   const pendingCount = employers.filter((e: any) => (e.verification_status || "pending") === "pending").length;
 
   return (
