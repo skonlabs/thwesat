@@ -141,7 +141,8 @@ const Signup = () => {
           });
         }
       }
-      await supabase.rpc("set_user_role", { _user_id: newUserId, _role: "user" });
+      // Role is written by the auth.users trigger. The `assign_my_role` call
+      // in use-auth.tsx is the safety net; no extra RPC needed here.
 
       // Pre-seed employer_profiles row for employers and agents (shared screens).
       // A DB trigger also handles this defensively, but doing it here keeps the
