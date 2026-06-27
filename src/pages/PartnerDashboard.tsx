@@ -60,10 +60,10 @@ const PartnerDashboard = () => {
           .gte("updated_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "job_seeker"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "agent"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "job_seeker"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "agent"),
       ]);
       const totalPaymentApprovals =
         ((pendingPayments as any).count || 0) +
