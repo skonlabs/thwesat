@@ -189,19 +189,19 @@ export function useApplyToJob() {
             rejection_reason: "",
             rejection_reason_my: "",
             updated_at: new Date().toISOString(),
-          })
+          } as any)
           .eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("applications")
-          .insert({
+          .insert([{
             applicant_id: user.id,
             job_id: jobId,
             cover_letter: coverLetter || "",
             cv_document_id: cvDocumentId || null,
             status: "applied",
-          });
+          } as any]);
         if (error) throw error;
       }
 
