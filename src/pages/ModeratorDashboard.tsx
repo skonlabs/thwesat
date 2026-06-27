@@ -454,7 +454,7 @@ const ModeratorDashboard = () => {
         {selectedPost && !showRemoval && (
           <BottomSheet onClose={() => setSelectedPostId(null)}>
             <span className="mb-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{selectedPost.category || "general"}</span>
-            <p className="mb-1 text-xs text-muted-foreground">by {selectedPost.author?.display_name || "User"} · {formatTime(selectedPost.created_at)}</p>
+            <p className="mb-1 text-xs text-muted-foreground">by {(selectedPost.author as any)?.display_name || "User"} · {formatTime(selectedPost.created_at)}</p>
             <div className="my-4 rounded-xl bg-muted p-4">
               <p className="text-sm leading-relaxed text-foreground">{lang === "my" ? selectedPost.content_my : (selectedPost.content_en || selectedPost.content_my)}</p>
               {selectedPost.image_url && (
