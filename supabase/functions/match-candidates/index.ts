@@ -205,11 +205,11 @@ Deno.serve(async (req) => {
         const chunk = stale.slice(i, i + 20);
         const vecs = await embedBatch(chunk.map((c) => c.text), openaiKey);
         await Promise.all(chunk.map((c, idx) =>
-          admin.from("profiles").update({
+          admin.from("jobseeker_profiles").update({
             embedding: `[${vecs[idx].join(",")}]` as unknown as any,
             embedding_input_hash: c.hash,
             embedding_updated_at: new Date().toISOString(),
-          }).eq("id", c.id),
+          }).eq("user_id", c.id),
         ));
       }
     }
