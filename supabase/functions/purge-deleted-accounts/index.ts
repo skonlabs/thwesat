@@ -27,10 +27,10 @@ Deno.serve(async (req) => {
 
   const nowIso = new Date().toISOString();
 
-  // Find profiles past their grace window
+  // Find accounts past their grace window
   const { data: due, error: selectError } = await supabase
-    .from("profiles")
-    .select("id")
+    .from("user_account_state")
+    .select("user_id")
     .lte("deletion_scheduled_at", nowIso)
     .not("deletion_scheduled_at", "is", null);
 
@@ -40,15 +40,16 @@ Deno.serve(async (req) => {
     });
   }
 
-  const ids = (due ?? []).map((r) => r.id);
+  const ids = (due ?? []).map((r: { user_id: string }) => r.user_id);
   if (ids.length === 0) {
     return new Response(JSON.stringify({ purged: 0 }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  // Scrub PII fields. Keep the row so foreign-key references stay intact.
-  const { error: updateError } = await supabase
+  // Scrub PII via the profiles view (INSTEAD OF UPDATE trigger routes to the
+  // correct role-specific table). Auth row + email/phone are cleared separately.
+  const { error: updateError } = await (supabase as any)
     .from("profiles")
     .update({
       display_name: "Deleted user",
@@ -60,9 +61,14 @@ Deno.serve(async (req) => {
       avatar_url: null,
       visibility: "private",
       email: null,
-      deletion_scheduled_at: null,
     })
     .in("id", ids);
+
+  // Clear the deletion schedule so we don't re-process these rows.
+  await supabase
+    .from("user_account_state")
+    .update({ deletion_scheduled_at: null })
+    .in("user_id", ids);
 
   if (updateError) {
     return new Response(JSON.stringify({ error: updateError.message }), {
