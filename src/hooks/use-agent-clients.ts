@@ -21,7 +21,7 @@ export function useAgentClients() {
     queryKey: ["agent-clients", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("agent_clients" as any)
         .select("*")
         .eq("agent_id", user!.id)
@@ -61,7 +61,7 @@ export function useUpsertAgentClient() {
         is_active: input.is_active ?? true,
       };
       if (input.id) {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("agent_clients" as any)
           .update(payload)
           .eq("id", input.id)
@@ -70,7 +70,7 @@ export function useUpsertAgentClient() {
         if (error) throw error;
         return data as unknown as AgentClient;
       }
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("agent_clients" as any)
         .insert(payload)
         .select()
@@ -86,7 +86,7 @@ export function useDeleteAgentClient() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("agent_clients" as any).delete().eq("id", id);
+      const { error } = await (supabase as any).from("agent_clients" as any).delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["agent-clients"] }),

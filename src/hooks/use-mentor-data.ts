@@ -59,7 +59,7 @@ export function useMentorProfiles() {
       if (ids.length === 0) return [];
 
       const [profilesRes, bookingsRes] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("profiles")
           .select("id, display_name, headline, avatar_url, skills, languages, last_seen_at")
           .in("id", ids),
@@ -103,7 +103,7 @@ export function useMentorProfile(id: string | undefined) {
       if (!data) return null;
 
       const [profileRes, bookingsRes] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("profiles")
           .select("display_name, headline, avatar_url, skills, languages, bio, location, last_seen_at")
           .eq("id", id)

@@ -44,7 +44,7 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
   const { data: payments, isLoading: loadingPayments } = useQuery({
     queryKey: ["finance-overview-payments", days, attributedUserIds ? Array.from(attributedUserIds).sort().join(",") : "all"],
     queryFn: async () => {
-      let q = supabase.from("payment_requests")
+      let q = (supabase as any).from("payment_requests")
         .select("id,user_id,payment_type,amount,status,currency,created_at,reviewed_at,third_party_payout,npr_amount")
         .gte("created_at", sinceIso)
         .order("created_at", { ascending: false })

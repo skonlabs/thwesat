@@ -79,7 +79,7 @@ const AiProfileBuilder = () => {
       const { data: urlData } = supabase.storage.from("cv-documents").getPublicUrl(filePath);
 
       // Save to cv_documents table
-      await supabase.from("cv_documents").insert({
+      await (supabase as any).from("cv_documents").insert({
         user_id: user.id,
         file_name: file.name,
         file_url: urlData.publicUrl || filePath,

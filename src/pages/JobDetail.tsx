@@ -44,7 +44,7 @@ const JobDetail = () => {
       if (!job?.employer_id) return null;
 
       const [profileRes, employerRes] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("profiles")
           .select("id, display_name, headline, avatar_url, location, website")
           .eq("id", job.employer_id)
@@ -89,7 +89,7 @@ const JobDetail = () => {
     queryKey: ["cv-documents", user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("cv_documents")
         .select("*")
         .eq("user_id", user.id)

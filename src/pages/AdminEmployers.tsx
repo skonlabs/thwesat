@@ -63,7 +63,7 @@ const AdminEmployers = () => {
       const ids = (data || []).map((e) => e.id);
       if (ids.length === 0) return [];
 
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase as any)
         .from("profiles")
         .select("id, display_name, avatar_url, created_at, bio, headline, location, phone, website, languages, skills, experience, role_title")
         .in("id", ids);
@@ -161,7 +161,7 @@ const AdminEmployers = () => {
     return matchesTab && matchesRole && matchesSearch;
   });
 
-  const selected = employers.find((e: any) => e.id === selectedId);
+  const selected: any = (employers as any[]).find((e: any) => e.id === selectedId);
   const pendingCount = employers.filter((e: any) => (e.verification_status || "pending") === "pending").length;
 
   return (

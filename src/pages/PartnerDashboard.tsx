@@ -50,7 +50,7 @@ const PartnerDashboard = () => {
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
-        supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase
@@ -58,7 +58,7 @@ const PartnerDashboard = () => {
           .select("id", { count: "exact", head: true })
           .eq("status", "active")
           .gte("updated_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        (supabase as any).from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),

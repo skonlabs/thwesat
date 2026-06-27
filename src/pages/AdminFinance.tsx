@@ -75,7 +75,7 @@ const AdminFinance = ({
     queryKey: ["admin-finance-payments", scopeKey],
     queryFn: async () => {
       if (isPartnerScope && scopedIds!.length === 0) return [];
-      let q = supabase.from("payment_requests").select("*").order("created_at", { ascending: false }).limit(50000);
+      let q = (supabase as any).from("payment_requests").select("*").order("created_at", { ascending: false }).limit(50000);
       if (isPartnerScope) q = q.in("user_id", scopedIds!);
       const { data } = await q;
       return data || [];

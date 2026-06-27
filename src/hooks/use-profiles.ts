@@ -50,7 +50,7 @@ export function useAllProfiles(search?: string) {
   return useQuery({
     queryKey: ["all-profiles", search, !!user],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("profiles")
         .select(PUBLIC_PROFILE_FIELDS)
         .order("created_at", { ascending: false })
@@ -82,7 +82,7 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
       const ids = (roleRows ?? []).map((r: any) => r.user_id);
       if (!ids.length) return [] as ProfileData[];
 
-      let query = supabase
+      let query = (supabase as any)
         .from("profiles")
         .select(PUBLIC_PROFILE_FIELDS)
         .in("id", ids)

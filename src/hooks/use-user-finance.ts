@@ -43,7 +43,7 @@ export function useUserFinance(userId: string | null | undefined) {
     queryFn: async (): Promise<UserFinanceRow[]> => {
       if (!userId) return [];
       const [pr, sr, tr, plans, addons] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("payment_requests")
           .select("*")
           .eq("user_id", userId)

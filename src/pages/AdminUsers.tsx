@@ -112,7 +112,7 @@ const AdminUsers = () => {
       const q = debouncedSearch.trim();
       if (q) {
         const [{ data: byName }, emailRowsResp] = await Promise.all([
-          supabase.from("profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
+          (supabase as any).from("profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
           (async () => {
             try {
               return await (supabase as any).from("profiles").select("id").ilike("email", `%${q}%`).limit(500);
@@ -125,7 +125,7 @@ const AdminUsers = () => {
         matchedIds = Array.from(new Set([...(byName || []).map((r: any) => r.id), ...emailMatchIds]));
         if (matchedIds.length === 0) return [];
       }
-      let qb = supabase
+      let qb = (supabase as any)
         .from("profiles")
         .select("id, display_name, avatar_url, headline, bio, location, created_at, skills, languages, is_suspended")
         .order("created_at", { ascending: false });

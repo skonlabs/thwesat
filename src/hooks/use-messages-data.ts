@@ -70,7 +70,7 @@ export function useConversations() {
       )];
 
       const { data: profiles } = otherUserIds.length > 0
-        ? await supabase.from("profiles").select("id, display_name, headline, avatar_url").in("id", otherUserIds)
+        ? await (supabase as any).from("profiles").select("id, display_name, headline, avatar_url").in("id", otherUserIds)
         : { data: [] };
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
