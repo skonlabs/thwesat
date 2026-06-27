@@ -191,10 +191,11 @@ const Settings = () => {
     // Issue #41: wrap the two update calls with error handling and retry logic.
     // Step 1 — schedule deletion on the profiles row.
     const scheduledAt = new Date(Date.now() + DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const { error: scheduleError } = await supabase.from("profiles").update({
+    const { error: scheduleError } = await supabase.from("user_account_state").upsert({
+      user_id: user.id,
       deletion_requested_at: new Date().toISOString(),
       deletion_scheduled_at: scheduledAt,
-    }).eq("id", user.id);
+    });
     if (scheduleError) {
       toast({ title: lang === "my" ? "မအောင်မြင်ပါ" : "Could not schedule deletion", variant: "destructive" });
       return;
