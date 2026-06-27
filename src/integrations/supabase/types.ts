@@ -184,6 +184,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          last_seen_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          last_seen_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          last_seen_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_clients: {
         Row: {
           agent_id: string
@@ -219,6 +246,54 @@ export type Database = {
           name?: string
           notes?: string | null
           updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      agent_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string
+          headline: string | null
+          languages: string[] | null
+          last_seen_at: string | null
+          location: string | null
+          referral_code: string | null
+          updated_at: string
+          user_id: string
+          visibility: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          headline?: string | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          referral_code?: string | null
+          updated_at?: string
+          user_id: string
+          visibility?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          headline?: string | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          referral_code?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility?: string | null
           website?: string | null
         }
         Relationships: []
@@ -723,7 +798,9 @@ export type Database = {
       }
       employer_profiles: {
         Row: {
+          avatar_url: string | null
           benefits: string[] | null
+          bio: string | null
           company_description: string | null
           company_linkedin: string | null
           company_name: string | null
@@ -734,21 +811,30 @@ export type Database = {
           contact_phone: string | null
           cover_url: string | null
           created_at: string | null
+          display_name: string
           full_address: string | null
+          headline: string | null
           hq_country: string | null
           id: string
           industry: string | null
           is_verified: boolean | null
+          languages: string[] | null
+          last_seen_at: string | null
+          location: string | null
           logo_url: string | null
           mission: string | null
           payment_methods: string[] | null
+          referral_code: string | null
           updated_at: string | null
           verification_status: string | null
+          visibility: string | null
           vision: string | null
           what_we_do: string | null
         }
         Insert: {
+          avatar_url?: string | null
           benefits?: string[] | null
+          bio?: string | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
@@ -759,21 +845,30 @@ export type Database = {
           contact_phone?: string | null
           cover_url?: string | null
           created_at?: string | null
+          display_name?: string
           full_address?: string | null
+          headline?: string | null
           hq_country?: string | null
           id: string
           industry?: string | null
           is_verified?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
           logo_url?: string | null
           mission?: string | null
           payment_methods?: string[] | null
+          referral_code?: string | null
           updated_at?: string | null
           verification_status?: string | null
+          visibility?: string | null
           vision?: string | null
           what_we_do?: string | null
         }
         Update: {
+          avatar_url?: string | null
           benefits?: string[] | null
+          bio?: string | null
           company_description?: string | null
           company_linkedin?: string | null
           company_name?: string | null
@@ -784,16 +879,23 @@ export type Database = {
           contact_phone?: string | null
           cover_url?: string | null
           created_at?: string | null
+          display_name?: string
           full_address?: string | null
+          headline?: string | null
           hq_country?: string | null
           id?: string
           industry?: string | null
           is_verified?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
           logo_url?: string | null
           mission?: string | null
           payment_methods?: string[] | null
+          referral_code?: string | null
           updated_at?: string | null
           verification_status?: string | null
+          visibility?: string | null
           vision?: string | null
           what_we_do?: string | null
         }
@@ -1220,6 +1322,99 @@ export type Database = {
           },
         ]
       }
+      jobseeker_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string
+          embedding: string | null
+          embedding_input_hash: string | null
+          embedding_updated_at: string | null
+          experience: string | null
+          has_laptop: boolean | null
+          has_payoneer: boolean | null
+          has_upwork: boolean | null
+          has_wise: boolean | null
+          headline: string | null
+          internet_stable: boolean | null
+          job_search_status: string
+          languages: string[] | null
+          last_seen_at: string | null
+          location: string | null
+          preferred_work_types: string[] | null
+          referral_code: string | null
+          referred_by: string | null
+          remote_ready: boolean | null
+          role_title: string | null
+          skills: string[] | null
+          updated_at: string
+          user_id: string
+          visibility: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
+          experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
+          headline?: string | null
+          internet_stable?: boolean | null
+          job_search_status?: string
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          preferred_work_types?: string[] | null
+          referral_code?: string | null
+          referred_by?: string | null
+          remote_ready?: boolean | null
+          role_title?: string | null
+          skills?: string[] | null
+          updated_at?: string
+          user_id: string
+          visibility?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string
+          embedding?: string | null
+          embedding_input_hash?: string | null
+          embedding_updated_at?: string | null
+          experience?: string | null
+          has_laptop?: boolean | null
+          has_payoneer?: boolean | null
+          has_upwork?: boolean | null
+          has_wise?: boolean | null
+          headline?: string | null
+          internet_stable?: boolean | null
+          job_search_status?: string
+          languages?: string[] | null
+          last_seen_at?: string | null
+          location?: string | null
+          preferred_work_types?: string[] | null
+          referral_code?: string | null
+          referred_by?: string | null
+          remote_ready?: boolean | null
+          role_title?: string | null
+          skills?: string[] | null
+          updated_at?: string
+          user_id?: string
+          visibility?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       mentor_availability_slots: {
         Row: {
           created_at: string
@@ -1412,63 +1607,84 @@ export type Database = {
       mentor_profiles: {
         Row: {
           available_days: string[] | null
+          avatar_url: string | null
           bio: string | null
           bio_my: string | null
           company: string | null
           created_at: string | null
           currency: string | null
+          display_name: string
           expertise: string[] | null
+          headline: string | null
           hourly_rate: number | null
           id: string
           is_available: boolean | null
+          languages: string[] | null
+          last_seen_at: string | null
           location: string | null
           mentoring_since: string | null
           rating_avg: number | null
+          referral_code: string | null
           timezone: string
           title: string | null
           total_mentees: number | null
           total_sessions: number | null
           updated_at: string | null
+          visibility: string | null
         }
         Insert: {
           available_days?: string[] | null
+          avatar_url?: string | null
           bio?: string | null
           bio_my?: string | null
           company?: string | null
           created_at?: string | null
           currency?: string | null
+          display_name?: string
           expertise?: string[] | null
+          headline?: string | null
           hourly_rate?: number | null
           id: string
           is_available?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
           location?: string | null
           mentoring_since?: string | null
           rating_avg?: number | null
+          referral_code?: string | null
           timezone?: string
           title?: string | null
           total_mentees?: number | null
           total_sessions?: number | null
           updated_at?: string | null
+          visibility?: string | null
         }
         Update: {
           available_days?: string[] | null
+          avatar_url?: string | null
           bio?: string | null
           bio_my?: string | null
           company?: string | null
           created_at?: string | null
           currency?: string | null
+          display_name?: string
           expertise?: string[] | null
+          headline?: string | null
           hourly_rate?: number | null
           id?: string
           is_available?: boolean | null
+          languages?: string[] | null
+          last_seen_at?: string | null
           location?: string | null
           mentoring_since?: string | null
           rating_avg?: number | null
+          referral_code?: string | null
           timezone?: string
           title?: string | null
           total_mentees?: number | null
           total_sessions?: number | null
           updated_at?: string | null
+          visibility?: string | null
         }
         Relationships: []
       }
@@ -1828,6 +2044,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_profiles: {
+        Row: {
+          avatar_url: string | null
+          code: string | null
+          contact_email: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          display_name: string
+          is_active: boolean | null
+          last_seen_at: string | null
+          maintenance_rate_y2: number | null
+          maintenance_rate_y3plus: number | null
+          notes: string | null
+          organization_name: string | null
+          payout_cap_pct: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          code?: string | null
+          contact_email?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          display_name?: string
+          is_active?: boolean | null
+          last_seen_at?: string | null
+          maintenance_rate_y2?: number | null
+          maintenance_rate_y3plus?: number | null
+          notes?: string | null
+          organization_name?: string | null
+          payout_cap_pct?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          code?: string | null
+          contact_email?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          display_name?: string
+          is_active?: boolean | null
+          last_seen_at?: string | null
+          maintenance_rate_y2?: number | null
+          maintenance_rate_y3plus?: number | null
+          notes?: string | null
+          organization_name?: string | null
+          payout_cap_pct?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       partner_quality_metrics: {
         Row: {
@@ -3095,6 +3368,18 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      v_user_directory: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          headline: string | null
+          id: string | null
+          last_seen_at: string | null
+          location: string | null
+          role: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
