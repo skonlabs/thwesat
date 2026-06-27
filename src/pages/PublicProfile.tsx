@@ -49,13 +49,13 @@ const PublicProfile = () => {
     queryKey: ["public-profile", id],
     queryFn: async () => {
       if (!id) return null;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
+      const [{ data, error }, { data: roleRow }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", id).maybeSingle(),
+      ]);
       if (error) throw error;
-      return data;
+      if (!data) return null;
+      return { ...data, primary_role: (roleRow as any)?.role ?? null } as any;
     },
     enabled: !!id,
   });
