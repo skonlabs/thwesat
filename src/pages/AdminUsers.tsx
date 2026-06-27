@@ -242,7 +242,7 @@ const AdminUsers = () => {
     const { userId, role, action } = pendingRoleChange;
 
     if (action === "add") {
-      const { error } = await supabase.rpc("set_user_role", { _user_id: userId, _role: role });
+      const { error } = await supabase.rpc("admin_set_user_role", { _user_id: userId, _role: role as any });
       if (error) {
         toast.error(lang === "my" ? "Role သတ်မှတ်၍ မရပါ" : `Failed to set ${role} role`);
       } else {
@@ -250,11 +250,12 @@ const AdminUsers = () => {
         queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
       }
     } else {
-      const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: userId, _role: role });
+      // One role per user — "remove" demotes the user to job_seeker.
+      const { error } = await supabase.rpc("admin_set_user_role", { _user_id: userId, _role: "job_seeker" as any });
       if (error) {
         toast.error(lang === "my" ? "Role ဖယ်ရှား၍ မရပါ" : `Failed to remove ${role} role`);
       } else {
-        toast.success(lang === "my" ? `${role} Role ဖယ်ရှားပြီး` : `${role} role removed`);
+        toast.success(lang === "my" ? `Role ပြောင်းပြီး — job_seeker` : `Role reset to job_seeker`);
         queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
       }
     }
