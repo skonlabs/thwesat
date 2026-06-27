@@ -136,11 +136,11 @@ Deno.serve(async (req) => {
     if (profileHash !== profile.embedding_input_hash) {
       const [vec] = await embedBatch([profileText], openaiKey);
       // pgvector accepts the vector as a JSON-style string '[...]'
-      await admin.from("profiles").update({
+      await admin.from("jobseeker_profiles").update({
         embedding: `[${vec.join(",")}]` as unknown as any,
         embedding_input_hash: profileHash,
         embedding_updated_at: new Date().toISOString(),
-      }).eq("id", user.id);
+      }).eq("user_id", user.id);
     }
 
     // 2) Backfill missing/stale job embeddings (capped per call).
