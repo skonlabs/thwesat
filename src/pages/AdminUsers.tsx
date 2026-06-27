@@ -127,19 +127,25 @@ const AdminUsers = () => {
       }
       let qb = supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages, is_suspended")
+        .select("id, display_name, avatar_url, headline, bio, location, created_at, skills, languages, is_suspended")
         .order("created_at", { ascending: false });
       if (matchedIds) qb = qb.in("id", matchedIds);
       const { data, error } = await qb.range(from, to);
       if (error) throw error;
       const ids = (data || []).map((u: any) => u.id);
       let contactMap = new Map<string, { email: string | null; phone: string | null }>();
+      let roleMap = new Map<string, string>();
       if (ids.length) {
-        const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
+        const [{ data: contacts }, { data: roleRows }] = await Promise.all([
+          supabase.rpc("get_user_contacts_admin", { _ids: ids }),
+          supabase.from("user_roles").select("user_id, role").in("user_id", ids),
+        ]);
         contactMap = new Map((contacts || []).map((c: any) => [c.id, { email: c.email, phone: c.phone }]));
+        roleMap = new Map((roleRows || []).map((r: any) => [r.user_id, r.role]));
       }
       let rows = (data || []).map((u: any) => ({
         ...u,
+        primary_role: roleMap.get(u.id) ?? null,
         email: contactMap.get(u.id)?.email ?? null,
         phone: contactMap.get(u.id)?.phone ?? null,
       }));
