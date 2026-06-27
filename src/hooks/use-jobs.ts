@@ -322,7 +322,7 @@ export function useEmployerApplications(jobId?: string) {
       if (!user) return [];
       let query = supabase
         .from("applications")
-        .select("*, jobs!inner(*)")
+        .select("*, jobs!inner(*), cover_letter_doc:user_documents!applications_cover_letter_id_fkey(parsed_text, file_name, file_url)")
         .eq("jobs.employer_id", user.id)
         .order("created_at", { ascending: false });
       if (jobId) query = query.eq("job_id", jobId);
@@ -335,8 +335,13 @@ export function useEmployerApplications(jobId?: string) {
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location, skills, experience, languages")
         .in("id", applicantIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];
+      const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));
+      return (data || []).map((app: any) => ({
+        ...app,
+        applicant_profile: profileMap.get(app.applicant_id),
+        cover_letter: app.cover_letter_doc?.parsed_text || null,
+      })) as any[];
+
     },
     enabled: !!user,
     staleTime: 30_000,
