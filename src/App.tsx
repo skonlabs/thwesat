@@ -231,9 +231,6 @@ const App = () => (
             <Route path="/employer/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["employer"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
             <Route path="/agent/onboarding" element={<ProtectedRoute><AppRoleGuard allowedRoles={["agent"]}><EmployerOnboarding /></AppRoleGuard></ProtectedRoute>} />
 
-            {/* Delegate Access (no nav) */}
-            <Route path="/access/:token" element={<DelegateAccess />} />
-
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
