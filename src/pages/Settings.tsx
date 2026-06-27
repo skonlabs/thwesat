@@ -498,13 +498,6 @@ const Settings = () => {
         onLink={() => { setTelegramLinked(true); persist({ telegram_linked: true }); }}
         onUnlink={() => { setTelegramLinked(false); persist({ telegram_linked: false, telegram_chat_id: null, telegram_username: null }); }}
       />
-      <DelegateTokenSheet
-        open={showToken}
-        onClose={() => setShowToken(false)}
-        token={activeToken?.token ?? null}
-        onGenerate={generateToken}
-        onRevoke={revokeToken}
-      />
       <FontEncodingSheet open={showFontEncoding} onClose={() => setShowFontEncoding(false)} />
       <PrivacyPolicySheet open={showPrivacyPolicy} onClose={() => setShowPrivacyPolicy(false)} />
 
