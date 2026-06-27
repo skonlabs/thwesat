@@ -298,30 +298,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ai_rate_limits: {
-        Row: {
-          action: string
-          count: number
-          day_bucket: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          action: string
-          count?: number
-          day_bucket?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          action?: string
-          count?: number
-          day_bucket?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       app_config: {
         Row: {
           key: string
@@ -449,92 +425,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      career_track_enrollments: {
-        Row: {
-          completed_at: string | null
-          credits_paid: number
-          enrolled_at: string
-          id: string
-          sessions_completed: number
-          status: string
-          track_id: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          credits_paid: number
-          enrolled_at?: string
-          id?: string
-          sessions_completed?: number
-          status?: string
-          track_id: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          credits_paid?: number
-          enrolled_at?: string
-          id?: string
-          sessions_completed?: number
-          status?: string
-          track_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "career_track_enrollments_track_id_fkey"
-            columns: ["track_id"]
-            isOneToOne: false
-            referencedRelation: "career_tracks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      career_tracks: {
-        Row: {
-          cover_url: string | null
-          created_at: string
-          description_en: string
-          description_my: string
-          id: string
-          is_active: boolean
-          mentor_id: string
-          price_credits: number
-          title_en: string
-          title_my: string
-          total_sessions: number
-          updated_at: string
-        }
-        Insert: {
-          cover_url?: string | null
-          created_at?: string
-          description_en?: string
-          description_my?: string
-          id?: string
-          is_active?: boolean
-          mentor_id: string
-          price_credits: number
-          title_en: string
-          title_my?: string
-          total_sessions?: number
-          updated_at?: string
-        }
-        Update: {
-          cover_url?: string | null
-          created_at?: string
-          description_en?: string
-          description_my?: string
-          id?: string
-          is_active?: boolean
-          mentor_id?: string
-          price_credits?: number
-          title_en?: string
-          title_my?: string
-          total_sessions?: number
-          updated_at?: string
-        }
-        Relationships: []
       }
       community_posts: {
         Row: {
@@ -757,42 +647,6 @@ export type Database = {
           parsed_text?: string | null
           updated_at?: string | null
           user_id?: string
-        }
-        Relationships: []
-      }
-      delegate_tokens: {
-        Row: {
-          created_at: string | null
-          expires_at: string
-          id: string
-          is_revoked: boolean | null
-          owner_id: string
-          permissions: string[] | null
-          token: string
-          used_at: string | null
-          used_by_session: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          is_revoked?: boolean | null
-          owner_id: string
-          permissions?: string[] | null
-          token: string
-          used_at?: string | null
-          used_by_session?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          is_revoked?: boolean | null
-          owner_id?: string
-          permissions?: string[] | null
-          token?: string
-          used_at?: string | null
-          used_by_session?: string | null
         }
         Relationships: []
       }
@@ -1729,67 +1583,6 @@ export type Database = {
           },
         ]
       }
-      mentor_session_escrow: {
-        Row: {
-          booking_id: string
-          created_at: string
-          credits_held: number
-          hold_tx_id: string | null
-          mentee_id: string
-          mentor_id: string
-          refund_tx_id: string | null
-          release_tx_id: string | null
-          resolved_at: string | null
-          status: string
-        }
-        Insert: {
-          booking_id: string
-          created_at?: string
-          credits_held: number
-          hold_tx_id?: string | null
-          mentee_id: string
-          mentor_id: string
-          refund_tx_id?: string | null
-          release_tx_id?: string | null
-          resolved_at?: string | null
-          status?: string
-        }
-        Update: {
-          booking_id?: string
-          created_at?: string
-          credits_held?: number
-          hold_tx_id?: string | null
-          mentee_id?: string
-          mentor_id?: string
-          refund_tx_id?: string | null
-          release_tx_id?: string | null
-          resolved_at?: string | null
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mentor_session_escrow_hold_tx_id_fkey"
-            columns: ["hold_tx_id"]
-            isOneToOne: false
-            referencedRelation: "wallet_transactions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_session_escrow_refund_tx_id_fkey"
-            columns: ["refund_tx_id"]
-            isOneToOne: false
-            referencedRelation: "wallet_transactions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_session_escrow_release_tx_id_fkey"
-            columns: ["release_tx_id"]
-            isOneToOne: false
-            referencedRelation: "wallet_transactions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       messages: {
         Row: {
           content: string
@@ -2186,89 +1979,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "partner_referral_codes_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_statement_revisions: {
-        Row: {
-          action: string
-          actor_id: string
-          created_at: string
-          id: string
-          partner_id: string
-          payment_ids: string[]
-          period_month: number
-          period_year: number
-          reversal_ids: string[]
-          revision_no: number
-          snapshot: Json
-        }
-        Insert: {
-          action: string
-          actor_id: string
-          created_at?: string
-          id?: string
-          partner_id: string
-          payment_ids?: string[]
-          period_month: number
-          period_year: number
-          reversal_ids?: string[]
-          revision_no: number
-          snapshot: Json
-        }
-        Update: {
-          action?: string
-          actor_id?: string
-          created_at?: string
-          id?: string
-          partner_id?: string
-          payment_ids?: string[]
-          period_month?: number
-          period_year?: number
-          reversal_ids?: string[]
-          revision_no?: number
-          snapshot?: Json
-        }
-        Relationships: []
-      }
-      partner_tier_approvals: {
-        Row: {
-          approved_at: string
-          approved_by: string
-          approved_tier_pct: number
-          id: string
-          partner_id: string
-          period_month: number
-          period_year: number
-          reason: string
-        }
-        Insert: {
-          approved_at?: string
-          approved_by: string
-          approved_tier_pct: number
-          id?: string
-          partner_id: string
-          period_month: number
-          period_year: number
-          reason: string
-        }
-        Update: {
-          approved_at?: string
-          approved_by?: string
-          approved_tier_pct?: number
-          id?: string
-          partner_id?: string
-          period_month?: number
-          period_year?: number
-          reason?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_tier_approvals_partner_id_fkey"
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partners"
@@ -3331,44 +3041,6 @@ export type Database = {
         }
         Relationships: []
       }
-      v_active_unlocks: {
-        Row: {
-          expires_at: string | null
-          feature_key: string | null
-          starts_at: string | null
-          target_id: string | null
-          target_type: string | null
-          transaction_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          expires_at?: string | null
-          feature_key?: string | null
-          starts_at?: string | null
-          target_id?: string | null
-          target_type?: string | null
-          transaction_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          expires_at?: string | null
-          feature_key?: string | null
-          starts_at?: string | null
-          target_id?: string | null
-          target_type?: string | null
-          transaction_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feature_unlocks_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "wallet_transactions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       v_user_directory: {
         Row: {
           avatar_url: string | null
@@ -3524,14 +3196,6 @@ export type Database = {
           launch_applied: boolean
           launch_ends_at: string
           mmk: number
-        }[]
-      }
-      consume_delegate_token: {
-        Args: { _session_id: string; _token: string }
-        Returns: {
-          expires_at: string
-          permissions: string[]
-          status: string
         }[]
       }
       create_subscription_payment_request: {
@@ -3770,14 +3434,6 @@ export type Database = {
         Returns: Json
       }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
-      validate_delegate_token: {
-        Args: { _token: string }
-        Returns: {
-          expires_at: string
-          owner_id: string
-          permissions: string[]
-        }[]
-      }
       wallet_adjust: {
         Args: { _delta: number; _note: string; _user_id: string }
         Returns: Json
