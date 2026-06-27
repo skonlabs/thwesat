@@ -107,9 +107,9 @@ Deno.serve(async (req) => {
 
     // 1) Profile embedding (hash-gated).
     const [{ data: profile }, { data: cv }] = await Promise.all([
-      admin.from("profiles")
-        .select("id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding_input_hash")
-        .eq("id", user.id).maybeSingle(),
+      admin.from("jobseeker_profiles")
+        .select("user_id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding_input_hash")
+        .eq("user_id", user.id).maybeSingle(),
       admin.from("cv_documents")
         .select("parsed_text")
         .eq("user_id", user.id)
