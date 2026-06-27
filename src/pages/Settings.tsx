@@ -20,7 +20,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
 import SessionExpirySheet from "@/components/settings/SessionExpirySheet";
 import TelegramLinkSheet from "@/components/settings/TelegramLinkSheet";
-import DelegateTokenSheet from "@/components/settings/DelegateTokenSheet";
+
 import FontEncodingSheet from "@/components/settings/FontEncodingSheet";
 import PrivacyPolicySheet from "@/components/settings/PrivacyPolicySheet";
 
