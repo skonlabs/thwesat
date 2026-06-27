@@ -241,24 +241,6 @@ const Settings = () => {
     await signOut();
   };
 
-  const generateToken = () => {
-    generateTokenMutation.mutate(undefined, {
-      onError: (e: unknown) => {
-        const msg = e instanceof Error ? e.message : "Failed to generate token";
-        toast({ title: msg, variant: "destructive" });
-      },
-    });
-  };
-
-  const revokeToken = () => {
-    if (!activeToken) return;
-    revokeTokenMutation.mutate(activeToken.id, {
-      onError: (e: unknown) => {
-        const msg = e instanceof Error ? e.message : "Failed to revoke token";
-        toast({ title: msg, variant: "destructive" });
-      },
-    });
-  };
 
   const visibilityLabels: Record<string, { my: string; en: string }> = {
     members: { my: "အဖွဲ့ဝင်များသာ", en: "Members only" },
