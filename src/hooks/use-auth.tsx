@@ -24,6 +24,7 @@ interface Profile {
   location: string;
   phone: string;
   website: string;
+  /** Derived from public.user_roles — canonical app_role enum value. */
   primary_role: string;
   skills: string[];
   languages: string[];
@@ -50,7 +51,7 @@ const authProfileFallback = (authUser: User): Profile => ({
   location: "",
   phone: authUser.phone || "",
   website: "",
-  primary_role: String(authUser.user_metadata?.primary_role || "jobseeker"),
+  primary_role: "job_seeker",
   skills: [],
   languages: [],
   experience: "",
@@ -76,32 +77,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchProfile = async (authUser: User) => {
     if (fetchingProfileRef.current) return fetchingProfileRef.current;
     const request = (async () => {
-      // email/phone are restricted at the column level for non-owners.
-      // Fetch the row (without those columns) and merge owner-only contact
-      // info from the SECURITY DEFINER RPC.
-      const [{ data }, { data: contact }] = await Promise.all([
+      const [{ data }, { data: contact }, { data: rolesData }] = await Promise.all([
         supabase
           .from("profiles")
           .select(
-            "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"
+            "id, display_name, avatar_url, headline, bio, location, website, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"
           )
           .eq("id", authUser.id)
           .single(),
         supabase.rpc("get_my_contact_info"),
+        supabase.from("user_roles").select("role").eq("user_id", authUser.id).maybeSingle(),
       ]);
       if (!mountedRef.current) return;
+      const role = (rolesData as any)?.role || "job_seeker";
       if (data) {
         const contactRow = Array.isArray(contact) ? contact[0] : contact;
         const fallback = authProfileFallback(authUser);
         setProfile({
           ...fallback,
           ...(data as unknown as Profile),
+          primary_role: role,
           display_name: (data as any).display_name || fallback.display_name,
           email: contactRow?.email ?? fallback.email,
           phone: contactRow?.phone ?? fallback.phone,
         });
       } else {
-        setProfile(authProfileFallback(authUser));
+        setProfile({ ...authProfileFallback(authUser), primary_role: role });
       }
     })().finally(() => {
       if (fetchingProfileRef.current === request) fetchingProfileRef.current = null;
@@ -117,7 +118,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     mountedRef.current = true;
 
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "TOKEN_REFRESHED") {
@@ -127,20 +127,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         if (session?.user) {
           setProfile(authProfileFallback(session.user));
-          // Use setTimeout to avoid potential deadlock with Supabase auth
           setTimeout(() => fetchProfile(session.user), 0);
-          // Apply intended role from OAuth signup if present.
           if (event === "SIGNED_IN") {
             const pending = (() => { try { return sessionStorage.getItem("thwesat_pending_role"); } catch { return null; } })();
             if (pending) {
               try { sessionStorage.removeItem("thwesat_pending_role"); } catch { /* ignore */ }
               setTimeout(async () => {
                 try {
-                  await supabase.from("profiles").update({ primary_role: pending }).eq("id", session.user.id);
-                  if (pending === "employer" || pending === "agent") {
+                  // Map legacy "jobseeker" → canonical "job_seeker".
+                  const role = pending === "jobseeker" ? "job_seeker" : pending;
+                  await supabase.rpc("assign_my_role", { _role: role as any });
+                  if (role === "employer" || role === "agent") {
                     await supabase.from("employer_profiles").upsert({ id: session.user.id } as any);
                   }
-                  await supabase.rpc("set_user_role", { _user_id: session.user.id, _role: "user" } as any);
+                  fetchProfile(session.user);
                 } catch (e) { console.error("Failed to apply pending role:", e); }
               }, 0);
             }
@@ -148,15 +148,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
         }
-        // Only set loading false here if we've already initialized via getSession
-        // or if this is a subsequent event (sign in/out)
         if (initializedRef.current) {
           setLoading(false);
         }
       }
     );
 
-    // Then get initial session - this is the primary initialization path
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mountedRef.current) return;
       setSession(session);
@@ -176,21 +173,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string, role: string) => {
+    // Normalize legacy "jobseeker" to canonical "job_seeker".
+    const canonicalRole = role === "jobseeker" ? "job_seeker" : role;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { display_name: displayName, primary_role: role },
+        data: { display_name: displayName, primary_role: canonicalRole },
         emailRedirectTo: window.location.origin,
       },
     });
-    // Use the user id from the signUp response directly — reliable even when
-    // email confirmation is required (in which case there is no active session
-    // and supabase.auth.getUser() returns null, silently dropping downstream
-    // updates like partner referral attribution).
     const newUserId = data?.user?.id ?? null;
     if (!error && newUserId) {
-      await supabase.from("profiles").update({ primary_role: role, display_name: displayName }).eq("id", newUserId);
+      await supabase.from("profiles").update({ display_name: displayName }).eq("id", newUserId);
+      // Role is written by the auth.users trigger (handle_new_user); ensure it
+      // exists even if metadata was ignored.
+      try { await supabase.rpc("assign_my_role", { _role: canonicalRole as any }); } catch { /* ignore — likely already assigned */ }
     }
     return { error: error as Error | null, userId: newUserId };
   };
@@ -200,13 +198,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) return { error: error as Error | null };
     const uid = data.user?.id;
     if (uid) {
-      // Block unverified employer/agent accounts from completing sign-in.
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("primary_role")
-        .eq("id", uid)
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid)
         .maybeSingle();
-      const role = (prof as any)?.primary_role;
+      const role = (roleRow as any)?.role;
       if (role === "employer" || role === "agent") {
         const { data: emp } = await supabase
           .from("employer_profiles")
@@ -230,29 +227,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    // NOTE: Do NOT clear React state here — it would trigger route guards to
-    // navigate to /login synchronously, causing an extra render/redirect cycle
-    // before the hard reload below. The hard reload at the end resets all
-    // in-memory state cleanly.
     clearRole();
 
-    // Best-effort global revoke (invalidates refresh tokens server-side).
     try {
       await supabase.auth.signOut({ scope: "global" });
     } catch {
-      // ignore — we still clear local storage below
+      // ignore
     }
-    // Always force a local sign-out so the refresh token cannot silently
-    // restore the session on the next page load / in another tab.
     try {
       await supabase.auth.signOut({ scope: "local" });
     } catch {
       // ignore
     }
 
-    // Defensive cleanup: remove any leftover Supabase auth keys from
-    // localStorage AND sessionStorage (covers cases where signOut bailed
-    // before clearing them, or other tabs/storages).
     try {
       const isAuthKey = (k: string | null) =>
         !!k && (k.startsWith("sb-") || k.includes("supabase.auth") || k.startsWith("thwesat_"));
@@ -265,12 +252,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         keys.forEach((k) => storage.removeItem(k));
       }
     } catch {
-      // ignore storage access errors
+      // ignore
     }
 
-    // Clear any auth-related cookies on the current domain (Supabase usually
-    // uses localStorage, but third-party / custom-domain setups may write
-    // cookies — wipe anything that looks auth-related).
     try {
       const cookies = document.cookie ? document.cookie.split(";") : [];
       for (const c of cookies) {
@@ -291,18 +275,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // ignore
     }
 
-    // Drop any cached query data so a different account can't see stale rows.
     try {
       const { QueryClient } = await import("@tanstack/react-query");
-      // Access the singleton via window if available — otherwise no-op.
       const qc = (window as any).__APP_QUERY_CLIENT__ as InstanceType<typeof QueryClient> | undefined;
       qc?.clear();
     } catch {
       // ignore
     }
 
-    // Force a hard reload to /login so every in-memory store, hook, and
-    // service worker cache is reset.
     try {
       window.location.replace("/login");
     } catch {

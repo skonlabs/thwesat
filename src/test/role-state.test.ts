@@ -23,7 +23,7 @@ describe("useRole zustand store", () => {
   });
 
   it("accepts all 4 valid app roles", () => {
-    for (const r of ["jobseeker", "employer", "agent", "mentor"] as const) {
+    for (const r of ["job_seeker", "employer", "agent", "mentor"] as const) {
       useRole.getState().setRole(r);
       expect(useRole.getState().role).toBe(r);
     }

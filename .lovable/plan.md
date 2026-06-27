@@ -1,61 +1,73 @@
-## Three-part request
 
-### 1) Remove "30-day" auto-expiry copy completely
+# Architecture Refactor Plan
 
-No DB-level auto-expiry exists (we confirmed earlier — the boost is a permanent boolean on `jobs.is_featured`). Only the user-facing copy still says "30 days" / "for X days". I'll sweep every Featured copy string so the message is simply: "Featured placement at the top of search results" (EN) and the Burmese equivalent — no duration.
+Executed as **3 sequential migrations** + **code rewire**. Each migration is independently reviewable. Code changes happen AFTER all migrations are approved so types regenerate cleanly.
 
-Files to update:
-- `src/components/wallet/SpendConfirmSheet.tsx` (line ~126)
-- `src/pages/EmployerPostJob.tsx` (Featured checkbox helper text)
-- `src/pages/Pricing.tsx` (Featured add-on description)
-- Any other "30 day"/"7 day" Featured references (will grep before edit)
+---
 
-### 2) Featured Job — end-to-end gap fixes
+## Migration 1 — Roles canonicalization & single-role enforcement
 
-Findings from the review:
+**Goal:** `user_roles` is the only place roles live. Six roles only: `job_seeker, agent, employer, partner, mentor, admin`. One role per user.
 
-| Gap | Fix |
-|---|---|
-| **Featured slot is consumed but never refunded** when an employer toggles a job off-featured in `EmployerEditJob.tsx`, deletes the job, or admin rejects it. | Add a small server-side RPC `unfeature_job(_job_id)` that flips `is_featured=false` and decrements `featured_jobs_used` (clamped at 0) — wired into the edit page, delete flow, and admin reject. |
-| **Edit Job lets a non-featured job become featured for free** — there's no quota check; it just writes `is_featured=true`. | Edit page now calls `feature_job_with_quota` when toggling on; the form no longer writes `is_featured` directly. |
-| **`EmployerJobs.tsx` "Promote" button still shows** for jobs that are `pending` / `expired` / `closed`. Promoting an inactive job wastes a slot. | Gate the "Promote to Featured" button to `status === 'active'` jobs only (matches current condition already — keeping). Add same guard in RPC. |
-| **Duplicating a job correctly strips `is_featured`** (already done in `EmployerJobs.tsx` line 137). Verified. | No change. |
-| **Public surfaces** (`Welcome.tsx`, `Jobs.tsx`, `HomePage.tsx`) already filter expired listings and sort by `is_featured` desc. | No change. |
+1. Rename `app_role` enum values: keep `job_seeker, agent, employer, partner, mentor, admin`. Drop `moderator`, `user`, `jobseeker` (after backfill).
+2. Backfill: for every profile whose `primary_role` is set but has no `user_roles` row, insert one — mapping `jobseeker → job_seeker`, `administrator → admin`.
+3. Add `UNIQUE(user_id)` on `user_roles` (was unique on `(user_id, role)`).
+4. Update signup trigger to write a single `user_roles` row.
+5. Drop `profiles.primary_role` column.
+6. Rename `subscription_plans.role` → `plan_for_role` (plan attribute, not user role).
+7. Rewrite every RLS policy / SECURITY DEFINER fn / view that reads `profiles.primary_role` to call `has_role(auth.uid(), '<role>')`.
 
-### 3) Candidate Matching for jobs (uses Matching Pack add-on)
+## Migration 2 — Per-role profile split (drop shared `profiles`)
 
-**Eligibility:** an employer/agent has an active, non-expired `addon_purchases` row with `addon.kind = 'matching'`. A helper hook `useHasMatchingPack()` is added so the UI can gate the feature per user.
+**Goal:** Each role has its own profile table. No shared `profiles` table. FKs that pointed at `profiles.id` get re-pointed at `auth.users.id`.
 
-**UI changes (only when pack is active):**
+1. Create `jobseeker_profiles`, `agent_profiles`, `partner_profiles`, `admin_profiles`. Keep existing `mentor_profiles`, `employer_profiles` (they already exist).
+2. Each role table: `user_id uuid PK references auth.users(id)`, `full_name`, `avatar_url`, `created_at`, `updated_at`, plus role-specific columns migrated from current `profiles` (CV link → jobseeker, etc.).
+3. Backfill each role table from current `profiles` joined to `user_roles`.
+4. Re-point FKs (jobs.posted_by, applications.user_id, messages.sender_id, etc.) to `auth.users(id)`.
+5. Drop `profiles_public` view.
+6. Drop `profiles` table.
+7. New helper view `v_user_directory` (id, full_name, avatar_url, role) — UNION over the six role tables — for places that need cross-role display (chat headers, notifications).
+8. Grants + RLS on every new table: self read/write; cross-user read scoped by feature need (e.g. employer can read jobseeker public fields when there's an application).
 
-- `EmployerJobs.tsx` — each job card gets a new action **"View matched candidates"** (alongside existing Promote / Edit / Duplicate).
-- New page **`/employer/jobs/:id/matches`** (`EmployerJobMatches.tsx`):
-  - Calls a new edge function `match-candidates` for the job.
-  - Shows **up to 10 candidates at a time**, with avatar, headline, skills, experience, and match score.
-  - Each candidate has **Reject** and **View profile** (deep-link to `/profile/:user_id`).
-  - When the user rejects ≥ 5 of the visible 10, a **"Show next matches"** button appears. Clicking it removes the rejected ones and tops the list back up to 10 from the next-best unseen candidates. The visible list never exceeds 10.
-  - Rejections are persisted per `(employer_user_id, job_id, seeker_user_id)` so the same rejected candidate isn't shown again in future sessions.
+## Migration 3 — Table consolidation
 
-**Backend changes:**
+1. **Drop** `delegate_tokens` (delete Panic delegate-access feature).
+2. **Drop** `partners` table — partner-specific fields move into `partner_profiles`.
+3. **Drop** `ai_rate_limits`.
+4. **Drop** `partner_tier_approvals`.
+5. **Drop** `partner_statement_revisions`.
+6. **Strip** `partner_monthly_statements` to `id, partner_id, period_month, period_year, created_by, created_at`. Drop the ~30 computed columns. Admin finance UI recomputes on-read from `partner_attributions` + `wallet_transactions`.
+7. **Create** `wallet_transaction_requests` with shape:
+   `id, user_id, request_type (topup|subscription|addon|reversal), amount, currency, reference_id, reference_type, proof_url, payment_method, status (pending|approved|rejected), reviewed_by, reviewed_at, rejection_reason, metadata jsonb, created_at, updated_at`.
+   On `approve` → write `wallet_transactions` ledger row + execute side-effect (activate sub, grant addon, reverse txn).
+8. **Backfill** `wallet_transaction_requests` from `topup_requests`, `subscription_payment_requests`, `payment_requests`, `payment_reversals`.
+9. **Drop** `topup_requests`, `subscription_payment_requests`, `payment_requests`, `payment_reversals`.
+10. **Rename** view `v_active_unlocks` → `active_feature_unlocks`.
 
-- New table `job_candidate_rejections` (employer_user_id, job_id, seeker_user_id, created_at) + RLS so the employer only sees their own rows.
-- New table `job_candidate_matches` cache (job_id, seeker_user_id, score, computed_at) so we don't re-run OpenAI for every page-load; refreshed only when a job's text changes or on explicit "Refresh matches".
-- New edge function `match-candidates`:
-  - Verifies the caller owns the job AND has an active matching pack.
-  - For each seeker `profile` (with a non-empty headline/skills/bio), builds a compact JSON, then asks OpenAI (`text-embedding-3-small` for retrieval + cosine ranking — same pattern as the existing `match-jobs` function) to rank candidates against the job's text.
-  - Returns top N (default 30) excluding already-rejected seekers; the page slices 10 at a time.
-  - Caches results in `job_candidate_matches` for 24 h.
+## Code rewire (after migrations land)
 
-**Why embeddings, not chat-completion:** the existing `match-jobs` edge function already uses embeddings, the project is already wired for embedding-based matching, it's deterministic, ~100× cheaper than asking GPT to rank, and works at the scale of "all resumes in the system". "Uses OpenAI" remains true.
+- Remove switch-role UI entirely: delete role-switcher component, `switch_role` RPC calls, role-switching routes. `useUserRoles` returns single role.
+- Replace every `profile.primary_role` read with `useUserRoles().role`.
+- Replace every `profile.email/phone` read with `user.email/user.phone` from `useAuth()`.
+- Split `useProfile` into `useJobseekerProfile`, `useEmployerProfile`, etc. Route components fetch their own role's profile.
+- Rewrite payment flows (`TopUp.tsx`, `Pricing.tsx`, `Checkout` sheets, admin payment review screens) to use `wallet_transaction_requests`.
+- Rewrite admin Partner Finance dashboard to recompute monthly numbers on-read.
+- Delete delegate-access screens/components, AI rate-limit guards, partner tier-approval admin screen, statement-revisions UI.
+- Update `match-candidates` edge function & any other fn referencing dropped tables.
+- Verify with Playwright: signup (each role), login, post job, apply, chat, top up, buy subscription, buy addon, admin approve payment, partner statement view.
 
-### Technical details (for review)
+## Out of scope
 
-- New migration: `unfeature_job` RPC, `job_candidate_rejections` table + RLS + grants, `job_candidate_matches` table + RLS + grants.
-- New edge function: `supabase/functions/match-candidates/index.ts` (uses `OPENAI_API_KEY` — already configured for `match-jobs`).
-- New hook: `src/hooks/use-matching-pack.ts` (`useHasMatchingPack()`).
-- New page: `src/pages/EmployerJobMatches.tsx` + route registration in `src/App.tsx`.
-- `EmployerJobs.tsx`: add "View matches" action (gated), wire to new page.
-- `EmployerEditJob.tsx`: route featured-toggle through `feature_job_with_quota` / `unfeature_job`.
-- `SpendConfirmSheet.tsx`, `EmployerPostJob.tsx`, `Pricing.tsx`: drop "30 days" copy.
+- Multi-role-per-user UX (explicitly forbidden by #3).
+- Touching `auth.users`, storage buckets, or realtime config.
+- Renaming `app_role` type itself (only enum values change).
 
-No design tokens or routing patterns change. No new dependencies.
+## Risk callouts
+
+- **Drop `profiles` is destructive** — every FK across the schema repoints. Some indexes will need to be re-created. Estimated 60-80 line changes per migration file.
+- **Stripping `partner_monthly_statements`** loses historical snapshots. If you ever change revenue-share rules later, old statements will recompute with new rules. Accept?
+- **Dropping `ai_rate_limits`** means a single user can spam CV-parse / match-candidates / cover-letter and burn OpenAI budget. No mitigation unless we add gateway-level limits later.
+- **Dropping `delegate_tokens`** removes the Panic feature documented in `mem://features/safety-and-security`. Memory file will need updating.
+
+Reply **"go"** to start with Migration 1. I'll wait for the Supabase approval prompt on each migration before moving to the next.

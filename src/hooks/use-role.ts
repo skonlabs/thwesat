@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
-export type UserRole = "jobseeker" | "employer" | "agent" | "mentor";
+export type UserRole = "job_seeker" | "employer" | "agent" | "mentor";
 
 const ROLE_KEY = "thwesat_role";
-const VALID_ROLES: UserRole[] = ["jobseeker", "employer", "agent", "mentor"];
+const VALID_ROLES: UserRole[] = ["job_seeker", "employer", "agent", "mentor"];
 
 function getStoredRole(): UserRole {
   const stored = localStorage.getItem(ROLE_KEY);
@@ -14,7 +14,7 @@ function getStoredRole(): UserRole {
   if (stored !== null) {
     localStorage.removeItem(ROLE_KEY);
   }
-  return "jobseeker";
+  return "job_seeker";
 }
 
 /** Removes the persisted role from localStorage (call on sign-out). */

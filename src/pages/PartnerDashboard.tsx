@@ -62,7 +62,7 @@ const PartnerDashboard = () => {
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "jobseeker"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "job_seeker"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "agent"),
       ]);
       const totalPaymentApprovals =
@@ -132,7 +132,7 @@ const PartnerDashboard = () => {
 
   // View-only people directory — distinct cards per audience
   const peopleLinks = [
-    { label: { en: "Job Seekers", my: "အလုပ်ရှာသူများ" }, count: counts?.seekers || 0, path: "/partner/users?role=jobseeker", icon: Users },
+    { label: { en: "Job Seekers", my: "အလုပ်ရှာသူများ" }, count: counts?.seekers || 0, path: "/partner/users?role=job_seeker", icon: Users },
     { label: { en: "Employers", my: "အလုပ်ရှင်များ" }, count: counts?.employers || 0, path: "/partner/users?role=employer", icon: Building2 },
     { label: { en: "Mentors", my: "လမ်းညွှန်များ" }, count: counts?.mentors || 0, path: "/partner/users?role=mentor", icon: Shield },
     { label: { en: "Agents", my: "အေဂျင့်များ" }, count: counts?.agents || 0, path: "/partner/users?role=agent", icon: Users },

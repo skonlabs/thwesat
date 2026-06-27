@@ -128,7 +128,7 @@ const Jobs = () => {
   const { user } = useAuth();
   const requireAuth = useGuestGate();
   const { role } = useRole();
-  const isSeeker = role === "jobseeker";
+  const isSeeker = role === "job_seeker";
 
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeCategory, setActiveCategory] = useSearchParamState("cat", "All");

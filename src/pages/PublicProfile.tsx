@@ -136,7 +136,7 @@ const PublicProfile = () => {
     { ok: !!profile.has_wise, icon: Wallet, en: "Wise account", my: "Wise အကောင့်" },
     { ok: !!profile.has_upwork, icon: Wallet, en: "Upwork account", my: "Upwork အကောင့်" },
   ];
-  const readinessVisible = profile.primary_role === "jobseeker" && readiness.some(r => r.ok);
+  const readinessVisible = profile.primary_role === "job_seeker" && readiness.some(r => r.ok);
 
   return (
     <div className="min-h-dvh bg-background pb-24">
@@ -165,7 +165,7 @@ const PublicProfile = () => {
                     <MapPin className="h-3 w-3" strokeWidth={1.5} /> {profile.location}
                   </span>
                 )}
-                {profile.primary_role === "jobseeker" && (() => {
+                {profile.primary_role === "job_seeker" && (() => {
                   const s = (profile as any).job_search_status || "open";
                   const map: Record<string, { en: string; my: string; cls: string }> = {
                     open: { en: "Open for Job", my: "အလုပ်လက်ခံနိုင်", cls: "bg-emerald/10 text-emerald" },

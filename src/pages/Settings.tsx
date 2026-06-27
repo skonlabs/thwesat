@@ -36,7 +36,7 @@ const Settings = () => {
   const revokeTokenMutation = useRevokeDelegateToken();
   const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
-  const isJobSeeker = hasRole("jobseeker");
+  const isJobSeeker = hasRole("job_seeker");
   const isAgent = hasRole("agent");
   const isEmployer = hasRole("employer");
   // Payment History only for job seekers, mentors, employers — admin/agent/partner have a dedicated Finance page.

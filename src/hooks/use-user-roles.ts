@@ -48,7 +48,7 @@ export function useUserRoles() {
   const isModerator = false; // Moderator role retired — kept as a stub so legacy call sites keep compiling.
   const isPartner = systemRoles?.includes("partner") ?? false;
   const isSystemRole = isAdmin || isPartner;
-  const primaryRole = (profile?.primary_role as UserRole) || "jobseeker";
+  const primaryRole = (profile?.primary_role as UserRole) || "job_seeker";
   const isLoading = authLoading || mentorLoading || rolesLoading;
 
   const allowedRoles: UserRole[] = [];
@@ -60,7 +60,7 @@ export function useUserRoles() {
     } else if (primaryRole === "agent") {
       allowedRoles.push("agent");
     } else {
-      allowedRoles.push("jobseeker");
+      allowedRoles.push("job_seeker");
     }
 
     // Mentor access if they have a mentor profile or signed up as mentor

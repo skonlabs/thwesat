@@ -30,7 +30,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 
 const roleColors: Record<string, string> = {
-  jobseeker: "bg-muted text-muted-foreground",
+  job_seeker: "bg-muted text-muted-foreground",
   employer: "bg-primary/10 text-primary",
   agent: "bg-accent/15 text-accent-foreground",
   mentor: "bg-emerald/10 text-emerald",
@@ -206,7 +206,7 @@ const AdminUsers = () => {
   const suspendChanged = selected && draftSuspended !== !!selected.is_suspended;
   const hasUnsavedChanges = !!(rolesChanged || suspendChanged);
 
-  const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
+  const seekerCount = users.filter((u: any) => u.primary_role === "job_seeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
@@ -267,7 +267,7 @@ const AdminUsers = () => {
           <div className="mb-4 grid grid-cols-5 gap-2">
             {[
               { label: lang === "my" ? "စုစုပေါင်း" : "All", count: users.length, filterVal: "all" },
-              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "jobseeker" },
+              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "job_seeker" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
               { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
@@ -357,7 +357,7 @@ const AdminUsers = () => {
                               {user.email || (lang === "my" ? "အီးမေးလ် မရှိ" : "no email")} · {lang === "my" ? "စတင်ရက်" : "Joined"}: {joinedDate}
                             </p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>
+                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.job_seeker}`}>
                             {user.primary_role}
                           </span>
                         </button>
@@ -427,7 +427,7 @@ const AdminUsers = () => {
                     <h2 className="truncate text-base font-bold text-foreground">{selected.display_name || "User"}</h2>
                     <p className="truncate text-xs text-muted-foreground">{selected.email}</p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.jobseeker}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.job_seeker}`}>
                         {selected.primary_role}
                       </span>
                       {selectedSystemRoles.includes("admin") && (
