@@ -535,13 +535,14 @@ const AdminUsers = () => {
                       const toAdd = [...draftRoles].filter((r) => !initial.has(r));
                       const toRemove = [...initial].filter((r) => !draftRoles.has(r));
                       let hadError = false;
-                      for (const role of toAdd) {
-                        const { error } = await supabase.rpc("set_user_role", { _user_id: selected.id, _role: role as any });
-                        if (error) { hadError = true; toast.error(`Failed to add ${role}: ${error.message}`); }
-                      }
-                      for (const role of toRemove) {
-                        const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: selected.id, _role: role });
-                        if (error) { hadError = true; toast.error(`Failed to remove ${role}: ${error.message}`); }
+                      // Single-role per user: take the last "add" as the new role,
+                      // or fall back to job_seeker if every role was removed.
+                      let newRole: string | null = null;
+                      if (toAdd.length) newRole = toAdd[toAdd.length - 1];
+                      else if (toRemove.length && draftRoles.size === 0) newRole = "job_seeker";
+                      if (newRole) {
+                        const { error } = await supabase.rpc("admin_set_user_role", { _user_id: selected.id, _role: newRole as any });
+                        if (error) { hadError = true; toast.error(`Failed to set ${newRole}: ${error.message}`); }
                       }
                       if (suspendChanged) {
                         const { error } = await supabase.rpc("set_user_suspended" as any, { _user_id: selected.id, _suspended: draftSuspended });
