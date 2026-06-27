@@ -99,11 +99,12 @@ const Profile = () => {
         .from("profiles")
         .select("id, display_name, avatar_url, created_at")
         .in("id", referredIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+      const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));
       return referrals.map(r => ({
-        ...profileMap.get(r.referred_id!),
+        ...(profileMap.get(r.referred_id!) || {}),
         referral_date: r.created_at,
-      })).filter(r => r.display_name);
+      })).filter((r: any) => r.display_name);
+
     },
     enabled: !!profile?.id,
   });
@@ -114,7 +115,7 @@ const Profile = () => {
     queryFn: async () => {
       if (!profile?.id) return [];
       const { data } = await (supabase as any)
-        .from("cv_documents")
+        .from("user_documents")
         .select("*")
         .eq("user_id", profile.id)
         .order("created_at", { ascending: false });
@@ -155,7 +156,7 @@ const Profile = () => {
   const deleteCv = async (id: string, fileUrl: string) => {
     // Delete the row FIRST so a storage-cleanup failure can never leave a
     // dangling DB record pointing at a missing file.
-    const { error } = await (supabase as any).from("cv_documents").delete().eq("id", id);
+    const { error } = await (supabase as any).from("user_documents").delete().eq("id", id);
     if (error) return;
     const path = getCvStoragePath(fileUrl);
     if (path) {

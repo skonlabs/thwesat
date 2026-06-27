@@ -97,9 +97,10 @@ const ModeratorDashboard = () => {
       const userIds = [...new Set((data || []).map((p: any) => p.user_id))];
       if (!userIds.length) return (data || []).map((p: any) => ({ ...p, profile: null }));
       const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", userIds);
-      const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds });
+      const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds as string[] });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
-      const pMap = new Map((profiles || []).map(p => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
+      const pMap = new Map(((profiles as any[]) || []).map((p: any) => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
+
       return (data || []).map((p: any) => ({ ...p, profile: pMap.get(p.user_id) }));
     },
   });
@@ -453,7 +454,7 @@ const ModeratorDashboard = () => {
         {selectedPost && !showRemoval && (
           <BottomSheet onClose={() => setSelectedPostId(null)}>
             <span className="mb-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{selectedPost.category || "general"}</span>
-            <p className="mb-1 text-xs text-muted-foreground">by {selectedPost.author?.display_name || "User"} · {formatTime(selectedPost.created_at)}</p>
+            <p className="mb-1 text-xs text-muted-foreground">by {(selectedPost.author as any)?.display_name || "User"} · {formatTime(selectedPost.created_at)}</p>
             <div className="my-4 rounded-xl bg-muted p-4">
               <p className="text-sm leading-relaxed text-foreground">{lang === "my" ? selectedPost.content_my : (selectedPost.content_en || selectedPost.content_my)}</p>
               {selectedPost.image_url && (

@@ -79,7 +79,7 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
       if (ids.length) {
         const { data: profs } = await (supabase as any).from("profiles").select("id, display_name").in("id", ids);
         const byId = new Map((profs || []).map((p: any) => [p.id, p.display_name as string]));
-        return list.map(r => ({ ...r, changer_name: r.changed_by ? byId.get(r.changed_by) || null : null }));
+        return list.map(r => ({ ...r, changer_name: (r.changed_by ? (byId.get(r.changed_by) as string | undefined) || null : null) as any }));
       }
       return list;
     },

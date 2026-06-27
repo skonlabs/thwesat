@@ -293,7 +293,6 @@ export type Database = {
           applicant_id: string
           cover_letter_id: string | null
           created_at: string | null
-          cv_document_id: string | null
           forwarded_to_email: string | null
           id: string
           interview_date: string | null
@@ -311,7 +310,6 @@ export type Database = {
           applicant_id: string
           cover_letter_id?: string | null
           created_at?: string | null
-          cv_document_id?: string | null
           forwarded_to_email?: string | null
           id?: string
           interview_date?: string | null
@@ -329,7 +327,6 @@ export type Database = {
           applicant_id?: string
           cover_letter_id?: string | null
           created_at?: string | null
-          cv_document_id?: string | null
           forwarded_to_email?: string | null
           id?: string
           interview_date?: string | null
@@ -2588,10 +2585,6 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
-      }
-      admin_attribute_user: {
-        Args: { _channel?: string; _partner_id: string; _user_id: string }
-        Returns: string
       }
       admin_confirm_user_email: {
         Args: { _user_id: string }

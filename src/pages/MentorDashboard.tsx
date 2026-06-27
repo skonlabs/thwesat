@@ -242,7 +242,7 @@ const MentorDashboard = () => {
         <div className="grid gap-3 md:grid-cols-2">
           {filteredBookings.slice(0, 5).map((booking: any, i: number) => {
             const sc = statusConfig[booking.status] || statusConfig.pending;
-            const mentee = menteeMap.get(booking.mentee_id);
+            const mentee = menteeMap.get(booking.mentee_id) as any;
             return (
               <motion.div key={booking.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                 className="rounded-xl border border-border bg-card p-4">

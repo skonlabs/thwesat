@@ -90,7 +90,7 @@ const JobDetail = () => {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await (supabase as any)
-        .from("cv_documents")
+        .from("user_documents")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });

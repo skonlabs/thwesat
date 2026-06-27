@@ -170,6 +170,26 @@ export function useApplyToJob() {
   return useMutation({
     mutationFn: async ({ jobId, coverLetter, cvDocumentId }: { jobId: string; coverLetter?: string; cvDocumentId?: string }) => {
       if (!user) throw new Error("Not authenticated");
+
+      // If a manual cover letter was provided, persist it as a user_document of type "Cover"
+      // so we can store its id in applications.cover_letter_id (FK to user_documents).
+      let coverLetterId: string | null = null;
+      if (coverLetter && coverLetter.trim().length > 0) {
+        const { data: doc, error: docErr } = await (supabase as any)
+          .from("user_documents")
+          .insert({
+            user_id: user.id,
+            file_name: `cover-letter-${jobId}.txt`,
+            file_url: "",
+            file_type: "Cover",
+            parsed_text: coverLetter,
+          })
+          .select("id")
+          .single();
+        if (docErr) throw docErr;
+        coverLetterId = doc?.id ?? null;
+      }
+
       // If a previous application exists (e.g. withdrawn / rejected), reactivate it
       // instead of inserting (which would violate the UNIQUE(job_id, applicant_id) constraint).
       const { data: existing } = await supabase
@@ -183,8 +203,8 @@ export function useApplyToJob() {
           .from("applications")
           .update({
             status: "applied",
-            cover_letter: coverLetter || "",
-            cv_document_id: cvDocumentId || null,
+            cover_letter_id: coverLetterId,
+            resume_id: cvDocumentId || null,
             withdrawn_at: null,
             rejection_reason: "",
             rejection_reason_my: "",
@@ -198,12 +218,13 @@ export function useApplyToJob() {
           .insert([{
             applicant_id: user.id,
             job_id: jobId,
-            cover_letter: coverLetter || "",
-            cv_document_id: cvDocumentId || null,
+            cover_letter_id: coverLetterId,
+            resume_id: cvDocumentId || null,
             status: "applied",
           } as any]);
         if (error) throw error;
       }
+
 
       // Notify employer about new application
       const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my, company").eq("id", jobId).single();
@@ -301,7 +322,7 @@ export function useEmployerApplications(jobId?: string) {
       if (!user) return [];
       let query = supabase
         .from("applications")
-        .select("*, jobs!inner(*)")
+        .select("*, jobs!inner(*), cover_letter_doc:user_documents!applications_cover_letter_id_fkey(parsed_text, file_name, file_url)")
         .eq("jobs.employer_id", user.id)
         .order("created_at", { ascending: false });
       if (jobId) query = query.eq("job_id", jobId);
@@ -314,8 +335,13 @@ export function useEmployerApplications(jobId?: string) {
         .from("profiles")
         .select("id, display_name, headline, avatar_url, location, skills, experience, languages")
         .in("id", applicantIds);
-      const profileMap = new Map((profiles || []).map(p => [p.id, p]));
-      return (data || []).map(app => ({ ...app, applicant_profile: profileMap.get(app.applicant_id) })) as any[];
+      const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));
+      return (data || []).map((app: any) => ({
+        ...app,
+        applicant_profile: profileMap.get(app.applicant_id),
+        cover_letter: app.cover_letter_doc?.parsed_text || null,
+      })) as any[];
+
     },
     enabled: !!user,
     staleTime: 30_000,

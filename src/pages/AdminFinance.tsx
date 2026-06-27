@@ -113,7 +113,7 @@ const AdminFinance = ({
   // ===== Aggregates =====
   const allPayments = payments || [];
   const allEarnings = earnings || [];
-  const allPartner = partnerStmts || [];
+  const allPartner: any[] = (partnerStmts as any) || [];
 
   const approved = allPayments.filter((p) => p.status === "approved");
   const pending = allPayments.filter((p) => p.status === "pending");

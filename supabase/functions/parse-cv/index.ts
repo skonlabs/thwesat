@@ -254,7 +254,7 @@ Rules:
     // can drive personalized job matching without re-parsing on every load.
     try {
       await supabase
-        .from("cv_documents")
+        .from("user_documents")
         .update({
           parsed_text: parsedText,
           parsed_data: parsed,
