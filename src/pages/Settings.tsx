@@ -31,9 +31,6 @@ const Settings = () => {
   const { signOut, user } = useAuth();
   const { data: settings } = useUserSettings();
   const updateSettings = useUpdateUserSettings();
-  const { data: activeToken } = useActiveDelegateToken();
-  const generateTokenMutation = useGenerateDelegateToken();
-  const revokeTokenMutation = useRevokeDelegateToken();
   const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("job_seeker");
