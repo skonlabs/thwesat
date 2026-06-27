@@ -238,14 +238,18 @@ function ReferralCodeUsage({ lang }: { lang: "en" | "my" }) {
       }>;
       const partnerIds = Array.from(new Set(rows.map((r) => r.partner_id)));
       const userIds = Array.from(new Set(rows.map((r) => r.used_by).filter(Boolean) as string[]));
-      const [{ data: partners }, profilesRes] = await Promise.all([
+      const [{ data: partners }, profilesRes, rolesRes] = await Promise.all([
         (supabase as any).from("partners").select("id, name, code").in("id", partnerIds),
         userIds.length
-          ? supabase.from("profiles").select("id, display_name, email, primary_role").in("id", userIds)
+          ? supabase.from("profiles").select("id, display_name, email").in("id", userIds)
+          : Promise.resolve({ data: [] as any[] }),
+        userIds.length
+          ? supabase.from("user_roles").select("user_id, role").in("user_id", userIds)
           : Promise.resolve({ data: [] as any[] }),
       ]);
       const partnerMap = new Map((partners ?? []).map((p: any) => [p.id, p]));
-      const profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, p]));
+      const roleMap = new Map(((rolesRes as any).data ?? []).map((r: any) => [r.user_id, r.role]));
+      const profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, { ...p, primary_role: roleMap.get(p.id) ?? null }]));
       return rows.map((r) => ({
         ...r,
         partner: partnerMap.get(r.partner_id) as { name: string; code: string } | undefined,

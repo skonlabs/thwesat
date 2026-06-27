@@ -14,7 +14,7 @@ const WalletChip = () => {
   const { role } = useRole();
   const { data: wallet } = useWallet();
 
-  if (role !== "jobseeker" && role !== "mentor") return null;
+  if (role !== "job_seeker" && role !== "mentor") return null;
 
   const balance = wallet?.balance_credits ?? 0;
   return (

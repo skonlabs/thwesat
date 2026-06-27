@@ -34,7 +34,7 @@ const SearchTalent = () => {
   const { lang } = useLanguage();
   const { data: profiles = [], isLoading } = useAllProfiles();
   const { data: boostedMap = {} } = useBoostedProfileIds();
-  const filteredByRole = profiles.filter(p => p.primary_role === "jobseeker");
+  const filteredByRole = profiles.filter(p => p.primary_role === "job_seeker");
   const [search, setSearch] = useSearchParamState("q", "");
   const [activeSkill, setActiveSkill] = useSearchParamState("skill", "All");
   const [showFilters, setShowFilters] = useState(false);

@@ -65,11 +65,13 @@ const AdminEmployers = () => {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, created_at, primary_role, bio, headline, location, phone, website, languages, skills, experience, role_title")
+        .select("id, display_name, avatar_url, created_at, bio, headline, location, phone, website, languages, skills, experience, role_title")
         .in("id", ids);
+      const { data: roles } = await supabase.from("user_roles").select("user_id, role").in("user_id", ids);
+      const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
-      const profileMap = new Map((profiles || []).map((p) => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
+      const profileMap = new Map((profiles || []).map((p: any) => [p.id, { ...p, primary_role: roleMap.get(p.id) ?? "employer", email: contactMap.get(p.id) ?? null }]));
 
       return (data || []).map((emp) => ({
         ...emp,

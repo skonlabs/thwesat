@@ -641,7 +641,7 @@ const Community = () => {
                                                     toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
                                                     return;
                                                   }
-                                                  const { data: staff } = await supabase.from("user_roles").select("user_id, role").in("role", ["admin", "moderator"]);
+                                                  const { data: staff } = await supabase.from("user_roles").select("user_id, role").eq("role", "admin");
                                                   if (staff && staff.length) {
                                                     await supabase.from("notifications").insert(
                                                       staff.map((s: { user_id: string }) => ({

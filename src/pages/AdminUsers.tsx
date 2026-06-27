@@ -30,7 +30,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { useStartConversation } from "@/hooks/use-start-conversation";
 
 const roleColors: Record<string, string> = {
-  jobseeker: "bg-muted text-muted-foreground",
+  job_seeker: "bg-muted text-muted-foreground",
   employer: "bg-primary/10 text-primary",
   agent: "bg-accent/15 text-accent-foreground",
   mentor: "bg-emerald/10 text-emerald",
@@ -127,19 +127,25 @@ const AdminUsers = () => {
       }
       let qb = supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, headline, bio, location, primary_role, created_at, skills, languages, is_suspended")
+        .select("id, display_name, avatar_url, headline, bio, location, created_at, skills, languages, is_suspended")
         .order("created_at", { ascending: false });
       if (matchedIds) qb = qb.in("id", matchedIds);
       const { data, error } = await qb.range(from, to);
       if (error) throw error;
       const ids = (data || []).map((u: any) => u.id);
       let contactMap = new Map<string, { email: string | null; phone: string | null }>();
+      let roleMap = new Map<string, string>();
       if (ids.length) {
-        const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: ids });
+        const [{ data: contacts }, { data: roleRows }] = await Promise.all([
+          supabase.rpc("get_user_contacts_admin", { _ids: ids }),
+          supabase.from("user_roles").select("user_id, role").in("user_id", ids),
+        ]);
         contactMap = new Map((contacts || []).map((c: any) => [c.id, { email: c.email, phone: c.phone }]));
+        roleMap = new Map((roleRows || []).map((r: any) => [r.user_id, r.role]));
       }
       let rows = (data || []).map((u: any) => ({
         ...u,
+        primary_role: roleMap.get(u.id) ?? null,
         email: contactMap.get(u.id)?.email ?? null,
         phone: contactMap.get(u.id)?.phone ?? null,
       }));
@@ -206,7 +212,7 @@ const AdminUsers = () => {
   const suspendChanged = selected && draftSuspended !== !!selected.is_suspended;
   const hasUnsavedChanges = !!(rolesChanged || suspendChanged);
 
-  const seekerCount = users.filter((u: any) => u.primary_role === "jobseeker").length;
+  const seekerCount = users.filter((u: any) => u.primary_role === "job_seeker").length;
   const employerCount = users.filter((u: any) => u.primary_role === "employer").length;
   const agentCount = users.filter((u: any) => u.primary_role === "agent").length;
   const mentorCount = users.filter((u: any) => u.primary_role === "mentor").length;
@@ -236,7 +242,7 @@ const AdminUsers = () => {
     const { userId, role, action } = pendingRoleChange;
 
     if (action === "add") {
-      const { error } = await supabase.rpc("set_user_role", { _user_id: userId, _role: role });
+      const { error } = await supabase.rpc("admin_set_user_role", { _user_id: userId, _role: role as any });
       if (error) {
         toast.error(lang === "my" ? "Role သတ်မှတ်၍ မရပါ" : `Failed to set ${role} role`);
       } else {
@@ -244,11 +250,12 @@ const AdminUsers = () => {
         queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
       }
     } else {
-      const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: userId, _role: role });
+      // One role per user — "remove" demotes the user to job_seeker.
+      const { error } = await supabase.rpc("admin_set_user_role", { _user_id: userId, _role: "job_seeker" as any });
       if (error) {
         toast.error(lang === "my" ? "Role ဖယ်ရှား၍ မရပါ" : `Failed to remove ${role} role`);
       } else {
-        toast.success(lang === "my" ? `${role} Role ဖယ်ရှားပြီး` : `${role} role removed`);
+        toast.success(lang === "my" ? `Role ပြောင်းပြီး — job_seeker` : `Role reset to job_seeker`);
         queryClient.invalidateQueries({ queryKey: ["admin-all-user-roles"] });
       }
     }
@@ -267,7 +274,7 @@ const AdminUsers = () => {
           <div className="mb-4 grid grid-cols-5 gap-2">
             {[
               { label: lang === "my" ? "စုစုပေါင်း" : "All", count: users.length, filterVal: "all" },
-              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "jobseeker" },
+              { label: lang === "my" ? "အလုပ်ရှာ" : "Seekers", count: seekerCount, filterVal: "job_seeker" },
               { label: lang === "my" ? "အလုပ်ရှင်" : "Employers", count: employerCount, filterVal: "employer" },
               { label: lang === "my" ? "အေဂျင့်" : "Agents", count: agentCount, filterVal: "agent" },
               { label: lang === "my" ? "လမ်းညွှန်" : "Mentors", count: mentorCount, filterVal: "mentor" },
@@ -357,7 +364,7 @@ const AdminUsers = () => {
                               {user.email || (lang === "my" ? "အီးမေးလ် မရှိ" : "no email")} · {lang === "my" ? "စတင်ရက်" : "Joined"}: {joinedDate}
                             </p>
                           </div>
-                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.jobseeker}`}>
+                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[user.primary_role] || roleColors.job_seeker}`}>
                             {user.primary_role}
                           </span>
                         </button>
@@ -427,7 +434,7 @@ const AdminUsers = () => {
                     <h2 className="truncate text-base font-bold text-foreground">{selected.display_name || "User"}</h2>
                     <p className="truncate text-xs text-muted-foreground">{selected.email}</p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.jobseeker}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${roleColors[selected.primary_role] || roleColors.job_seeker}`}>
                         {selected.primary_role}
                       </span>
                       {selectedSystemRoles.includes("admin") && (
@@ -528,13 +535,14 @@ const AdminUsers = () => {
                       const toAdd = [...draftRoles].filter((r) => !initial.has(r));
                       const toRemove = [...initial].filter((r) => !draftRoles.has(r));
                       let hadError = false;
-                      for (const role of toAdd) {
-                        const { error } = await supabase.rpc("set_user_role", { _user_id: selected.id, _role: role as any });
-                        if (error) { hadError = true; toast.error(`Failed to add ${role}: ${error.message}`); }
-                      }
-                      for (const role of toRemove) {
-                        const { error } = await supabase.rpc("revoke_user_role" as any, { _user_id: selected.id, _role: role });
-                        if (error) { hadError = true; toast.error(`Failed to remove ${role}: ${error.message}`); }
+                      // Single-role per user: take the last "add" as the new role,
+                      // or fall back to job_seeker if every role was removed.
+                      let newRole: string | null = null;
+                      if (toAdd.length) newRole = toAdd[toAdd.length - 1];
+                      else if (toRemove.length && draftRoles.size === 0) newRole = "job_seeker";
+                      if (newRole) {
+                        const { error } = await supabase.rpc("admin_set_user_role", { _user_id: selected.id, _role: newRole as any });
+                        if (error) { hadError = true; toast.error(`Failed to set ${newRole}: ${error.message}`); }
                       }
                       if (suspendChanged) {
                         const { error } = await supabase.rpc("set_user_suspended" as any, { _user_id: selected.id, _suspended: draftSuspended });

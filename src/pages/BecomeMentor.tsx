@@ -67,17 +67,9 @@ const BecomeMentor = () => {
 
     setLoading(true);
     try {
-      // Only update primary_role if the user is a jobseeker.
-      // Employers/Agents keep their primary_role — they just ADD mentor capability.
-      const { data: currentProfile } = await supabase
-        .from("profiles")
-        .select("primary_role")
-        .eq("id", user.id)
-        .single();
-
-      if (currentProfile?.primary_role !== "employer" && currentProfile?.primary_role !== "agent") {
-        await supabase.from("profiles").update({ primary_role: "mentor" }).eq("id", user.id);
-      }
+      // RPC handles role logic: job_seekers are promoted to mentor;
+      // employer/agent users keep their primary role and just gain a mentor profile.
+      await supabase.rpc("become_mentor");
 
       // Create mentor_profile if it doesn't exist
       const { data: existing } = await supabase

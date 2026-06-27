@@ -120,7 +120,7 @@ const Profile = () => {
         .order("created_at", { ascending: false });
       return data || [];
     },
-    enabled: !!profile?.id && effectiveRole === "jobseeker",
+    enabled: !!profile?.id && effectiveRole === "job_seeker",
   });
 
   const getCvStoragePath = (fileUrl: string) => {
@@ -188,7 +188,7 @@ const Profile = () => {
   };
 
   const allRoleOptions: { value: UserRole; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
-    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
+    { value: "job_seeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်၊ CV တည်ဆောက်ရန်", en: "Find jobs, build your CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "အလုပ်ကြော်ငြာတင်ရန်၊ ဝန်ထမ်းရှာရန်", en: "Post jobs, find talent" } },
     { value: "agent", icon: Briefcase, label: { my: "ခေါ်ယူရေး အေဂျင့်", en: "Recruiting Agent" }, desc: { my: "အခြားကုမ္ပဏီအတွက် ခေါ်ယူ", en: "Recruit for clients" } },
     { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေပြီး အခကြေးငွေ ရယူပါ", en: "Share experience & earn" } },
@@ -271,7 +271,7 @@ const Profile = () => {
 
       <div className="px-5 pt-4">
         {/* Role Switcher */}
-        {!isSystemRole && (effectiveRole === "jobseeker" || effectiveRole === "mentor") && (
+        {!isSystemRole && (effectiveRole === "job_seeker" || effectiveRole === "mentor") && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
           <button
             onClick={() => setShowRolePicker(!showRolePicker)}
@@ -334,7 +334,7 @@ const Profile = () => {
           avatarUrl={profile?.avatar_url || null}
           avatarInitials={avatarInitials}
           completionPct={completionPct}
-          isJobseeker={effectiveRole === "jobseeker"}
+          isJobseeker={effectiveRole === "job_seeker"}
           lang={lang}
           onEdit={() => navigate((effectiveRole === "employer" || effectiveRole === "agent") ? companyEditPath : "/profile/edit")}
           onNavigate={navigate}
@@ -414,7 +414,7 @@ const Profile = () => {
         )}
 
         {/* Profile Boost */}
-        {!isSystemRole && (effectiveRole === "jobseeker" || effectiveRole === "mentor") && (
+        {!isSystemRole && (effectiveRole === "job_seeker" || effectiveRole === "mentor") && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-3 rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-50 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/10 p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
@@ -599,7 +599,7 @@ const Profile = () => {
         )}
 
         {/* CV Documents (Job Seekers) */}
-        {effectiveRole === "jobseeker" && cvDocuments.length > 0 && (
+        {effectiveRole === "job_seeker" && cvDocuments.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="mt-3 rounded-xl border border-border bg-card p-4">
             <div className="mb-3 flex items-center gap-2">
               <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />

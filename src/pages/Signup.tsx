@@ -42,8 +42,8 @@ const Signup = () => {
   const [referralCode, setReferralCode] = useState("");
   const [referralError, setReferralError] = useState<string | null>(null);
   const [showReferral, setShowReferral] = useState(false);
-  type SignupChoice = "jobseeker" | "employer" | "agent" | "mentor";
-  const [selectedRole, setSelectedRole] = useState<SignupChoice>("jobseeker");
+  type SignupChoice = "job_seeker" | "employer" | "agent" | "mentor";
+  const [selectedRole, setSelectedRole] = useState<SignupChoice>("job_seeker");
   const [isLoading, setIsLoading] = useState(false);
 
   // Derived password checks
@@ -141,7 +141,8 @@ const Signup = () => {
           });
         }
       }
-      await supabase.rpc("set_user_role", { _user_id: newUserId, _role: "user" });
+      // Role is written by the auth.users trigger. The `assign_my_role` call
+      // in use-auth.tsx is the safety net; no extra RPC needed here.
 
       // Pre-seed employer_profiles row for employers and agents (shared screens).
       // A DB trigger also handles this defensively, but doing it here keeps the
@@ -163,7 +164,7 @@ const Signup = () => {
   };
 
   const roles: { value: SignupChoice; icon: typeof Search; label: { my: string; en: string }; desc: { my: string; en: string } }[] = [
-    { value: "jobseeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်", en: "Find jobs, build CV" } },
+    { value: "job_seeker", icon: Search, label: { my: "အလုပ်ရှာသူ", en: "Job Seeker" }, desc: { my: "အလုပ်ရှာဖွေရန်", en: "Find jobs, build CV" } },
     { value: "employer", icon: Briefcase, label: { my: "အလုပ်ရှင်", en: "Employer" }, desc: { my: "ကိုယ်ပိုင်ဝန်ထမ်းခေါ်ရန်", en: "Hire directly" } },
     { value: "agent", icon: Building2, label: { my: "ခေါ်ယူရေး အေဂျင့်", en: "Recruiting Agent" }, desc: { my: "အခြားကုမ္ပဏီအတွက် ခေါ်ယူ", en: "Recruit for clients" } },
     { value: "mentor", icon: GraduationCap, label: { my: "လမ်းညွှန်သူ", en: "Mentor" }, desc: { my: "အတွေ့အကြုံ မျှဝေ", en: "Share & earn" } },

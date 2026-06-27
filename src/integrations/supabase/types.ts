@@ -2297,7 +2297,6 @@ export type Database = {
           location: string | null
           phone: string | null
           preferred_work_types: string[] | null
-          primary_role: string
           referral_code: string | null
           referred_by: string | null
           remote_ready: boolean | null
@@ -2333,7 +2332,6 @@ export type Database = {
           location?: string | null
           phone?: string | null
           preferred_work_types?: string[] | null
-          primary_role?: string
           referral_code?: string | null
           referred_by?: string | null
           remote_ready?: boolean | null
@@ -2369,7 +2367,6 @@ export type Database = {
           location?: string | null
           phone?: string | null
           preferred_work_types?: string[] | null
-          primary_role?: string
           referral_code?: string | null
           referred_by?: string | null
           remote_ready?: boolean | null
@@ -2584,8 +2581,8 @@ export type Database = {
           is_active: boolean
           is_unlimited_jobs: boolean
           is_unlimited_unlocks: boolean
+          plan_for_role: string
           price_mmk: number
-          role: string
           sort_order: number
           tier: string
           unlock_quota: number
@@ -2599,8 +2596,8 @@ export type Database = {
           is_active?: boolean
           is_unlimited_jobs?: boolean
           is_unlimited_unlocks?: boolean
+          plan_for_role: string
           price_mmk?: number
-          role: string
           sort_order?: number
           tier: string
           unlock_quota?: number
@@ -2614,8 +2611,8 @@ export type Database = {
           is_active?: boolean
           is_unlimited_jobs?: boolean
           is_unlimited_unlocks?: boolean
+          plan_for_role?: string
           price_mmk?: number
-          role?: string
           sort_order?: number
           tier?: string
           unlock_quota?: number
@@ -2997,7 +2994,6 @@ export type Database = {
           location: string | null
           phone: string | null
           preferred_work_types: string[] | null
-          primary_role: string | null
           referral_code: string | null
           remote_ready: boolean | null
           role_title: string | null
@@ -3025,7 +3021,6 @@ export type Database = {
           location?: string | null
           phone?: never
           preferred_work_types?: string[] | null
-          primary_role?: string | null
           referral_code?: string | null
           remote_ready?: boolean | null
           role_title?: string | null
@@ -3053,7 +3048,6 @@ export type Database = {
           location?: string | null
           phone?: never
           preferred_work_types?: string[] | null
-          primary_role?: string | null
           referral_code?: string | null
           remote_ready?: boolean | null
           role_title?: string | null
@@ -3206,6 +3200,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_user_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: Json
+      }
       admin_unlink_partner_user: {
         Args: { _partner_id: string }
         Returns: undefined
@@ -3226,6 +3227,11 @@ export type Database = {
         Args: { p_admin_note?: string; p_request_id: string }
         Returns: undefined
       }
+      assign_my_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: Json
+      }
+      become_mentor: { Args: never; Returns: Json }
       can_notify: { Args: { _target_user_id: string }; Returns: boolean }
       compute_subscription_price: {
         Args: { p_cycle: string; p_plan_id: string }
@@ -3467,20 +3473,6 @@ export type Database = {
         Args: { _admin_note?: string; _new_status: string; _payment_id: string }
         Returns: Json
       }
-      revoke_user_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: undefined
-      }
-      set_user_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: undefined
-      }
       set_user_suspended: {
         Args: { _suspended: boolean; _user_id: string }
         Returns: Json
@@ -3530,14 +3522,12 @@ export type Database = {
     }
     Enums: {
       app_role:
-        | "admin"
-        | "moderator"
-        | "user"
+        | "job_seeker"
         | "agent"
         | "employer"
-        | "job_seeker"
-        | "mentor"
         | "partner"
+        | "mentor"
+        | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3666,14 +3656,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: [
-        "admin",
-        "moderator",
-        "user",
+        "job_seeker",
         "agent",
         "employer",
-        "job_seeker",
-        "mentor",
         "partner",
+        "mentor",
+        "admin",
       ],
     },
   },

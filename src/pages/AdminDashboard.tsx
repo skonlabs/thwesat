@@ -26,8 +26,8 @@ const AdminDashboard = () => {
         supabase.from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "employer"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("primary_role", "mentor"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
       ]);
       const totalPaymentApprovals =
         ((pendingPayments as any).count || 0) +

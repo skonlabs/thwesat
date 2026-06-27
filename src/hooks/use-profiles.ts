@@ -12,7 +12,8 @@ export interface ProfileData {
   location: string | null;
   phone?: string | null;
   website: string | null;
-  primary_role: string;
+  /** Joined from public.user_roles. May be null while the role row is missing. */
+  primary_role: string | null;
   skills: string[] | null;
   languages: string[] | null;
   experience: string | null;
@@ -26,20 +27,22 @@ export interface ProfileData {
   preferred_work_types: string[] | null;
 }
 
-const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, primary_role, skills, languages, experience, visibility, remote_ready, has_laptop, internet_stable, has_wise, has_upwork, referral_code, preferred_work_types, created_at";
+const PUBLIC_PROFILE_FIELDS = "id, display_name, avatar_url, headline, bio, location, website, skills, languages, experience, visibility, remote_ready, has_laptop, internet_stable, has_wise, has_upwork, referral_code, preferred_work_types, created_at";
 
-// Profile-visibility enforcement (client-side):
-// - "public"  : visible to anyone
-// - "members" : visible only to authenticated users
-// - "private" : visible only to the owner
-// RLS still grants read access to all rows; this layer hides records the
-// user shouldn't see in browse/search surfaces. Direct profile lookups by id
-// are gated separately in PublicProfile.tsx.
 function applyVisibilityFilter(query: ReturnType<typeof supabase.from> extends never ? never : any, isAuthed: boolean) {
   if (isAuthed) {
     return query.in("visibility", ["public", "members"]);
   }
   return query.eq("visibility", "public");
+}
+
+async function attachRoles(rows: any[]): Promise<ProfileData[]> {
+  if (!rows.length) return [];
+  const ids = rows.map((r) => r.id);
+  const { data: roles } = await supabase.from("user_roles").select("user_id, role").in("user_id", ids);
+  const byId = new Map<string, string>();
+  (roles ?? []).forEach((r: any) => byId.set(r.user_id, r.role));
+  return rows.map((r) => ({ ...r, primary_role: byId.get(r.id) ?? null })) as ProfileData[];
 }
 
 export function useAllProfiles(search?: string) {
@@ -61,7 +64,7 @@ export function useAllProfiles(search?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as ProfileData[];
+      return attachRoles((data as any) ?? []);
     },
   });
 }
@@ -71,10 +74,18 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
   return useQuery({
     queryKey: ["search-talent", filters, !!user],
     queryFn: async () => {
+      // Fetch user_ids of seekers + mentors first, then their profiles.
+      const { data: roleRows } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("role", ["job_seeker", "mentor"]);
+      const ids = (roleRows ?? []).map((r: any) => r.user_id);
+      if (!ids.length) return [] as ProfileData[];
+
       let query = supabase
         .from("profiles")
         .select(PUBLIC_PROFILE_FIELDS)
-        .in("primary_role", ["jobseeker", "mentor"])
+        .in("id", ids)
         .order("created_at", { ascending: false })
         .limit(1000);
 
@@ -92,7 +103,7 @@ export function useSearchTalent(filters?: { search?: string; skill?: string; loc
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as ProfileData[];
+      return attachRoles((data as any) ?? []);
     },
   });
 }

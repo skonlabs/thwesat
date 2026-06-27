@@ -132,9 +132,9 @@ const App = () => (
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/home" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<HomeRedirect />} />
-              <Route path="/jobs/saved" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SavedJobs /></AppRoleGuard>} />
-              <Route path="/applications" element={<AppRoleGuard allowedRoles={["jobseeker"]}><Applications /></AppRoleGuard>} />
-              <Route path="/mentors/book" element={<AppRoleGuard allowedRoles={["jobseeker"]}><MentorBooking /></AppRoleGuard>} />
+              <Route path="/jobs/saved" element={<AppRoleGuard allowedRoles={["job_seeker"]}><SavedJobs /></AppRoleGuard>} />
+              <Route path="/applications" element={<AppRoleGuard allowedRoles={["job_seeker"]}><Applications /></AppRoleGuard>} />
+              <Route path="/mentors/book" element={<AppRoleGuard allowedRoles={["job_seeker"]}><MentorBooking /></AppRoleGuard>} />
               <Route path="/mentors/mentees" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorMentees /></AppRoleGuard>} />
               <Route path="/mentors/bookings" element={<AppRoleGuard allowedRoles={["mentor"]}><MentorBookings /></AppRoleGuard>} />
               <Route path="/community" element={<Community />} />
@@ -143,19 +143,19 @@ const App = () => (
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/chat" element={<ChatView />} />
               <Route path="/notifications" element={<Notifications />} />
-              <Route path="/ai-tools" element={<AppRoleGuard allowedRoles={["jobseeker"]}><AiProfileBuilder /></AppRoleGuard>} />
-              <Route path="/ai-tools/profile-builder" element={<AppRoleGuard allowedRoles={["jobseeker"]}><ProfileBuilder /></AppRoleGuard>} />
-              <Route path="/ai-tools/cover-letter" element={<AppRoleGuard allowedRoles={["jobseeker"]}><CoverLetterGenerator /></AppRoleGuard>} />
-              <Route path="/ai-tools/skill-gap" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SkillGapAnalysis /></AppRoleGuard>} />
+              <Route path="/ai-tools" element={<AppRoleGuard allowedRoles={["job_seeker"]}><AiProfileBuilder /></AppRoleGuard>} />
+              <Route path="/ai-tools/profile-builder" element={<AppRoleGuard allowedRoles={["job_seeker"]}><ProfileBuilder /></AppRoleGuard>} />
+              <Route path="/ai-tools/cover-letter" element={<AppRoleGuard allowedRoles={["job_seeker"]}><CoverLetterGenerator /></AppRoleGuard>} />
+              <Route path="/ai-tools/skill-gap" element={<AppRoleGuard allowedRoles={["job_seeker"]}><SkillGapAnalysis /></AppRoleGuard>} />
               
               <Route path="/premium" element={<Navigate to="/pricing" replace />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/payments/history" element={<PaymentHistory />} />
-              <Route path="/finance" element={<AppRoleGuard allowedRoles={["jobseeker"]}><SeekerFinance /></AppRoleGuard>} />
-              <Route path="/wallet" element={<AppRoleGuard allowedRoles={["jobseeker","mentor"]}><Wallet /></AppRoleGuard>} />
+              <Route path="/finance" element={<AppRoleGuard allowedRoles={["job_seeker"]}><SeekerFinance /></AppRoleGuard>} />
+              <Route path="/wallet" element={<AppRoleGuard allowedRoles={["job_seeker","mentor"]}><Wallet /></AppRoleGuard>} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/partner/wallet" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminWallet /></SystemRoleGuard>} />
-              <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["jobseeker"]}><BecomeMentor /></AppRoleGuard>} />
+              <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["job_seeker"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
 
               {/* Unified dashboard — every role-specific dashboard URL redirects here.
