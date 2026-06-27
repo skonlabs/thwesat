@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     const newUserId = data?.user?.id ?? null;
     if (!error && newUserId) {
-      await supabase.from("profiles").update({ display_name: displayName }).eq("id", newUserId);
+      await (supabase as any).from("profiles").update({ display_name: displayName }).eq("id", newUserId);
       // Role is written by the auth.users trigger (handle_new_user); ensure it
       // exists even if metadata was ignored.
       try { await supabase.rpc("assign_my_role", { _role: canonicalRole as any }); } catch { /* ignore — likely already assigned */ }
