@@ -97,9 +97,10 @@ const ModeratorDashboard = () => {
       const userIds = [...new Set((data || []).map((p: any) => p.user_id))];
       if (!userIds.length) return (data || []).map((p: any) => ({ ...p, profile: null }));
       const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", userIds);
-      const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds });
+      const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds as string[] });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
-      const pMap = new Map((profiles || []).map(p => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
+      const pMap = new Map(((profiles as any[]) || []).map((p: any) => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
+
       return (data || []).map((p: any) => ({ ...p, profile: pMap.get(p.user_id) }));
     },
   });
