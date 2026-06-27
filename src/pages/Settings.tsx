@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Type, Shield, Lock, Key, ChevronRight, Receipt,
+  Type, Shield, Lock, ChevronRight, Receipt,
   Languages, Eye, Clock, Smartphone, AlertTriangle, Trash2, LogOut, X, Check, Mail
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserSettings, useUpdateUserSettings } from "@/hooks/use-user-settings";
-import { useActiveDelegateToken, useGenerateDelegateToken, useRevokeDelegateToken } from "@/hooks/use-delegate-token";
+
 import PageHeader from "@/components/PageHeader";
 import SettingsBottomSheet from "@/components/settings/SettingsBottomSheet";
 
@@ -20,7 +20,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import ProfileVisibilitySheet from "@/components/settings/ProfileVisibilitySheet";
 import SessionExpirySheet from "@/components/settings/SessionExpirySheet";
 import TelegramLinkSheet from "@/components/settings/TelegramLinkSheet";
-import DelegateTokenSheet from "@/components/settings/DelegateTokenSheet";
+
 import FontEncodingSheet from "@/components/settings/FontEncodingSheet";
 import PrivacyPolicySheet from "@/components/settings/PrivacyPolicySheet";
 
@@ -31,9 +31,6 @@ const Settings = () => {
   const { signOut, user } = useAuth();
   const { data: settings } = useUserSettings();
   const updateSettings = useUpdateUserSettings();
-  const { data: activeToken } = useActiveDelegateToken();
-  const generateTokenMutation = useGenerateDelegateToken();
-  const revokeTokenMutation = useRevokeDelegateToken();
   const { hasRole, isAdmin, isPartner, isSystemRole } = useUserRoles();
   const isMentor = hasRole("mentor");
   const isJobSeeker = hasRole("job_seeker");
@@ -72,7 +69,7 @@ const Settings = () => {
   const [showVisibility, setShowVisibility] = useState(false);
   const [showSessionExpiry, setShowSessionExpiry] = useState(false);
   const [showTelegram, setShowTelegram] = useState(false);
-  const [showToken, setShowToken] = useState(false);
+  
   const [showFontEncoding, setShowFontEncoding] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
@@ -244,24 +241,6 @@ const Settings = () => {
     await signOut();
   };
 
-  const generateToken = () => {
-    generateTokenMutation.mutate(undefined, {
-      onError: (e: unknown) => {
-        const msg = e instanceof Error ? e.message : "Failed to generate token";
-        toast({ title: msg, variant: "destructive" });
-      },
-    });
-  };
-
-  const revokeToken = () => {
-    if (!activeToken) return;
-    revokeTokenMutation.mutate(activeToken.id, {
-      onError: (e: unknown) => {
-        const msg = e instanceof Error ? e.message : "Failed to revoke token";
-        toast({ title: msg, variant: "destructive" });
-      },
-    });
-  };
 
   const visibilityLabels: Record<string, { my: string; en: string }> = {
     members: { my: "အဖွဲ့ဝင်များသာ", en: "Members only" },
@@ -292,7 +271,7 @@ const Settings = () => {
       items: [
         { icon: Lock, label: lang === "my" ? "စကားဝှက် ပြောင်းရန်" : "Change Password", value: "", action: () => setShowPasswordChange(true) },
         { icon: Clock, label: lang === "my" ? "အကောင့် သက်တမ်း" : "Session Expiry", value: sessionLabels[sessionExpiry]?.[lang] || "24 hours", action: () => setShowSessionExpiry(true) },
-        ...(isJobSeeker ? [{ icon: Key, label: lang === "my" ? "ကိုယ်စားလှယ် ဝင်ရောက်ခွင့်" : "Delegate Access Token", value: activeToken ? (lang === "my" ? "သတ်မှတ်ပြီး" : "Active") : (lang === "my" ? "မသတ်မှတ်ရသေး" : "Not set"), action: () => setShowToken(true) }] : []),
+        
       ],
     },
     {
@@ -395,42 +374,6 @@ const Settings = () => {
                 : "For security, changing your password signs out all devices."}
             </p>
           </div>
-          {isJobSeeker && activeToken && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-4 py-3">
-              <Key className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <div className="flex-1">
-                <p className="text-[11px] font-medium text-foreground mb-1">
-                  {lang === "my" ? "Delegate Token ခွင့်ပြုချက်များ" : "Delegate token permissions"}
-                </p>
-                {activeToken.permissions && activeToken.permissions.length > 0 ? (
-                  <ul className="space-y-0.5">
-                    {activeToken.permissions.map((perm) => {
-                      const permissionLabels: Record<string, { en: string; my: string }> = {
-                        read_profile:   { en: "View your profile",          my: "သင့်ပရိုဖိုင် ကြည့်ရှုခွင့်" },
-                        read_jobs:      { en: "View your job applications",  my: "အလုပ်လျှောက်ထားမှုများ ကြည့်ရှုခွင့်" },
-                        profile_edit:   { en: "Edit your profile",           my: "သင့်ပရိုဖိုင် ပြင်ဆင်ခွင့်" },
-                        read_messages:  { en: "Read your messages",          my: "မက်ဆေ့ချ်များ ဖတ်ရှုခွင့်" },
-                        send_messages:  { en: "Send messages on your behalf",my: "မက်ဆေ့ချ် ပေးပို့ခွင့်" },
-                        manage_bookings:{ en: "Manage your bookings",        my: "ချိန်းဆိုမှုများ စီမံခန့်ခွဲခွင့်" },
-                      };
-                      const label = permissionLabels[perm];
-                      return (
-                        <li key={perm} className="text-[11px] text-muted-foreground">
-                          • {label ? (lang === "my" ? label.my : label.en) : perm}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <p className="text-[11px] text-muted-foreground">
-                    {lang === "my"
-                      ? "Delegate Token များသည် ယခုအချိန်တွင် ဖတ်ရှုရုံသာ ဝင်ရောက်ခွင့် ရရှိမည်ဖြစ်သည်။"
-                      : "Delegate tokens currently provide read-only access."}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
         </motion.div>
 
         {/* Danger Zone */}
@@ -554,13 +497,6 @@ const Settings = () => {
         isLinked={telegramLinked}
         onLink={() => { setTelegramLinked(true); persist({ telegram_linked: true }); }}
         onUnlink={() => { setTelegramLinked(false); persist({ telegram_linked: false, telegram_chat_id: null, telegram_username: null }); }}
-      />
-      <DelegateTokenSheet
-        open={showToken}
-        onClose={() => setShowToken(false)}
-        token={activeToken?.token ?? null}
-        onGenerate={generateToken}
-        onRevoke={revokeToken}
       />
       <FontEncodingSheet open={showFontEncoding} onClose={() => setShowFontEncoding(false)} />
       <PrivacyPolicySheet open={showPrivacyPolicy} onClose={() => setShowPrivacyPolicy(false)} />
