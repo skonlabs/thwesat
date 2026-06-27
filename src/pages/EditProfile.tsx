@@ -500,7 +500,7 @@ const EditProfile = () => {
       }
 
       const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
-      const { error } = await supabase.from("profiles").update({
+      const { error } = await (supabase as any).from("profiles").update({
         display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
         avatar_url: savedAvatarUrl,
         skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
@@ -508,7 +508,7 @@ const EditProfile = () => {
         has_laptop: hasLaptop, internet_stable: internetStable,
         remote_ready: hasLaptop && internetStable,
         job_search_status: jobSearchStatus,
-      } as any).eq("id", profile.id);
+      }).eq("id", profile.id);
       if (error) throw error;
 
       // Sync mentor_profiles if user is a mentor
