@@ -104,56 +104,6 @@ export type Database = {
         }
         Relationships: []
       }
-      addon_purchases: {
-        Row: {
-          addon_id: string
-          created_at: string
-          expires_at: string | null
-          id: string
-          mmk_paid: number
-          starts_at: string
-          status: string
-          units_total: number
-          units_used: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          addon_id: string
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          mmk_paid: number
-          starts_at?: string
-          status?: string
-          units_total?: number
-          units_used?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          addon_id?: string
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          mmk_paid?: number
-          starts_at?: string
-          status?: string
-          units_total?: number
-          units_used?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "addon_purchases_addon_id_fkey"
-            columns: ["addon_id"]
-            isOneToOne: false
-            referencedRelation: "addon_products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       admin_audit_log: {
         Row: {
           action: string
@@ -214,49 +164,10 @@ export type Database = {
             foreignKeyName: "admin_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
-      }
-      agent_clients: {
-        Row: {
-          agent_id: string
-          created_at: string
-          id: string
-          industry: string | null
-          is_active: boolean
-          logo_url: string | null
-          name: string
-          notes: string | null
-          updated_at: string
-          website: string | null
-        }
-        Insert: {
-          agent_id: string
-          created_at?: string
-          id?: string
-          industry?: string | null
-          is_active?: boolean
-          logo_url?: string | null
-          name: string
-          notes?: string | null
-          updated_at?: string
-          website?: string | null
-        }
-        Update: {
-          agent_id?: string
-          created_at?: string
-          id?: string
-          industry?: string | null
-          is_active?: boolean
-          logo_url?: string | null
-          name?: string
-          notes?: string | null
-          updated_at?: string
-          website?: string | null
-        }
-        Relationships: []
       }
       agent_profiles: {
         Row: {
@@ -309,7 +220,7 @@ export type Database = {
             foreignKeyName: "agent_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -344,7 +255,6 @@ export type Database = {
           employer_id: string | null
           id: string
           job_id: string
-          metadata: Json
           new_status: string
           old_status: string | null
           reason: string | null
@@ -358,7 +268,6 @@ export type Database = {
           employer_id?: string | null
           id?: string
           job_id: string
-          metadata?: Json
           new_status: string
           old_status?: string | null
           reason?: string | null
@@ -372,7 +281,6 @@ export type Database = {
           employer_id?: string | null
           id?: string
           job_id?: string
-          metadata?: Json
           new_status?: string
           old_status?: string | null
           reason?: string | null
@@ -383,7 +291,7 @@ export type Database = {
       applications: {
         Row: {
           applicant_id: string
-          cover_letter: string | null
+          cover_letter_id: string | null
           created_at: string | null
           cv_document_id: string | null
           forwarded_to_email: string | null
@@ -394,13 +302,14 @@ export type Database = {
           placement_salary: number | null
           rejection_reason: string | null
           rejection_reason_my: string | null
+          resume_id: string | null
           status: string | null
           updated_at: string | null
           withdrawn_at: string | null
         }
         Insert: {
           applicant_id: string
-          cover_letter?: string | null
+          cover_letter_id?: string | null
           created_at?: string | null
           cv_document_id?: string | null
           forwarded_to_email?: string | null
@@ -411,13 +320,14 @@ export type Database = {
           placement_salary?: number | null
           rejection_reason?: string | null
           rejection_reason_my?: string | null
+          resume_id?: string | null
           status?: string | null
           updated_at?: string | null
           withdrawn_at?: string | null
         }
         Update: {
           applicant_id?: string
-          cover_letter?: string | null
+          cover_letter_id?: string | null
           created_at?: string | null
           cv_document_id?: string | null
           forwarded_to_email?: string | null
@@ -428,6 +338,7 @@ export type Database = {
           placement_salary?: number | null
           rejection_reason?: string | null
           rejection_reason_my?: string | null
+          resume_id?: string | null
           status?: string | null
           updated_at?: string | null
           withdrawn_at?: string | null
@@ -437,7 +348,14 @@ export type Database = {
             foreignKeyName: "applications_applicant_id_fkey"
             columns: ["applicant_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_cover_letter_id_fkey"
+            columns: ["cover_letter_id"]
+            isOneToOne: false
+            referencedRelation: "user_documents"
             referencedColumns: ["id"]
           },
           {
@@ -445,6 +363,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "user_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -500,14 +425,14 @@ export type Database = {
             foreignKeyName: "community_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "community_posts_moderated_by_fkey"
             columns: ["moderated_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -554,7 +479,7 @@ export type Database = {
             foreignKeyName: "contact_messages_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -587,7 +512,7 @@ export type Database = {
             foreignKeyName: "conversation_participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -655,51 +580,6 @@ export type Database = {
           price_mmk?: number
           sort_order?: number
           updated_at?: string
-        }
-        Relationships: []
-      }
-      cv_documents: {
-        Row: {
-          created_at: string | null
-          file_name: string
-          file_size_bytes: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_primary: boolean | null
-          parsed_at: string | null
-          parsed_data: Json | null
-          parsed_text: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          file_name?: string
-          file_size_bytes?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          is_primary?: boolean | null
-          parsed_at?: string | null
-          parsed_data?: Json | null
-          parsed_text?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          file_name?: string
-          file_size_bytes?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          is_primary?: boolean | null
-          parsed_at?: string | null
-          parsed_data?: Json | null
-          parsed_text?: string | null
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -811,7 +691,7 @@ export type Database = {
             foreignKeyName: "employer_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -891,7 +771,7 @@ export type Database = {
             foreignKeyName: "generated_documents_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -930,7 +810,7 @@ export type Database = {
             foreignKeyName: "guide_feedback_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -992,7 +872,7 @@ export type Database = {
             foreignKeyName: "guides_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1062,7 +942,6 @@ export type Database = {
           employer_id: string
           id: string
           job_id: string
-          metadata: Json
           new_status: string
           old_status: string | null
           reason: string | null
@@ -1074,7 +953,6 @@ export type Database = {
           employer_id: string
           id?: string
           job_id: string
-          metadata?: Json
           new_status: string
           old_status?: string | null
           reason?: string | null
@@ -1086,7 +964,6 @@ export type Database = {
           employer_id?: string
           id?: string
           job_id?: string
-          metadata?: Json
           new_status?: string
           old_status?: string | null
           reason?: string | null
@@ -1096,7 +973,6 @@ export type Database = {
       }
       jobs: {
         Row: {
-          agent_client_id: string | null
           applicant_count: number | null
           application_method: string | null
           categories: string[]
@@ -1142,7 +1018,6 @@ export type Database = {
           visa_sponsorship: boolean | null
         }
         Insert: {
-          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
@@ -1188,7 +1063,6 @@ export type Database = {
           visa_sponsorship?: boolean | null
         }
         Update: {
-          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
@@ -1235,17 +1109,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "jobs_agent_client_id_fkey"
-            columns: ["agent_client_id"]
-            isOneToOne: false
-            referencedRelation: "agent_clients"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "jobs_employer_id_fkey"
             columns: ["employer_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1346,7 +1213,7 @@ export type Database = {
             foreignKeyName: "jobseeker_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1462,14 +1329,14 @@ export type Database = {
             foreignKeyName: "mentor_bookings_mentee_id_fkey"
             columns: ["mentee_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "mentor_bookings_mentor_id_fkey"
             columns: ["mentor_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1636,7 +1503,7 @@ export type Database = {
             foreignKeyName: "mentor_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1684,14 +1551,14 @@ export type Database = {
             foreignKeyName: "mentor_reviews_mentor_id_fkey"
             columns: ["mentor_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "mentor_reviews_reviewer_id_fkey"
             columns: ["reviewer_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1733,7 +1600,7 @@ export type Database = {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1780,7 +1647,7 @@ export type Database = {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1816,125 +1683,31 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "partner_attributions_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       partner_monthly_statements: {
         Row: {
-          active_growth_ratio: number | null
-          active_growth_requirement_met: boolean
-          bonus_payout: number
-          cap_applied: boolean
-          created_at: string
           currency: string
-          gross_attributed_npr: number
-          growth_bonus_pct: number
-          growth_npr: number
-          growth_npr_gross: number | null
-          growth_payout: number
-          growth_tier_pct: number
           id: string
-          maintenance_payout: number
-          maintenance_y2_npr: number
-          maintenance_y2_npr_gross: number | null
-          maintenance_y2_pct: number
-          maintenance_y3_npr: number
-          maintenance_y3_npr_gross: number | null
-          maintenance_y3_pct: number
-          mom_growth_pct: number | null
-          net_collected_attributed_npr: number
-          paid_at: string | null
           partner_id: string
           period_month: number
           period_year: number
-          quality_gate_passed: boolean
-          reversals_npr: number
-          status: string
-          total_payout: number
-          total_payout_uncapped: number
         }
         Insert: {
-          active_growth_ratio?: number | null
-          active_growth_requirement_met?: boolean
-          bonus_payout?: number
-          cap_applied?: boolean
-          created_at?: string
           currency?: string
-          gross_attributed_npr?: number
-          growth_bonus_pct?: number
-          growth_npr?: number
-          growth_npr_gross?: number | null
-          growth_payout?: number
-          growth_tier_pct?: number
           id?: string
-          maintenance_payout?: number
-          maintenance_y2_npr?: number
-          maintenance_y2_npr_gross?: number | null
-          maintenance_y2_pct?: number
-          maintenance_y3_npr?: number
-          maintenance_y3_npr_gross?: number | null
-          maintenance_y3_pct?: number
-          mom_growth_pct?: number | null
-          net_collected_attributed_npr?: number
-          paid_at?: string | null
           partner_id: string
           period_month: number
           period_year: number
-          quality_gate_passed?: boolean
-          reversals_npr?: number
-          status?: string
-          total_payout?: number
-          total_payout_uncapped?: number
         }
         Update: {
-          active_growth_ratio?: number | null
-          active_growth_requirement_met?: boolean
-          bonus_payout?: number
-          cap_applied?: boolean
-          created_at?: string
           currency?: string
-          gross_attributed_npr?: number
-          growth_bonus_pct?: number
-          growth_npr?: number
-          growth_npr_gross?: number | null
-          growth_payout?: number
-          growth_tier_pct?: number
           id?: string
-          maintenance_payout?: number
-          maintenance_y2_npr?: number
-          maintenance_y2_npr_gross?: number | null
-          maintenance_y2_pct?: number
-          maintenance_y3_npr?: number
-          maintenance_y3_npr_gross?: number | null
-          maintenance_y3_pct?: number
-          mom_growth_pct?: number | null
-          net_collected_attributed_npr?: number
-          paid_at?: string | null
           partner_id?: string
           period_month?: number
           period_year?: number
-          quality_gate_passed?: boolean
-          reversals_npr?: number
-          status?: string
-          total_payout?: number
-          total_payout_uncapped?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "partner_monthly_statements_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       partner_profiles: {
         Row: {
@@ -1993,60 +1766,7 @@ export type Database = {
             foreignKeyName: "partner_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partner_quality_metrics: {
-        Row: {
-          created_at: string
-          csat_score: number | null
-          dispute_rate_pct: number | null
-          fraud_rate_pct: number | null
-          id: string
-          l1_sla_pct: number | null
-          notes: string | null
-          partner_id: string
-          period_month: number
-          period_year: number
-          recorded_by: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          csat_score?: number | null
-          dispute_rate_pct?: number | null
-          fraud_rate_pct?: number | null
-          id?: string
-          l1_sla_pct?: number | null
-          notes?: string | null
-          partner_id: string
-          period_month: number
-          period_year: number
-          recorded_by: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          csat_score?: number | null
-          dispute_rate_pct?: number | null
-          fraud_rate_pct?: number | null
-          id?: string
-          l1_sla_pct?: number | null
-          notes?: string | null
-          partner_id?: string
-          period_month?: number
-          period_year?: number
-          recorded_by?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partner_quality_metrics_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2079,173 +1799,7 @@ export type Database = {
           used_at?: string | null
           used_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "partner_referral_codes_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      partners: {
-        Row: {
-          code: string
-          contact_email: string | null
-          contract_end_date: string | null
-          contract_start_date: string
-          created_at: string
-          id: string
-          is_active: boolean
-          maintenance_rate_y2: number
-          maintenance_rate_y3plus: number
-          name: string
-          notes: string | null
-          payout_cap_pct: number
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          code: string
-          contact_email?: string | null
-          contract_end_date?: string | null
-          contract_start_date: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          maintenance_rate_y2?: number
-          maintenance_rate_y3plus?: number
-          name: string
-          notes?: string | null
-          payout_cap_pct?: number
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          code?: string
-          contact_email?: string | null
-          contract_end_date?: string | null
-          contract_start_date?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          maintenance_rate_y2?: number
-          maintenance_rate_y3plus?: number
-          name?: string
-          notes?: string | null
-          payout_cap_pct?: number
-          updated_at?: string
-          user_id?: string | null
-        }
         Relationships: []
-      }
-      payment_requests: {
-        Row: {
-          admin_note: string | null
-          amount: number
-          booking_id: string | null
-          created_at: string
-          currency: string
-          id: string
-          npr_amount: number | null
-          payment_method: string
-          payment_type: string
-          proof_url: string | null
-          reference_id: string | null
-          revenue_classification: string
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: string
-          third_party_payout: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          admin_note?: string | null
-          amount?: number
-          booking_id?: string | null
-          created_at?: string
-          currency?: string
-          id?: string
-          npr_amount?: number | null
-          payment_method?: string
-          payment_type: string
-          proof_url?: string | null
-          reference_id?: string | null
-          revenue_classification?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          third_party_payout?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          admin_note?: string | null
-          amount?: number
-          booking_id?: string | null
-          created_at?: string
-          currency?: string
-          id?: string
-          npr_amount?: number | null
-          payment_method?: string
-          payment_type?: string
-          proof_url?: string | null
-          reference_id?: string | null
-          revenue_classification?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          third_party_payout?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      payment_reversals: {
-        Row: {
-          amount: number
-          created_at: string
-          currency: string
-          id: string
-          npr_amount: number | null
-          occurred_at: string
-          payment_request_id: string
-          reason: string | null
-          reversal_type: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          currency?: string
-          id?: string
-          npr_amount?: number | null
-          occurred_at?: string
-          payment_request_id: string
-          reason?: string | null
-          reversal_type: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          currency?: string
-          id?: string
-          npr_amount?: number | null
-          occurred_at?: string
-          payment_request_id?: string
-          reason?: string | null
-          reversal_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payment_reversals_payment_request_id_fkey"
-            columns: ["payment_request_id"]
-            isOneToOne: false
-            referencedRelation: "payment_requests"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       post_comments: {
         Row: {
@@ -2277,7 +1831,7 @@ export type Database = {
             foreignKeyName: "post_comments_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2327,7 +1881,7 @@ export type Database = {
             foreignKeyName: "post_likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2363,7 +1917,7 @@ export type Database = {
             foreignKeyName: "post_saves_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2428,14 +1982,14 @@ export type Database = {
             foreignKeyName: "referrals_referred_id_fkey"
             columns: ["referred_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "referrals_referrer_id_fkey"
             columns: ["referrer_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2471,51 +2025,7 @@ export type Database = {
             foreignKeyName: "saved_jobs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      scam_reports: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          reason: string | null
-          reported_entity_id: string
-          reported_entity_type: string
-          reporter_id: string | null
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          reason?: string | null
-          reported_entity_id: string
-          reported_entity_type: string
-          reporter_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          reason?: string | null
-          reported_entity_id?: string
-          reported_entity_type?: string
-          reporter_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "scam_reports_reporter_id_fkey"
-            columns: ["reporter_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2594,13 +2104,11 @@ export type Database = {
       }
       subscription_plans: {
         Row: {
-          active_jobs_quota: number
           created_at: string
           featured_jobs_quota: number
           id: string
           is_active: boolean
-          is_unlimited_jobs: boolean
-          is_unlimited_unlocks: boolean
+          job_postings_quota: number
           price_mmk: number
           sort_order: number
           tier: string
@@ -2608,13 +2116,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          active_jobs_quota?: number
           created_at?: string
           featured_jobs_quota?: number
           id?: string
           is_active?: boolean
-          is_unlimited_jobs?: boolean
-          is_unlimited_unlocks?: boolean
+          job_postings_quota?: number
           price_mmk?: number
           sort_order?: number
           tier: string
@@ -2622,13 +2128,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          active_jobs_quota?: number
           created_at?: string
           featured_jobs_quota?: number
           id?: string
           is_active?: boolean
-          is_unlimited_jobs?: boolean
-          is_unlimited_unlocks?: boolean
+          job_postings_quota?: number
           price_mmk?: number
           sort_order?: number
           tier?: string
@@ -2639,36 +2143,30 @@ export type Database = {
       }
       subscription_quotas: {
         Row: {
-          active_jobs_quota: number
           active_jobs_used: number
           featured_jobs_total: number
           featured_jobs_used: number
-          is_unlimited_jobs: boolean
-          is_unlimited_unlocks: boolean
+          job_postings_quota: number
           unlocks_total: number
           unlocks_used: number
           updated_at: string
           user_id: string
         }
         Insert: {
-          active_jobs_quota?: number
           active_jobs_used?: number
           featured_jobs_total?: number
           featured_jobs_used?: number
-          is_unlimited_jobs?: boolean
-          is_unlimited_unlocks?: boolean
+          job_postings_quota?: number
           unlocks_total?: number
           unlocks_used?: number
           updated_at?: string
           user_id: string
         }
         Update: {
-          active_jobs_quota?: number
           active_jobs_used?: number
           featured_jobs_total?: number
           featured_jobs_used?: number
-          is_unlimited_jobs?: boolean
-          is_unlimited_unlocks?: boolean
+          job_postings_quota?: number
           unlocks_total?: number
           unlocks_used?: number
           updated_at?: string
@@ -2721,6 +2219,7 @@ export type Database = {
         Row: {
           admin_note: string | null
           created_at: string
+          created_by: string | null
           credits_to_grant: number
           id: string
           mmk_amount: number
@@ -2737,6 +2236,7 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           created_at?: string
+          created_by?: string | null
           credits_to_grant: number
           id?: string
           mmk_amount: number
@@ -2753,6 +2253,7 @@ export type Database = {
         Update: {
           admin_note?: string | null
           created_at?: string
+          created_by?: string | null
           credits_to_grant?: number
           id?: string
           mmk_amount?: number
@@ -2767,6 +2268,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "topup_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "v_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "topup_requests_package_id_fkey"
             columns: ["package_id"]
@@ -2806,10 +2314,55 @@ export type Database = {
             foreignKeyName: "user_account_state_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_documents: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_size_bytes: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_primary: boolean | null
+          parsed_at: string | null
+          parsed_data: Json | null
+          parsed_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_primary?: boolean | null
+          parsed_at?: string | null
+          parsed_data?: Json | null
+          parsed_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_primary?: boolean | null
+          parsed_at?: string | null
+          parsed_data?: Json | null
+          parsed_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -2832,7 +2385,7 @@ export type Database = {
             foreignKeyName: "user_roles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2895,9 +2448,7 @@ export type Database = {
           id: string
           idempotency_key: string | null
           kind: string
-          metadata: Json
           mmk_amount: number | null
-          note: string | null
           ref_id: string | null
           ref_type: string | null
           status: string
@@ -2909,9 +2460,7 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           kind: string
-          metadata?: Json
           mmk_amount?: number | null
-          note?: string | null
           ref_id?: string | null
           ref_type?: string | null
           status?: string
@@ -2923,9 +2472,7 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           kind?: string
-          metadata?: Json
           mmk_amount?: number | null
-          note?: string | null
           ref_id?: string | null
           ref_type?: string | null
           status?: string
@@ -2962,81 +2509,7 @@ export type Database = {
       }
     }
     Views: {
-      employer_profiles_public: {
-        Row: {
-          benefits: string[] | null
-          company_description: string | null
-          company_linkedin: string | null
-          company_name: string | null
-          company_size: string | null
-          company_website: string | null
-          cover_url: string | null
-          created_at: string | null
-          hq_country: string | null
-          id: string | null
-          industry: string | null
-          is_verified: boolean | null
-          logo_url: string | null
-          mission: string | null
-          payment_methods: string[] | null
-          updated_at: string | null
-          verification_status: string | null
-          vision: string | null
-          what_we_do: string | null
-        }
-        Insert: {
-          benefits?: string[] | null
-          company_description?: string | null
-          company_linkedin?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          company_website?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          hq_country?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          logo_url?: string | null
-          mission?: string | null
-          payment_methods?: string[] | null
-          updated_at?: string | null
-          verification_status?: string | null
-          vision?: string | null
-          what_we_do?: string | null
-        }
-        Update: {
-          benefits?: string[] | null
-          company_description?: string | null
-          company_linkedin?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          company_website?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          hq_country?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          logo_url?: string | null
-          mission?: string | null
-          payment_methods?: string[] | null
-          updated_at?: string | null
-          verification_status?: string | null
-          vision?: string | null
-          what_we_do?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employer_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
+      v_profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
@@ -3071,18 +2544,6 @@ export type Database = {
           updated_at: string | null
           visibility: string | null
           website: string | null
-        }
-        Relationships: []
-      }
-      v_user_directory: {
-        Row: {
-          avatar_url: string | null
-          display_name: string | null
-          headline: string | null
-          id: string | null
-          last_seen_at: string | null
-          location: string | null
-          role: string | null
         }
         Relationships: []
       }
@@ -3131,10 +2592,6 @@ export type Database = {
       admin_attribute_user: {
         Args: { _channel?: string; _partner_id: string; _user_id: string }
         Returns: string
-      }
-      admin_compute_partner_statement: {
-        Args: { _month: number; _partner_id: string; _year: number }
-        Returns: Json
       }
       admin_confirm_user_email: {
         Args: { _user_id: string }
@@ -3243,31 +2700,6 @@ export type Database = {
           _sender_reference: string
         }
         Returns: string
-      }
-      current_partner: {
-        Args: never
-        Returns: {
-          code: string
-          contact_email: string | null
-          contract_end_date: string | null
-          contract_start_date: string
-          created_at: string
-          id: string
-          is_active: boolean
-          maintenance_rate_y2: number
-          maintenance_rate_y3plus: number
-          name: string
-          notes: string | null
-          payout_cap_pct: number
-          updated_at: string
-          user_id: string | null
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "partners"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       current_partner_id: { Args: never; Returns: string }
       delete_job: { Args: { _job_id: string }; Returns: Json }
@@ -3417,14 +2849,6 @@ export type Database = {
           start_at: string
         }[]
       }
-      placement_confirm_with_invoice: {
-        Args: {
-          _application_id: string
-          _placement_fee: number
-          _placement_salary: number
-        }
-        Returns: Json
-      }
       post_job_with_credits: {
         Args: { _featured?: boolean; _payload: Json }
         Returns: Json
@@ -3450,10 +2874,6 @@ export type Database = {
       reject_subscription_payment: {
         Args: { p_admin_note?: string; p_request_id: string }
         Returns: undefined
-      }
-      review_payment_request: {
-        Args: { _admin_note?: string; _new_status: string; _payment_id: string }
-        Returns: Json
       }
       set_user_suspended: {
         Args: { _suspended: boolean; _user_id: string }
