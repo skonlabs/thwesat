@@ -71,15 +71,15 @@ const Applications = () => {
     queryFn: async () => {
       if (!offerEmployerId) return null;
       const { data } = await supabase
-        .from("profiles")
-        .select("primary_role")
-        .eq("id", offerEmployerId)
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", offerEmployerId)
         .maybeSingle();
       return data;
     },
     enabled: !!offerEmployerId && confirmAccept,
   });
-  const isAgentOffer = offerEmployer?.primary_role === "agent";
+  const isAgentOffer = (offerEmployer as any)?.role === "agent";
   const offerSalary = Number(selected?.jobs?.salary_max || selected?.jobs?.salary_min || 0);
   const offerFee = isAgentOffer && offerSalary > 0 ? calculatePlacementFee(offerSalary) : 0;
 
