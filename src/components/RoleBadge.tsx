@@ -52,14 +52,13 @@ export function useUserRoleFlags(userId: string | undefined) {
     queryKey: ["user-role-flags", userId],
     queryFn: async () => {
       if (!userId) return { isMentor: false, isAdmin: false, isEmployer: false, isAgent: false };
-      const [m, e, r, p] = await Promise.all([
+      const [m, e, r] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
         (supabase as any).from("employer_profiles_public").select("id").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
-        supabase.from("profiles").select("primary_role").eq("id", userId).maybeSingle(),
       ]);
       const roles = (r.data || []).map((x) => x.role);
-      const isAgent = p.data?.primary_role === "agent";
+      const isAgent = roles.includes("agent");
       const isEmployer = !!e.data && !isAgent;
       return {
         isMentor: (m.count ?? 0) > 0,
