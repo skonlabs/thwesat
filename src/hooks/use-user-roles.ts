@@ -45,7 +45,6 @@ export function useUserRoles() {
   });
 
   const isAdmin = systemRoles?.includes("admin") ?? false;
-  const isModerator = false; // Moderator role retired — kept as a stub so legacy call sites keep compiling.
   const isPartner = systemRoles?.includes("partner") ?? false;
   const isSystemRole = isAdmin || isPartner;
   const primaryRole = (profile?.primary_role as UserRole) || "job_seeker";
@@ -54,7 +53,6 @@ export function useUserRoles() {
   const allowedRoles: UserRole[] = [];
 
   if (!isLoading && profile && !isSystemRole) {
-    // Base role from signup
     if (primaryRole === "employer") {
       allowedRoles.push("employer");
     } else if (primaryRole === "agent") {
@@ -62,8 +60,6 @@ export function useUserRoles() {
     } else {
       allowedRoles.push("job_seeker");
     }
-
-    // Mentor access if they have a mentor profile or signed up as mentor
     if (hasMentorProfile || primaryRole === "mentor") {
       allowedRoles.push("mentor");
     }
@@ -71,5 +67,5 @@ export function useUserRoles() {
 
   const hasRole = (role: UserRole) => allowedRoles.includes(role);
 
-  return { allowedRoles, hasRole, isLoading, isAdmin, isModerator, isPartner, isSystemRole };
+  return { allowedRoles, hasRole, isLoading, isAdmin, isPartner, isSystemRole };
 }

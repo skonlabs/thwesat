@@ -31,7 +31,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { profile } = useAuth();
-  const { isAdmin, isModerator, isLoading: rolesLoading } = useUserRoles();
+  const { isAdmin, isLoading: rolesLoading } = useUserRoles();
   const { data: jobs } = useJobs();
   const { data: mentors } = useMentorProfiles();
   const { data: allProfiles } = useAllProfiles();
@@ -74,7 +74,7 @@ const HomePage = () => {
   // Profile completion — must mirror DB function `is_profile_complete` exactly,
   // because the welcome/profile bonus is granted by the DB based on those rules.
   const { percent: completionPct } = computeProfileCompletion(profile as any);
-  const showCompletionBar = !rolesLoading && !isAdmin && !isModerator && completionPct < 100;
+  const showCompletionBar = !rolesLoading && !isAdmin && completionPct < 100;
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">

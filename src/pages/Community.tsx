@@ -654,7 +654,7 @@ const Community = () => {
                                                         title_my: "🚩 မှတ်ချက် တိုင်ကြားခံရသည်",
                                                         description: `A comment has been reported: "${c.content?.slice(0, 80)}"`,
                                                         description_my: `မှတ်ချက်တစ်ခု တိုင်ကြားခံရသည်: "${c.content?.slice(0, 80)}"`,
-                                                        link_path: "/moderator",
+                                                        link_path: "/admin/moderation",
                                                       })),
                                                     );
                                                   }

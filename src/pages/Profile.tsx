@@ -33,7 +33,7 @@ const Profile = () => {
   const refCredits = referralRewards?.reward_credits ?? 5000;
   const { role, setRole } = useRole();
   const { profile, signOut } = useAuth();
-  const { allowedRoles, isLoading: rolesLoading, isAdmin, isModerator, isSystemRole } = useUserRoles();
+  const { allowedRoles, isLoading: rolesLoading, isAdmin, isSystemRole } = useUserRoles();
   const { data: employerProfile } = useEmployerProfile();
   const profileRole = (profile?.primary_role as UserRole) || undefined;
   const effectiveRole = allowedRoles.includes(role)
@@ -167,7 +167,7 @@ const Profile = () => {
   };
 
   const displayName = profile?.display_name || (lang === "my" ? "မောင်မောင်" : "User");
-  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : isModerator ? (lang === "my" ? "စစ်ဆေးသူ" : "Moderator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့်" : "Recruiting Agent") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
+  const headline = profile?.headline || (isAdmin ? (lang === "my" ? "စီမံခန့်ခွဲသူ" : "Administrator") : effectiveRole === "employer" ? (lang === "my" ? "အလုပ်ရှင်" : "Employer") : effectiveRole === "agent" ? (lang === "my" ? "ခေါ်ယူရေး အေဂျင့်" : "Recruiting Agent") : effectiveRole === "mentor" ? (lang === "my" ? "လမ်းညွှန်သူ" : "Mentor") : "");
   const location = profile?.location || "";
   const skills = profile?.skills || [];
   const avatarInitials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
@@ -244,27 +244,19 @@ const Profile = () => {
     { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
   ];
 
-  const moderatorMenu = [
-    { icon: Edit3, label: lang === "my" ? "ပရိုဖိုင် ပြင်ဆင်ရန်" : "Edit Profile", path: "/profile/edit" },
-    { icon: Shield, label: lang === "my" ? "စစ်ဆေးရေး" : "Moderation", path: "/moderator" },
-    { icon: Settings, label: lang === "my" ? "ဆက်တင်များ" : "Settings", path: "/settings" },
-  ];
-
   const menuItems = isAdmin
     ? adminMenu
-    : isModerator
-      ? moderatorMenu
-        : effectiveRole === "employer" || effectiveRole === "agent"
-        ? (effectiveRole === "agent"
-            ? [
-                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(0, 2),
-                { icon: Building2, label: lang === "my" ? "သုံးစွဲသူ ကုမ္ပဏီများ" : "Client Companies", path: "/agent/clients" },
-                ...employerMenu.filter(m => m.path !== "/employer/applications").slice(2),
-              ]
-            : employerMenu)
-          : effectiveRole === "mentor"
-          ? mentorMenu
-          : jobseekerMenu;
+    : effectiveRole === "employer" || effectiveRole === "agent"
+      ? (effectiveRole === "agent"
+          ? [
+              ...employerMenu.filter(m => m.path !== "/employer/applications").slice(0, 2),
+              { icon: Building2, label: lang === "my" ? "သုံးစွဲသူ ကုမ္ပဏီများ" : "Client Companies", path: "/agent/clients" },
+              ...employerMenu.filter(m => m.path !== "/employer/applications").slice(2),
+            ]
+          : employerMenu)
+      : effectiveRole === "mentor"
+        ? mentorMenu
+        : jobseekerMenu;
 
   return (
     <div className="min-h-dvh bg-background pb-24">
