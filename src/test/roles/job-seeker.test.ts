@@ -32,7 +32,11 @@ describe("Job Seeker — useApplyToJob", () => {
   }) {
     const updateChain = { update: vi.fn().mockReturnThis(), eq: vi.fn().mockResolvedValue({ error: null }) };
     const insertChain = vi.fn().mockResolvedValue({ error: null });
+    const docInsertSingle = vi.fn().mockResolvedValue({ data: { id: "cover-doc-1" }, error: null });
+    const docInsertSelect = vi.fn().mockReturnValue({ single: docInsertSingle });
+    const docInsert = vi.fn().mockReturnValue({ select: docInsertSelect });
     fromMock.mockImplementation((table: string) => {
+      if (table === "user_documents") return { insert: docInsert };
       if (table === "applications") {
         return {
           select: () => ({
@@ -63,7 +67,7 @@ describe("Job Seeker — useApplyToJob", () => {
       }
       return {};
     });
-    return { updateChain, insertChain };
+    return { updateChain, insertChain, docInsert };
   }
 
   it("REACTIVATES an existing withdrawn/rejected application instead of inserting", async () => {
@@ -77,7 +81,7 @@ describe("Job Seeker — useApplyToJob", () => {
 
     expect(insertChain).not.toHaveBeenCalled();
     expect(updateChain.update).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "applied", cover_letter: "hi", withdrawn_at: null })
+      expect.objectContaining({ status: "applied", cover_letter_id: "cover-doc-1", withdrawn_at: null })
     );
     expect(updateChain.eq).toHaveBeenCalledWith("id", "app-old");
   });
@@ -91,14 +95,14 @@ describe("Job Seeker — useApplyToJob", () => {
     const { result } = renderHook(() => useApplyToJob(), { wrapper });
     await result.current.mutateAsync({ jobId: "job-1", cvDocumentId: "cv-1" });
 
-    expect(insertChain).toHaveBeenCalledWith(
+    expect(insertChain).toHaveBeenCalledWith([
       expect.objectContaining({
         applicant_id: "seeker-1",
         job_id: "job-1",
         status: "applied",
-        cv_document_id: "cv-1",
-      })
-    );
+        resume_id: "cv-1",
+      }),
+    ]);
     expect(updateChain.update).not.toHaveBeenCalled();
   });
 

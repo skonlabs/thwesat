@@ -38,7 +38,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 
 function mockPaymentLookup(row: Record<string, unknown> | null) {
   fromMock.mockImplementation((table: string) => {
-    if (table === "payment_requests") {
+    if (table === "subscription_payment_requests") {
       return {
         select: () => ({
           eq: () => ({ maybeSingle: () => Promise.resolve({ data: row, error: null }) }),

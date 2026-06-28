@@ -39,7 +39,7 @@ beforeEach(() => {
   fromMock.mockReset();
   // Default: payment_requests lookup returns null so the email side-effect is skipped.
   fromMock.mockImplementation((table: string) => {
-    if (table === "payment_requests") {
+    if (table === "subscription_payment_requests") {
       return {
         select: () => ({
           eq: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }),
@@ -126,7 +126,7 @@ describe("useCreatePaymentRequest → validation", () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null });
     const updateChain = { update: vi.fn().mockReturnThis(), eq: vi.fn().mockResolvedValue({ error: null }) };
     fromMock.mockImplementation((table: string) => {
-      if (table === "payment_requests") return { insert: insertMock };
+      if (table === "subscription_payment_requests") return { insert: insertMock };
       if (table === "mentor_bookings") return updateChain;
       return {};
     });

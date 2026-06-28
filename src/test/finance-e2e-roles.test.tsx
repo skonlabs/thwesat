@@ -184,35 +184,36 @@ describe("employer — purchases & ledger", () => {
   });
 
   it("employer ledger: subscription + addon labels resolve and per-currency totals are correct", async () => {
+    let sprCallCount = 0;
     fromMock.mockImplementation((table: string) => {
-      const data = (() => {
-        switch (table) {
-          case "subscription_payment_requests":
-            return [
+      if (table === "subscription_payment_requests") {
+        const data = sprCallCount === 0
+          ? [] // mentor_session/placement_fee — none for this employer
+          : [
               { id: "s1", request_type: "subscription", plan_id: "plan-emp-growth", addon_id: null, mmk_amount: 150_000, status: "approved", payment_method: "kpay", created_at: "2026-06-10T00:00:00Z" },
               { id: "s2", request_type: "addon", plan_id: null, addon_id: "addon-featured-job", mmk_amount: 60_000, status: "pending", payment_method: "wave", created_at: "2026-06-11T00:00:00Z" },
               { id: "s3", request_type: "subscription", plan_id: "plan-emp-starter", addon_id: null, mmk_amount: 50_000, status: "rejected", payment_method: "kpay", created_at: "2026-06-12T00:00:00Z" },
             ];
-          case "subscription_plans":
-            return [
-              { id: "plan-emp-growth", tier: "growth" },
-              { id: "plan-emp-starter", tier: "starter" },
-            ];
-          case "addon_products":
-            return [{ id: "addon-featured-job", label_en: "Featured Job", label_my: "Featured Job (MY)" }];
-          default:
-            return [];
-        }
-      })();
-      const chain: any = {
+        sprCallCount += 1;
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          order: vi.fn().mockResolvedValue({ data }),
+        };
+      }
+      if (table === "subscription_plans") {
+        return { select: vi.fn().mockResolvedValue({ data: [{ id: "plan-emp-growth", tier: "growth" }, { id: "plan-emp-starter", tier: "starter" }] }) };
+      }
+      if (table === "addon_products") {
+        return { select: vi.fn().mockResolvedValue({ data: [{ id: "addon-featured-job", label_en: "Featured Job", label_my: "Featured Job (MY)" }] }) };
+      }
+      return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data }),
+        in: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [] }),
       };
-      if (table === "subscription_plans" || table === "addon_products") {
-        chain.select = vi.fn().mockResolvedValue({ data });
-      }
-      return chain;
     });
 
     const { result } = renderHook(() => useUserFinance("emp-1"), { wrapper });
@@ -268,7 +269,7 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           }),
         };
       }
-      if (table === "payment_requests") {
+      if (table === "subscription_payment_requests") {
         const chain: any = {
           select: vi.fn().mockReturnThis(),
           in: vi.fn().mockReturnThis(),
@@ -277,13 +278,9 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           lt: vi.fn().mockReturnThis(),
           order: vi.fn().mockResolvedValue({
             data: [
-              // u-a: pre-attribution → excluded
               { id: "pr-old", user_id: "u-a", reviewed_at: "2026-05-04T12:00:00.000Z", amount: 10_000, currency: "MMK" },
-              // u-a: post-attribution → included
               { id: "pr-a", user_id: "u-a", reviewed_at: "2026-05-08T00:00:00.000Z", amount: 25_000, currency: "MMK" },
-              // u-b: pre-attribution → excluded
               { id: "pr-b-early", user_id: "u-b", reviewed_at: "2026-05-15T00:00:00.000Z", amount: 5_000, currency: "MMK" },
-              // u-b: post-attribution → included
               { id: "pr-b", user_id: "u-b", reviewed_at: "2026-05-22T00:00:00.000Z", amount: 40_000, currency: "MMK" },
             ],
             error: null,
@@ -310,7 +307,7 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           limit: vi.fn().mockResolvedValue({ data: [], error: null }),
         };
       }
-      if (table === "payment_requests") {
+      if (table === "subscription_payment_requests") {
         prCalled = true;
         return { select: vi.fn().mockReturnThis(), in: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), gte: vi.fn().mockReturnThis(), lt: vi.fn().mockReturnThis(), order: vi.fn().mockResolvedValue({ data: [] }) };
       }
@@ -339,7 +336,7 @@ describe("partner — admin write paths go through SECURITY DEFINER RPCs", () =>
       _npr_amount: 45_000,
       _revenue_classification: "core",
     });
-    expect(fromMock).not.toHaveBeenCalledWith("payment_requests");
+    expect(fromMock).not.toHaveBeenCalledWith("subscription_payment_requests");
   });
 
   it("finalize statement ignores client-supplied preview and re-computes on the server", async () => {

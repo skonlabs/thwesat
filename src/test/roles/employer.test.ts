@@ -4,10 +4,14 @@ import { renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const fromMock = vi.fn();
+const rpcMock = vi.fn();
 const sendAppEmailMock = vi.fn();
 
 vi.mock("@/integrations/supabase/client", () => ({
-  supabase: { from: (...a: any[]) => fromMock(...a) },
+  supabase: {
+    from: (...a: any[]) => fromMock(...a),
+    rpc: (...a: any[]) => rpcMock(...a),
+  },
 }));
 vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: { id: "emp-1" } }) }));
 vi.mock("@/hooks/use-language", () => ({ useLanguage: () => ({ lang: "en" }) }));
@@ -22,32 +26,25 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 
 beforeEach(() => {
   fromMock.mockReset();
+  rpcMock.mockReset();
   sendAppEmailMock.mockReset();
 });
 
 describe("Employer — useCreateJob", () => {
-  it("auto-injects employer_id from auth context", async () => {
-    const insertMock = vi.fn().mockResolvedValue({ error: null });
-    fromMock.mockImplementation((t: string) => {
-      if (t === "jobs") return { insert: insertMock };
-      return {};
-    });
+  it("routes through the post_job_with_quota RPC with employer payload + featured flag", async () => {
+    rpcMock.mockResolvedValue({ data: null, error: null });
 
     const { result } = renderHook(() => useCreateJob(), { wrapper });
-    await result.current.mutateAsync({ title: "Senior Dev", company: "Acme", expires_at: "2027-01-01T00:00:00Z" });
+    await result.current.mutateAsync({ title: "Senior Dev", company: "Acme", expires_at: "2027-01-01T00:00:00Z", is_featured: true });
 
-    expect(insertMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        employer_id: "emp-1",
-        title: "Senior Dev",
-        company: "Acme",
-        expires_at: "2027-01-01T00:00:00Z",
-      })
-    );
+    expect(rpcMock).toHaveBeenCalledWith("post_job_with_quota", {
+      _payload: expect.objectContaining({ title: "Senior Dev", company: "Acme", expires_at: "2027-01-01T00:00:00Z" }),
+      _featured: true,
+    });
   });
 
-  it("propagates DB errors", async () => {
-    fromMock.mockImplementation(() => ({ insert: vi.fn().mockResolvedValue({ error: { message: "rls" } }) }));
+  it("propagates RPC errors", async () => {
+    rpcMock.mockResolvedValue({ data: null, error: { message: "quota_exhausted" } });
     const { result } = renderHook(() => useCreateJob(), { wrapper });
     await expect(result.current.mutateAsync({ title: "x", company: "y" })).rejects.toBeTruthy();
   });

@@ -290,27 +290,36 @@ describe("useUserFinance unified ledger", () => {
   }: {
     payments?: any[]; subs?: any[]; topups?: any[]; plans?: any[]; addons?: any[];
   }) {
+    // subscription_payment_requests is now queried TWICE (once for
+    // mentor_session/placement_fee, once for subscription/addon). Route by
+    // call count so each query receives the right slice.
+    let sprCallCount = 0;
     fromMock.mockImplementation((table: string) => {
-      const data = (() => {
-        switch (table) {
-          case "payment_requests": return payments;
-          case "subscription_payment_requests": return subs;
-          case "topup_requests": return topups;
-          case "subscription_plans": return plans;
-          case "addon_products": return addons;
-          default: return [];
-        }
-      })();
-      const chain: any = {
+      if (table === "subscription_payment_requests") {
+        const data = sprCallCount === 0 ? payments : subs;
+        sprCallCount += 1;
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          order: vi.fn().mockResolvedValue({ data }),
+        };
+      }
+      if (table === "topup_requests") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockResolvedValue({ data: topups }),
+        };
+      }
+      if (table === "subscription_plans") return { select: vi.fn().mockResolvedValue({ data: plans }) };
+      if (table === "addon_products") return { select: vi.fn().mockResolvedValue({ data: addons }) };
+      return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data }),
+        in: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [] }),
       };
-      // subscription_plans/addon_products are awaited directly after .select()
-      if (table === "subscription_plans" || table === "addon_products") {
-        chain.select = vi.fn().mockResolvedValue({ data });
-      }
-      return chain;
     });
   }
 
