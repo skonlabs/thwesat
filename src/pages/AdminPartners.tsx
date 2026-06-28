@@ -52,11 +52,14 @@ const AdminPartners = () => {
     queryKey: ["admin-partners"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partners")
-        .select("id, name, code, user_id, is_active, contact_email, contract_start_date")
+        .from("partner_profiles")
+        .select("user_id, display_name, code, contact_email, contract_start_date, is_active, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as PartnerRow[];
+      return ((data ?? []) as any[]).map((p) => ({
+        id: p.user_id, name: p.display_name, code: p.code, user_id: p.user_id,
+        is_active: p.is_active, contact_email: p.contact_email, contract_start_date: p.contract_start_date,
+      })) as PartnerRow[];
     },
   });
 
