@@ -217,7 +217,7 @@ const Community = () => {
 
   const handleReport = async (postId: string) => {
     if (!user) return;
-    const { error } = await (supabase as any).from("scam_reports").insert({ reported_entity_id: postId, reported_entity_type: "post", reporter_id: user.id, reason: "Community report" });
+    const { error } = await (supabase as any).from("contact_messages").insert({ entity_id: postId, entity_type: "post", user_id: user.id, name: user.email ?? "user", email: user.email ?? "", subject: "Community report", message: "Community report" });
     if (error) {
       toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
     } else {
