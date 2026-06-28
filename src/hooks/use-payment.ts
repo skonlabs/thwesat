@@ -147,6 +147,7 @@ export function useAllPaymentRequests() {
       const { data, error } = await (supabase as any)
         .from("subscription_payment_requests")
         .select("*")
+        .in("payment_type", ["placement_fee", "mentor_session"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as PaymentRequest[];
