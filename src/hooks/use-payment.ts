@@ -75,7 +75,12 @@ export function useCreatePaymentRequest() {
 
       const { error } = await (supabase as any)
         .from("subscription_payment_requests")
-        .insert({ ...req, user_id: user.id } as any);
+        .insert({
+          ...req,
+          user_id: user.id,
+          request_type: req.payment_type === "mentor_session" || req.payment_type === "placement_fee" ? req.payment_type : "subscription",
+          mmk_amount: req.amount,
+        } as any);
       if (error) throw error;
 
       // NOTE: The two-step update below (payment insert then booking status update) is
