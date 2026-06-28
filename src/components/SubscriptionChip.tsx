@@ -33,9 +33,7 @@ const SubscriptionChip = () => {
   const activeAddons = addons.filter((a) => a.status === "active").length;
 
   const unlocksLeft = quotas
-    ? quotas.is_unlimited_unlocks
-      ? "∞"
-      : Math.max(0, (quotas.unlocks_total ?? 0) - (quotas.unlocks_used ?? 0))
+    ? Math.max(0, (quotas.unlocks_total ?? 0) - (quotas.unlocks_used ?? 0))
     : 0;
 
   return (
