@@ -630,12 +630,14 @@ const Community = () => {
                                                   if (!user) return;
                                                   // File a scam_report so it shows in the moderation queue,
                                                   // and notify staff (NOT the comment author).
-                                                  const { error: reportErr } = await (supabase as any).from("scam_reports").insert({
-                                                    reported_entity_id: c.id,
-                                                    reported_entity_type: "comment",
-                                                    reporter_id: user.id,
-                                                    reason: "Community comment report",
-                                                    description: c.content?.slice(0, 200) || "",
+                                                  const { error: reportErr } = await (supabase as any).from("contact_messages").insert({
+                                                    entity_id: c.id,
+                                                    entity_type: "comment",
+                                                    user_id: user.id,
+                                                    name: user.email ?? "user",
+                                                    email: user.email ?? "",
+                                                    subject: "Community comment report",
+                                                    message: c.content?.slice(0, 200) || "Community comment report",
                                                   });
                                                   if (reportErr) {
                                                     toast.error(lang === "my" ? "တိုင်ကြားမှု မအောင်မြင်ပါ" : "Failed to submit report");
