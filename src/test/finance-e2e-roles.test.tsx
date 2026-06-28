@@ -335,7 +335,7 @@ describe("partner — admin write paths go through SECURITY DEFINER RPCs", () =>
       _npr_amount: 45_000,
       _revenue_classification: "core",
     });
-    expect(fromMock).not.toHaveBeenCalledWith("payment_requests");
+    expect(fromMock).not.toHaveBeenCalledWith("subscription_payment_requests");
   });
 
   it("finalize statement ignores client-supplied preview and re-computes on the server", async () => {
