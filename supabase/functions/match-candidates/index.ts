@@ -175,11 +175,11 @@ Deno.serve(async (req) => {
     }
 
     // 4) Backfill missing seeker profile embeddings (capped).
+    //    jobseeker_profiles is the canonical jobseeker table (post role-split).
     const { data: profilesNeed } = await admin
-      .from("profiles")
-      .select("id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding, embedding_input_hash, primary_role")
+      .from("jobseeker_profiles")
+      .select("user_id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding, embedding_input_hash")
       .or("embedding.is.null,embedding_input_hash.is.null")
-      .eq("primary_role", "jobseeker")
       .limit(PROFILE_BACKFILL_LIMIT);
 
     if (profilesNeed && profilesNeed.length > 0) {
