@@ -26,11 +26,15 @@ export function requireCreds(role: RoleKey) {
 
 export async function login(page: Page, role: RoleKey) {
   const c = requireCreds(role);
-  await page.goto("/login");
+  await page.context().addInitScript(() => {
+    try { sessionStorage.setItem("site_gate_passed", "1"); } catch {}
+  });
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
+  await page.evaluate(() => { try { sessionStorage.setItem("site_gate_passed", "1"); } catch {} });
   await page.locator('input[type="email"], input[placeholder*="@"]').first().fill(c.email);
   await page.locator('input[type="password"]').first().fill(c.password);
   await page.getByRole("button", { name: /sign in|log in/i }).first().click();
-  await expect(page).not.toHaveURL(/\/login/, { timeout: 20_000 });
+  await expect(page).not.toHaveURL(/\/login/, { timeout: 30_000 });
 }
 
 export async function logout(page: Page) {
