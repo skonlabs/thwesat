@@ -268,7 +268,7 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           }),
         };
       }
-      if (table === "payment_requests") {
+      if (table === "subscription_payment_requests") {
         const chain: any = {
           select: vi.fn().mockReturnThis(),
           in: vi.fn().mockReturnThis(),
@@ -277,13 +277,9 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           lt: vi.fn().mockReturnThis(),
           order: vi.fn().mockResolvedValue({
             data: [
-              // u-a: pre-attribution → excluded
               { id: "pr-old", user_id: "u-a", reviewed_at: "2026-05-04T12:00:00.000Z", amount: 10_000, currency: "MMK" },
-              // u-a: post-attribution → included
               { id: "pr-a", user_id: "u-a", reviewed_at: "2026-05-08T00:00:00.000Z", amount: 25_000, currency: "MMK" },
-              // u-b: pre-attribution → excluded
               { id: "pr-b-early", user_id: "u-b", reviewed_at: "2026-05-15T00:00:00.000Z", amount: 5_000, currency: "MMK" },
-              // u-b: post-attribution → included
               { id: "pr-b", user_id: "u-b", reviewed_at: "2026-05-22T00:00:00.000Z", amount: 40_000, currency: "MMK" },
             ],
             error: null,
@@ -310,7 +306,7 @@ describe("partner — period payments query is RLS-friendly and post-attribution
           limit: vi.fn().mockResolvedValue({ data: [], error: null }),
         };
       }
-      if (table === "payment_requests") {
+      if (table === "subscription_payment_requests") {
         prCalled = true;
         return { select: vi.fn().mockReturnThis(), in: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), gte: vi.fn().mockReturnThis(), lt: vi.fn().mockReturnThis(), order: vi.fn().mockResolvedValue({ data: [] }) };
       }
