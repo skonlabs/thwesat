@@ -103,13 +103,13 @@ const Pricing = () => {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Totals
                 label={my ? "အလုပ်ခေါ်စာများ" : "JOB POSTINGS"}
-                value={quotas?.is_unlimited_jobs ? "∞" : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
-                total={quotas?.is_unlimited_jobs ? null : quotas?.active_jobs_quota ?? 0}
+                value={Math.max(0, (quotas?.job_postings_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
+                total={quotas?.job_postings_quota ?? 0}
               />
               <Totals
                 label={my ? "Candidate Unlocks" : "Candidate Unlocks"}
-                value={quotas?.is_unlimited_unlocks ? "∞" : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0)).toLocaleString()}
-                total={quotas?.is_unlimited_unlocks ? null : quotas?.unlocks_total ?? 0}
+                value={Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0)).toLocaleString()}
+                total={quotas?.unlocks_total ?? 0}
               />
               <Totals
                 label={my ? "Featured Jobs" : "Featured Jobs"}
