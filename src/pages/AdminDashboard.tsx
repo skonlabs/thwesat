@@ -17,7 +17,7 @@ const AdminDashboard = () => {
     queryFn: async () => {
 
       const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
-        (supabase as any).from("profiles").select("id", { count: "exact", head: true }),
+        (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),

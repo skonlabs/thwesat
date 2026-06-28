@@ -112,10 +112,10 @@ const AdminUsers = () => {
       const q = debouncedSearch.trim();
       if (q) {
         const [{ data: byName }, emailRowsResp] = await Promise.all([
-          (supabase as any).from("profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
+          (supabase as any).from("v_profiles").select("id").ilike("display_name", `%${q}%`).limit(500),
           (async () => {
             try {
-              return await (supabase as any).from("profiles").select("id").ilike("email", `%${q}%`).limit(500);
+              return await (supabase as any).from("v_profiles").select("id").ilike("email", `%${q}%`).limit(500);
             } catch {
               return { data: [] as any[] };
             }
@@ -126,7 +126,7 @@ const AdminUsers = () => {
         if (matchedIds.length === 0) return [];
       }
       let qb = (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, avatar_url, headline, bio, location, created_at, skills, languages, is_suspended")
         .order("created_at", { ascending: false });
       if (matchedIds) qb = qb.in("id", matchedIds);

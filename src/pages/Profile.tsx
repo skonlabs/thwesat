@@ -96,7 +96,7 @@ const Profile = () => {
       const referredIds = referrals.map(r => r.referred_id).filter(Boolean) as string[];
       if (!referredIds.length) return [];
       const { data: profiles } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, avatar_url, created_at")
         .in("id", referredIds);
       const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));

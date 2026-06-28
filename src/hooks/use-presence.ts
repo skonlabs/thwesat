@@ -15,7 +15,7 @@ export function usePresenceHeartbeat() {
     if (Date.now() - lastUpdate.current < MIN_UPDATE_INTERVAL) return;
     lastUpdate.current = Date.now();
     const { error } = await (supabase as any)
-      .from("profiles")
+      .from("v_profiles")
       .update({ last_seen_at: new Date().toISOString() })
       .eq("id", user.id);
     if (error) console.warn("Presence update failed:", error.message);

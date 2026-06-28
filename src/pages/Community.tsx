@@ -98,7 +98,7 @@ function usePostComments(postId: string | null) {
       if (error) throw error;
       const authorIds = [...new Set((data || []).map(c => c.author_id))];
       if (!authorIds.length) return [];
-      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name, avatar_url").in("id", authorIds);
+      const { data: profiles } = await (supabase as any).from("v_profiles").select("id, display_name, avatar_url").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       const enriched = (data || []).map(c => ({ ...c, author: pMap.get(c.author_id) }));
       const topLevel = enriched.filter(c => !c.parent_id);

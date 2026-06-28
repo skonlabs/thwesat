@@ -72,7 +72,7 @@ const ModeratorDashboard = () => {
       if (error) throw error;
       const authorIds = [...new Set((data || []).map(p => p.author_id))];
       if (!authorIds.length) return [];
-      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", authorIds);
+      const { data: profiles } = await (supabase as any).from("v_profiles").select("id, display_name").in("id", authorIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       return (data || []).map(p => ({ ...p, author: pMap.get(p.author_id) }));
     },
@@ -96,7 +96,7 @@ const ModeratorDashboard = () => {
       if (error) throw error;
       const userIds = [...new Set((data || []).map((p: any) => p.user_id))];
       if (!userIds.length) return (data || []).map((p: any) => ({ ...p, profile: null }));
-      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", userIds);
+      const { data: profiles } = await (supabase as any).from("v_profiles").select("id, display_name").in("id", userIds);
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds as string[] });
       const contactMap = new Map((contacts || []).map((c: any) => [c.id, c.email]));
       const pMap = new Map(((profiles as any[]) || []).map((p: any) => [p.id, { ...p, email: contactMap.get(p.id) ?? null }]));
@@ -113,7 +113,7 @@ const ModeratorDashboard = () => {
       if (error) throw error;
       const ids = [...new Set((data || []).flatMap((b: any) => [b.mentor_id, b.mentee_id]))];
       if (!ids.length) return (data || []).map((b: any) => ({ ...b, mentor: null, mentee: null }));
-      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", ids);
+      const { data: profiles } = await (supabase as any).from("v_profiles").select("id, display_name").in("id", ids);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       return (data || []).map((b: any) => ({ ...b, mentor: pMap.get(b.mentor_id), mentee: pMap.get(b.mentee_id) }));
     },

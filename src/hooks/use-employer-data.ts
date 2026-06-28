@@ -177,7 +177,7 @@ export function useAdminStats() {
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const [profiles, jobs, mentors, pendingJobs, pendingPosts, scamReports] = await Promise.all([
-        (supabase as any).from("profiles").select("id", { count: "exact", head: true }),
+        (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -209,7 +209,7 @@ export function usePendingPosts() {
       const authorIds = [...new Set((data || []).map((p) => p.author_id))];
       if (authorIds.length === 0) return [];
       const { data: profiles } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, headline, avatar_url")
         .in("id", authorIds);
       const profileMap = new Map((profiles || []).map((p) => [p.id, p]));

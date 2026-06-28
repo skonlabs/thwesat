@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const request = (async () => {
       const [{ data }, { data: contact }, { data: rolesData }] = await Promise.all([
         (supabase as any)
-          .from("profiles")
+          .from("v_profiles")
           .select(
             "id, display_name, avatar_url, headline, bio, location, website, skills, languages, experience, visibility, remote_ready, created_at, updated_at, role_title, preferred_work_types, has_payoneer, has_wise, has_upwork, has_laptop, internet_stable, referral_code, referred_by, last_seen_at, deletion_scheduled_at, deletion_requested_at"
           )
@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     const newUserId = data?.user?.id ?? null;
     if (!error && newUserId) {
-      await (supabase as any).from("profiles").update({ display_name: displayName }).eq("id", newUserId);
+      await (supabase as any).from("v_profiles").update({ display_name: displayName }).eq("id", newUserId);
       // Role is written by the auth.users trigger (handle_new_user); ensure it
       // exists even if metadata was ignored.
       try { await supabase.rpc("assign_my_role", { _role: canonicalRole as any }); } catch { /* ignore — likely already assigned */ }

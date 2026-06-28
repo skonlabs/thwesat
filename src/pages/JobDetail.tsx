@@ -45,12 +45,12 @@ const JobDetail = () => {
 
       const [profileRes, employerRes] = await Promise.all([
         (supabase as any)
-          .from("profiles")
+          .from("v_profiles")
           .select("id, display_name, headline, avatar_url, location, website")
           .eq("id", job.employer_id)
           .maybeSingle(),
         (supabase as any)
-          .from("employer_profiles_public")
+          .from("v_profiles")
           .select("company_name, company_description, company_website, industry, company_size, hq_country, is_verified")
           .eq("id", job.employer_id)
           .maybeSingle(),

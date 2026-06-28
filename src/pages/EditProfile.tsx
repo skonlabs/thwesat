@@ -500,7 +500,7 @@ const EditProfile = () => {
       }
 
       const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
-      const { error } = await (supabase as any).from("profiles").update({
+      const { error } = await (supabase as any).from("v_profiles").update({
         display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
         avatar_url: savedAvatarUrl,
         skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,

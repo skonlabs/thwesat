@@ -64,7 +64,7 @@ const AdminEmployers = () => {
       if (ids.length === 0) return [];
 
       const { data: profiles } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, avatar_url, created_at, bio, headline, location, phone, website, languages, skills, experience, role_title")
         .in("id", ids);
       const { data: roles } = await supabase.from("user_roles").select("user_id, role").in("user_id", ids);
