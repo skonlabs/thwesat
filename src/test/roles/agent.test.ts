@@ -24,52 +24,62 @@ beforeEach(() => {
   fromMock.mockReset();
 });
 
+/**
+ * Agent clients are now stored as a JSONB array on agent_profiles.clients.
+ * Tests assert the hook reads/writes via agent_profiles.{select,update}
+ * scoped by user_id.
+ */
+function mockClientsTable(clients: any[]) {
+  const updateEq = vi.fn().mockResolvedValue({ error: null });
+  const updateMock = vi.fn().mockReturnValue({ eq: updateEq });
+  const selectEq = vi.fn().mockReturnValue({ maybeSingle: () => Promise.resolve({ data: { clients }, error: null }) });
+  const selectMock = vi.fn().mockReturnValue({ eq: selectEq });
+  fromMock.mockImplementation((table: string) => {
+    if (table === "agent_profiles") return { select: selectMock, update: updateMock };
+    return {};
+  });
+  return { updateMock, updateEq, selectEq };
+}
+
 describe("Agent — useAgentClients (RLS scope)", () => {
-  it("scopes the SELECT to the current agent's id", async () => {
-    const eqMock = vi.fn().mockReturnValue({ order: () => Promise.resolve({ data: [], error: null }) });
-    fromMock.mockReturnValue({ select: () => ({ eq: eqMock }) });
+  it("scopes the SELECT to the current agent's user_id", async () => {
+    const { selectEq } = mockClientsTable([]);
 
     const { result } = renderHook(() => useAgentClients(), { wrapper });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(eqMock).toHaveBeenCalledWith("agent_id", "agent-1");
+    expect(selectEq).toHaveBeenCalledWith("user_id", "agent-1");
   });
 });
 
 describe("Agent — useUpsertAgentClient", () => {
   it("INSERT path injects agent_id and defaults optional fields to empty strings", async () => {
-    const insertChain = {
-      insert: vi.fn().mockReturnThis(),
-      select: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { id: "client-1" }, error: null }),
-    };
-    fromMock.mockReturnValue(insertChain);
+    const { updateMock } = mockClientsTable([]);
 
     const { result } = renderHook(() => useUpsertAgentClient(), { wrapper });
     await result.current.mutateAsync({ name: "Acme Co" });
 
-    expect(insertChain.insert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        agent_id: "agent-1",
-        name: "Acme Co",
-        logo_url: "",
-        website: "",
-        industry: "",
-        notes: "",
-        is_active: true,
-      })
-    );
+    const written = updateMock.mock.calls[0][0].clients as any[];
+    expect(written).toHaveLength(1);
+    expect(written[0]).toMatchObject({
+      agent_id: "agent-1",
+      name: "Acme Co",
+      website: "",
+      industry: "",
+      notes: "",
+      is_active: true,
+    });
   });
 
-  it("UPDATE path uses .eq(id) when an id is provided", async () => {
-    const eqMock = vi.fn().mockReturnValue({
-      select: () => ({ single: () => Promise.resolve({ data: { id: "client-1" }, error: null }) }),
-    });
-    fromMock.mockReturnValue({ update: () => ({ eq: eqMock }) });
+  it("UPDATE path mutates the existing client by id", async () => {
+    const existing = [{ id: "client-1", agent_id: "agent-1", name: "Old", logo_url: "", website: "", industry: "", notes: "", is_active: true, created_at: "2026-01-01", updated_at: "2026-01-01" }];
+    const { updateMock } = mockClientsTable(existing);
 
     const { result } = renderHook(() => useUpsertAgentClient(), { wrapper });
     await result.current.mutateAsync({ id: "client-1", name: "Acme Co Updated" });
-    expect(eqMock).toHaveBeenCalledWith("id", "client-1");
+
+    const written = updateMock.mock.calls[0][0].clients as any[];
+    expect(written.find((c) => c.id === "client-1").name).toBe("Acme Co Updated");
   });
 
   it("rejects when not signed in", async () => {
@@ -83,13 +93,17 @@ describe("Agent — useUpsertAgentClient", () => {
 });
 
 describe("Agent — useDeleteAgentClient", () => {
-  it("calls delete().eq(id, ...)", async () => {
-    const eqMock = vi.fn().mockResolvedValue({ error: null });
-    fromMock.mockReturnValue({ delete: () => ({ eq: eqMock }) });
+  it("removes the client by id from the JSONB array", async () => {
+    const existing = [
+      { id: "client-1", agent_id: "agent-1", name: "Keep", logo_url: "", website: "", industry: "", notes: "", is_active: true, created_at: "", updated_at: "" },
+      { id: "client-2", agent_id: "agent-1", name: "Drop", logo_url: "", website: "", industry: "", notes: "", is_active: true, created_at: "", updated_at: "" },
+    ];
+    const { updateMock } = mockClientsTable(existing);
 
     const { result } = renderHook(() => useDeleteAgentClient(), { wrapper });
-    await result.current.mutateAsync("client-1");
-    expect(eqMock).toHaveBeenCalledWith("id", "client-1");
+    await result.current.mutateAsync("client-2");
+    const written = updateMock.mock.calls[0][0].clients as any[];
+    expect(written.map((c) => c.id)).toEqual(["client-1"]);
   });
 });
 
