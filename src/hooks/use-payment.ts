@@ -131,6 +131,7 @@ export function useMyPaymentRequests() {
         .from("subscription_payment_requests")
         .select("*")
         .eq("user_id", user.id)
+        .in("payment_type", ["placement_fee", "mentor_session"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as PaymentRequest[];
