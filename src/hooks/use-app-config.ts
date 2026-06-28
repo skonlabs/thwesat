@@ -77,7 +77,7 @@ export function useUpdateAppConfig<T = any>(key: string) {
       const { error } = await supabase
         .from("app_config")
         .upsert(
-          { key, value, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+          [{ key, value: value as any, updated_by: user?.id ?? null, updated_at: new Date().toISOString() }],
           { onConflict: "key" },
         );
       if (error) throw error;
