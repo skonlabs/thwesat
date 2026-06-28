@@ -14,10 +14,7 @@ export function usePresenceHeartbeat() {
     // Debounce: skip if called too soon after the last successful write
     if (Date.now() - lastUpdate.current < MIN_UPDATE_INTERVAL) return;
     lastUpdate.current = Date.now();
-    const { error } = await (supabase as any)
-      .from("v_profiles")
-      .update({ last_seen_at: new Date().toISOString() })
-      .eq("id", user.id);
+    const { error } = await (supabase as any).rpc("touch_my_presence");
     if (error) console.warn("Presence update failed:", error.message);
   }, [user]);
 
