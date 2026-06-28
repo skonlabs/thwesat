@@ -43,15 +43,19 @@ export function useUserFinance(userId: string | null | undefined) {
     queryFn: async (): Promise<UserFinanceRow[]> => {
       if (!userId) return [];
       const [pr, sr, tr, plans, addons] = await Promise.all([
+        // mentor_session / placement_fee
         (supabase as any)
           .from("subscription_payment_requests")
           .select("*")
           .eq("user_id", userId)
+          .in("request_type", ["mentor_session", "placement_fee"])
           .order("created_at", { ascending: false }),
+        // subscription / addon
         (supabase as any)
           .from("subscription_payment_requests")
           .select("*")
           .eq("user_id", userId)
+          .in("request_type", ["subscription", "addon"])
           .order("created_at", { ascending: false }),
         (supabase as any)
           .from("topup_requests")
