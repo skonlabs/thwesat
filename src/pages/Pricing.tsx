@@ -197,9 +197,7 @@ const Pricing = () => {
                 <ul className="mt-4 flex-1 space-y-1.5 text-xs">
                   <FeatureRow
                     text={
-                      plan.is_unlimited_jobs
-                        ? my ? "Unlimited Job Postings" : "Unlimited Job Postings"
-                        : my ? `Job Postings ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Job Postings`
+                      my ? `Job Postings ${plan.job_postings_quota.toLocaleString()} ခု` : `${plan.job_postings_quota.toLocaleString()} Job Postings`
                     }
                   />
                   {plan.featured_jobs_quota > 0 && (
@@ -213,9 +211,7 @@ const Pricing = () => {
                   )}
                   <FeatureRow
                     text={
-                      plan.is_unlimited_unlocks
-                        ? my ? "Unlimited Candidate Unlocks" : "Unlimited Candidate Unlocks"
-                        : my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`
+                      my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`
                     }
                   />
                   {!isFreeTrial && <FeatureRow text={my ? "ပိုင်ဆိုင်မှု စုစုပေါင်းတွင် ပေါင်းထည့်" : "Stacks with other packages you own"} />}
