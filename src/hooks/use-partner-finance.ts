@@ -29,11 +29,11 @@ export function usePartners() {
     staleTime: STALE_60S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partners")
+        .from("partner_profiles")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Partner[];
+      return ((data || []) as any[]).map((p) => ({ ...p, id: p.user_id, name: p.display_name })) as Partner[];
     },
   });
 }
