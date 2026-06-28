@@ -45,7 +45,7 @@ export function useAppConfig<T = any>(key: string) {
   return useQuery({
     queryKey: ["app-config", key],
     queryFn: async (): Promise<T> => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("app_config")
         .select("value")
         .eq("key", key)
