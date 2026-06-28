@@ -68,9 +68,9 @@ const AdminAnalytics = () => {
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }).not("title", "is", null).neq("title", ""),
         supabase.from("mentor_bookings").select("id", { count: "exact", head: true }),
         supabase.from("applications").select("id", { count: "exact", head: true }),
-        (supabase as any).from("payment_requests").select("id", { count: "exact", head: true }),
-        (supabase as any).from("payment_requests").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        (supabase as any).from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("subscription_payment_requests").select("id", { count: "exact", head: true }),
+        (supabase as any).from("subscription_payment_requests").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        (supabase as any).from("contact_messages").select("id", { count: "exact", head: true }).eq("category", "report").eq("status", "new"),
         supabase.from("guides").select("id", { count: "exact", head: true }),
       ]);
       return {
@@ -102,9 +102,9 @@ const AdminAnalytics = () => {
         (supabase as any).from("profiles").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("jobs").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("applications").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
-        (supabase as any).from("payment_requests").select("created_at,status,amount,currency").gte("created_at", sinceIso).order("created_at", { ascending: true }),
+        (supabase as any).from("subscription_payment_requests").select("created_at,status,amount,currency").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("mentor_bookings").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
-        (supabase as any).from("payment_requests").select("status").gte("created_at", sinceIso),
+        (supabase as any).from("subscription_payment_requests").select("status").gte("created_at", sinceIso),
       ]);
       const statusCounts: Record<string, number> = { pending: 0, approved: 0, rejected: 0, revoked: 0 };
       (paymentMix.data || []).forEach((p) => {

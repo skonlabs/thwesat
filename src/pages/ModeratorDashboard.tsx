@@ -92,7 +92,7 @@ const ModeratorDashboard = () => {
   const { data: paymentRequests = [], isLoading: paymentsLoading } = useQuery({
     queryKey: ["moderator-payment-requests"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from("payment_requests").select("*").order("created_at", { ascending: false });
+      const { data, error } = await (supabase as any).from("subscription_payment_requests").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       const userIds = [...new Set((data || []).map((p: any) => p.user_id))];
       if (!userIds.length) return (data || []).map((p: any) => ({ ...p, profile: null }));

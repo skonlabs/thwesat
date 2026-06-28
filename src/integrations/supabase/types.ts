@@ -180,6 +180,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          clients: Json
           created_at: string
           display_name: string
           headline: string | null
@@ -195,6 +196,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          clients?: Json
           created_at?: string
           display_name?: string
           headline?: string | null
@@ -210,6 +212,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          clients?: Json
           created_at?: string
           display_name?: string
           headline?: string | null
@@ -474,6 +477,8 @@ export type Database = {
           category: string
           created_at: string
           email: string
+          entity_id: string | null
+          entity_type: string | null
           id: string
           message: string
           name: string
@@ -486,6 +491,8 @@ export type Database = {
           category: string
           created_at?: string
           email: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           message: string
           name: string
@@ -498,6 +505,8 @@ export type Database = {
           category?: string
           created_at?: string
           email?: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           message?: string
           name?: string
@@ -1824,22 +1833,28 @@ export type Database = {
       }
       partner_monthly_statements: {
         Row: {
+          csat_score: number | null
           currency: string
           id: string
+          l1_sla_pct: number | null
           partner_id: string
           period_month: number
           period_year: number
         }
         Insert: {
+          csat_score?: number | null
           currency?: string
           id?: string
+          l1_sla_pct?: number | null
           partner_id: string
           period_month: number
           period_year: number
         }
         Update: {
+          csat_score?: number | null
           currency?: string
           id?: string
+          l1_sla_pct?: number | null
           partner_id?: string
           period_month?: number
           period_year?: number
@@ -2220,54 +2235,78 @@ export type Database = {
         Row: {
           addon_id: string | null
           admin_note: string | null
+          amount: number | null
+          booking_id: string | null
           created_at: string
+          currency: string
           id: string
           mmk_amount: number
+          npr_amount: number | null
           payment_method: string | null
+          payment_type: string
           plan_id: string | null
           proof_url: string | null
           quantity: number
+          reference_id: string | null
           request_type: string
+          revenue_classification: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           sender_reference: string | null
           status: string
+          third_party_payout: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           addon_id?: string | null
           admin_note?: string | null
+          amount?: number | null
+          booking_id?: string | null
           created_at?: string
+          currency?: string
           id?: string
           mmk_amount: number
+          npr_amount?: number | null
           payment_method?: string | null
+          payment_type?: string
           plan_id?: string | null
           proof_url?: string | null
           quantity?: number
+          reference_id?: string | null
           request_type: string
+          revenue_classification?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sender_reference?: string | null
           status?: string
+          third_party_payout?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           addon_id?: string | null
           admin_note?: string | null
+          amount?: number | null
+          booking_id?: string | null
           created_at?: string
+          currency?: string
           id?: string
           mmk_amount?: number
+          npr_amount?: number | null
           payment_method?: string | null
+          payment_type?: string
           plan_id?: string | null
           proof_url?: string | null
           quantity?: number
+          reference_id?: string | null
           request_type?: string
+          revenue_classification?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sender_reference?: string | null
           status?: string
+          third_party_payout?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -2277,6 +2316,13 @@ export type Database = {
             columns: ["addon_id"]
             isOneToOne: false
             referencedRelation: "addon_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payment_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "mentor_bookings"
             referencedColumns: ["id"]
           },
           {
@@ -3220,6 +3266,10 @@ export type Database = {
       reject_subscription_payment: {
         Args: { p_admin_note?: string; p_request_id: string }
         Returns: undefined
+      }
+      review_payment_request: {
+        Args: { _admin_note?: string; _new_status: string; _payment_id: string }
+        Returns: Json
       }
       set_user_suspended: {
         Args: { _suspended: boolean; _user_id: string }

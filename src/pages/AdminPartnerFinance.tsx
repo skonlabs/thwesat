@@ -850,14 +850,10 @@ function QualityTab({ partner, year, month, lang }: { partner: Partner; year: nu
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      const { error } = await (supabase as any).from("partner_quality_metrics").upsert({
+      const { error } = await (supabase as any).from("partner_monthly_statements").upsert({
         partner_id: partner.id, period_year: year, period_month: month,
         l1_sla_pct: vals.l1_sla_pct === "" ? null : Number(vals.l1_sla_pct),
         csat_score: vals.csat_score === "" ? null : Number(vals.csat_score),
-        dispute_rate_pct: vals.dispute_rate_pct === "" ? null : Number(vals.dispute_rate_pct),
-        fraud_rate_pct: vals.fraud_rate_pct === "" ? null : Number(vals.fraud_rate_pct),
-        notes: vals.notes || null,
-        recorded_by: u.user?.id,
       }, { onConflict: "partner_id,period_year,period_month" });
       if (error) throw error;
       // success is silent per UX policy

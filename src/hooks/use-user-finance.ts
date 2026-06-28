@@ -44,7 +44,7 @@ export function useUserFinance(userId: string | null | undefined) {
       if (!userId) return [];
       const [pr, sr, tr, plans, addons] = await Promise.all([
         (supabase as any)
-          .from("payment_requests")
+          .from("subscription_payment_requests")
           .select("*")
           .eq("user_id", userId)
           .order("created_at", { ascending: false }),

@@ -74,8 +74,13 @@ export function useCreatePaymentRequest() {
       }
 
       const { error } = await (supabase as any)
-        .from("payment_requests")
-        .insert({ ...req, user_id: user.id } as any);
+        .from("subscription_payment_requests")
+        .insert({
+          ...req,
+          user_id: user.id,
+          request_type: req.payment_type === "mentor_session" || req.payment_type === "placement_fee" ? req.payment_type : "subscription",
+          mmk_amount: req.amount,
+        } as any);
       if (error) throw error;
 
       // NOTE: The two-step update below (payment insert then booking status update) is
@@ -123,9 +128,10 @@ export function useMyPaymentRequests() {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("*")
         .eq("user_id", user.id)
+        .in("payment_type", ["placement_fee", "mentor_session"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as PaymentRequest[];
@@ -139,8 +145,9 @@ export function useAllPaymentRequests() {
     queryKey: ["payment-requests", "admin"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("*")
+        .in("payment_type", ["placement_fee", "mentor_session"])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as PaymentRequest[];
@@ -168,7 +175,7 @@ export function useUpdatePaymentRequest() {
       admin_note?: string;
     }) => {
       const { data: pr } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("user_id, amount, currency, payment_type")
         .eq("id", id)
         .maybeSingle();

@@ -52,11 +52,14 @@ const AdminPartners = () => {
     queryKey: ["admin-partners"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partners")
-        .select("id, name, code, user_id, is_active, contact_email, contract_start_date")
+        .from("partner_profiles")
+        .select("user_id, display_name, code, contact_email, contract_start_date, is_active, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as PartnerRow[];
+      return ((data ?? []) as any[]).map((p) => ({
+        id: p.user_id, name: p.display_name, code: p.code, user_id: p.user_id,
+        is_active: p.is_active, contact_email: p.contact_email, contract_start_date: p.contract_start_date,
+      })) as PartnerRow[];
     },
   });
 
@@ -239,15 +242,15 @@ function ReferralCodeUsage({ lang }: { lang: "en" | "my" }) {
       const partnerIds = Array.from(new Set(rows.map((r) => r.partner_id)));
       const userIds = Array.from(new Set(rows.map((r) => r.used_by).filter(Boolean) as string[]));
       const [{ data: partners }, profilesRes, rolesRes] = await Promise.all([
-        (supabase as any).from("partners").select("id, name, code").in("id", partnerIds),
+        (supabase as any).from("partner_profiles").select("user_id, display_name, code").in("user_id", partnerIds),
         userIds.length
-          ? (supabase as any).from("profiles").select("id, display_name, email").in("id", userIds)
+          ? (supabase as any).from("v_profiles").select("id, display_name, email").in("id", userIds)
           : Promise.resolve({ data: [] as any[] }),
         userIds.length
           ? supabase.from("user_roles").select("user_id, role").in("user_id", userIds)
           : Promise.resolve({ data: [] as any[] }),
       ]);
-      const partnerMap = new Map((partners ?? []).map((p: any) => [p.id, p]));
+      const partnerMap = new Map((partners ?? []).map((p: any) => [p.user_id, { name: p.display_name, code: p.code }]));
       const roleMap = new Map(((rolesRes as any).data ?? []).map((r: any) => [r.user_id, r.role]));
       const profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, { ...p, primary_role: roleMap.get(p.id) ?? null }]));
       return rows.map((r) => ({

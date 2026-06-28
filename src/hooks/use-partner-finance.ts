@@ -29,11 +29,11 @@ export function usePartners() {
     staleTime: STALE_60S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partners")
+        .from("partner_profiles")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Partner[];
+      return ((data || []) as any[]).map((p) => ({ ...p, id: p.user_id, name: p.display_name })) as Partner[];
     },
   });
 }
@@ -75,12 +75,13 @@ export function usePaymentReversals() {
     staleTime: STALE_30S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("payment_reversals")
+        .from("wallet_transactions")
         .select("*")
-        .order("occurred_at", { ascending: false })
+        .eq("kind", "reversal")
+        .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
-      return (data || []) as any[];
+      return ((data || []) as any[]).map((r) => ({ ...r, occurred_at: r.created_at })) as any[];
     },
   });
 }
@@ -110,8 +111,8 @@ export function usePartnerQualityMetrics(partnerId?: string | null) {
     staleTime: STALE_60S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partner_quality_metrics")
-        .select("*")
+        .from("partner_monthly_statements")
+        .select("partner_id, period_year, period_month, l1_sla_pct, csat_score")
         .eq("partner_id", partnerId)
         .order("period_year", { ascending: false })
         .order("period_month", { ascending: false });
@@ -175,7 +176,7 @@ export function usePartnerPeriodPayments(
       const results = await Promise.all(
         chunks.map((ids) =>
           (supabase as any)
-            .from("payment_requests")
+            .from("subscription_payment_requests")
             .select(
               "id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at",
             )
