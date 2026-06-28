@@ -636,6 +636,7 @@ const Community = () => {
                                                     user_id: user.id,
                                                     name: user.email ?? "user",
                                                     email: user.email ?? "",
+                                                    category: "report",
                                                     subject: "Community comment report",
                                                     message: c.content?.slice(0, 200) || "Community comment report",
                                                   });
