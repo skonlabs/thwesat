@@ -39,7 +39,7 @@ beforeEach(() => {
   fromMock.mockReset();
   // Default: payment_requests lookup returns null so the email side-effect is skipped.
   fromMock.mockImplementation((table: string) => {
-    if (table === "payment_requests") {
+    if (table === "subscription_payment_requests") {
       return {
         select: () => ({
           eq: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }),
