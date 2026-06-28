@@ -4,10 +4,14 @@ import { renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const fromMock = vi.fn();
+const rpcMock = vi.fn();
 const sendAppEmailMock = vi.fn();
 
 vi.mock("@/integrations/supabase/client", () => ({
-  supabase: { from: (...a: any[]) => fromMock(...a) },
+  supabase: {
+    from: (...a: any[]) => fromMock(...a),
+    rpc: (...a: any[]) => rpcMock(...a),
+  },
 }));
 vi.mock("@/hooks/use-auth", () => ({ useAuth: () => ({ user: { id: "emp-1" } }) }));
 vi.mock("@/hooks/use-language", () => ({ useLanguage: () => ({ lang: "en" }) }));
