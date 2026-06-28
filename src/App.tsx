@@ -164,9 +164,9 @@ const App = () => (
               <Route path="/mentors/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/mentor/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-              {/* Legacy moderator URLs redirect to the unified dashboard. */}
-              <Route path="/moderator" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/moderator/dashboard" element={<Navigate to="/dashboard" replace />} />
+              {/* Legacy moderator URLs redirect to admin moderation. */}
+              <Route path="/moderator" element={<Navigate to="/admin/moderation" replace />} />
+              <Route path="/moderator/dashboard" element={<Navigate to="/admin/moderation" replace />} />
 
               {/* Employer Portal — employer role ONLY (agent has its own /agent/* namespace) */}
               <Route path="/employer/post-job" element={<AppRoleGuard allowedRoles={["employer"]}><EmployerPostJob /></AppRoleGuard>} />
