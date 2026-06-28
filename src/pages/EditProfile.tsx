@@ -500,15 +500,17 @@ const EditProfile = () => {
       }
 
       const fullPhone = phoneNumber ? `${phoneCountryCode}${phoneNumber.replace(/\s/g, "")}` : "";
-      const { error } = await (supabase as any).from("v_profiles").update({
-        display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), email: email.trim(), phone: fullPhone, website: website.trim(),
-        avatar_url: savedAvatarUrl,
-        skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
-        has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
-        has_laptop: hasLaptop, internet_stable: internetStable,
-        remote_ready: hasLaptop && internetStable,
-        job_search_status: jobSearchStatus,
-      }).eq("id", profile.id);
+      const { error } = await (supabase as any).rpc("update_my_profile", {
+        p_updates: {
+          display_name: name.trim(), headline: headline.trim(), bio: bio.trim(), location: location.trim(), website: website.trim(),
+          avatar_url: savedAvatarUrl,
+          skills, languages, experience: experience.trim(), visibility, preferred_work_types: preferredWorkTypes,
+          has_payoneer: false, has_wise: hasWise, has_upwork: hasUpwork,
+          has_laptop: hasLaptop, internet_stable: internetStable,
+          remote_ready: hasLaptop && internetStable,
+          job_search_status: jobSearchStatus,
+        },
+      });
       if (error) throw error;
 
       // Sync mentor_profiles if user is a mentor
