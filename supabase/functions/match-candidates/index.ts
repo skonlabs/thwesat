@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
 
     if (profilesNeed && profilesNeed.length > 0) {
       // Fetch primary CV for each (best-effort, bulk).
-      const ids = profilesNeed.map((p: any) => p.id);
+      const ids = profilesNeed.map((p: any) => p.user_id);
       const { data: cvs } = await admin
         .from("user_documents")
         .select("user_id, parsed_text, is_primary, parsed_at")
@@ -196,9 +196,9 @@ Deno.serve(async (req) => {
       });
 
       const prepared = await Promise.all(profilesNeed.map(async (p: any) => {
-        const text = buildProfileText(p, cvByUser.get(p.id));
+        const text = buildProfileText(p, cvByUser.get(p.user_id));
         const hash = text ? await sha256(text) : "";
-        return { id: p.id, text, hash, currentHash: p.embedding_input_hash };
+        return { id: p.user_id, text, hash, currentHash: p.embedding_input_hash };
       }));
       const stale = prepared.filter((p) => p.text && p.text.length >= 20 && p.hash !== p.currentHash);
       for (let i = 0; i < stale.length; i += 20) {
