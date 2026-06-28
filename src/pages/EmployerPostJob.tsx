@@ -724,9 +724,7 @@ const EmployerPostJob = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Active job slot"}</span>
                     <span className="font-semibold tabular-nums">
-                      {quotas?.is_unlimited_jobs
-                        ? "∞ → ∞"
-                        : `${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
+                      {`${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
                       <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
                     </span>
                   </div>
