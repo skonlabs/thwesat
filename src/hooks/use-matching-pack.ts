@@ -16,11 +16,11 @@ export function useHasMatchingPack() {
       if (!user) return false;
       const nowIso = new Date().toISOString();
       const { data, error } = await (supabase as any)
-        .from("addon_purchases")
-        .select("id, expires_at, status, addon_products!inner(kind)")
+        .from("feature_unlocks")
+        .select("id, expires_at, is_active")
         .eq("user_id", user.id)
-        .eq("status", "active")
-        .eq("addon_products.kind", "matching")
+        .eq("feature_key", "matching")
+        .eq("is_active", true)
         .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
         .limit(1);
       if (error) return false;
