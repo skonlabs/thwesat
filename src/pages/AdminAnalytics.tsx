@@ -70,7 +70,7 @@ const AdminAnalytics = () => {
         supabase.from("applications").select("id", { count: "exact", head: true }),
         (supabase as any).from("payment_requests").select("id", { count: "exact", head: true }),
         (supabase as any).from("payment_requests").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        (supabase as any).from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("contact_messages").select("id", { count: "exact", head: true }).eq("category", "report").eq("status", "new"),
         supabase.from("guides").select("id", { count: "exact", head: true }),
       ]);
       return {

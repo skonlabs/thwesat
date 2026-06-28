@@ -182,7 +182,7 @@ export function useAdminStats() {
         supabase.from("mentor_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
-        (supabase as any).from("scam_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("contact_messages").select("id", { count: "exact", head: true }).eq("category", "report").eq("status", "new"),
       ]);
       return {
         totalUsers: profiles.count || 0,
