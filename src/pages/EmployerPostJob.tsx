@@ -100,11 +100,9 @@ const EmployerPostJob = () => {
   const { data: quotas } = useMyQuotas();
   const { data: grants = [] } = useMyPackageGrants();
   const hasPackage = grants.length > 0;
-  const jobsRemaining = quotas?.is_unlimited_jobs
-    ? Infinity
-    : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
+  const jobsRemaining = Math.max(0, (quotas?.job_postings_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
   const featuredRemaining = Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0));
-  const noJobsLeft = !hasPackage || (jobsRemaining !== Infinity && jobsRemaining <= 0);
+  const noJobsLeft = !hasPackage || jobsRemaining <= 0;
   const noFeaturedLeft = isFeatured && featuredRemaining <= 0;
   const insufficient = noJobsLeft || noFeaturedLeft;
   const isContract = roleType === "remote_contract";
