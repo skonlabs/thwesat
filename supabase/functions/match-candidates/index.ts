@@ -175,16 +175,16 @@ Deno.serve(async (req) => {
     }
 
     // 4) Backfill missing seeker profile embeddings (capped).
+    //    jobseeker_profiles is the canonical jobseeker table (post role-split).
     const { data: profilesNeed } = await admin
-      .from("profiles")
-      .select("id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding, embedding_input_hash, primary_role")
+      .from("jobseeker_profiles")
+      .select("user_id, headline, bio, experience, location, skills, languages, preferred_work_types, embedding, embedding_input_hash")
       .or("embedding.is.null,embedding_input_hash.is.null")
-      .eq("primary_role", "jobseeker")
       .limit(PROFILE_BACKFILL_LIMIT);
 
     if (profilesNeed && profilesNeed.length > 0) {
       // Fetch primary CV for each (best-effort, bulk).
-      const ids = profilesNeed.map((p: any) => p.id);
+      const ids = profilesNeed.map((p: any) => p.user_id);
       const { data: cvs } = await admin
         .from("user_documents")
         .select("user_id, parsed_text, is_primary, parsed_at")
@@ -196,9 +196,9 @@ Deno.serve(async (req) => {
       });
 
       const prepared = await Promise.all(profilesNeed.map(async (p: any) => {
-        const text = buildProfileText(p, cvByUser.get(p.id));
+        const text = buildProfileText(p, cvByUser.get(p.user_id));
         const hash = text ? await sha256(text) : "";
-        return { id: p.id, text, hash, currentHash: p.embedding_input_hash };
+        return { id: p.user_id, text, hash, currentHash: p.embedding_input_hash };
       }));
       const stale = prepared.filter((p) => p.text && p.text.length >= 20 && p.hash !== p.currentHash);
       for (let i = 0; i < stale.length; i += 20) {

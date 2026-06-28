@@ -53,7 +53,7 @@ export default function ProfileDashboardHero({
     .map((g) => planById[g.plan_id])
     .filter(Boolean)
     .sort((a: any, b: any) => (tierRank[b.tier] ?? 0) - (tierRank[a.tier] ?? 0))[0];
-  const unlocksLeft = quotas?.is_unlimited_unlocks ? Infinity : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
+  const unlocksLeft = Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
   const planTile = {
     icon: Sparkles,
     label: lang === "my" ? "Package" : "Plan",

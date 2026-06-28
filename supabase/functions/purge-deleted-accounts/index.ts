@@ -47,22 +47,30 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Scrub PII via the profiles view (INSTEAD OF UPDATE trigger routes to the
-  // correct role-specific table). Auth row + email/phone are cleared separately.
-  const { error: updateError } = await (supabase as any)
-    .from("profiles")
-    .update({
-      display_name: "Deleted user",
-      bio: "",
-      headline: "",
-      phone: "",
-      website: "",
-      location: "",
-      avatar_url: null,
-      visibility: "private",
-      email: null,
-    })
-    .in("id", ids);
+  // Scrub PII across every role-specific profile table. A user lives in
+  // exactly one of these, so unrelated updates are no-ops.
+  const scrub = {
+    display_name: "Deleted user",
+    bio: "",
+    headline: "",
+    website: "",
+    location: "",
+    avatar_url: null,
+    visibility: "private",
+  };
+  const tables: Array<{ name: string; key: string; cols: Record<string, unknown> }> = [
+    { name: "jobseeker_profiles", key: "user_id", cols: scrub },
+    { name: "employer_profiles", key: "id", cols: scrub },
+    { name: "agent_profiles", key: "user_id", cols: scrub },
+    { name: "mentor_profiles", key: "id", cols: scrub },
+    { name: "partner_profiles", key: "user_id", cols: scrub },
+    { name: "admin_profiles", key: "user_id", cols: scrub },
+  ];
+  let updateError: { message: string } | null = null;
+  for (const t of tables) {
+    const { error } = await (supabase as any).from(t.name).update(t.cols).in(t.key, ids);
+    if (error) updateError = { message: `${t.name}: ${error.message}` };
+  }
 
   // Clear the deletion schedule so we don't re-process these rows.
   await supabase

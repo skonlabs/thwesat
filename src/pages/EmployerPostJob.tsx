@@ -100,11 +100,9 @@ const EmployerPostJob = () => {
   const { data: quotas } = useMyQuotas();
   const { data: grants = [] } = useMyPackageGrants();
   const hasPackage = grants.length > 0;
-  const jobsRemaining = quotas?.is_unlimited_jobs
-    ? Infinity
-    : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
+  const jobsRemaining = Math.max(0, (quotas?.job_postings_quota ?? 0) - (quotas?.active_jobs_used ?? 0));
   const featuredRemaining = Math.max(0, (quotas?.featured_jobs_total ?? 0) - (quotas?.featured_jobs_used ?? 0));
-  const noJobsLeft = !hasPackage || (jobsRemaining !== Infinity && jobsRemaining <= 0);
+  const noJobsLeft = !hasPackage || jobsRemaining <= 0;
   const noFeaturedLeft = isFeatured && featuredRemaining <= 0;
   const insufficient = noJobsLeft || noFeaturedLeft;
   const isContract = roleType === "remote_contract";
@@ -518,7 +516,7 @@ const EmployerPostJob = () => {
             )}
             <div className="mx-auto w-full max-w-md space-y-3 pt-2">
               <div className="rounded-xl border border-border bg-card px-3 py-2 text-[11px]">
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{`${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
                 {isFeatured && <div className="mt-1 flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
                 {!hasPackage && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Package required"}</p>}
               </div>
@@ -726,9 +724,7 @@ const EmployerPostJob = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Active job slot"}</span>
                     <span className="font-semibold tabular-nums">
-                      {quotas?.is_unlimited_jobs
-                        ? "∞ → ∞"
-                        : `${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
+                      {`${jobsRemaining} → ${Math.max(0, jobsRemaining - 1)}`}
                       <span className="ml-1 text-[11px] text-muted-foreground">(−1)</span>
                     </span>
                   </div>

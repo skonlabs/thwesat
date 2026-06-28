@@ -103,13 +103,13 @@ const Pricing = () => {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Totals
                 label={my ? "အလုပ်ခေါ်စာများ" : "JOB POSTINGS"}
-                value={quotas?.is_unlimited_jobs ? "∞" : Math.max(0, (quotas?.active_jobs_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
-                total={quotas?.is_unlimited_jobs ? null : quotas?.active_jobs_quota ?? 0}
+                value={Math.max(0, (quotas?.job_postings_quota ?? 0) - (quotas?.active_jobs_used ?? 0)).toLocaleString()}
+                total={quotas?.job_postings_quota ?? 0}
               />
               <Totals
                 label={my ? "Candidate Unlocks" : "Candidate Unlocks"}
-                value={quotas?.is_unlimited_unlocks ? "∞" : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0)).toLocaleString()}
-                total={quotas?.is_unlimited_unlocks ? null : quotas?.unlocks_total ?? 0}
+                value={Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0)).toLocaleString()}
+                total={quotas?.unlocks_total ?? 0}
               />
               <Totals
                 label={my ? "Featured Jobs" : "Featured Jobs"}
@@ -197,9 +197,7 @@ const Pricing = () => {
                 <ul className="mt-4 flex-1 space-y-1.5 text-xs">
                   <FeatureRow
                     text={
-                      plan.is_unlimited_jobs
-                        ? my ? "Unlimited Job Postings" : "Unlimited Job Postings"
-                        : my ? `Job Postings ${plan.active_jobs_quota.toLocaleString()} ခု` : `${plan.active_jobs_quota.toLocaleString()} Job Postings`
+                      my ? `Job Postings ${plan.job_postings_quota.toLocaleString()} ခု` : `${plan.job_postings_quota.toLocaleString()} Job Postings`
                     }
                   />
                   {plan.featured_jobs_quota > 0 && (
@@ -213,9 +211,7 @@ const Pricing = () => {
                   )}
                   <FeatureRow
                     text={
-                      plan.is_unlimited_unlocks
-                        ? my ? "Unlimited Candidate Unlocks" : "Unlimited Candidate Unlocks"
-                        : my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`
+                      my ? `Candidate Unlocks ${plan.unlock_quota.toLocaleString()} ခု` : `${plan.unlock_quota.toLocaleString()} Candidate Unlocks`
                     }
                   />
                   {!isFreeTrial && <FeatureRow text={my ? "ပိုင်ဆိုင်မှု စုစုပေါင်းတွင် ပေါင်းထည့်" : "Stacks with other packages you own"} />}

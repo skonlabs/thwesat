@@ -11,10 +11,8 @@ export interface SubscriptionPlan {
   role: PlanRole;
   tier: PlanTier;
   price_mmk: number;
-  active_jobs_quota: number;
-  is_unlimited_jobs: boolean;
+  job_postings_quota: number;
   unlock_quota: number;
-  is_unlimited_unlocks: boolean;
   featured_jobs_quota: number;
   sort_order: number;
   is_active: boolean;
@@ -47,12 +45,10 @@ export interface PackageGrant {
 
 export interface SubscriptionQuotas {
   user_id: string;
-  active_jobs_quota: number;
-  is_unlimited_jobs: boolean;
+  job_postings_quota: number;
   active_jobs_used: number;
   unlocks_total: number;
   unlocks_used: number;
-  is_unlimited_unlocks: boolean;
   featured_jobs_total: number;
   featured_jobs_used: number;
 }
