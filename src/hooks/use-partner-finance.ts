@@ -75,12 +75,13 @@ export function usePaymentReversals() {
     staleTime: STALE_30S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("payment_reversals")
+        .from("wallet_transactions")
         .select("*")
-        .order("occurred_at", { ascending: false })
+        .eq("kind", "reversal")
+        .order("created_at", { ascending: false })
         .limit(500);
       if (error) throw error;
-      return (data || []) as any[];
+      return ((data || []) as any[]).map((r) => ({ ...r, occurred_at: r.created_at })) as any[];
     },
   });
 }
