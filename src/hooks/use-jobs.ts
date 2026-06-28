@@ -228,7 +228,7 @@ export function useApplyToJob() {
 
       // Notify employer about new application
       const { data: job } = await supabase.from("jobs").select("employer_id, title, title_my, company").eq("id", jobId).single();
-      const { data: applicantProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      const { data: applicantProfile } = await (supabase as any).from("v_profiles").select("display_name").eq("id", user.id).maybeSingle();
       const applicantName = applicantProfile?.display_name || "Someone";
       if (job) {
         await supabase.from("notifications").insert({
@@ -332,7 +332,7 @@ export function useEmployerApplications(jobId?: string) {
       const applicantIds = [...new Set((data || []).map(a => a.applicant_id))];
       if (!applicantIds.length) return data || [];
       const { data: profiles } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, headline, avatar_url, location, skills, experience, languages")
         .in("id", applicantIds);
       const profileMap = new Map<string, any>(((profiles as any[]) || []).map((p: any) => [p.id, p]));

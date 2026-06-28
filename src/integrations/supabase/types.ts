@@ -164,13 +164,6 @@ export type Database = {
             foreignKeyName: "admin_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -226,13 +219,6 @@ export type Database = {
           website?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "agent_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "agent_profiles_user_id_fkey"
             columns: ["user_id"]
@@ -362,13 +348,6 @@ export type Database = {
             foreignKeyName: "applications_applicant_id_fkey"
             columns: ["applicant_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "applications_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -446,21 +425,7 @@ export type Database = {
             foreignKeyName: "community_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "community_posts_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "community_posts_moderated_by_fkey"
-            columns: ["moderated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -520,13 +485,6 @@ export type Database = {
             foreignKeyName: "contact_messages_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "contact_messages_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -554,13 +512,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversation_participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -746,13 +697,6 @@ export type Database = {
             foreignKeyName: "employer_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employer_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -833,13 +777,6 @@ export type Database = {
             foreignKeyName: "generated_documents_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "generated_documents_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -873,13 +810,6 @@ export type Database = {
             columns: ["guide_id"]
             isOneToOne: false
             referencedRelation: "guides"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "guide_feedback_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -944,13 +874,6 @@ export type Database = {
           verified_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "guides_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "guides_author_id_fkey"
             columns: ["author_id"]
@@ -1195,13 +1118,6 @@ export type Database = {
             foreignKeyName: "jobs_employer_id_fkey"
             columns: ["employer_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "jobs_employer_id_fkey"
-            columns: ["employer_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -1299,13 +1215,6 @@ export type Database = {
           website?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "jobseeker_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "jobseeker_profiles_user_id_fkey"
             columns: ["user_id"]
@@ -1426,21 +1335,7 @@ export type Database = {
             foreignKeyName: "mentor_bookings_mentee_id_fkey"
             columns: ["mentee_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_bookings_mentee_id_fkey"
-            columns: ["mentee_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_bookings_mentor_id_fkey"
-            columns: ["mentor_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1614,13 +1509,6 @@ export type Database = {
             foreignKeyName: "mentor_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -1669,21 +1557,7 @@ export type Database = {
             foreignKeyName: "mentor_reviews_mentor_id_fkey"
             columns: ["mentor_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_reviews_mentor_id_fkey"
-            columns: ["mentor_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mentor_reviews_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1726,13 +1600,6 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -1782,13 +1649,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -1918,13 +1778,6 @@ export type Database = {
             foreignKeyName: "partner_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "partner_profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -1990,13 +1843,6 @@ export type Database = {
             foreignKeyName: "post_comments_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "post_comments_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -2047,13 +1893,6 @@ export type Database = {
             foreignKeyName: "post_likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "post_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -2084,13 +1923,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "community_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "post_saves_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2162,21 +1994,7 @@ export type Database = {
             foreignKeyName: "referrals_referred_id_fkey"
             columns: ["referred_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "referrals_referred_id_fkey"
-            columns: ["referred_id"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "referrals_referrer_id_fkey"
-            columns: ["referrer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2213,13 +2031,6 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "saved_jobs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -2504,13 +2315,6 @@ export type Database = {
             foreignKeyName: "topup_requests_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "topup_requests_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
             referencedRelation: "v_profiles"
             referencedColumns: ["id"]
           },
@@ -2549,13 +2353,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "user_account_state_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "user_account_state_user_id_fkey"
             columns: ["user_id"]
@@ -2627,13 +2424,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "user_roles_user_id_fkey"
             columns: ["user_id"]
@@ -2762,149 +2552,6 @@ export type Database = {
       }
     }
     Views: {
-      employer_profiles_public: {
-        Row: {
-          avatar_url: string | null
-          benefits: string[] | null
-          bio: string | null
-          company_description: string | null
-          company_linkedin: string | null
-          company_name: string | null
-          company_size: string | null
-          company_website: string | null
-          cover_url: string | null
-          created_at: string | null
-          display_name: string | null
-          full_address: string | null
-          headline: string | null
-          hq_country: string | null
-          id: string | null
-          industry: string | null
-          is_verified: boolean | null
-          languages: string[] | null
-          last_seen_at: string | null
-          location: string | null
-          logo_url: string | null
-          mission: string | null
-          updated_at: string | null
-          verification_status: string | null
-          visibility: string | null
-          vision: string | null
-          what_we_do: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          benefits?: string[] | null
-          bio?: string | null
-          company_description?: string | null
-          company_linkedin?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          company_website?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          full_address?: string | null
-          headline?: string | null
-          hq_country?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          logo_url?: string | null
-          mission?: string | null
-          updated_at?: string | null
-          verification_status?: string | null
-          visibility?: string | null
-          vision?: string | null
-          what_we_do?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          benefits?: string[] | null
-          bio?: string | null
-          company_description?: string | null
-          company_linkedin?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          company_website?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          full_address?: string | null
-          headline?: string | null
-          hq_country?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          languages?: string[] | null
-          last_seen_at?: string | null
-          location?: string | null
-          logo_url?: string | null
-          mission?: string | null
-          updated_at?: string | null
-          verification_status?: string | null
-          visibility?: string | null
-          vision?: string | null
-          what_we_do?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employer_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employer_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "v_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          deletion_requested_at: string | null
-          deletion_scheduled_at: string | null
-          display_name: string | null
-          email: string | null
-          embedding: string | null
-          embedding_input_hash: string | null
-          embedding_updated_at: string | null
-          experience: string | null
-          has_laptop: boolean | null
-          has_payoneer: boolean | null
-          has_upwork: boolean | null
-          has_wise: boolean | null
-          headline: string | null
-          id: string | null
-          internet_stable: boolean | null
-          is_suspended: boolean | null
-          job_search_status: string | null
-          languages: string[] | null
-          last_seen_at: string | null
-          location: string | null
-          phone: string | null
-          preferred_work_types: string[] | null
-          referral_code: string | null
-          referred_by: string | null
-          remote_ready: boolean | null
-          role_title: string | null
-          skills: string[] | null
-          updated_at: string | null
-          visibility: string | null
-          website: string | null
-        }
-        Relationships: []
-      }
       v_profiles: {
         Row: {
           avatar_url: string | null
@@ -3277,11 +2924,13 @@ export type Database = {
       }
       tick_expire_profile_boosts: { Args: never; Returns: undefined }
       tick_expire_subscriptions: { Args: never; Returns: undefined }
+      touch_my_presence: { Args: never; Returns: undefined }
       try_grant_signup_bonus: { Args: { _user_id: string }; Returns: boolean }
       unlock_contact_with_quota: {
         Args: { _target_id: string; _target_type: string }
         Returns: Json
       }
+      update_my_profile: { Args: { p_updates: Json }; Returns: undefined }
       user_conversation_ids: { Args: { _user_id: string }; Returns: string[] }
       wallet_adjust: {
         Args: { _delta: number; _note: string; _user_id: string }

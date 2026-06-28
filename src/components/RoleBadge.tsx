@@ -54,7 +54,7 @@ export function useUserRoleFlags(userId: string | undefined) {
       if (!userId) return { isMentor: false, isAdmin: false, isEmployer: false, isAgent: false };
       const [m, e, r] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", userId),
-        (supabase as any).from("employer_profiles_public").select("id").eq("id", userId).maybeSingle(),
+        (supabase as any).from("v_profiles").select("id").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
       ]);
       const roles = (r.data || []).map((x) => x.role);

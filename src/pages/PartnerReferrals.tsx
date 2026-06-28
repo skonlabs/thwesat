@@ -42,7 +42,7 @@ const PartnerReferrals = ({ hideHeader = false }: { hideHeader?: boolean } = {})
       const userIds = Array.from(new Set(rows.map((r) => r.used_by).filter(Boolean)));
       if (userIds.length === 0) return rows;
       const { data: profs } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, email")
         .in("id", userIds);
       const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));

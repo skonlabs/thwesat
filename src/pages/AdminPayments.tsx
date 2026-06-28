@@ -79,7 +79,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     queryFn: async () => {
       if (userIds.length === 0) return [];
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, avatar_url")
         .in("id", userIds);
       const { data: contacts } = await supabase.rpc("get_user_contacts_admin", { _ids: userIds });
@@ -102,7 +102,7 @@ const AdminPayments = ({ hideHeader = false }: { hideHeader?: boolean } = {}) =>
     queryFn: async () => {
       if (!bookingContext?.mentor_id) return null;
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name")
         .eq("id", bookingContext.mentor_id)
         .maybeSingle();

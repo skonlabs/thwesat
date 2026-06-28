@@ -60,7 +60,7 @@ export function useMentorProfiles() {
 
       const [profilesRes, bookingsRes] = await Promise.all([
         (supabase as any)
-          .from("profiles")
+          .from("v_profiles")
           .select("id, display_name, headline, avatar_url, skills, languages, last_seen_at")
           .in("id", ids),
         supabase
@@ -104,7 +104,7 @@ export function useMentorProfile(id: string | undefined) {
 
       const [profileRes, bookingsRes] = await Promise.all([
         (supabase as any)
-          .from("profiles")
+          .from("v_profiles")
           .select("display_name, headline, avatar_url, skills, languages, bio, location, last_seen_at")
           .eq("id", id)
           .maybeSingle(),

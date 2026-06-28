@@ -67,7 +67,7 @@ export function useStartConversation() {
             .select("id", { head: true, count: "exact" })
             .eq("id", otherUserId),
           (supabase as any)
-            .from("employer_profiles_public")
+            .from("v_profiles")
             .select("id", { head: true, count: "exact" })
             .eq("id", otherUserId),
         ]);

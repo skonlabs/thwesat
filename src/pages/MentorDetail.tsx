@@ -82,7 +82,7 @@ const MentorDetail = () => {
       if (error) throw error;
       const reviewerIds = [...new Set((data || []).map(r => r.reviewer_id))];
       if (!reviewerIds.length) return data || [];
-      const { data: profiles } = await (supabase as any).from("profiles").select("id, display_name").in("id", reviewerIds);
+      const { data: profiles } = await (supabase as any).from("v_profiles").select("id, display_name").in("id", reviewerIds);
       const pMap = new Map((profiles || []).map(p => [p.id, p]));
       return (data || []).map(r => ({ ...r, reviewer: pMap.get(r.reviewer_id) }));
     },

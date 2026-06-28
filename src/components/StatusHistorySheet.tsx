@@ -77,7 +77,7 @@ export default function StatusHistorySheet({ open, onClose, kind, recordId, subt
       // Resolve display names for changers (best-effort; ignore failures).
       const ids = Array.from(new Set(list.map(r => r.changed_by).filter(Boolean))) as string[];
       if (ids.length) {
-        const { data: profs } = await (supabase as any).from("profiles").select("id, display_name").in("id", ids);
+        const { data: profs } = await (supabase as any).from("v_profiles").select("id, display_name").in("id", ids);
         const byId = new Map((profs || []).map((p: any) => [p.id, p.display_name as string]));
         return list.map(r => ({ ...r, changer_name: (r.changed_by ? (byId.get(r.changed_by) as string | undefined) || null : null) as any }));
       }

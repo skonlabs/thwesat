@@ -57,7 +57,7 @@ const AdminAnalytics = () => {
     queryFn: async () => {
 
       const [users, employers, verifiedEmployers, jobs, activeJobs, pendingJobs, posts, approvedPosts, mentors, bookings, applications, payments, approvedPayments, reports, guides] = await Promise.all([
-        (supabase as any).from("profiles").select("id", { count: "exact", head: true }),
+        (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("is_verified", true),
         supabase.from("jobs").select("id", { count: "exact", head: true }),
@@ -99,7 +99,7 @@ const AdminAnalytics = () => {
     queryFn: async () => {
 
       const [signups, newJobs, newApplications, paymentsRange, bookingsRange, paymentMix] = await Promise.all([
-        (supabase as any).from("profiles").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
+        (supabase as any).from("v_profiles").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("jobs").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         supabase.from("applications").select("created_at").gte("created_at", sinceIso).order("created_at", { ascending: true }),
         (supabase as any).from("subscription_payment_requests").select("created_at,status,amount,currency").gte("created_at", sinceIso).order("created_at", { ascending: true }),

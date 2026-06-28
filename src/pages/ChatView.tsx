@@ -49,7 +49,7 @@ const ChatView = () => {
       const { data: participants } = await supabase.from("conversation_participants").select("user_id").eq("conversation_id", conversationId);
       const otherId = (participants || []).find(p => p.user_id !== user.id)?.user_id;
       if (!otherId) return null;
-      const { data: profile } = await (supabase as any).from("profiles").select("display_name, headline, avatar_url").eq("id", otherId).maybeSingle();
+      const { data: profile } = await (supabase as any).from("v_profiles").select("display_name, headline, avatar_url").eq("id", otherId).maybeSingle();
       return profile;
     },
     enabled: !!conversationId && !!user,

@@ -20,7 +20,7 @@ export async function sendAppEmail(opts: {
       // Fetch email (if needed) and language in parallel
       const [profileRes, settingsRes] = await Promise.all([
         !to
-          ? (supabase as any).from("profiles").select("email").eq("id", opts.recipientUserId).maybeSingle()
+          ? (supabase as any).from("v_profiles").select("email").eq("id", opts.recipientUserId).maybeSingle()
           : Promise.resolve({ data: null }),
         supabase.from("user_settings").select("language").eq("user_id", opts.recipientUserId).maybeSingle(),
       ]);

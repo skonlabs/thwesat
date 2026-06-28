@@ -76,7 +76,7 @@ const AdminPartners = () => {
       const ids = (roles ?? []).map((r: any) => r.user_id);
       if (ids.length === 0) return [] as { id: string; display_name: string | null; email: string | null }[];
       const { data: profs, error: pErr } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, email")
         .in("id", ids);
       if (pErr) throw pErr;
@@ -91,7 +91,7 @@ const AdminPartners = () => {
     enabled: linkedIds.length > 0,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, email")
         .in("id", linkedIds);
       if (error) throw error;
@@ -462,7 +462,7 @@ function LinkUserSheet({ lang, partner, onDone }: { lang: "en" | "my"; partner: 
       // Use case-insensitive exact match instead of ilike+maybeSingle which throws when
       // duplicate-cased rows exist. Limit to 2 to detect the rare duplicate.
       const { data, error } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("id, display_name, email")
         .ilike("email", value)
         .limit(2);

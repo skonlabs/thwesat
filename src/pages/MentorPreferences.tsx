@@ -113,7 +113,7 @@ const MentorPreferences = () => {
         .update({ hourly_rate: rate, currency, available_days: activeDays, timezone } as any)
         .eq("id", user.id);
       const { error: profileError } = await (supabase as any)
-        .from("profiles").update({ languages: spokenLanguages }).eq("id", user.id);
+        .rpc("update_my_profile", { p_updates: { languages: spokenLanguages } });
       if (error || profileError) {
         toast.error(lang === "my" ? "သိမ်းဆည်း၍ မရပါ" : "Failed to save settings");
         return;

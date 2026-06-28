@@ -95,7 +95,7 @@ const MentorMentees = () => {
     onSuccess: async (_: unknown, menteeId: string) => {
       // Notify mentee
       if (user) {
-        const { data: mentorProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+        const { data: mentorProfile } = await (supabase as any).from("v_profiles").select("display_name").eq("id", user.id).maybeSingle();
         const mentorName = mentorProfile?.display_name || "Your mentor";
         await supabase.from("notifications").insert({
           user_id: menteeId,
@@ -108,7 +108,7 @@ const MentorMentees = () => {
         });
       }
       // Find the mentee's display name for the toast
-      const { data: menteeProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", menteeId).maybeSingle();
+      const { data: menteeProfile } = await (supabase as any).from("v_profiles").select("display_name").eq("id", menteeId).maybeSingle();
       const menteeName = menteeProfile?.display_name || (lang === "my" ? "Mentee" : "this mentee");
       toast.success(lang === "my"
         ? `${menteeName} ကို လမ်းညွှန်ပေးနေပြီ! မက်ဆေ့ချ်ပို့ပြီး စတင်ပါ။`
@@ -137,7 +137,7 @@ const MentorMentees = () => {
     onSuccess: async (_: unknown, menteeId: string) => {
       // Notify mentee
       if (user) {
-        const { data: mentorProfile } = await (supabase as any).from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+        const { data: mentorProfile } = await (supabase as any).from("v_profiles").select("display_name").eq("id", user.id).maybeSingle();
         const mentorName = mentorProfile?.display_name || "A mentor";
         await supabase.from("notifications").insert({
           user_id: menteeId,
@@ -164,7 +164,7 @@ const MentorMentees = () => {
     queryKey: ["mentee-list-profiles", menteeIds],
     queryFn: async () => {
       if (!menteeIds.length) return [];
-      const { data } = await (supabase as any).from("profiles").select("id, display_name, headline, avatar_url, location").in("id", menteeIds);
+      const { data } = await (supabase as any).from("v_profiles").select("id, display_name, headline, avatar_url, location").in("id", menteeIds);
       return data || [];
     },
     enabled: menteeIds.length > 0,

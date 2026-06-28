@@ -29,7 +29,7 @@ const PublicProfile = () => {
       if (!id) return false;
       const [m, e] = await Promise.all([
         supabase.from("mentor_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
-        (supabase as any).from("employer_profiles_public").select("id", { head: true, count: "exact" }).eq("id", id),
+        (supabase as any).from("v_profiles").select("id", { head: true, count: "exact" }).eq("id", id),
       ]);
       return (m.count ?? 0) > 0 || (e.count ?? 0) > 0;
     },
@@ -50,7 +50,7 @@ const PublicProfile = () => {
     queryFn: async () => {
       if (!id) return null;
       const [{ data, error }, { data: roleRow }] = await Promise.all([
-        (supabase as any).from("profiles").select("*").eq("id", id).maybeSingle(),
+        (supabase as any).from("v_profiles").select("*").eq("id", id).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", id).maybeSingle(),
       ]);
       if (error) throw error;

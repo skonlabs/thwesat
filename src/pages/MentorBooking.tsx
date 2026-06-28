@@ -60,7 +60,7 @@ const MentorBooking = () => {
     queryFn: async () => {
       if (!mentorId) return null;
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from("v_profiles")
         .select("display_name, headline")
         .eq("id", mentorId)
         .maybeSingle();
