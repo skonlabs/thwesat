@@ -111,8 +111,8 @@ export function usePartnerQualityMetrics(partnerId?: string | null) {
     staleTime: STALE_60S,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("partner_quality_metrics")
-        .select("*")
+        .from("partner_monthly_statements")
+        .select("partner_id, period_year, period_month, l1_sla_pct, csat_score")
         .eq("partner_id", partnerId)
         .order("period_year", { ascending: false })
         .order("period_month", { ascending: false });
