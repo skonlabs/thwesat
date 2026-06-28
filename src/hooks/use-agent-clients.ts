@@ -15,19 +15,33 @@ export interface AgentClient {
   updated_at: string;
 }
 
+async function fetchClientsJson(agentId: string): Promise<AgentClient[]> {
+  const { data, error } = await (supabase as any)
+    .from("agent_profiles")
+    .select("clients")
+    .eq("user_id", agentId)
+    .maybeSingle();
+  if (error) throw error;
+  const arr = Array.isArray(data?.clients) ? (data.clients as AgentClient[]) : [];
+  return arr;
+}
+
+async function saveClientsJson(agentId: string, clients: AgentClient[]) {
+  const { error } = await (supabase as any)
+    .from("agent_profiles")
+    .update({ clients })
+    .eq("user_id", agentId);
+  if (error) throw error;
+}
+
 export function useAgentClients() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ["agent-clients", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("agent_clients" as any)
-        .select("*")
-        .eq("agent_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data || []) as unknown as AgentClient[];
+      const all = await fetchClientsJson(user!.id);
+      return [...all].sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
     },
   });
 }
@@ -51,32 +65,43 @@ export function useUpsertAgentClient() {
           throw new Error("Invalid website URL");
         }
       }
-      const payload: any = {
-        agent_id: user.id,
-        name: input.name,
-        logo_url: input.logo_url ?? "",
-        website: safeWebsite,
-        industry: input.industry ?? "",
-        notes: input.notes ?? "",
-        is_active: input.is_active ?? true,
-      };
+      const now = new Date().toISOString();
+      const existing = await fetchClientsJson(user.id);
+      let next: AgentClient[];
+      let saved: AgentClient;
       if (input.id) {
-        const { data, error } = await (supabase as any)
-          .from("agent_clients" as any)
-          .update(payload)
-          .eq("id", input.id)
-          .select()
-          .single();
-        if (error) throw error;
-        return data as unknown as AgentClient;
+        next = existing.map((c) =>
+          c.id === input.id
+            ? {
+                ...c,
+                name: input.name,
+                logo_url: input.logo_url ?? c.logo_url ?? "",
+                website: safeWebsite,
+                industry: input.industry ?? c.industry ?? "",
+                notes: input.notes ?? c.notes ?? "",
+                is_active: input.is_active ?? c.is_active ?? true,
+                updated_at: now,
+              }
+            : c,
+        );
+        saved = next.find((c) => c.id === input.id)!;
+      } else {
+        saved = {
+          id: crypto.randomUUID(),
+          agent_id: user.id,
+          name: input.name,
+          logo_url: input.logo_url ?? "",
+          website: safeWebsite,
+          industry: input.industry ?? "",
+          notes: input.notes ?? "",
+          is_active: input.is_active ?? true,
+          created_at: now,
+          updated_at: now,
+        };
+        next = [saved, ...existing];
       }
-      const { data, error } = await (supabase as any)
-        .from("agent_clients" as any)
-        .insert(payload)
-        .select()
-        .single();
-      if (error) throw error;
-      return data as unknown as AgentClient;
+      await saveClientsJson(user.id, next);
+      return saved;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["agent-clients"] }),
   });
@@ -84,10 +109,12 @@ export function useUpsertAgentClient() {
 
 export function useDeleteAgentClient() {
   const qc = useQueryClient();
+  const { user } = useAuth();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("agent_clients" as any).delete().eq("id", id);
-      if (error) throw error;
+      if (!user) throw new Error("Not signed in");
+      const existing = await fetchClientsJson(user.id);
+      await saveClientsJson(user.id, existing.filter((c) => c.id !== id));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["agent-clients"] }),
   });
