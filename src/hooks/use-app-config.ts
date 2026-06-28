@@ -45,7 +45,7 @@ export function useAppConfig<T = any>(key: string) {
   return useQuery({
     queryKey: ["app-config", key],
     queryFn: async (): Promise<T> => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("app_config")
         .select("value")
         .eq("key", key)
@@ -74,10 +74,10 @@ export function useUpdateAppConfig<T = any>(key: string) {
   const { user } = useAuth();
   return useMutation({
     mutationFn: async (value: T) => {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("app_config")
         .upsert(
-          { key, value, updated_by: user?.id ?? null, updated_at: new Date().toISOString() },
+          [{ key, value: value as any, updated_by: user?.id ?? null, updated_at: new Date().toISOString() }],
           { onConflict: "key" },
         );
       if (error) throw error;
