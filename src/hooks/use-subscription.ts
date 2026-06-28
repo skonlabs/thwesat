@@ -170,11 +170,28 @@ export function useMyAddonPurchases() {
     queryKey: ["my-addon-purchases", user?.id],
     queryFn: async (): Promise<AddonPurchase[]> => {
       if (!user) return [];
-      const { data } = await S.from("addon_purchases")
-        .select("*")
+      const { data: unlocks } = await S.from("feature_unlocks")
+        .select("id, user_id, feature_key, starts_at, expires_at, is_active, metadata, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-      return (data as AddonPurchase[]) ?? [];
+      const { data: addons } = await S.from("addon_products").select("id, key, mmk");
+      const byKey = new Map<string, any>((addons ?? []).map((a: any) => [a.key, a]));
+      const now = Date.now();
+      return (unlocks ?? []).map((u: any) => {
+        const a = byKey.get(u.feature_key);
+        const expired = u.expires_at ? new Date(u.expires_at).getTime() < now : false;
+        return {
+          id: u.id,
+          user_id: u.user_id,
+          addon_id: a?.id ?? u.feature_key,
+          mmk_paid: Number(u.metadata?.mmk_paid ?? a?.mmk ?? 0),
+          starts_at: u.starts_at,
+          expires_at: u.expires_at,
+          units_total: Number(u.metadata?.units_total ?? 0),
+          units_used: Number(u.metadata?.units_used ?? 0),
+          status: !u.is_active ? "expired" : expired ? "expired" : "active",
+        } as AddonPurchase;
+      });
     },
     enabled: !!user,
   });
