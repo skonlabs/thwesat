@@ -516,7 +516,7 @@ const EmployerPostJob = () => {
             )}
             <div className="mx-auto w-full max-w-md space-y-3 pt-2">
               <div className="rounded-xl border border-border bg-card px-3 py-2 text-[11px]">
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{quotas?.is_unlimited_jobs ? "∞" : `${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{`${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
                 {isFeatured && <div className="mt-1 flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
                 {!hasPackage && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Package required"}</p>}
               </div>
