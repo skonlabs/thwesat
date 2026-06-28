@@ -80,10 +80,8 @@ const EmployerApplications = () => {
   const { data: contactUnlocks = [] } = useFeatureUnlocks("unlock_contact");
   const unlockedSet = new Set((contactUnlocks || []).map((u: any) => u.target_id));
   const { data: quotas } = useMyQuotas();
-  const unlocksLeft = quotas?.is_unlimited_unlocks
-    ? Infinity
-    : Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
-  const unlocksLeftLabel = unlocksLeft === Infinity ? "∞" : unlocksLeft.toLocaleString();
+  const unlocksLeft = Math.max(0, (quotas?.unlocks_total ?? 0) - (quotas?.unlocks_used ?? 0));
+  const unlocksLeftLabel = unlocksLeft.toLocaleString();
   const queryClient = useQueryClient();
   const [postingSearch, setPostingSearch] = useState("");
   const [candidateSearch, setCandidateSearch] = useState("");
