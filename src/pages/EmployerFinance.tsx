@@ -108,7 +108,7 @@ const EmployerFinance = () => {
     try {
       const path = await uploadPaymentProof(user.id, file);
       const { error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .update({ proof_url: path } as any)
         .eq("id", proofFor.id);
       if (error) throw error;

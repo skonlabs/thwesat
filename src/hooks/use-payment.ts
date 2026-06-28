@@ -74,7 +74,7 @@ export function useCreatePaymentRequest() {
       }
 
       const { error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .insert({ ...req, user_id: user.id } as any);
       if (error) throw error;
 
@@ -123,7 +123,7 @@ export function useMyPaymentRequests() {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
@@ -139,7 +139,7 @@ export function useAllPaymentRequests() {
     queryKey: ["payment-requests", "admin"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -168,7 +168,7 @@ export function useUpdatePaymentRequest() {
       admin_note?: string;
     }) => {
       const { data: pr } = await (supabase as any)
-        .from("payment_requests")
+        .from("subscription_payment_requests")
         .select("user_id, amount, currency, payment_type")
         .eq("id", id)
         .maybeSingle();

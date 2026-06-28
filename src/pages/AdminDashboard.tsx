@@ -23,7 +23,7 @@ const AdminDashboard = () => {
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         (supabase as any).from("contact_messages").select("id", { count: "exact", head: true }).eq("category", "report").eq("status", "new"),
-        (supabase as any).from("payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),

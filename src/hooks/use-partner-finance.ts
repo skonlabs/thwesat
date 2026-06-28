@@ -175,7 +175,7 @@ export function usePartnerPeriodPayments(
       const results = await Promise.all(
         chunks.map((ids) =>
           (supabase as any)
-            .from("payment_requests")
+            .from("subscription_payment_requests")
             .select(
               "id, user_id, payment_type, amount, currency, third_party_payout, npr_amount, revenue_classification, reviewed_at",
             )
