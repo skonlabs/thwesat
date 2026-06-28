@@ -3,9 +3,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 
 interface SystemRoleGuardProps {
   children: React.ReactNode;
-  // "moderator" retained in the union for backwards compatibility with older
-  // route declarations but it is treated as a no-op (no user can satisfy it).
-  allowedRoles: ("admin" | "moderator" | "partner")[];
+  allowedRoles: ("admin" | "partner")[];
 }
 
 /**
