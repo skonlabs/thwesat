@@ -184,35 +184,36 @@ describe("employer — purchases & ledger", () => {
   });
 
   it("employer ledger: subscription + addon labels resolve and per-currency totals are correct", async () => {
+    let sprCallCount = 0;
     fromMock.mockImplementation((table: string) => {
-      const data = (() => {
-        switch (table) {
-          case "subscription_payment_requests":
-            return [
+      if (table === "subscription_payment_requests") {
+        const data = sprCallCount === 0
+          ? [] // mentor_session/placement_fee — none for this employer
+          : [
               { id: "s1", request_type: "subscription", plan_id: "plan-emp-growth", addon_id: null, mmk_amount: 150_000, status: "approved", payment_method: "kpay", created_at: "2026-06-10T00:00:00Z" },
               { id: "s2", request_type: "addon", plan_id: null, addon_id: "addon-featured-job", mmk_amount: 60_000, status: "pending", payment_method: "wave", created_at: "2026-06-11T00:00:00Z" },
               { id: "s3", request_type: "subscription", plan_id: "plan-emp-starter", addon_id: null, mmk_amount: 50_000, status: "rejected", payment_method: "kpay", created_at: "2026-06-12T00:00:00Z" },
             ];
-          case "subscription_plans":
-            return [
-              { id: "plan-emp-growth", tier: "growth" },
-              { id: "plan-emp-starter", tier: "starter" },
-            ];
-          case "addon_products":
-            return [{ id: "addon-featured-job", label_en: "Featured Job", label_my: "Featured Job (MY)" }];
-          default:
-            return [];
-        }
-      })();
-      const chain: any = {
+        sprCallCount += 1;
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          in: vi.fn().mockReturnThis(),
+          order: vi.fn().mockResolvedValue({ data }),
+        };
+      }
+      if (table === "subscription_plans") {
+        return { select: vi.fn().mockResolvedValue({ data: [{ id: "plan-emp-growth", tier: "growth" }, { id: "plan-emp-starter", tier: "starter" }] }) };
+      }
+      if (table === "addon_products") {
+        return { select: vi.fn().mockResolvedValue({ data: [{ id: "addon-featured-job", label_en: "Featured Job", label_my: "Featured Job (MY)" }] }) };
+      }
+      return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data }),
+        in: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [] }),
       };
-      if (table === "subscription_plans" || table === "addon_products") {
-        chain.select = vi.fn().mockResolvedValue({ data });
-      }
-      return chain;
     });
 
     const { result } = renderHook(() => useUserFinance("emp-1"), { wrapper });
