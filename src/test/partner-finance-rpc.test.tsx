@@ -87,7 +87,7 @@ describe("partner finance RPC source of truth", () => {
           }),
         };
       }
-      if (table === "payment_requests") {
+      if (table === "subscription_payment_requests") {
         const chain: any = {
           select: vi.fn().mockReturnThis(),
           in: vi.fn().mockReturnThis(),
