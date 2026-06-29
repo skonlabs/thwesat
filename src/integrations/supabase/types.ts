@@ -2260,39 +2260,114 @@ export type Database = {
       }
       wallet_transactions: {
         Row: {
+          addon_id: string | null
+          admin_note: string | null
+          amount: number | null
+          booking_id: string | null
           created_at: string
+          created_by: string | null
           credits: number
+          currency: string
           id: string
           idempotency_key: string | null
           kind: string
+          metadata: Json
           mmk_amount: number | null
+          note: string | null
+          npr_amount: number | null
+          package_id: string | null
+          payment_method: string | null
+          payment_type: string | null
+          plan_id: string | null
+          proof_url: string | null
+          quantity: number
           ref_id: string | null
           ref_type: string | null
+          reference_id: string | null
+          request_type: string | null
+          revenue_classification: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_reference: string | null
+          source_id: string | null
+          source_table: string | null
           status: string
+          third_party_payout: number | null
+          updated_at: string
           user_id: string
         }
         Insert: {
+          addon_id?: string | null
+          admin_note?: string | null
+          amount?: number | null
+          booking_id?: string | null
           created_at?: string
+          created_by?: string | null
           credits: number
+          currency?: string
           id?: string
           idempotency_key?: string | null
           kind: string
+          metadata?: Json
           mmk_amount?: number | null
+          note?: string | null
+          npr_amount?: number | null
+          package_id?: string | null
+          payment_method?: string | null
+          payment_type?: string | null
+          plan_id?: string | null
+          proof_url?: string | null
+          quantity?: number
           ref_id?: string | null
           ref_type?: string | null
+          reference_id?: string | null
+          request_type?: string | null
+          revenue_classification?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          source_id?: string | null
+          source_table?: string | null
           status?: string
+          third_party_payout?: number | null
+          updated_at?: string
           user_id: string
         }
         Update: {
+          addon_id?: string | null
+          admin_note?: string | null
+          amount?: number | null
+          booking_id?: string | null
           created_at?: string
+          created_by?: string | null
           credits?: number
+          currency?: string
           id?: string
           idempotency_key?: string | null
           kind?: string
+          metadata?: Json
           mmk_amount?: number | null
+          note?: string | null
+          npr_amount?: number | null
+          package_id?: string | null
+          payment_method?: string | null
+          payment_type?: string | null
+          plan_id?: string | null
+          proof_url?: string | null
+          quantity?: number
           ref_id?: string | null
           ref_type?: string | null
+          reference_id?: string | null
+          request_type?: string | null
+          revenue_classification?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_reference?: string | null
+          source_id?: string | null
+          source_table?: string | null
           status?: string
+          third_party_payout?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
