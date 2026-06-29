@@ -316,34 +316,43 @@ const Settings = () => {
           <motion.div key={si} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: si * 0.05 }} className="mb-4">
             <h2 className="mb-2 px-1 text-xs font-semibold text-muted-foreground">{section.title}</h2>
             <div className="overflow-hidden rounded-xl border border-border bg-card">
-              {section.items.map((item, i) => (
-                <button
-                  key={i}
-                  onClick={'action' in item ? item.action : undefined}
-                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30"
-                >
-                  <item.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground">{item.label}</p>
-                    {'description' in item && item.description && (
-                      <p className="mt-0.5 text-[10px] text-muted-foreground">{item.description}</p>
+              {section.items.map((item, i) => {
+                const hasToggle = 'toggle' in item && item.toggle;
+                const handleClick = 'action' in item ? item.action : undefined;
+                const Outer: any = hasToggle ? 'div' : 'button';
+                const outerProps: any = hasToggle
+                  ? { role: 'group' }
+                  : { type: 'button', onClick: handleClick };
+                return (
+                  <Outer
+                    key={i}
+                    {...outerProps}
+                    className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5 text-left last:border-0 active:bg-muted/30"
+                  >
+                    <item.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                    <div className="flex-1">
+                      <p className="text-sm text-foreground">{item.label}</p>
+                      {'description' in item && item.description && (
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">{item.description}</p>
+                      )}
+                    </div>
+                    {hasToggle ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }}
+                        className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}
+                      >
+                        <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
+                      </button>
+                    ) : (
+                      <>
+                        {'value' in item && item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                      </>
                     )}
-                  </div>
-                  {'toggle' in item && item.toggle ? (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); item.onToggle?.(); }}
-                      className={`h-6 w-11 rounded-full transition-colors ${item.toggleValue ? "bg-primary" : "bg-muted-foreground/30"}`}
-                    >
-                      <div className={`h-5 w-5 rounded-full bg-card shadow transition-transform ${item.toggleValue ? "translate-x-5" : "translate-x-0.5"}`} />
-                    </button>
-                  ) : (
-                    <>
-                      {'value' in item && item.value && <span className="text-xs text-muted-foreground">{item.value}</span>}
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                    </>
-                  )}
-                </button>
-              ))}
+                  </Outer>
+                );
+              })}
             </div>
           </motion.div>
         ))}
