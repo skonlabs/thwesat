@@ -2652,16 +2652,16 @@ export type Database = {
         Returns: Json
       }
       match_candidates_for_job: {
-        Args: { _job_id: string; _limit?: number }
+        Args: { _job_id: string; _limit: number }
         Returns: {
-          seeker_user_id: string
+          id: string
           similarity: number
         }[]
       }
       match_jobs_for_user: {
-        Args: { _limit?: number; _user_id: string }
+        Args: { _limit: number; _user_id: string }
         Returns: {
-          job_id: string
+          id: string
           similarity: number
         }[]
       }
