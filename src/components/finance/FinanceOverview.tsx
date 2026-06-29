@@ -86,7 +86,7 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
     enabled: !hidePlatformOnly,
     queryFn: async () => {
       const { data } = await (supabase as any).from("partner_monthly_statements")
-        .select("partner_id,total_payout,status,paid_at,period_year,period_month,partners(name,code)")
+        .select("partner_id,total_payout,status,paid_at,period_year,period_month")
         .order("period_year", { ascending: false })
         .order("period_month", { ascending: false })
         .limit(200);

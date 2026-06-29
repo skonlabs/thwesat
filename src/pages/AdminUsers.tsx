@@ -192,17 +192,20 @@ const AdminUsers = () => {
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
 
-  // Sync draft state whenever a different user is opened or role data refreshes
+  // Sync draft state whenever a different user is opened.
+  // Only depends on `selectedId` to avoid infinite loops when other state changes.
   useEffect(() => {
-    if (selected) {
-      setDraftRoles(new Set(roleMap.get(selected.id) || []));
-      setDraftSuspended(!!selected.is_suspended);
-    } else {
+    if (!selectedId) {
       setDraftRoles(new Set());
       setDraftSuspended(false);
+      return;
     }
+    const u: any = users.find((x: any) => x.id === selectedId);
+    if (!u) return;
+    setDraftRoles(new Set(roleMap.get(selectedId) || []));
+    setDraftSuspended(!!u.is_suspended);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, allRoles, selected?.is_suspended]);
+  }, [selectedId]);
 
   const initialRoles = new Set(selectedSystemRoles);
   const rolesChanged =
