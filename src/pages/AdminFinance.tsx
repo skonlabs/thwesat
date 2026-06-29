@@ -94,7 +94,7 @@ const AdminFinance = ({
   const { data: partnerStmts, isLoading: loadingPartner } = useQuery({
     queryKey: ["admin-finance-partner-statements", partnerId || "all"],
     queryFn: async () => {
-      let q = supabase.from("partner_monthly_statements").select("*").order("created_at", { ascending: false }).limit(5000);
+      let q = supabase.from("partner_monthly_statements").select("*").order("period_year", { ascending: false }).order("period_month", { ascending: false }).limit(5000);
       if (partnerId) q = q.eq("partner_id", partnerId);
       const { data } = await q;
       return data || [];
