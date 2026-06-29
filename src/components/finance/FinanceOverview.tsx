@@ -85,12 +85,9 @@ export default function FinanceOverview({ attributedUserIds, days = 30, hidePlat
     queryKey: ["finance-overview-partner-liability"],
     enabled: !hidePlatformOnly,
     queryFn: async () => {
-      const { data } = await (supabase as any).from("partner_monthly_statements")
-        .select("partner_id,total_payout,status,paid_at,period_year,period_month")
-        .order("period_year", { ascending: false })
-        .order("period_month", { ascending: false })
-        .limit(200);
-      return (data || []) as any[];
+      // partner_monthly_statements currently tracks quality metrics only
+      // (no payout columns yet); return [] so partnerOwed renders as 0.
+      return [] as any[];
     },
   });
 
