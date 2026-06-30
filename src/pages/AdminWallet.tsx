@@ -65,6 +65,37 @@ const AdminWallet = () => {
     },
   });
 
+  // Pending counts for tab badges (independent of current filter).
+  const { data: pendingCounts } = useQuery({
+    queryKey: ["admin-wallet-pending-counts"],
+    queryFn: async () => {
+      const [subs, addons, topups] = await Promise.all([
+        (supabase as any)
+          .from("subscription_payment_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending")
+          .eq("request_type", "subscription"),
+        (supabase as any)
+          .from("subscription_payment_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending")
+          .eq("request_type", "addon"),
+        (supabase as any)
+          .from("topup_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ]);
+      return {
+        packages: subs.count || 0,
+        addons: addons.count || 0,
+        topups: topups.count || 0,
+      };
+    },
+    refetchInterval: 30000,
+  });
+  const subsPending = (pendingCounts?.packages || 0) + (pendingCounts?.addons || 0);
+  const topupsPending = pendingCounts?.topups || 0;
+
   // Resolve user display name + email for every visible user_id.
   const visibleUserIds = useMemo(() => {
     const s = new Set<string>();
@@ -165,8 +196,18 @@ const AdminWallet = () => {
       <div className="px-5">
         <Tabs defaultValue={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="subscriptions">{my ? "Packages & Add-ons" : "Packages and Add-ons"}</TabsTrigger>
-            <TabsTrigger value="topups">{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-1.5">
+              <span>{my ? "Packages & Add-ons" : "Packages and Add-ons"}</span>
+              {subsPending > 0 && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{subsPending}</span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="topups" className="gap-1.5">
+              <span>{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</span>
+              {topupsPending > 0 && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{topupsPending}</span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-2 pt-3">

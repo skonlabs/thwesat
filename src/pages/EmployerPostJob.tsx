@@ -519,6 +519,15 @@ const EmployerPostJob = () => {
                 <div className="flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "အလုပ်တင်ခွင့်" : "Job slots"}</span><span className="font-bold tabular-nums">{`${jobsRemaining} ${lang === "my" ? "ကျန်" : "left"}`}</span></div>
                 {isFeatured && <div className="mt-1 flex items-center justify-between"><span className="text-muted-foreground">{lang === "my" ? "Featured slot" : "Featured slots"}</span><span className="font-bold tabular-nums">{featuredRemaining} {lang === "my" ? "ကျန်" : "left"}</span></div>}
                 {!hasPackage && <p className="mt-1 text-destructive">{lang === "my" ? "Package ဝယ်ရန် လိုအပ်" : "Package required"}</p>}
+                {(insufficient || !hasPackage) && (
+                  <button
+                    type="button"
+                    className="mt-2 w-full rounded-md bg-primary/10 px-2 py-1.5 text-[11px] font-semibold text-primary underline-offset-2 hover:underline"
+                    onClick={() => navigate("/pricing")}
+                  >
+                    {lang === "my" ? "Package အဆင့်မြှင့်ရန်" : "Upgrade plan"}
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="lg" className="flex-1 rounded-xl" onClick={() => setStep(1)}>{lang === "my" ? "နောက်သို့" : "Back"}</Button>
@@ -528,11 +537,6 @@ const EmployerPostJob = () => {
                   {submitting ? (lang === "my" ? "တင်နေသည်..." : "Submitting...") : (lang === "my" ? "အလုပ် တင်မည်" : "Post job")}
                 </Button>
               </div>
-              {insufficient && (
-                <p className="text-center text-[11px] text-destructive">
-                  <button type="button" className="underline" onClick={() => navigate("/pricing")}>{lang === "my" ? "Package အဆင့်မြှင့်ရန်" : "Upgrade plan"}</button>
-                </p>
-              )}
             </div>
           </motion.div>
         )}
