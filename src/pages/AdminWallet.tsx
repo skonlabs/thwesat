@@ -196,8 +196,19 @@ const AdminWallet = () => {
       <div className="px-5">
         <Tabs defaultValue={initialTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="subscriptions">{my ? "Packages & Add-ons" : "Packages and Add-ons"}</TabsTrigger>
-            <TabsTrigger value="topups">{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-1.5">
+              <span>{my ? "Packages & Add-ons" : "Packages and Add-ons"}</span>
+              {subsPending > 0 && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{subsPending}</span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="topups" className="gap-1.5">
+              <span>{my ? "Wallet ငွေဖြည့်" : "Wallet Top-ups"}</span>
+              {topupsPending > 0 && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{topupsPending}</span>
+              )}
+            </TabsTrigger>
+          </TabsList>
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-2 pt-3">
