@@ -209,7 +209,6 @@ const AdminWallet = () => {
               )}
             </TabsTrigger>
           </TabsList>
-          </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-2 pt-3">
             <div className="mb-2 flex gap-1.5 text-[11px]">
