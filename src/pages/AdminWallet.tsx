@@ -65,6 +65,37 @@ const AdminWallet = () => {
     },
   });
 
+  // Pending counts for tab badges (independent of current filter).
+  const { data: pendingCounts } = useQuery({
+    queryKey: ["admin-wallet-pending-counts"],
+    queryFn: async () => {
+      const [subs, addons, topups] = await Promise.all([
+        (supabase as any)
+          .from("subscription_payment_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending")
+          .eq("request_type", "subscription"),
+        (supabase as any)
+          .from("subscription_payment_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending")
+          .eq("request_type", "addon"),
+        (supabase as any)
+          .from("topup_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ]);
+      return {
+        packages: subs.count || 0,
+        addons: addons.count || 0,
+        topups: topups.count || 0,
+      };
+    },
+    refetchInterval: 30000,
+  });
+  const subsPending = (pendingCounts?.packages || 0) + (pendingCounts?.addons || 0);
+  const topupsPending = pendingCounts?.topups || 0;
+
   // Resolve user display name + email for every visible user_id.
   const visibleUserIds = useMemo(() => {
     const s = new Set<string>();
