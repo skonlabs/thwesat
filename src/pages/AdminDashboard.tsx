@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, WalletCards, ChevronRight, CreditCard, Building2, BarChart3 } from "lucide-react";
+import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, WalletCards, ChevronRight, CreditCard, Building2, BarChart3, CalendarCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ const AdminDashboard = () => {
     refetchOnMount: "always",
     queryFn: async () => {
 
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors, pendingBookings] = await Promise.all([
         (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -28,6 +28,7 @@ const AdminDashboard = () => {
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
+        supabase.from("mentor_bookings").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       const totalPaymentApprovals =
         ((pendingPayments as any).count || 0) +
@@ -43,12 +44,13 @@ const AdminDashboard = () => {
         pendingSubs: (pendingPayments as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
+        pendingBookings: pendingBookings.count || 0,
       };
     },
   });
 
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0) + (counts?.pendingBookings || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
@@ -62,6 +64,7 @@ const AdminDashboard = () => {
     { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ အတည်ပြုရန်", en: "Job Listing Approvals" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင်/ခေါ်ယူရေး အတည်ပြုရန်", en: "Employers/Recruiters Approvals" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
     { icon: MessageCircle, label: { my: "Community ပို့စ် အတည်ပြုရန်", en: "Community Post Approvals" }, count: counts?.pendingPosts || 0, path: "/admin/moderation?tab=posts", urgent: (counts?.pendingPosts || 0) > 0 },
+    { icon: CalendarCheck, label: { my: "ချိန်းဆိုမှု အတည်ပြုရန်", en: "Booking Approvals" }, count: counts?.pendingBookings || 0, path: "/admin/moderation?tab=bookings", urgent: (counts?.pendingBookings || 0) > 0 },
     { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/moderation?tab=posts", urgent: (counts?.reports || 0) > 0 },
   ];
 

@@ -334,9 +334,19 @@ const ModeratorDashboard = () => {
     return <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${colors[status] || "bg-muted text-muted-foreground"}`}>{status}</span>;
   };
 
+  const adminTabTitles: Record<string, { en: string; my: string }> = {
+    posts: { en: "Community Post Approvals", my: "Community ပို့စ် အတည်ပြုရန်" },
+    jobs: { en: "Job Listing Approvals", my: "အလုပ်ခေါ်စာ အတည်ပြုရန်" },
+    payments: { en: "Payment Approvals", my: "ငွေပေးချေမှု အတည်ပြုရန်" },
+    bookings: { en: "Booking Approvals", my: "ချိန်းဆိုမှု အတည်ပြုရန်" },
+  };
+  const adminTitle = adminTabTitles[tabValue] || adminTabTitles.posts;
+
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      {!isAdmin && (
+      {isAdmin ? (
+        <PageHeader title={lang === "my" ? adminTitle.my : adminTitle.en} showBack backPath="/admin" />
+      ) : (
         <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
       )}
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
@@ -359,12 +369,14 @@ const ModeratorDashboard = () => {
           </>
         )}
         <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
-          <TabsList className="mb-4 grid w-full grid-cols-4">
-            <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
-            <TabsTrigger value="jobs" className="text-xs">{lang === "my" ? "အလုပ်" : "Jobs"}{pendingJobs.length > 0 && ` (${pendingJobs.length})`}</TabsTrigger>
-            <TabsTrigger value="payments" className="text-xs">{lang === "my" ? "ငွေပေးချေ" : "Payments"}{pendingPayments.length > 0 && ` (${pendingPayments.length})`}</TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs">{lang === "my" ? "ချိန်းဆိုမှု" : "Bookings"}</TabsTrigger>
-          </TabsList>
+          {!isAdmin && (
+            <TabsList className="mb-4 grid w-full grid-cols-4">
+              <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
+              <TabsTrigger value="jobs" className="text-xs">{lang === "my" ? "အလုပ်" : "Jobs"}{pendingJobs.length > 0 && ` (${pendingJobs.length})`}</TabsTrigger>
+              <TabsTrigger value="payments" className="text-xs">{lang === "my" ? "ငွေပေးချေ" : "Payments"}{pendingPayments.length > 0 && ` (${pendingPayments.length})`}</TabsTrigger>
+              <TabsTrigger value="bookings" className="text-xs">{lang === "my" ? "ချိန်းဆိုမှု" : "Bookings"}</TabsTrigger>
+            </TabsList>
+          )}
 
           {/* ─── POSTS TAB ─── */}
           <TabsContent value="posts">
