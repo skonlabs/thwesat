@@ -191,6 +191,8 @@ const AdminUsers = () => {
 
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
+  const adminCount = allRoles.filter((r: any) => r.role === "admin").length;
+  const isLastAdmin = !!selected && selectedSystemRoles.includes("admin") && adminCount <= 1;
 
   // Sync draft state whenever a different user is opened.
   // Only depends on `selectedId` to avoid infinite loops when other state changes.
@@ -486,8 +488,12 @@ const AdminUsers = () => {
                         </div>
                         <Switch
                           checked={draftRoles.has("admin")}
-                          disabled={!isAdmin}
+                          disabled={!isAdmin || (draftRoles.has("admin") && isLastAdmin)}
                           onCheckedChange={(checked) => {
+                            if (!checked && isLastAdmin) {
+                              toast.error(lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin. Assign another admin first.");
+                              return;
+                            }
                             const next = new Set(draftRoles);
                             checked ? next.add("admin") : next.delete("admin");
                             setDraftRoles(next);
@@ -572,7 +578,15 @@ const AdminUsers = () => {
                       variant="destructive"
                       size="sm"
                       className="flex-1 rounded-xl"
-                      onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
+                      disabled={isLastAdmin}
+                      title={isLastAdmin ? (lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin") : undefined}
+                      onClick={() => {
+                        if (isLastAdmin) {
+                          toast.error(lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin. Assign another admin first.");
+                          return;
+                        }
+                        setSelectedId(null); setDeleteConfirmId(selected.id);
+                      }}
                     >
                       <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
                     </Button>
