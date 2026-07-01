@@ -13,10 +13,11 @@ const AdminDashboard = () => {
 
   const { data: counts } = useQuery({
     queryKey: ["admin-dashboard-counts"],
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
 
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors] = await Promise.all([
         (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -29,7 +30,7 @@ const AdminDashboard = () => {
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
       ]);
       const totalPaymentApprovals =
-        ((pendingSubs as any).count || 0) +
+        ((pendingPayments as any).count || 0) +
         ((pendingTopups as any).count || 0);
       return {
         totalUsers: users.count || 0,
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
         pendingEmployers: pendingEmployers.count || 0,
         reports: reports.count || 0,
         pendingPayments: totalPaymentApprovals,
-        pendingSubs: (pendingSubs as any).count || 0,
+        pendingSubs: (pendingPayments as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
       };

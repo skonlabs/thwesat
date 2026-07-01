@@ -36,7 +36,6 @@ const PartnerDashboard = () => {
         pendingJobs,
         pendingPosts,
         pendingEmployers,
-        pendingPayments,
         pendingSubs,
         pendingTopups,
         approvedJobsToday,
@@ -50,7 +49,6 @@ const PartnerDashboard = () => {
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("community_posts").select("id", { count: "exact", head: true }).eq("is_approved", false),
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
-        (supabase as any).from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase
@@ -66,9 +64,8 @@ const PartnerDashboard = () => {
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "agent"),
       ]);
       const totalPaymentApprovals =
-        ((pendingPayments as any).count || 0) +
-        ((pendingTopups as any).count || 0) +
-        ((pendingSubs as any).count || 0);
+        ((pendingSubs as any).count || 0) +
+        ((pendingTopups as any).count || 0);
       return {
         pendingJobs: pendingJobs.count || 0,
         pendingPosts: pendingPosts.count || 0,
