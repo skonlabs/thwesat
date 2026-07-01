@@ -95,7 +95,7 @@ export default function ProfileDashboardHero({
         },
       ]
     : isSystemRole
-      ? [walletTile]
+      ? []
       : [planTile, unlocksTile];
 
 
