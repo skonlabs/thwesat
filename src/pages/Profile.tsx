@@ -263,13 +263,10 @@ const Profile = () => {
       <PageHeader title={lang === "my" ? "ကျွန်ုပ်၏ အကောင့်" : "My Account"} />
 
       <div className="px-5 pt-4">
-        {/* Role Switcher */}
-        {!isSystemRole && (effectiveRole === "job_seeker" || effectiveRole === "mentor") && (
+        {/* Current Role (read-only — switching not allowed) */}
+        {!isSystemRole && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-3">
-          <button
-            onClick={() => setShowRolePicker(!showRolePicker)}
-            className="flex w-full items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-left transition-colors active:bg-primary/10"
-          >
+          <div className="flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
             <ArrowLeftRight className="h-4 w-4 text-primary" strokeWidth={1.5} />
             <div className="flex-1">
               <p className="text-xs text-muted-foreground">{lang === "my" ? "လက်ရှိ အခန်းကဏ္ဍ" : "Current Role"}</p>
@@ -277,32 +274,10 @@ const Profile = () => {
                 {lang === "my" ? currentRoleLabel.label.my : currentRoleLabel.label.en}
               </p>
             </div>
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-              {lang === "my" ? "ပြောင်းရန်" : "Switch"}
-            </span>
-          </button>
-
-          {showRolePicker && (
-            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
-              {roleOptions.map((r) => (
-                <button key={r.value} onClick={() => handleSelectRole(r.value)}
-                  className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 transition-colors ${effectiveRole === r.value ? "bg-primary/5" : "active:bg-muted"}`}>
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${effectiveRole === r.value ? "bg-primary/10" : "bg-muted"}`}>
-                    <r.icon className={`h-4 w-4 ${effectiveRole === r.value ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.5} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-sm font-medium ${effectiveRole === r.value ? "text-primary" : "text-foreground"}`}>
-                      {lang === "my" ? r.label.my : r.label.en}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{lang === "my" ? r.desc.my : r.desc.en}</p>
-                  </div>
-                  {effectiveRole === r.value && <Check className="h-4 w-4 text-primary" strokeWidth={2} />}
-                </button>
-              ))}
-            </motion.div>
-          )}
+          </div>
         </motion.div>
         )}
+
 
         {/* Admin / Partner Role Badge */}
         {isSystemRole && (
