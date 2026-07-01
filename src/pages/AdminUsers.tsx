@@ -578,7 +578,15 @@ const AdminUsers = () => {
                       variant="destructive"
                       size="sm"
                       className="flex-1 rounded-xl"
-                      onClick={() => { setSelectedId(null); setDeleteConfirmId(selected.id); }}
+                      disabled={isLastAdmin}
+                      title={isLastAdmin ? (lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin") : undefined}
+                      onClick={() => {
+                        if (isLastAdmin) {
+                          toast.error(lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin. Assign another admin first.");
+                          return;
+                        }
+                        setSelectedId(null); setDeleteConfirmId(selected.id);
+                      }}
                     >
                       <Trash2 className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
                     </Button>
