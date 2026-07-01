@@ -371,16 +371,31 @@ const ModeratorDashboard = () => {
             {postsLoading ? <Spinner /> : posts.length === 0 ? <EmptyState label={lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ!" : "All caught up!"} /> : (
               <div className="space-y-3">
                 {posts.map((post: any, i: number) => (
-                  <motion.button key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPostId(post.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
-                    <div className="mb-1 flex items-start justify-between">
-                      <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? post.content_my?.slice(0, 50) : (post.content_en || post.content_my)?.slice(0, 50)}...</h3>
-                      <span className="text-[10px] text-muted-foreground">{formatTime(post.created_at)}</span>
+                  <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="w-full rounded-xl border border-border bg-card p-4 text-left">
+                    <button onClick={() => setSelectedPostId(post.id)} className="block w-full text-left">
+                      <div className="mb-1 flex items-start justify-between">
+                        <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? post.content_my?.slice(0, 50) : (post.content_en || post.content_my)?.slice(0, 50)}...</h3>
+                        <span className="text-[10px] text-muted-foreground">{formatTime(post.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{post.category || "general"}</span>
+                        <span className="text-[10px] text-muted-foreground">by {post.author?.display_name || "User"}</span>
+                      </div>
+                    </button>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={(e) => { e.stopPropagation(); approvePost.mutate(post.id); }}>
+                        <CheckCircle className="mr-1 h-3 w-3" /> {lang === "my" ? "အတည်ပြု" : "Approve"}
+                      </Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); setSelectedPostId(post.id); setShowRemoval(true); }}>
+                        <XCircle className="mr-1 h-3 w-3" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                      </Button>
+                      {isPartner && !isAdmin && (
+                        <Button size="sm" variant="outline" className="h-7 border-warning/40 text-warning text-[11px]" onClick={(e) => { e.stopPropagation(); handleEscalate(post.id, "post"); }}>
+                          <AlertTriangle className="mr-1 h-3 w-3" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{post.category || "general"}</span>
-                      <span className="text-[10px] text-muted-foreground">by {post.author?.display_name || "User"}</span>
-                    </div>
-                  </motion.button>
+                  </motion.div>
                 ))}
               </div>
             )}
