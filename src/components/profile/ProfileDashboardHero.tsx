@@ -48,6 +48,7 @@ export default function ProfileDashboardHero({
   const { data: grants = [] } = useMyPackageGrants();
   const { data: quotas } = useMyQuotas();
   const { data: plans = [] } = useSubscriptionPlans();
+  const { data: wallet } = useWallet();
   const planById = Object.fromEntries(plans.map((p) => [p.id, p]));
   // Show the highest tier owned, with count if multiple
   const tierRank: Record<string, number> = { free_trial: 0, starter: 1, growth: 2, business: 3, enterprise: 4 };
@@ -65,6 +66,13 @@ export default function ProfileDashboardHero({
     accent: true as const,
     onClick: () => onNavigate("/pricing"),
   };
+  const walletTile = {
+    icon: WalletIcon,
+    label: lang === "my" ? "ပိုက်ဆံအိတ်" : "Wallet",
+    value: formatCurrency(wallet?.balance_credits ?? 0, "MMK", lang),
+    accent: true as const,
+    onClick: () => onNavigate("/wallet"),
+  };
   const unlocksTile = {
     icon: KeyRound,
     label: lang === "my" ? "Unlock" : "Unlocks",
@@ -75,7 +83,7 @@ export default function ProfileDashboardHero({
 
   const stats = isJobseeker
     ? [
-        planTile,
+        walletTile,
         {
           icon: TrendingUp, label: lang === "my" ? "လျှောက်လွှာ" : "Applications",
           value: applications.length.toString(), accent: false as const, onClick: () => onNavigate("/applications"),
@@ -86,6 +94,7 @@ export default function ProfileDashboardHero({
         },
       ]
     : [planTile, unlocksTile];
+
 
 
   return (
