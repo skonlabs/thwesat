@@ -15,6 +15,7 @@ interface Props {
   avatarInitials: string;
   completionPct: number;
   isJobseeker: boolean;
+  isSystemRole?: boolean;
   lang: "my" | "en";
   onEdit: () => void;
   onNavigate: NavigateFunction;
@@ -41,7 +42,7 @@ function CompletionRing({ pct }: { pct: number }) {
 
 export default function ProfileDashboardHero({
   displayName, headline, location, remoteReady, avatarUrl, avatarInitials,
-  completionPct, isJobseeker, lang, onEdit, onNavigate,
+  completionPct, isJobseeker, isSystemRole, lang, onEdit, onNavigate,
 }: Props) {
   const { data: applications = [] } = useApplications();
   const { data: savedIds = [] } = useSavedJobIds();
@@ -93,7 +94,9 @@ export default function ProfileDashboardHero({
           value: savedIds.length.toString(), accent: false as const, onClick: () => onNavigate("/jobs/saved"),
         },
       ]
-    : [planTile, unlocksTile];
+    : isSystemRole
+      ? [walletTile]
+      : [planTile, unlocksTile];
 
 
 
