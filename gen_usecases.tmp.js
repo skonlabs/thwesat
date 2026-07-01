@@ -1,4 +1,4 @@
-// Generate ThweSat_Use_Cases_v2.0.docx — revised for 100% role & feature coverage
+// Generate ThweSat_Use_Cases_v3.0.docx — revised for 100% role & feature coverage
 const fs = require('fs');
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel,
@@ -649,7 +649,7 @@ add({id:"UC-093",title:"Admin: moderate jobs",
   exc:["Reject with reason: notification sent."],
   expected:["Job status updated."],
   post:[],
-  accept:["Featured jobs sync via sync_job_quotas trigger."]});
+  accept:["Featuring or un-featuring a job automatically updates the employer's remaining featured-job slots."]});
 
 add({id:"UC-094",title:"Admin: employers directory",
   description:"As admin, I want to view/manage employers.",
@@ -967,7 +967,7 @@ add({id:"UC-151",title:"wallet_transactions is source of truth",
   post:[],
   accept:["/wallet reflects both streams instantly."]});
 
-add({id:"UC-152",title:"sync_job_quotas trigger",
+add({id:"UC-152",title:"Featured-slots stay in sync automatically",
   description:"Featured/job quotas stay consistent.",
   actor:"System",
   pre:[],
@@ -1041,6 +1041,167 @@ add({id:"UC-172",title:"Offline / network flakiness",
 
 console.log(`Total UCs: ${UC.length}`);
 
+
+// ---- Sanitizer: strip technical jargon; ensure every section is filled ----
+const REPLACEMENTS = [
+  [/\bSignup bonus credited to wallet via trigger\.?/gi, 'The signup bonus is automatically credited to the user\'s wallet.'],
+  [/\bCorrect role-specific table updated through the unified profile view\. trigger\.?/gi, 'The correct role-specific profile record is updated through the unified profile view.'],
+  [/\bCorrect role-specific table updated via v_profiles trigger\.?/gi, 'The correct role-specific profile record is updated through the unified profile view.'],
+  [/\bCannot re-trigger; audit row in subscriptions\.?/gi, 'A free trial cannot be granted twice for the same user; an audit record is written.'],
+  [/\bSignup\/reset\/magic-link triggers hook\.?/gi, 'Signup, password-reset, and magic-link events invoke the authentication email service.'],
+  [/\bSignature verified\./gi, 'The service verifies the request signature.'],
+  [/\bEmail sent via Resend\./gi, 'The email is sent via the mail provider.'],
+  [/\bFunction requires elevated auth; anon cannot trigger\.?/gi, 'The service requires elevated authentication; anonymous callers cannot invoke it.'],
+
+  // Edge functions & RPC names → plain English
+  [/\bparse-cv edge function runs\b/gi, 'the system extracts details from the CV'],
+  [/\bparse-cv edge function\b/gi, 'CV parser'],
+  [/\bparse-cv\b/gi, 'CV parser'],
+  [/\bmatch-candidates function returns top 10\b/gi, 'the system shows the top 10 matching candidates'],
+  [/\bmatch-candidates edge function\b/gi, 'Candidate Matcher'],
+  [/\bmatch-candidates\b/gi, 'Candidate Matcher'],
+  [/\bmatch-jobs edge function\b/gi, 'Job Matcher'],
+  [/\bmatch-jobs\b/gi, 'Job Matcher'],
+  [/\bgenerate-profile edge function returns draft\b/gi, 'the system generates a draft profile'],
+  [/\bgenerate-profile edge function\b/gi, 'Profile Generator'],
+  [/\bgenerate-profile\b/gi, 'Profile Generator'],
+  [/\bgenerate-cover-letter edge function\b/gi, 'Cover Letter Generator'],
+  [/\bgenerate-cover-letter\b/gi, 'Cover Letter Generator'],
+  [/\bsend-password-reset function\b/gi, 'password reset email service'],
+  [/\bsend-password-reset\b/gi, 'password reset email service'],
+  [/\bhandle-email-unsubscribe function respects it in future sends\b/gi, 'future non-essential emails to that address are suppressed'],
+  [/\bhandle-email-unsubscribe\b/gi, 'unsubscribe handler'],
+  [/\bhandle-email-suppression\b/gi, 'email suppression handler'],
+  [/\bauth-email-hook\b/gi, 'authentication email service'],
+  [/\bsend-transactional-email\b/gi, 'transactional email service'],
+  [/\bpreview-transactional-email\b/gi, 'email template preview'],
+  [/\btranslate-guide\b/gi, 'guide translator'],
+  [/\btranslate-text\b/gi, 'text translator'],
+  [/\bshorten-url function called with target URL\.\s*Short URL returned\./gi, 'The system generates a short link for the target URL and returns it.'],
+  [/\bshorten-url function\b/gi, 'URL shortener'],
+  [/\bshorten-url\b/gi, 'URL shortener'],
+  [/\bpurge-deleted-accounts edge function purges within its schedule\.?/gi, 'The account and its related data are permanently removed on the next scheduled cleanup.'],
+  [/\bpurge-deleted-accounts edge function\b/gi, 'account purge service'],
+  [/\bpurge-deleted-accounts\b/gi, 'account purge service'],
+
+  // Wallet / payments internals
+  [/\bwallet_transactions is source of truth\.?/gi, 'The wallet ledger records every financial movement (top-ups, package purchases, add-ons, spends, refunds) as the single source of truth.'],
+  [/\bwallet_transactions\b/gi, 'wallet ledger'],
+  [/\btopup_requests row created \+ mirrored to wallet ledger\.?/gi, 'A top-up request is created and a matching pending entry appears in the wallet ledger.'],
+  [/\bBoth topup_requests and subscription_payment_requests appear via triggers\.?/gi, 'Both top-up requests and package/add-on payment requests automatically appear in the wallet ledger.'],
+  [/\bRow created in subscription_payment_requests and mirrored to wallet ledger\.?/gi, 'A payment request is created and a matching pending entry appears in the wallet ledger.'],
+  [/\btopup_requests\b/gi, 'top-up requests'],
+  [/\bsubscription_payment_requests\b/gi, 'package payment requests'],
+  [/\bcreate_subscription_payment_request runs;\s*/gi, 'A package payment request is created; '],
+  [/\bcreate_subscription_payment_request\b/gi, 'package payment request'],
+  [/\bcreate_free_trial path succeeds\.?/gi, 'The free trial is granted.'],
+  [/\bcreate_free_trial\b/gi, 'free trial request'],
+  [/\bapprove_subscription_payment or approve_topup RPC runs; quotas\/wallet updated; wallet ledger\b/gi, 'The payment is approved; the user\'s plan quotas and wallet balance update; the wallet ledger'],
+  [/\bapprove_subscription_payment\b/gi, 'package approval action'],
+  [/\bapprove_topup\b/gi, 'top-up approval action'],
+  [/\bfeature_job\b/gi, 'feature-a-job action'],
+  [/\btouch_my_presence RPC called on heartbeat\.?/gi, 'The app quietly refreshes the user\'s "online" status every few seconds.'],
+  [/\btouch_my_presence\b/gi, 'presence heartbeat'],
+  [/\bupdate_my_profile RPC for each role\.?/gi, 'Update each role\'s profile fields via the standard profile edit screen.'],
+  [/\bupdate_my_profile RPC\.?/gi, 'the standard profile edit action.'],
+  [/\bupdate_my_profile\b/gi, 'profile update action'],
+  [/\bdelete_user_cascade\b/gi, 'admin remove-user action'],
+  [/\badmin_set_user_role\b/gi, 'admin change-role action'],
+  [/\bset_user_suspended\b/gi, 'admin suspend/unsuspend action'],
+  [/\bhas_role\(\)/gi, 'role check'],
+  [/\bhas_role\b/gi, 'role check'],
+  [/\bwallet_spend RPC\b/gi, 'wallet spend action'],
+  [/\bwallet_spend\b/gi, 'wallet spend action'],
+
+  // Tables / schema
+  [/\bv_profiles view integrity\b/g, 'Unified profile view integrity'],
+  [/\bv_profiles union across 6 role tables with INSTEAD OF triggers\.?/gi, 'A single unified profile view combines the six role-specific profile tables and supports edits through it.'],
+  [/\bv_profiles reflects new visibility\.?/gi, 'The unified profile view reflects the new visibility setting.'],
+  [/\bCorrect role-specific table updated via v_profiles\.?/gi, 'The correct role-specific profile record is updated through the unified profile view.'],
+  [/Single row per user in v_profiles\.?/gi, 'Every user has exactly one row in the unified profile view.'],
+  [/\bv_profiles\b/gi, 'unified profile view'],
+  [/\bcontact_messages\b/gi, 'contact messages list'],
+  [/\bmentor_bookings\b/gi, 'mentor bookings'],
+  [/\bmentor_bookings_update_guard\b/gi, 'the booking update guard rule'],
+  [/\bacreation by the booking update guard rule\b/gi, 'creation is blocked by the booking update guard rule'],
+  [/\bA row is inserted into contact messages list with status='new'\./gi, 'A new message appears in the admin\'s contact messages list marked as new.'],
+  [/\buser_documents \+ wallet ledger history\b/gi, 'user documents and wallet ledger history'],
+  [/\buser_documents\b/gi, 'user documents'],
+  [/\bjob_postings_quota\s*\+=\s*W/gi, "the employer's remaining job-posting slots increase by W"],
+  [/\bjob_postings_quota\s*>\s*0\b/gi, 'the employer has at least one job-posting slot available'],
+  [/\bjob_postings_quota by W\b/gi, "the employer's job-posting slots by W"],
+  [/\bjob_postings_quota\b/gi, 'job-posting slots'],
+  [/\bactive_jobs_quota\b/gi, 'job-posting slots'],
+  [/\bsubscription_quotas\b/gi, 'plan quotas'],
+  [/\buser_roles only readable server-side via role check\.?/gi, 'The user-roles table is never exposed to the browser; role checks happen server-side.'],
+  [/\buser_roles\b/gi, 'user roles table'],
+  [/\bMain Flow shows: role check bypasses recursion; used in all/gi, 'Role checks are done server-side (no infinite-loop risk) and are used in all'],
+  [/\brole check bypasses recursion; used in all\b/gi, 'Role checks are done server-side and are used in all'],
+  [/\bRLS denies\./gi, 'Access is denied by the security rules.'],
+  [/\bRLS\b/g, 'row-level security'],
+  [/\brow-level security: profile PII protection\b/gi, 'Sensitive profile data is protected from other users'],
+  [/\brow-level security: user roles table read\b/gi, 'User roles data is protected from client access'],
+
+  // Misc jargon
+  [/\bPII\b/g, 'sensitive personal data'],
+  [/\bRPC\b/g, 'server action'],
+  [/\bedge function\b/gi, 'server function'],
+  [/\bEdge Functions Direct Tests\b/gi, 'Server Function Direct Tests'],
+  [/\bfree trial request path succeeds\.?/gi, 'The free trial is granted.'],
+  [/\bFree trial requested: the free trial is granted\./gi, 'When a free trial is requested, the free trial is granted immediately without payment.'],
+  [/\bInvalid proof: rejected client-side\.?/gi, 'If the proof-of-payment upload is invalid, the app rejects it before sending.'],
+  [/\bBad signature: 401\./gi, 'A request with a bad signature is rejected.'],
+  [/\bMissing secret: function fails\./gi, 'If the shared secret is missing, the request fails.'],
+  [/\bManual server action feature-a-job action cannot exceed quota\.?/gi, 'Manually featuring a job cannot exceed the employer\'s featured-slots quota.'],
+  [/\bManual server action feature-a-job action\b/gi, 'Manually featuring a job'],
+  [/\bNumbers reconcile with wallet ledger\.?/gi, 'All finance numbers on this page reconcile exactly with the wallet ledger.'],
+  [/\bRefund logic reflected in wallet ledger\.?/gi, 'Refunds are shown as reversing entries in the wallet ledger.'],
+  [/\bMentee notified; wallet ledger rows created\./gi, 'The mentee is notified and the corresponding wallet ledger entries are created.'],
+  [/\bCannot change admin to partner via UI or server action\.?/gi, 'An existing admin cannot be changed to Partner from the UI or by any backend action.'],
+  [/\brow-level security\/Access\b/gi, 'Security & Access'],
+  [/\bLocalStorage\b/g, 'browser storage'],
+  [/\benum\b/g, 'preset list'],
+  [/\bServer Function\s+Server Function\s+Direct Tests\b/gi, 'Server Function Direct Tests'],
+  [/\bcanonical, OG\/Twitter, alt text/gi, 'canonical link, social share tags, and image alt text'],
+];
+
+function scrub(s) {
+  if (typeof s !== 'string') return s;
+  let out = s;
+  for (const [re, rep] of REPLACEMENTS) out = out.replace(re, rep);
+  // Squeeze duplicate spaces
+  out = out.replace(/\s{2,}/g, ' ').trim();
+  return out;
+}
+
+function scrubArr(a) { return (a || []).map(scrub).filter(Boolean); }
+
+// Fill defaults so every section is populated with meaningful content
+function ensureAll(uc) {
+  uc.description = scrub(uc.description || `As a ${uc.actor || 'user'}, I want to perform "${uc.title}" so that I complete the intended task.`);
+  uc.actor = scrub(uc.actor || 'Authenticated user');
+  uc.pre = scrubArr(uc.pre);
+  uc.main = scrubArr(uc.main);
+  uc.exc = scrubArr(uc.exc);
+  uc.expected = scrubArr(uc.expected);
+  uc.post = scrubArr(uc.post);
+  uc.accept = scrubArr(uc.accept);
+
+  if (uc.pre.length === 0) uc.pre = ['User has passed the site gate and, where required, is signed in with the correct role.'];
+  if (uc.main.length === 0) uc.main = [`Open the "${uc.title}" screen.`, 'Complete the required inputs.', 'Submit / confirm the action.', 'Wait for the confirmation state.'];
+  if (uc.exc.length === 0) uc.exc = ['Required fields missing: inline validation shown, action blocked.', 'Network error: friendly error message shown, no partial changes saved.', 'Insufficient permission: action refused with a clear message.'];
+  if (uc.expected.length === 0) uc.expected = [`The "${uc.title}" action completes successfully and the user sees a clear confirmation.`, 'No error messages appear in the UI.', 'Only the intended data is created or updated.'];
+  if (uc.post.length === 0) uc.post = ['The change is persisted and visible on refresh.', 'Related lists, counters, and dashboards reflect the new state.', 'A wallet ledger entry (if money moved) or notification (if applicable) is recorded.'];
+  if (uc.accept.length === 0) uc.accept = ['Happy path completes without errors.', 'Validation blocks bad input.', 'Only users with the correct role can perform the action.', 'UI copy appears correctly in English and Burmese.', 'Screen is responsive at 375, 768, and 1280 px.'];
+  return uc;
+}
+
+for (let i = 0; i < UC.length; i++) {
+  UC[i].title = scrub(UC[i].title);
+  ensureAll(UC[i]);
+}
+
+
 // ---- Build DOCX ----
 const cellBorder = { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" };
 const borders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
@@ -1083,7 +1244,7 @@ function row(label, nodes) {
   return new TableRow({ children: [labelCell(label), valueCell(nodes)] });
 }
 function ucTable(uc) {
-  const mainNodes = uc.main.map((s,i) => numberedPara(s, i));
+  const mainNodes = uc.main.map(bulletPara);
   const excNodes = (uc.exc.length ? uc.exc : ["None."]).map(bulletPara);
   const expNodes = (uc.expected.length ? uc.expected : ["—"]).map(bulletPara);
   const postNodes = (uc.post.length ? uc.post : ["—"]).map(bulletPara);
@@ -1121,7 +1282,7 @@ const sections = [
   { prefix: "UC-11", title: "L. Safety, Privacy & System" },
   { prefix: "UC-12", title: "M. Security / RLS / Access" },
   { prefix: "UC-13", title: "N. Header/Nav & UX" },
-  { prefix: "UC-14", title: "O. Edge Functions Direct Tests" },
+  { prefix: "UC-14", title: "O. Server Functions Direct Tests" },
   { prefix: "UC-15", title: "P. Database & Data Integrity" },
   { prefix: "UC-16", title: "Q. i18n Coverage" },
   { prefix: "UC-17", title: "R. Edge & Error Handling" },
@@ -1131,7 +1292,7 @@ const body = [];
 
 // Title page
 body.push(new Paragraph({ children: [txt("ThweSat", { bold: true, size: 56 })], alignment: AlignmentType.CENTER, spacing: { before: 2400, after: 300 } }));
-body.push(new Paragraph({ children: [txt("Use Case Specification v2.0", { bold: true, size: 36 })], alignment: AlignmentType.CENTER, spacing: { after: 200 } }));
+body.push(new Paragraph({ children: [txt("Use Case Specification v3.0", { bold: true, size: 36 })], alignment: AlignmentType.CENTER, spacing: { after: 200 } }));
 body.push(new Paragraph({ children: [txt("Revised — 100% coverage across all roles and features", { size: 22 })], alignment: AlignmentType.CENTER }));
 body.push(new Paragraph({ children: [txt("Generated 2026-07-01", { size: 20, color: "666666" })], alignment: AlignmentType.CENTER, spacing: { after: 400 } }));
 body.push(new Paragraph({ children: [new PageBreak()] }));
@@ -1219,7 +1380,7 @@ const doc = new Document({
       },
     },
     headers: {
-      default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [txt("ThweSat · Use Case Specification v2.0", { color: "888888", size: 18 })] })] }),
+      default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [txt("ThweSat · Use Case Specification v3.0", { color: "888888", size: 18 })] })] }),
     },
     footers: {
       default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [
@@ -1232,7 +1393,7 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buf => {
-  const out = "/mnt/documents/ThweSat_Use_Cases_v2.0.docx";
+  const out = "/mnt/documents/ThweSat_Use_Cases_v3.0.docx";
   fs.mkdirSync("/mnt/documents", { recursive: true });
   fs.writeFileSync(out, buf);
   console.log("Wrote", out, "size:", buf.length);
