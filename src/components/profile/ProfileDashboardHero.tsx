@@ -15,6 +15,7 @@ interface Props {
   avatarInitials: string;
   completionPct: number;
   isJobseeker: boolean;
+  isSystemRole?: boolean;
   lang: "my" | "en";
   onEdit: () => void;
   onNavigate: NavigateFunction;
