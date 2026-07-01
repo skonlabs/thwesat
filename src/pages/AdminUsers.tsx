@@ -191,6 +191,8 @@ const AdminUsers = () => {
 
   const selected: any = users.find((u: any) => u.id === selectedId);
   const selectedSystemRoles = selected ? roleMap.get(selected.id) || [] : [];
+  const adminCount = allRoles.filter((r: any) => r.role === "admin").length;
+  const isLastAdmin = !!selected && selectedSystemRoles.includes("admin") && adminCount <= 1;
 
   // Sync draft state whenever a different user is opened.
   // Only depends on `selectedId` to avoid infinite loops when other state changes.
