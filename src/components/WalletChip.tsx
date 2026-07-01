@@ -3,20 +3,23 @@ import { Wallet as WalletIcon } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallet, formatMMK } from "@/hooks/use-wallet";
+import { useRole } from "@/hooks/use-role";
 
 /**
- * Compact wallet balance chip. Visible for every signed-in user —
- * wallet_transactions is the single ledger across roles, so every
- * user has a wallet row (credits may be 0 today for employer/agent
- * but will start incrementing the moment we hand out credits).
+ * Compact wallet balance chip.
+ * Only shown for Job Seekers and Mentors — Employers/Agents use the
+ * subscription model (Packages & Add-ons), not the wallet.
  */
 const WalletChip = () => {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const { user } = useAuth();
+  const { role } = useRole();
   const { data: wallet } = useWallet();
 
   if (!user) return null;
+  if (role !== "job_seeker" && role !== "mentor") return null;
+
 
   const balance = wallet?.balance_credits ?? 0;
   return (
