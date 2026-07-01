@@ -507,8 +507,12 @@ const AdminUsers = () => {
                         </div>
                         <Switch
                           checked={draftRoles.has("partner")}
-                          disabled={!isAdmin}
+                          disabled={!isAdmin || selectedSystemRoles.includes("admin")}
                           onCheckedChange={(checked) => {
+                            if (selectedSystemRoles.includes("admin")) {
+                              toast.error(lang === "my" ? "Admin ၏ role ကို ပြောင်း၍ မရပါ" : "Cannot change role of an admin user.");
+                              return;
+                            }
                             const next = new Set(draftRoles);
                             checked ? next.add("partner") : next.delete("partner");
                             setDraftRoles(next);
@@ -522,8 +526,14 @@ const AdminUsers = () => {
                         </div>
                         <Switch
                           checked={draftSuspended}
-                          disabled={!isAdmin}
-                          onCheckedChange={(checked) => setDraftSuspended(checked)}
+                          disabled={!isAdmin || selectedSystemRoles.includes("admin")}
+                          onCheckedChange={(checked) => {
+                            if (selectedSystemRoles.includes("admin")) {
+                              toast.error(lang === "my" ? "Admin အကောင့်ကို ရပ်ဆိုင်း၍ မရပါ" : "Cannot suspend an admin account.");
+                              return;
+                            }
+                            setDraftSuspended(checked);
+                          }}
                         />
                       </div>
                     </div>
