@@ -275,6 +275,7 @@ const Profile = () => {
           avatarInitials={avatarInitials}
           completionPct={completionPct}
           isJobseeker={effectiveRole === "job_seeker"}
+          isSystemRole={isSystemRole}
           lang={lang}
           onEdit={() => navigate((effectiveRole === "employer" || effectiveRole === "agent") ? companyEditPath : "/profile/edit")}
           onNavigate={navigate}
