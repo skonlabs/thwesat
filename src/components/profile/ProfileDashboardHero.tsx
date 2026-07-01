@@ -3,7 +3,7 @@ import { Edit3, MapPin, Globe, Sparkles, TrendingUp, Bookmark, ChevronRight, Key
 import { useApplications, useSavedJobIds } from "@/hooks/use-jobs";
 import { useMyPackageGrants, useMyQuotas, useSubscriptionPlans, planLabel } from "@/hooks/use-subscription";
 import { useWallet } from "@/hooks/use-wallet";
-import { formatMMK } from "@/lib/currency";
+import { formatCurrency } from "@/lib/currency";
 import type { NavigateFunction } from "react-router-dom";
 
 interface Props {
