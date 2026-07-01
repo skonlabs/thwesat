@@ -141,6 +141,9 @@ const AdminWallet = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-sub-requests"] });
+      qc.invalidateQueries({ queryKey: ["admin-wallet-pending-counts"] });
+      qc.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      qc.invalidateQueries({ queryKey: ["partner-dashboard-counts"] });
       qc.invalidateQueries({ queryKey: ["my-subscription"] });
       qc.invalidateQueries({ queryKey: ["my-quotas"] });
       qc.invalidateQueries({ queryKey: ["my-sub-payment-requests"] });
@@ -156,6 +159,9 @@ const AdminWallet = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-topup-requests"] });
+      qc.invalidateQueries({ queryKey: ["admin-wallet-pending-counts"] });
+      qc.invalidateQueries({ queryKey: ["admin-dashboard-counts"] });
+      qc.invalidateQueries({ queryKey: ["partner-dashboard-counts"] });
       qc.invalidateQueries({ queryKey: ["topup-requests"] });
       qc.invalidateQueries({ queryKey: ["wallet"] });
     },
