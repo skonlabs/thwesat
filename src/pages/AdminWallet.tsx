@@ -37,7 +37,7 @@ const AdminWallet = () => {
       const planIds = [...new Set(reqs.filter((r: any) => r.plan_id).map((r: any) => r.plan_id))];
       const addonIds = [...new Set(reqs.filter((r: any) => r.addon_id).map((r: any) => r.addon_id))];
       const [plansRes, addonsRes] = await Promise.all([
-        planIds.length > 0 ? (supabase as any).from("subscription_plans").select("id,role,tier,price_mmk").in("id", planIds) : Promise.resolve({ data: [] }),
+        planIds.length > 0 ? (supabase as any).from("subscription_plans").select("id,tier,price_mmk").in("id", planIds) : Promise.resolve({ data: [] }),
         addonIds.length > 0 ? (supabase as any).from("addon_products").select("id,key,label_en,kind,mmk,is_per_unit").in("id", addonIds) : Promise.resolve({ data: [] }),
       ]);
       const planMap = new Map((plansRes.data || []).map((p: any) => [p.id, p]));
