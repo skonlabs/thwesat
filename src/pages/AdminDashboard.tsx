@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, WalletCards, ChevronRight, CreditCard, Building2, BarChart3 } from "lucide-react";
+import { Users, Briefcase, Shield, AlertTriangle, MessageCircle, WalletCards, ChevronRight, CreditCard, Building2, BarChart3, CalendarCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
