@@ -5,8 +5,8 @@ import { Lock, Info } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 
 const GATE_KEY = "site_gate_passed";
-const GATE_USER = import.meta.env.VITE_SITE_GATE_USER as string | undefined;
-const GATE_PASS = import.meta.env.VITE_SITE_GATE_PASS as string | undefined;
+const GATE_USER = import.meta.env.VITE_SITE_GATE_USER;
+const GATE_PASS = import.meta.env.VITE_SITE_GATE_PASS;
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 60;
