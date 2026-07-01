@@ -16,7 +16,7 @@ const AdminDashboard = () => {
     staleTime: 60_000,
     queryFn: async () => {
 
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingSubs, pendingTopups, totalEmployers, mentors] = await Promise.all([
         (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -24,15 +24,13 @@ const AdminDashboard = () => {
         supabase.from("employer_profiles").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
         (supabase as any).from("contact_messages").select("id", { count: "exact", head: true }).eq("category", "report").eq("status", "new"),
         (supabase as any).from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("subscription_payment_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
       ]);
       const totalPaymentApprovals =
-        ((pendingPayments as any).count || 0) +
-        ((pendingTopups as any).count || 0) +
-        ((pendingSubs as any).count || 0);
+        ((pendingSubs as any).count || 0) +
+        ((pendingTopups as any).count || 0);
       return {
         totalUsers: users.count || 0,
         activeJobs: jobs.count || 0,
@@ -47,6 +45,7 @@ const AdminDashboard = () => {
       };
     },
   });
+
 
   const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0);
 
