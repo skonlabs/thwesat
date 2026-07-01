@@ -136,7 +136,7 @@ export default function ProfileDashboardHero({
       </div>
 
       {/* Stats grid */}
-      <div className={`grid border-t border-border ${stats.length === 1 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"}`}>
+      <div className={`grid border-t border-border ${stats.length === 0 ? "grid-cols-1" : stats.length === 1 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"}`}>
         {stats.map((s) => (
           <button
             key={s.label}
