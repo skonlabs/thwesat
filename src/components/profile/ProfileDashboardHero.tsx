@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { Edit3, MapPin, Globe, Sparkles, TrendingUp, Bookmark, ChevronRight, KeyRound } from "lucide-react";
+import { Edit3, MapPin, Globe, Sparkles, TrendingUp, Bookmark, ChevronRight, KeyRound, Wallet as WalletIcon } from "lucide-react";
 import { useApplications, useSavedJobIds } from "@/hooks/use-jobs";
 import { useMyPackageGrants, useMyQuotas, useSubscriptionPlans, planLabel } from "@/hooks/use-subscription";
+import { useWallet } from "@/hooks/use-wallet";
+import { formatMMK } from "@/lib/currency";
 import type { NavigateFunction } from "react-router-dom";
 
 interface Props {
