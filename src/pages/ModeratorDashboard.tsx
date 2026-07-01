@@ -336,23 +336,28 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
+      {!isAdmin && (
+        <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
+      )}
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
-        <DashboardHero
-          roleLabelEn="Moderator"
-          roleLabelMy="စစ်ဆေးသူ"
-          subtitleEn={`${todayModerationCount} item${todayModerationCount === 1 ? "" : "s"} moderated today`}
-          subtitleMy={`ယနေ့ ${todayModerationCount} ခု စစ်ဆေးပြီး`}
-        />
-        {/* Today's moderation count */}
-        <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
-          <p className="text-sm text-foreground">
-            <span className="font-bold text-primary">{todayModerationCount}</span>{" "}
-            {lang === "my"
-              ? `ခု စစ်ဆေးပြီး (ယနေ့)`
-              : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
-          </p>
-        </div>
+        {!isAdmin && (
+          <>
+            <DashboardHero
+              roleLabelEn="Moderator"
+              roleLabelMy="စစ်ဆေးသူ"
+              subtitleEn={`${todayModerationCount} item${todayModerationCount === 1 ? "" : "s"} moderated today`}
+              subtitleMy={`ယနေ့ ${todayModerationCount} ခု စစ်ဆေးပြီး`}
+            />
+            <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
+              <p className="text-sm text-foreground">
+                <span className="font-bold text-primary">{todayModerationCount}</span>{" "}
+                {lang === "my"
+                  ? `ခု စစ်ဆေးပြီး (ယနေ့)`
+                  : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
+              </p>
+            </div>
+          </>
+        )}
         <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
