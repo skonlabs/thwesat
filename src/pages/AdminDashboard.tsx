@@ -64,6 +64,7 @@ const AdminDashboard = () => {
     { icon: Briefcase, label: { my: "အလုပ်ခေါ်စာ အတည်ပြုရန်", en: "Job Listing Approvals" }, count: counts?.pendingJobs || 0, path: "/admin/jobs?status=pending", urgent: (counts?.pendingJobs || 0) > 0 },
     { icon: Shield, label: { my: "အလုပ်ရှင်/ခေါ်ယူရေး အတည်ပြုရန်", en: "Employers/Recruiters Approvals" }, count: counts?.pendingEmployers || 0, path: "/admin/employers?status=pending", urgent: (counts?.pendingEmployers || 0) > 0 },
     { icon: MessageCircle, label: { my: "Community ပို့စ် အတည်ပြုရန်", en: "Community Post Approvals" }, count: counts?.pendingPosts || 0, path: "/admin/moderation?tab=posts", urgent: (counts?.pendingPosts || 0) > 0 },
+    { icon: CalendarCheck, label: { my: "ချိန်းဆိုမှု အတည်ပြုရန်", en: "Booking Approvals" }, count: counts?.pendingBookings || 0, path: "/admin/moderation?tab=bookings", urgent: (counts?.pendingBookings || 0) > 0 },
     { icon: AlertTriangle, label: { my: "Scam တိုင်ကြားချက်", en: "Scam Reports" }, count: counts?.reports || 0, path: "/admin/moderation?tab=posts", urgent: (counts?.reports || 0) > 0 },
   ];
 
