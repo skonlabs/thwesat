@@ -488,8 +488,12 @@ const AdminUsers = () => {
                         </div>
                         <Switch
                           checked={draftRoles.has("admin")}
-                          disabled={!isAdmin}
+                          disabled={!isAdmin || (draftRoles.has("admin") && isLastAdmin)}
                           onCheckedChange={(checked) => {
+                            if (!checked && isLastAdmin) {
+                              toast.error(lang === "my" ? "နောက်ဆုံး Admin ကို ဖယ်ရှား၍ မရပါ" : "Cannot remove the last admin. Assign another admin first.");
+                              return;
+                            }
                             const next = new Set(draftRoles);
                             checked ? next.add("admin") : next.delete("admin");
                             setDraftRoles(next);
