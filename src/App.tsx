@@ -155,7 +155,7 @@ const App = () => (
               <Route path="/wallet" element={<AppRoleGuard allowedRoles={["job_seeker","mentor"]}><Wallet /></AppRoleGuard>} />
               <Route path="/admin/wallet" element={<SystemRoleGuard allowedRoles={["admin"]}><AdminWallet /></SystemRoleGuard>} />
               <Route path="/partner/wallet" element={<SystemRoleGuard allowedRoles={["partner","admin"]}><AdminWallet /></SystemRoleGuard>} />
-              <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["job_seeker"]}><BecomeMentor /></AppRoleGuard>} />
+              <Route path="/become-mentor" element={<AppRoleGuard allowedRoles={["employer","agent"]}><BecomeMentor /></AppRoleGuard>} />
               <Route path="/settings" element={<Settings />} />
 
               {/* Unified dashboard — every role-specific dashboard URL redirects here.
