@@ -94,7 +94,9 @@ export default function ProfileDashboardHero({
           value: savedIds.length.toString(), accent: false as const, onClick: () => onNavigate("/jobs/saved"),
         },
       ]
-    : [planTile, unlocksTile];
+    : isSystemRole
+      ? [walletTile]
+      : [planTile, unlocksTile];
 
 
 
