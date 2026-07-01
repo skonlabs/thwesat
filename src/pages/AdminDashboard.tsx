@@ -17,7 +17,7 @@ const AdminDashboard = () => {
     refetchOnMount: "always",
     queryFn: async () => {
 
-      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors] = await Promise.all([
+      const [users, jobs, pendingJobs, pendingPosts, pendingEmployers, reports, pendingPayments, pendingTopups, totalEmployers, mentors, pendingBookings] = await Promise.all([
         (supabase as any).from("v_profiles").select("id", { count: "exact", head: true }),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -28,6 +28,7 @@ const AdminDashboard = () => {
         supabase.from("topup_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "mentor"),
+        supabase.from("mentor_bookings").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       const totalPaymentApprovals =
         ((pendingPayments as any).count || 0) +
@@ -43,12 +44,13 @@ const AdminDashboard = () => {
         pendingSubs: (pendingPayments as any).count || 0,
         totalEmployers: totalEmployers.count || 0,
         totalMentors: mentors.count || 0,
+        pendingBookings: pendingBookings.count || 0,
       };
     },
   });
 
 
-  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0);
+  const totalPending = (counts?.pendingJobs || 0) + (counts?.pendingPosts || 0) + (counts?.pendingEmployers || 0) + (counts?.pendingPayments || 0) + (counts?.reports || 0) + (counts?.pendingBookings || 0);
 
   const stats = [
     { icon: Users, label: { my: "အသုံးပြုသူ", en: "Users" }, value: counts?.totalUsers?.toLocaleString() || "0", color: "text-primary bg-primary/10", path: "/admin/users" },
