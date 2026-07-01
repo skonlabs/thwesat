@@ -146,7 +146,7 @@ const Mentors = () => {
           ))}
         </div>
 
-        {role !== "mentor" && (
+        {role !== "mentor" && role !== "job_seeker" && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
