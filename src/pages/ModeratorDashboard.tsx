@@ -35,7 +35,7 @@ const ModeratorDashboard = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isAdmin } = useUserRoles();
+  const { isAdmin, isPartner } = useUserRoles();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const validTabs = ["posts", "jobs", "payments", "bookings"] as const;
@@ -336,23 +336,28 @@ const ModeratorDashboard = () => {
 
   return (
     <div className="min-h-dvh bg-background pb-24 md:pb-12">
-      <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
+      {!isAdmin && (
+        <PageHeader title={lang === "my" ? "စစ်ဆေးရေး ဒက်ရှ်ဘုတ်" : "Moderator Dashboard"} />
+      )}
       <div className="mx-auto max-w-6xl px-5 md:px-8 md:pt-2">
-        <DashboardHero
-          roleLabelEn="Moderator"
-          roleLabelMy="စစ်ဆေးသူ"
-          subtitleEn={`${todayModerationCount} item${todayModerationCount === 1 ? "" : "s"} moderated today`}
-          subtitleMy={`ယနေ့ ${todayModerationCount} ခု စစ်ဆေးပြီး`}
-        />
-        {/* Today's moderation count */}
-        <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
-          <p className="text-sm text-foreground">
-            <span className="font-bold text-primary">{todayModerationCount}</span>{" "}
-            {lang === "my"
-              ? `ခု စစ်ဆေးပြီး (ယနေ့)`
-              : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
-          </p>
-        </div>
+        {!isAdmin && (
+          <>
+            <DashboardHero
+              roleLabelEn="Moderator"
+              roleLabelMy="စစ်ဆေးသူ"
+              subtitleEn={`${todayModerationCount} item${todayModerationCount === 1 ? "" : "s"} moderated today`}
+              subtitleMy={`ယနေ့ ${todayModerationCount} ခု စစ်ဆေးပြီး`}
+            />
+            <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3">
+              <p className="text-sm text-foreground">
+                <span className="font-bold text-primary">{todayModerationCount}</span>{" "}
+                {lang === "my"
+                  ? `ခု စစ်ဆေးပြီး (ယနေ့)`
+                  : `item${todayModerationCount !== 1 ? "s" : ""} moderated today`}
+              </p>
+            </div>
+          </>
+        )}
         <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
           <TabsList className="mb-4 grid w-full grid-cols-4">
             <TabsTrigger value="posts" className="text-xs">{lang === "my" ? "ပို့စ်" : "Posts"}{posts.length > 0 && ` (${posts.length})`}</TabsTrigger>
@@ -366,16 +371,31 @@ const ModeratorDashboard = () => {
             {postsLoading ? <Spinner /> : posts.length === 0 ? <EmptyState label={lang === "my" ? "စစ်ဆေးစရာ မရှိတော့ပါ!" : "All caught up!"} /> : (
               <div className="space-y-3">
                 {posts.map((post: any, i: number) => (
-                  <motion.button key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} onClick={() => setSelectedPostId(post.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left cursor-pointer hover:bg-muted/20 active:bg-muted/30 transition-colors">
-                    <div className="mb-1 flex items-start justify-between">
-                      <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? post.content_my?.slice(0, 50) : (post.content_en || post.content_my)?.slice(0, 50)}...</h3>
-                      <span className="text-[10px] text-muted-foreground">{formatTime(post.created_at)}</span>
+                  <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="w-full rounded-xl border border-border bg-card p-4 text-left">
+                    <button onClick={() => setSelectedPostId(post.id)} className="block w-full text-left">
+                      <div className="mb-1 flex items-start justify-between">
+                        <h3 className="text-sm font-semibold text-foreground line-clamp-1">{lang === "my" ? post.content_my?.slice(0, 50) : (post.content_en || post.content_my)?.slice(0, 50)}...</h3>
+                        <span className="text-[10px] text-muted-foreground">{formatTime(post.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{post.category || "general"}</span>
+                        <span className="text-[10px] text-muted-foreground">by {post.author?.display_name || "User"}</span>
+                      </div>
+                    </button>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      <Button size="sm" className="h-7 bg-emerald-600 text-[11px] hover:bg-emerald-700" onClick={(e) => { e.stopPropagation(); approvePost.mutate(post.id); }}>
+                        <CheckCircle className="mr-1 h-3 w-3" /> {lang === "my" ? "အတည်ပြု" : "Approve"}
+                      </Button>
+                      <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={(e) => { e.stopPropagation(); setSelectedPostId(post.id); setShowRemoval(true); }}>
+                        <XCircle className="mr-1 h-3 w-3" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}
+                      </Button>
+                      {isPartner && !isAdmin && (
+                        <Button size="sm" variant="outline" className="h-7 border-warning/40 text-warning text-[11px]" onClick={(e) => { e.stopPropagation(); handleEscalate(post.id, "post"); }}>
+                          <AlertTriangle className="mr-1 h-3 w-3" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{post.category || "general"}</span>
-                      <span className="text-[10px] text-muted-foreground">by {post.author?.display_name || "User"}</span>
-                    </div>
-                  </motion.button>
+                  </motion.div>
                 ))}
               </div>
             )}
@@ -465,9 +485,11 @@ const ModeratorDashboard = () => {
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => approvePost.mutate(selectedPost.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
             </div>
-            <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id, "post")}>
-              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
-            </Button>
+            {isPartner && !isAdmin && (
+              <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id, "post")}>
+                <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
+              </Button>
+            )}
           </BottomSheet>
         )}
       </AnimatePresence>
