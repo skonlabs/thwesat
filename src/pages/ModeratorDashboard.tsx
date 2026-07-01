@@ -485,9 +485,11 @@ const ModeratorDashboard = () => {
               <Button variant="destructive" size="lg" className="flex-1 rounded-xl" onClick={() => setShowRemoval(true)}><XCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "ဖယ်ရှား" : "Remove"}</Button>
               <Button variant="default" size="lg" className="flex-1 rounded-xl" onClick={() => approvePost.mutate(selectedPost.id)}><CheckCircle className="mr-1.5 h-4 w-4" /> {lang === "my" ? "အတည်ပြု" : "Approve"}</Button>
             </div>
-            <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id, "post")}>
-              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
-            </Button>
+            {isPartner && !isAdmin && (
+              <Button variant="outline" size="sm" className="mt-3 w-full rounded-xl text-warning border-warning/40" onClick={() => handleEscalate(selectedPost.id, "post")}>
+                <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {lang === "my" ? "Admin ထံ တင်ပို့" : "Escalate to Admin"}
+              </Button>
+            )}
           </BottomSheet>
         )}
       </AnimatePresence>
