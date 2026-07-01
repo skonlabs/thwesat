@@ -42,7 +42,7 @@ function CompletionRing({ pct }: { pct: number }) {
 
 export default function ProfileDashboardHero({
   displayName, headline, location, remoteReady, avatarUrl, avatarInitials,
-  completionPct, isJobseeker, lang, onEdit, onNavigate,
+  completionPct, isJobseeker, isSystemRole, lang, onEdit, onNavigate,
 }: Props) {
   const { data: applications = [] } = useApplications();
   const { data: savedIds = [] } = useSavedJobIds();
