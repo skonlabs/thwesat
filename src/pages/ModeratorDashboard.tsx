@@ -35,7 +35,7 @@ const ModeratorDashboard = () => {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isAdmin } = useUserRoles();
+  const { isAdmin, isPartner } = useUserRoles();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const validTabs = ["posts", "jobs", "payments", "bookings"] as const;
