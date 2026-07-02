@@ -895,6 +895,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          agent_client_id: string | null
           applicant_count: number | null
           application_method: string | null
           categories: string[]
@@ -940,6 +941,7 @@ export type Database = {
           visa_sponsorship: boolean | null
         }
         Insert: {
+          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
@@ -985,6 +987,7 @@ export type Database = {
           visa_sponsorship?: boolean | null
         }
         Update: {
+          agent_client_id?: string | null
           applicant_count?: number | null
           application_method?: string | null
           categories?: string[]
