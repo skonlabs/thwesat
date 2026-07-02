@@ -813,6 +813,497 @@ const S15 = 'Settings';
   acc:'Setting persists across page reloads.',
 }));
 
+// -------- 16. DASHBOARD TILES & NAVIGATION --------
+const S16 = 'Dashboard Tiles & Navigation';
+const dashTiles = [
+  ['Job Seeker','Applications tile opens my applications filtered by status.','Applications filter by status is applied.'],
+  ['Job Seeker','Saved Jobs tile opens saved list.','Only jobs I have saved are shown.'],
+  ['Job Seeker','Wallet tile opens wallet page with my balance.','Balance matches the header chip.'],
+  ['Job Seeker','Recommended jobs tile opens jobs filtered by my profile.','List is filtered by my profile skills.'],
+  ['Employer','Active Jobs tile opens jobs filtered to open postings.','Only jobs with status open are shown.'],
+  ['Employer','Pending Applications tile opens applications inbox.','Only new applications are shown.'],
+  ['Employer','Job Slots tile opens pricing when quota is exhausted.','Upgrade Plan link appears inside the Job Slots box.'],
+  ['Employer','Unlocks Remaining tile opens Search Talent.','Unlocks counter matches header.'],
+  ['Agent','Clients tile opens my client list.','My clients are shown, not other agents’ clients.'],
+  ['Agent','Active Jobs tile opens my agent jobs.','Only jobs I posted for my clients are shown.'],
+  ['Mentor','Upcoming Bookings tile opens booking list.','Only upcoming bookings are shown.'],
+  ['Mentor','Earnings tile opens mentor finance.','Balance matches finance summary.'],
+  ['Partner','Pending Approvals highlights when count > 0.','Card turns red when there is at least one pending item.'],
+  ['Partner','Referral Attributions tile opens partner finance.','Referrals tab is preselected.'],
+  ['Admin','Booking Approvals tile opens booking queue.','Only pending bookings are shown.'],
+  ['Admin','Community Posts pending tile opens moderation.','Only pending posts are shown.'],
+  ['Admin','Payment Approvals tile opens the payment queue.','Only pending payments are shown.'],
+  ['Admin','Top-up Approvals tile opens wallet queue.','Only pending top-ups are shown.'],
+];
+dashTiles.forEach(([role,t,acc])=>uc(S16, role, t, {
+  desc:'Clicking a dashboard tile deep-links to the correct filtered view.',
+  pre:'User is signed in with the correct role and has at least one item in the relevant list.',
+  data:'Any account of the target role',
+  flow:['Open the dashboard.','Click the tile named in the title.','Verify the destination page and filter.'],
+  exc:'Empty state renders instead of crashing when there is no data.',
+  res:'The destination page opens with the filter applied.',
+  post:'The URL contains the correct search parameter for the filter.',
+  acc:acc,
+}));
+
+// -------- 17. REFERRALS & INVITES --------
+const S17 = 'Referrals & Invites';
+uc(S17,'Signed-in user','Copy invite link from Invite Friends card',{
+  desc:'User copies a personal invite link to share.',
+  pre:'User is signed in.', data:'Any test account',
+  flow:['Open dashboard.','Click Copy on the Invite Friends card.','Paste the link into a browser.'],
+  exc:'If clipboard is blocked the app falls back to selecting the text.',
+  res:'The link contains the user’s referral code.', post:'The link resolves to the sign-up page with the referrer pre-set.',
+  acc:'A pasted link routes correctly and attributes the new sign-up.',
+});
+uc(S17,'Guest','Sign up via referral link',{
+  desc:'A guest signs up using another user’s referral link.',
+  pre:'Referral link with a valid code.', data:'New email address',
+  flow:['Open the referral link.','Complete sign-up.','Verify email.'],
+  exc:'Invalid or expired code silently falls back to a regular sign-up.',
+  res:'New user is created and the referrer is credited.', post:'Referrer receives a notification about the new sign-up.',
+  acc:'The referrer’s referral list shows the new user within 30 seconds.',
+});
+uc(S17,'Partner','View my referred users and revenue share',{
+  desc:'Partner reviews the users attributed to them and revenue earned.',
+  pre:'Partner has at least one referred paying user.', data:'qa.partner@thwesat.test',
+  flow:['Open Partner Finance → Referrals.','Filter by date range.','Open a specific referred user.'],
+  exc:'No referrals shows an empty state, not an error.',
+  res:'Attributed users, package purchases, and 15% share are listed accurately.',
+  post:'Totals in the header match the sum of listed rows.',
+  acc:'Displayed share equals package amount times the configured rate.',
+});
+
+// -------- 18. FEATURED JOBS DEEP --------
+const S18 = 'Featured Jobs';
+uc(S18,'Employer','Mark a job as featured (slot available)',{
+  desc:'Employer promotes a job to the top using an available featured slot.',
+  pre:'Featured slots remaining ≥ 1 for current plan.', data:'Growth plan (5 featured slots)',
+  flow:['Open Employer Jobs.','Click Feature on a job.','Confirm the action.'],
+  exc:'If no slots remain the button is disabled with a tooltip.',
+  res:'Job appears with a Featured badge and floats to the top of Jobs list.',
+  post:'Featured slots remaining decreases by one.',
+  acc:'Featured badge is visible on the public Jobs page for guests and seekers.',
+});
+uc(S18,'Employer','Unfeature a job',{
+  desc:'Employer removes a featured job from promotion.',
+  pre:'A job is currently featured.', data:'Employer with featured job',
+  flow:['Open Employer Jobs.','Click Unfeature.','Confirm.'],
+  exc:'Unfeaturing a non-featured job has no effect.',
+  res:'Badge disappears; slot is returned to the quota.',
+  post:'Featured slots remaining increases by one.',
+  acc:'Job no longer appears in the Featured section of the public Jobs page.',
+});
+uc(S18,'Employer','Buy extra featured slots',{
+  desc:'Employer purchases additional featured slots as an add-on.',
+  pre:'User has a paid package.', data:'Featured Slot 10,000 MMK each',
+  flow:['Open Pricing.','Choose Featured add-on and set quantity.','Submit payment.','Wait for admin approval.'],
+  exc:'Rejected payment does not add slots.',
+  res:'On approval, featured slots remaining increases by the purchased quantity.',
+  post:'Wallet history shows a Featured Slot purchase row.',
+  acc:'Quota increment equals purchased quantity.',
+});
+
+// -------- 19. CANDIDATE MATCHING DEEP --------
+const S19 = 'Candidate Matching';
+uc(S19,'Employer','View matched candidates for a job',{
+  desc:'Employer sees the top 10 matched candidates for a specific job.',
+  pre:'Employer bought the Candidate Matching add-on.', data:'Matching pack 200,000 MMK, job with 20+ candidate resumes in system',
+  flow:['Open Employer Jobs.','Click View Matches on a job row.','Wait for matches to load.'],
+  exc:'Without the add-on, the button is hidden and the page shows an upgrade prompt.',
+  res:'Exactly 10 candidates are shown ranked by match score.',
+  post:'Match history is stored so the same 10 are not re-shown on refresh.',
+  acc:'The page never shows more than 10 candidates at once.',
+});
+uc(S19,'Employer','Reject candidates and load the next batch',{
+  desc:'Employer rejects at least half of the shown matches to unlock the next batch.',
+  pre:'View Matches page has 10 candidates shown.', data:'Reject 5 of 10 candidates',
+  flow:['Reject 5 candidates.','Click Show Next Matches.','Verify new candidates load.'],
+  exc:'Rejecting fewer than half keeps the Show Next Matches button disabled.',
+  res:'A new batch of up to 10 candidates loads, excluding previously seen ones.',
+  post:'Rejected candidates never reappear for the same job.',
+  acc:'At most 10 candidates are visible at any time.',
+});
+
+// -------- 20. PROFILE BOOST --------
+const S20 = 'Profile Boost';
+uc(S20,'Employer','Buy Profile Boost add-on',{
+  desc:'Employer purchases a boost to rank higher in talent search.',
+  pre:'Employer with a paid package.', data:'Profile Boost 150,000 MMK',
+  flow:['Open Pricing → Add-ons.','Buy Profile Boost.','Wait for admin approval.'],
+  exc:'Duplicate active boost purchases are prevented.',
+  res:'Boost becomes active on approval.',
+  post:'Employer appears higher in Search Talent results.',
+  acc:'Boost expiry and remaining time are shown on the profile.',
+});
+
+// -------- 21. FILE UPLOADS --------
+const S21 = 'File Uploads';
+[
+  ['Job Seeker','Upload profile avatar','Avatar renders in header and on public profile.','JPG/PNG up to 5 MB'],
+  ['Job Seeker','Upload CV/resume','CV appears in documents and is used by Matching.','PDF/DOCX up to 10 MB'],
+  ['Employer','Upload company logo','Logo shows on jobs and company page.','JPG/PNG up to 5 MB'],
+  ['Mentor','Upload mentor avatar','Avatar shows on mentor detail and bookings.','JPG/PNG up to 5 MB'],
+].forEach(([role,t,res,data])=>uc(S21, role, t, {
+  desc:'A user uploads a file that is stored and rendered in the app.',
+  pre:'User is signed in.', data:data,
+  flow:['Open the relevant edit page.','Select the file.','Save.'],
+  exc:'Files above the size limit or wrong type are rejected with a clear message.',
+  res:res, post:'The file replaces any previous upload; the old file is removed.',
+  acc:'File is visible after refresh and to other permitted users.',
+}));
+
+// -------- 22. SEARCH & FILTERS --------
+const S22 = 'Search & Filters';
+[
+  ['Guest','Filter jobs by city','Only jobs in the chosen city are shown.'],
+  ['Guest','Filter jobs by category','Only jobs in the chosen category are shown.'],
+  ['Guest','Filter jobs by employment type','Only matching jobs are shown.'],
+  ['Guest','Search jobs by keyword','Results match the keyword in title or description.'],
+  ['Job Seeker','Sort jobs by newest','Newest posted jobs appear first.'],
+  ['Employer','Filter candidates in Search Talent by skill','Only candidates with the skill are shown.'],
+  ['Employer','Filter candidates by city','Only candidates in the chosen city are shown.'],
+  ['Guest','Filter mentors by expertise','Only mentors matching the expertise are shown.'],
+  ['Guest','Search guides by keyword','Matching guides are shown.'],
+].forEach(([role,t,acc])=>uc(S22, role, t, {
+  desc:'A user narrows results with search and filter controls.',
+  pre:'The list has enough data to demonstrate filtering.', data:'Any relevant seed data',
+  flow:['Open the list page.','Apply the filter or search term.','Verify results.','Clear the filter.'],
+  exc:'Zero results shows a friendly empty state.',
+  res:'Results update immediately as filters are applied.',
+  post:'Filters persist in the URL for shareability.',
+  acc:acc,
+}));
+
+// -------- 23. COMMUNITY DEEP --------
+const S23 = 'Community – Deep';
+[
+  ['Signed-in user','Create a community post','Post appears in the pending queue until approved.'],
+  ['Signed-in user','Add a comment to an approved post','Comment appears under the post.'],
+  ['Signed-in user','React to a post','Reaction count increases by one.'],
+  ['Signed-in user','Report an inappropriate post','Post is flagged for moderation.'],
+  ['Signed-in user','Delete my own post','Post is removed for me and others.'],
+  ['Partner','Approve a pending community post','Post appears publicly and author is notified.'],
+  ['Partner','Remove a pending community post','Post is hidden and author is notified.'],
+  ['Partner','Escalate a pending post to admin','Post is added to admin queue and disappears from partner list.'],
+  ['Admin','Approve or remove escalated posts','Post either becomes public or is removed permanently.'],
+].forEach(([role,t,acc])=>uc(S23, role, t, {
+  desc:'End-to-end community post lifecycle.', pre:'User has the stated role.',
+  data:'Any test account of that role',
+  flow:['Open Community or the relevant admin queue.','Perform the action in the title.','Verify the resulting state.'],
+  exc:'Actions on already-processed posts are rejected clearly.',
+  res:'Post state changes as expected and author is notified where applicable.',
+  post:'Queues update within one polling cycle (about 30 seconds).',
+  acc:acc,
+}));
+
+// -------- 24. NOTIFICATIONS DEEP --------
+const S24 = 'Notifications – Deep';
+[
+  ['Job Seeker','Application status changed notification','Notification appears within 30 seconds of change.'],
+  ['Employer','New application notification','Notification appears within 30 seconds of submission.'],
+  ['Employer','Payment approved notification','Notification appears when admin approves the payment.'],
+  ['Mentor','Booking confirmed notification','Notification and email arrive when a booking is confirmed.'],
+  ['Job Seeker','Welcome bonus notification on sign-up','Notification and email arrive with the bonus amount.'],
+  ['Any','Mark notification as read','Unread badge decreases by one.'],
+  ['Any','Mark all notifications as read','Unread badge becomes zero.'],
+  ['Any','Deep link from notification opens the correct page','Clicking notifies routes to the linked entity.'],
+].forEach(([role,t,acc])=>uc(S24, role, t, {
+  desc:'Notification delivery and interaction.', pre:'User is signed in.', data:'Any test account',
+  flow:['Trigger the underlying event.','Open the notifications page.','Interact with the notification.'],
+  exc:'Missing target entity shows a friendly empty state.',
+  res:'Notification content matches the event.', post:'Notification remains until marked read.',
+  acc:acc,
+}));
+
+// -------- 25. MESSAGING DEEP --------
+const S25 = 'Messaging – Deep';
+[
+  ['Job Seeker','Start a conversation with an employer from a job page','Chat opens with the employer as the other party.'],
+  ['Employer','Reply to a candidate message','Reply appears in the seeker’s chat immediately.'],
+  ['Any','Search my conversations by name','Matching conversations are shown.'],
+  ['Any','Unread badge updates when new messages arrive','Header shows an unread count within 30 seconds.'],
+  ['Any','Cannot see conversations I am not part of','Direct URL access returns not found.'],
+].forEach(([role,t,acc])=>uc(S25, role, t, {
+  desc:'Messaging behaviours across roles.', pre:'Both parties exist and are permitted to chat.',
+  data:'Seeker + employer or seeker + mentor accounts',
+  flow:['Trigger or open the conversation.','Send or receive a message.','Verify state.'],
+  exc:'Empty messages are not sent.',
+  res:'Messages arrive in order with correct sender labels.',
+  post:'Conversation appears at the top of both parties’ inboxes.',
+  acc:acc,
+}));
+
+// -------- 26. WALLET & PAYMENT LIFECYCLE --------
+const S26 = 'Wallet & Payment Lifecycle';
+[
+  ['Job Seeker','Request wallet top-up (small)','Request is created and pending admin approval.'],
+  ['Job Seeker','Admin approves top-up','Balance increases by requested amount and history row appears.'],
+  ['Job Seeker','Admin rejects top-up with a reason','Balance unchanged and rejection reason is shown.'],
+  ['Employer','Buy Starter package','Request pending; on approval quotas increase per plan.'],
+  ['Employer','Buy Job Postings add-on for 3 posts','Job posting quota increases by 3 after approval.'],
+  ['Employer','Buy Candidate Matching add-on','Matching add-on becomes active after approval.'],
+  ['Employer','Buy Unlock add-on for 20 unlocks','Unlock quota increases by 20 after approval.'],
+  ['Employer','Request Free Trial','Trial is granted for the configured period.'],
+  ['Job Seeker','Spend credits to unlock a contact','Balance decreases by 25,000 credits and contact is shown.'],
+  ['Job Seeker','Spend credits to generate a cover letter','Balance decreases by 5,000 credits.'],
+  ['Job Seeker','Spend credits for a skill gap report','Balance decreases by 2,500 credits.'],
+  ['Any','View wallet history with filters','History rows match filter and totals reconcile.'],
+].forEach(([role,t,acc])=>uc(S26, role, t, {
+  desc:'End-to-end wallet flow — request, approval, spend and history.',
+  pre:'User has the relevant role and any required balance.',
+  data:'Uses seeded pricing (see Reference Prices).',
+  flow:['Perform the request in the title.','If approval is required, admin approves it.','Observe the resulting balance and history entry.'],
+  exc:'Insufficient balance blocks the spend action with a clear message.',
+  res:'Balances and quotas reflect the transaction exactly.',
+  post:'Wallet history is the single source of truth and matches balance.',
+  acc:acc,
+}));
+
+// -------- 27. ADMIN – DEEPER MANAGEMENT --------
+const S27 = 'Admin – Deeper Management';
+[
+  ['Suspend a non-admin user','User can no longer sign in.'],
+  ['Unsuspend a previously suspended user','User can sign in again.'],
+  ['Cannot suspend an admin user','Suspend action is disabled and rejected on the server.'],
+  ['Cannot remove the only admin','Remove action is disabled and rejected on the server.'],
+  ['Change a user’s role to Partner','User gains partner navigation and pages on next sign-in.'],
+  ['Cannot change an admin user to Partner','Role toggle is disabled and rejected on the server.'],
+  ['Delete a test user','User and all owned data are removed cleanly.'],
+  ['Approve a job posting from the queue','Job becomes public in Jobs listing.'],
+  ['Reject a job posting with reason','Employer sees rejection reason on the job row.'],
+  ['Refund an approved payment','Balance/quota are reversed and history shows a refund row.'],
+  ['Edit reference prices for a package','New price appears on Pricing page.'],
+  ['Edit action costs (unlock, cover letter, skill gap)','New cost applies on next spend.'],
+  ['Update payment account details for top-ups','New account is shown to users during top-up.'],
+  ['Send a broadcast notification','All targeted users receive the notification within 30 seconds.'],
+  ['View analytics filters by date range','Charts recompute for the chosen range.'],
+].forEach(([t,acc])=>uc(S27,'Admin',t,{
+  desc:'Admin management scenarios beyond simple approvals.',
+  pre:'Signed in as admin.', data:'qa.admin@thwesat.test',
+  flow:['Open the relevant admin page.','Perform the action in the title.','Verify the outcome as described.'],
+  exc:'Guarded actions show a clear message and do not change state.',
+  res:'Change is reflected in the UI and, where applicable, in the affected user’s session.',
+  post:'An audit-visible change (wallet, quota, role, status) is present.',
+  acc:acc,
+}));
+
+// -------- 28. NEGATIVE & ERROR CASES --------
+const S28 = 'Negative & Error Cases';
+[
+  ['Guest','Try to open an auth-only page','User is redirected to the sign-in page.'],
+  ['Job Seeker','Try to open an admin URL directly','User is redirected to their dashboard.'],
+  ['Employer','Post a job with all quotas exhausted','Post button is disabled and Upgrade Plan link is shown inside the Job Slots box.'],
+  ['Employer','Try to feature a job with no featured slots','Feature button is disabled with a tooltip.'],
+  ['Job Seeker','Spend more credits than balance','Action is rejected with an insufficient balance message.'],
+  ['Signed-in user','Submit a form with missing required fields','Fields are highlighted and the submit is blocked.'],
+  ['Signed-in user','Submit a form with malformed email','Email field shows a validation error.'],
+  ['Signed-in user','Upload an oversized image','File is rejected with a clear size limit message.'],
+  ['Signed-in user','Trigger a network failure during save','A retry option is offered and no partial data is saved.'],
+  ['Job Seeker','Try to become a mentor','Route is blocked and the CTA card is hidden.'],
+  ['Signed-in user','Try to change email to one already in use','Change is rejected with a clear message.'],
+  ['Signed-in user','Try to sign up with an existing email','Sign-up is rejected with an existing account message.'],
+].forEach(([role,t,acc])=>uc(S28, role, t, {
+  desc:'Error handling and guardrails throughout the app.',
+  pre:'Preconditions vary by scenario, see the title.', data:'Any relevant test account',
+  flow:['Attempt the disallowed or invalid action.','Observe the response.','Retry with valid data if applicable.'],
+  exc:'No stack traces or raw technical errors are shown to the user.',
+  res:'A user-friendly message explains what to do next.',
+  post:'System state remains consistent — no partial writes.',
+  acc:acc,
+}));
+
+// -------- 29. LOCALIZATION --------
+const S29 = 'Localization (English / Burmese)';
+[
+  ['All navigation labels translate','Bottom nav, header and menus render in Burmese.'],
+  ['Pricing plan and add-on names translate','Package titles and descriptions render in Burmese.'],
+  ['Action prices translate','Unlock, cover letter and skill gap labels render in Burmese.'],
+  ['Job categories translate','Category names render in Burmese on Jobs page.'],
+  ['Guides render in the chosen language when available','Burmese guides show translated content.'],
+  ['Currency displays in MMK with thousand separators','Amounts are rounded and grouped, e.g. 1,750,000 MMK.'],
+].forEach(([t,acc])=>uc(S29,'Any user',t,{
+  desc:'Language switching applies to labels and dynamic content.',
+  pre:'User can toggle language from the header or settings.', data:'Any account',
+  flow:['Switch language to Burmese.','Navigate to the page under test.','Verify content.','Switch back to English.'],
+  exc:'Missing translations fall back to English rather than showing blank text.',
+  res:'Correct language renders across static and dynamic content.',
+  post:'Selected language persists across sessions.',
+  acc:acc,
+}));
+
+// -------- 30. PUBLIC PROFILE & PRIVACY --------
+const S30 = 'Public Profile & Privacy';
+[
+  ['Job Seeker','Toggle profile visibility to Private','Public profile URL shows a private notice to guests.'],
+  ['Job Seeker','Toggle profile visibility to Public','Guests and employers can view my public profile.'],
+  ['Job Seeker','Hide contact info until unlocked','Contact info is masked; unlock reveals it and charges 25,000 credits.'],
+  ['Employer','Employer public company page renders correctly','Logo, description and open jobs appear.'],
+  ['Mentor','Public mentor page renders correctly','Bio, expertise and booking button appear.'],
+].forEach(([role,t,acc])=>uc(S30, role, t, {
+  desc:'Public visibility controls and page rendering.',
+  pre:'User has the stated role.', data:'Any account of that role',
+  flow:['Open the profile edit page.','Change the visibility setting if applicable.','Open the public URL from an incognito window.'],
+  exc:'Restricted fields are never exposed to unauthorised viewers.',
+  res:'Rendered public page matches the current visibility settings.',
+  post:'Changes apply immediately without needing a page reload for the owner.',
+  acc:acc,
+}));
+
+// -------- 31. FREE TRIAL --------
+const S31 = 'Free Trial';
+uc(S31,'Employer','Request a free trial',{
+  desc:'A new employer requests the free trial package.',
+  pre:'Employer has never had a trial.', data:'qa.employer@thwesat.test',
+  flow:['Open Pricing.','Click Request Free Trial.','Wait for admin approval.'],
+  exc:'A second request while one is pending is prevented.',
+  res:'On approval, trial quotas are granted for the configured duration.',
+  post:'Trial expiry is shown on the dashboard.',
+  acc:'Employer can post jobs and unlock contacts within trial limits.',
+});
+uc(S31,'Admin','Approve or reject a trial request',{
+  desc:'Admin acts on a pending trial request.',
+  pre:'A pending trial request exists.', data:'qa.admin@thwesat.test',
+  flow:['Open Admin Wallet → Packages tab.','Approve or reject with reason.','Verify the employer state.'],
+  exc:'Approving an expired request is prevented.',
+  res:'Employer receives a notification and email of the outcome.',
+  post:'Trial quotas are provisioned only on approval.',
+  acc:'Wallet history shows a trial approval row.',
+});
+
+// -------- 32. AI CAREER TOOLS DEEP --------
+const S32 = 'ThweSat Career Tools – Deep';
+[
+  ['Build profile from uploaded CV','Extracted fields pre-fill the edit profile form.'],
+  ['Generate cover letter for a specific job','A tailored cover letter renders and can be downloaded.'],
+  ['Run skill gap analysis for a specific role','A gap report renders with recommended actions.'],
+].forEach(([t,acc])=>uc(S32,'Job Seeker',t,{
+  desc:'Career tool flow end-to-end.',
+  pre:'Seeker has enough credits (see action costs).', data:'qa.seeker@thwesat.test',
+  flow:['Open the tool from Career Tools.','Provide the required input.','Run the tool.','Save or download the output.'],
+  exc:'Insufficient credits blocks the run with a clear message.',
+  res:'Output renders and credits are deducted exactly per action.',
+  post:'A wallet history row is written for the spend.',
+  acc:acc,
+}));
+
+// -------- 33. SESSION & PASSWORD --------
+const S33 = 'Session & Password';
+[
+  ['Sign out','Header switches to guest state and protected pages redirect.'],
+  ['Sign in with wrong password','Sign-in is rejected with a generic message.'],
+  ['Forgot password → email sent','A reset email arrives and the link works once.'],
+  ['Reset password with the emailed link','New password works for sign-in.'],
+  ['Session expires after configured duration','User is signed out and redirected on next request.'],
+  ['Change my password from settings','Old password stops working and new one works.'],
+].forEach(([t,acc])=>uc(S33,'Any user',t,{
+  desc:'Session and password lifecycle.',
+  pre:'User exists.', data:'Any test account',
+  flow:['Perform the action in the title.','Observe the resulting state.','Sign back in if needed.'],
+  exc:'Reset links used twice or after expiry are rejected.',
+  res:'Behaviour matches the description with clear feedback to the user.',
+  post:'No unauthorised session remains active after sign-out or reset.',
+  acc:acc,
+}));
+
+// -------- 34. AGENT DEEP --------
+const S34 = 'Agent – Deep';
+[
+  ['Create a new client company','New client appears in the picker when posting a job.'],
+  ['Edit a client company','Updated details show on the job posted for that client.'],
+  ['Delete a client with no active jobs','Client is removed from the list.'],
+  ['Try to delete a client with active jobs','Delete is blocked with a clear message.'],
+  ['Post a job under a specific client','Job is attributed to the chosen client.'],
+  ['View matches for an agent-posted job','Matches load using the client’s job requirement.'],
+  ['View agent finance summary','Balances and revenue rows match wallet history.'],
+].forEach(([t,acc])=>uc(S34,'Agent',t,{
+  desc:'Agent-specific lifecycle including client management.',
+  pre:'Signed in as an agent.', data:'qa.agent@thwesat.test',
+  flow:['Open the relevant agent page.','Perform the action in the title.','Verify the outcome.'],
+  exc:'Guardrails prevent destructive actions when dependent data exists.',
+  res:'Client and job data stay consistent with the agent’s ownership.',
+  post:'No client belonging to other agents is affected.',
+  acc:acc,
+}));
+
+// -------- 35. MENTOR DEEP --------
+const S35 = 'Mentor – Deep';
+[
+  ['Set weekly availability','Chosen slots appear on the public mentor page.'],
+  ['Block a specific date','Blocked date is not offered on the booking page.'],
+  ['Confirm a pending booking','Mentee is notified and booking moves to Confirmed.'],
+  ['Reschedule a confirmed booking','Both parties are notified with the new time.'],
+  ['Cancel a confirmed booking with reason','Both parties are notified and any hold is released.'],
+  ['Mark booking as completed','Booking appears in past bookings and earnings.'],
+  ['View mentee list and progress notes','List shows all past and upcoming mentees.'],
+].forEach(([t,acc])=>uc(S35,'Mentor',t,{
+  desc:'Mentor scheduling and booking lifecycle.',
+  pre:'Signed in as mentor.', data:'qa.mentor@thwesat.test',
+  flow:['Open the relevant mentor page.','Perform the action in the title.','Verify booking and mentee state.'],
+  exc:'Overlapping bookings are prevented.',
+  res:'Booking state and earnings update accurately.',
+  post:'Mentee sees the same state on their side.',
+  acc:acc,
+}));
+
+// -------- 36. GUIDES --------
+const S36 = 'Guides';
+[
+  ['Guest','Browse guides list','Guides render with titles and covers.'],
+  ['Guest','Open a guide detail','Full content renders with a working language toggle.'],
+  ['Admin','Edit a guide’s content','Changes appear on the public detail page.'],
+  ['Admin','Translate a guide to Burmese','Burmese version is available on the detail page.'],
+].forEach(([role,t,acc])=>uc(S36, role, t, {
+  desc:'Guides browsing and admin editing.',
+  pre:'At least one guide exists.', data:'Any relevant account',
+  flow:['Open Guides.','Perform the action in the title.','Verify the outcome.'],
+  exc:'Missing translations fall back to English.',
+  res:'Content renders in the selected language.',
+  post:'Public detail matches the admin edit within one refresh.',
+  acc:acc,
+}));
+
+// -------- 37. ACCOUNT DELETION & DATA --------
+const S37 = 'Account Deletion & Data';
+uc(S37,'Any user','Request account deletion',{
+  desc:'A user requests deletion of their own account.',
+  pre:'User is signed in.', data:'Any non-admin test account',
+  flow:['Open Settings → Account.','Click Delete Account.','Confirm the action.'],
+  exc:'The last admin cannot delete their own account.',
+  res:'Account is scheduled for deletion and user is signed out.',
+  post:'On purge, profile, wallet and owned content are removed cleanly.',
+  acc:'The account cannot sign in again after deletion is processed.',
+});
+uc(S37,'Admin','Purge deleted accounts',{
+  desc:'Server function removes accounts marked for deletion.',
+  pre:'At least one account is pending purge.', data:'qa.admin@thwesat.test',
+  flow:['Trigger the purge from admin tools (or wait for scheduled run).','Verify the target accounts are gone.'],
+  exc:'Admin accounts are never purged even if flagged.',
+  res:'All role-specific profile rows and owned content are removed.',
+  post:'The email becomes available for a fresh sign-up.',
+  acc:'A follow-up sign-in attempt with the deleted email fails.',
+});
+
+// -------- 38. PARTNER DEEP --------
+const S38 = 'Partner – Deep';
+[
+  ['View pending approvals highlighted in red','Approvals card turns red when count > 0.'],
+  ['Approve a community post from Partner Portal','Post becomes public and author is notified.'],
+  ['Remove a community post from Partner Portal','Post is hidden and author is notified.'],
+  ['Escalate a community post to admin','Post moves to admin queue and is removed from partner list.'],
+  ['View partner finance ledger','Attributions, referrals and payouts totals match rows.'],
+  ['Filter partner finance by date range','Totals recompute for the chosen range.'],
+].forEach(([t,acc])=>uc(S38,'Partner',t,{
+  desc:'Partner portal capabilities beyond simple viewing.',
+  pre:'Signed in as partner.', data:'qa.partner@thwesat.test',
+  flow:['Open the relevant partner page.','Perform the action in the title.','Verify the outcome.'],
+  exc:'Destructive admin-only actions remain hidden.',
+  res:'State matches the action taken.',
+  post:'Admin sees the same state on their side.',
+  acc:acc,
+}));
+
+
 // -------- Render document --------
 function T(text, opts={}) { return new TextRun({ text: String(text), ...opts }); }
 function P(text, opts={}) { return new Paragraph({ children:[T(text, opts)], spacing:{after:80} }); }
