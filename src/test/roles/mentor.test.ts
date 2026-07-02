@@ -29,7 +29,7 @@ function commonNotifAndMessageMocks(extra: (table: string) => any = () => null) 
   return (table: string) => {
     const ext = extra(table);
     if (ext) return ext;
-    if (table === "profiles") {
+    if (table === "profiles" || table === "v_profiles") {
       return {
         select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { display_name: "Aung" }, error: null }) }) }),
       };
@@ -232,7 +232,7 @@ describe("Mentor — useMentorMentees (dedup + session counting)", () => {
           }),
         };
       }
-      if (t === "profiles") {
+      if (t === "profiles" || t === "v_profiles") {
         return { select: () => ({ in: () => Promise.resolve({ data: [], error: null }) }) };
       }
       return {};
@@ -273,7 +273,7 @@ describe("Mentor — useMarkSessionComplete", () => {
         };
       }
       if (t === "notifications") return { insert: notifInsert };
-      if (t === "profiles") {
+      if (t === "profiles" || t === "v_profiles") {
         return { select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { display_name: "Aung" }, error: null }) }) }) };
       }
       return {};
@@ -306,7 +306,7 @@ describe("Mentor — useMarkSessionComplete", () => {
         };
       }
       if (t === "notifications") return { insert: notifInsert };
-      if (t === "profiles") {
+      if (t === "profiles" || t === "v_profiles") {
         return { select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { display_name: "Aung" }, error: null }) }) }) };
       }
       return {};

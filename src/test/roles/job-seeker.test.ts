@@ -52,7 +52,7 @@ describe("Job Seeker — useApplyToJob", () => {
           select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: opts.job ?? null, error: null }) }) }),
         };
       }
-      if (table === "profiles") {
+      if (table === "profiles" || table === "v_profiles") {
         return {
           select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { display_name: "Aung" }, error: null }) }) }),
         };
