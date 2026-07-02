@@ -2590,6 +2590,32 @@ export type Database = {
         }
         Returns: string
       }
+      current_partner: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          code: string | null
+          contact_email: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          display_name: string
+          is_active: boolean | null
+          last_seen_at: string | null
+          maintenance_rate_y2: number | null
+          maintenance_rate_y3plus: number | null
+          notes: string | null
+          payout_cap_pct: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "partner_profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       current_partner_id: { Args: never; Returns: string }
       delete_job: { Args: { _job_id: string }; Returns: Json }
       delete_user_cascade: {
